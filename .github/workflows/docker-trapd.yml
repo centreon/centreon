@@ -48,6 +48,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Package centreon-trap
         uses: ./.github/actions/package-nfpm
@@ -83,6 +85,8 @@ jobs:
     steps:
       - name: Checkout sources (centreon/centreon for actions)
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Checkout centreon-collect (for perl-libs packaging)
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -90,6 +94,7 @@ jobs:
           repository: centreon/centreon-collect
           ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
           path: centreon-collect
+          persist-credentials: false
 
       - name: Set PERL_VENDORLIB for deb
         run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
@@ -130,6 +135,8 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Login to registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
