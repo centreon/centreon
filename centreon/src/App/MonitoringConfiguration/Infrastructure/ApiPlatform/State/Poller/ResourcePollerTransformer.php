@@ -24,17 +24,17 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @implements TransformerInterface<Poller, CreatePollerResource>
+ * @implements TransformerInterface<Poller, PollerResource>
  */
-final readonly class ResourceCreatePollerTransformer implements TransformerInterface
+final readonly class ResourcePollerTransformer implements TransformerInterface
 {
-    public function transform(mixed $from): CreatePollerResource
+    public function transform(mixed $from): PollerResource
     {
-        return new CreatePollerResource(
+        return new PollerResource(
             id: $from->id()->value,
             name: $from->name->value,
             pollerType: $from->pollerType->value,

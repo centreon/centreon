@@ -27,14 +27,10 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
-use App\MonitoringConfiguration\Infrastructure\Validator\UniquePollerName;
-use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 #[ApiResource(
     shortName: 'Poller',
@@ -42,11 +38,12 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/configuration/pollers',
             processor: CreatePollerProcessor::class,
-            normalizationContext: ['groups' => ['poller:read']],
-            denormalizationContext: ['groups' => ['poller:write']],
+            input: CreatePollerInput::class,
             openapi: new Model\Operation(
                 responses: [
+                    400 => new Model\Response('Invalid input (e.g. unknown poller token name)'),
                     409 => new Model\Response('Poller resource already exists'),
+                    503 => new Model\Response('Engine secrets are not available'),
                 ],
             ),
             security: "is_granted('" . PollerPermissionEnum::CanCreateEdit->value . "')",
@@ -54,29 +51,27 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
 )]
-final class CreatePollerResource
+final class PollerResource
 {
     public function __construct(
-        #[Assert\Length(min: PollerName::MIN_LENGTH, max: PollerName::MAX_LENGTH)]
-        #[UniquePollerName]
-        #[Groups(['poller:read', 'poller:write'])]
         public string $name,
 
-        #[Assert\Choice(choices: [PollerTypeEnum::VM->value, PollerTypeEnum::Docker->value])]
-        #[Groups(['poller:read', 'poller:write'])]
         public string $pollerType,
 
-        #[Assert\Length(min: PollerAddress::MIN_LENGTH, max: PollerAddress::MAX_LENGTH)]
-        #[Groups(['poller:read', 'poller:write'])]
         public string $address,
 
         #[ApiProperty(identifier: true, writable: false)]
-        #[Groups(['poller:read'])]
         public ?int $id = null,
 
         #[ApiProperty(writable: false)]
-        #[Groups(['poller:read'])]
         public ?string $uid = null,
+
+        #[ApiProperty(
+            writable: false,
+            openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
+        )]
+        #[Sensitive]
+        public ?string $installationCommand = null,
     ) {
     }
 }
