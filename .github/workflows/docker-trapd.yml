@@ -129,8 +129,12 @@ jobs:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
+    # Matrix job outputs come from the last completed matrix leg. Safe here
+    # because compute-tag only depends on the ref/major_version, never on
+    # matrix.component or matrix.operating_system, so every leg produces the same tag.
     outputs:
       image_tag: ${{ steps.compute-tag.outputs.tag }}
+      additional_tag: ${{ steps.compute-tag.outputs.additional_tag }}
 
     steps:
       - name: Checkout sources
@@ -216,7 +220,6 @@ jobs:
           push: true
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
-            ${{ steps.compute-tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}
 
   docker-boot-test:
     needs: [get-environment, dockerize]
@@ -331,3 +334,35 @@ jobs:
       - name: Dump compose logs on failure
         if: failure()
         run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
+
+  promote-docker-tag:
+    needs: [get-environment, dockerize, docker-boot-test, docker-config-wiring-test]
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.dockerize.outputs.additional_tag != ''
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} floating tag
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Promote floating tag (manifest retag, no rebuild)
+        run: |
+          docker buildx imagetools create \
+            --tag "${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.additional_tag }}" \
+            "${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}"
+        shell: bash
