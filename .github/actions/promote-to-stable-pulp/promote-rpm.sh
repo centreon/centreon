@@ -3,34 +3,13 @@ set -euo pipefail
 
 # shellcheck source=.github/scripts/pulp/manifest.sh
 source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
+# shellcheck source=.github/scripts/pulp/api.sh
+source "$(dirname "$0")/../../scripts/pulp/api.sh"
 
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
-
-# wait for a pulp api task to complete
-wait_task() {
-  local task_href=$1
-  local state attempt
-  for ((attempt = 0; attempt < 200; attempt++)); do
-    state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
-    case "$state" in
-      completed)
-        return 0
-        ;;
-      failed|canceled)
-        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
-        return 1
-        ;;
-      *)
-        sleep 3
-        ;;
-    esac
-  done
-  echo "::error::Task $task_href did not complete in time (~10 min)"
-  return 1
-}
 
 declare -A ARCH_CONTENT
 declare -A ARCH_RESULTS
@@ -49,14 +28,22 @@ for ARCH in noarch x86_64; do
   # packages of the module are identified by the label set at delivery time;
   # keep both the href list (for the content modify call) and the package
   # identity (name/version/release/arch/filename) to feed the promotion manifest
-  RESULTS=$(
+  RESPONSE=$(
     curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$VERSION_HREF" \
       --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
       --data-urlencode "limit=1000" \
-      "$PULP_URL/api/v3/content/rpm/packages/" | \
-      jq '[.results[] | {pulp_href, name, version, release, arch, location_href, sha256}]'
+      "$PULP_URL/api/v3/content/rpm/packages/"
   )
+
+  # fail on a truncated page: silently promoting a subset of the module's
+  # packages would publish an incomplete stable repository
+  if [[ $(echo "$RESPONSE" | jq '.count > (.results | length)') == "true" ]]; then
+    echo "::error::Package query on $TESTING_REPOSITORY_NAME is truncated ($(echo "$RESPONSE" | jq -r '.results | length')/$(echo "$RESPONSE" | jq -r '.count') results); pagination is required"
+    exit 1
+  fi
+
+  RESULTS=$(echo "$RESPONSE" | jq '[.results[] | {pulp_href, name, version, release, arch, location_href, sha256}]')
   CONTENT=$(echo "$RESULTS" | jq '[.[].pulp_href]')
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 

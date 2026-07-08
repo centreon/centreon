@@ -3,53 +3,13 @@ set -euo pipefail
 
 # shellcheck source=.github/scripts/pulp/manifest.sh
 source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
+# shellcheck source=.github/scripts/pulp/api.sh
+source "$(dirname "$0")/../../scripts/pulp/api.sh"
 
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
-
-# wait for a pulp api task to complete
-wait_task() {
-  local task_href=$1
-  local state attempt
-  for ((attempt = 0; attempt < 200; attempt++)); do
-    state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -r '.state')
-    case "$state" in
-      completed)
-        return 0
-        ;;
-      failed|canceled)
-        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
-        return 1
-        ;;
-      *)
-        sleep 3
-        ;;
-    esac
-  done
-  echo "::error::Task $task_href did not complete in time (~10 min)"
-  return 1
-}
-
-# upload a package through the pulp api, with retry on transient failures
-# (concurrent deliveries can race on artifact creation), echoes the task href
-pulp_upload() {
-  local attempt response http_code body
-  for attempt in 1 2 3; do
-    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
-    http_code=${response##*$'\n'}
-    body=${response%$'\n'*}
-    if [[ "$http_code" == "202" ]]; then
-      echo "$body" | jq -r '.task'
-      return 0
-    fi
-    echo "[WARN] upload attempt $attempt/3 failed (HTTP ${http_code:-network-error}), retrying..." >&2
-    sleep $((attempt * 3))
-  done
-  echo "::error::Upload failed after 3 attempts (HTTP ${http_code:-network-error})" >&2
-  return 1
-}
 
 if ! pulp deb repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
   echo "::error::Nothing to promote, repository $REPOSITORY_NAME does not exist"
@@ -61,12 +21,24 @@ VERSION_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.late
 # packages of the module are identified by the label set at delivery time,
 # the testing pool path scopes the stability and the package distrib name
 # scopes the distribution as the apt repository holds all the suites
-PACKAGES=$(
+RESPONSE=$(
   curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
     --data-urlencode "repository_version=$VERSION_HREF" \
     --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
     --data-urlencode "limit=1000" \
-    "$PULP_URL/api/v3/content/deb/packages/" | \
+    "$PULP_URL/api/v3/content/deb/packages/"
+)
+
+# fail on a truncated page (checked before the pool-path filtering): silently
+# promoting a subset of the module's packages would publish an incomplete
+# stable suite
+if [[ $(echo "$RESPONSE" | jq '.count > (.results | length)') == "true" ]]; then
+  echo "::error::Package query on $REPOSITORY_NAME is truncated ($(echo "$RESPONSE" | jq -r '.results | length')/$(echo "$RESPONSE" | jq -r '.count') results); pagination is required"
+  exit 1
+fi
+
+PACKAGES=$(
+  echo "$RESPONSE" | \
     jq --arg testing_path "$TESTING_POOL_PATH/" --arg distrib_name "$PACKAGE_DISTRIB_NAME" \
       '[.results[] | select((.relative_path | startswith($testing_path)) and (.relative_path | contains($distrib_name)))]'
 )

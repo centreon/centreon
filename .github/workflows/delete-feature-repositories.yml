@@ -15,7 +15,9 @@ jobs:
       startsWith(github.head_ref, 'MON-')
     runs-on: ubuntu-24.04
     env:
-      GH_TOKEN: ${{ github.token }}
+      # the default github.token has no access to the private sibling
+      # repositories (404), which would abort the check on every run
+      GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
       HEAD_REF: ${{ github.head_ref }}
     outputs:
       feature_prs_found: ${{ steps.check.outputs.feature_prs_found }}
