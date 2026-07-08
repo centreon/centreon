@@ -1,6 +1,8 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
 <form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}SNMP traps{/t}</h1>
+    <hr class="cl-title-sep">
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
             <span class="cl-filter-label">{t}Trap{/t}</span>
@@ -40,7 +42,7 @@
                     <th class="cl-col-center">{$headerMenu_status}</th>
                     <th>{$headerMenu_vendor}</th>
                     <th>{$headerMenu_output}</th>
-                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{t}Actions{/t}</th>
                 </tr>
             </thead>
             <tbody id="clTableBody">
@@ -48,16 +50,6 @@
             </tbody>
         </table>
 
-        <div class="cl-bottom-bar">
-            { if $mode_access == 'w' }
-            <div class="cl-actions-left">
-                {$form.o2.html}
-            </div>
-            { else }
-            <div>&nbsp;</div>
-            { /if }
-            <div class="cl-pagination" id="clPaginationBottom"></div>
-        </div>
     </div>
 
 <input type='hidden' name='o' id='o' value='42'>

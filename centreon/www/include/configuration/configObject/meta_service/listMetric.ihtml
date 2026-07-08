@@ -3,6 +3,8 @@
 <div class="cl-meta-header" id="metricMetaHeader">{t}Loading...{/t}</div>
 
 <form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}Metrics{/t}</h1>
+    <hr class="cl-title-sep">
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -29,7 +31,7 @@
                     <th>{$headerMenu_service}</th>
                     <th class="cl-col-center">{$headerMenu_metric}</th>
                     { if $mode_access == 'w' }
-                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{t}Actions{/t}</th>
                     { /if }
                 </tr>
             </thead>
@@ -38,16 +40,6 @@
             </tbody>
         </table>
 
-        <div class="cl-bottom-bar">
-            { if $mode_access == 'w' }
-            <div class="cl-actions-left">
-                {$form.o2.html}
-            </div>
-            { else }
-            <div>&nbsp;</div>
-            { /if }
-            <div class="cl-pagination" id="clPaginationBottom"></div>
-        </div>
     </div>
 
 <input type='hidden' name='o' id='o' value='42'>

@@ -97,6 +97,13 @@
     padding: 0 24px;
 }
 
+/* Keep the inline search input and its button the same height */
+.cl-search-center .cl-search-input,
+.cl-search-center .btc {
+    height: 36px;
+    box-sizing: border-box;
+}
+
 .cl-search-input {
     width: 100%;
     max-width: 400px;
@@ -402,6 +409,31 @@
 
 .cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] {
     margin: 0;
+}
+
+/* Nudge the header "check all" checkbox up to align with the header label */
+.cl-listing-table thead .cl-col-picker .md-checkbox {
+    position: relative;
+    top: -2px;
+}
+
+/* Hide the global breadcrumb on modern listings that carry the page title
+   (the object title replaces it). Scoped to titled listings only. */
+body:has(.cl-page-title) .pathway {
+    display: none;
+}
+
+/* Listing page title + separator */
+.cl-page-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 6px 0 6px;
+    color: var(--list-color, #333);
+}
+.cl-title-sep {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin: 0 0 8px;
 }
 
 .cl-listing-table .cl-col-picker .md-checkbox label {

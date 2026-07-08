@@ -1,6 +1,8 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
 <form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}Host dependencies{/t}</h1>
+    <hr class="cl-title-sep">
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -29,7 +31,7 @@
                     </th>
                     <th>{$headerMenu_name}</th>
                     <th>{$headerMenu_desc}</th>
-                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{t}Actions{/t}</th>
                 </tr>
             </thead>
             <tbody id="clTableBody">
@@ -37,16 +39,6 @@
             </tbody>
         </table>
 
-        <div class="cl-bottom-bar">
-            { if $mode_access == 'w' }
-            <div class="cl-actions-left">
-                {$form.o2.html}
-            </div>
-            { else }
-            <div>&nbsp;</div>
-            { /if }
-            <div class="cl-pagination" id="clPaginationBottom"></div>
-        </div>
     </div>
 
 <input type='hidden' name='o' id='o' value='42'>
