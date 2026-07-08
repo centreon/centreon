@@ -28,7 +28,7 @@ if [ "$COMPONENT" = "centreon-snmptrapd" ]; then
   # needs CAP_NET_BIND_SERVICE at runtime to do so (see the Dockerfile).
   run_args=(--cap-add=NET_BIND_SERVICE)
 elif [ "$COMPONENT" = "centreon-centreontrapd" ]; then
-  SDB_TMP=$(build_centreontrapd_sdb_fixture "centreontrapd-boot-test")
+  SDB_TMP=$(build_centreontrapd_sdb_fixture "centreontrapd-boot-test") || exit 1
   run_args=(-v "${SDB_TMP}:/etc/snmp/centreon_traps/centreontrapd.sdb")
 fi
 

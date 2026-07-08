@@ -215,8 +215,7 @@ jobs:
     needs: [get-environment, dockerize]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
+      needs.dockerize.result == 'success' &&
       needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     strategy:
@@ -281,8 +280,7 @@ jobs:
     needs: [get-environment, dockerize]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
+      needs.dockerize.result == 'success' &&
       needs.get-environment.outputs.skip_workflow == 'false'
     runs-on: ubuntu-24.04
     strategy:

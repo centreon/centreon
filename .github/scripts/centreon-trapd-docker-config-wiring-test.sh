@@ -19,7 +19,7 @@ COMPOSE=(docker compose -f "$COMPOSE_FILE" -p "$PROJECT")
 READY_TIMEOUT="${READY_TIMEOUT:-60}"
 TRAP_TIMEOUT="${TRAP_TIMEOUT:-15}"
 
-CENTREONTRAPD_SDB_FIXTURE=$(build_centreontrapd_sdb_fixture "centreontrapd-wiring-test")
+CENTREONTRAPD_SDB_FIXTURE=$(build_centreontrapd_sdb_fixture "centreontrapd-wiring-test") || exit 1
 
 export CENTREONTRAPD_IMAGE SNMPTRAPD_IMAGE CENTREONTRAPD_SDB_FIXTURE
 
