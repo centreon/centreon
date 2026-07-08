@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck source=.github/scripts/pulp/manifest.sh
+source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
+
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
@@ -127,9 +130,21 @@ while read -r PACKAGE; do
       "$PULP_URL/api/v3/content/deb/packages/"
   )
   wait_task "$TASK_HREF"
+
+  # record the promoted package (with its stable suite coordinates) so the
+  # verification step verifies exactly this set against the stable suite
+  NAME=$(echo "$PACKAGE" | jq -r '.package')
+  VERSION=$(echo "$PACKAGE" | jq -r '.version')
+  manifest_add "$(jq -cn \
+    --arg filename "$FILE_NAME" --arg name "$NAME" --arg version "$VERSION" \
+    --arg arch "$ARCH" --arg sha256 "$SHA256" --arg repository "$REPOSITORY_NAME" \
+    --arg base_path "$BASE_PATH" --arg suite "$STABLE_SUITE" --arg relative_path "$RELATIVE_PATH" \
+    '{filename:$filename,name:$name,version:$version,arch:$arch,sha256:$sha256,repository:$repository,base_path:$base_path,suite:$suite,relative_path:$relative_path}')"
 done < <(echo "$PACKAGES" | jq -c '.[]')
 
 echo "[INFO] Publishing repository $REPOSITORY_NAME"
 pulp deb publication create --repository "$REPOSITORY_NAME" --structured >/dev/null
 
 echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$BASE_PATH/ $STABLE_SUITE main"
+
+manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
