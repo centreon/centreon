@@ -2,6 +2,9 @@
 set -euo pipefail
 shopt -s nullglob
 
+# shellcheck source=.github/actions/package-delivery-pulp/manifest.sh
+source "$(dirname "$0")/manifest.sh"
+
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
@@ -148,6 +151,22 @@ for ARCH in noarch x86_64; do
         "$PULP_URL/api/v3/content/rpm/packages/"
     )
     wait_task "$TASK_HREF"
+
+    # record the uploaded package in the manifest (name-version-release parsed
+    # the same way as assert_not_in_stable) for the check-delivery-pulp step
+    FILENAME=$(basename "$FILE")
+    base=${FILENAME%.rpm}
+    base=${base%."$ARCH"}
+    release=${base##*-}
+    base=${base%-*}
+    version=${base##*-}
+    name=${base%-*}
+    sha256=$(sha256sum "$FILE" | cut -d' ' -f1)
+    manifest_add "$(jq -cn \
+      --arg filename "$FILENAME" --arg name "$name" --arg version "$version" \
+      --arg release "$release" --arg arch "$ARCH" --arg sha256 "$sha256" \
+      --arg repository "$REPOSITORY_NAME" --arg base_path "$BASE_PATH" \
+      '{filename:$filename,name:$name,version:$version,release:$release,arch:$arch,sha256:$sha256,repository:$repository,base_path:$base_path}')"
   done
 
   echo "[INFO] Publishing repository $REPOSITORY_NAME"
@@ -155,3 +174,5 @@ for ARCH in noarch x86_64; do
 
   echo "::notice::Packages are available at $PULP_CONTENT_URL/$BASE_PATH/"
 done
+
+manifest_write "$MODULE_NAME" "${DISTRIB:-}" "rpm" "${STABILITY:-}" "delivery" "$PULP_CONTENT_URL"

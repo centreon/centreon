@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck source=.github/actions/promote-to-stable-pulp/manifest.sh
+source "$(dirname "$0")/manifest.sh"
+
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
@@ -30,6 +33,7 @@ wait_task() {
 }
 
 declare -A ARCH_CONTENT
+declare -A ARCH_RESULTS
 TOTAL_PACKAGES_COUNT=0
 
 for ARCH in noarch x86_64; do
@@ -42,18 +46,23 @@ for ARCH in noarch x86_64; do
 
   VERSION_HREF=$(pulp rpm repository show --name "$TESTING_REPOSITORY_NAME" | jq -r '.latest_version_href')
 
-  # packages of the module are identified by the label set at delivery time
-  CONTENT=$(
+  # packages of the module are identified by the label set at delivery time;
+  # keep both the href list (for the content modify call) and the package
+  # identity (name/version/release/arch/filename) to feed the promotion manifest
+  RESULTS=$(
     curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$VERSION_HREF" \
       --data-urlencode "pulp_label_select=module=$MODULE_NAME" \
       --data-urlencode "limit=1000" \
-      "$PULP_URL/api/v3/content/rpm/packages/" | jq '[.results[].pulp_href]'
+      "$PULP_URL/api/v3/content/rpm/packages/" | \
+      jq '[.results[] | {pulp_href, name, version, release, arch, location_href}]'
   )
+  CONTENT=$(echo "$RESULTS" | jq '[.[].pulp_href]')
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 
   echo "[INFO] $ARCH_PACKAGES_COUNT $ARCH packages of module $MODULE_NAME found in $TESTING_REPOSITORY_NAME"
   ARCH_CONTENT[$ARCH]="$CONTENT"
+  ARCH_RESULTS[$ARCH]="$RESULTS"
   TOTAL_PACKAGES_COUNT=$((TOTAL_PACKAGES_COUNT + ARCH_PACKAGES_COUNT))
 done
 
@@ -107,5 +116,15 @@ for ARCH in noarch x86_64; do
   echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
   pulp rpm publication create --repository "$STABLE_REPOSITORY_NAME" >/dev/null
 
+  # record the promoted packages (with their stable target coordinates) so the
+  # check-delivery-pulp step verifies exactly this set against the stable repo
+  while read -r PKG; do
+    manifest_add "$(echo "$PKG" | jq -c \
+      --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+      '{filename: (.location_href | sub(".*/"; "")), name, version, release, arch, repository: $repository, base_path: $base_path}')"
+  done < <(echo "${ARCH_RESULTS[$ARCH]}" | jq -c '.[]')
+
   echo "::notice::Packages are available at $PULP_CONTENT_URL/$STABLE_BASE_PATH/"
 done
+
+manifest_write "$MODULE_NAME" "${DISTRIB:-}" "rpm" "$STABILITY" "promote" "$PULP_CONTENT_URL"

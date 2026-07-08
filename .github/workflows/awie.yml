@@ -634,6 +634,30 @@ jobs:
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
 
+      - name: Check delivery on Pulp
+        id: check_pulp
+        uses: ./.github/actions/check-delivery-pulp
+        continue-on-error: true
+        with:
+          module_name: awie
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          check_mode: delivery
+          manifest: ${{ steps.deliver_pulp.outputs.manifest }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Warn if the Pulp delivery verification failed
+        if: steps.check_pulp.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "::warning::Pulp delivery verification failed (non-blocking during the Artifactory-to-Pulp migration). See the 'Check delivery on Pulp' step and the run summary table."
+
       - name: Warn if the Pulp delivery failed
         if: steps.deliver_pulp.outcome == 'failure'
         shell: bash
@@ -677,6 +701,29 @@ jobs:
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Check promotion on Pulp
+        id: check_pulp
+        uses: ./.github/actions/check-delivery-pulp
+        continue-on-error: true
+        with:
+          module_name: awie
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          check_mode: promote
+          manifest: ${{ steps.promote_pulp.outputs.manifest }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Warn if the Pulp promotion verification failed
+        if: steps.check_pulp.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "::warning::Pulp promotion verification failed (non-blocking during the Artifactory-to-Pulp migration). See the 'Check promotion on Pulp' step and the run summary table."
 
       - name: Warn if the Pulp promotion failed
         if: steps.promote_pulp.outcome == 'failure'

@@ -2,6 +2,9 @@
 set -euo pipefail
 shopt -s nullglob
 
+# shellcheck source=.github/actions/package-delivery-pulp/manifest.sh
+source "$(dirname "$0")/manifest.sh"
+
 # use the org-variable values, falling back to the defaults when passed empty
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
@@ -145,9 +148,22 @@ for FILE in "${FILES[@]}"; do
       "$PULP_URL/api/v3/content/deb/packages/"
   )
   wait_task "$TASK_HREF"
+
+  # record the uploaded package in the manifest for the check-delivery-pulp step
+  name=$(dpkg-deb -f "$FILE" Package)
+  version=$(dpkg-deb -f "$FILE" Version)
+  arch=$(dpkg-deb -f "$FILE" Architecture)
+  sha256=$(sha256sum "$FILE" | cut -d' ' -f1)
+  manifest_add "$(jq -cn \
+    --arg filename "$FILE" --arg name "$name" --arg version "$version" \
+    --arg arch "$arch" --arg sha256 "$sha256" --arg repository "$REPOSITORY_NAME" \
+    --arg base_path "$BASE_PATH" --arg suite "$SUITE" --arg relative_path "$POOL_PATH/$FILE" \
+    '{filename:$filename,name:$name,version:$version,arch:$arch,sha256:$sha256,repository:$repository,base_path:$base_path,suite:$suite,relative_path:$relative_path}')"
 done
 
 echo "[INFO] Publishing repository $REPOSITORY_NAME"
 pulp deb publication create --repository "$REPOSITORY_NAME" --structured >/dev/null
 
 echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$BASE_PATH/ $SUITE main"
+
+manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "${STABILITY:-}" "delivery" "$PULP_CONTENT_URL"

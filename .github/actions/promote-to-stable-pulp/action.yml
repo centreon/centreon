@@ -32,6 +32,11 @@ inputs:
     required: false
     default: "https://pulp.dev.centreon.io"
 
+outputs:
+  manifest:
+    description: "Path to the JSON manifest of promoted packages, consumed by check-delivery-pulp"
+    value: ${{ steps.promote-rpm.outputs.manifest || steps.promote-deb.outputs.manifest }}
+
 runs:
   using: "composite"
   steps:
@@ -65,10 +70,12 @@ runs:
         audience: ${{ inputs.audience }}
 
     - name: Promote RPM packages to stable
+      id: promote-rpm
       if: steps.pulp-properties.outputs.package_extension == 'rpm'
       shell: bash
       env:
         MODULE_NAME: ${{ inputs.module_name }}
+        DISTRIB: ${{ inputs.distrib }}
         TESTING_REPOSITORY_PREFIX: ${{ steps.pulp-properties.outputs.testing_repository_prefix }}
         STABLE_REPOSITORY_PREFIX: ${{ steps.pulp-properties.outputs.stable_repository_prefix }}
         STABLE_BASE_PATH_PREFIX: ${{ steps.pulp-properties.outputs.stable_base_path_prefix }}
@@ -79,10 +86,12 @@ runs:
       run: ${{ github.action_path }}/promote-rpm.sh
 
     - name: Promote DEB packages to stable
+      id: promote-deb
       if: steps.pulp-properties.outputs.package_extension == 'deb'
       shell: bash
       env:
         MODULE_NAME: ${{ inputs.module_name }}
+        DISTRIB: ${{ inputs.distrib }}
         REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
         BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
         TESTING_POOL_PATH: ${{ steps.pulp-properties.outputs.testing_pool_path }}
