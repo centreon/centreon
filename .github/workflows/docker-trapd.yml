@@ -47,7 +47,9 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Package centreon-trap
         uses: ./.github/actions/package-nfpm
@@ -82,14 +84,17 @@ jobs:
 
     steps:
       - name: Checkout sources (centreon/centreon for actions)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Checkout centreon-collect (for perl-libs packaging)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: centreon/centreon-collect
           ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
           path: centreon-collect
+          persist-credentials: false
 
       - name: Set PERL_VENDORLIB for deb
         run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
@@ -124,13 +129,17 @@ jobs:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
     name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
+    outputs:
+      image_tag: ${{ steps.compute-tag.outputs.tag }}
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Login to registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
@@ -143,14 +152,14 @@ jobs:
           distrib: ${{ matrix.operating_system }}
 
       - name: Restore centreon-trap package
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-trap
           fail-on-cache-miss: true
 
       - name: Restore centreon-perl-libs packages
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-perl
@@ -165,10 +174,10 @@ jobs:
         shell: bash
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Compute Docker tag
         id: compute-tag
@@ -194,7 +203,7 @@ jobs:
         shell: bash
 
       - name: Docker build and push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
           DOCKER_BUILD_SUMMARY: false
@@ -208,3 +217,117 @@ jobs:
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
             ${{ steps.compute-tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.component, matrix.operating_system, steps.compute-tag.outputs.additional_tag) || '' }}
+
+  docker-boot-test:
+    needs: [get-environment, dockerize]
+    if: |
+      ! cancelled() &&
+      needs.dockerize.result == 'success' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+        platform: [linux/amd64, linux/arm64]
+    name: docker boot test ${{ matrix.component }}-${{ matrix.operating_system }} (${{ matrix.platform }})
+    permissions:
+      contents: read
+    env:
+      TRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Set up QEMU
+        if: ${{ matrix.platform == 'linux/arm64' }}
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+
+      - name: Install sqlite3
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends sqlite3
+        shell: bash
+
+      - name: Replace / with - in the platform name
+        id: platform-name
+        run: echo "dashed=$(echo '${{ matrix.platform }}' | tr '/' '-')" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Pull image for ${{ matrix.platform }}
+        run: docker pull --platform "${{ matrix.platform }}" "$TRAPD_IMAGE"
+        shell: bash
+
+      - name: Run boot test
+        env:
+          IMAGE: ${{ env.TRAPD_IMAGE }}
+          PLATFORM: ${{ matrix.platform }}
+          COMPONENT: ${{ matrix.component }}
+        run: ./.github/scripts/centreon-trapd-docker-boot-test.sh
+        shell: bash
+
+      - name: Upload debug artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.component }}-boot-test-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          path: /tmp/centreon-trapd-boot-test.log
+          retention-days: 1
+
+  docker-config-wiring-test:
+    needs: [get-environment, dockerize]
+    if: |
+      ! cancelled() &&
+      needs.dockerize.result == 'success' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        operating_system: [trixie]
+    name: docker config/wiring test centreon-trapd-${{ matrix.operating_system }}
+    permissions:
+      contents: read
+    env:
+      CENTREONTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-centreontrapd-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
+      SNMPTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-snmptrapd-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Install snmptrap client and sqlite3
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends snmp sqlite3
+        shell: bash
+
+      - name: Pull images
+        run: |
+          docker pull --platform linux/amd64 "$CENTREONTRAPD_IMAGE"
+          docker pull --platform linux/amd64 "$SNMPTRAPD_IMAGE"
+        shell: bash
+
+      - name: Run config/wiring test scenarios
+        run: ./.github/scripts/centreon-trapd-docker-config-wiring-test.sh
+        shell: bash
+
+      - name: Dump compose logs on failure
+        if: failure()
+        run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
