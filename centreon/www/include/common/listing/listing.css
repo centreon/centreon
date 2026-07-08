@@ -423,6 +423,19 @@ body:has(.cl-page-title) .pathway {
     display: none;
 }
 
+/* Listing page title + separator */
+.cl-page-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 6px 0 6px;
+    color: var(--list-color, #333);
+}
+.cl-title-sep {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin: 0 0 8px;
+}
+
 .cl-listing-table .cl-col-picker .md-checkbox label {
     margin: 0;
     padding: 0;
