@@ -411,6 +411,12 @@
     margin: 0;
 }
 
+/* Nudge the header "check all" checkbox up to align with the header label */
+.cl-listing-table thead .cl-col-picker .md-checkbox {
+    position: relative;
+    top: -2px;
+}
+
 .cl-listing-table .cl-col-picker .md-checkbox label {
     margin: 0;
     padding: 0;
