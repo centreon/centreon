@@ -85,16 +85,17 @@ $eTemplate = "<table style='border:0px;'><tr><td>{unselected}</td><td align='cen
 
 // Form begin
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+$aclActionName = isset($action_infos['acl_action_name'])
+    ? CentreonUtils::escapeAll($action_infos['acl_action_name'])
+    : '';
 if ($o === ACL_ACTION_ADD) {
-    $form->addElement('header', 'title', _('Add an Action'));
-} elseif ($o === ACL_ACTION_MODIFY) {
-    $form->addElement('header', 'title', _('Modify an Action'));
-} elseif ($o === ACL_ACTION_WATCH) {
-    $form->addElement('header', 'title', _('View an Action'));
+    $form->addElement('header', 'title', _('Actions ACL'));
+} elseif ($o === ACL_ACTION_MODIFY || $o === ACL_ACTION_WATCH) {
+    $form->addElement('header', 'title', _('Actions ACL') . ' - ' . $aclActionName);
 }
 
 // Basic information
-$form->addElement('header', 'information', _('General Information'));
+$form->addElement('header', 'information', _('General'));
 $form->addElement('text', 'acl_action_name', _('Action Name'), $attrsText);
 $form->addElement('text', 'acl_action_description', _('Description'), $attrsText);
 
@@ -169,24 +170,27 @@ $form->setDefaults(['hostComment' => 1]);
 
 // Contacts Selection
 $form->addElement('header', 'notification', _('Relations'));
-$form->addElement('header', 'service_actions', _('Services Actions Access'));
-$form->addElement('header', 'host_actions', _('Hosts Actions Access'));
-$form->addElement('header', 'global_actions', _('Global Monitoring Engine Actions (External Process Commands)'));
+$form->addElement('header', 'service_actions', _('Services'));
+$form->addElement('header', 'host_actions', _('Hosts'));
+$form->addElement('header', 'global_actions', _('Engine'));
 $form->addElement('header', 'global_access', _('Global Functionalities Access'));
-$form->addElement('header', 'poller_cfg_access', _('Poller Configuration Actions / Poller Management'));
+$form->addElement('header', 'poller_cfg_access', _('Pollers'));
 
-$ams1 = $form->addElement('advmultiselect', 'acl_groups', _('Linked Groups'), $groups, $attrsAdvSelect, SORT_ASC);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
+$aclgRoute = './include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list';
+$attrAclgroups = [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => $aclgRoute,
+    'multiple' => true,
+    'linkedObject' => 'centreonAclGroup',
+];
+$form->addElement('select2', 'acl_groups', _('Linked Access Groups'), [], $attrAclgroups);
 
 // Administration section
 $form->addElement('header', 'administration', _('Administration'));
 $form->addElement('checkbox', 'manage_tokens', _('Manage API tokens'));
 
 // Command configuration
-$form->addElement('header', 'configuration_command', _('Configuration'));
+$form->addElement('header', 'configuration_command', _('Commands'));
 $form->addElement('checkbox', 'see_check_commands', _('See check commands'));
 $form->addElement('checkbox', 'manage_check_commands', _('Manage check commands'));
 $form->addElement('checkbox', 'see_notification_commands', _('See notification commands'));
