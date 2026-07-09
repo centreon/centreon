@@ -2,6 +2,7 @@ parameters:
     paths:
         - ./src/App/ActivityLogging
         - ./src/App/MonitoringConfiguration
+        - ./src/App/Monitoring
         - ./src/App/Security
         - ./src/App/Shared
 

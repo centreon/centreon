@@ -13,6 +13,11 @@ parameters:
               - type: directory
                 value: src/App/MonitoringConfiguration/.*
 
+        - name: Monitoring
+          collectors:
+          - type: directory
+            value: src/App/Monitoring/.*
+
         - name: Security
           collectors:
               - type: directory
@@ -55,7 +60,8 @@ parameters:
     ruleset:
         ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases, PhpNative ]
         MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases, PhpNative ]
-        Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases, PhpNative ]
+        Monitoring: [ Security, Shared, Vendors, TypeAliases, PhpNative ]
+        Security: [ ActivityLogging, Monitoring, MonitoringConfiguration, Shared, Vendors, TypeAliases, PhpNative ]
         Shared: [ Vendors, TypeAliases, PhpNative ]
         Legacy: [ Vendors, TypeAliases, PhpNative ]
 
