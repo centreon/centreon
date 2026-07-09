@@ -1,0 +1,4 @@
+CONTACT;ADD;user_administrator;user_administrator;user_administrator@localhost;Centreon!123;0;1;en_US;local
+CONTACT;SETPARAM;user_administrator;reach_api;1
+CONTACT;SETPARAM;user_administrator;reach_api_rt;1
+ACLGROUP;ADDCONTACT;customer_admin_acl;user_administrator

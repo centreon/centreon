@@ -73,7 +73,8 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         if (isset($this->arguments['hostgroup'])) {
             $additionalTables .= ',hostgroup_relation hg ';
             $additionalCondition .= 'AND hg.host_host_id = h.host_id AND hg.hostgroup_hg_id IN (';
-            foreach (explode(',', $this->arguments['hostgroup']) as $hgId => $hgValue) {
+            $hostgroups = is_array($this->arguments['hostgroup']) ? $this->arguments['hostgroup'] : explode(',', $this->arguments['hostgroup']);
+            foreach ($hostgroups as $hgId => $hgValue) {
                 if (! is_numeric($hgValue)) {
                     throw new RestBadRequestException('Error, host group id must be numerical');
                 }

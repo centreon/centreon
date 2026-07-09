@@ -1,10 +1,9 @@
-import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
-
 import { userAtom } from '@centreon/ui-context';
 
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { Formik } from 'formik';
+import { createStore, Provider } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import DatePicker from './DatePicker';
 
 const initialize = ({ canEdit = true, hasValue = false }): void => {
@@ -15,7 +14,7 @@ const initialize = ({ canEdit = true, hasValue = false }): void => {
   store.set(userAtom, { locale: 'fr_FR', timezone: 'Europe/London' });
   cy.clock(new Date(2024, 9, 29));
 
-  cy.clock(new Date().getTime());
+  cy.clock(Date.now());
   cy.mount({
     Component: (
       <Provider store={store}>

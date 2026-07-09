@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkHostsAreMonitored,
@@ -53,11 +54,11 @@ const resultsToSubmit = [
 before(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers/generate-and-reload'
+    url: INTERCEPTORS.api.generate_reload_pollers
   }).as('generateAndReloadPollers');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
@@ -151,19 +152,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*/access_rights/contacts`
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: '/centreon/api/latest/configuration/dashboards/*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -336,18 +337,19 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
+    cy.get('input[name="unhandled_problems"]').click();
+    cy.get('[data-testid="Select all"]').eq(1).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.get('input[name="success"]').click();
   }
 );
 
 Then(
   'a grid representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.get('[class*="heatMapTile"]').should('exist');
+    cy.get('[class*="heatMapTile"]').its('length').should('be.gte', 1);
   }
 );
 
@@ -356,7 +358,7 @@ When('the user saves the Status Grid widget', () => {
 });
 
 Then("the Status Grid widget is added in the dashboard's layout", () => {
-  cy.get('[class*="heatMapTile"]').should('exist');
+  cy.get('[class*="heatMapTile"]').its('length').should('be.gte', 1);
 });
 
 Given('a dashboard with a configured Status Grid widget', () => {
@@ -379,7 +381,7 @@ When(
       tag: 'input'
     })
       .clear()
-      .type('2');
+      .type('1');
     cy.wait('@resourceRequest');
   }
 );
@@ -526,8 +528,8 @@ Then(
             );
           }),
       {
-        timeout: 10000,
-        interval: 500
+        interval: 500,
+        timeout: 10000
       }
     );
   }
@@ -576,8 +578,8 @@ Then(
           return cy
             .get('ul.MuiAutocomplete-listbox')
             .find('li')
-            .then(($items) => {
-              const textArray = $items
+            .then((items) => {
+              const textArray = items
                 .map((_index, el) => {
                   return Cypress.$(el).find('p').text();
                 })
@@ -601,7 +603,7 @@ Then(
             });
         });
       },
-      { timeout: 30000, interval: 3000 }
+      { interval: 3000, timeout: 30000 }
     ).then((found) => {
       if (found) {
         cy.log('Only services containing "ser" are displayed in the list.');

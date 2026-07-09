@@ -1,4 +1,4 @@
-import { Props } from '.';
+import type { Props } from '.';
 
 export interface Status {
   name: string;

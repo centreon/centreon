@@ -1,6 +1,6 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { ChartAxis } from '../../Chart/models';
+import type { ChartAxis } from '../../Chart/models';
 
 interface DsData {
   ds_color_area: string;
@@ -135,5 +135,5 @@ export interface TimeValueProps {
   marginLeft?: number;
   timeSeries: Array<TimeValue>;
   x?: number;
-  xScale: ScaleLinear<number, number>;
+  xScale: ScaleTime<number, number> | ScaleLinear<number, number>;
 }

@@ -1,15 +1,14 @@
+import { LinearProgress } from '@mui/material';
+
 import { isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress } from '@mui/material';
-
-import FormTitle from '../FormTitle';
 import { openidConfigurationDecoder } from '../api/decoders';
+import FormTitle from '../FormTitle';
 import { Provider } from '../models';
 import useLoadConfiguration from '../shared/useLoadConfiguration';
 import useTab from '../useTab';
-
 import Form from './Form';
 import { OpenidConfiguration } from './models';
 import { labelDefineOpenIDConnectConfiguration } from './translatedLabels';

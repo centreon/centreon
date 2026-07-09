@@ -1,19 +1,29 @@
-import { omit } from 'ramda';
-
 import { alpha, useTheme } from '@mui/system';
 
-import Bar from '../Bar';
+import { omit } from 'ramda';
 
-import { ZoomPreviewData } from './models';
+import { margin } from '../../common';
+import Bar from '../Bar';
+import type { ZoomPreviewData } from './models';
 import useZoomPreview from './useZoomPreview';
 
 const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
   const theme = useTheme();
 
-  const { graphHeight, xScale, graphWidth, getInterval, ...rest } = data;
+  const {
+    graphHeight,
+    xScale,
+    graphWidth,
+    getInterval,
+    graphSvgRef,
+    graphMarginLeft,
+    ...rest
+  } = data;
 
   const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
     getInterval,
+    graphMarginLeft,
+    graphSvgRef,
     graphWidth,
     xScale
   });
@@ -24,7 +34,7 @@ const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
     <g>
       <Bar
         fill={alpha(theme.palette.primary.main, 0.2)}
-        height={graphHeight}
+        height={graphHeight - margin.bottom}
         stroke={alpha(theme.palette.primary.main, 0.5)}
         width={zoomBarWidth}
         x={zoomBoundaries?.start || 0}

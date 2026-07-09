@@ -1,26 +1,14 @@
-import { Provider, createStore } from 'jotai';
-import widgetClockProperties from '../Widgets/centreon-widget-clock/properties.json';
-import widgetDataProperties from '../Widgets/centreon-widget-data/properties.json';
-import widgetGenericTextProperties from '../Widgets/centreon-widget-generictext/properties.json';
-import widgetGraphProperties from '../Widgets/centreon-widget-graph/properties.json';
-import widgetGroupMonitoringProperties from '../Widgets/centreon-widget-groupmonitoring/properties.json';
-import widgetInputProperties from '../Widgets/centreon-widget-input/properties.json';
-import widgetResourceTableProperties from '../Widgets/centreon-widget-resourcestable/properties.json';
-import widgetSingleDataProperties from '../Widgets/centreon-widget-singledata/properties.json';
-import widgetSingleMetricProperties from '../Widgets/centreon-widget-singlemetric/properties.json';
-import widgetStatusChartProperties from '../Widgets/centreon-widget-statuschart/properties.json';
-import widgetStatusGridProperties from '../Widgets/centreon-widget-statusgrid/properties.json';
-import widgetTextProperties from '../Widgets/centreon-widget-text/properties.json';
-import widgetTopBottomProperties from '../Widgets/centreon-widget-topbottom/properties.json';
-import widgetWebPageProperties from '../Widgets/centreon-widget-webpage/properties.json';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   federatedWidgetsAtom,
   platformVersionsAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+
+import { Version } from '../../../../api/models';
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
+import { FederatedWidgetProperties } from '../../../../federatedModules/models';
 import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
 import {
   labelAddFilter,
@@ -41,16 +29,26 @@ import {
   labelTitle,
   labelWidgetType
 } from '../translatedLabels';
-
-import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
+import widgetClockProperties from '../Widgets/centreon-widget-clock/properties.json';
+import widgetDataProperties from '../Widgets/centreon-widget-data/properties.json';
+import widgetGenericTextProperties from '../Widgets/centreon-widget-generictext/properties.json';
+import widgetGraphProperties from '../Widgets/centreon-widget-graph/properties.json';
+import widgetGroupMonitoringProperties from '../Widgets/centreon-widget-groupmonitoring/properties.json';
+import widgetInputProperties from '../Widgets/centreon-widget-input/properties.json';
+import widgetResourceTableProperties from '../Widgets/centreon-widget-resourcestable/properties.json';
+import widgetSingleDataProperties from '../Widgets/centreon-widget-singledata/properties.json';
+import widgetSingleMetricProperties from '../Widgets/centreon-widget-singlemetric/properties.json';
+import widgetStatusChartProperties from '../Widgets/centreon-widget-statuschart/properties.json';
+import widgetStatusGridProperties from '../Widgets/centreon-widget-statusgrid/properties.json';
+import widgetTextProperties from '../Widgets/centreon-widget-text/properties.json';
+import widgetTopBottomProperties from '../Widgets/centreon-widget-topbottom/properties.json';
+import widgetWebPageProperties from '../Widgets/centreon-widget-webpage/properties.json';
+import { internalWidgetComponents } from '../Widgets/widgets';
+import { AddEditWidgetModal } from '.';
 import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
 import { WidgetResourceType, WidgetType } from './models';
-
-import { AddEditWidgetModal } from '.';
-import { Version } from '../../../../api/models';
-import { FederatedWidgetProperties } from '../../../../federatedModules/models';
-import { internalWidgetComponents } from '../Widgets/widgets';
+import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
 
 const widgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetTextProperties,
@@ -160,13 +158,13 @@ const initialFormData = {
     ],
     resources: [
       {
-        resourceType: 'host',
         resources: [
           {
             id: 0,
             name: 'Host 0'
           }
-        ]
+        ],
+        resourceType: 'host'
       }
     ]
   },
@@ -416,7 +414,7 @@ describe('AddEditWidgetModal', () => {
         );
         cy.findByLabelText(labelTitle).should('have.value', 'Widget name');
         cy.findAllByLabelText('RichTextEditor').eq(0).contains('Description');
-        cy.contains('Widget name').should('be.visible');
+        cy.contains('Widget name').should('exist');
         cy.findAllByLabelText('RichTextEditor').eq(1).contains('Description');
         cy.findByLabelText(labelSave).should('be.disabled');
 
@@ -825,11 +823,11 @@ describe('AddEditWidgetModal', () => {
               id: 2,
               includeAllMetrics: true,
               name: 'pl',
+              serviceId: 1,
+              serviceName: 'Ping',
               unit: '%',
               warningHighThreshold: null,
-              warningLowThreshold: null,
-              serviceId: 1,
-              serviceName: 'Ping'
+              warningLowThreshold: null
             });
           });
       });

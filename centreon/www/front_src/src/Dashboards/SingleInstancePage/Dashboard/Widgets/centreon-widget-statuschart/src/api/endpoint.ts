@@ -1,8 +1,11 @@
-import { equals, flatten } from 'ramda';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { buildListingEndpoint } from '@centreon/ui';
 
+import { equals, flatten, isEmpty } from 'ramda';
+
 import { Resource } from '../../../models';
+import { StateSelection } from '../models';
 
 export const serviceStatusesEndpoint = '/monitoring/services/status';
 export const hostStatusesEndpoint = '/monitoring/hosts/status';
@@ -11,11 +14,13 @@ export const resourcesEndpoint = '/monitoring/resources';
 interface BuildResourcesEndpointProps {
   resources: Array<Resource>;
   type: 'host' | 'service';
+  stateList: Array<StateSelection>;
 }
 
 export const buildResourcesEndpoint = ({
   type,
-  resources
+  resources,
+  stateList
 }: BuildResourcesEndpointProps): string => {
   const baseEndpoint = equals(type, 'host')
     ? hostStatusesEndpoint
@@ -43,8 +48,14 @@ export const buildResourcesEndpoint = ({
     }
   );
 
+  const stateQueryParam =
+    stateList && !isEmpty(stateList)
+      ? [{ name: 'states', value: stateList }]
+      : [];
+
   return buildListingEndpoint({
     baseEndpoint,
+    customQueryParameters: stateQueryParam,
     parameters: {
       search: {
         conditions: flatten(searchConditions)

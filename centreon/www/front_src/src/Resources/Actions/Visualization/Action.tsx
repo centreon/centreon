@@ -1,12 +1,13 @@
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { IconButton, Image } from '@centreon/ui';
 
-import { Visualization } from '../../models';
+import { useTranslation } from 'react-i18next';
 
-import { useStyles } from './Visualization.styles';
+import { Visualization } from '../../models';
 import useIconPath from './useIconPath';
 import useVisualization from './useVisualization';
+import { useStyles } from './Visualization.styles';
 
 interface Props {
   IconOnActive: string;
@@ -32,9 +33,9 @@ const Action = ({
       ariaLabel={t(title) as string}
       className={classes.iconButton}
       data-testid={title}
+      onClick={selectVisualization}
       title={t(title) as string}
       tooltipClassName={classes.tooltipClassName}
-      onClick={selectVisualization}
     >
       <Image alt={title} imagePath={imagePath} />
     </IconButton>

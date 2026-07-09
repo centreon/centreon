@@ -1,18 +1,17 @@
-import { Suspense, lazy } from 'react';
-
-import { equals } from 'ramda';
-
 import { useMediaQuery, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
+import { equals } from 'ramda';
+import { lazy, Suspense } from 'react';
+
+import ExportCsv from './exportToCsv';
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
+import { Type } from './model';
 import { Props } from './Refresh';
 import useMediaQueryListing from './Resource/useMediaQueryListing';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 import VisualizationActions from './Visualization';
 import { useStyles } from './Visualization/Visualization.styles';
-import ExportCsv from './exportToCsv';
-import { Type } from './model';
 
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
 const GlobalActions = lazy(() => import('./Refresh'));
@@ -30,7 +29,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
     equals(breakPointType, Type.small);
 
   return (
-    <Grid container className={classes.container}>
+    <Grid className={classes.container} container>
       <Grid
         className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
         size={7}
@@ -58,12 +57,12 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         )}
       </Grid>
       <Grid
-        wrap="nowrap"
         className={cx({
           [classes.large]: !smallSize,
           [classes.small]: smallSize
         })}
         size={5}
+        wrap="nowrap"
       >
         <VisualizationActions displayCondensed={displayCondensed} />
         <ExportCsv />

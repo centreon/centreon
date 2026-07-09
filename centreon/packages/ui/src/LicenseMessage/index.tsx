@@ -1,7 +1,7 @@
+import { alpha, Paper, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Paper, Typography, alpha } from '@mui/material';
 
 import { labelInvalidLicense } from './translatedLabels';
 

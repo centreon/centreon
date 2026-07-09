@@ -45,18 +45,24 @@ class AddTokenValidation
      * Assert name is not already used.
      *
      * @param string $name
-     * @param int $userId
+     * @param ?int $userId
      *
      * @throws TokenException|\Throwable
      */
-    public function assertIsValidName(string $name, int $userId): void
+    public function assertIsValidName(string $name, ?int $userId): void
     {
         $trimmedName = trim($name);
-        if ($this->readTokenRepository->existsByNameAndUserId($trimmedName, $userId)) {
+
+        $exists = $userId !== null
+            ? $this->readTokenRepository->existsByNameAndUserId($trimmedName, $userId)
+            : ! empty($this->readTokenRepository->findByNames([$trimmedName]));
+
+        if ($exists) {
             $this->error('Token name already exists', ['name' => $trimmedName, 'userId' => $userId]);
 
             throw TokenException::nameAlreadyExists($trimmedName);
         }
+
     }
 
     /**

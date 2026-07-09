@@ -3,7 +3,6 @@ import { equals, flatten, pluck, project } from 'ramda';
 import { Group, RowProps } from '../../models';
 import { getStatusesCountFromResources } from '../../utils';
 import { useStatusesColumnStyles } from '../Columns.styles';
-
 import Status from './Status';
 
 const getResources = ({
@@ -38,8 +37,8 @@ const Statuses = ({
   const resources = getResources({ resourceType, row });
 
   const displayableStatuses = getStatusesCountFromResources({
-    resourceType,
     resources,
+    resourceType,
     statuses
   });
 

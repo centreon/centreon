@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Skeleton, SkeletonProps, useTheme } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 import { headerHeight } from '../../../Header';
 
@@ -24,7 +24,7 @@ const BaseSkeleton = ({
 export const SliderSkeleton = ({
   animate = true,
   width
-}: Props & { width }): JSX.Element => {
+}: Props & { width: number | string }): JSX.Element => {
   const theme = useTheme();
 
   return (

@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Host\Application\UseCase\PartialUpdateHost;
 
 use Centreon\Domain\Common\Assertion\Assertion;
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
@@ -32,8 +31,6 @@ use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostSeverity\Application\Repository\ReadHostSeverityRepositoryInterface;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
@@ -56,10 +53,7 @@ class PartialUpdateHostValidation
      * @param ReadHostSeverityRepositoryInterface $readHostSeverityRepository
      * @param ReadTimezoneRepositoryInterface $readTimezoneRepository
      * @param ReadCommandRepositoryInterface $readCommandRepository
-     * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
-     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param InheritanceManager $inheritanceManager
-     * @param ContactInterface $user
      * @param AccessGroup[] $accessGroups
      */
     public function __construct(
@@ -71,10 +65,7 @@ class PartialUpdateHostValidation
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadTimezoneRepositoryInterface $readTimezoneRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
-        private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly InheritanceManager $inheritanceManager,
-        private readonly ContactInterface $user,
         public array $accessGroups = [],
     ) {
     }
@@ -235,48 +226,6 @@ class PartialUpdateHostValidation
             $this->error('Command does not exist', ['command_id' => $commandId, 'command_type' => $commandType]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
-        }
-    }
-
-    /**
-     * Assert category IDs are valid.
-     *
-     * @param int[] $categoryIds
-     *
-     * @throws HostException
-     * @throws \Throwable
-     */
-    public function assertAreValidCategories(array $categoryIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
-        } else {
-            $validCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
-            throw HostException::idsDoNotExist('categories', $invalidIds);
-        }
-    }
-
-    /**
-     * Assert group IDs are valid.
-     *
-     * @param int[] $groupIds
-     *
-     * @throws HostException
-     * @throws \Throwable
-     */
-    public function assertAreValidGroups(array $groupIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validGroupIds = $this->readHostGroupRepository->exist($groupIds);
-        } else {
-            $validGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($groupIds, $validGroupIds))) {
-            throw HostException::idsDoNotExist('groups', $invalidIds);
         }
     }
 

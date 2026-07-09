@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalGlobalMacroRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalGlobalMacroRepositoryTest extends KernelTestCase
@@ -38,8 +39,15 @@ final class DbalGlobalMacroRepositoryTest extends KernelTestCase
     {
         /** @var DbalGlobalMacroRepository $repository */
         $repository = self::getContainer()->get(DbalGlobalMacroRepository::class);
-
         $this->repository = $repository;
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('nagios_server', ['id' => 1, 'name' => 'Central', 'localhost' => '1', 'ns_activate' => '1', 'ns_ip_address' => '127.0.0.1', 'uid' => 100000000000001]);
+        $connection->insert('cfg_resource', ['resource_id' => 1, 'resource_name' => '$USER1$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'path to plugins', 'resource_activate' => '1', 'is_password' => 0]);
+        $connection->insert('cfg_resource', ['resource_id' => 2, 'resource_name' => '$CENTREONPLUGINS$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'Centreon Plugin Path', 'resource_activate' => '1', 'is_password' => 0]);
+        $connection->insert('cfg_resource_instance_relations', ['resource_id' => 1, 'instance_id' => 1]);
+        $connection->insert('cfg_resource_instance_relations', ['resource_id' => 2, 'instance_id' => 1]);
     }
 
     public function testFindAll(): void

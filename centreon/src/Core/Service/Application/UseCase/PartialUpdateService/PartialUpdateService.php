@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -43,7 +45,9 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Application\Repository\WriteServiceMacroRepositoryInterface;
@@ -53,6 +57,7 @@ use Core\Macro\Domain\Model\MacroManager;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Model\NotificationTypeConverter;
@@ -67,6 +72,7 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Utility\Difference\BasicDifference;
 
 final class PartialUpdateService
@@ -98,6 +104,11 @@ final class PartialUpdateService
         private readonly bool $isCloudPlatform,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
+        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -122,14 +133,14 @@ final class PartialUpdateService
                 return;
             }
 
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $this->validation->accessGroups = $this->accessGroups;
             }
 
             if (
                 (
-                    ! $this->user->isAdmin()
+                    ! $this->adminResolver->isAdmin($this->user)
                     && ! $this->readServiceRepository->existsByAccessGroups($serviceId, $this->accessGroups)
                 )
                 || ! ($service = $this->readServiceRepository->findById($serviceId))
@@ -168,7 +179,7 @@ final class PartialUpdateService
         $this->dataStorageEngine->startTransaction();
         try {
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveServiceUuidFromVault($service->getId());
             }
 
@@ -176,9 +187,15 @@ final class PartialUpdateService
             $this->updateService($request, $service);
             $this->updateCategories($request, $service);
             // Groups MUST be updated after the service as they are dependent on host ID.
-            $this->updateGroups($request, $service);
+            $groupsChanged = $this->updateGroups($request, $service);
             // Macros PUST be updated after the service as they are dependent on the template ID.
             $this->updateMacros($request, $service);
+
+            if ($groupsChanged) {
+                $this->adminResolver->isAdmin($this->user)
+                    ? $this->writeAccessGroupRepository->updateAclResourcesFlag()
+                    : $this->writeAccessGroupRepository->updateAclGroupsFlag($this->accessGroups);
+            }
 
             $newMonitoringServer = $this->readMonitoringServerRepository->findByHost($service->getHostId());
             if ($newMonitoringServer !== null) {
@@ -304,6 +321,16 @@ final class PartialUpdateService
                 // No assertion on the check command for Saas platform as it will be inherited from the service template.
                 $this->validation->assertIsValidCommand($dto->commandId, $service->getServiceTemplateParentId());
             }
+            if ($dto->commandId !== null) {
+                $command = $this->readCommandRepository->findById($dto->commandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $service->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
+                    $service->setFreshnessThreshold(120);
+                }
+            }
             $service->setCommandId($dto->commandId);
         }
         if (! $dto->graphTemplateId instanceof NoValue) {
@@ -393,7 +420,7 @@ final class PartialUpdateService
         $categoryIds = array_unique($dto->categories);
         $this->validation->assertAreValidCategories($categoryIds);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $originalCategories = $this->readServiceCategoryRepository->findByService($service->getId());
         } else {
             $originalCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
@@ -421,7 +448,7 @@ final class PartialUpdateService
      *
      * @throws \Throwable
      */
-    private function updateGroups(PartialUpdateServiceRequest $dto, Service $service): void
+    private function updateGroups(PartialUpdateServiceRequest $dto, Service $service): bool
     {
         $this->info(
             'PartialUpdateService: update groups',
@@ -431,12 +458,12 @@ final class PartialUpdateService
         if ($dto->groups instanceof NoValue) {
             $this->info('Groups not provided, nothing to update');
 
-            return;
+            return false;
         }
 
         $this->validation->assertAreValidGroups($dto->groups);
 
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $originalGroups = $this->readServiceGroupRepository->findByService($service->getId());
         } else {
             $originalGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
@@ -444,10 +471,17 @@ final class PartialUpdateService
                 $this->accessGroups
             );
         }
+        // Collect original and new group IDs to detect changes later.
+        $originalGroupIds = array_map(
+            static fn (array $group): int => $group['relation']->getServiceGroupId(),
+            $originalGroups
+        );
+        $newGroupIds = array_values(array_unique($dto->groups));
+
         $this->writeServiceGroupRepository->unlink(array_column($originalGroups, 'relation'));
 
         $groupRelations = [];
-        foreach (array_unique($dto->groups) as $groupId) {
+        foreach ($newGroupIds as $groupId) {
             $groupRelations[] = new ServiceGroupRelation(
                 $groupId,
                 $service->getId(),
@@ -456,6 +490,13 @@ final class PartialUpdateService
         }
 
         $this->writeServiceGroupRepository->link($groupRelations);
+
+        // Compare sorted IDs to determine if group membership actually changed
+        // (ignoring order). This drives whether ACL recalculation is needed.
+        sort($originalGroupIds);
+        sort($newGroupIds);
+
+        return $originalGroupIds !== $newGroupIds;
     }
 
     /**
@@ -466,13 +507,13 @@ final class PartialUpdateService
      */
     private function updateMacros(PartialUpdateServiceRequest $dto, Service $service): void
     {
-        $this->info(
+        $this->debug(
             'PartialUpdateService: update macros',
             ['service_id' => $service->getId(), 'macros' => $dto->macros]
         );
 
         if ($dto->macros instanceof NoValue) {
-            $this->info('Macros not provided, nothing to update');
+            $this->debug('Macros not provided, nothing to update');
 
             return;
         }
@@ -548,9 +589,11 @@ final class PartialUpdateService
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($service->getCommandId() !== null) {
+        $effectiveCommandId = $service->getCommandId()
+            ?? $this->findInheritedCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $service->getCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Service
             );
 
@@ -558,14 +601,42 @@ final class PartialUpdateService
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
         ];
+    }
+
+    /**
+     * Return the command ID of the first ancestor service template that defines one.
+     *
+     * @param int[] $inheritanceLine
+     *
+     * @throws \Throwable
+     *
+     * @return int|null
+     */
+    private function findInheritedCommandId(array $inheritanceLine): ?int
+    {
+        if ($inheritanceLine === []) {
+            return null;
+        }
+        $templates = $this->readServiceTemplateRepository->findByIds(...$inheritanceLine);
+        $indexed = [];
+        foreach ($templates as $template) {
+            $indexed[$template->getId()] = $template;
+        }
+        foreach ($inheritanceLine as $parentId) {
+            if (isset($indexed[$parentId]) && $indexed[$parentId]->getCommandId() !== null) {
+                return $indexed[$parentId]->getCommandId();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -598,7 +669,7 @@ final class PartialUpdateService
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixName = '_SERVICE' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
@@ -614,7 +685,7 @@ final class PartialUpdateService
             $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -644,7 +715,7 @@ final class PartialUpdateService
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

@@ -1,8 +1,8 @@
+import type { TransitionProps } from '@mui/material/transitions';
+
 import { SnackbarProvider as NotistackSnackbarProvider } from 'notistack';
+import type { JSXElementConstructor, ReactElement } from 'react';
 
-import { TransitionProps } from '@mui/material/transitions';
-
-import { JSXElementConstructor, ReactElement } from 'react';
 import Transition from './Transition';
 
 interface Props {
@@ -16,15 +16,15 @@ const SnackbarProvider = ({
 }: Props): JSX.Element => {
   return (
     <NotistackSnackbarProvider
+      anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+      maxSnack={maxSnackbars}
       TransitionComponent={
         Transition as JSXElementConstructor<
           TransitionProps & {
-            children;
+            children: ReactElement;
           }
         >
       }
-      anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-      maxSnack={maxSnackbars}
     >
       {children}
     </NotistackSnackbarProvider>

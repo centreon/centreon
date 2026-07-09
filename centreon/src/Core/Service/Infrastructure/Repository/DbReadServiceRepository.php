@@ -174,7 +174,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     /**
      * @inheritDoc
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool
     {
         if ($accessGroups === []) {
             $this->debug('Access groups array empty');
@@ -200,6 +200,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 AND scr.sc_id IN ({$subRequest})
                 SQL;
 
+        $hostFilter = $hostId === null ? '' : 'AND acl.`host_id` = :host_id';
+
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 SELECT 1
@@ -207,13 +209,17 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 LEFT JOIN `:db`.`service_categories_relation` scr
                     ON scr.`service_service_id` = s.`service_id`
                 JOIN `:dbstg`.`centreon_acl` acl
+                    ON s.`service_id` = acl.`service_id`
                 WHERE acl.`group_id` IN ({$bindParamsAsString})
+                    {$hostFilter}
                     AND s.`service_id` = :service_id
-                    AND s.`service_register` = '1'
                     {$categoryAcls}
                 SQL
         ));
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        if ($hostId !== null) {
+            $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        }
         foreach ($bindValuesArray as $bindParam => $bindValue) {
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }
@@ -259,6 +265,71 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     ON hsr.service_service_id = service.service_id
                 WHERE hsr.host_host_id = :host_id
                     AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsLinkedToHostThroughHostGroups(int $hostId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                INNER JOIN `:db`.hostgroup_relation hgr
+                    ON hgr.hostgroup_hg_id = hsr.hostgroup_hg_id
+                WHERE hgr.host_host_id = :host_id
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsExclusivelyLinkedToHostId(int $hostId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.host_service_relation hsr
+                INNER JOIN `:db`.host h
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN (
+                    SELECT service_service_id
+                    FROM `:db`.host_service_relation
+                    GROUP BY service_service_id
+                    HAVING COUNT(*) = 1
+                ) uniq
+                    ON uniq.service_service_id = hsr.service_service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND h.host_register = '1'
                 SQL
         );
 
@@ -560,12 +631,12 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             <<<'SQL'
                     SELECT (
                         SELECT GROUP_CONCAT(DISTINCT host_service_relation.hostgroup_hg_id)
-                        FROM host_service_relation
+                        FROM `:db`.host_service_relation
                                 WHERE service_service_id = hsr.service_service_id
                                 GROUP BY service_service_id
                     ) AS hostgroups,
                         hsr.service_service_id
-                    FROM host_service_relation hsr
+                    FROM `:db`.host_service_relation hsr
                     WHERE hsr.hostgroup_hg_id = :hostGroupId;
                 SQL
         ));
@@ -609,6 +680,246 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames, array $pollerIds = [], array $hostIds = []): array
+    {
+        if ($commandNames === []) {
+            return [];
+        }
+
+        [$bindValues, $commandPlaceholders] = $this->createMultipleBindQuery($commandNames, ':command_');
+
+        $sql = <<<SQL
+                SELECT DISTINCT s.service_id
+                FROM `:db`.`service` s
+                INNER JOIN `:db`.command c ON s.command_command_id = c.command_id
+                INNER JOIN `:db`.host_service_relation hsr ON s.service_id = hsr.service_service_id
+                INNER JOIN `:db`.host h ON h.host_id = hsr.host_host_id
+                WHERE s.service_register = '1'
+                AND c.command_name IN ({$commandPlaceholders})
+            SQL;
+
+        $conditions = [];
+
+        if ($hostIds !== []) {
+            [$hostBindValues, $hostPlaceholders] = $this->createMultipleBindQuery($hostIds, ':host_');
+            $conditions[] = "h.host_id IN ({$hostPlaceholders})";
+            $bindValues += $hostBindValues;
+        }
+
+        if ($pollerIds !== []) {
+            [$pollerBindValues, $pollerPlaceholders] = $this->createMultipleBindQuery($pollerIds, ':poller_');
+            $conditions[] = "h.host_id IN (
+                SELECT hr.host_host_id FROM `:db`.ns_host_relation hr
+                WHERE hr.nagios_server_id IN ({$pollerPlaceholders})
+            )";
+            $bindValues += $pollerBindValues;
+        }
+
+        if ($conditions !== []) {
+            $sql .= ' AND (' . implode(' OR ', $conditions) . ')';
+        }
+
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        foreach ($bindValues as $placeHolder => $value) {
+            $statement->bindValue($placeHolder, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT svc.service_id, svc.service_description
+                FROM `:db`.`service` svc
+                INNER JOIN `:db`.`host_service_relation` hsr
+                    ON hsr.service_service_id = svc.service_id
+                WHERE hsr.host_host_id = :hostId
+                    AND svc.service_template_model_stm_id = :serviceTemplateId
+                    AND svc.service_register = '1'
+                SQL
+        ));
+        $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+        $statement->bindValue(':serviceTemplateId', $serviceTemplateId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $services = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{service_id: int, service_description: string} $row */
+            $services[] = [
+                'id' => (int) $row['service_id'],
+                'name' => $row['service_description'],
+            ];
+        }
+
+        return $services;
+    }
+
+    public function findServiceIdsLinkedToHostIds(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT hsr.host_host_id, service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id IN ({$hostIdsQuery})
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $result = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_host_id: int, service_id: int} $row */
+            $hostId = (int) $row['host_host_id'];
+            $result[$hostId][] = (int) $row['service_id'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsLinkedToHostsThroughHostGroups(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                SELECT hgr.host_host_id, service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                INNER JOIN `:db`.hostgroup_relation hgr
+                    ON hgr.hostgroup_hg_id = hsr.hostgroup_hg_id
+                WHERE hgr.host_host_id IN ({$hostIdsQuery})
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $result = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_host_id: int, service_id: int} $row */
+            $hostId = (int) $row['host_host_id'];
+            $result[$hostId][] = (int) $row['service_id'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findParentsByServiceIds(array $serviceIds): array
+    {
+        if ($serviceIds === []) {
+            return [];
+        }
+
+        [$bindValues, $serviceIdsQuery] = $this->createMultipleBindQuery($serviceIds, ':svc_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`service`
+                    WHERE `service_id` IN ({$serviceIdsQuery})
+                        AND `service_register` = '1'
+                    UNION
+                    SELECT rel.* FROM `:db`.`service` AS rel, parents AS p
+                    WHERE rel.`service_id` = p.`service_template_model_stm_id`
+                )
+                SELECT `service_id` AS child_id, `service_template_model_stm_id` AS parent_id
+                FROM parents
+                WHERE `service_template_model_stm_id` IS NOT NULL
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $allInheritances = [];
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{child_id: int, parent_id: int} $row */
+            $allInheritances[] = new ServiceInheritance(
+                (int) $row['parent_id'],
+                (int) $row['child_id']
+            );
+        }
+
+        $result = [];
+        foreach ($serviceIds as $serviceId) {
+            $result[$serviceId] = $this->filterInheritancesForService($serviceId, $allInheritances);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Filter the global inheritance list to get only those relevant to a specific service.
+     *
+     * @param int $serviceId
+     * @param ServiceInheritance[] $allInheritances
+     *
+     * @return ServiceInheritance[]
+     */
+    private function filterInheritancesForService(int $serviceId, array $allInheritances): array
+    {
+        $relevant = [];
+        $idsToProcess = [$serviceId];
+        $processed = [];
+
+        while (! empty($idsToProcess)) {
+            $currentId = array_shift($idsToProcess);
+            if (isset($processed[$currentId])) {
+                continue;
+            }
+            $processed[$currentId] = true;
+
+            foreach ($allInheritances as $inheritance) {
+                if ($inheritance->getChildId() === $currentId) {
+                    $relevant[] = $inheritance;
+                    $idsToProcess[] = $inheritance->getParentId();
+                }
+            }
+        }
+
+        return $relevant;
+    }
+
+    /**
      * @param int[] $accessGroupIds
      *
      * @throws \Throwable
@@ -641,7 +952,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 $hostCategoryAcls = <<<'SQL'
                     AND hcr.hostcategories_hc_id IN (
                         SELECT arhcr.hc_id
-                        FROM acl_resources_hc_relations arhcr
+                        FROM `:db`.acl_resources_hc_relations arhcr
                         INNER JOIN `:db`.acl_resources res
                             ON arhcr.acl_res_id = res.acl_res_id
                         INNER JOIN `:db`.acl_res_group_relations argr

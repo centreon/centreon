@@ -32,7 +32,7 @@ final class UpdateHostGroupRequest
      * @param string|null $geoCoords
      * @param string $comment
      * @param int|null $iconId
-     * @param int[] $hosts
+     * @param int[]|null $hosts
      * @param int[] $resourceAccessRules
      */
     public function __construct(
@@ -42,7 +42,7 @@ final class UpdateHostGroupRequest
         public ?string $geoCoords = null,
         public string $comment = '',
         public ?int $iconId = null,
-        public array $hosts = [],
+        public ?array $hosts = null,
         public array $resourceAccessRules = [],
     ) {
 

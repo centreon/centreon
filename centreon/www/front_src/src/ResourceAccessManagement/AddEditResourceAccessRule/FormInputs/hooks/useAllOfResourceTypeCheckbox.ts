@@ -1,8 +1,7 @@
-import { ChangeEvent } from 'react';
-
 import { useFormikContext } from 'formik';
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { ChangeEvent } from 'react';
 
 import { selectedDatasetFiltersAtom } from '../../../atom';
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
@@ -10,8 +9,8 @@ import {
   labelAllBusinessViews,
   labelAllHostGroups,
   labelAllHosts,
-  labelAllServiceGroups,
-  labelAllImageFolders
+  labelAllImageFolders,
+  labelAllServiceGroups
 } from '../../../translatedLabels';
 
 interface UseAllOfResourceTypeCheckboxState {
@@ -41,7 +40,9 @@ export const useAllOfResourceTypeCheckbox = (
   const { setFieldValue, setFieldTouched } =
     useFormikContext<ResourceAccessRule>();
 
-  const checkboxLabel = allOfResourceTypeLabels[resourceType];
+  const checkboxLabel = (
+    allOfResourceTypeLabels as Record<ResourceTypeEnum, string>
+  )[resourceType];
 
   const onChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setFieldValue(

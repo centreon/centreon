@@ -1,16 +1,14 @@
-import { useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
 
+import { useAtomValue } from 'jotai';
+import { isEmpty } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { dashboardAtom, isEditingAtom } from '../atoms';
 import { labelAddAWidget } from '../translatedLabels';
-
 import useWidgetForm from './useWidgetModal';
 
 const AddWidgetButton = (): JSX.Element | null => {
@@ -36,9 +34,9 @@ const AddWidgetButton = (): JSX.Element | null => {
       data-testid="add-widget"
       icon={<AddIcon />}
       iconVariant="start"
+      onClick={() => openModal(null)}
       size="small"
       variant="secondary"
-      onClick={() => openModal(null)}
     >
       {t(labelAddAWidget)}
     </Button>

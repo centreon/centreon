@@ -1,6 +1,7 @@
+import { buildListingDecoder } from '@centreon/ui';
+
 import { JsonDecoder } from 'ts.data.json';
 
-import { buildListingDecoder } from '@centreon/ui';
 import { HostGroupItem, HostGroupListItem } from '../models';
 
 const namedEntityDecoder = {
@@ -17,15 +18,15 @@ const hostGroupsDecoder = JsonDecoder.object<HostGroupListItem>(
   {
     ...namedEntityDecoder,
     alias: JsonDecoder.nullable(JsonDecoder.string),
-    enabledHostsCount: JsonDecoder.number,
     disabledHostsCount: JsonDecoder.number,
-    isActivated: JsonDecoder.boolean,
-    icon: JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
+    enabledHostsCount: JsonDecoder.number,
+    icon: JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon')),
+    isActivated: JsonDecoder.boolean
   },
   'Host group',
   {
-    enabledHostsCount: 'enabled_hosts_count',
     disabledHostsCount: 'disabled_hosts_count',
+    enabledHostsCount: 'enabled_hosts_count',
     isActivated: 'is_activated'
   }
 );
@@ -40,27 +41,27 @@ export const hostGroupDecoder = JsonDecoder.object<HostGroupItem>(
   {
     ...namedEntityDecoder,
     alias: JsonDecoder.nullable(JsonDecoder.string),
-    geoCoords: JsonDecoder.nullable(JsonDecoder.string),
     comment: JsonDecoder.nullable(JsonDecoder.string),
-    isActivated: JsonDecoder.boolean,
+    geoCoords: JsonDecoder.nullable(JsonDecoder.string),
     hosts: JsonDecoder.array(
       JsonDecoder.object(namedEntityDecoder, 'Host'),
       'Hosts'
     ),
+    icon: JsonDecoder.optional(
+      JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
+    ),
+    isActivated: JsonDecoder.boolean,
     resourceAccessRules: JsonDecoder.optional(
       JsonDecoder.array(
         JsonDecoder.object(namedEntityDecoder, 'Access Rule'),
         'Access Rules'
       )
-    ),
-    icon: JsonDecoder.optional(
-      JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
     )
   },
   'Host group',
   {
-    resourceAccessRules: 'resource_access_rules',
+    geoCoords: 'geo_coords',
     isActivated: 'is_activated',
-    geoCoords: 'geo_coords'
+    resourceAccessRules: 'resource_access_rules'
   }
 );

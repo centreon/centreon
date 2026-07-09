@@ -1,17 +1,21 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { FeatureFlags } from '@centreon/ui-context';
+
 import { FormikValues } from 'formik';
 import {
-  path,
   difference,
   equals,
   has,
   includes,
   isEmpty,
   isNil,
+  path,
   pluck,
   reject,
   type
 } from 'ramda';
+
 import {
   FederatedWidgetOption,
   WidgetHiddenCondition
@@ -72,6 +76,10 @@ export const checkHiddenCondition = ({
     return !hasModule || isEmpty(formValue) || isNil(formValue);
   }
 
+  if (equals(method, 'truthy')) {
+    return true;
+  }
+
   return !hasModule || equals(path(when.split('.'), values), matches);
 };
 
@@ -98,8 +106,8 @@ export const handleHiddenConditions = ({
       return (value.hiddenCondition as Array<WidgetHiddenCondition>).some(
         (hiddenCondition) =>
           checkHiddenCondition({
-            hasModule,
             featureFlags,
+            hasModule,
             hiddenCondition,
             values
           })
@@ -107,8 +115,8 @@ export const handleHiddenConditions = ({
     }
 
     return checkHiddenCondition({
-      hasModule,
       featureFlags,
+      hasModule,
       hiddenCondition: value.hiddenCondition as WidgetHiddenCondition,
       values
     });

@@ -1,10 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 });
 
@@ -20,14 +22,14 @@ Given(
 );
 
 When('I navigate to the Resource Access Management page', () => {
-  cy.visit('centreon/administration/resource-access/rules');
+  cy.visit(PAGES.configuration.resourceAccessRules);
 });
 
 Then(
   'I should see a table with columns: "Name", "Description", "Actions", "Status"',
   () => {
-    cy.get('[role="table"]').each(($row) => {
-      cy.wrap($row).within(() => {
+    cy.get('[role="table"]').each((row) => {
+      cy.wrap(row).within(() => {
         cy.contains('Name').should('exist');
         cy.contains('Description').should('exist');
         cy.contains('Actions').should('exist');
@@ -48,8 +50,8 @@ Then('I should see at least 10 rules registered', () => {
   cy.reload();
   cy.waitUntil(
     () => {
-      return cy.get('[role="row"]').then(($divs) => {
-        return $divs.length === 11;
+      return cy.get('[role="row"]').then((divs) => {
+        return divs.length === 11;
       });
     },
     { interval: 1000, timeout: 10000 }
@@ -98,8 +100,8 @@ When(
 Then('I should see only the rules that match the search query', () => {
   cy.waitUntil(
     () => {
-      return cy.get('[role="row"]').then(($divs) => {
-        return $divs.length === 2;
+      return cy.get('[role="row"]').then((divs) => {
+        return divs.length === 2;
       });
     },
     { interval: 1000, timeout: 10000 }

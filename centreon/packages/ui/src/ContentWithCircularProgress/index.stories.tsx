@@ -1,7 +1,7 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { makeStyles } from 'tss-react/mui';
+import { type Theme, Typography } from '@mui/material';
 
-import { Theme, Typography } from '@mui/material';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
 
 import ContentWithCircularLoading from '.';
 
@@ -51,7 +51,7 @@ export const loaded = (): JSX.Element => (
 );
 
 export const loadingNotCentered = (): JSX.Element => (
-  <ContentWithCircularLoading loading alignCenter={false}>
+  <ContentWithCircularLoading alignCenter={false} loading>
     <Content />
   </ContentWithCircularLoading>
 );
@@ -67,8 +67,8 @@ const CustomLoading = (): JSX.Element => {
 
   return (
     <ContentWithCircularLoading
-      loading
       className={classes.root}
+      loading
       loadingContainerClassname={classes.container}
       loadingIndicatorSize={50}
     >

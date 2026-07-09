@@ -34,6 +34,10 @@ final readonly class ResourcePluginTransformer implements TransformerInterface
 {
     public function transform(mixed $from): PluginResource
     {
-        return new PluginResource(name: $from->name->value);
+        return new PluginResource(
+            name: $from->name->value,
+            commandLine: $from->commandLine->value,
+            description: $from->description?->value,
+        );
     }
 }

@@ -1,6 +1,6 @@
-import { useAtomValue } from 'jotai';
-
 import { useMemoComponent } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 
 import {
   DeactivateProps,

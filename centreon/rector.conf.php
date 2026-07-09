@@ -21,6 +21,7 @@
 
 declare(strict_types=1);
 
+use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPublicMethodParameterRector;
 use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
 
 return [
@@ -86,6 +87,10 @@ return [
             // reflection (to protect the domain). Therefore the id property cannot be
             // readonly.
             ReadOnlyPropertyRector::class => __DIR__ . '/src/App/*/Domain/Aggregate/*',
+            // Symfony Messenger resolves the handled message type from the __invoke() parameter type-hint.
+            // When a command carries no payload (empty DTO), the parameter is never read in the method body,
+            // so Rector would wrongly strip it and break Messenger routing.
+            RemoveUnusedPublicMethodParameterRector::class => __DIR__ . '/src/App/*/Application/Command/*CommandHandler.php',
         ],
     ],
 ];

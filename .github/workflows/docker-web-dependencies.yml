@@ -6,10 +6,17 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+      - ".github/workflows/docker-web-dependencies.yml"
   push:
     branches:
       - develop
@@ -17,19 +24,27 @@ on:
     paths:
       - ".version*"
       - '.github/docker/centreon-web/**/Dockerfile.dependencies'
+      - ".github/workflows/docker-web-dependencies.yml"
   schedule:
     - cron: "0 2 * * 1-5"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   dispatch-to-maintained-branches:
-    if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - run: |
-          NIGHTLY_TARGETS=("dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          NIGHTLY_TARGETS=("dev-24.10.x" "dev-25.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run docker-web-dependencies.yml -r "$target"
@@ -39,38 +54,100 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
-    if: github.repository == 'centreon/centreon'
+    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
+      labels: ${{ inputs.labels || '' }}
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
 
     strategy:
       fail-fast: false
       matrix:
-        distrib: [alma8, alma9, bookworm]
+        distrib: [alma9, alma10, trixie]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Login to registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+            echo "additional_tag=develop" >> $GITHUB_OUTPUT
+            # Keep major_version tag so dev-XX.YY.x E2E tests can still resolve their FROM image
+            echo "major_version_tag=${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          elif [[ "$REF" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
+            echo "tag=${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+            echo "additional_tag=" >> $GITHUB_OUTPUT
+            echo "major_version_tag=" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${REF//\//-}" >> $GITHUB_OUTPUT
+            echo "additional_tag=" >> $GITHUB_OUTPUT
+            echo "major_version_tag=" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
-      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      - name: Compute docker tags
+        id: docker_tags
+        env:
+          DISTRIB: ${{ matrix.distrib }}
+          TAG: ${{ steps.image_tag.outputs.tag }}
+          ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
+          MAJOR_VERSION_TAG: ${{ steps.image_tag.outputs.major_version_tag }}
+        run: |
+          WEB_DEPS="ghcr.io/$GITHUB_REPOSITORY/centreon-web-dependencies"
+          WEB_DEPS_COLLECT="ghcr.io/$GITHUB_REPOSITORY/centreon-web-dependencies-collect"
+
+          TAGS_DEPS="${WEB_DEPS}:${TAG}-${DISTRIB}"
+          TAGS_DEPS_COLLECT="${WEB_DEPS_COLLECT}:${TAG}-${DISTRIB}"
+          if [[ -n "$ADDITIONAL" ]]; then
+            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${ADDITIONAL}-${DISTRIB}"
+            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${ADDITIONAL}-${DISTRIB}"
+          fi
+          if [[ -n "$MAJOR_VERSION_TAG" ]]; then
+            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${MAJOR_VERSION_TAG}-${DISTRIB}"
+            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${MAJOR_VERSION_TAG}-${DISTRIB}"
+          fi
+          echo "tags_deps=${TAGS_DEPS}" >> $GITHUB_OUTPUT
+          echo "tags_deps_collect=${TAGS_DEPS_COLLECT}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        with:
+          images: ghcr.io/${{ github.repository }}/centreon-web-dependencies
+          labels: |
+            com.centreon.stability=${{ needs.get-environment.outputs.stability }}
+            com.centreon.version=${{ needs.get-environment.outputs.major_version }}
+
+      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
+      - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -80,21 +157,20 @@ jobs:
           target: web_dependencies
           context: .
           build-args: |
-            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
-          secrets: |
-            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
-            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies image
+          tags: ${{ steps.docker_tags.outputs.tags_deps }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         if: |
           needs.get-environment.outputs.is_cloud == 'false' ||
           ! contains(fromJson('["testing", "stable"]'), needs.get-environment.outputs.stability) ||
-          matrix.distrib != 'bookworm'
+          matrix.distrib != 'trixie'
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
           DOCKER_BUILD_SUMMARY: false
@@ -104,15 +180,14 @@ jobs:
           target: web_dependencies_collect
           context: .
           build-args: |
-            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: false
-          push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
-          secrets: |
-            "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
-            "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
+          outputs: type=image,push=true,annotation-index.org.opencontainers.image.description=Centreon web dependencies collect image
+          tags: ${{ steps.docker_tags.outputs.tags_deps_collect }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   set-skip-label:
     needs: [get-environment, dockerize]

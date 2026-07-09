@@ -1,15 +1,15 @@
+import { ClickAwayListener, Skeleton } from '@mui/material';
+
+import { useAtom } from 'jotai';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 import {
   type MutableRefObject,
+  type ReactElement,
   useEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
-
-import { useAtom } from 'jotai';
-import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
-
-import { ClickAwayListener, Skeleton } from '@mui/material';
 
 import { useDeepCompare } from '../../utils';
 import BarGroup from '../BarChart/BarGroup';
@@ -18,8 +18,8 @@ import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
 import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
-import Thresholds from '../common/Thresholds/Thresholds';
 import type { Thresholds as ThresholdsModel } from '../common/models';
+import Thresholds from '../common/Thresholds/Thresholds';
 import {
   getUnits,
   getXScale,
@@ -27,6 +27,7 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
+import { useMarginTop } from '../common/useMarginTop';
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -35,12 +36,12 @@ import {
   upperLineName
 } from './BasicComponents/Lines/Threshold/models';
 import { useChartStyles } from './Chart.styles';
+import { margin } from './common';
+import { thresholdTooltipAtom } from './graphAtoms';
 import InteractionWithGraph from './InteractiveComponents';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
-import { margin } from './common';
-import { thresholdTooltipAtom } from './graphAtoms';
 import type {
   Data,
   GlobalAreaLines,
@@ -116,7 +117,7 @@ const Chart = ({
   min,
   max,
   boundariesUnit
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes } = useChartStyles();
 
   const { title, timeSeries, baseAxis, lines } = graphData;
@@ -147,13 +148,15 @@ const Chart = ({
 
   const { maxLeftAxisCharacters, maxRightAxisCharacters } =
     useComputeYAxisMaxCharacters({
-      graphData,
-      thresholds,
-      thresholdUnit,
       axis,
       firstUnit,
-      secondUnit
+      graphData,
+      secondUnit,
+      thresholds,
+      thresholdUnit
     });
+
+  const allUnits = getUnits(linesGraph);
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
@@ -162,8 +165,10 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      width,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      title,
+      units: allUnits,
+      width
     });
 
   const xScale = useMemo(
@@ -181,23 +186,25 @@ const Chart = ({
         dataTime: timeSeries,
         valueWidth: graphWidth
       }),
-    [timeSeries, graphWidth, graphHeight]
+    [timeSeries, graphWidth]
   );
 
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
+        boundariesUnit,
         dataLines: linesGraph,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
+        // @ts-expect-error - suppressing pre-existing type mismatch
+        isFilled: lineStyle?.showArea,
+        max,
+        min,
         scale: axis?.scale,
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: graphHeight - margin.bottom,
-        min,
-        max,
-        boundariesUnit
+        thresholdUnit,
+        valueGraphHeight: graphHeight - margin.bottom
       }),
     [
       linesGraph,
@@ -207,12 +214,21 @@ const Chart = ({
       thresholds?.enabled,
       axis?.isCenteredZero,
       axis?.scale,
-      axis?.scaleLogarithmicBase
+      axis?.scaleLogarithmicBase,
+      boundariesUnit,
+      // @ts-expect-error - suppressing pre-existing type mismatch
+      lineStyle?.showArea,
+      max,
+      min,
+      thresholdUnit
     ]
   );
 
-  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
-  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const fallbackLeftUnit = axis?.axisYLeft?.unit ?? firstUnit ?? allUnits[0];
+  const fallbackRightUnit = axis?.axisYRight?.unit ?? secondUnit ?? allUnits[1];
+
+  const leftScale = yScalesPerUnit[fallbackLeftUnit];
+  const rightScale = yScalesPerUnit[fallbackRightUnit];
 
   const linesDisplayedAsLine = useMemo(
     () =>
@@ -227,16 +243,15 @@ const Chart = ({
     [displayedLines]
   );
 
-  const allUnits = getUnits(linesGraph);
-
-  useEffect(
-    () => {
-      setLinesGraph(
-        filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
-      );
-    },
-    useDeepCompare([lines, shapeLines?.areaThresholdLines])
-  );
+  useEffect(() => {
+    setLinesGraph(
+      filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
+    );
+  }, [
+    ...useDeepCompare([lines, shapeLines?.areaThresholdLines]),
+    lines,
+    shapeLines?.areaThresholdLines
+  ]);
 
   const graphTooltipData = useGraphTooltip({
     graphWidth,
@@ -254,6 +269,8 @@ const Chart = ({
 
   const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
 
+  const marginTop = useMarginTop({ title, units: allUnits });
+
   if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
@@ -269,22 +286,29 @@ const Chart = ({
       <div className={classes.baseWrapper}>
         <BaseChart
           base={baseAxis}
+          graphHeight={graphHeight}
           graphWidth={graphWidth}
           header={header}
           height={height}
           legend={{
+            ...legend,
             displayLegend,
             legendHeight: legend?.height,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             mode: legend?.mode,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent,
-            secondaryClick: legend?.secondaryClick
+            secondaryClick: legend?.secondaryClick,
+            showCalculations: legend?.showCalculations
           }}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           legendRef={legendRef}
           limitLegend={limitLegend}
           lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
+          // @ts-expect-error - suppressing pre-existing type mismatch
           titleRef={titleRef}
         >
           <GraphValueTooltip
@@ -301,90 +325,93 @@ const Chart = ({
                 graphHeight={graphHeight}
                 graphWidth={graphWidth}
                 gridLinesType={axis?.gridLinesType}
+                hasSecondUnit={hasSecondUnit}
                 leftScale={leftScale}
+                maxAxisCharacters={maxLeftAxisCharacters}
                 rightScale={rightScale}
                 showGridLines={showGridLines}
                 svgRef={graphSvgRef}
                 timeSeries={timeSeries}
                 xScale={xScale}
-                maxAxisCharacters={maxLeftAxisCharacters}
-                hasSecondUnit={hasSecondUnit}
               >
-                <>
-                  {!isEmpty(linesDisplayedAsBar) && (
-                    <BarGroup
-                      barStyle={barStyle}
-                      isTooltipHidden={false}
-                      lines={linesDisplayedAsBar}
-                      orientation="horizontal"
-                      size={graphHeight - margin.top - 5}
-                      timeSeries={timeSeries}
-                      xScale={xScaleBand}
-                      yScalesPerUnit={yScalesPerUnit}
-                    />
-                  )}
-                  {!isEmpty(linesDisplayedAsLine) && (
-                    <Lines
-                      lineStyle={lineStyle}
-                      displayAnchor={displayAnchor}
-                      displayedLines={linesDisplayedAsLine}
-                      graphSvgRef={graphSvgRef}
-                      height={graphHeight - margin.top}
-                      scale={axis?.scale}
-                      scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                      timeSeries={timeSeries}
-                      width={graphWidth}
-                      xScale={xScale}
-                      yScalesPerUnit={yScalesPerUnit}
-                      hasSecondUnit={hasSecondUnit}
-                      maxLeftAxisCharacters={maxLeftAxisCharacters}
-                      {...shapeLines}
-                    />
-                  )}
-                  {additionalLines?.map((additionalLine) => (
-                    <AdditionalLine
-                      key={additionalLine.yValue}
-                      {...additionalLine}
-                      graphWidth={graphWidth}
-                      yScale={yScalesPerUnit[additionalLine.unit]}
-                    />
-                  ))}
-                  <InteractionWithGraph
-                    annotationData={{ ...annotationEvent }}
-                    commonData={{
-                      graphHeight,
-                      graphSvgRef,
-                      graphWidth,
-                      lines: displayedLines,
-                      timeSeries,
-                      xScale,
-                      yScalesPerUnit
-                    }}
-                    timeShiftZonesData={{
-                      ...timeShiftZones,
-                      graphInterval
-                    }}
-                    zoomData={{ ...zoomPreview }}
-                    transformMatrix={transformMatrix}
-                    hasSecondUnit={hasSecondUnit}
-                    maxLeftAxisCharacters={maxLeftAxisCharacters}
+                {!isEmpty(linesDisplayedAsBar) && (
+                  <BarGroup
+                    // @ts-expect-error - suppressing pre-existing type mismatch
+                    barStyle={barStyle}
+                    isTooltipHidden={false}
+                    lines={linesDisplayedAsBar}
+                    orientation="horizontal"
+                    size={graphHeight - marginTop - 5}
+                    timeSeries={timeSeries}
+                    xScale={xScaleBand}
+                    yScalesPerUnit={yScalesPerUnit}
                   />
-                  {thresholds?.enabled && (
-                    <Thresholds
-                      displayedLines={displayedLines}
-                      hideTooltip={() => setThresholdTooltip(null)}
-                      showTooltip={({ tooltipData: thresholdLabel }) =>
-                        setThresholdTooltip({
-                          thresholdLabel
-                        })
-                      }
-                      thresholdUnit={thresholdUnit}
-                      thresholds={thresholds as ThresholdsModel}
-                      width={graphWidth}
-                      yScalesPerUnit={yScalesPerUnit}
-                    />
-                  )}
-                </>
+                )}
+                {!isEmpty(linesDisplayedAsLine) && (
+                  <Lines
+                    axis={axis}
+                    displayAnchor={displayAnchor}
+                    displayedLines={linesDisplayedAsLine}
+                    firstUnit={firstUnit}
+                    graphSvgRef={graphSvgRef}
+                    hasSecondUnit={hasSecondUnit}
+                    height={graphHeight - marginTop}
+                    // @ts-expect-error - suppressing pre-existing type mismatch
+                    lineStyle={lineStyle}
+                    maxLeftAxisCharacters={maxLeftAxisCharacters}
+                    scale={axis?.scale}
+                    scaleLogarithmicBase={axis?.scaleLogarithmicBase}
+                    secondUnit={secondUnit}
+                    timeSeries={timeSeries}
+                    width={graphWidth}
+                    xScale={xScale}
+                    yScalesPerUnit={yScalesPerUnit}
+                    {...shapeLines}
+                  />
+                )}
+                {additionalLines?.map((additionalLine) => (
+                  <AdditionalLine
+                    key={additionalLine.yValue}
+                    {...additionalLine}
+                    graphWidth={graphWidth}
+                    yScale={yScalesPerUnit[additionalLine.unit]}
+                  />
+                ))}
+                <InteractionWithGraph
+                  annotationData={{ ...annotationEvent }}
+                  commonData={{
+                    graphHeight,
+                    graphSvgRef,
+                    graphWidth,
+                    lines: displayedLines,
+                    timeSeries,
+                    xScale,
+                    yScalesPerUnit
+                  }}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
+                  timeShiftZonesData={{
+                    ...timeShiftZones,
+                    graphInterval
+                  }}
+                  transformMatrix={transformMatrix}
+                  zoomData={{ ...zoomPreview }}
+                />
+                {thresholds?.enabled && (
+                  <Thresholds
+                    displayedLines={displayedLines}
+                    hideTooltip={() => setThresholdTooltip(null)}
+                    showTooltip={({ tooltipData: thresholdLabel }) =>
+                      setThresholdTooltip({
+                        thresholdLabel
+                      })
+                    }
+                    thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
+                    width={graphWidth}
+                    yScalesPerUnit={yScalesPerUnit}
+                  />
+                )}
               </ChartSvgWrapper>
             </div>
           </GraphValueTooltip>

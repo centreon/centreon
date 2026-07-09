@@ -24,10 +24,6 @@ services:
             $writeCommandRepository: '@Core\Command\Infrastructure\Repository\ApiWriteCommandRepository'
             $logger: '@Centreon\Domain\Log\Logger'
 
-    Core\Command\Application\UseCase\AddCommand\AddCommand:
-        arguments:
-            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository'
-
     Core\Command\Infrastructure\Repository\ApiWriteCommandRepository:
         calls:
         - method: setTimeOut
@@ -42,6 +38,6 @@ services:
         arguments:
         - '@.inner'
         - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
-        - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+        - '@security.token_storage'
         - '@Centreon\Infrastructure\DatabaseConnection'
 

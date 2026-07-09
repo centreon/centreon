@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -7,15 +9,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/authentication/providers/web-sso'
+    url: `${INTERCEPTORS.api.authentication_provider}/web-sso`
   }).as('getWebSSOProvider');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentification');
 });
 
@@ -27,10 +29,7 @@ Given('an administrator logged in the platform', () => {
 });
 
 When('the administrator first configures the authentication mode', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(3)')
     .click();
   cy.wait('@getWebSSOProvider');

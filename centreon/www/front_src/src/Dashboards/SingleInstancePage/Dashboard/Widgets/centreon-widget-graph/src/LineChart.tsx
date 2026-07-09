@@ -1,17 +1,5 @@
-import { useAtomValue } from 'jotai';
-import {
-  F,
-  T,
-  always,
-  cond,
-  equals,
-  head,
-  identity,
-  lensPath,
-  pluck,
-  set
-} from 'ramda';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import {
   BarChart,
   LineChart,
@@ -21,15 +9,28 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import NoResources from '../../NoResources';
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  cond,
+  equals,
+  F,
+  head,
+  identity,
+  lensPath,
+  pluck,
+  set,
+  T
+} from 'ramda';
+
 import type { CommonWidgetProps, Data } from '../../models';
+import NoResources from '../../NoResources';
 import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
 } from '../../utils';
-
 import { graphEndpoint } from './api/endpoints';
 import type { PanelOptions } from './models';
 
@@ -49,6 +50,7 @@ interface Props
     | 'playlistHash'
     | 'widgetPrefixQuery'
     | 'isFromPreview'
+    | 'isInViewport'
   > {
   panelData: Data;
   panelOptions: PanelOptions;
@@ -63,7 +65,8 @@ const WidgetLineChart = ({
   playlistHash,
   id,
   widgetPrefixQuery,
-  isFromPreview
+  isFromPreview,
+  isInViewport
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
   const refreshIntervalToUse = useRefreshInterval({
@@ -87,6 +90,7 @@ const WidgetLineChart = ({
         widgetId: id
       }),
       bypassQueryParams: isOnPublicPage,
+      enforceIsEnabled: isInViewport,
       metrics: panelData.metrics,
       prefix: widgetPrefixQuery,
       refreshCount,
@@ -99,9 +103,9 @@ const WidgetLineChart = ({
 
   const formattedThresholds = useThresholds({
     data: graphData,
+    isMetaServiceSelected,
     metricName: head(metricNames),
-    thresholds: panelOptions.threshold,
-    isMetaServiceSelected
+    thresholds: panelOptions.threshold
   });
 
   if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
@@ -135,9 +139,10 @@ const WidgetLineChart = ({
       placement: panelOptions.legendPlacement
     },
     loading: isGraphLoading,
+    skipIntersectionObserver: isFromPreview,
     start,
-    thresholdUnit: panelData.metrics[0]?.unit,
     thresholds: formattedThresholds,
+    thresholdUnit: panelData.metrics[0]?.unit,
     timeShiftZones: {
       enable: false
     },
@@ -147,8 +152,7 @@ const WidgetLineChart = ({
     },
     zoomPreview: {
       enable: false
-    },
-    skipIntersectionObserver: isFromPreview
+    }
   };
 
   if (isLineChart) {

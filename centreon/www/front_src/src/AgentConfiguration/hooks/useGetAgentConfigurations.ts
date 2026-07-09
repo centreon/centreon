@@ -1,11 +1,13 @@
 import {
-  ListingModel,
   buildListingEndpoint,
+  ListingModel,
   useFetchQuery
 } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { isEmpty, pluck } from 'ramda';
 import { useMemo } from 'react';
+
 import { agentConfigurationsListingDecoder } from '../api/decoders';
 import { getAgentConfigurationsEndpoint } from '../api/endpoints';
 import {
@@ -19,7 +21,7 @@ import { AgentConfigurationListing } from '../models';
 import { useListingQueryKey } from './useListingQueryKey';
 
 interface UseGetAgentConfigurationsState {
-  data;
+  data: ListingModel<AgentConfigurationListing> | undefined;
   isLoading: boolean;
 }
 
@@ -87,25 +89,31 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
     ListingModel<AgentConfigurationListing>
   >({
     decoder: agentConfigurationsListingDecoder,
-    getQueryKey: () => queryKey,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint: getAgentConfigurationsEndpoint,
         parameters: {
-          page: page + 1,
           limit,
+          page: page + 1,
+          search: {
+            conditions: conditions as NonNullable<
+              NonNullable<
+                Parameters<
+                  typeof buildListingEndpoint
+                >[0]['parameters']['search']
+              >['conditions']
+            >
+          },
           sort: {
             [sortField]: sortOrder
-          },
-          search: {
-            conditions
           }
         }
       }),
+    getQueryKey: () => queryKey,
     queryOptions: {
-      suspense: false,
       refetchOnMount: false,
-      staleTime: 0
+      staleTime: 0,
+      suspense: false
     }
   });
 

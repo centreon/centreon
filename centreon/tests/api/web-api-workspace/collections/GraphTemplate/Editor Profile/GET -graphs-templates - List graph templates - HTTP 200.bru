@@ -1,0 +1,28 @@
+meta {
+  name: GET /configuration/graphs/templates - List graph templates - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/graphs/templates
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Editor can list graph templates.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

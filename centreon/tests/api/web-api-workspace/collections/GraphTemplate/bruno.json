@@ -1,0 +1,1 @@
+{ "version": "1", "name": "GraphTemplate", "type": "collection", "ignore": ["node_modules", ".git"] }

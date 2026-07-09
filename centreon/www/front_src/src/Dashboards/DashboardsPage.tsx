@@ -1,8 +1,7 @@
-import type { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { PageHeader, PageLayout } from '@centreon/ui/components';
+
+import type { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DashboardAccessRightsModal } from './components/DashboardLibrary/DashboardAccessRights/DashboardAccessRightsModal';
 import { DashboardConfigModal } from './components/DashboardLibrary/DashboardConfig/DashboardConfigModal';

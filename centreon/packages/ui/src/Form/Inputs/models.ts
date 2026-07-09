@@ -1,10 +1,38 @@
-import { FormikValues } from 'formik';
+import type { SvgIconProps, TypographyProps } from '@mui/material';
 
-import { SvgIconProps, TypographyProps } from '@mui/material';
+import type { FormikErrors, FormikTouched, FormikValues } from 'formik';
+import type { JsonDecoder } from 'ts.data.json';
 
-import { SelectEntry } from '../../InputField/Select';
-import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
-import { QueryParameter } from '../../queryParameters/models';
+import type { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import type { SelectEntry } from '../../InputField/Select';
+import type { QueryParameter } from '../../queryParameters/models';
+
+export interface ChangeArgs {
+  setFieldValue: (
+    field: string,
+    value: unknown,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  setFieldTouched: (
+    field: string,
+    isTouched?: boolean,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  setValues: (
+    values: React.SetStateAction<FormikValues>,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  setTouched: (
+    touched: FormikTouched<FormikValues>,
+    shouldValidate?: boolean
+    // biome-ignore lint/suspicious/noConfusingVoidType: matches Formik's type signature
+  ) => Promise<void | FormikErrors<FormikValues>>;
+  value: unknown;
+  values: FormikValues;
+}
 
 export enum InputType {
   Switch = 0,
@@ -49,28 +77,36 @@ export interface InputProps {
     setValues,
     values,
     setTouched
-  }) => void;
+  }: ChangeArgs) => void;
   checkbox?: {
     direction?: 'horizontal' | 'vertical';
     labelPlacement?: LabelPlacement;
     options?: Array<string>;
   };
   connectedAutocomplete?: {
+    useNewAPIFormat?: boolean;
     additionalConditionParameters: Array<ConditionsSearchParameter>;
     customQueryParameters: Array<QueryParameter>;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;
-    getRenderedOptionText?: (option) => string | JSX.Element;
+    getRenderedOptionText?: (option: { name: string }) => string | JSX.Element;
+    getOptionLabel?: (option: string | SelectEntry) => string;
+    helperText?: string;
+    optionProperty?: string;
     disableSelectAll?: boolean;
     limitTags?: number;
-    decoder?;
+    decoder?: JsonDecoder.Decoder<unknown>;
   };
   file?: {
     multiple?: boolean;
     accept?: string;
     maxFileSize?: number;
-    CustomDropZoneContent: ({ files }) => JSX.Element;
+    CustomDropZoneContent: ({
+      files
+    }: {
+      files: FileList | null;
+    }) => JSX.Element;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
@@ -101,7 +137,9 @@ export interface InputProps {
   inputClassName?: string;
   label: string;
   list?: {
-    AddItem: React.ComponentType<{ addItem }>;
+    AddItem: React.ComponentType<{
+      addItem: (newItem: SelectEntry) => void;
+    }>;
     SortContent: React.ComponentType<object>;
     addItemLabel?: string;
     itemProps: Array<string>;
@@ -116,7 +154,7 @@ export interface InputProps {
   };
   required?: boolean;
   switchInput?: {
-    getChecked?: (value) => boolean;
+    getChecked?: (value: unknown) => boolean;
   };
   text?: {
     endAdornment?: JSX.Element;

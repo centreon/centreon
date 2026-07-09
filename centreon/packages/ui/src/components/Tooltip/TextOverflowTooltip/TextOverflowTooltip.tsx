@@ -1,10 +1,15 @@
-import { ReactElement, useCallback, useEffect, useRef } from 'react';
-
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import { atom, useAtom } from 'jotai';
+import {
+  type ReactElement,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef
+} from 'react';
 
 import { useResizeObserver } from '../../../utils/useResizeObserver';
-import { Tooltip, TooltipProps } from '../Tooltip';
-
+import { Tooltip, type TooltipProps } from '../Tooltip';
 import { useStyles } from './TextOverflowTooltip.styles';
 
 type TextOverflowTooltipProps = Omit<TooltipProps, 'followCursor' | 'hasCaret'>;
@@ -54,7 +59,7 @@ const TextOverflowTooltip = ({
         ...state,
         isOpen: true
       }),
-    [state.hasOverflow]
+    [state.hasOverflow, setState, state]
   );
 
   const onMouseLeave = useCallback(
@@ -64,7 +69,7 @@ const TextOverflowTooltip = ({
         ...state,
         isOpen: false
       }),
-    [state.hasOverflow]
+    [state.hasOverflow, setState, state]
   );
 
   const elRef = useRef<HTMLDivElement>(null);
@@ -82,7 +87,7 @@ const TextOverflowTooltip = ({
 
   useResizeObserver({
     onResize,
-    ref: elRef
+    ref: elRef as RefObject<HTMLElement>
   });
 
   useEffect(() => {
@@ -102,9 +107,9 @@ const TextOverflowTooltip = ({
       <div
         className={classes.textOverflowTooltip}
         data-has-overflow={state.hasOverflow}
-        ref={elRef}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
+        ref={elRef}
       >
         {children}
       </div>

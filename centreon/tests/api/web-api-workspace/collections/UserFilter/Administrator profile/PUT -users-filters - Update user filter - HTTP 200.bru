@@ -1,0 +1,41 @@
+meta {
+  name: PUT /users/filters/events-view/{filterId} - Update user filter - HTTP 200
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrlWeb}}/users/filters/events-view/{{UserFilter1Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{UserFilter1Name}}",
+    "criterias": [
+      {
+        "name": "resource_types",
+        "value": [{"id": "host", "name": "Host"}, {"id": "service", "name": "Service"}],
+        "type": "multi_select",
+        "object_type": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("User filter has been successfully updated.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

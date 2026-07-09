@@ -1,0 +1,32 @@
+meta {
+  name: PATCH /users/current/parameters - Update current user parameters - HTTP 204
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/users/current/parameters
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "theme": "dark"
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Editor can update current user parameters.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

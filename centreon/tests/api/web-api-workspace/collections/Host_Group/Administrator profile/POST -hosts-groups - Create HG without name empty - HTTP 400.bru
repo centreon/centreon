@@ -1,0 +1,35 @@
+meta {
+  name: POST /hosts/groups - Create HG without name empty - HTTP 400
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/groups
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "",
+    "alias": "Empty name!",
+    "hosts": []
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host group has not been created, because the name can't be empty.", function () {
+    const body = res.getBody();
+    expect(body.message).to.contains("too short");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

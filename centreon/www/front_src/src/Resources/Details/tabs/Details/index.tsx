@@ -1,9 +1,9 @@
 import { useTheme } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { equals, isNil } from 'ramda';
 
 import { detailsAtom, panelWidthStorageAtom } from '../../detailsAtoms';
-
 import DetailsActions from './DetailsActions';
 import SortableCards from './SortableCards';
 

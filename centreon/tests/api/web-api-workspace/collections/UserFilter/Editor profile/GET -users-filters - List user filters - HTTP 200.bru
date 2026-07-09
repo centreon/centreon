@@ -1,0 +1,28 @@
+meta {
+  name: GET /users/filters/events-view - List user filters - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/users/filters/events-view
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("User filters list is accessible and the response schema is valid.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

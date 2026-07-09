@@ -1,4 +1,4 @@
-import { SetStateAction, useAtom } from 'jotai';
+import { type SetStateAction, useAtom } from 'jotai';
 import { isEmpty, isNil, prop } from 'ramda';
 
 import { imagesAtom } from './atoms';
@@ -38,7 +38,12 @@ const createImage = ({
     });
 };
 
-export const useLoadImage = ({ imageSrc, alt }): boolean => {
+interface UseLoadImageProps {
+  alt: string;
+  imageSrc: string;
+}
+
+export const useLoadImage = ({ imageSrc, alt }: UseLoadImageProps): boolean => {
   const [images, setImages] = useAtom(imagesAtom);
 
   const image = prop(alt, images);

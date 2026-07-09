@@ -122,12 +122,12 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         /** @var ResourceEntity $resource */
         foreach ($resources as $resource) {
             $resource = [
-                _('Resource Type') => _($this->formatLabel($resource->getType() ?? '')),
-                _('Resource Name') => _($resource->getName() ?? ''),
-                _('Status') => _($this->formatLabel($resource->getStatus()?->getName() ?? '')),
-                _('Parent Resource Type') => _($this->formatLabel($resource->getParent()?->getType() ?? '')),
-                _('Parent Resource Name') => _($resource->getParent()?->getName() ?? ''),
-                _('Parent Resource Status') => _(
+                _('Resource Type') => $this->translate($this->formatLabel($resource->getType() ?? '')),
+                _('Resource Name') => $resource->getName() ?? '',
+                _('Status') => $this->translate($this->formatLabel($resource->getStatus()?->getName() ?? '')),
+                _('Parent Resource Type') => $this->translate($this->formatLabel($resource->getParent()?->getType() ?? '')),
+                _('Parent Resource Name') => $resource->getParent()?->getName() ?? '',
+                _('Parent Resource Status') => $this->translate(
                     $this->formatLabel($resource->getParent()?->getStatus()?->getName() ?? '')
                 ),
                 _('Duration') => $resource->getDuration() ?? '',
@@ -140,7 +140,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
                     $resource->getLinks()->getExternals()->getActionUrl() ?? '',
                     $resource
                 ),
-                _('State') => _($this->getResourceState($resource)),
+                _('State') => $this->translate($this->getResourceState($resource)),
                 _('Alias') => $resource->getAlias() ?? '',
                 _('Parent alias') => $resource->getParent()?->getAlias() ?? '',
                 _('FQDN / Address') => $resource->getFqdn() ?? '',
@@ -233,6 +233,16 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
         });
 
         return $csvHeader;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return string
+     */
+    private function translate(string $value): string
+    {
+        return $value !== '' ? _($value) : '';
     }
 
     /**

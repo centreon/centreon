@@ -107,6 +107,7 @@ class AddHostOnPremPresenter extends AbstractPresenter implements AddHostPresent
                         ),
                         'macros' => array_map(
                             fn (array $macro) => [
+                                'id' => $macro['id'],
                                 'name' => $macro['name'],
                                 'value' => $macro['isPassword'] ? null : $macro['value'],
                                 'is_password' => $macro['isPassword'],

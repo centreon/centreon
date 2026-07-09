@@ -1,7 +1,7 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Button } from '@mui/material';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { useFullscreen } from './useFullscreen';
 import { router, useFullscreenListener } from './useFullscreenListener';

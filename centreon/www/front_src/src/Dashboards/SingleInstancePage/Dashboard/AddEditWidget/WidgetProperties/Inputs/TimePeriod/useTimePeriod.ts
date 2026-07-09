@@ -1,10 +1,9 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { SelectEntry } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import {
   labelCustomize,

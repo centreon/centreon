@@ -1,11 +1,12 @@
 import { useAtomValue } from 'jotai';
 import { SelectEntry } from 'packages/ui/src';
 import { prop } from 'ramda';
+
 import { CriteriaValue } from '../../Filter/Criterias/models';
 import { getCriteriaValueDerivedAtom } from '../../Filter/filterAtoms';
 
 interface UseGetCriteriaNamesState {
-  getCriteriaNames: (name: string) => Array<string | number> | undefined;
+  getCriteriaNames: (name: string) => Array<string>;
   getCriteriaIds: (name: string) => Array<string | number> | undefined;
   getCriteriaValue: (name: string) => CriteriaValue | undefined;
 }
@@ -29,7 +30,7 @@ const useGetCriteriaName = (): UseGetCriteriaNamesState => {
     return criteriaValue?.map(prop('id'));
   };
 
-  return { getCriteriaNames, getCriteriaValue, getCriteriaIds };
+  return { getCriteriaIds, getCriteriaNames, getCriteriaValue };
 };
 
 export default useGetCriteriaName;

@@ -4,16 +4,15 @@ import { PanelOptions } from '../StatusGridStandard/models';
 export const noResources = [];
 export const resources: Array<Resource> = [
   {
-    resourceType: 'host',
     resources: [
       {
         id: 1,
         name: 'Host'
       }
-    ]
+    ],
+    resourceType: 'host'
   },
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -23,7 +22,8 @@ export const resources: Array<Resource> = [
         id: 2,
         name: 'HG2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   }
 ];
 
@@ -112,34 +112,34 @@ export const services = [
 
 export const bvResources: Array<Resource> = [
   {
-    resourceType: 'business-view',
     resources: [
       {
         id: 1,
         name: 'bv1'
       }
-    ]
+    ],
+    resourceType: 'business-view'
   }
 ];
 
 export const baResources: Array<Resource> = [
   {
-    resourceType: 'business-view',
     resources: [
       {
         id: 1,
         name: 'bv1'
       }
-    ]
+    ],
+    resourceType: 'business-view'
   },
   {
-    resourceType: 'business-activity',
     resources: [
       {
         id: 1,
         name: 'ba1'
       }
-    ]
+    ],
+    resourceType: 'business-activity'
   }
 ];
 
@@ -176,16 +176,16 @@ export const linkToResourceCentreonServer =
 
 export const resourcesRegex: Array<Resource> = [
   {
-    resourceType: 'service',
-    resources: '^Loa'
+    resources: '^Loa',
+    resourceType: 'service'
   },
   {
-    resourceType: 'host',
     resources: [
       {
         id: 1,
         name: 'H1'
       }
-    ]
+    ],
+    resourceType: 'host'
   }
 ];

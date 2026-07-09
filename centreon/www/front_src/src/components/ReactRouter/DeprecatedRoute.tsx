@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
+import { PageSkeleton } from '@centreon/ui';
 
 import { isNil } from 'ramda';
+import { useEffect } from 'react';
 import { generatePath, useNavigate, useParams } from 'react-router';
-
-import { PageSkeleton } from '@centreon/ui';
 
 import { DeprecatedRoute as DeprecatedRouteModel } from '../../reactRoutes/deprecatedRoutes';
 

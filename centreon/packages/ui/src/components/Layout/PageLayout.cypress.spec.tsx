@@ -1,10 +1,8 @@
 import { T } from 'ramda';
 
 import { PageHeader } from '..';
-
-import { AreaIndicator } from './AreaIndicator';
-
 import { PageLayout } from '.';
+import { AreaIndicator } from './AreaIndicator';
 
 const initialize = (): void => {
   cy.mount({

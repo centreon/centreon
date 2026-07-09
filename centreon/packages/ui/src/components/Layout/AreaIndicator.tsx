@@ -1,4 +1,5 @@
-import { ReactElement, ReactNode } from 'react';
+/** biome-ignore-all lint/a11y/noLabelWithoutControl: need it */
+import type { ReactElement, ReactNode } from 'react';
 
 type AreaIndicatorProps = {
   children?: ReactNode | Array<ReactNode>;
@@ -21,7 +22,6 @@ const AreaIndicator = ({
       data-depth={depth}
       style={{ height, width }}
     >
-      {/* biome-ignore lint/a11y: */}
       <label className="left-2 rounded-sm border border-[#9747FF7F] border-dashed text-[#9747FF] text-[0.75rem] font-medium left-2 top-1.5 px-2 py-0.5">
         {name}
       </label>

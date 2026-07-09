@@ -578,4 +578,23 @@ class ConnectionException extends DatabaseException
             previous: $previous
         );
     }
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    public static function columnExistsFailed(
+        string $message,
+        string $tableName,
+        string $columnName,
+        ?\Exception $previous = null,
+    ): self {
+        return new self(
+            message: "Error while checking if column '{$columnName}' exists in table '{$tableName}' : {$message}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'table_name' => $tableName,
+                'column_name' => $columnName,
+            ],
+            previous: $previous
+        );
+    }
 }

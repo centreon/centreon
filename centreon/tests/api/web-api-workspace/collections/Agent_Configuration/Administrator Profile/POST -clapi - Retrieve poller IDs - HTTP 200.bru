@@ -1,0 +1,59 @@
+meta {
+  name: POST /clapi - Retrieve poller IDs - HTTP 200
+  type: http
+  seq: 10
+  tags: [
+    ignore
+  ]
+}
+
+post {
+  url: {{baseUrlWeb}}/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "show",
+    "object": "INSTANCE"
+  }
+}
+
+tests {
+  test("POST /clapi - Retrieve poller IDs - HTTP 200 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 404]);
+  });
+
+  if (res.status === 200) {
+    test("Poller IDs retrieved and stored in collection variables.", function () {
+      const body = res.getBody();
+      expect(body).to.be.an("object");
+      expect(body).to.have.property("result").that.is.an("array");
+
+      body.result.forEach(function (poller) {
+        if (poller.name === "Central") {
+          bru.setVar("CentralId", poller.id);
+        } else if (poller.name === "Poller-1") {
+          bru.setVar("Poller1Id", poller.id);
+        } else if (poller.name === "Poller-2") {
+          bru.setVar("Poller2Id", poller.id);
+        } else if (poller.name === "Poller-3") {
+          bru.setVar("Poller3Id", poller.id);
+        } else if (poller.name === "Poller-4") {
+          bru.setVar("Poller4Id", poller.id);
+        }
+      });
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

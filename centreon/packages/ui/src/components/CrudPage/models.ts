@@ -1,8 +1,9 @@
-import { PrimitiveAtom } from 'jotai';
-import { ReactElement } from 'react';
-import { JsonDecoder } from 'ts.data.json';
-import { Column, ListingModel, SearchParameter } from '../../..';
-import { ListingSubItems } from '../../Listing/models';
+import type { PrimitiveAtom } from 'jotai';
+import type { ReactElement } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
+
+import type { Column, ListingModel, SearchParameter } from '../../..';
+import type { ListingSubItems } from '../../Listing/models';
 
 interface CrudPageRootLabels {
   title: string;
@@ -31,7 +32,10 @@ export interface UseGetItemsProps<TData, TFilters> {
   getSearchParameters: ({
     search,
     filters
-  }: { search: string; filters: TFilters }) => SearchParameter;
+  }: {
+    search: string;
+    filters: TFilters;
+  }) => SearchParameter;
 }
 
 export interface UseGetItemsState<TData> {

@@ -1,22 +1,19 @@
-import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
-import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
-import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
-
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { federatedWidgetsAtom, isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
+import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
 
 import {
   getDashboardEndpoint,
   getPublicDashboardEndpoint
 } from '../../api/endpoints';
-
 import DashboardLayout from './DashboardLayout';
 import { labelEditDashboard } from './translatedLabels';
-
-import { federatedWidgetsPropertiesAtom } from 'www/front_src/src/federatedModules/atoms';
+import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
+import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
+import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
 import { internalWidgetComponents } from './Widgets/widgets';
 
 const initializeWidgets = (): ReturnType<typeof createStore> => {

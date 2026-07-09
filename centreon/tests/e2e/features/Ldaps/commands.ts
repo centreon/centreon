@@ -41,7 +41,7 @@ interface Ldap {
 }
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addOrUpdateLdap: (body: Ldap) => Cypress.Chainable;

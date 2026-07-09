@@ -1,15 +1,14 @@
+import { useRequest } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { path } from 'ramda';
 
-import { useRequest } from '@centreon/ui';
-
-import InfiniteScroll from '../../InfiniteScroll';
 import { detailsAtom } from '../../detailsAtoms';
+import InfiniteScroll from '../../InfiniteScroll';
 import LoadingSkeleton from '../Services/LoadingSkeleton';
-
-import Metrics from './Metrics';
 import { listMetaServiceMetrics } from './api';
 import { metaServiceMetricListingDecoder } from './api/decoders';
+import Metrics from './Metrics';
 import { MetaServiceMetricListing } from './models';
 
 const limit = 30;
@@ -17,7 +16,9 @@ const limit = 30;
 const MetricsTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest<MetaServiceMetricListing>({
     decoder: metaServiceMetricListingDecoder,
-    request: listMetaServiceMetrics
+    request: listMetaServiceMetrics as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<MetaServiceMetricListing>
   });
 
   const details = useAtomValue(detailsAtom);

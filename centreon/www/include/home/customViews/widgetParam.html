@@ -18,6 +18,7 @@
 		</td>
 	</tr>
 		{/if}		
+		{if $elem.ft_typename != 'hidden'}
 		<tr class="{$rowStyle}">
 			<td class="FormRowField">
 				{$form[$paramName].label}
@@ -32,9 +33,16 @@
 				{$form[$paramName].html}	
 			</td>			
 		</tr>		
+		{/if}
 		{/foreach}
 </table>
 <div id="validForm">
+	{foreach item=elem from=$params}
+	    {assign var=paramName value="param_`$elem.parameter_id`"}
+	    {if $elem.ft_typename == 'hidden'}
+	        {$form[$paramName].html}
+	    {/if}
+	{/foreach}
 	{$form.hidden}
     {if isset($selectedId)}
 	    <input type='hidden' name='selectedId' value='{$selectedId}'/>
@@ -104,8 +112,9 @@
             url: triggerSource,
             data: {data: triggerValue},
             success: function (response) {
+                var xmlDoc = (typeof response === 'string') ? jQuery.parseXML(response) : response;
                 jQuery("[name=param_" + targetId + "]").find('option').remove().end();
-                jQuery(response).find('option').each(function () {
+                jQuery(xmlDoc).find('option').each(function () {
                     jQuery("[name=param_" + targetId + "]").append(new Option(jQuery(this).find('label').text(),
                         triggerValue + '-' + jQuery(this).find('id').text(), true, true));
                 });

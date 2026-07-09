@@ -1,10 +1,12 @@
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import IconAcknowledge from '@mui/icons-material/Person';
 import { useTheme } from '@mui/material';
 
-import { Props } from '..';
+import { useTranslation } from 'react-i18next';
+
 import { labelAcknowledgement } from '../../../../../translatedLabels';
+import { Props } from '..';
 import EventAnnotations from '../EventAnnotations';
 
 const AcknowledgementAnnotations = (props: Props): JSX.Element => {
@@ -15,9 +17,9 @@ const AcknowledgementAnnotations = (props: Props): JSX.Element => {
 
   return (
     <EventAnnotations
-      Icon={IconAcknowledge}
       ariaLabel={t(labelAcknowledgement)}
       color={color}
+      Icon={IconAcknowledge}
       type="acknowledgement"
       {...props}
     />

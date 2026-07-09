@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add resourcestable widget - HTTP 204
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-resourcestable",
+        "widget_type": "/widgets/resourcestable",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}]},\"options\":{\"statuses\":[\"warning\",\"problem\",\"pending\",\"success\",\"undefined\"],\"states\":[\"unhandled_problems\",\"in_downtime\",\"acknowledged\"],\"refreshInterval\":\"default\"}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Resourcestable widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

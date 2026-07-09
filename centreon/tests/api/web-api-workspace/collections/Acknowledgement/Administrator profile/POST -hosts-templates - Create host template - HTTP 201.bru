@@ -1,0 +1,43 @@
+meta {
+  name: POST /hosts/templates - Create host template - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate1Name}}",
+    "alias": "{{HostTemplate1Alias}}",
+    "check_command_id": {{CommandId}},
+    "max_check_attempts": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host template has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostTemplate1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostTemplate1Name"),
+      "alias": bru.getEnvVar("HostTemplate1Alias"),
+      "check_command_id": parseInt(bru.getEnvVar("CommandId")),
+      "max_check_attempts": 1
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

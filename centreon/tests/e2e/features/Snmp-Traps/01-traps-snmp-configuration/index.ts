@@ -1,22 +1,24 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import {
-  UpdateTrapsSnmpConfiguration,
   submitForm,
-  trapsSnmpConfiguration
+  trapsSnmpConfiguration,
+  UpdateTrapsSnmpConfiguration
 } from '../common';
 
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
-  }).as('getUserTimezone');
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
-  }).as('getNavigationList');
+    url: INTERCEPTORS.pages.time_zone
+  }).as('getTimeZone');
 });
 
 Given('a user is logged in Centreon', () => {
@@ -27,21 +29,17 @@ Given('a user is logged in Centreon', () => {
 When(
   'the user adds a new SNMP trap definition with an advanced matching rule',
   () => {
-    cy.navigateTo({
-      page: 'SNMP Traps',
-      rootItemNumber: 3,
-      subMenu: 'SNMP Traps'
-    });
+    cy.visit(PAGES.configuration.snmpTrapsLegacy);
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().find('a.bt_success').contains('Add').click();
     trapsSnmpConfiguration({
       name: data.snmp1.name,
-      vendor: data.snmp1.vendor,
       oid: data.snmp1.oid,
       output: data.snmp1.output,
-      string: data.snmp1.rule.string,
       regexp: data.snmp1.rule.regexp,
-      severity: data.snmp1.rule.status
+      severity: data.snmp1.rule.status,
+      string: data.snmp1.rule.string,
+      vendor: data.snmp1.vendor
     });
   }
 );
@@ -85,10 +83,10 @@ When(
     cy.setUserTokenApiV1();
     cy.addHost({
       activeCheckEnabled: false,
-      alias: data.snmp2.hostName,
-      name: data.snmp2.hostName,
       address: '1.2.3.4',
+      alias: data.snmp2.hostName,
       checkCommand: 'check_centreon_cpu',
+      name: data.snmp2.hostName,
       template: 'generic-host'
     });
     cy.addService({
@@ -102,46 +100,42 @@ When(
       name: data.snmp2.service_templates,
       template: 'generic-service'
     });
-    cy.navigateTo({
-      page: 'SNMP Traps',
-      rootItemNumber: 3,
-      subMenu: 'SNMP Traps'
-    });
+    cy.visit(PAGES.configuration.snmpTrapsLegacy);
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().find('a.bt_success').contains('Add').click();
     trapsSnmpConfiguration({
       name: data.snmp1.name,
-      vendor: data.snmp1.vendor,
       oid: data.snmp1.oid,
       output: data.snmp1.output,
-      string: data.snmp1.rule.string,
       regexp: data.snmp1.rule.regexp,
-      severity: data.snmp1.rule.status
+      severity: data.snmp1.rule.status,
+      string: data.snmp1.rule.string,
+      vendor: data.snmp1.vendor
     });
     submitForm();
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().contains(data.snmp1.name).click();
     UpdateTrapsSnmpConfiguration({
+      behavior: data.snmp2.behavior,
+      comments: data.snmp2.comments,
+      customCode: data.snmp2.custom_code,
+      executionInterval: data.snmp2.execution_interval,
+      filterServices: data.snmp2.filter_services,
+      mode: data.snmp2.mode,
       name: data.snmp2.name,
-      vendor: data.snmp2.vendor,
       oid: data.snmp2.oid,
       output: data.snmp2.output,
-      mode: data.snmp2.mode,
-      status: data.snmp2.status,
-      behavior: data.snmp2.behavior,
-      string: data.snmp2.rule.string,
+      outputTransform: data.snmp2.output_transform,
       regexp: data.snmp2.rule.regexp,
-      severity: data.snmp2.rule.status,
-      specialCommand: data.snmp2.special_command,
-      comments: data.snmp2.comments,
+      routingDefinition: data.snmp2.routing_definition,
       serviceName: data.snmp2.serviceName,
       serviceTemplates: data.snmp2.service_templates,
-      routingDefinition: data.snmp2.routing_definition,
-      filterServices: data.snmp2.filter_services,
+      severity: data.snmp2.rule.status,
+      specialCommand: data.snmp2.special_command,
+      status: data.snmp2.status,
+      string: data.snmp2.rule.string,
       timeout: data.snmp2.timeout,
-      executionInterval: data.snmp2.execution_interval,
-      outputTransform: data.snmp2.output_transform,
-      customCode: data.snmp2.custom_code
+      vendor: data.snmp2.vendor
     });
     cy.getIframeBody()
       .find('div#validForm')
@@ -238,21 +232,17 @@ Then('all changes are saved', () => {
 
 // Scenario: Duplicate SNMP trap definition
 When('the user has duplicated one existing SNMP trap definition', () => {
-  cy.navigateTo({
-    page: 'SNMP Traps',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   trapsSnmpConfiguration({
     name: data.snmp1.name,
-    vendor: data.snmp1.vendor,
     oid: data.snmp1.oid,
     output: data.snmp1.output,
-    string: data.snmp1.rule.string,
     regexp: data.snmp1.rule.regexp,
-    severity: data.snmp1.rule.status
+    severity: data.snmp1.rule.status,
+    string: data.snmp1.rule.string,
+    vendor: data.snmp1.vendor
   });
   submitForm();
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
@@ -294,21 +284,17 @@ Then('all SNMP trap properties are unchanged except the name', () => {
 
 // Scenario: Delete SNMP trap definition
 When('the user has deleted one existing SNMP trap definition', () => {
-  cy.navigateTo({
-    page: 'SNMP Traps',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   trapsSnmpConfiguration({
     name: data.snmp1.name,
-    vendor: data.snmp1.vendor,
     oid: data.snmp1.oid,
     output: data.snmp1.output,
-    string: data.snmp1.rule.string,
     regexp: data.snmp1.rule.regexp,
-    severity: data.snmp1.rule.status
+    severity: data.snmp1.rule.status,
+    string: data.snmp1.rule.string,
+    vendor: data.snmp1.vendor
   });
   submitForm();
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');

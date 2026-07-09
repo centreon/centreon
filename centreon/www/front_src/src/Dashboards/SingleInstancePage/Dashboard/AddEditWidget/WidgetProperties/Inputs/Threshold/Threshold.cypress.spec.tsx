@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -9,7 +9,6 @@ import {
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { ServiceMetric } from '../../../models';
-
 import Threshold from './Threshold';
 
 const emptyMetrics = [];

@@ -199,12 +199,6 @@ parameters:
 			path: www/class/config-generate-remote/Relations/BrokerInfo.php
 
 		-
-			message: '#^Undefined variable\: \$serviceId$#'
-			identifier: variable.undefined
-			count: 1
-			path: www/class/config-generate-remote/Relations/HostPollerRelation.php
-
-		-
 			message: '#^Class ConfigGenerateRemote\\Relations\\TrapsGroupRelation referenced with incorrect case\: ConfigGenerateRemote\\Relations\\trapsGroupRelation\.$#'
 			identifier: class.nameCase
 			count: 1
@@ -235,18 +229,6 @@ parameters:
 			path: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 
 		-
-			message: '#^Function duplicateArgDesc\(\) should return unknown_type but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: www/include/configuration/configObject/command/DB-Func.php
-
-		-
-			message: '#^Undefined variable\: \$form$#'
-			identifier: variable.undefined
-			count: 2
-			path: www/include/configuration/configObject/command/DB-Func.php
-
-		-
 			message: '#^Undefined variable\: \$oreon$#'
 			identifier: variable.undefined
 			count: 1
@@ -268,7 +250,7 @@ parameters:
 		-
 			message: '#^Undefined variable\: \$ret$#'
 			identifier: variable.undefined
-			count: 2
+			count: 1
 			path: www/include/configuration/configObject/host/DB-Func.php
 
 		-
@@ -396,12 +378,6 @@ parameters:
 			identifier: return.missing
 			count: 2
 			path: www/include/options/accessLists/menusACL/DB-Func.php
-
-		-
-			message: '#^Undefined variable\: \$acl_res_name$#'
-			identifier: variable.undefined
-			count: 1
-			path: www/include/options/accessLists/resourcesACL/DB-Func.php
 
 		-
 			message: '#^Instantiated class graph not found\.$#'

@@ -77,6 +77,7 @@ class CountResourcesPresenterJson extends AbstractPresenter implements CountReso
         $this->present(
             [
                 'count' => $response->getTotalFilteredResources(),
+                'is_approximate' => $response->isApproximate(),
                 'meta' => [
                     'search' => $search,
                     'total' => $response->getTotalResources(),

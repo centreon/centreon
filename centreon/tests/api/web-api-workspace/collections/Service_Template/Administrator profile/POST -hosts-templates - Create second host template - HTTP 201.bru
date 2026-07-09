@@ -1,0 +1,40 @@
+meta {
+  name: POST /hosts/templates - Create second host template - HTTP 201
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate2Name}}",
+    "alias": "{{HostTemplate2Alias}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host template has been successfully created, with name '{{HostTemplate2Name}}' and alias '{{HostTemplate2Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostTemplate2Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostTemplate2Name"),
+      "alias": bru.getEnvVar("HostTemplate2Alias"),
+      "is_locked": false
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

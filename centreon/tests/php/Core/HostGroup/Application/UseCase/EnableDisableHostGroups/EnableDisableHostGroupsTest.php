@@ -23,6 +23,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -42,13 +43,14 @@ beforeEach(function (): void {
         $this->writeRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->readMonitoringServerRepository = $this->createMock(ReadMonitoringServerRepositoryInterface::class),
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->request = new EnableDisableHostGroupsRequest([1, 2, 3], true);
 });
 
 it('should check that HostGroups exists as admin', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
@@ -61,7 +63,7 @@ it('should check that HostGroups exists as admin', function (): void {
 });
 
 it('should check that HostGroups exists as user', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
@@ -74,7 +76,7 @@ it('should check that HostGroups exists as user', function (): void {
 });
 
 it('should return a EnableDisableHostGroupsResponse', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);

@@ -66,7 +66,7 @@ $help['tip_backup_retention'] = dgettext(
 );
 $help['tip_backup_mysql_conf'] = dgettext(
     'help',
-    'MySQL configuration file path (i.e. /etc/my.cnf.d/centreon.cnf)'
+    'MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty to use the default value.'
 );
 $help['tip_backup_export_scp_enabled'] = dgettext(
     'help',

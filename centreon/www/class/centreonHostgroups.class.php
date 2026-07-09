@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -104,11 +107,14 @@ class CentreonHostgroups
         static $names = [];
 
         if (! isset($names[$hg_id])) {
-            $query = 'SELECT hg_name FROM hostgroup WHERE hg_id = ' . $this->DB->escape($hg_id);
-            $res = $this->DB->query($query);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
-                $names[$hg_id] = $row['hg_name'];
+            $name = $this->DB->fetchOne(
+                'SELECT hg_name FROM hostgroup WHERE hg_id = :hg_id',
+                QueryParameters::create([
+                    QueryParameter::int('hg_id', (int) $hg_id),
+                ])
+            );
+            if ($name !== false) {
+                $names[$hg_id] = $name;
             }
         }
 
@@ -175,11 +181,14 @@ class CentreonHostgroups
         static $ids = [];
 
         if (! isset($ids[$hg_name])) {
-            $query = "SELECT hg_id FROM hostgroup WHERE hg_name = '" . $this->DB->escape($hg_name) . "'";
-            $res = $this->DB->query($query);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
-                $ids[$hg_name] = $row['hg_id'];
+            $id = $this->DB->fetchOne(
+                'SELECT hg_id FROM hostgroup WHERE hg_name = :hg_name',
+                QueryParameters::create([
+                    QueryParameter::string('hg_name', (string) $hg_name),
+                ])
+            );
+            if ($id !== false) {
+                $ids[$hg_name] = $id;
             }
         }
 
@@ -198,19 +207,21 @@ class CentreonHostgroups
             return;
         }
 
-        $hosts = [];
-        $DBRESULT = $this->DB->query(
+        $childIds = $this->DB->fetchFirstColumn(
             'SELECT hg_child_id '
             . 'FROM hostgroup_hg_relation, hostgroup '
-            . "WHERE hostgroup_hg_relation.hg_parent_id = '" . $this->DB->escape($hg_id) . "' "
+            . 'WHERE hostgroup_hg_relation.hg_parent_id = :hg_id '
             . 'AND hostgroup.hg_id = hostgroup_hg_relation.hg_child_id '
-            . 'ORDER BY hostgroup.hg_name'
+            . 'ORDER BY hostgroup.hg_name',
+            QueryParameters::create([
+                QueryParameter::int('hg_id', (int) $hg_id),
+            ])
         );
-        while ($elem = $DBRESULT->fetchRow()) {
-            $hosts[$elem['hg_child_id']] = $elem['hg_child_id'];
+
+        $hosts = [];
+        foreach ($childIds as $childId) {
+            $hosts[$childId] = $childId;
         }
-        $DBRESULT->closeCursor();
-        unset($elem);
 
         return $hosts;
     }
@@ -345,16 +356,21 @@ class CentreonHostgroups
      */
     public function getHostsByHostgroupName($hgName)
     {
-        $hostList = [];
-        $query = 'SELECT host_name, host_id  '
+        $rows = $this->DB->fetchAllAssociative(
+            'SELECT host_name, host_id '
             . 'FROM hostgroup_relation hgr, host h, hostgroup hg '
             . 'WHERE hgr.host_host_id = h.host_id '
             . 'AND hgr.hostgroup_hg_id = hg.hg_id '
             . "AND h.host_activate = '1' "
-            . "AND hg.hg_name = '" . $this->DB->escape($hgName) . "'";
-        $result = $this->DB->query($query);
-        while ($elem = $result->fetchrow()) {
-            $hostList[] = ['host' => $elem['host_name'], 'host_id' => $elem['host_id'], 'hg_name' => $hgName];
+            . 'AND hg.hg_name = :hg_name',
+            QueryParameters::create([
+                QueryParameter::string('hg_name', (string) $hgName),
+            ])
+        );
+
+        $hostList = [];
+        foreach ($rows as $row) {
+            $hostList[] = ['host' => $row['host_name'], 'host_id' => $row['host_id'], 'hg_name' => $hgName];
         }
 
         return $hostList;

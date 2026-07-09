@@ -10,7 +10,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: |
-        node ./.github/actions/publish-lint-report/formatJsonToMarkdown.js ${{ inputs.path }} $GITHUB_WORKSPACE
+    - env:
+        REPORT_PATH: ${{ inputs.path }}
+      run: |
+        node ./.github/actions/publish-lint-report/formatJsonToMarkdown.js "$REPORT_PATH" "$GITHUB_WORKSPACE"
         cat eslint-report.md >> $GITHUB_STEP_SUMMARY
       shell: bash

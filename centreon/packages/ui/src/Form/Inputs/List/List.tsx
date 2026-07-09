@@ -1,13 +1,12 @@
-import { ComponentType } from 'react';
-
 import { closestCenter } from '@dnd-kit/core';
 import { verticalListSortingStrategy } from '@dnd-kit/sortable';
+import type { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import type { SelectEntry } from '../../..';
 import { SortableItems, Subtitle } from '../../..';
-import { InputPropsWithoutGroup } from '../models';
-
-import Content, { ContentProps } from './Content';
+import type { InputPropsWithoutGroup } from '../models';
+import Content, { type ContentProps } from './Content';
 import { useListStyles } from './List.styles';
 import { useList } from './useList';
 
@@ -21,7 +20,7 @@ const List = ({
   const { addItem, sortList, sortedList, deleteItem } = useList({ fieldName });
 
   const { AddItem, addItemLabel, sortLabel, SortContent, itemProps } = list as {
-    AddItem: ComponentType<{ addItem }>;
+    AddItem: ComponentType<{ addItem: (newItem: SelectEntry) => void }>;
     SortContent: ComponentType;
     addItemLabel?: string;
     itemProps: Array<string>;
@@ -35,20 +34,21 @@ const List = ({
       {sortLabel && <Subtitle>{t(sortLabel)}</Subtitle>}
       <div className={classes.items}>
         <SortableItems
-          updateSortableItemsOnItemsChange
-          // eslint-disable-next-line react/no-unstable-nested-components
-          Content={(props: Omit<ContentProps, 'children' | 'deleteItem'>) => (
-            <Content {...props} deleteItem={deleteItem}>
-              <SortContent {...props} />
-            </Content>
-          )}
+          Content={
+            ((props: Omit<ContentProps, 'children' | 'deleteItem'>) => (
+              <Content {...props} deleteItem={deleteItem}>
+                <SortContent {...(props as Record<string, unknown>)} />
+              </Content>
+            )) as never
+          }
           collisionDetection={closestCenter}
           itemProps={itemProps}
-          items={sortedList}
-          sortingStrategy={verticalListSortingStrategy}
+          items={sortedList as Array<{ id: string }>}
           onDragEnd={({ items }): void => {
             sortList(items);
           }}
+          sortingStrategy={verticalListSortingStrategy}
+          updateSortableItemsOnItemsChange
         />
       </div>
     </div>

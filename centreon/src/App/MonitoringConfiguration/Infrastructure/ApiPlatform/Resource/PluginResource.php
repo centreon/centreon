@@ -25,30 +25,38 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\GetCollection;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListPluginsProvider;
-use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\Get;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\FindPluginProvider;
 
 #[ApiResource(
-    shortName: 'ListPlugins',
+    shortName: 'Plugin',
     operations: [
-        new GetCollection(
-            uriTemplate: '/configuration/plugins',
-            provider: ListPluginsProvider::class,
+        new Get(
+            uriTemplate: '/configuration/plugins/{plugin_name}',
+            provider: FindPluginProvider::class,
         ),
     ],
 )]
 final class PluginResource
 {
     public function __construct(
-        #[Assert\NotNull]
-        #[Assert\NotBlank]
-        #[Assert\Length(max: 255)]
         #[ApiProperty(
             description: 'Name of plugin',
             openapiContext: ['example' => 'negate']
         )]
-        public ?string $name = null,
+        public string $name,
+
+        #[ApiProperty(
+            description: 'command line of plugin',
+            openapiContext: ['example' => '/usr/lib64/nagios/plugins/negate']
+        )]
+        public string $commandLine,
+
+        #[ApiProperty(
+            description: 'description of plugin',
+            openapiContext: ['example' => 'This is the help description of the plugin.']
+        )]
+        public ?string $description,
     ) {
     }
 }

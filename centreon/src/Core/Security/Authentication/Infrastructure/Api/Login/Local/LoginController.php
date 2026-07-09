@@ -74,7 +74,7 @@ final class LoginController extends AbstractController
         }
 
         $presenter->setResponseHeaders(
-            ['Set-Cookie' => 'PHPSESSID=' . $requestStack->getSession()->getId()]
+            ['Set-Cookie' => session_name() . '=' . $requestStack->getSession()->getId()]
         );
 
         return $presenter->show();

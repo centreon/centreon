@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 /**
  * Class
  *
@@ -178,16 +181,53 @@ class CentreonSession
      */
     public static function getUser($sessionId, $pearDB)
     {
-        $sessionId = str_replace(['_', '%'], ['', ''], $sessionId);
-        $DBRESULT = $pearDB->query(
-            "SELECT user_id FROM session
-                WHERE `session_id` = '" . htmlentities(trim($sessionId), ENT_QUOTES, 'UTF-8') . "'"
+        $sessionId = mb_trim(str_replace(['_', '%'], ['', ''], $sessionId));
+        $userId = $pearDB->fetchOne(
+            'SELECT user_id FROM session WHERE `session_id` = :session_id',
+            QueryParameters::create([QueryParameter::string('session_id', $sessionId)])
         );
-        $row = $DBRESULT->fetchRow();
-        if (! $row) {
+        if ($userId === false) {
             return 0;
         }
 
-        return $row['user_id'];
+        return $userId;
+    }
+
+    public static function resolveSessionCookie(): string
+    {
+        // Build session cookie name/value robustly to support subdomains (e.g., PHPSESSID_{SITE})
+        $sessionName = session_name();
+        if ($sessionName === '' || $sessionName === false) {
+            $iniSessionName = ini_get('session.name');
+            $sessionName = is_string($iniSessionName) && $iniSessionName !== '' ? $iniSessionName : 'PHPSESSID';
+        }
+
+        $sessionId = session_id();
+        if ($sessionId === '' || $sessionId === false) {
+            // Fallback: try cookie matching the current session name
+            if (isset($_COOKIE[$sessionName]) && is_string($_COOKIE[$sessionName])) {
+                $sessionId = $_COOKIE[$sessionName];
+            } else {
+                // Last resort: find any cookie starting with session name (e.g., PHPSESSID_{SITE})
+                foreach ($_COOKIE as $cookieKey => $cookieVal) {
+                    if (is_string($cookieKey) && str_starts_with($cookieKey, $sessionName) && is_string($cookieVal)) {
+                        $sessionName = $cookieKey;
+                        $sessionId = $cookieVal;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (empty($sessionId)) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Unable to resolve session cookie: no valid session ID found'
+            );
+
+            throw new RuntimeException('Unable to resolve session cookie: no valid session ID found');
+        }
+
+        return $sessionName . '=' . $sessionId;
     }
 }

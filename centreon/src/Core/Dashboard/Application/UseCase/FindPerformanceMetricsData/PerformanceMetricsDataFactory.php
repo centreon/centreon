@@ -131,7 +131,7 @@ class PerformanceMetricsDataFactory
         $metrics = [];
         $times = [];
         foreach ($metricsData as $index => $metricData) {
-            $metricBases[] = $metricData['global']['base'];
+            $metricBases[] = $metricData['global']['base'] ?? PerformanceMetricsData::DEFAULT_BASE;
             $metrics[
                 'index:' . $index . ';host_name:' . $metricData['global']['host_name'] . ';service_name:'
                     . $metricData['global']['service_description']

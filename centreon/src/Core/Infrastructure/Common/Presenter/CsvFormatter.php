@@ -44,11 +44,11 @@ class CsvFormatter implements PresenterFormatterInterface
                 foreach ($data as $oneData) {
                     if (! $lineHeadersCreated) {
                         $columnNames = array_keys($oneData);
-                        fputcsv($handle, $columnNames, ';');
+                        fputcsv($handle, $columnNames, ';', '"', '\\');
                         $lineHeadersCreated = true;
                     }
                     $columnValues = array_values($oneData);
-                    fputcsv($handle, $columnValues, ';');
+                    fputcsv($handle, $columnValues, ';', '"', '\\');
                 }
             }
 

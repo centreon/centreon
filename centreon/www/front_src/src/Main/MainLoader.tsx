@@ -1,13 +1,12 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
 import { Image, ImageVariant, LoadingSkeleton } from '@centreon/ui';
 
-import { labelCentreonLogo } from '../Login/translatedLabels';
-import logoCentreon from '../assets/logo-centreon-colors.svg';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
+import logoCentreon from '../assets/logo-centreon-colors.svg';
+import { labelCentreonLogo } from '../Login/translatedLabels';
 import { labelCentreonIsLoading } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({

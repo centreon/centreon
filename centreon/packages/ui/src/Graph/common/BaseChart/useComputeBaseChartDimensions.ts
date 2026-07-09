@@ -1,10 +1,10 @@
-import { RefCallback } from 'react';
-
 import { equals, isNil } from 'ramda';
-
+import type { RefCallback } from 'react';
 import useResizeObserver from 'use-resize-observer';
+
 import { margin } from '../../Chart/common';
 import { margins } from '../margins';
+import { useMarginTop } from '../useMarginTop';
 
 export const extraMargin = 10;
 
@@ -16,6 +16,8 @@ interface UseComputeBaseChartDimensionsProps {
   legendPlacement?: string;
   width: number;
   maxAxisCharacters: number;
+  title?: string;
+  units: Array<string>;
 }
 
 interface UseComputeBaseChartDimensionsState {
@@ -32,7 +34,9 @@ export const useComputeBaseChartDimensions = ({
   legendPlacement,
   hasSecondUnit,
   legendHeight,
-  maxAxisCharacters
+  maxAxisCharacters,
+  units,
+  title
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
   const {
     ref: legendRef,
@@ -42,6 +46,8 @@ export const useComputeBaseChartDimensions = ({
   const { ref: titleRef, height: titleRefHeight } = useResizeObserver();
 
   const currentLegendHeight = legendHeight ?? (legendRefHeight || 0);
+
+  const marginTop = useMarginTop({ title, units });
 
   const legendBoundingHeight =
     !equals(legendDisplay, false) &&
@@ -63,11 +69,7 @@ export const useComputeBaseChartDimensions = ({
       : 0;
   const graphHeight =
     (height || 0) > 0
-      ? (height || 0) -
-        margin.top -
-        legendBoundingHeight -
-        (titleRefHeight || 0) -
-        5
+      ? (height || 0) - marginTop - legendBoundingHeight - (titleRefHeight || 0)
       : 0;
 
   return {

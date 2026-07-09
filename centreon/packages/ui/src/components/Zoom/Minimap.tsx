@@ -1,10 +1,10 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
+import { scaleLinear } from '@visx/scale';
 import { useMemo } from 'react';
 
-import { scaleLinear } from '@visx/scale';
-
-import { useZoomStyles } from './Zoom.styles';
 import { minimapScale, radius } from './constants';
-import { UseMinimapProps, useMinimap } from './useMinimap';
+import { type UseMinimapProps, useMinimap } from './useMinimap';
+import { useZoomStyles } from './Zoom.styles';
 
 interface Props extends Omit<UseMinimapProps, 'minimapScale' | 'scale'> {
   children: JSX.Element;
@@ -34,11 +34,11 @@ const Minimap = ({
 
   const yMinimapScale = useMemo(
     () => contentClientRect.height / zoom.transformMatrix.scaleY / height,
-    [contentClientRect.height, height]
+    [contentClientRect.height, height, zoom.transformMatrix.scaleY]
   );
   const xMinimapScale = useMemo(
     () => contentClientRect.width / zoom.transformMatrix.scaleX / width,
-    [contentClientRect.width, width]
+    [contentClientRect.width, width, zoom.transformMatrix.scaleX]
   );
 
   const scale = Math.max(yMinimapScale, xMinimapScale);
@@ -73,14 +73,14 @@ const Minimap = ({
       -diffBetweenContentAndSvg.left /
       zoom.transformMatrix.scaleX /
       minimapScale,
-    [diffBetweenContentAndSvg.left]
+    [diffBetweenContentAndSvg.left, zoom.transformMatrix.scaleX]
   );
   const translateY = useMemo(
     () =>
       -diffBetweenContentAndSvg.top /
       zoom.transformMatrix.scaleX /
       minimapScale,
-    [diffBetweenContentAndSvg.top]
+    [diffBetweenContentAndSvg.top, zoom.transformMatrix.scaleX]
   );
 
   return (
@@ -113,14 +113,14 @@ const Minimap = ({
         data-testid="minimap-interaction"
         fill="transparent"
         height={finalHeight}
-        rx={radius}
-        width={finalWidth}
         onMouseDown={dragStart}
         onMouseEnter={dragStart}
         onMouseLeave={dragEnd}
         onMouseMove={move}
         onMouseUp={dragEnd}
         onWheel={zoomInOut}
+        rx={radius}
+        width={finalWidth}
       />
     </g>
   );

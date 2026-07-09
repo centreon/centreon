@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
@@ -67,7 +68,7 @@ class CmaValidator implements TypeValidatorInterface
         }
 
         $this->validateAgentInitiatedConnection($configuration, $request->connectionMode);
-        $this->validatePollerInitiatedConnection($configuration, $request->connectionMode);
+        $this->validatePollerInitiatedConnection($configuration);
     }
 
     /**
@@ -78,6 +79,9 @@ class CmaValidator implements TypeValidatorInterface
     {
         if ($configuration['agent_initiated'] === false) {
             return;
+        }
+        if ($configuration['port'] === null) {
+            throw AgentConfigurationException::portIsMandatory();
         }
 
         if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
@@ -96,19 +100,18 @@ class CmaValidator implements TypeValidatorInterface
                 $configuration['otel_private_key'],
                 false
             );
+        }
 
-            if ($configuration['tokens'] === []) {
-                throw AgentConfigurationException::tokensAreMandatory();
-            }
+        if ($configuration['tokens'] === []) {
+            throw AgentConfigurationException::tokensAreMandatory();
         }
         $this->validateTokens($configuration['tokens']);
     }
 
     /**
      * @param _CmaParameters $configuration
-     * @param ConnectionModeEnum $connectionMode
      */
-    private function validatePollerInitiatedConnection(array $configuration, ConnectionModeEnum $connectionMode): void
+    private function validatePollerInitiatedConnection(array $configuration): void
     {
         if ($configuration['poller_initiated'] === false) {
             return;
@@ -121,31 +124,32 @@ class CmaValidator implements TypeValidatorInterface
                 throw AgentConfigurationException::invalidHostId($host['id']);
             }
 
-            if ($connectionMode !== ConnectionModeEnum::NO_TLS && $host['token'] === null) {
+            if ($host['token'] === null) {
                 throw AgentConfigurationException::tokensAreMandatory();
             }
-
-            if ($host['token'] !== null) {
-                $this->validateTokens([$host['token']]);
-            }
+            $this->validateTokens([$host['token']]);
         }
     }
 
     /**
+     * Validates filename extension.
+     *
      * @param string $name
      * @param ?string $value
      * @param bool $isCertificate (default true)
      *
-     * @throws AgentConfigurationException
+     * @throws AssertionException
      */
     private function validateFilename(string $name, ?string $value, bool $isCertificate = true): void
     {
         $pattern = $isCertificate
-            ? '/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/'
-            : '/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/';
+            ? '/^(?!.*\.(cer|crt|cert)$).+$/'
+            : '/^(?!.*\.key$).+$/';
 
         if ($value !== null && preg_match($pattern, $value)) {
-            throw AgentConfigurationException::invalidFilename($name, (string) $value);
+            throw new AssertionException(
+                sprintf("File path or format '%s' (%s) is invalid", $value, $name)
+            );
         }
     }
 

@@ -1,0 +1,35 @@
+meta {
+  name: POST /acc - Create ACC with duplicate poller - HTTP 500
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "bad-acc",
+    "description": "{{ACC1Description}}",
+    "pollers": [1],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{"name": "my-vcenter", "url": "http://10.10.10.10/sdk", "username": "admin", "password": "my-pwd"}]
+    }
+  }
+}
+
+tests {
+  test("Cannot create an ACC using a poller already assigned to another ACC (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([500, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,19 +1,19 @@
 import { Tabs } from './Tabs';
 
 const defaultTabs = [
-  { label: 'Tab 1', value: 'tab1' },
-  { label: 'Tab 2', value: 'tab2' },
-  { label: 'Tab 3', value: 'tab3' }
+  { ariaLabel: 'Tab 1', label: 'Tab 1', value: 'tab1' },
+  { ariaLabel: 'Tab 2', label: 'Tab 2', value: 'tab2' },
+  { ariaLabel: 'Tab 3', label: 'Tab 3', value: 'tab3' }
 ];
 
 const defaultChildren = [
-  <div key="tab1" data-testid="tab1-content">
+  <div data-testid="tab1-content" key="tab1">
     Tab 1 Content
   </div>,
-  <div key="tab2" data-testid="tab2-content">
+  <div data-testid="tab2-content" key="tab2">
     Tab 2 Content
   </div>,
-  <div key="tab3" data-testid="tab3-content">
+  <div data-testid="tab3-content" key="tab3">
     Tab 3 Content
   </div>
 ];

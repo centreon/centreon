@@ -1,9 +1,9 @@
-import { QueryClient } from '@tanstack/react-query';
-import { Provider as JotaiProvider, createStore } from 'jotai';
+import type { PaletteOptions } from '@mui/material';
+import { createGenerateClassName, StylesProvider } from '@mui/styles';
 
-import { StylesProvider, createGenerateClassName } from '@mui/styles';
+import type { QueryClient } from '@tanstack/react-query';
+import { type createStore, Provider as JotaiProvider } from 'jotai';
 
-import { ThemeOptions } from '@mui/material';
 import { QueryProvider, ThemeProvider } from '..';
 import SnackbarProvider from '../Snackbar/SnackbarProvider';
 
@@ -14,8 +14,8 @@ export interface ModuleProps {
   seedName: string;
   store: ReturnType<typeof createStore>;
   overrideTheme?: {
-    light: Partial<ThemeOptions>;
-    dark: Partial<ThemeOptions>;
+    light: Partial<PaletteOptions>;
+    dark: Partial<PaletteOptions>;
   };
 }
 

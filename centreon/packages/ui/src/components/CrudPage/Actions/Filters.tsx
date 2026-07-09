@@ -1,5 +1,7 @@
 import { Tune } from '@mui/icons-material';
+
 import { isValidElement } from 'react';
+
 import PopoverMenu from '../../../PopoverMenu';
 import { useActionsStyles } from './Actions.styles';
 
@@ -13,11 +15,11 @@ const Filters: React.FC<Props> = ({ label, filters }: Props): JSX.Element => {
 
   return (
     <PopoverMenu
-      title={label}
       icon={<Tune />}
+      title={label}
       tooltipClassName={classes.tooltipFilters}
     >
-      {isValidElement(filters) ? filters : <div />}
+      {isValidElement(filters) ? () => filters : () => <div />}
     </PopoverMenu>
   );
 };

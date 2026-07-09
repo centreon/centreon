@@ -61,7 +61,69 @@ $search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['se
 $sort_type = isset($_GET['sort_type']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'alias';
 $order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 
-$grouplistStr = $obj->access->getAccessGroupsString();
+$groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
+
+if (! $obj->is_admin) {
+    $allHostGroupsAllowed = false;
+
+    $query = <<<SQL
+            SELECT
+                1
+            FROM acl_resources ar
+            INNER JOIN acl_res_group_relations argr
+                ON argr.acl_res_id = ar.acl_res_id
+            WHERE
+                argr.acl_group_id IN ({$grouplistStr})
+                AND ar.all_hostgroups = '1'
+                AND ar.acl_res_activate = '1'
+        SQL;
+
+    try {
+        $allHostGroupsAllowed = $obj->DB->fetchAssociative($query) !== false;
+    } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+        throw new Core\Common\Domain\Exception\RepositoryException(
+            message: 'Error while checking if all host groups are allowed: ' . $e->getMessage(),
+            context: [
+                'query' => $query,
+                'grouplistStr' => $grouplistStr,
+            ],
+            previous: $e
+        );
+    }
+
+    if (! $allHostGroupsAllowed) {
+        $allowedHgIds = [];
+        $query = <<<SQL
+                SELECT DISTINCT
+                    arhr.hg_hg_id
+                FROM acl_resources_hg_relations arhr
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = arhr.acl_res_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = argr.acl_res_id
+                WHERE argr.acl_group_id IN ({$grouplistStr})
+                    AND ar.acl_res_activate = '1'
+            SQL;
+
+        try {
+            foreach ($obj->DB->iterateAssociative($query) as $row) {
+                $allowedHgIds[] = (int) $row['hg_hg_id'];
+            }
+        } catch (Adaptation\Database\Connection\Exception\ConnectionException $e) {
+            throw new Core\Common\Domain\Exception\RepositoryException(
+                message: 'Error while fetching allowed host group IDs: ' . $e->getMessage(),
+                context: [
+                    'query' => $query,
+                    'grouplistStr' => $grouplistStr,
+                ],
+                previous: $e
+            );
+        }
+        $hgFilter = $allowedHgIds === []
+            ? 'AND 1=0 '
+            : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
+    }
+}
 
 $kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
@@ -76,7 +138,7 @@ $rq1 = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT
     1 AS REALTIME, h.name AS host_name, hg.name AS hgname, hgm.hostgroup_id, h.host_id, h.state, h.icon_image
     FROM hostgroups hg, hosts_hostgroups hgm, hosts h ';
 
-if (! $obj->is_admin) {
+if (! $obj->is_admin && $groupStr !== '') {
     $rq1 .= ', centreon_acl ';
 }
 
@@ -86,9 +148,10 @@ $rq1 .= 'WHERE h.host_id = hgm.host_id '
     . "AND h.name NOT LIKE '\_Module\_%' ";
 
 if (! $obj->is_admin) {
-    $rq1 .= $obj->access->queryBuilder('AND', 'h.host_id', 'centreon_acl.host_id') . ' '
-        . $obj->access->queryBuilder('AND', 'group_id', $grouplistStr) . ' '
-        . $obj->access->queryBuilder('AND', 'hg.hostgroup_id', $obj->access->getHostGroupsString('ID'));
+    if ($groupStr !== '') {
+        $rq1 .= 'AND h.host_id = centreon_acl.host_id AND group_id IN (' . $groupStr . ') ';
+    }
+    $rq1 .= $hgFilter;
 }
 
 if ($instance !== -1) {
@@ -199,11 +262,27 @@ $buildServicesUri = function (string $hostname, array $statuses) use ($resourceC
     return $resourceController->buildListingUri([
         'filter' => json_encode([
             'criterias' => [
-                'search' => 'h.name:^' . $hostname . '$',
-                'resourceTypes' => [$buildParameter('service', 'Service')],
-                'statuses' => $statuses,
+                [
+                    'name' => 'search',
+                    'object_type' => null,
+                    'type' => 'text',
+                    'value' => 'h.name:^' . $hostname . '$',
+                ],
+                [
+                    'name' => 'resource_types',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => [$buildParameter('service', 'Service')],
+                ],
+                [
+                    'name' => 'statuses',
+                    'object_type' => null,
+                    'type' => 'multi_select',
+                    'value' => $statuses,
+                ],
             ],
         ]),
+        'fromTopCounter' => 'true',
     ]);
 };
 
@@ -264,9 +343,15 @@ if (isset($tab_final)) {
                     : $resourceController->buildListingUri([
                         'filter' => json_encode([
                             'criterias' => [
-                                'search' => 'h.name:^' . $host_name . '$',
+                                [
+                                    'name' => 'search',
+                                    'object_type' => null,
+                                    'type' => 'text',
+                                    'value' => 'h.name:^' . $host_name . '$',
+                                ],
                             ],
                         ]),
+                        'fromTopCounter' => 'true',
                     ])
             );
             $obj->XML->writeElement(

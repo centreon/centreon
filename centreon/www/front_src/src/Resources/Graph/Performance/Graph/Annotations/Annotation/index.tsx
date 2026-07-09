@@ -1,10 +1,11 @@
+import { Paper, Tooltip, Typography } from '@mui/material';
+
+import { truncate } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Paper, Tooltip, Typography } from '@mui/material';
-
-import { truncate } from '@centreon/ui';
 import { TimelineEvent } from '../../../../../Details/tabs/Timeline/models';
 import { labelBy } from '../../../../../translatedLabels';
 import { annotationHoveredAtom } from '../../annotationsAtoms';
@@ -60,13 +61,13 @@ const Annotation = ({
       >
         <svg
           height={iconSize}
-          width={iconSize}
-          x={xIcon}
-          y={yMargin}
           onMouseEnter={(): void =>
             setAnnotationHovered(() => ({ event, resourceId }))
           }
           onMouseLeave={(): void => setAnnotationHovered(() => undefined)}
+          width={iconSize}
+          x={xIcon}
+          y={yMargin}
         >
           <rect fill="transparent" height={iconSize} width={iconSize} />
           {icon}

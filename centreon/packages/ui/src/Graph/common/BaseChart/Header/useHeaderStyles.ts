@@ -7,7 +7,7 @@ export const ussHeaderChartStyles = makeStyles()({
     width: '100%'
   },
   title: {
-    whiteSpace: 'pre-wrap',
-    lineHeight: '1.2'
+    lineHeight: '1.2',
+    whiteSpace: 'pre-wrap'
   }
 });

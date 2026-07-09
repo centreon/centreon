@@ -3,14 +3,23 @@ import {
   getNotInvertedStackedLines,
   getStackedLinesTimeSeriesPerStackAndUnit
 } from '../../../../common/timeSeries';
-import { LinesData } from '../models';
+import type { Line, TimeValue } from '../../../../common/timeSeries/models';
+import type { LinesData } from '../models';
 
 interface StackedLinesState {
   invertedStackedLinesData: Record<string, LinesData>;
   stackedLinesData: Record<string, LinesData>;
 }
 
-const useStackedLines = ({ lines, timeSeries }): StackedLinesState => {
+interface UseStackedLinesProps {
+  lines: Array<Line>;
+  timeSeries: Array<TimeValue>;
+}
+
+const useStackedLines = ({
+  lines,
+  timeSeries
+}: UseStackedLinesProps): StackedLinesState => {
   const regularStackedLines = getNotInvertedStackedLines(lines);
   const {
     stackedLinesTimeSeriesPerStackKeyAndUnit:
@@ -26,9 +35,9 @@ const useStackedLines = ({ lines, timeSeries }): StackedLinesState => {
     stackedLinesTimeSeriesPerStackKeyAndUnit:
       invertedStackedLinesTimeSeriesPerStackKeyAndUnit
   } = getStackedLinesTimeSeriesPerStackAndUnit({
+    invert: true,
     stackedLines: invertedStackedLines,
-    timeSeries,
-    invert: true
+    timeSeries
   });
 
   return {

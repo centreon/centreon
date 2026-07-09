@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
-
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNil, not, propOr } from 'ramda';
+import { useEffect } from 'react';
 
 import {
   defaultSelectedCustomTimePeriodAtom,
@@ -11,10 +10,9 @@ import {
   detailsAtom
 } from '../../../Details/detailsAtoms';
 import {
-  TimePeriodId,
-  getTimePeriodById
+  getTimePeriodById,
+  TimePeriodId
 } from '../../../Details/tabs/Graph/models';
-
 import {
   customTimePeriodAtom,
   getNewCustomTimePeriod,

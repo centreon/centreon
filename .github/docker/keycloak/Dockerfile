@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:22.0.1
+FROM quay.io/keycloak/keycloak:26.5.0
 
 COPY .github/docker/keycloak/configuration/Centreon_SSO_realm.json /realms/Centreon_SSO_realm.json
 

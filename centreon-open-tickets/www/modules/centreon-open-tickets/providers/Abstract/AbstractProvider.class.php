@@ -92,6 +92,9 @@ abstract class AbstractProvider
     /** @var int */
     protected $proxy_enabled = 0;
 
+    /** @var string */
+    protected $provider_name = '';
+
     /**
      * constructor
      *
@@ -101,6 +104,7 @@ abstract class AbstractProvider
      * @param int $rule_id
      * @param mixed $submitted_config
      * @param int $provider_id
+     * @param string $provider_name
      *
      * @return void
      */
@@ -111,6 +115,7 @@ abstract class AbstractProvider
         $rule_id,
         $submitted_config,
         $provider_id,
+        $provider_name,
     ) {
         $this->rule = $rule;
         $this->centreon_path = $centreon_path;
@@ -140,6 +145,7 @@ abstract class AbstractProvider
 
         $this->widget_id = null;
         $this->uniq_id = null;
+        $this->provider_name = $provider_name;
     }
 
     /**
@@ -357,9 +363,6 @@ abstract class AbstractProvider
         $result = ['confirm_popup' => null];
 
         $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
-        if ($submit_result['ticket_is_ok'] == 1) {
-            $this->executeCmd($host_problems, $service_problems, $submit_result);
-        }
         $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
         $result['ticket_id'] = $submit_result['ticket_id'];
         $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
@@ -464,7 +467,75 @@ abstract class AbstractProvider
         $tpl->loadPlugin('smarty_function_service_get_servicegroups');
         $tpl->loadPlugin('smarty_function_sortgroup');
 
+        $this->enableSmartySecurity($tpl);
+
         return $tpl;
+    }
+
+    /**
+     * Apply a restrictive Smarty security policy to the engine used to render
+     * user-configured rule fields (message_confirm, format_popup, url, body
+     * lists, provider field mappings, ...).
+     *
+     * Those fields are stored verbatim and rendered through {eval}, so with no
+     * security policy an authenticated user can inject template code to read
+     * arbitrary files, dump environment secrets or execute PHP. The policy keeps
+     * the templating features the module legitimately relies on ({if}, {foreach},
+     * {$var}, {include} of module templates, formatting modifiers) while blocking
+     * the dangerous ones. Because {eval} reuses this Smarty instance, the policy
+     * also applies to the evaluated payload.
+     *
+     * @param SmartyBC $tpl
+     *
+     * @throws SmartyException
+     *
+     * @return void
+     */
+    protected function enableSmartySecurity(SmartyBC $tpl): void
+    {
+        $security = new Smarty_Security($tpl);
+
+        // Restrict {include}/{fetch} file access to the module "providers"
+        // directory only (every legitimate template include resolves there):
+        // blocks reads of /etc/passwd, .env, gorgone/broker/engine config files.
+        $providersDir = realpath($this->centreon_open_tickets_path . 'providers');
+        $security->secure_dir = $providersDir !== false ? [$providersDir] : [];
+        $security->trusted_uri = [];
+        $security->streams = ['file'];
+
+        // Block server-side variable disclosure: $smarty.env dumps APP_SECRET /
+        // MAP_SECRET, $smarty.server exposes the environment, etc.
+        $security->disabled_special_smarty_vars = [
+            'env', 'server', 'get', 'post', 'cookies', 'request', 'session', 'globals',
+        ];
+        $security->allow_constants = false;
+        $security->allow_super_globals = false;
+
+        // No direct static class access from templates: a non-empty allowlist
+        // that no real class name matches blocks every static class/method call.
+        $security->static_classes = ['none'];
+
+        // Allow only a safe, display-oriented set of raw PHP functions/modifiers.
+        // Smarty's own modifiers (date_format, cat, regex_replace, escape, ...) are
+        // governed by $allowed_modifiers (left empty = all allowed) and remain
+        // available; the lists below only gate raw PHP functions, which is where
+        // the RCE risk lives (e.g. {$value|system}).
+        $security->php_functions = [
+            'isset', 'empty', 'count', 'sizeof', 'in_array', 'is_array',
+            'is_string', 'is_null', 'time',
+        ];
+        $security->php_modifiers = [
+            // pre-registered by SmartyBC for backward compatibility
+            'count', 'sizeof', 'in_array', 'is_array', 'time', 'urlencode',
+            'rawurlencode', 'json_encode', 'strtotime', 'number_format', 'is_string',
+            // common safe formatting helpers used in rule templates
+            'strlen', 'strtoupper', 'strtolower', 'ucfirst', 'ucwords', 'trim',
+            'ltrim', 'rtrim', 'substr', 'str_replace', 'sprintf', 'nl2br', 'date',
+            'htmlentities', 'htmlspecialchars', 'implode', 'explode', 'wordwrap',
+        ];
+
+        // {php} / {include_php} are disabled automatically once security is on.
+        $tpl->enableSecurity($security);
     }
 
     /**
@@ -689,6 +760,8 @@ Output: {$service.output|substr:0:1024}
         }
 
         $this->default_data['clones']['bodyList'] = [['Name' => 'Default', 'Value' => $default_body, 'Default' => '1']];
+        $this->default_data['peer_verify'] = 'yes';
+        $this->default_data['ca_cert_path'] = '';
     }
 
     /**
@@ -828,8 +901,10 @@ Output: {$service.output|substr:0:1024}
             . '<input type="checkbox" id="ack" name="ack" value="yes" '
             . ($this->getFormValue('ack') === 'yes' ? 'checked' : '')
             . '/><label class="empty-label" for="ack"></label></div>';
-        $scheduleCheckHtml = '<input type="checkbox" name="schedule_check" value="yes" '
-            . ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '') . '/>';
+        $scheduleCheckHtml = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="schedule_check" name="schedule_check" value="yes" '
+            . ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="schedule_check"></label></div>';
         $close_ticket_enable_html = '<div class="md-checkbox md-checkbox-inline">'
             . '<input type="checkbox" id="close_ticket" name="close_ticket_enable" value="yes" '
             . ($this->getFormValue('close_ticket_enable') === 'yes' ? 'checked' : '') . '/>'
@@ -927,8 +1002,26 @@ Output: {$service.output|substr:0:1024}
             ['label' => _('Value'), 'html' => $bodyListValue_html],
             ['label' => _('Default'), 'html' => $bodyListDefault_html],
         ];
+        // SSL Peer verify
+        $peerVerifyHtml = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="peer_verify" name="peer_verify" value="yes" '
+            . ($this->getFormValue('peer_verify') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="peer_verify"></label></div>';
+        $caCertPathHtml  = '<input size="50" name="ca_cert_path" type="text" value="' . $this->getFormValue('ca_cert_path') . '" />';
+
+        $array_form['peer_verify'] = ['label' => _('SSL Verify Peer'), 'html' => $peerVerifyHtml];
+        $array_form['ca_cert_path'] = ['label' => _('Certificate Authority Info'), 'html' => $caCertPathHtml];
 
         $tpl->assign('form', $array_form);
+
+        // prepare help texts
+        $helptext = '';
+        include_once __DIR__ . '/help.php';
+        foreach ($help as $key => $text) {
+            $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
+        }
+        $tpl->assign('helptext', $helptext);
+
         $this->config['container1_html'] .= $tpl->fetch('conf_container1main.ihtml');
 
         $this->config['clones']['groupList'] = $this->getCloneValue('groupList');
@@ -988,7 +1081,6 @@ Output: {$service.output|substr:0:1024}
             'format_popup' => ['label' => _('Formatting popup'), 'html' => $format_popup_html],
             'confirm_autoclose' => ['label' => _('Confirm popup autoclose'), 'html' => $confirm_autoclose_html],
             'chainrule' => ['label' => _('Chain rules')],
-            'command' => ['label' => _('Commands')],
             'attach_files' => [
                 'label' => _('Attach Files'),
                 'enable' => $this->attach_files,
@@ -1014,19 +1106,11 @@ Output: {$service.output|substr:0:1024}
             ['label' => _('Provider'), 'html' => $chainruleListProvider_html],
         ];
 
-        // Command list clone
-        $commandListCmd_html = '<input id="commandListCmd_#index#" name="commandListCmd[#index#]" '
-            . 'size="60"  type="text" />';
-        $array_form['commandList'] = [
-            ['label' => _('Command'), 'html' => $commandListCmd_html],
-        ];
-
         $tpl->assign('form', $array_form);
 
         $this->config['container2_html'] .= $tpl->fetch('conf_container2main.ihtml');
 
         $this->config['clones']['chainruleList'] = $this->getCloneValue('chainruleList');
-        $this->config['clones']['commandList'] = $this->getCloneValue('commandList');
     }
 
     /**
@@ -1064,6 +1148,7 @@ Output: {$service.output|substr:0:1024}
     protected function saveConfigMain()
     {
         $this->save_config['provider_id'] = $this->submitted_config['provider_id'];
+        $this->save_config['provider_name'] = $this->provider_name;
         $this->save_config['rule_alias'] = $this->submitted_config['rule_alias'];
         $this->save_config['simple']['macro_ticket_id'] = $this->submitted_config['macro_ticket_id'];
         $this->save_config['simple']['confirm_autoclose'] = $this->submitted_config['confirm_autoclose'];
@@ -1102,12 +1187,15 @@ Output: {$service.output|substr:0:1024}
             ['Name', 'Value', 'Default']
         );
         $this->save_config['clones']['chainruleList'] = $this->getCloneSubmitted('chainruleList', ['Provider']);
-        $this->save_config['clones']['commandList'] = $this->getCloneSubmitted('commandList', ['Cmd']);
 
         $this->save_config['simple']['proxy_address'] = $this->submitted_config['proxy_address'] ?? '';
         $this->save_config['simple']['proxy_port'] = $this->submitted_config['proxy_port'] ?? '';
         $this->save_config['simple']['proxy_username'] = $this->submitted_config['proxy_username'] ?? '';
         $this->save_config['simple']['proxy_password'] = $this->submitted_config['proxy_password'] ?? '';
+        $this->save_config['simple']['peer_verify'] = (
+            isset($this->submitted_config['peer_verify']) && $this->submitted_config['peer_verify'] == 'yes'
+        ) ? $this->submitted_config['peer_verify'] : '';
+        $this->save_config['simple']['ca_cert_path'] = $this->submitted_config['ca_cert_path'] ?? '';
     }
 
     /**
@@ -1554,46 +1642,6 @@ Output: {$service.output|substr:0:1024}
     }
 
     /**
-     * @param array<mixed> $host_problems
-     * @param array<mixed> $service_problems
-     * @param array<mixed> $submit_result
-     * @return int|void
-     */
-    protected function executeCmd($host_problems, $service_problems, &$submit_result)
-    {
-        $submit_result['commands'] = [];
-
-        if (! isset($this->rule_data['clones']['commandList'])) {
-            return 0;
-        }
-
-        $tpl = $this->initSmartyTemplate();
-        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
-        $tpl->assign('host_selected', $host_problems);
-        $tpl->assign('service_selected', $service_problems);
-        foreach ($submit_result as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-        foreach ($this->submitted_config as $label => $value) {
-            $tpl->assign($label, $value);
-        }
-
-        foreach ($this->rule_data['clones']['commandList'] as $cmd) {
-            $output = '';
-            $error = '';
-            try {
-                $tpl->assign('string', $cmd['Cmd']);
-                $cmd_exec = $tpl->fetch('eval.ihtml');
-                $output = $this->ExecWaitTimeout($cmd_exec);
-            } catch (Exception $e) {
-                $error = $e->getMessage();
-            }
-
-            $submit_result['commands'][] = ['output' => $output, 'error' => $error];
-        }
-    }
-
-    /**
      * @param CentreonDB $db_storage
      * @param array<mixed> $result
      * @param array<mixed> $extra_args
@@ -1612,67 +1660,57 @@ Output: {$service.output|substr:0:1024}
             $db_storage->beginTransaction();
 
             if ($extra_args['no_create_ticket_id'] == false) {
-                $db_storage->query(
-                    'INSERT INTO mod_open_tickets
-                        (`timestamp`, `user`' . (is_null($extra_args['ticket_value']) ? '' : ', `ticket_value`') . ")
-                    VALUES ('" . $result['ticket_time'] . "', '"
-                    . $db_storage->escape($extra_args['contact']['name']) . "'"
-                    . (is_null($extra_args['ticket_value']) ? '' : ", '"
-                    . $db_storage->escape($extra_args['ticket_value']) . "'") . ')'
-                );
-                $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
+                if (is_null($extra_args['ticket_value'])) {
+                    $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
+                    $insertTicket->bindValue(':user', $extra_args['contact']['name']);
+                } else {
+                    $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (:timestamp, :user, :ticketValue)');
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
+                    $insertTicket->bindValue(':user', $extra_args['contact']['name']);
+                    $insertTicket->bindValue(':ticketValue', $extra_args['ticket_value']);
+                }
+                $insertTicket->execute();
+                $result['ticket_id'] = $db_storage->lastInsertId();
             }
 
             if (is_null($extra_args['ticket_value'])) {
-                $db_storage->query(
-                    "UPDATE mod_open_tickets SET `ticket_value` = '" . $db_storage->escape($result['ticket_id']) . "'
-                    WHERE `ticket_id` = '" . $db_storage->escape($result['ticket_id']) . "'"
-                );
+                $updateTicket = $db_storage->prepare('UPDATE mod_open_tickets SET `ticket_value` = :ticketValue WHERE `ticket_id` = :ticketId');
+                $updateTicket->bindValue(':ticketValue', $result['ticket_id']);
+                $updateTicket->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $updateTicket->execute();
             }
 
+            $insertHostLink = $db_storage->prepare('INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (:ticketId, :hostId, :hostState, :hostname)');
             foreach ($extra_args['host_problems'] as $row) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($row['host_id']) . "',
-                        '" . $db_storage->escape($row['host_state']) . "',
-                        '" . $db_storage->escape($row['name']) . "'
-                    )"
-                );
+                $insertHostLink->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostId', (int) $row['host_id'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostState', (int) $row['host_state'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostname', $row['name']);
+                $insertHostLink->execute();
             }
+            $insertSvcLink = $db_storage->prepare(
+                'INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`, `service_id`, `service_state`, `service_description`)
+                 VALUES (:ticketId, :hostId, :hostState, :hostname, :serviceId, :serviceState, :serviceDescription)'
+            );
             foreach ($extra_args['service_problems'] as $row) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_link (
-                        `ticket_id`,
-                        `host_id`,
-                        `host_state`,
-                        `hostname`,
-                        `service_id`,
-                        `service_state`,
-                        `service_description`
-                    ) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($row['host_id']) . "',
-                        '" . $db_storage->escape($row['host_state']) . "',
-                        '" . $db_storage->escape($row['host_name']) . "',
-                        '" . $db_storage->escape($row['service_id']) . "',
-                        '" . $db_storage->escape($row['service_state']) . "',
-                        '" . $db_storage->escape($row['description']) . "'
-                    )"
-                );
+                $insertSvcLink->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostId', (int) $row['host_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostState', (int) $row['host_state'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostname', $row['host_name']);
+                $insertSvcLink->bindValue(':serviceId', (int) $row['service_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceState', (int) $row['service_state'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceDescription', $row['description']);
+                $insertSvcLink->execute();
             }
 
             if (! is_null($extra_args['data_type']) && ! is_null($extra_args['data'])) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_data (
-                        `ticket_id`, `subject`, `data_type`, `data`
-                    ) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($extra_args['subject']) . "',
-                        '" . $db_storage->escape($extra_args['data_type']) . "',
-                        '" . $db_storage->escape($extra_args['data']) . "'
-                    )"
-                );
+                $insertData = $db_storage->prepare('INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`, `data_type`, `data`) VALUES (:ticketId, :subject, :dataType, :data)');
+                $insertData->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertData->bindValue(':subject', $extra_args['subject']);
+                $insertData->bindValue(':dataType', (string) $extra_args['data_type']);
+                $insertData->bindValue(':data', $extra_args['data']);
+                $insertData->execute();
             }
 
             $result['ticket_id'] = is_null($extra_args['ticket_value'])
@@ -1743,43 +1781,5 @@ Output: {$service.output|substr:0:1024}
         }
 
         return 0;
-    }
-
-    /**
-     * @param string $cmd
-     * @param int $timeout
-     * @return string
-     */
-    private function ExecWaitTimeout($cmd, $timeout = 10)
-    {
-        $descriptorspec = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-        $pipes = [];
-
-        $timeout += time();
-        $process = proc_open($cmd, $descriptorspec, $pipes);
-        if (! is_resource($process)) {
-            throw new Exception('proc_open failed on: ' . $cmd);
-        }
-
-        $output = '';
-        do {
-            $timeleft = $timeout - time();
-            $read = [$pipes[1]];
-            $write = null;
-            $exceptions = null;
-            stream_select($read, $write, $exceptions, $timeleft, null);
-
-            if ($read !== []) {
-                $output .= fread($pipes[1], 8192);
-            }
-        } while (! feof($pipes[1]) && $timeleft > 0);
-
-        if ($timeleft <= 0) {
-            proc_terminate($process);
-
-            throw new Exception('command timeout on: ' . $cmd);
-        }
-
-        return $output;
     }
 }

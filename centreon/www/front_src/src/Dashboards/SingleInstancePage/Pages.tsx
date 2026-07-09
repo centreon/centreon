@@ -1,6 +1,6 @@
-import { Suspense, lazy } from 'react';
-
 import { PageSkeleton } from '@centreon/ui';
+
+import { lazy, Suspense } from 'react';
 
 const Dashboard = lazy(() => import('./Dashboard/Dashboard'));
 

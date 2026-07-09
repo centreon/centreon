@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { checkServicesAreMonitored } from '../../../commons';
 import {
@@ -15,22 +17,22 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getLastestUserFilters');
 
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/downtime'
+    url: `${INTERCEPTORS.api.monitor_resources}/downtime`
   }).as('postSaveDowntime');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -222,11 +224,7 @@ Given('a resource is in downtime', () => {
 });
 
 Given('that you have to go to the downtime page', () => {
-  cy.navigateTo({
-    page: 'Downtimes',
-    rootItemNumber: 1,
-    subMenu: 'Downtimes'
-  });
+  cy.visit(PAGES.monitoring.downtimesLegacy);
 });
 
 When('I search for the resource currently "In Downtime" in the list', () => {
@@ -279,10 +277,7 @@ Then('the line disappears from the listing', () => {
 });
 
 Then('the user goes to the Resource Status page', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 });
 
 Then('the resource should not be in Downtime anymore', () => {

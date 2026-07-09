@@ -8,11 +8,11 @@ import { List } from './meta.models';
 
 export const resource = {
   dashboard: 'dashboard',
-  dashboards: 'dashboards',
-  dashboardsContacts: 'dashboardsContacts',
-  dashboardsContactGroups: 'dashboardsContactGroups',
   dashboardAccessRightsContactGroups: 'dashboardAccessRightsContactGroups',
-  dashboardAccessRightsContacts: 'dashboardAccessRightsContacts'
+  dashboardAccessRightsContacts: 'dashboardAccessRightsContacts',
+  dashboards: 'dashboards',
+  dashboardsContactGroups: 'dashboardsContactGroups',
+  dashboardsContacts: 'dashboardsContacts'
 } as const;
 
 /**

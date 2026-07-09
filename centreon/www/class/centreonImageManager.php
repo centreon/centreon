@@ -28,11 +28,11 @@ use Pimple\Container;
  */
 class CentreonImageManager extends centreonFileManager
 {
+    private const LEGAL_SIZE = 2000000;
+    private const LEGAL_SIZE_EXTENDED = 5000000;
+
     /** @var string[] */
     protected $legalExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
-
-    /** @var int */
-    protected $legalSize = 2000000;
 
     /** @var mixed */
     protected $dbConfig;
@@ -45,6 +45,7 @@ class CentreonImageManager extends centreonFileManager
      * @param $basePath
      * @param $destinationDir
      * @param string $comment
+     * @param bool $isCloudPlatform
      */
     public function __construct(
         Container $dependencyInjector,
@@ -52,8 +53,10 @@ class CentreonImageManager extends centreonFileManager
         $basePath,
         $destinationDir,
         $comment = '',
+        bool $isCloudPlatform = false,
     ) {
         parent::__construct($dependencyInjector, $rawFile, $basePath, $destinationDir, $comment);
+        $this->legalSize = $isCloudPlatform ? self::LEGAL_SIZE : self::LEGAL_SIZE_EXTENDED;
         $this->dbConfig = $this->dependencyInjector['configuration_db'];
     }
 

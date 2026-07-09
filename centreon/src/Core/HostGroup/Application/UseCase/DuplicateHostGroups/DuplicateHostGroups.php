@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -39,6 +40,8 @@ final class DuplicateHostGroups
 {
     use LoggerTrait;
 
+    private bool $isUserAdmin = false;
+
     public function __construct(
         private readonly ContactInterface $user,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
@@ -47,6 +50,7 @@ final class DuplicateHostGroups
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -57,6 +61,8 @@ final class DuplicateHostGroups
      */
     public function __invoke(DuplicateHostGroupsRequest $request): DuplicateHostGroupsResponse
     {
+        $this->isUserAdmin = $this->adminResolver->isAdmin($this->user);
+
         $results = [];
         foreach ($request->hostGroupIds as $hostGroupId) {
             $statusResponse = new DuplicateHostGroupsStatusResponse();
@@ -80,7 +86,7 @@ final class DuplicateHostGroups
                     }
                     $newHostGroupId = $this->writeHostGroupRepository->duplicate($hostGroupId, $duplicateIndex);
                     // Handle ACL Resources for non admin users
-                    if (! $this->user->isAdmin()) {
+                    if (! $this->isUserAdmin) {
                         $this->duplicateContactAclResources($newHostGroupId);
                     }
                     // Duplicate Host Relationships
@@ -124,7 +130,7 @@ final class DuplicateHostGroups
      */
     private function hostGroupExists(int $hostGroupId): bool
     {
-        return $this->user->isAdmin()
+        return $this->isUserAdmin
             ? $this->readHostGroupRepository->existsOne($hostGroupId)
             : $this->readHostGroupRepository->existsOneByAccessGroups(
                 $hostGroupId,
@@ -140,7 +146,7 @@ final class DuplicateHostGroups
      */
     private function hostGroupExistsByName(string $hostGroupName): bool
     {
-        return $this->user->isAdmin()
+        return $this->isUserAdmin
             ? $this->readHostGroupRepository->nameAlreadyExists($hostGroupName)
             : $this->readHostGroupRepository->nameAlreadyExistsByAccessGroups(
                 $hostGroupName,
@@ -189,7 +195,7 @@ final class DuplicateHostGroups
      */
     private function updateAclGroupsFlag(): void
     {
-        if (! $this->user->isAdmin()) {
+        if (! $this->isUserAdmin) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $this->writeAccessGroupRepository->updateAclGroupsFlag($accessGroups);
         } else {

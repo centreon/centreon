@@ -1,7 +1,6 @@
-import { useAtomValue } from 'jotai';
-
 import { useFetchQuery } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
 
 import {
   type CommonWidgetProps,
@@ -10,8 +9,8 @@ import {
 } from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../atom';
 import type { PanelOptions } from '../models';
-
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -20,14 +19,10 @@ interface LoadResourcesProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
-  isDownHostHidden: boolean;
-  isUnreachableHostHidden: boolean;
   limit?: number;
   page: number | undefined;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -37,7 +32,7 @@ interface LoadResourcesProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
-  isOpenTicketEnabled?: boolean;
+  isInViewport: boolean;
 }
 
 interface LoadResources {
@@ -63,15 +58,18 @@ const useLoadResources = ({
   statusTypes,
   hostSeverities,
   serviceSeverities,
-  isDownHostHidden,
-  isUnreachableHostHidden,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
+  isInViewport
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
+  const {
+    displayResources,
+    isDownHostHidden,
+    isOpenTicketEnabled,
+    isUnreachableHostHidden,
+    provider
+  } = useAtomValue(openTicketContextAtom);
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
     getEndpoint: () =>
@@ -85,15 +83,15 @@ const useLoadResources = ({
           serviceSeverities,
           sort: sort || { status_severity_code: SortOrder.Desc },
           states,
-          statusTypes,
           statuses,
+          statusTypes,
           type: displayType,
           ...(isOpenTicketEnabled
             ? {
+                displayResources,
                 isDownHostHidden,
                 isUnreachableHostHidden,
-                provider,
-                displayResources
+                provider
               }
             : {})
         }),
@@ -109,6 +107,7 @@ const useLoadResources = ({
     getQueryKey: () => [
       widgetPrefixQuery,
       'resourcestable',
+      isOpenTicketEnabled,
       displayType,
       JSON.stringify(states),
       JSON.stringify(statuses),
@@ -124,9 +123,11 @@ const useLoadResources = ({
       page,
       refreshCount,
       isDownHostHidden,
-      isUnreachableHostHidden
+      isUnreachableHostHidden,
+      id
     ],
     queryOptions: {
+      enabled: isInViewport ?? true,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     },

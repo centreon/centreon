@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration;
 
-use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
 
-interface FindSAMLConfigurationPresenterInterface extends PresenterInterface
+interface FindSAMLConfigurationPresenterInterface
 {
+    public function presentResponse(FindSAMLConfigurationResponse|ResponseStatusInterface $response): void;
 }

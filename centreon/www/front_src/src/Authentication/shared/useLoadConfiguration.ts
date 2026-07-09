@@ -1,6 +1,6 @@
-import { JsonDecoder } from 'ts.data.json';
-
 import { useFetchQuery } from '@centreon/ui';
+
+import { JsonDecoder } from 'ts.data.json';
 
 import { authenticationProvidersEndpoint } from '../api/endpoints';
 import { Provider } from '../models';

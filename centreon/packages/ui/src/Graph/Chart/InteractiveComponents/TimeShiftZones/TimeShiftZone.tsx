@@ -1,13 +1,11 @@
-import { Dispatch, SetStateAction } from 'react';
+import { alpha, useTheme } from '@mui/material';
 
 import { Shape } from '@visx/visx';
 import { equals, negate } from 'ramda';
+import type { Dispatch, SetStateAction } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { alpha, useTheme } from '@mui/material';
-
-import { GraphInterval, Interval } from '../../models';
-
+import type { GraphInterval, Interval } from '../../models';
 import { TimeShiftDirection } from './models';
 import { useTimeShiftZones } from './useTimeShiftZones';
 
@@ -57,6 +55,9 @@ const TimeShiftZone = ({
           : 'transparent'
       }
       height={graphHeight}
+      onClick={handleClick}
+      onMouseLeave={(): void => onDirectionHover(null)}
+      onMouseOver={(): void => onDirectionHover(direction)}
       width={timeShiftZoneWidth}
       x={
         equals(direction, TimeShiftDirection.backward)
@@ -64,9 +65,6 @@ const TimeShiftZone = ({
           : graphWidth
       }
       y={0}
-      onClick={handleClick}
-      onMouseLeave={(): void => onDirectionHover(null)}
-      onMouseOver={(): void => onDirectionHover(direction)}
     />
   );
 };

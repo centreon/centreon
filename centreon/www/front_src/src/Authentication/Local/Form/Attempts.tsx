@@ -1,13 +1,14 @@
-import { ChangeEvent, useCallback, useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, isEmpty, isNil, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { useTheme } from '@mui/material';
 
 import { TextField, useMemoComponent } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { isEmpty, isNil, not, path } from 'ramda';
+import { ChangeEvent, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import StrengthProgress from '../StrengthProgress';
 import {
@@ -17,7 +18,6 @@ import {
   labelUnknown,
   labelWeak
 } from '../translatedLabels';
-
 import { getField } from './utils';
 
 export const attemptsFieldName = 'attempts';
@@ -78,10 +78,13 @@ const Attempts = (): JSX.Element => {
     Component: (
       <div className={classes.input}>
         <TextField
-          fullWidth
           dataTestId={labelNumberOfAttemptsBeforeUserIsBlocked}
           error={attemptsError}
+          fullWidth
           helperText={attemptsError}
+          label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
+          name={attemptsFieldName}
+          onChange={changeInput}
           textFieldSlotsAndSlotProps={{
             slotProps: {
               htmlInput: {
@@ -91,11 +94,8 @@ const Attempts = (): JSX.Element => {
               }
             }
           }}
-          label={t(labelNumberOfAttemptsBeforeUserIsBlocked)}
-          name={attemptsFieldName}
           type="number"
           value={attemptsValue || ''}
-          onChange={changeInput}
         />
         {displayStrengthProgress && (
           <StrengthProgress

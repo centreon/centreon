@@ -1,18 +1,17 @@
+import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+
 import { useAtom, useSetAtom } from 'jotai';
+import { isNil, isNotEmpty } from 'ramda';
 import { useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { isWelcomePageDisplayedAtom, openFormModalAtom } from './atoms';
 import AddModal from './Form/AddModal';
 import UpdateModal from './Form/UpdateModal';
-import ACListing from './Listing/Listing';
-import { isWelcomePageDisplayedAtom, openFormModalAtom } from './atoms';
 import { useGetAgentConfigurations } from './hooks/useGetAgentConfigurations';
-
-import { LoadingSkeleton } from '@centreon/ui';
-import { isNil, isNotEmpty } from 'ramda';
-
 import useCountChangedFilters from './Listing/Actions/useCountChangedFilters';
-
+import ACListing from './Listing/Listing';
 import {
   labelAddAgentConfiguration,
   labelAgentsConfigurations,
@@ -20,7 +19,17 @@ import {
   labelWelcomeToTheAgentsConfigurationPage
 } from './translatedLabels';
 
-const WelcomePage = ({ labels, dataTestId, onCreate }) => {
+interface WelcomePageProps {
+  labels: {
+    actions: { create: string };
+    description: string;
+    title: string;
+  };
+  dataTestId: string;
+  onCreate: () => void;
+}
+
+const WelcomePage = ({ labels, dataTestId, onCreate }: WelcomePageProps) => {
   const { isLoading, data } = useGetAgentConfigurations();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
@@ -82,19 +91,19 @@ const AgentConfigurationPage = (): JSX.Element => {
             <WelcomePage
               dataTestId="create-agent-configuration"
               labels={{
-                title: t(labelWelcomeToTheAgentsConfigurationPage),
-                description: t(labelWelcomeDescription),
                 actions: {
                   create: t(labelAddAgentConfiguration)
-                }
+                },
+                description: t(labelWelcomeDescription),
+                title: t(labelWelcomeToTheAgentsConfigurationPage)
               }}
               onCreate={openCreatetModal}
             />
           ) : (
             <ACListing
-              rows={data?.result}
-              total={data?.meta.total}
               isLoading={isLoading}
+              rows={data?.result ?? []}
+              total={data?.meta.total ?? 0}
             />
           )}
         </DataTable>

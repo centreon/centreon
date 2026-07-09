@@ -1,18 +1,18 @@
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Container, Paper, Typography } from '@mui/material';
 
 import { CentreonLogo } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import SectionTitle from './SectionTitle';
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import Community from './Sections/Community';
 import Contributors from './Sections/Contibutors';
 import Copyright from './Sections/Copyright';
 import Developers from './Sections/Developers';
 import ProjectLeaders from './Sections/ProjectLeaders';
+import SectionTitle from './SectionTitle';
 import {
   labelCentreon,
   labelContributors,

@@ -1,23 +1,20 @@
-import { useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-
 import { useFetchQuery } from '@centreon/ui';
-
 import {
   refreshIntervalAtom,
   userAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+
 import { pollerIssuesDecoder } from '../api/decoders';
 import { pollerListIssuesEndPoint } from '../api/endpoints';
-
-import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';
+import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 
 interface UsePollerDataResult {
   data: GetPollerPropsAdapterResult | null;
@@ -44,8 +41,8 @@ export const usePollerData = (): UsePollerDataResult => {
     getQueryKey: () => [pollerListIssuesEndPoint, 'get-poller-status'],
     httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
-      refetchInterval: refetchInterval * 1000,
       enabled: isAllowed,
+      refetchInterval: refetchInterval * 1000,
       suspense: false
     }
   });

@@ -1,9 +1,8 @@
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 
-import { LineChartData } from '../../../common/models';
-import { Line, TimeValue } from '../../../common/timeSeries/models';
-
-import { FactorsVariation } from './Threshold/models';
+import type { LineChartData } from '../../../common/models';
+import type { Line, TimeValue } from '../../../common/timeSeries/models';
+import type { FactorsVariation } from './Threshold/models';
 
 export interface ShapeGraphData {
   [x: string]: unknown;

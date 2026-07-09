@@ -1,6 +1,5 @@
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 import { useEffect } from 'react';
-
-import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import SnackbarProvider from './SnackbarProvider';
 import useSnackbar from './useSnackbar';
@@ -58,7 +57,7 @@ const Story = ({ displayMessages = false }: Props): JSX.Element => {
           Record<string, string>
       );
     });
-  }, [displayMessages]);
+  }, [displayMessages, snackbars.forEach]);
 
   return <div />;
 };

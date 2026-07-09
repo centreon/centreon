@@ -95,7 +95,7 @@
         this.settings.period.startTime = start;
       }
       if (end !== null && end !== undefined ) {
-        this.settings.period.startTime = end;
+        this.settings.period.endTime = end;
       }
       if (interval !== null && interval !== undefined) {
         this.setInterval(interval, false);
@@ -182,7 +182,7 @@
         };
       }
 
-      if (data.metrics.length > 15) {
+      if (data.metrics.length > 20) {
           datasToAppend = {
             x: parsedData.data.x,
             columns: [],
@@ -191,8 +191,9 @@
             colors: {},
             regions: {},
             order: null,
-            empty: { label: { text: "Too many metrics, the chart can't be displayed" } }
+            empty: { label: { text: this.settings.tooManyMetricsMessage.replace("(X)", "(" + data.metrics.length + ")") } }
           }
+          this.legendDiv.hide();
       } else {
           datasToAppend = parsedData.data;
       }
@@ -232,16 +233,18 @@
         }
       });
 
-      if (data.metrics.length > 15) {
+      if (data.metrics.length > 20) {
           jQuery("#display-graph-" + self.id).css('display', 'block');
           jQuery("#display-graph-" + self.id).on('click', function (e){
               self.chart.load(parsedData.data)
               self.chart.regions(self.buildRegions(data));
+              self.buildLegend(data.metrics);
+              self.legendDiv.show();
               jQuery(this).css('display', 'none');
           });
+      } else {
+         this.buildLegend(data.metrics);
       }
-
-      this.buildLegend(data.metrics);
     },
     /**
      * Load data from rest api in ajax
@@ -278,6 +281,7 @@
           } else {
               self.chart.load(self.buildMetricData(data[0]).data);
               self.chart.regions(self.buildRegions(data[0]));
+              self.buildLegend(data[0].metrics);
               self.buildExtraLegend(data[0].metrics);
           }
         }
@@ -509,8 +513,8 @@
       if (this.settings.period.startTime === null ||
         this.settings.period.endTime === null) {
 
-        start = moment().tz(this.timezone);
-        end = moment().tz(this.timezone);
+        start = moment.tz(this.timezone);
+        end = moment.tz(this.timezone);
 
         start.subtract(this.interval.number, this.interval.unit);
 
@@ -526,8 +530,14 @@
           myEnd = this.settings.period.endTime * 1000;
         }
 
-        start = moment.tz(myStart, this.timezone);
-        end = moment.tz(myEnd, this.timezone);
+
+        if (typeof myStart === "number" && typeof myEnd === "number") {
+          start = moment.tz(myStart, this.timezone);
+          end = moment.tz(myEnd, this.timezone);
+        } else {
+          start = moment.tz(myStart, "YYYY-MM-DD HH:mm", this.timezone);
+          end = moment.tz(myEnd, "YYYY-MM-DD HH:mm", this.timezone);
+        }
       }
 
       return {
@@ -704,6 +714,9 @@
       var curveId;
       var i;
       var j;
+      // Clear existing legends before building new ones
+      this.legendDiv.empty();
+
       for (i = 0; i < legends.length; i++) {
         legend = legends[i];
         curveId = self.ids[legend.legend];

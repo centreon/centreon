@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 
-import { TableStyleAtom as TableStyle } from '../models';
+import type { TableStyleAtom as TableStyle } from '../models';
 
 interface Ellipsis {
   className?: string;

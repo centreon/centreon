@@ -1,12 +1,9 @@
-import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { array, number, object, string } from 'yup';
+import { array, number, ObjectSchema, object, string } from 'yup';
 
-import { useAtomValue } from 'jotai';
-import { modalStateAtom } from '../../ConfigurationBase/atoms';
 import {
-  labelAtLeastOneVCenterIsRequired,
   labelAteastOnePollerIsRequired,
+  labelAtLeastOneVCenterIsRequired,
   labelDescription,
   labelDescriptionMustBeMost,
   labelInvalidPortNumber,
@@ -18,9 +15,8 @@ import {
   labelVcenterNameMustBeUnique
 } from '../translatedLabels';
 
-const useValidationSchema = (): { validationSchema } => {
+const useValidationSchema = (): { validationSchema: ObjectSchema<object> } => {
   const { t } = useTranslation();
-  const { mode } = useAtomValue(modalStateAtom);
 
   const urlValidationSchema = string()
     .required(t(labelRequired))
@@ -34,14 +30,10 @@ const useValidationSchema = (): { validationSchema } => {
     name: string().required(t(labelRequired))
   });
 
-  const secretsSchema = {
-    Password: string().required(t(labelRequired)),
-    Username: string().required(t(labelRequired))
-  };
-
   const vcenterSchema = object().shape({
-    ...(equals(mode, 'add') && secretsSchema),
+    Password: string().required(t(labelRequired)),
     URL: urlValidationSchema,
+    Username: string().required(t(labelRequired)),
     'vCenter name': string()
       .required(t(labelRequired))
       .test(
@@ -55,8 +47,10 @@ const useValidationSchema = (): { validationSchema } => {
           const vcenters = options.context?.parameters.vcenters || [];
 
           const duplicate =
-            vcenters.filter((vcenter) => vcenter['vCenter name'] === value)
-              .length > 1;
+            vcenters.filter(
+              (vcenter: Record<string, unknown>) =>
+                vcenter['vCenter name'] === value
+            ).length > 1;
 
           return !duplicate;
         }

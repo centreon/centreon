@@ -11,7 +11,6 @@ import {
   labelWarning,
   labelWarningStatusServices
 } from '../Resources/Service/translatedLabels';
-
 import {
   initialize,
   openSubMenu,

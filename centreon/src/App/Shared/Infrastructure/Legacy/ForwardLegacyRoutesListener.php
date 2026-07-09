@@ -49,7 +49,7 @@ final readonly class ForwardLegacyRoutesListener
             // if the route is not found with the given method in the current app,
             // it may be available in the legacy. Therefore, handle the request
             // using the legacy app
-            $response = $this->legacyKernel->handle($event->getRequest(), $event->getRequestType(), catch: true);
+            $response = $this->legacyKernel->handle($event->getRequest(), $event->getRequestType(), catch: false);
 
             $event->setResponse($response);
         }

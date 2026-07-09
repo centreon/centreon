@@ -4,9 +4,9 @@ const initializeWebSsoUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-web-sso/web-sso-authentication-user.json')
     .then((fixture: Array<ActionClapi>) => {
-      fixture.forEach((action) =>
-        cy.executeActionViaClapi({ bodyContent: action })
-      );
+      fixture.forEach((action) => {
+        cy.executeActionViaClapi({ bodyContent: action });
+      });
     });
 };
 

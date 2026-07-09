@@ -1,7 +1,7 @@
+import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelCreationDate,
@@ -12,7 +12,6 @@ import {
   labelType,
   labelUpdateBy
 } from '../translatedLabels';
-
 import Name from './Name';
 
 const useColumns = (): {
@@ -21,29 +20,30 @@ const useColumns = (): {
   const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
 
-  const columns = [
+  const columns: Array<Column> = [
     {
-      disablePadding: false,
       Component: Name,
+      disablePadding: false,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component
     },
     {
       disablePadding: false,
-      getFormattedString: ({ type }) =>
-        equals(type, 'vmware_v6') ? 'VMWare 6/7' : type,
+      getFormattedString: ({ type }: Record<string, unknown>) =>
+        equals(type, 'vmware_v6') ? 'VMWare 6/7' : (type as string),
       id: 'type',
       label: t(labelType),
-      sortField: 'type',
       sortable: true,
+      sortField: 'type',
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ description }) => description,
+      getFormattedString: ({ description }: Record<string, unknown>) =>
+        description as string,
       id: 'description',
       label: t(labelDescription),
       sortField: 'description',
@@ -51,48 +51,50 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdBy }): string => createdBy?.name,
+      getFormattedString: ({ createdBy }: Record<string, unknown>): string =>
+        (createdBy as { name?: string })?.name || '',
       id: 'created_by',
       label: t(labelCreator),
-      sortField: 'created_by',
       sortable: true,
+      sortField: 'created_by',
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdAt }): string =>
+      getFormattedString: ({ createdAt }: Record<string, unknown>): string =>
         format({
-          date: createdAt,
+          date: createdAt as string,
           formatString: 'L'
         }),
       id: 'created_at',
       label: t(labelCreationDate),
-      sortField: 'created_at',
       sortable: true,
+      sortField: 'created_at',
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedBy }): string => updatedBy?.name,
+      getFormattedString: ({ updatedBy }: Record<string, unknown>): string =>
+        (updatedBy as { name?: string })?.name || '',
       id: 'updated_by',
       label: t(labelUpdateBy),
-      sortField: 'updated_by',
       sortable: true,
+      sortField: 'updated_by',
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedAt }): string =>
+      getFormattedString: ({ updatedAt }: Record<string, unknown>): string =>
         updatedAt
           ? format({
-              date: updatedAt,
+              date: updatedAt as string,
               formatString: 'L'
             })
           : '',
       id: 'updated_at',
       label: t(labelLastUpdate),
-      sortField: 'updated_at',
       sortable: true,
+      sortField: 'updated_at',
       type: ColumnType.string
     }
   ];

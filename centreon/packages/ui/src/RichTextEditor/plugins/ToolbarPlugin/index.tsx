@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Divider } from '@mui/material';
+
+import { ReactElement } from 'react';
 
 import AlignPicker from './AlignPicker';
 import BlockButtons from './BlockButtons';
@@ -18,26 +18,17 @@ interface Props {
   editable: boolean;
 }
 
-export const useStyles = makeStyles()((theme) => ({
-  container: {
-    alignItems: 'center',
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    marginBottom: theme.spacing(1)
-  }
-}));
-
 const ToolbarPlugin = ({
   editable,
   displayMacrosButton,
   disabled,
   displayBlockButtons,
   className
-}: Props): JSX.Element | null => {
-  const { cx, classes } = useStyles();
-
+}: Props): ReactElement | null => {
   return editable ? (
-    <div className={cx(classes.container, className)}>
+    <div
+      className={`flex items-center gap-2 mb-2 overflow-y-auto ${className}`}
+    >
       <UndoRedoButtons disabled={disabled} />
       {displayBlockButtons && (
         <>

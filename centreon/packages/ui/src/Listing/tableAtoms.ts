@@ -1,9 +1,9 @@
+import { ListingVariant } from '@centreon/ui-context';
+
 import { atom } from 'jotai';
 import { equals } from 'ramda';
 
-import { ListingVariant } from '@centreon/ui-context';
-
-import { TableStyleAtom } from './models';
+import type { TableStyleAtom } from './models';
 
 const compactTableBody = {
   fontSize: '0.75rem',

@@ -1,11 +1,16 @@
-import { useQueryClient } from '@tanstack/react-query';
-
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
+
 import { configurationAtom } from '../atoms';
 
 interface UseDeleteProps {
-  deleteMutation: ({ ids }) => Promise<object | ResponseError>;
+  deleteMutation: ({
+    ids
+  }: {
+    ids: Array<number>;
+  }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
@@ -24,11 +29,7 @@ const useDelete = (): UseDeleteProps => {
     }
   });
 
-  const deleteMutation = ({
-    ids
-  }: {
-    ids: Array<number>;
-  }) => {
+  const deleteMutation = ({ ids }: { ids: Array<number> }) => {
     return mutateAsync({
       payload: { ids }
     });

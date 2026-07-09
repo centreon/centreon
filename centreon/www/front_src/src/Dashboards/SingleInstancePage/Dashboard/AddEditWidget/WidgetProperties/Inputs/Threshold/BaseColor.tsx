@@ -1,12 +1,11 @@
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Box, Typography, useTheme } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
-import { labelBaseColor } from '../../../../translatedLabels';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { labelBaseColor } from '../../../../translatedLabels';
 import { useBaseColorStyles } from './BaseColor.styles';
 
 interface Props {

@@ -6,7 +6,7 @@ interface Props {
 }
 
 const ErrorText = ({ message, style }: Props): JSX.Element => (
-  <FormHelperText error className={style}>
+  <FormHelperText className={style} error>
     {message}
   </FormHelperText>
 );

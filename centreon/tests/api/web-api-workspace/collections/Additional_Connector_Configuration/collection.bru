@@ -1,0 +1,22 @@
+meta {
+  name: Additional_Connector_Configuration
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  ACC1Id:
+  ACC2Id:
+  ACC3Id:
+  ACC1VcenterId:
+  ACC2VcenterId:
+  ACC3VcenterId:
+}

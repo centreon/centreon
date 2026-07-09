@@ -1,18 +1,17 @@
-import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
-
 import { Box, Divider, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+
 import {
+  labelOpenedOn,
   labelOpenTicketForHost,
   labelOpenTicketForService,
-  labelOpenedOn,
   labelSubject,
   labelTicketID
 } from '../../translatedLabels';
-
 import { useTooltipStyles } from './Tooltip.styles';
 
 interface Props {

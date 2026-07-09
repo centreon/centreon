@@ -1,7 +1,7 @@
+import { ComponentColumnProps, IconButton } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import { resourcesToCloseTicketAtom } from '../../../atom';
 import { labelCloseTicket } from '../../translatedLabels';
@@ -14,15 +14,26 @@ const CloseTicket = ({ row }: ComponentColumnProps): JSX.Element | null => {
 
   const setResourcesToCloseTicket = useSetAtom(resourcesToCloseTicketAtom);
 
+  const typedRow = row as {
+    id?: number;
+    extra?: { open_tickets?: { tickets?: { id?: number } } };
+    parent?: {
+      id?: number;
+      extra?: { open_tickets?: { tickets?: { id?: number } } };
+    };
+  };
+
   const ticket =
-    row?.extra?.open_tickets?.tickets ||
-    row?.parent?.extra?.open_tickets?.tickets;
+    typedRow?.extra?.open_tickets?.tickets ||
+    typedRow?.parent?.extra?.open_tickets?.tickets;
 
   const askBeforeClosingTicket = (): void => {
     setResourcesToCloseTicket([
       {
-        hostID: row.parent ? row?.parent?.id : row?.id,
-        serviceID: row.parent ? row?.id : undefined,
+        hostID: (typedRow.parent
+          ? typedRow?.parent?.id
+          : typedRow?.id) as number,
+        serviceID: typedRow.parent ? (typedRow?.id as number) : undefined,
         ticketId: ticket?.id
       }
     ]);
@@ -40,8 +51,8 @@ const CloseTicket = ({ row }: ComponentColumnProps): JSX.Element | null => {
         ariaLabel={t(labelCloseTicket)}
         color="primary"
         data-testid={labelCloseTicket}
-        size="large"
         onClick={askBeforeClosingTicket}
+        size="large"
       >
         <IconCloseTicket />
       </IconButton>

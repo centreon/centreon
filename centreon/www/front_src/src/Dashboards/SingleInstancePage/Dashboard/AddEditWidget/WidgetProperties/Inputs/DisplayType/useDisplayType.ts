@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
-
 import { useFormikContext } from 'formik';
+import { useMemo } from 'react';
 
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';

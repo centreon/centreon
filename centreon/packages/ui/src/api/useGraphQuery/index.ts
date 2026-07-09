@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import dayjs from 'dayjs';
 import {
   equals,
@@ -11,10 +9,10 @@ import {
   pipe,
   pluck
 } from 'ramda';
+import { useRef } from 'react';
 
-import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
-
-import { Metric, Resource, WidgetResourceType } from './models';
+import { buildListingEndpoint, type LineChartData, useFetchQuery } from '../..';
+import { type Metric, type Resource, WidgetResourceType } from './models';
 
 interface CustomTimePeriod {
   end: string;
@@ -37,6 +35,7 @@ interface UseMetricsQueryProps {
     timePeriodType: number;
   };
   isEnabled?: boolean;
+  enforceIsEnabled?: boolean;
 }
 
 interface UseMetricsQueryState {
@@ -75,7 +74,7 @@ interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
   base: number;
 }
 
-export const resourceTypeQueryParameter = {
+export const resourceTypeQueryParameter: Record<string, string> = {
   [WidgetResourceType.host]: 'host.id',
   [WidgetResourceType.hostCategory]: 'hostcategory.id',
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
@@ -103,7 +102,8 @@ const useGraphQuery = ({
   refreshCount,
   bypassQueryParams = false,
   prefix,
-  isEnabled = true
+  isEnabled = true,
+  enforceIsEnabled
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -161,9 +161,10 @@ const useGraphQuery = ({
     ],
     queryOptions: {
       enabled:
-        areResourcesFullfilled(resources) &&
-        !isEmpty(definedMetrics) &&
-        isEnabled,
+        enforceIsEnabled ??
+        (areResourcesFullfilled(resources) &&
+          !isEmpty(definedMetrics) &&
+          isEnabled),
       refetchInterval: refreshInterval,
       suspense: false
     },
@@ -185,7 +186,9 @@ const useGraphQuery = ({
       : data.current.metrics.filter(({ metric_id }) => {
           return pipe(
             pluck('excludedMetrics'),
-            flatten,
+            flatten as unknown as (
+              list: Array<unknown>
+            ) => ReadonlyArray<number>,
             includes(metric_id),
             not
           )(metrics);
@@ -219,8 +222,8 @@ const useGraphQuery = ({
       return metrics?.map((line) => {
         const formattedLegend = formatLegend({
           host: line?.host_name,
-          service: line?.service_name,
-          metric: line?.metric
+          metric: line?.metric,
+          service: line?.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -243,8 +246,8 @@ const useGraphQuery = ({
 
       if (areHostNameRedundant) {
         const formattedLegend = formatLegend({
-          service: line.service_name,
-          metric: line.metric
+          metric: line.metric,
+          service: line.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -261,8 +264,8 @@ const useGraphQuery = ({
 
       const formattedLegend = formatLegend({
         host: line.host_name,
-        service: line.service_name,
-        metric: line.metric
+        metric: line.metric,
+        service: line.service_name
       });
 
       return { ...line, legend: formattedLegend };
@@ -275,7 +278,7 @@ const useGraphQuery = ({
           base: data.current.base,
           title: ''
         },
-        metrics: getFormattedMetrics(),
+        metrics: getFormattedMetrics() ?? [],
         times: data.current.times
       }
     : undefined;

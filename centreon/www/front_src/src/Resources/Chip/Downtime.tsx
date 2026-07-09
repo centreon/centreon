@@ -1,7 +1,6 @@
 import { useTheme } from '@mui/material';
 
 import Downtime from '../icons/Downtime';
-
 import Chip from '.';
 
 const DowntimeChip = (): JSX.Element => {

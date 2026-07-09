@@ -121,6 +121,8 @@
         protocol: jQuery('input[name="protocol"]').val(),
         app_token: jQuery('input[name="app_token"]').val(),
         user_token: jQuery('input[name="user_token"]').val(),
+        peer_verify: jQuery('input[name="peer_verify"]').is(":checked"),
+        ca_cert_path: jQuery('input[name="ca_cert_path"]').val(),
         timeout: jQuery('input[name="timeout"]').val(),
         proxy_address: jQuery('input[name="proxy_address"]').val(),
         proxy_port: jQuery('input[name="proxy_port"]').val(),

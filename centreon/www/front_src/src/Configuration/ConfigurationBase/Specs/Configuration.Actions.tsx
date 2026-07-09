@@ -1,14 +1,6 @@
 import { capitalize } from '@mui/material';
+
 import pluralize from 'pluralize';
-
-import initialize, { mockActionsRequests } from './initialize';
-
-import {
-  getLabelDeleteMany,
-  getLabelDeleteOne,
-  getLabelDuplicateMany,
-  getLabelDuplicateOne
-} from './utils';
 
 import {
   labelDelete,
@@ -25,6 +17,13 @@ import {
   labelResourceDuplicated,
   labelResourceEnabled
 } from '../translatedLabels';
+import initialize, { mockActionsRequests } from './initialize';
+import {
+  getLabelDeleteMany,
+  getLabelDeleteOne,
+  getLabelDuplicateMany,
+  getLabelDuplicateOne
+} from './utils';
 
 export default (resourceType) => {
   describe('Actions: ', () => {

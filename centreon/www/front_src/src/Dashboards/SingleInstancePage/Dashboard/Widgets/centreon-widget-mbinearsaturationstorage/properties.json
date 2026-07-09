@@ -1,0 +1,128 @@
+{
+  "title": "Storage near saturation",
+  "description": "Displays a list of storage with saturation foreseen, current usage, days until saturation, and evolution of usage since the past day.",
+  "widgetType": "MBI",
+  "canExpand": true,
+  "moduleName": "centreon-widget-mbinearsaturationstorage",
+  "icon": "<g><rect id=\"Rectangle_2058\" style=\"fill: #2e68aa\" data-name=\"Rectangle 2058\" width=\"60\" height=\"60\" rx=\"4\" ry=\"4\"></rect><g><path class=\"cls-2\" style=\"fill: #dadada\" d=\"M18,27c1.66,0,3,1.34,3,3,0-4.96,4.04-9,9-9-1.66,0-3-1.34-3-3s1.34-3,3-3c-8.27,0-15,6.73-15,15,0-1.66,1.34-3,3-3Z\"></path><path class=\"cls-1\" style=\"fill: #fff\" d=\"M30,15c-1.66,0-3,1.34-3,3s1.34,3,3,3c4.96,0,9,4.04,9,9s-4.04,9-9,9-9-4.04-9-9c0-1.66-1.34-3-3-3s-3,1.34-3,3c0,8.27,6.73,15,15,15s15-6.73,15-15-6.73-15-15-15ZM30,20l-.35-.35,1.39-1.4h-3.04v-.5h3.04l-1.4-1.4.35-.35,2,2-2,2Z\"></path></g><g><path style=\"fill: #fff\" d=\"M52,39.71h-8.06c-3.07,4.4-8.17,7.29-13.94,7.29s-10.87-2.89-13.94-7.29H8c-2.21,0-4,1.79-4,4v3c0,2.21,1.79,4,4,4h44c2.21,0,4-1.79,4-4v-3c0-2.21-1.79-4-4-4Z\"></path><path style=\"fill: #fff\" d=\"M13.93,24.5h-5.79c-2.21,0-4,1.79-4,4v3c0,2.21,1.79,4,4,4h5.79c-.59-1.73-.93-3.57-.93-5.5s.34-3.77.93-5.5Z\"></path><path style=\"fill: #fff\" d=\"M26.14,13.46v-.17c0-2.21-1.79-4-4-4h-14c-2.21,0-4,1.79-4,4v3c0,2.21,1.79,4,4,4h7.92c2.36-3.39,5.93-5.87,10.08-6.83Z\"></path></g></g></g></svg>",
+  "options": {
+    "timePeriod": {
+      "type": "select",
+      "label": "Calculations based on time period",
+      "defaultValue": "24x7",
+      "options": [
+        {
+          "id": "24x7",
+          "name": "24x7"
+        },
+        {
+          "id": "workhours",
+          "name": "Workhours"
+        },
+        {
+          "id": "nonworkhours",
+          "name": "Non-workhours"
+        }
+      ]
+    },
+    "nbDays": {
+      "type": "textfield",
+      "secondaryLabel": "Forecast based on past X days",
+      "defaultValue": "7",
+      "className": "bg-red",
+      "required": true,
+      "size": "compact",
+      "text": {
+        "type": "number",
+        "min": 1,
+        "max": 365,
+        "size": "compact",
+        "autoSize": true,
+        "unit": "day",
+        "pluralize": true
+      }
+    },
+    "warningNbDays": {
+      "type": "textfield",
+      "secondaryLabel": "Alert",
+      "defaultValue": "20",
+      "required": true,
+      "text": {
+        "type": "number",
+        "min": 1,
+        "max": 365,
+        "autoSize": true,
+        "unit": "days before saturation"
+      }
+    },
+    "displayNbLines": {
+      "type": "textfield",
+      "defaultValue": "10",
+      "secondaryLabel": "Display",
+      "required": true,
+      "text": {
+        "type": "number",
+        "min": 1,
+        "max": 100,
+        "unit": "row",
+        "autoSize": true,
+        "pluralize": true
+      }
+    },
+    "showValueLabel": {
+      "type": "switch",
+      "defaultValue": true,
+      "label": "Show value label"
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "custom",
+      "label": "Interval"
+    },
+    "refreshIntervalCustom": {
+      "defaultValue": 43200
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": [],
+      "required": true,
+      "useAdditionalResources": false,
+      "singleResourceType": true,
+      "selectType": {
+        "defaultResourceType": [
+          { "resourceType": "host-group", "requied": true },
+          {
+            "resourceType": "host-category",
+            "requied": true
+          },
+          {
+            "resourceType": "service-category",
+            "requied": true,
+            "isSearchBypass": true
+          }
+        ]
+      },
+      "forceSingleAutocompleteConditions": {
+        "resourceType": "host-group",
+        "conditions": [
+          {
+            "method": "truthy"
+          }
+        ]
+      },
+      "excludedResourceTypes": [
+        "host",
+        "service",
+        "service-group",
+        "meta-service"
+      ]
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
+  "singleResourceSelection": false
+}

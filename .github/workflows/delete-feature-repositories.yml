@@ -11,11 +11,14 @@ on:
 
 jobs:
   delete-feature-repositories:
+    if: |
+      startsWith(github.ref_name, 'MON-')
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ github.token }}
+      HEAD_REF: ${{ github.head_ref }}
     steps:
-      - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
+      - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
         env:
           JF_URL: https://packages.centreon.com
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -25,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+')
           if [[ -z "$feature_ticket" ]]; then
             echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
             echo "repositories_found=false" >> "$GITHUB_OUTPUT"
@@ -44,8 +47,8 @@ jobs:
         shell: bash
         run: |
           set -x
-          if [[ -n $(gh pr list --repo centreon/centreon-modules --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]] \
-          || [[ -n $(gh pr list --repo centreon/centreon-collect --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]]; then
+          if [[ -n $(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --state open --json number | jq -r '.[].number') ]] \
+          || [[ -n $(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --state open --json number | jq -r '.[].number') ]]; then
             echo "::notice::Other open feature pull requests have been found on other repositories: no feature repository deletion will be requested."
             echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
           else
@@ -61,7 +64,7 @@ jobs:
         run: |
           set -x
           echo "Sending repository dispatch to delete feature repository workflow..."
-          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+')
           curl --fail-with-body -X POST \
             -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \

@@ -1,8 +1,11 @@
-import { buildListingEndpoint } from '@centreon/ui';
+import {
+  type BuildListingEndpointParameters,
+  buildListingEndpoint
+} from '@centreon/ui';
 
 export const hostGroupsListEndpoint = '/configuration/hosts/groups';
 
-export const getHostGroupEndpoint = ({ id }): string =>
+export const getHostGroupEndpoint = ({ id }: { id: number | string }): string =>
   `/configuration/hosts/groups/${id}`;
 
 export const bulkDuplicateHostGroupEndpoint =
@@ -11,10 +14,10 @@ export const bulkDuplicateHostGroupEndpoint =
 export const bulkDeleteHostGroupEndpoint =
   '/configuration/hosts/groups/_delete';
 
-export const bulkEnableHostGroupEndpoint =
+export const bulkEnableHostGroupEndpoint = () =>
   '/configuration/hosts/groups/_enable';
 
-export const bulkDisableHostGroupEndpoint =
+export const bulkDisableHostGroupEndpoint = () =>
   '/configuration/hosts/groups/_disable';
 
 export const hostListEndpoint = '/configuration/hosts';
@@ -23,7 +26,13 @@ export const resourceAccessRulesEndpoint =
 
 export const listImagesEndpoint = '/configuration/icons';
 
-export const getListImagesSearchEndpoint = ({ search, page }): string =>
+export const getListImagesSearchEndpoint = ({
+  search,
+  page
+}: {
+  search?: BuildListingEndpointParameters['parameters']['search'];
+  page: number;
+}): string =>
   buildListingEndpoint({
     baseEndpoint: listImagesEndpoint,
     parameters: {

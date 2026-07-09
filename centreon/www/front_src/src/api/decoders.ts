@@ -1,5 +1,3 @@
-import { JsonDecoder } from 'ts.data.json';
-
 import type { User } from '@centreon/ui-context';
 import {
   DashboardGlobalRole,
@@ -9,6 +7,8 @@ import {
   PlatformFeatures,
   ThemeMode
 } from '@centreon/ui-context';
+
+import { JsonDecoder } from 'ts.data.json';
 
 import {
   PlatformInstallationStatus,
@@ -116,9 +116,9 @@ export const platformVersionsDecoder = JsonDecoder.object<PlatformVersions>(
 export const featuresFlagDecoder = JsonDecoder.object<FeatureFlags>(
   {
     adExclusionPeriods: JsonDecoder.optional(JsonDecoder.boolean),
+    mapVisxViewer: JsonDecoder.optional(JsonDecoder.boolean),
     notification: JsonDecoder.optional(JsonDecoder.boolean),
-    vault: JsonDecoder.optional(JsonDecoder.boolean),
-    mapVisxViewer: JsonDecoder.optional(JsonDecoder.boolean)
+    vault: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Feature flags',
   {

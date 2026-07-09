@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Domain\Model;
 
+use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\Security\ProviderConfiguration\Domain\Local\Model\SecurityPolicy;
@@ -38,7 +39,7 @@ class UserPasswordFactory
      * @param User $user
      * @param SecurityPolicy $securityPolicy
      *
-     * @throws UserPasswordException|ConfigurationException
+     * @throws UserPasswordException|ConfigurationException|AssertionFailedException
      *
      * @return UserPassword
      */

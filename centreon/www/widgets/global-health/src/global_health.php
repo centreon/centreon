@@ -26,7 +26,6 @@ require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
 require_once $centreon_path . 'www/class/centreonLang.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
@@ -36,6 +35,8 @@ CentreonSession::start(1);
 if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
+
+$centreon = $_SESSION['centreon'];
 
 $db = $dependencyInjector['configuration_db'];
 
@@ -49,6 +50,12 @@ $dbb = $dependencyInjector['realtime_db'];
 $criticality = new CentreonCriticality($db);
 $media = new CentreonMedia($db);
 
+$variablesThemeCSS = match ($centreon->user->theme) {
+    'light' => 'Generic-theme',
+    'dark' => 'Centreon-Dark',
+    default => 'Generic-theme',
+};
+
 // Smarty template initialization
 $path = $centreon_path . 'www/widgets/global-health/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
@@ -56,8 +63,7 @@ $template = SmartyBC::createSmartyTemplate($path, './');
 $template->assign('session', session_id());
 $template->assign('host_label', _('Hosts'));
 $template->assign('svc_label', _('Services'));
-
-$centreon = $_SESSION['centreon'];
+$template->assign('theme', $variablesThemeCSS);
 
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 if ($widgetId === false) {

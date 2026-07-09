@@ -1,47 +1,39 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
-  container: {
-    height: theme.spacing(22),
-    width: theme.spacing(30),
-    padding: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: theme.spacing(2)
-  },
-  notFound: {
-    height: theme.spacing(10),
-    width: theme.spacing(30),
-    padding: theme.spacing(1)
-  },
-  body: {
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: theme.spacing(1)
-  },
-  content: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(0.5)
-  },
-  page: {
-    fontWeight: theme.typography.fontWeightMedium
+  arrow: {
+    fontSize: theme.spacing(2)
   },
   arrowContainer: {
+    alignItems: 'center',
     display: 'flex',
+    justifyContent: 'space-between'
+  },
+  body: {
+    display: 'flex',
+    gap: theme.spacing(1),
+    height: '100%',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    width: '100%'
+  },
+  container: {
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    height: theme.spacing(22),
+    justifyContent: 'space-between',
+    padding: theme.spacing(1),
+    width: theme.spacing(30)
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(0.5),
+    width: '100%'
   },
   icon: {
     color: theme.palette.text.primary
-  },
-  arrow: {
-    fontSize: theme.spacing(2)
   },
   item: {
     color: 'inherit',
@@ -49,8 +41,16 @@ export const useStyles = makeStyles()((theme) => ({
   },
   link: {
     '&:hover': {
-      cursor: 'pointer',
-      color: theme.palette.primary.main
+      color: theme.palette.primary.main,
+      cursor: 'pointer'
     }
+  },
+  notFound: {
+    height: theme.spacing(10),
+    padding: theme.spacing(1),
+    width: theme.spacing(30)
+  },
+  page: {
+    fontWeight: theme.typography.fontWeightMedium
   }
 }));

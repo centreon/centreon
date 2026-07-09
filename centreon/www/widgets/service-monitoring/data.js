@@ -72,13 +72,13 @@ jQuery(function () {
  */
 function exportChecked() {
     let exportList = '';
-    // get checked resource list from local storage
-    $(".selection").each(function () {
-        var itemSaved = 'w_sm_' + $(this).attr('id');
-        let toRemove = 'w_sm_selection_'
-        // each selected resource is like idHost;idSvc
-        if (localStorage.getItem(itemSaved)) {
-            exportList += itemSaved.substring(toRemove.length, itemSaved.length) + ',';
+    // export only the currently visible checked services (exclude the header "select all" checkbox)
+    $(".selection:checked").not(".checkall").each(function () {
+        const id = $(this).attr('id');
+        const prefix = 'selection_';
+
+        if (id && id.startsWith(prefix)) {
+            exportList += id.substring(prefix.length) + ',';
         }
     });
     // remove last comma

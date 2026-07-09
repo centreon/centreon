@@ -79,7 +79,7 @@ final class AddHostGroup
     public function __invoke(AddHostGroupRequest $request): AddHostGroupResponse|ResponseStatusInterface
     {
         try {
-            $this->validator->assertNameDoesNotAlreadyExists($request->name);
+            $this->validator->assertNameIsValid($request->name);
             $this->validator->assertHostsExist($request->hosts);
             if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);

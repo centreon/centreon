@@ -7,7 +7,18 @@ framework:
             command.bus:
                 middleware:
                     - validation
+                    # LoggingMiddleware must wrap DoctrineTransactionMiddleware,
+                    # not the other way around: on a handler throw we want the
+                    # error log emitted *after* the transactional rollback has
+                    # completed so the record reflects the final persistent
+                    # state, not an in-flight snapshot.
+                    - App\Shared\Infrastructure\Messenger\LoggingMiddleware
                     - App\Shared\Infrastructure\Messenger\DoctrineTransactionMiddleware
+
+            query.bus:
+                middleware:
+                    - validation
+                    - App\Shared\Infrastructure\Messenger\LoggingMiddleware
 
             event.bus:
                 default_middleware: allow_no_handlers

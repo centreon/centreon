@@ -1,13 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
 
 const checkFirstHostTemplateFromListing = () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -24,11 +22,11 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -57,11 +55,7 @@ When('a host template is configured', () => {
 });
 
 When('the user changes the properties of the configured host template', () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(hostTemplates.defaultHostTemplate.name).click();
   cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');

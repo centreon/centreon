@@ -1,0 +1,106 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use Countable;
+use IteratorAggregate;
+
+final class FakeCommandRepository implements CommandRepository
+{
+    /** @var array<int, Command> */
+    public array $commands = [];
+
+    public function getById(CommandId $id): Command
+    {
+        return $this->commands[$id->value] ?? throw new CommandNotFoundException(['id' => $id->value]);
+    }
+
+    public function findOneByName(CommandName $name): ?Command
+    {
+        foreach ($this->commands as $command) {
+            if ($command->name->value === $name->value) {
+                return $command;
+            }
+        }
+
+        return null;
+    }
+
+    public function add(Command ...$commands): void
+    {
+        foreach ($commands as $command) {
+            do {
+                $id = mt_rand();
+            } while (isset($this->commands[$id]));
+
+            $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+            $reflection->setAccessible(true);
+            $reflection->setValue($command, new CommandId($id));
+
+            $this->commands[$id] = $command;
+        }
+    }
+
+    public function update(Command $command): void
+    {
+        $commandId = $command->id();
+
+        $this->commands[$commandId->value] = $command;
+    }
+
+    public function delete(Command $command): void
+    {
+        $commandId = $command->id();
+
+        unset($this->commands[$commandId->value]);
+    }
+
+    public function findAll(?CommandCriteria $criteria): IteratorAggregate&Countable
+    {
+        return new \ArrayObject(array_values($this->commands));
+    }
+
+    public function countLinkedResources(array $commandIds): array
+    {
+        $results = [];
+        foreach ($commandIds as $commandId) {
+            $results[$commandId->value] = new CommandResourceCount(
+                usedHosts: mt_rand(0, 10),
+                usedServices: mt_rand(0, 10),
+                usedHostTemplates: mt_rand(0, 10),
+                usedServiceTemplates: mt_rand(0, 10)
+            );
+        }
+
+        return $results;
+    }
+}

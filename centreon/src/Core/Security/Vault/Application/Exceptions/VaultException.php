@@ -34,4 +34,9 @@ class VaultException extends \Exception
     {
         return new self(_('No vault configured'));
     }
+
+    public static function vaultNotAvailable(): self
+    {
+        return new self(_('Vault is not available'));
+    }
 }

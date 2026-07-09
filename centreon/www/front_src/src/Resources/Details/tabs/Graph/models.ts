@@ -1,7 +1,7 @@
+import { dateFormat, timeFormat } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import { find, propEq } from 'ramda';
-
-import { dateFormat, timeFormat } from '@centreon/ui';
 
 import {
   label1Day,

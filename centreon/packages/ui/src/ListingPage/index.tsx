@@ -1,13 +1,11 @@
-import { Suspense, useRef } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import { Box } from '@mui/material';
+
+import { Suspense, useRef } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { ParentSize } from '..';
 import WithPanel from '../Panel/WithPanel';
 import { useMemoComponent } from '../utils';
-
 import FilterSkeleton from './FilterSkeleton';
 import ListingSkeleton from './ListingSkeleton';
 

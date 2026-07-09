@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import AcknowledgeChip from '../../../../Chip/Acknowledge';
 import { labelAcknowledgedBy, labelAt } from '../../../../translatedLabels';

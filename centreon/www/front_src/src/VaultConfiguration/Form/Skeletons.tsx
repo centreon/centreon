@@ -1,4 +1,5 @@
 import { LoadingSkeleton } from '@centreon/ui';
+
 import { useFormStyles } from './useFormStyles';
 
 const Skeletons = (): JSX.Element => {

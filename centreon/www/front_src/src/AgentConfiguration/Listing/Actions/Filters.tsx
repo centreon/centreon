@@ -1,28 +1,28 @@
+import { capitalize } from '@mui/material';
+import type { ChipProps } from '@mui/material/Chip';
+
 import {
   MultiAutocompleteField,
   MultiConnectedAutocompleteField,
   TextField
 } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
+
 import { useTranslation } from 'react-i18next';
+
 import { getPollersEndpoint } from '../../api/endpoints';
-
-import { useActionsStyles } from './Actions.styles';
-import { useFilters } from './useFilters';
-
-import { capitalize } from '@mui/material';
 import { useGetAgentConfigurations } from '../../hooks/useGetAgentConfigurations';
-
 import { AgentType } from '../../models';
-
 import {
   labelAgentType,
-  labelCMA,
   labelClear,
+  labelCMA,
   labelName,
   labelPoller,
   labelSearch
 } from '../../translatedLabels';
+import { useActionsStyles } from './Actions.styles';
+import { useFilters } from './useFilters';
 
 export const agentTypeOptions = [
   {
@@ -56,50 +56,60 @@ const Filters = (): JSX.Element => {
   return (
     <div className={classes.filtersContainer} data-testid="FilterContainer">
       <TextField
-        fullWidth
         dataTestId={labelName}
+        fullWidth
         label={t(labelName)}
-        value={filters.name}
         onChange={changeName}
+        value={filters.name}
       />
       <MultiAutocompleteField
+        chipProps={{
+          color: 'primary',
+          onDelete: deleteType as ChipProps['onDelete']
+        }}
+        label={t(labelAgentType)}
+        onChange={
+          changeTypes as unknown as Parameters<
+            typeof MultiAutocompleteField
+          >[0]['onChange']
+        }
         options={agentTypeOptions}
         value={filters.type}
-        onChange={changeTypes}
-        label={t(labelAgentType)}
-        chipProps={{
-          onDelete: deleteType,
-          color: 'primary'
-        }}
       />
       <MultiConnectedAutocompleteField
-        chipProps={{
-          onDelete: deletePoller,
-          color: 'primary'
+        ChipProps={{
+          color: 'primary',
+          onDelete: deletePoller as ChipProps['onDelete']
         }}
         dataTestId={labelPoller}
-        getEndpoint={getPollersEndpoint}
-        label={t(labelPoller)}
-        value={filters['poller.id']}
         field="name"
-        onChange={changerPollers}
+        getEndpoint={
+          getPollersEndpoint as unknown as (params: unknown) => string
+        }
+        label={t(labelPoller)}
+        onChange={
+          changerPollers as unknown as Parameters<
+            typeof MultiConnectedAutocompleteField
+          >[0]['onChange']
+        }
+        value={filters['poller.id']}
       />
 
       <div className={classes.additionalFiltersButtons}>
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}
+          onClick={reset}
           size="small"
           variant="ghost"
-          onClick={reset}
         >
           {t(labelClear)}
         </Button>
         <Button
           data-testid={labelSearch}
           disabled={isLoading}
-          size="small"
           onClick={reload}
+          size="small"
         >
           {t(labelSearch)}
         </Button>

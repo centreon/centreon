@@ -35,4 +35,6 @@ final class AgentConfigurationDto
 
     /** @var PollerDto[] */
     public array $pollers;
+
+    public bool $isAgentInitiated;
 }

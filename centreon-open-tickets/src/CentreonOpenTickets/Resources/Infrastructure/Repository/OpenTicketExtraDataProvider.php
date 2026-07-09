@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace CentreonOpenTickets\Resources\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Infrastructure\DatabaseConnection;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
 
@@ -37,19 +39,16 @@ use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProvide
  *  subject:string,
  *  timestamp: int
  * }
+ * @phpstan-type _RuleDetails array{
+ *  macro_ticket_id: ?string,
+ *  url: ?string,
+ *  ...
+ * }
  */
-final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements ExtraDataProviderInterface
+final class OpenTicketExtraDataProvider extends DatabaseRepository implements ExtraDataProviderInterface
 {
     use SqlMultipleBindTrait;
     private const DATA_PROVIDER_SOURCE_NAME = 'open_tickets';
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
 
     /**
      * @inheritDoc
@@ -72,56 +71,55 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      */
     public function getSubFilter(ResourceFilter $filter): string
     {
-
-        // Only get subRequest is asked and if ruleId is provided
         if ($filter->getRuleId() === null) {
             return '';
         }
 
-        $macroName = $this->getMacroNameFromRuleId($filter->getRuleId());
+        $ruleDetails = $this->getRuleDetails($filter->getRuleId());
+        $macroName = $ruleDetails['macro_ticket_id'];
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
         }
 
-        $onlyOpenedTicketsSubFilter = $filter->getOnlyWithTicketsOpened()
-            ? '(host_tickets.timestamp IS NOT NULL OR service_tickets.timestamp IS NOT NULL)'
-            : 'host_tickets.timestamp IS NULL AND service_tickets.timestamp IS NULL';
+        $serviceTicketExists = <<<SQL
+                SELECT 1
+                FROM `:dbstg`.customvariables cv
+                INNER JOIN `:dbstg`.mod_open_tickets t
+                    ON cv.value = t.ticket_value
+                INNER JOIN `:dbstg`.services s
+                    ON s.host_id = cv.host_id AND s.service_id = cv.service_id
+                WHERE cv.host_id = resources.parent_id
+                    AND cv.service_id = resources.id
+                    AND cv.name = '{$macroName}'
+                    AND (t.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)
+            SQL;
+
+        $hostTicketExists = <<<SQL
+                SELECT 1
+                FROM `:dbstg`.customvariables cv
+                INNER JOIN `:dbstg`.mod_open_tickets t
+                    ON cv.value = t.ticket_value
+                INNER JOIN `:dbstg`.hosts h
+                    ON h.host_id = cv.host_id
+                WHERE cv.host_id = COALESCE(resources.parent_id, resources.id)
+                    AND (cv.service_id IS NULL OR cv.service_id = 0)
+                    AND cv.name = '{$macroName}'
+                    AND (t.timestamp > h.last_time_up OR h.last_time_up IS NULL)
+            SQL;
+
+        if ($filter->getOnlyWithTicketsOpened()) {
+            return <<<SQL
+                    AND (
+                        EXISTS ({$serviceTicketExists})
+                        OR EXISTS ({$hostTicketExists})
+                    )
+                SQL;
+        }
 
         return <<<SQL
-                AND EXISTS (
-                    SELECT 1 FROM `:dbstg`.hosts h
-                    LEFT JOIN `:dbstg`.services s
-                        ON s.host_id = h.host_id
-                    LEFT JOIN `:dbstg`.customvariables host_customvariables
-                        ON (
-                            h.host_id = host_customvariables.host_id
-                            AND (host_customvariables.service_id IS NULL OR host_customvariables.service_id = 0)
-                            AND host_customvariables.name = '{$macroName}'
-                        )
-                    LEFT JOIN `:dbstg`.mod_open_tickets host_tickets
-                    ON (
-                        host_customvariables.value = host_tickets.ticket_value
-                        AND (host_tickets.timestamp > h.last_time_up OR h.last_time_up IS NULL)
-                    )
-                    LEFT JOIN `:dbstg`.customvariables service_customvariables
-                        ON (
-                            s.service_id = service_customvariables.service_id
-                            AND s.host_id = service_customvariables.host_id
-                            AND service_customvariables.name = '{$macroName}'
-                        )
-                    LEFT JOIN `:dbstg`.mod_open_tickets service_tickets
-                        ON (
-                            service_customvariables.value = service_tickets.ticket_value
-                            AND (service_tickets.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)
-                        )
-                    WHERE (
-                            (h.host_id = resources.parent_id AND s.service_id = resources.id)
-                            OR (h.host_id = resources.id AND s.service_id IS NULL)
-                        )
-                        AND {$onlyOpenedTicketsSubFilter}
-                    LIMIT 1
-                )
+                AND NOT EXISTS ({$serviceTicketExists})
+                AND NOT EXISTS ({$hostTicketExists})
             SQL;
     }
 
@@ -137,7 +135,9 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return $data;
         }
 
-        $macroName = $this->getMacroNameFromRuleId($filter->getRuleId());
+        $ruleDetails = $this->getRuleDetails($filter->getRuleId());
+
+        $macroName = $ruleDetails['macro_ticket_id'] ?? null;
 
         if ($macroName === null) {
             throw new \Exception('Macro name used for rule not found');
@@ -175,8 +175,46 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
         }
 
         // avoid key re-indexing. index = resource_id
-        return $this->getResourceTickets($resourceIds, $macroName)
+        $tickets = $this->getResourceTickets($resourceIds, $macroName)
             + $this->getParentResourceTickets($parentResourceIds, $macroName);
+
+        // for each tickets found lets rebuild the link to it using the information from rule details
+        // if the url has been provided and not empty
+        return $ruleDetails['url'] !== null
+            ? array_map(
+                function ($ticket) use ($ruleDetails) {
+                    $ticket['link'] = $this->generateLinkForTicket($ticket['id'], $ruleDetails);
+
+                    return $ticket;
+                },
+                $tickets
+            )
+            : $tickets;
+    }
+
+    /**
+     * @param string $ticketId
+     * @param _RuleDetails $data
+     * @return string
+     */
+    private function generateLinkForTicket(string $ticketId, array $data): string
+    {
+        $url = $data['url'] ?? '';
+
+        if ($url === '') {
+            return $url;
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value !== null) {
+                $pattern = '/\{\$' . preg_quote($key, '/') . '\}/';
+                /** @var non-empty-string $url */
+                $url = preg_replace($pattern, (string) $value, $url);
+            }
+        }
+
+        /** @var non-empty-string $url */
+        return preg_replace('/\{\$ticket_id\}/', $ticketId, $url) ?? $url;
     }
 
     /**
@@ -207,7 +245,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      * @param int[] $resources
      * @param string $macroName
      * @return array<int, array{
-     *  id:int,
+     *  id:string,
      *  subject:string,
      *  created_at:\DateTimeInterface
      * }>|array{}
@@ -218,7 +256,11 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($resources), ':resource_id');
+        ['parameters' => $resourceQueryParameters, 'placeholderList' => $bindQuery] = $this->createMultipleBindParameters(
+            array_values($resources),
+            'resource_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
         $request = <<<SQL
                 SELECT
@@ -244,24 +286,18 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                     AND tickets.timestamp IS NOT NULL;
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = [
+            ...$resourceQueryParameters,
+            QueryParameter::string('macroName', $macroName),
+        ];
 
         $tickets = [];
-
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($request), QueryParameters::create($queryParameters)) as $record) {
             /**
              * @var _TicketData $record
              */
             $tickets[(int) $record['resource_id']] = [
-                'id' => (int) $record['ticket_value'],
+                'id' => $record['ticket_value'],
                 'subject' => $record['subject'],
                 'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp']),
             ];
@@ -274,7 +310,7 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      * @param int[] $parentResources
      * @param string $macroName
      * @return array<int, array{
-     *  id:int,
+     *  id:string,
      *  subject:string,
      *  created_at:\DateTimeInterface
      * }>|array{}
@@ -285,7 +321,11 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
             return [];
         }
 
-        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(array_values($parentResources), ':resource_id');
+        ['parameters' => $resourceQueryParameters, 'placeholderList' => $bindQuery] = $this->createMultipleBindParameters(
+            array_values($parentResources),
+            'resource_id',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
         $request = <<<SQL
                 SELECT
@@ -310,23 +350,18 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
                     AND tickets.timestamp IS NOT NULL;
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':macroName', $macroName, \PDO::PARAM_STR);
-
-        foreach ($bindValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = [
+            ...$resourceQueryParameters,
+            QueryParameter::string('macroName', $macroName),
+        ];
 
         $tickets = [];
-        while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($request), QueryParameters::create($queryParameters)) as $record) {
             /**
              * @var _TicketData $record
              */
             $tickets[(int) $record['resource_id']] = [
-                'id' => (int) $record['ticket_value'],
+                'id' => $record['ticket_value'],
                 'subject' => $record['subject'],
                 'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp']),
             ];
@@ -340,22 +375,29 @@ final class OpenTicketExtraDataProvider extends AbstractRepositoryRDB implements
      *
      * @param int $ruleId
      *
-     * @return string
+     * @return _RuleDetails
      */
-    private function getMacroNameFromRuleId(int $ruleId): ?string
+    private function getRuleDetails(int $ruleId): array
     {
-        $request = <<<'SQL'
-                SELECT `value` FROM `:db`.mod_open_tickets_form_value WHERE rule_id = :ruleId AND uniq_id = 'macro_ticket_id';
+        $query = <<<'SQL'
+            SELECT
+                `uniq_id`,
+                `value`
+            FROM `:db`.mod_open_tickets_form_value
+            WHERE rule_id = :ruleId
             SQL;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $statement->bindValue(':ruleId', $ruleId, \PDO::PARAM_INT);
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
+        $queryParameters = QueryParameters::create([
+            QueryParameter::int('ruleId', $ruleId),
+        ]);
 
-        /** @var string|null|false $result */
-        $result = $statement->fetchColumn();
+        $ruleDetails = [];
 
-        return $result !== false ? $result : null;
+        foreach ($this->connection->iterateAssociativeIndexed($this->translateDbName($query), $queryParameters) as $key => $data) {
+            $ruleDetails[$key] = $data['value'];
+        }
+
+        /** @var array{macro_ticket_id: ?string, url: ?string, ...} $ruleDetails */
+        return $ruleDetails;
     }
 }

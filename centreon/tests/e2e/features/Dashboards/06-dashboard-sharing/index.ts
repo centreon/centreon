@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -18,23 +20,23 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards/*'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*`
   }).as('getDashboard');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/configuration/dashboards/*/shares'
+    url: `${INTERCEPTORS.api.dashboard_configuration}/*/shares`
   }).as('updateShares');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,
@@ -55,7 +57,7 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.visit('/centreon/home/dashboards/library');
+  cy.visit(PAGES.monitoring.dashboardsLibrary);
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'

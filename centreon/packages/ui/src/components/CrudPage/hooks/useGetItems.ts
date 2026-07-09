@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
-import { ListingModel, buildListingEndpoint } from '../../..';
+
+import { buildListingEndpoint, type ListingModel } from '../../..';
 import useFetchQuery from '../../../api/useFetchQuery';
 import {
   limitAtom,
@@ -9,7 +10,7 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from '../atoms';
-import { UseGetItemsProps, UseGetItemsState } from '../models';
+import type { UseGetItemsProps, UseGetItemsState } from '../models';
 import { useListingQueryKey } from './useListingQueryKey';
 
 export const useGetItems = <TData, TFilters>({
@@ -19,7 +20,7 @@ export const useGetItems = <TData, TFilters>({
   getSearchParameters,
   baseEndpoint
 }: UseGetItemsProps<TData, TFilters>): UseGetItemsState<TData> => {
-  const queryKey = useListingQueryKey({ queryKeyName, filtersAtom });
+  const queryKey = useListingQueryKey({ filtersAtom, queryKeyName });
 
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
@@ -30,25 +31,25 @@ export const useGetItems = <TData, TFilters>({
 
   const { data, isLoading } = useFetchQuery<ListingModel<TData>>({
     decoder,
-    getQueryKey: () => queryKey,
     getEndpoint: () =>
       buildListingEndpoint({
         baseEndpoint,
         parameters: {
-          page: page + 1,
           limit,
-          sort: {
-            [sortField]: sortOrder
-          },
+          page: page + 1,
           search: {
             regex: {
               fields: ['name'],
               value: search
             },
             ...getSearchParameters({ filters, search })
+          },
+          sort: {
+            [sortField]: sortOrder
           }
         }
       }),
+    getQueryKey: () => queryKey,
     queryOptions: {
       suspense: false
     }
@@ -58,10 +59,10 @@ export const useGetItems = <TData, TFilters>({
   const hasItems = !!data;
 
   return {
-    items,
-    isDataEmpty: isEmpty(items),
     hasItems,
+    isDataEmpty: isEmpty(items),
     isLoading,
+    items,
     total: data?.meta.total || 0
   };
 };

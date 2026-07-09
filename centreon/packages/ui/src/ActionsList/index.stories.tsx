@@ -1,12 +1,11 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-
 import CopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { ActionVariants } from './models';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import ActionsList from '.';
+import type { ActionVariants } from './models';
 
 const actions = [
   {

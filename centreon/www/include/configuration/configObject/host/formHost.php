@@ -144,6 +144,7 @@ $attributes = [
         'availableDatasetRoute' => $datasetRoutes['acl_groups'],
         'defaultDatasetRoute' => $datasetRoutes['default_acl_groups'],
         'multiple' => true,
+        'linkedObject' => 'centreonAclGroup',
     ],
 ];
 
@@ -456,6 +457,12 @@ $form->addElement(
 $form->addElement('static', 'tplText', _('Using a Template allows you to have multi-level Template connection'));
 
 $cloneSetMacro = [
+    $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#', 'size' => 25]
+    ),
     $form->addElement(
         'text',
         'macroInput[#index#]',
@@ -935,6 +942,7 @@ foreach ($critList as $critId => $critData) {
 }
 $form->addElement('select', 'criticality_id', _('Host severity'), $criticalityIds);
 
+// MAYBE dead code - to verify
 // Sort 5 - Macros - Nagios 3
 if ($o === HOST_ADD) {
     $form->addElement('header', 'title5', _('Add macros'));
@@ -962,7 +970,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
 
 if (is_array($select)) {
     $select_pear = $form->addElement('hidden', 'select');
@@ -1079,6 +1087,10 @@ if ($o === HOST_WATCH) {
     // Massive Change
     $subMC = $form->addElement('submit', 'submitMC', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
+}
+
+if ($o === HOST_ADD || $o === HOST_MODIFY || $o === HOST_MASSIVE_CHANGE) {
+    $form->addFormRule('validateParentChildAreNotCircular');
 }
 
 if (! $isCloudPlatform) {

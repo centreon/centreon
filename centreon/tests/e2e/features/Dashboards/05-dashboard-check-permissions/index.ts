@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
@@ -15,15 +17,15 @@ before(() => {
   );
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
   cy.loginByTypeOfUser({
     jsonName: adminUser.login,
@@ -48,15 +50,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/dashboards**'
+    url: `${INTERCEPTORS.api.dashboard_configuration}**`
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
 });
 
@@ -515,10 +517,7 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
 });
 
 When('the dashboard editor user creates a new dashboard', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -607,7 +606,7 @@ Given(
 );
 
 When('the dashboard viewer user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit(PAGES.monitoring.dashboards);
 });
 
 Then(
@@ -666,10 +665,7 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 

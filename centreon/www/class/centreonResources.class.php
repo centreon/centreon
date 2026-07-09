@@ -74,11 +74,13 @@ class CentreonResources
      */
     public static function getResourceByName($db, $name)
     {
-        $queryResources = "SELECT * FROM cfg_resource WHERE resource_name = '{$name}'";
-        $resultQueryResources = $db->query($queryResources);
+        $queryResources = 'SELECT * FROM cfg_resource WHERE resource_name = :name';
+        $resultQueryResources = $db->prepare($queryResources);
+        $resultQueryResources->bindValue(':name', $name, PDO::PARAM_STR);
+        $resultQueryResources->execute();
 
         $finalResource = [];
-        while ($resultResources = $resultQueryResources->fetchRow()) {
+        while ($resultResources = $resultQueryResources->fetch()) {
             $finalResource = $resultResources;
         }
 

@@ -1,5 +1,4 @@
 import { labelMinute, labelMinutes } from '../translatedLabels';
-
 import TimeInput, { TimeInputProps } from './TimeInput';
 
 const initialize = (props: Omit<TimeInputProps, 'onChange'>): unknown => {

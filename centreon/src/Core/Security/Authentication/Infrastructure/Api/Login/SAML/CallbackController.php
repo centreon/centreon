@@ -81,7 +81,7 @@ final class CallbackController extends AbstractController
                 if ($response->redirectIsReact()) {
                     return View::createRedirect(
                         $this->getBaseUrl() . $response->getRedirectUri(),
-                        headers: ['Set-Cookie' => 'PHPSESSID=' . $requestStack->getSession()->getId()]
+                        headers: ['Set-Cookie' => session_name() . '=' . $requestStack->getSession()->getId()]
                     );
                 }
 

@@ -1,9 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
 const services = {
@@ -38,27 +40,27 @@ beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
+    url: `${INTERCEPTORS.api.hosts_configuration}/groups?page=1&limit=*`
   }).as('getGroups');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts?page=1*'
+    url: `${INTERCEPTORS.api.hosts_configuration}?page=1*`
   }).as('getHosts');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups/*'
+    url: `${INTERCEPTORS.api.hosts_configuration}/groups/*`
   }).as('getGroupDetails');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/icons?page=*'
+    url: `${INTERCEPTORS.api.icons_configuration}?page=*`
   }).as('getIcons');
 });
 
@@ -130,11 +132,7 @@ When('a host group is configured', () => {
 });
 
 When('the user changes some properties of the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.contains('p', hostGroups.default.name).eq(0).click();
   cy.wait('@getGroupDetails');
@@ -202,17 +200,13 @@ When('the user duplicates the configured host group', () => {
   cy.updateHostGroupViaApi(
     {
       ...hostGroups.forDuplicate,
-      iconId: hostGroups.forDuplicate.icon_id,
       geoCoords: hostGroups.forDuplicate.geo_coords,
+      iconId: hostGroups.forDuplicate.icon_id,
       isActivated: hostGroups.forDuplicate.is_activated
     },
     hostGroups.default.name
   );
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.getByLabel({ label: 'Duplicate' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Duplicate"]').click();
@@ -242,11 +236,7 @@ Then('a new host group is created with identical properties', () => {
 });
 
 When('the user deletes the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.getByLabel({ label: 'Delete' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Delete"]').click();

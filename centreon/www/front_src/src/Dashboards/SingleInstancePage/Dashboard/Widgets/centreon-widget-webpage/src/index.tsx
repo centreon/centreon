@@ -1,5 +1,5 @@
-import Webpage from './WebPage';
 import type { WebPageProps } from './models';
+import Webpage from './WebPage';
 
 const Widget = (props: WebPageProps): JSX.Element => <Webpage {...props} />;
 

@@ -58,7 +58,7 @@ class CentreonXMLBGRequest
     /** @var CentreonMonitoring */
     public $monObj;
 
-    /** @var CentreonACL */
+    /** @var CentreonAclLazy */
     public $access;
 
     /** @var string */
@@ -85,12 +85,6 @@ class CentreonXMLBGRequest
 
     /** @var */
     public $user_id;
-
-    /** @var array */
-    public $grouplist;
-
-    /** @var string */
-    public $grouplistStr;
 
     /** @var */
     public $general_opt;
@@ -204,9 +198,7 @@ class CentreonXMLBGRequest
         // ACL init
         $this->getUserIdFromSID();
         $this->isUserAdmin();
-        $this->access = new CentreonACL($this->user_id, $this->is_admin);
-        $this->grouplist = $this->access->getAccessGroups();
-        $this->grouplistStr = $this->access->getAccessGroupsString();
+        $this->access = new CentreonAclLazy($this->user_id);
 
         // Init Color table
         $this->getStatusColor();

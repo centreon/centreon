@@ -331,3 +331,12 @@ export const labelExtended = 'Extended';
 
 export const labelFreeTextSearchBehavior =
   'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
+
+export const labelTooManyGraphsToDisplay =
+  'Too many elements to be displayed (>{{graphsCapNumber}})';
+
+export const labelApproximateCount = '1,000+';
+export const labelApproximateCountTooltip =
+  'More than 1,000 resources match your search. Click to compute the exact count.';
+export const labelLoadingExactCount = 'Computing exact count…';
+export const labelExactCountLoaded = '{{count}} resources';

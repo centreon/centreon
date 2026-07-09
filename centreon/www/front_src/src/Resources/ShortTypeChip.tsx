@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
 import { SeverityCode, StatusChip } from '@centreon/ui';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   containerLabel: {

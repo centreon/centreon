@@ -1,7 +1,7 @@
+import { FormControlLabel, Switch, Tooltip } from '@mui/material';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-
-import { FormControlLabel, Switch, Tooltip } from '@mui/material';
 
 import {
   labelActiveOrInactive,
@@ -31,8 +31,8 @@ const ActivateSwitch = (): JSX.Element => {
             className={classes.switch}
             color="success"
             name="isActivated"
-            size="medium"
             onChange={handleChange}
+            size="medium"
           />
         </Tooltip>
       }

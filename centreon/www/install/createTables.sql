@@ -475,7 +475,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.1',
+  `bbdo_version` varchar(50) DEFAULT '3.1.0',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1652,7 +1652,7 @@ CREATE TABLE `nagios_server` (
   `centreonbroker_module_path` varchar(255) DEFAULT NULL,
   `centreonconnector_path` varchar(255) DEFAULT NULL,
   `ssh_port` int(11) DEFAULT NULL,
-  `gorgone_communication_type` enum('1', '2') NOT NULL DEFAULT '1',
+  `gorgone_communication_type` enum('1', '2', '3', '4') NOT NULL DEFAULT '1' COMMENT '1: SSH, 2: ZMQ, 3: Pull, 4: PullWSS',
   `gorgone_port` int(11) DEFAULT NULL,
   `init_script_centreontrapd` varchar(255) DEFAULT NULL,
   `snmp_trapd_path_conf` varchar(255) DEFAULT NULL,
@@ -1662,8 +1662,12 @@ CREATE TABLE `nagios_server` (
   `remote_id` int(11) NULL,
   `remote_server_use_as_proxy` enum('0','1') NOT NULL DEFAULT '1',
   `updated` enum('1','0') NOT NULL DEFAULT '0',
+  `vmware_updated` BOOLEAN NOT NULL DEFAULT 0,
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
+  `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
+  `uid` BIGINT UNSIGNED NOT NULL COMMENT 'Snowflake 64-bit unique identifier',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_uid` (`uid`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2644,15 +2648,15 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
 ) COMMENT='Table storing available widget models for dashboards' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
-  `name` varchar(255) NOT NULL,
-  `description` text,
-  `parameters` JSON NOT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `updated_by` int(11) DEFAULT NULL,
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the additional connector configuration',
+  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6' COMMENT 'Type of the additional connector configuration (e.g., vmware_v6)',
+  `name` varchar(255) NOT NULL COMMENT 'Name of the additional connector configuration',
+  `description` text COMMENT 'Description of the additional connector configuration',
+  `port` INT UNSIGNED NOT NULL DEFAULT 443 COMMENT 'Port number for VMware connector (default 443)',
+  `created_by` int(11) DEFAULT NULL COMMENT 'ID of the user who created the configuration',
+  `updated_by` int(11) DEFAULT NULL COMMENT 'ID of the user who last updated the configuration',
+  `created_at` int(11) NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` int(11) NOT NULL COMMENT 'Last update timestamp',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_unique` (`name`),
   CONSTRAINT `acc_contact_created_by`
@@ -2674,6 +2678,24 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
     FOREIGN KEY (`poller_id`)
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+/** ACC configuration items for VMware vCenter - stores individual vCenter connection details  */
+CREATE TABLE IF NOT EXISTS `acc_item` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the vCenter configuration item',
+  `acc_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to additional_connector_configuration',
+  `name` VARCHAR(255) NOT NULL COMMENT 'Name of the vCenter',
+  `url` VARCHAR(255) NOT NULL COMMENT 'vCenter server URL',
+  `username` VARCHAR(255) NOT NULL COMMENT 'Username for vCenter authentication',
+  `password` VARCHAR(255) NOT NULL COMMENT 'Encrypted password for vCenter authentication',
+  `created_at` INT NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acc_item_unique` (`acc_id`, `id`),
+  CONSTRAINT `fk_config_acc`
+    FOREIGN KEY (`acc_id`)
+    REFERENCES `additional_connector_configuration` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='VMware vCenter connection details for ACC';
 
 CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
@@ -2732,8 +2754,8 @@ CREATE TABLE IF NOT EXISTS `user_profile_favorite_dashboards` (
     REFERENCES `dashboard` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `jwt_tokens` (
-    `token_string` varchar(4096) DEFAULT NULL COMMENT 'Encoded JWT token',
+CREATE TABLE IF NOT EXISTS `authentication_tokens` (
+    `token_string` varchar(4096) DEFAULT NULL COMMENT 'token string',
     `token_name` VARCHAR(255) NOT NULL COMMENT 'Token name',
     `creator_id` INT(11) DEFAULT NULL COMMENT 'User ID of the token creator',
     `creator_name` VARCHAR(255) DEFAULT NULL COMMENT 'User name of the token creator',
@@ -2741,10 +2763,11 @@ CREATE TABLE IF NOT EXISTS `jwt_tokens` (
     `is_revoked` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Define if token is revoked',
     `creation_date` bigint UNSIGNED NOT NULL COMMENT 'Creation date of the token',
     `expiration_date` bigint UNSIGNED DEFAULT NULL COMMENT 'Expiration date of the token',
+    `type` enum('cma','poller') DEFAULT 'cma' COMMENT 'Define token usage',
     PRIMARY KEY (`token_name`),
     CONSTRAINT `jwt_tokens_user_id_fk` FOREIGN KEY (`creator_id`)
     REFERENCES `contact` (`contact_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for JWT tokens';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Table for tokens not used for api/ui login';
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

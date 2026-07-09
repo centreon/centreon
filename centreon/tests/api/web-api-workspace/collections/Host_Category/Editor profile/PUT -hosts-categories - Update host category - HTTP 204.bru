@@ -1,0 +1,35 @@
+meta {
+  name: PUT /hosts/categories - Update host category - HTTP 204
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/hosts/categories/{{HostCategory4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostCategory4Name}}",
+    "alias": "{{HostCategory4Alias}}",
+    "is_activated": false,
+    "comment": "I was created by the Read/Write user"
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host category has been successfully updated by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

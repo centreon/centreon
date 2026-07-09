@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {
@@ -62,19 +64,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources?page=*'
+    url: `${INTERCEPTORS.api.monitor_resources}?page=*`
   }).as('getResources');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/monitoring/resources/hosts/*'
+    url: `${INTERCEPTORS.api.monitor_resources}/hosts/*`
   }).as('getResourcesDetails');
 });
 
@@ -97,7 +99,7 @@ Given(
 );
 
 When('the user submits some results to this service', () => {
-  cy.visit('/centreon/monitoring/resources');
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.get('input[placeholder="Search"]').clear().type('{enter}');
   cy.wait('@getResources');
   cy.get('[aria-label="Refresh"]').click();
@@ -148,7 +150,7 @@ Given(
 );
 
 When('the user submits some results to this host', () => {
-  cy.visit('/centreon/monitoring/resources');
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.get('input[placeholder="Search"]').clear().type('{enter}');
   cy.get('[aria-label="Refresh"]').click();
   cy.get('input[placeholder="Search"]')

@@ -8,7 +8,8 @@ import 'dayjs/locale/fr';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
 import 'dayjs/locale/pt';
-import { Props, useLocaleTimezoneDate } from './useLocaleTimezoneDate';
+
+import { type Props, useLocaleTimezoneDate } from './useLocaleTimezoneDate';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utc);

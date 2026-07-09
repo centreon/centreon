@@ -25,6 +25,9 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\StandardMacro;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
+/**
+ * @extends AggregateRoot<StandardMacroId>
+ */
 final class StandardMacro extends AggregateRoot
 {
     public function __construct(

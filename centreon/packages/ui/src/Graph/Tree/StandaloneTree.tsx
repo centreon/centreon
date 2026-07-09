@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
 import { ParentSize } from '../..';
-
+import type { BaseProp, TreeProps } from './models';
 import { Tree } from './Tree';
-import { BaseProp, TreeProps } from './models';
 
 export const StandaloneTree = <TData extends BaseProp>({
   tree,
@@ -18,6 +17,7 @@ export const StandaloneTree = <TData extends BaseProp>({
     <ParentSize>
       {({ width, height }) => (
         <svg height={height} width={width}>
+          <title>Tree</title>
           <Tree
             {...props}
             changeTree={setTree}

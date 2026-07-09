@@ -755,7 +755,7 @@ class CentreonTopCounter extends CentreonWebService
      */
     private function getPasswordRemainingTime(): ?int
     {
-        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
+        if ($this->centreon->user->authType !== CentreonAuth::AUTH_TYPE_LOCAL) {
             return null;
         }
         $passwordRemainingTime = null;

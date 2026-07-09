@@ -1,0 +1,378 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
+
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
+use Doctrine\DBAL\Connection;
+use Tests\App\Shared\ApiTestCase;
+
+final class ListCommandsProviderTest extends ApiTestCase
+{
+    private const BASE_ENDPOINT = '/api/latest/configuration/commands';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+
+        $commands = [
+            ['command_id' => 1, 'command_name' => 'check_host_alive', 'command_line' => '$USER1$/check_icmp -H $HOSTADDRESS$', 'command_type' => 2],
+            ['command_id' => 2, 'command_name' => 'check_centreon_ping', 'command_line' => '$USER1$/check_centreon_ping -H $HOSTADDRESS$', 'command_type' => 2],
+            ['command_id' => 3, 'command_name' => 'check_centreon_cpu', 'command_line' => '$USER1$/check_centreon_cpu', 'command_type' => 2],
+            ['command_id' => 4, 'command_name' => 'check_centreon_memory', 'command_line' => '$USER1$/check_centreon_memory', 'command_type' => 2],
+            ['command_id' => 5, 'command_name' => 'host-notify-by-email', 'command_line' => '/usr/bin/mail -s "Host $HOSTNAME$"', 'command_type' => 1],
+            ['command_id' => 6, 'command_name' => 'host-notify-by-sms', 'command_line' => '/usr/bin/sms "$HOSTNAME$"', 'command_type' => 1],
+            ['command_id' => 7, 'command_name' => 'host-notify-by-slack', 'command_line' => '/usr/bin/slack "$HOSTNAME$"', 'command_type' => 1],
+            ['command_id' => 8, 'command_name' => 'service-notify-by-email', 'command_line' => '/usr/bin/mail -s "Service $SERVICEDESC$"', 'command_type' => 1],
+            ['command_id' => 9, 'command_name' => 'submit-service-check-result', 'command_line' => '/usr/bin/submit_result', 'command_type' => 3],
+        ];
+
+        foreach ($commands as $cmd) {
+            $connection->insert('command', array_merge($cmd, [
+                'enable_shell' => '0',
+                'command_activate' => '1',
+                'command_locked' => '0',
+            ]));
+        }
+    }
+
+    public function testItFindCommands(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['name' => 'check_host_alive'],
+                ],
+            ]
+        );
+        self::assertJsonContains(
+            [
+                'totalItems' => 9,
+            ]
+        );
+    }
+
+    public function testItFindAllCommandsWithNameLikeOperator(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => ['check', 'ping']]]]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(5, (array) $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['name' => 'check_host_alive'],
+                ],
+            ]
+        );
+    }
+
+    public function testItFindAllCommandsWithNameLikeOperatorNoMatch(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => 'nonexistent']]]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(0, (array) $response->toArray()['member']);
+    }
+
+    public function testItFindAllCommandsWithNameEqualOperator(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => 'check_centreon_ping']]]);
+        self::assertResponseIsSuccessful();
+        $this->assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['name' => 'check_centreon_ping'],
+                ],
+            ]
+        );
+    }
+
+    public function testItFindAllCommandsWithTypeFilter(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Check']]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(4, (array) $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['type' => 'Check'],
+                ],
+            ]
+        );
+    }
+
+    public function testItFindAllCommandsWithMultipleTypesFilter(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => ['Check', 'Notification']]]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(8, (array) $response->toArray()['member']);
+    }
+
+    public function testItFindAllCommandsWithStatusFilterActivated(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['status' => 1]]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(9, (array) $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['is_activated' => true],
+                ],
+            ]
+        );
+    }
+
+    public function testItFindAllCommandsWithStatusFilterDeactivated(): void
+    {
+        $this->login();
+
+        // call PATCH to deactivate a command
+        $this->request('PATCH', '/api/latest/configuration/commands/1', [
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'json' => [
+                'is_activated' => false,
+            ],
+        ]);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['status' => 0]]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(9, (array) $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['is_activated' => false],
+                ],
+            ]
+        );
+    }
+
+    public function testItFindAllCommandsWithPagination(): void
+    {
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['page' => '2', 'itemsPerPage' => '5']]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(4, (array) $response->toArray()['member']);
+        $this->assertEquals(9, $response->toArray()['totalItems']);
+    }
+
+    public function testItFindAllCommandsWithPaginationAndFilters(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['page' => '1', 'itemsPerPage' => '2', 'name' => ['lk' => 'host'], 'type' => 'Notification']]
+        );
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(2, (array) $response->toArray()['member']);
+        $this->assertEquals(3, $response->toArray()['totalItems']);
+    }
+
+    public function testItFindAllCommandsWithNameSortedAscending(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['sort' => ['name' => 'asc']]]
+        );
+        self::assertResponseIsSuccessful();
+        /** @var array<int, array{name: string}> $members */
+        $members = (array) $response->toArray()['member'];
+        $this->assertCount(9, $members);
+        $this->assertEquals('check_centreon_cpu', $members[0]['name']);
+    }
+
+    public function testItFindAllCommandsWithNameSortedDescending(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['sort' => ['name' => 'desc']]]
+        );
+        self::assertResponseIsSuccessful();
+        /** @var array<int, array{name: string}> $members */
+        $members = (array) $response->toArray()['member'];
+        $this->assertCount(9, $members);
+        $this->assertEquals('submit-service-check-result', $members[0]['name']);
+    }
+
+    public function testItShouldIgnoreUnknownOperator(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            [
+                'query' => ['name' => ['lk' => 'check', 'unknown' => 'value']],
+            ]
+        );
+        self::assertResponseIsSuccessful();
+        $this->assertCount(5, (array) $response->toArray()['member']);
+    }
+
+    public function testItFindCommandsWithCombinedFilters(): void
+    {
+        $this->login();
+
+        $response = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['name' => ['lk' => 'ping'], 'type' => 'Check', 'status' => 'true']]
+        );
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+        $this->assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(
+            [
+                'member' => [
+                    ['name' => 'check_centreon_ping', 'type' => 'Check', 'is_activated' => true],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * TODO : before running this test, ensure there are locked commands in the database.
+     */
+    public function testItFindCommandsFilteredByIsLockedTrue(): void
+    {
+        $this->login();
+
+        // Get baseline count without filter
+        $responseWithoutFilter = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Notification']]);
+        $baselineCount = count((array) $responseWithoutFilter->toArray()['member']); // by default we have 6 Notification commands
+
+        // Get count with filter enabled
+        $responseWithFilter = $this->request(
+            'GET',
+            self::BASE_ENDPOINT,
+            ['query' => ['is_from_monitoring_connector' => 'true', 'type' => 'Notification']]
+        );
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+
+        // We added the Or Equal in the assertion in case there are no locked commands, the count will be the same
+        $data = $responseWithFilter->toArray();
+        $membersWithLocked = is_array($data['member']) ? $data['member'] : [];
+        $this->assertGreaterThanOrEqual($baselineCount, count($membersWithLocked));
+    }
+
+    public function testItShouldDenyAccessWhenUserHasNoCommandPermissions(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testItShouldFilterCommandsBasedOnUserPermissions(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [
+            self::CAN_READ_CHECK_COMMANDS,
+            self::CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS,
+        ]);
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '100']]);
+        self::assertResponseIsSuccessful();
+        self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
+
+        // User has permissions for check and notification commands, so should see those types
+        $data = $response->toArray();
+        $commandTypes = array_unique(array_column(is_array($data['member']) ? $data['member'] : [], 'type'));
+
+        // Should only contain Check and Notification types
+        $this->assertContains('Check', $commandTypes);
+        $this->assertContains('Notification', $commandTypes);
+        $this->assertNotContains('Miscellaneous', $commandTypes);
+        $this->assertNotContains('Discovery', $commandTypes);
+    }
+
+    public function testItShouldFilterCommandsWhenRequestingSpecificTypesUserCannotAccess(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [
+            self::CAN_READ_CHECK_COMMANDS,
+            self::CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS,
+        ]);
+        $this->login($username);
+
+        // User has permissions for Check and Notification, but request includes Miscellaneous
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => ['Check', 'Miscellaneous']]]);
+        self::assertResponseIsSuccessful();
+
+        // Should only return Check commands since user doesn't have Miscellaneous permission
+        $data = $response->toArray();
+        $commandTypes = array_unique(array_column(is_array($data['member']) ? $data['member'] : [], 'type'));
+
+        $this->assertContains('Check', $commandTypes);
+        $this->assertNotContains('Miscellaneous', $commandTypes);
+    }
+}

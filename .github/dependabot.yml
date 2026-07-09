@@ -36,3 +36,17 @@ updates:
       - dependency-type: "production"
     ignore:
       - dependency-name: '*'
+
+  - package-ecosystem: pip
+    directory: '/'
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 0
+    labels:
+      - 'dependencies'
+      - 'python'
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "production"
+    ignore:
+      - dependency-name: '*'

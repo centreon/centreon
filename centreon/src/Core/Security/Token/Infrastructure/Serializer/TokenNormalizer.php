@@ -108,6 +108,7 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
         return match ($code) {
             TokenTypeEnum::CMA => 'cma',
             TokenTypeEnum::API => 'api',
+            TokenTypeEnum::POLLER => 'poller',
         };
     }
 }

@@ -1,10 +1,9 @@
-import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
-
 import { userAtom } from '@centreon/ui-context';
 
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { Formik } from 'formik';
+import { createStore, Provider } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import TimeFormat from './TimeFormat';
 
 const initialize = ({ canEdit = true, hasValue = false }): void => {

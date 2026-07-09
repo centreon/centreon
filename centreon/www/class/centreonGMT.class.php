@@ -203,7 +203,7 @@ class CentreonGMT
      * @param string|null $gmt
      * @param int $reverseOffset
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      * @return string
      */
     public function getUTCDate($date, $gmt = null, $reverseOffset = 1)
@@ -214,11 +214,15 @@ class CentreonGMT
         }
 
         if (isset($date, $gmt)) {
-            if (! is_numeric($date)) {
-                $sDate = new DateTime($date);
-            } else {
-                $sDate = new DateTime();
-                $sDate->setTimestamp($date);
+            try {
+                if (! is_numeric($date)) {
+                    $sDate = new DateTime($date);
+                } else {
+                    $sDate = new DateTime();
+                    $sDate->setTimestamp($date);
+                }
+            } catch (Exception $e) {
+                throw new InvalidArgumentException($e->getMessage(), 0, $e);
             }
 
             $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($gmt)));
@@ -236,7 +240,7 @@ class CentreonGMT
      * @param string|null $gmt
      * @param int $reverseOffset
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      * @return string
      */
     public function getUTCDateFromString($date, $gmt = null, $reverseOffset = 1)
@@ -252,11 +256,15 @@ class CentreonGMT
         }
 
         if (isset($date, $gmt)) {
-            if (! is_numeric($date)) {
-                $sDate = new DateTime($date);
-            } else {
-                $sDate = new DateTime();
-                $sDate->setTimestamp($date);
+            try {
+                if (! is_numeric($date)) {
+                    $sDate = new DateTime($date);
+                } else {
+                    $sDate = new DateTime();
+                    $sDate->setTimestamp($date);
+                }
+            } catch (Exception $e) {
+                throw new InvalidArgumentException($e->getMessage(), 0, $e);
             }
 
             $localDate = new DateTime();
@@ -320,11 +328,14 @@ class CentreonGMT
     {
         if (! empty($userId)) {
             try {
-                $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query('SELECT `contact_location` FROM `contact` '
-                    . 'WHERE `contact`.`contact_id` = ' . $userId . ' LIMIT 1');
-                $info = $DBRESULT->fetchRow();
-                $DBRESULT->closeCursor();
-                $this->myGMT = $info['contact_location'];
+                $statement = CentreonDBInstance::getDbCentreonInstance()->prepare(
+                    'SELECT `contact_location` FROM `contact` WHERE `contact`.`contact_id` = :userId LIMIT 1'
+                );
+                $statement->bindValue(':userId', (int) $userId, PDO::PARAM_INT);
+                $statement->execute();
+                $info = $statement->fetchRow();
+                $statement->closeCursor();
+                $this->myGMT = $info['contact_location'] ?? 0;
             } catch (PDOException $e) {
                 $this->myGMT = 0;
             }

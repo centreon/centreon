@@ -1,0 +1,33 @@
+meta {
+  name: POST - Wait 60s for ACL reload
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "reload",
+    "object": "ACL"
+  }
+}
+
+script:post-response {
+  const waitMs = parseInt(bru.getGlobalEnvVar("aclReloadWaitMs")) || 60000;
+  const start = Date.now();
+  while (Date.now() - start < waitMs) {}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

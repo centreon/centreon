@@ -70,16 +70,25 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
         $inserts = [];
 
         foreach ($data['vcenters'] as $vcenter) {
-            $inserts[$vcenter['name'] . '_username'] = $vcenter['username'];
-            $inserts[$vcenter['name'] . '_password'] = $vcenter['password'];
+            $password = $vcenter['password'] ?? '';
+            if ($password === '' || str_starts_with($password, VaultConfiguration::VAULT_PATH_PATTERN) === true) {
+                continue;
+            }
+
+            $inserts[$vcenter['name'] . '_password'] = $password;
+        }
+
+        if ($inserts === []) {
+            return new VmWareV6Parameters($this->encryption, $data);
         }
 
         $vaultPaths = $this->writeVaultRepository->upsert(null, $inserts);
 
         foreach ($data['vcenters'] as $index => $vcenter) {
-            if (in_array($vcenter['name'] . '_username', array_keys($vaultPaths), true)) {
-                $data['vcenters'][$index]['username'] = $vaultPaths[$vcenter['name'] . '_username'];
-                $data['vcenters'][$index]['password'] = $vaultPaths[$vcenter['name'] . '_password'];
+            $passwordKey = $vcenter['name'] . '_password';
+
+            if (array_key_exists($passwordKey, $vaultPaths)) {
+                $data['vcenters'][$index]['password'] = $vaultPaths[$passwordKey];
             }
         }
 

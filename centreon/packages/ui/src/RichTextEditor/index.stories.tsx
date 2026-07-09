@@ -1,11 +1,10 @@
+import type { ComponentMeta } from '@storybook/react';
+import type { EditorState } from 'lexical';
 import { useState } from 'react';
 
-import { ComponentMeta } from '@storybook/react';
-import { EditorState } from 'lexical';
-
-import RichTextEditor from './RichTextEditor';
-import type { RichTextEditorProps } from './RichTextEditor';
 import initialEditorState from './initialEditorState.json';
+import type { RichTextEditorProps } from './RichTextEditor';
+import RichTextEditor from './RichTextEditor';
 
 export default {
   argTypes: {

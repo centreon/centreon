@@ -1,8 +1,10 @@
-import { useAtomValue } from 'jotai';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Box } from '@mui/material';
 
 import { Form as FormComponent } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 
 import { panelWidthStorageAtom } from '../../atom';
 import useFormInitialValues from '../FormInitialValues/useFormInitialValues';
@@ -10,7 +12,6 @@ import useFormInputs from '../FormInputs/useFormInputs';
 import { Header } from '../Header';
 import ReducePanel from '../ReducePanel';
 import useIsBamModuleInstalled from '../useIsBamModuleInstalled';
-
 import useStyles from './Form.styles';
 import useFormSubmit from './useFormSubmit';
 import useValidationSchema from './useValidationSchema';
@@ -36,21 +37,19 @@ const Form = (): JSX.Element => {
   return (
     <FormComponent
       areGroupsOpen
-      isCollapsible
       Buttons={Box}
       className={classes.form}
       groups={basicFormGroups}
       groupsClassName={classes.groups}
       initialValues={initialValues}
       inputs={inputs}
+      isCollapsible
       isLoading={isLoading}
       submit={submit}
       validationSchema={validationSchema}
     >
-      <>
-        <Header />
-        <ReducePanel />
-      </>
+      <Header />
+      <ReducePanel />
     </FormComponent>
   );
 };

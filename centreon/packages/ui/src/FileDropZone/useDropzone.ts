@@ -1,17 +1,15 @@
+import { all, isNil, lte, not, path, pluck } from 'ramda';
 import {
-  ChangeEvent,
-  DragEvent,
-  MutableRefObject,
+  type ChangeEvent,
+  type DragEvent,
+  type MutableRefObject,
   useCallback,
   useRef,
   useState
 } from 'react';
 
-import { path, all, isNil, lte, not, pluck } from 'ramda';
-
-import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
-
 import { transformFileListToArray } from '.';
+import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
 
 export interface UseDropzoneState {
   dragOver: (dragOverValue: boolean) => (event: DragEvent) => void;
@@ -60,7 +58,7 @@ const useDropzone = ({
         event.preventDefault();
         setIsDraggingOver(dragOverValue);
       },
-    [isDraggingOver]
+    []
   );
 
   const openFileExplorer = (): void => {

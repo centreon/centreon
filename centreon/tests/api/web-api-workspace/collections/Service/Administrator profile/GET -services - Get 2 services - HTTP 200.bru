@@ -1,0 +1,37 @@
+meta {
+  name: GET /services - Get 2 services - HTTP 200
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/{{Service2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Service 2 is returned with only mandatory properties.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "name": bru.getEnvVar("Service2Name"),
+      "host_id": parseInt(bru.getEnvVar("Host2Id")),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "check_timeperiod_id": null,
+      "normal_check_interval": null,
+      "retry_check_interval": null,
+      "severity_id": null
+    });
+    expect(body.categories).to.be.an("array").that.is.empty;
+    expect(body.groups).to.be.an("array").that.is.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

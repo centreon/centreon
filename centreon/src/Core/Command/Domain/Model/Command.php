@@ -161,4 +161,9 @@ class Command
     {
         $this->macros = $macros;
     }
+
+    public function isCentreonMonitoringAgentCommand(): bool
+    {
+        return $this->isLocked && (str_contains($this->name, 'Centreon-Monitoring-Agent') || str_contains($this->name, '-CMA-'));
+    }
 }

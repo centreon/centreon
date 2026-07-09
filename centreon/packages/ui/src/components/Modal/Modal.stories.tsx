@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { Button } from '../Button';
-
 import { Modal } from '.';
 import '../../ThemeProvider/tailwindcss.css';
+
 import { basicFormWithCollapsibleGroups } from '../../Form/Form.stories';
 
 const meta: Meta<typeof Modal> = {

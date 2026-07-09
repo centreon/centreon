@@ -1,0 +1,35 @@
+meta {
+  name: POST /hosts/categories - Create HC with empty name - HTTP 400
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "",
+    "alias": "Hello, I'm your fourth category!",
+    "comment": "Oh, I should not work too!"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host category has not been created, because the name is empty.", function () {
+    const body = res.getBody();
+    expect(body.message).to.eql("[NewHostCategory::name] The string is empty, but non empty string was expected");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,10 +1,9 @@
 import { equals } from 'ramda';
 
 import { CommonWidgetProps } from '../../models';
-
 import Clock from './Clock';
-import Timer from './Timer';
 import { ForceDimension, PanelOptions } from './models';
+import Timer from './Timer';
 
 interface Props extends CommonWidgetProps<PanelOptions> {
   panelOptions: PanelOptions;

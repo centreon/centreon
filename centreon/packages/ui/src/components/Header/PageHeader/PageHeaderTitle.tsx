@@ -1,9 +1,8 @@
-import { ReactElement, ReactNode } from 'react';
-
 import { Typography as MuiTypography } from '@mui/material';
 
-import { TextOverflowTooltip } from '../../Tooltip/TextOverflowTooltip';
+import type { ReactElement, ReactNode } from 'react';
 
+import { TextOverflowTooltip } from '../../Tooltip/TextOverflowTooltip';
 import { useStyles } from './PageHeader.styles';
 
 type PageHeaderTitleProps = {

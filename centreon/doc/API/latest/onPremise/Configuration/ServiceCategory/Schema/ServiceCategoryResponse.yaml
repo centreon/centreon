@@ -1,0 +1,17 @@
+type: object
+properties:
+  id:
+    type: integer
+    description: "Service category ID"
+    example: 1
+  name:
+    type: string
+    description: "Service category name"
+    example: "service-category"
+  alias:
+    type: string
+    description: "Service category alias"
+    example: "service-category"
+  is_activated:
+    type: boolean
+    description: "Indicates whether this service category is enabled or not"

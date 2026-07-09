@@ -25,6 +25,8 @@ namespace App\ActivityLogging\Domain\Aggregate;
 
 enum TargetTypeEnum: string
 {
+    case Command = 'Command';
     case Host = 'Host';
+    case Poller = 'Poller';
     case ServiceCategory = 'ServiceCategory';
 }

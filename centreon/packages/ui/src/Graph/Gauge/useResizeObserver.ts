@@ -29,7 +29,7 @@ export const useResizeObserver = (): UseResizeObserverState => {
 
     observerRef.current = new ResizeObserver(resize);
     observerRef.current?.observe(targetRef.current);
-  }, [resize, targetRef.current]);
+  }, [resize]);
 
   const unobserveElement = useCallback((): void => {
     if (!targetRef.current) {
@@ -58,11 +58,11 @@ export const useResizeObserver = (): UseResizeObserverState => {
     return () => {
       unobserveElement();
     };
-  }, [elementResolved]);
+  }, [elementResolved, observeElement, unobserveElement]);
 
   return {
-    width: size[0],
     height: size[1],
-    ref: targetRef
+    ref: targetRef,
+    width: size[0]
   };
 };

@@ -1,6 +1,6 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { License } from './models';
+import type { License } from './models';
 
 export const licenseDecoder = JsonDecoder.object<License>(
   {

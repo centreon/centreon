@@ -1,21 +1,15 @@
 import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import { path, equals, includes, split } from 'ramda';
+import { path, split } from 'ramda';
 
-import { modalStateAtom } from '../../../ConfigurationBase/atoms';
-import { AdditionalConnectorConfiguration, ParameterKeys } from '../../models';
+import { AdditionalConnectorConfiguration } from '../../models';
 
 interface UseParameterState {
-  changeParameterValue: (event) => void;
+  changeParameterValue: (event: React.ChangeEvent<HTMLInputElement>) => void;
   getError: (name: string) => string | undefined;
-  getFieldType: (name) => string;
-  getIsFieldRequired: (name: string) => boolean;
-  handleBlur;
+  handleBlur: (eventOrString: unknown) => void;
 }
 
 const useParameter = ({ index }: { index: number }): UseParameterState => {
-  const { mode } = useAtomValue(modalStateAtom);
-
   const { setFieldValue, errors, touched, handleBlur } =
     useFormikContext<AdditionalConnectorConfiguration>();
 
@@ -29,34 +23,18 @@ const useParameter = ({ index }: { index: number }): UseParameterState => {
     return error;
   };
 
-  const getFieldType = (name): string =>
-    includes(name, [ParameterKeys.username, ParameterKeys.password])
-      ? 'password'
-      : 'text';
-
-  const changeParameterValue = (event): void => {
+  const changeParameterValue = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setFieldValue(
       `parameters.vcenters.${index}.${event.target.name}`,
       event.target.value
     );
   };
 
-  const getIsFieldRequired = (name): boolean => {
-    if (
-      equals(mode, 'add') ||
-      !includes(name, [ParameterKeys.username, ParameterKeys.password])
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
   return {
     changeParameterValue,
     getError,
-    getFieldType,
-    getIsFieldRequired,
     handleBlur
   };
 };

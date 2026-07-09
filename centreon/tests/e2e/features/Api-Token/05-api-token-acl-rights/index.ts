@@ -1,15 +1,17 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -22,11 +24,7 @@ Given('I am logged in as an Administrator', () => {
 });
 
 When('I navigate to "Administration" > "ACL" > "Actions Access"', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -40,11 +38,7 @@ Then('I see {string} listed as an action', (actionName: string) => {
 });
 
 When('I navigate to "Administration" > "ACL" > "Menus Access"', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
 });
 

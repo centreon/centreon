@@ -3,10 +3,11 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${WEB_IMAGE}"
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
     ports: ["4000:80"]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       MYSQL_HOST: db
       GLPI_HOST: glpi
@@ -14,8 +15,13 @@ services:
       OPENID_HOST: sso-proxy
       SAML_HOST: saml
       LDAP_HOST: openldap
+      GRAPHITE_HOST: graphite
+      INFLUXDB_HOST: influxdb
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
+      DEBUG: ${DEBUG:-0}
+      CENTREON_INTERNAL_API_BASE_URL: ${CENTREON_INTERNAL_API_BASE_URL:-127.0.0.1:80}
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
@@ -26,13 +32,20 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
     ports: ["3306"]
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
+      interval: 10s
+      timeout: 15s
+      retries: 20
     deploy:
       resources:
         limits:
           cpus: '2'
-          memory: 400M
+          memory: 1G
         reservations:
           cpus: '0.25'
           memory: 100M
@@ -51,7 +64,7 @@ services:
   glpi:
     env_file:
       - .env
-    image: "${GLPI_IMAGE:-docker.centreon.com/centreon/glpi:24.11}"
+    image: "${GLPI_IMAGE:-ghcr.io/centreon/centreon/glpi:26.05}"
     ports: ["80"]
     depends_on:
       - db
@@ -60,30 +73,45 @@ services:
       MYSQL_HOST: db
 
   vault:
-    image: "${VAULT_IMAGE:-docker.centreon.com/centreon/vault:24.11}"
+    image: "${VAULT_IMAGE:-ghcr.io/centreon/centreon/vault:26.05}"
     env_file:
       - .env
-    ports: ["8200"]
+    ports: ["127.0.0.1:8200:8200"]
     profiles: ["vault"]
 
   openid:
     env_file:
       - .env
-    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    image: "${OPENID_IMAGE:-ghcr.io/centreon/centreon/keycloak:26.05}"
     ports: []
     profiles: ["openid"]
 
   saml:
     env_file:
       - .env
-    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    image: "${SAML_IMAGE:-ghcr.io/centreon/centreon/keycloak:26.05}"
     ports: ["8080:8080"]
     profiles: ["saml"]
 
   openldap:
-    image: docker.centreon.com/centreon/mon-openldap:latest
+    image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:26.05}"
     ports: ["389"]
     profiles: ["openldap", "ldap"]
+
+  # Receivers for the Broker outputs (independent "graphite"/"influxdb" profiles).
+  # InfluxDB 1.8 speaks the 1.x line protocol the Broker output uses; INFLUXDB_DB
+  # pre-creates the target db.
+  graphite:
+    image: "${GRAPHITE_IMAGE:-graphiteapp/graphite-statsd:1.1.10-5}"
+    ports: ["2003", "80"]
+    profiles: ["graphite"]
+
+  influxdb:
+    image: "${INFLUXDB_IMAGE:-influxdb:1.8}"
+    environment:
+      INFLUXDB_DB: centreon
+    ports: ["8086"]
+    profiles: ["influxdb"]
 
   squid-simple:
     image: docker.centreon.com/centreon/mon-squid-simple:latest
@@ -96,9 +124,56 @@ services:
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
+    image: "${MEDIAWIKI_IMAGE:-ghcr.io/centreon/centreon/mediawiki:26.05}"
     ports: ["80"]
     profiles: ["mediawiki"]
+
+  remote-server:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
+    ports: ["4001:80"]
+    profiles: ["remote-server"]
+    depends_on:
+      db-remote:
+        condition: service_started
+      web:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: db-remote
+      CENTREON_DATASET: 0
+      CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      DEBUG: ${DEBUG:-0}
+      CENTRAL_HOST: web
+      CENTRAL_API_USERNAME: ${CENTRAL_API_USERNAME:-admin}
+      CENTRAL_API_PASSWORD: ${CENTRAL_API_PASSWORD:-Centreon!2021}
+      REMOTE_SERVER_NAME: ${REMOTE_SERVER_NAME:-remote-server}
+    volumes:
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
+      interval: 5s
+      retries: 120
+      timeout: 5s
+
+  db-remote:
+    platform: linux/amd64
+    env_file:
+      - .env
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
+    ports: ["3306"]
+    profiles: ["remote-server"]
+    environment:
+      MARIADB_EXTRA_FLAGS: "--skip-ssl"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 400M
+        reservations:
+          cpus: '0.25'
+          memory: 100M
 
   sso-proxy:
     image: nginx:stable-alpine

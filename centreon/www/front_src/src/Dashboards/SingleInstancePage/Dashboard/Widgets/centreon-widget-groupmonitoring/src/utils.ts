@@ -1,9 +1,9 @@
-import pluralize from 'pluralize';
-import { always, cond, equals, reject } from 'ramda';
-
 import { capitalize } from '@mui/material';
 
 import { SeverityCode } from '@centreon/ui';
+
+import pluralize from 'pluralize';
+import { always, cond, equals, reject } from 'ramda';
 
 import {
   labelCritical,
@@ -71,7 +71,13 @@ const getSeverityCodeFromMonitoringStatus = ({
   ])(status);
 };
 
-const getSeverityCodeName = ({ resourceType, severityCode }): string => {
+const getSeverityCodeName = ({
+  resourceType,
+  severityCode
+}: {
+  resourceType: string;
+  severityCode: number;
+}): string => {
   const isService = equals(resourceType, 'service');
 
   return cond([

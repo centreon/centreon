@@ -1,0 +1,492 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace App\MonitoringConfiguration\Infrastructure\Dbal;
+
+use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
+use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
+use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
+use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
+use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
+
+/**
+ * @phpstan-type RowTypeAlias = array{
+ *   cm_command_id: int,
+ *   cm_command_name: string,
+ *   cm_command_line: string,
+ *   cm_command_type: int,
+ *   cm_enable_shell: bool,
+ *   cm_command_activate: bool,
+ *   cm_command_locked: bool,
+ *   cm_command_comment: string|null,
+ *   cm_connector_id: int|null,
+ * }
+ */
+final readonly class DbalCommandRepository extends DbalRepository implements CommandRepository
+{
+    public const TABLE_NAME = 'command';
+    public const CONNECTOR_JOIN_TABLE_NAME = 'connector';
+
+    /**
+     * @param TransformerInterface<RowTypeAlias, Command> $transformer
+     */
+    public function __construct(
+        #[Autowire(service: 'doctrine.dbal.default_connection')]
+        private Connection $connection,
+
+        #[Autowire(service: DbalCommandTransformer::class)]
+        private TransformerInterface $transformer,
+
+        private DbalConnectorRepository $connectorRepository,
+    ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getById(CommandId $id): Command
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns(), ...DbalConnectorRepository::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->leftJoin('cm', self::CONNECTOR_JOIN_TABLE_NAME, 'c', 'cm.connector_id = c.id')
+            ->where('command_id = :id')
+            ->setParameter('id', $id->value)
+            ->setMaxResults(1);
+        /** @var RowTypeAlias $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+        if (! $row) {
+            throw new CommandNotFoundException(['id' => $id->value], 'Command resource not found');
+        }
+
+        return $this->createCommand($row);
+    }
+
+    public function findOneByName(CommandName $name): ?Command
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm')
+            ->where('command_name = :name')
+            ->setParameter('name', $name->value)
+            ->setMaxResults(1);
+
+        /** @var RowTypeAlias $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if (! $row) {
+            return null;
+        }
+
+        return $this->createCommand($row);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAll(?CommandCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'cm');
+
+        // only fetch unlocked commands unless getIsFromMonitoringConnector is true
+        if ($criteria?->getIsFromMonitoringConnector() !== true) {
+            $qb->where('command_locked = :command_locked')
+                ->setParameter('command_locked', '0');
+        }
+
+        // if we have a criteria, filter the query
+        if ($criteria instanceof CommandCriteria) {
+            $this->filterByCriteria($qb, $criteria);
+        }
+
+        // if no pagination
+        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+            /** @var array<RowTypeAlias> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+
+            return new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class);
+        }
+
+        $this->paginate($qb, $criteria);
+
+        $count = $this->countOnQueryBuilder($qb); // must be done before fetching all rows
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new InMemoryPaginator(
+            items: new Collection(array_map(fn (array $row): Command => $this->createCommand($row), $rows), Command::class),
+            totalItems: $count,
+            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
+            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+        );
+    }
+
+    public function add(Command ...$commands): void
+    {
+        if ($commands === []) {
+            return;
+        }
+
+        $this->connection->transactional(function () use ($commands): void {
+            $columns = [
+                'command_name',
+                'command_line',
+                'command_type',
+                'enable_shell',
+                'command_activate',
+                'command_locked',
+                'command_comment',
+                'connector_id',
+            ];
+
+            $placeholders = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
+            $values = [];
+            $params = [];
+            foreach ($commands as $command) {
+                $values[] = $placeholders;
+                $params = [
+                    ...$params,
+                    $command->name->value,
+                    $command->commandLine->value,
+                    $command->type->value,
+                    $command->isShellEnabled ? '1' : '0',
+                    $command->isActivated ? '1' : '0',
+                    $command->isFromMonitoringConnector ? '1' : '0',
+                    $command->comment?->value,
+                    $command->connector()?->id()->value,
+                ];
+            }
+
+            $sql = sprintf(
+                'INSERT INTO %s (%s) VALUES %s',
+                self::TABLE_NAME,
+                implode(',', $columns),
+                implode(',', $values)
+            );
+
+            $this->connection->executeStatement($sql, $params);
+            $newIds = $this->findIdsByCommandNames(array_map(fn (Command $command): CommandName => $command->name, $commands));
+
+            foreach ($commands as $command) {
+                $this->setId($command, new CommandId($newIds[$command->name->value]));
+                $this->saveCommandArguments($command->id(), $command->commandLine->extractArguments());
+                $this->saveCommandMacros(
+                    $command->id(),
+                    $command->commandLine->extractHostMacros(),
+                    $command->commandLine->extractServiceMacros()
+                );
+            }
+        });
+    }
+
+    public function countLinkedResources(array $commandIds): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(
+            'cm.command_id',
+            "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '1') AS cm_used_hosts_count",
+            "(SELECT COUNT(host_id) FROM host WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND host_register = '0') AS cm_used_host_templates_count",
+            "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '1') AS cm_used_services_count",
+            "(SELECT COUNT(service_id) FROM service WHERE (command_command_id = cm.command_id OR command_command_id2 = cm.command_id) AND service_register = '0') AS cm_used_service_templates_count"
+        )
+            ->from(self::TABLE_NAME, 'cm')
+            ->where($qb->expr()->in('cm.command_id', array_map(strval(...), array_column($commandIds, 'value'))));
+
+        /** @var array<array{
+         *   command_id: string,
+         *   cm_used_hosts_count: string,
+         *   cm_used_host_templates_count: string,
+         *   cm_used_services_count: string,
+         *   cm_used_service_templates_count: string
+         *   }> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $results = [];
+        foreach ($rows as $row) {
+            $results[(int) $row['command_id']] = new CommandResourceCount(
+                usedHosts: (int) $row['cm_used_hosts_count'],
+                usedHostTemplates: (int) $row['cm_used_host_templates_count'],
+                usedServices: (int) $row['cm_used_services_count'],
+                usedServiceTemplates: (int) $row['cm_used_service_templates_count'],
+            );
+        }
+
+        return $results;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function getSelectColumns(string $alias = 'cm'): array
+    {
+        return [
+            "{$alias}.command_id AS cm_command_id",
+            "{$alias}.command_name AS cm_command_name",
+            "{$alias}.command_line AS cm_command_line",
+            "{$alias}.command_type AS cm_command_type",
+            "{$alias}.enable_shell AS cm_enable_shell",
+            "{$alias}.command_activate AS cm_command_activate",
+            "{$alias}.command_locked AS cm_command_locked",
+            "{$alias}.command_comment AS cm_command_comment",
+        ];
+    }
+
+    public function update(Command $command): void
+    {
+        $commandId = $command->id();
+        Assert::isInstanceOf($commandId, CommandId::class);
+
+        $this->connection->transactional(function () use ($command): void {
+            $qb = $this->connection->createQueryBuilder();
+
+            $qb->update(self::TABLE_NAME)
+                ->set('command_name', ':name')
+                ->set('command_line', ':line')
+                ->set('command_type', ':type')
+                ->set('enable_shell', ':enable_shell')
+                ->set('command_activate', ':activate')
+                ->set('command_comment', ':comment')
+                ->set('connector_id', ':connector_id')
+                ->where('command_id = :id')
+                ->setParameter('id', $command->id()->value)
+                ->setParameter('name', $command->name->value)
+                ->setParameter('line', $command->commandLine->value)
+                ->setParameter('type', $command->type->value)
+                ->setParameter('enable_shell', $command->isShellEnabled ? 1 : 0)
+                ->setParameter('activate', $command->isActivated ? 1 : 0)
+                ->setParameter('comment', $command->comment->value ?? null)
+                ->setParameter('connector_id', $command->connector() instanceof Connector ? $command->connector()->id()->value : null);
+
+            $qb->executeStatement();
+
+            $this->saveCommandArguments($command->id(), $command->commandLine->extractArguments());
+            $this->saveCommandMacros(
+                $command->id(),
+                $command->commandLine->extractHostMacros(),
+                $command->commandLine->extractServiceMacros()
+            );
+        });
+    }
+
+    public function delete(Command $command): void
+    {
+        $commandId = $command->id();
+        Assert::isInstanceOf($commandId, CommandId::class);
+
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->delete(self::TABLE_NAME)
+            ->where('command_id = :id')
+            ->setParameter('id', $command->id()->value);
+
+        $qb->executeStatement();
+    }
+
+    public function filterByCriteria(QueryBuilder $qb, CommandCriteria $criteria): void
+    {
+        if ($nameCriteria = $criteria->getNames()) {
+            foreach ($nameCriteria as $operator => $names) {
+                if ($operator === CommandCriteria::OPERATOR_LIKE) {
+                    $qb->andWhere($qb->expr()->or(...array_map(
+                        static fn (string $name): string => $qb->expr()->like(
+                            'cm.command_name',
+                            $qb->createNamedParameter('%' . $name . '%')
+                        ),
+                        $names
+                    )));
+
+                    continue;
+                }
+                $qb->andWhere($qb->expr()->in(
+                    'cm.command_name',
+                    $qb->createNamedParameter($names, ArrayParameterType::STRING)
+                ));
+            }
+        }
+
+        if ($criteria->getTypes() !== []) {
+            $qb->andWhere($qb->expr()->in(
+                'cm.command_type',
+                $qb->createNamedParameter(
+                    array_map(static fn (CommandTypeEnum $type): int => $type->value, $criteria->getTypes()),
+                    ArrayParameterType::INTEGER
+                )
+            ));
+        }
+
+        if ($criteria->getIsActivated() !== null) {
+            $qb->andWhere('cm.command_activate = :command_activate');
+            $qb->setParameter('command_activate', $criteria->getIsActivated() ? '1' : '0');
+        }
+
+        if ($criteria->getIds() !== []) {
+            $qb->andWhere($qb->expr()->in(
+                'cm.command_id',
+                $qb->createNamedParameter($criteria->getIds(), ArrayParameterType::INTEGER)
+            ));
+        }
+
+        $this->sort($qb, 'cm', $criteria);
+    }
+
+    /**
+     * @param array<CommandName> $commandNames
+     *
+     * @return array<string, int>
+     */
+    private function findIdsByCommandNames(array $commandNames): array
+    {
+        $qb = $this->connection->createQueryBuilder();
+
+        $qb->select('command_id', 'command_name')
+            ->from(self::TABLE_NAME, 'cm')
+            ->where($qb->expr()->in(
+                'cm.command_name',
+                array_map(static fn (CommandName $name): string => '"' . $name->value . '"', $commandNames)
+            ));
+
+        /** @var array<array{command_id: string, command_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $results = [];
+        foreach ($rows as $row) {
+            $results[$row['command_name']] = (int) $row['command_id'];
+        }
+
+        return $results;
+    }
+
+    /**
+     * @param array<string> $hostMacros
+     * @param array<string> $serviceMacros
+     */
+    private function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM on_demand_macro_command WHERE command_command_id = :cmd_id',
+            ['cmd_id' => $commandId->value]
+        );
+
+        foreach ($hostMacros as $macroName) {
+            $this->connection->executeStatement(
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $macroName,
+                    'macro_description' => '',
+                    'macro_type' => '1',
+                ]
+            );
+        }
+
+        foreach ($serviceMacros as $macroName) {
+            $this->connection->executeStatement(
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $macroName,
+                    'macro_description' => '',
+                    'macro_type' => '2',
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param array<string> $arguments
+     */
+    private function saveCommandArguments(CommandId $commandId, array $arguments): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM command_arg_description WHERE cmd_id = :cmd_id',
+            ['cmd_id' => $commandId->value]
+        );
+
+        foreach ($arguments as $argName) {
+            $this->connection->executeStatement(
+                'INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (:cmd_id, :macro_name, :macro_description)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $argName,
+                    'macro_description' => '',
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param RowTypeAlias $row
+     */
+    private function createCommand(array $row): Command
+    {
+        $command = $this->transformer->transform($row);
+        $command->addConnector(fn (): ?Connector => $this->connectorRepository->findByCommand($command));
+
+        return $command;
+    }
+
+    private function countOnQueryBuilder(QueryBuilder $qb): int
+    {
+        $qb = clone $qb; // avoid modifying the initial query builder
+
+        $count = $qb
+            ->select('COUNT(DISTINCT cm.command_id)')
+            ->setFirstResult(0) // reset any pagination
+            ->setMaxResults(null)
+            ->executeQuery()
+            ->fetchOne();
+
+        Assert::integer($count);
+
+        return $count;
+    }
+
+    private function paginate(QueryBuilder $qb, CommandCriteria $criteria): void
+    {
+        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+            return;
+        }
+
+        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
+            ->setMaxResults($criteria->getItemsPerPage());
+    }
+}

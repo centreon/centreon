@@ -132,19 +132,11 @@
                 {/if}
 
                 {if $preferences.display_duration}
-                    {if is_string($elem.last_state_change)}
-                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
-                    {else}
-                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
-                    {/if}
+                    <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_state_change}</td>
                 {/if}
 
                 {if $preferences.display_hard_state_duration}
-                    {if is_string($elem.last_hard_state_change)}
-                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
-                    {else}
-                        <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
-                    {/if}
+                    <td class='ListColCenter' style='white-space:nowrap;'>{$elem.last_hard_state_change}</td>
                 {/if}
 
                 {if $preferences.display_last_check}

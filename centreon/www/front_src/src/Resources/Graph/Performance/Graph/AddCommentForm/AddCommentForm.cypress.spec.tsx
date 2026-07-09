@@ -3,7 +3,6 @@ import { Method } from '@centreon/ui';
 import { commentEndpoint } from '../../../../Actions/api/endpoint';
 import { Resource } from '../../../../models';
 import { labelAdd, labelComment } from '../../../../translatedLabels';
-
 import AddCommentForm from '.';
 
 const date = new Date('2020-11-26T15:49:39.789Z');
@@ -31,9 +30,9 @@ describe('Add comment form', () => {
       Component: (
         <AddCommentForm
           date={date}
-          resource={resource}
           onClose={onClose}
           onSuccess={onSuccess}
+          resource={resource}
         />
       )
     });

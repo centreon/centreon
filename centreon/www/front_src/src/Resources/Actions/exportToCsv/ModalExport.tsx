@@ -1,7 +1,9 @@
 import { Modal } from '@centreon/ui/components';
+
 import { equals } from 'ramda';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   labelCancel,
   labelExport,
@@ -9,13 +11,13 @@ import {
   labelSelecetPages,
   labelSelectColumns
 } from '../../translatedLabels';
-import InformationsLine from './InformationsLine';
-import RadioButtons from './RadioButtons';
-import Warning from './Warning';
 import { defaultCheckedColumnAtom, defaultCheckedPageAtom } from './atoms';
 import useExportCsvStyles from './exportCsv.styles';
-import { ColumnId, PageId, columnOptions, pageOptions } from './models';
+import InformationsLine from './InformationsLine';
+import { ColumnId, columnOptions, PageId, pageOptions } from './models';
+import RadioButtons from './RadioButtons';
 import useExportCSV from './useExportCsv';
+import Warning from './Warning';
 
 interface Props {
   onCancel: () => void;
@@ -53,7 +55,7 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
   };
 
   return (
-    <Modal open={open} hasCloseButton={false} size="medium">
+    <Modal hasCloseButton={false} open={open} size="medium">
       <Modal.Header>{t(labelExportToCSV)}</Modal.Header>
       <Modal.Body>
         <div className={classes.container}>
@@ -61,31 +63,31 @@ const ModalExport = ({ onCancel, open }: Props): JSX.Element => {
             <div className={classes.radioButtonsContainer}>
               <RadioButtons<ColumnId>
                 defaultChecked={defaultCheckedColumnAtom}
+                getData={getSelectedColumnsData}
                 options={columnOptions}
                 title={t(labelSelectColumns)}
-                getData={getSelectedColumnsData}
               />
               <RadioButtons<PageId>
                 defaultChecked={defaultCheckedPageAtom}
+                getData={getSelectedPagesData}
                 options={pageOptions}
                 title={t(labelSelecetPages)}
-                getData={getSelectedPagesData}
               />
             </div>
             <InformationsLine
-              numberExportedLines={numberExportedLines}
               hasReachedMaximumLinesToExport={hasReachedMaximumLinesToExport}
               isLoading={isLoading}
+              numberExportedLines={numberExportedLines}
             />
           </div>
           <Warning />
         </div>
       </Modal.Body>
       <Modal.Actions
-        labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
-        onConfirm={confirm}
-        onCancel={onCancel}
         disabled={isLoading}
+        labels={{ cancel: t(labelCancel), confirm: t(labelExport) }}
+        onCancel={onCancel}
+        onConfirm={confirm}
       />
     </Modal>
   );

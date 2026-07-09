@@ -1,6 +1,4 @@
-import { useMemo, useRef } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import {
   append,
   equals,
@@ -11,8 +9,9 @@ import {
   reject,
   sortBy
 } from 'ramda';
+import { useMemo, useRef } from 'react';
 
-import { SelectEntry } from '../../..';
+import type { SelectEntry } from '../../..';
 
 interface UseListState {
   addItem: (newItem: SelectEntry) => void;
@@ -21,7 +20,7 @@ interface UseListState {
   sortedList: Array<unknown>;
 }
 
-export const useList = ({ fieldName }): UseListState => {
+export const useList = ({ fieldName }: { fieldName: string }): UseListState => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
   const maxOrder = useRef(0);
 
@@ -29,10 +28,12 @@ export const useList = ({ fieldName }): UseListState => {
 
   const sortedList = useMemo(
     () =>
-      sortBy(prop('order'), list).map(({ id, ...props }) => ({
-        id: `${id}`,
-        ...props
-      })),
+      sortBy(prop('order') as (a: Record<string, unknown>) => number, list).map(
+        ({ id, ...props }: Record<string, unknown>) => ({
+          id: `${id}`,
+          ...props
+        })
+      ),
     [list]
   );
 
@@ -51,14 +52,18 @@ export const useList = ({ fieldName }): UseListState => {
   };
 
   const deleteItem = (id: string) => (): void => {
-    const newItems = reject((item) => equals(Number(id), item.id))(list);
+    const newItems = reject((item: Record<string, unknown>) =>
+      equals(Number(id), item.id)
+    )(list);
 
     setFieldValue(fieldName, newItems);
   };
 
   const sortList = (items: Array<string>): void => {
     const newOrderedList = items.map((itemId, idx) => {
-      const item = sortedList.find(({ id }) => equals(id, itemId));
+      const item = sortedList.find(({ id }: Record<string, unknown>) =>
+        equals(id, itemId)
+      );
 
       return {
         ...item,
@@ -75,7 +80,7 @@ export const useList = ({ fieldName }): UseListState => {
   return {
     addItem,
     deleteItem,
-    sortList,
-    sortedList
+    sortedList,
+    sortList
   };
 };

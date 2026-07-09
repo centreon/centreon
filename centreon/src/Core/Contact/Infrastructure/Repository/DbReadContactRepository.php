@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Contact\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
@@ -98,6 +100,58 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
             $names = [];
             foreach ($statement as $result) {
                 /** @var array{ id: int, name: string } $result */
+                $names[$result['id']] = $result;
+            }
+
+            return $names;
+        } catch (\PDOException $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while retrieving contact names by IDs.',
+                context: ['ids' => $ids],
+                previous: $e
+            );
+        }
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findAliasesByIds(int ...$ids): array
+    {
+        try {
+            if ($ids === []) {
+                return [];
+            }
+
+            $ids = array_unique($ids);
+
+            $fields = '';
+            foreach ($ids as $index => $id) {
+                $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
+            }
+
+            $select = <<<SQL
+                SELECT
+                    `contact_id` as `id`,
+                    `contact_alias` as `alias`
+                FROM
+                    `:db`.`contact`
+                WHERE
+                    `contact_id` IN ({$fields})
+                SQL;
+
+            $statement = $this->db->prepare($this->translateDbName($select));
+            foreach ($ids as $index => $id) {
+                $statement->bindValue(':id_' . $index, $id, \PDO::PARAM_INT);
+            }
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            // Retrieve data
+            $names = [];
+            foreach ($statement as $result) {
+                /** @var array{ id: int, alias: string } $result */
                 $names[$result['id']] = $result;
             }
 
@@ -291,6 +345,69 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
         }
 
         return $admins;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findContactIdsByUser(ContactInterface $user): array
+    {
+        $query = <<<'SQL'
+            SELECT DISTINCT c.contact_id
+            FROM `:db`.contact c
+            LEFT JOIN `:db`.contactgroup_contact_relation ccr
+                ON c.contact_id = ccr.contact_contact_id
+            LEFT JOIN `:db`.acl_group_contacts_relations gcr
+                ON c.contact_id = gcr.contact_contact_id
+            LEFT JOIN `:db`.acl_group_contactgroups_relations gcgr
+                ON ccr.contactgroup_cg_id = gcgr.cg_cg_id
+            WHERE gcr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId1
+                    UNION
+                    SELECT user_acl_cg.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg
+                        ON user_cg.contactgroup_cg_id = user_acl_cg.cg_cg_id
+                    WHERE user_cg.contact_contact_id = :userId2
+                )
+                OR gcgr.acl_group_id IN (
+                    SELECT acl_group_id
+                    FROM `:db`.acl_group_contacts_relations
+                    WHERE contact_contact_id = :userId3
+                    UNION
+                    SELECT user_acl_cg2.acl_group_id
+                    FROM `:db`.acl_group_contactgroups_relations user_acl_cg2
+                    INNER JOIN `:db`.contactgroup_contact_relation user_cg2
+                        ON user_cg2.contactgroup_cg_id = user_acl_cg2.cg_cg_id
+                    WHERE user_cg2.contact_contact_id = :userId4
+                )
+                OR ccr.contactgroup_cg_id IN (
+                    SELECT contactgroup_cg_id
+                    FROM `:db`.contactgroup_contact_relation
+                    WHERE contact_contact_id = :userId5
+                )
+            SQL;
+
+        try {
+            $userId = $user->getId();
+            $queryParameters = new QueryParameters();
+            foreach ([':userId1', ':userId2', ':userId3', ':userId4', ':userId5'] as $token) {
+                $queryParameters->add($token, QueryParameter::int($token, $userId));
+            }
+
+            return $this->db->fetchFirstColumn(
+                $this->translateDbName($query),
+                $queryParameters
+            );
+        } catch (\Exception $exception) {
+            throw new RepositoryException(
+                message: 'Error while searching contact IDs by user',
+                context: ['user_id' => $user->getId()],
+                previous: $exception
+            );
+        }
     }
 
     /**

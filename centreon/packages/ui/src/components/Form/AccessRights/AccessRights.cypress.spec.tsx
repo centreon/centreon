@@ -1,7 +1,6 @@
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { Method, SnackbarProvider, TestQueryProvider } from '../../..';
-
 import { AccessRights } from './AccessRights';
 import {
   buildResult,
@@ -46,9 +45,9 @@ const initialize = ({
               initialValues={initialValues}
               labels={labels}
               loading={loading}
+              onChange={change}
               roles={roles}
               submit={save}
-              onChange={change}
             />
           </Provider>
         </TestQueryProvider>

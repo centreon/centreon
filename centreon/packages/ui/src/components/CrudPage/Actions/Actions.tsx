@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+
 import { useActionsStyles } from './Actions.styles';
 import AddButton from './AddButton';
 import Search from './Search';
@@ -18,7 +19,7 @@ const Actions = ({ labels, filters }: Props): JSX.Element => {
     <Box className={classes.actions}>
       <AddButton label={labels.add} />
       <div className={classes.filters}>
-        <Search label={labels.search} filters={filters} />
+        <Search filters={filters} label={labels.search} />
       </div>
     </Box>
   );

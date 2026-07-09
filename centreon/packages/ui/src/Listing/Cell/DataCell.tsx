@@ -1,33 +1,30 @@
-import { memo } from 'react';
-
-import { equals, props } from 'ramda';
-
 import { Tooltip } from '@mui/material';
 
-import { ListingVariant } from '@centreon/ui-context';
+import type { ListingVariant } from '@centreon/ui-context';
+
+import { equals, props } from 'ramda';
+import { memo } from 'react';
 
 import {
-  Column,
+  type Column,
   ColumnType,
-  ComponentColumnProps,
-  RowColorCondition
+  type ComponentColumnProps,
+  type RowColorCondition
 } from '../models';
 import useStyleTable from '../useStyleTable';
-
-import EllipsisTypography from './EllipsisTypography';
-
 import Cell from '.';
+import EllipsisTypography from './EllipsisTypography';
 
 interface Props {
   column: Column;
-  disableRowCondition: (row) => boolean;
-  getHighlightRowCondition?: (row) => boolean;
+  disableRowCondition: (row: Record<string, unknown>) => boolean;
+  getHighlightRowCondition?: (row: Record<string, unknown>) => boolean;
   isRowHovered: boolean;
   isRowSelected: boolean;
   labelCollapse?: string;
   labelExpand?: string;
   listingVariant?: ListingVariant;
-  row?;
+  row: Record<string, unknown>;
   rowColorConditions?: Array<RowColorCondition>;
   subItemsRowProperty?: string;
 }
@@ -75,8 +72,8 @@ const DataCell = ({
           dataStyle={dataStyle}
           disableRowCondition={disableRowCondition(row)}
           formattedString={formattedString}
-          isRowHovered={isRowHovered}
           isRowHighlighted={isRowHighlighted}
+          isRowHovered={isRowHovered}
         />
       );
 
@@ -129,15 +126,15 @@ const DataCell = ({
           className={`flex align-items h-full overflow-hidden whitespace-nowrap ${clickable && 'cursor-default'}`}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
-          style={{
-            alignItems: align
-          }}
           onClick={(e): void => {
             if (!clickable) {
               return;
             }
             e.preventDefault();
             e.stopPropagation();
+          }}
+          style={{
+            alignItems: align
           }}
           {...commonCellProps}
         >
@@ -154,8 +151,8 @@ const DataCell = ({
                   dataStyle={dataStyle}
                   disableRowCondition={disableRowCondition(row)}
                   formattedString={formattedString}
-                  isRowHovered={isRowHovered}
                   isRowHighlighted={isRowHighlighted}
+                  isRowHovered={isRowHovered}
                 />
               );
             }}

@@ -1,4 +1,5 @@
 import { RichTextEditor } from '@centreon/ui';
+
 import { isRichTextEditorEmpty } from '../../../utils';
 
 interface Props {

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import { AccessRight, ItemState, Labels } from '../models';
+import { type AccessRight, ItemState, type Labels } from '../models';
 
 interface UseItemState {
   getState: () => { label: string; state: ItemState } | null;
@@ -54,7 +54,7 @@ export const useItem = ({
     }
 
     return null;
-  }, [isRemoved, isUpdated, isAdded]);
+  }, [isRemoved, isUpdated, isAdded, list.added, list.removed, list.updated]);
 
   return {
     getState,

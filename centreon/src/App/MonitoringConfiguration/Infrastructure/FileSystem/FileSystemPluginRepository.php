@@ -25,11 +25,16 @@ namespace App\MonitoringConfiguration\Infrastructure\FileSystem;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionValue;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\Plugin;
+use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginCommandLine;
+use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginDescription;
 use App\MonitoringConfiguration\Domain\Aggregate\Plugin\PluginName;
+use App\MonitoringConfiguration\Domain\Exception\PluginNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PluginRepository;
 use App\Shared\Domain\Collection;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\Process\Process;
+use Webmozart\Assert\Assert;
 
 final readonly class FileSystemPluginRepository implements PluginRepository
 {
@@ -46,10 +51,41 @@ final readonly class FileSystemPluginRepository implements PluginRepository
 
         return new Collection(
             array_map(
-                static fn (SplFileInfo $plugin): Plugin => new Plugin(new PluginName($plugin->getFilename())),
+                static fn (SplFileInfo $plugin): Plugin => new Plugin(
+                    name: new PluginName($plugin->getFilename()),
+                    commandLine: new PluginCommandLine($plugin->getRealPath()),
+                ),
                 iterator_to_array($pluginInfos->getIterator())
             ),
             Plugin::class
+        );
+    }
+
+    public function getByPathAndName(OptionValue $path, PluginName $name): Plugin
+    {
+        $pluginInfos = $this->finder->files()
+            ->in($path->value)
+            ->name($name->value);
+
+        if (! $this->finder->hasResults()) {
+            throw new PluginNotFoundException(['path' => $path->value, 'name' => $name->value]);
+        }
+
+        $plugin = current(iterator_to_array($pluginInfos));
+        Assert::isInstanceOf($plugin, SplFileInfo::class);
+
+        $process = new Process([$plugin->getRealPath(), '--help']);
+        $process->run();
+
+        $description = null;
+        if ($process->isSuccessful() && ! empty($process->getOutput())) {
+            $description = new PluginDescription(trim($process->getOutput()));
+        }
+
+        return new Plugin(
+            name: new PluginName($plugin->getFilename()),
+            commandLine: new PluginCommandLine($plugin->getRealPath()),
+            description: $description
         );
     }
 }

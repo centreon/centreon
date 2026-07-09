@@ -1,8 +1,8 @@
+import { Button, Divider, Typography } from '@mui/material';
+
 import { and, isEmpty, isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Button, Divider, Typography } from '@mui/material';
 
 import { ProviderConfiguration } from './models';
 import { labelLoginWith, labelOr } from './translatedLabels';

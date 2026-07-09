@@ -52,15 +52,16 @@ if (isset($_POST['searchM'])) {
 
 try {
     $queryParameters = [];
-
+    $selectQuery = <<<'SQL'
+            SELECT
+                images.*,
+                directories.*
+        SQL;
     if (
         $centreon->user->admin === '1'
         || $centreon->user->access->hasAccessToAllImageFolders
     ) {
-        $query = <<<'SQL'
-                SELECT
-                    images.*,
-                    directories.*
+        $bodyQuery = <<<'SQL'
                 FROM view_img_dir AS `directories`
                 LEFT JOIN view_img_dir_relation AS `vidr`
                     ON vidr.dir_dir_parent_id = directories.dir_id
@@ -68,10 +69,7 @@ try {
                     ON images.img_id = vidr.img_img_id
             SQL;
     } else {
-        $query = <<<'SQL'
-                SELECT
-                    images.*,
-                    directories.*
+        $bodyQuery = <<<'SQL'
                 FROM view_img_dir AS `directories`
                 LEFT JOIN view_img_dir_relation AS `vidr`
                     ON vidr.dir_dir_parent_id = directories.dir_id
@@ -99,22 +97,32 @@ try {
             'search',
             '%' . HtmlSanitizer::createFromString($search)->getString() . '%',
         );
-        $query .= <<<'SQL'
+        $bodyQuery .= <<<'SQL'
                 WHERE (images.img_name LIKE :search OR directories.dir_name LIKE :search) AND directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
             SQL;
     } else {
-        $query .= <<<'SQL'
+        $bodyQuery .= <<<'SQL'
                 WHERE directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
             SQL;
     }
-    $query .= ' GROUP BY images.img_id, directories.dir_id';
-    $query .= ' ORDER BY dir_alias, img_name LIMIT :offset, :limit';
+    $rows = $pearDB->fetchOne(
+        sprintf(
+            <<<'SQL'
+                    SELECT COUNT(DISTINCT images.img_id, directories.dir_id) AS nb
+                    %s
+                SQL,
+            $bodyQuery,
+        ),
+        QueryParameters::create($queryParameters),
+    );
+    $bodyQuery .= ' GROUP BY images.img_id, directories.dir_id';
+    $bodyQuery .= ' ORDER BY dir_alias, img_name LIMIT :offset, :limit';
+    $query = $selectQuery . ' ' . $bodyQuery;
     $queryParameters[] = QueryParameter::int('offset', $num * $limit);
     $queryParameters[] = QueryParameter::int('limit', $limit);
 
     /** @var CentreonDB $pearDB */
     $res = $pearDB->fetchAllAssociative($query, QueryParameters::create($queryParameters));
-    $rows = count($res);
 } catch (ValueObjectException|CollectionException|ConnectionException $e) {
     $exception = new RepositoryException(
         message: 'Unable to retrieve images and directories',

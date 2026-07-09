@@ -25,12 +25,17 @@ function getMyIndexGraph4Service($host_id = null, $service_id = null, $pearDBO)
         return null;
     }
 
-    $DBRESULT = $pearDBO->query("SELECT id FROM index_data i, metrics m WHERE i.host_id = '" . $host_id . "' "
-        . "AND m.hidden = '0' "
-        . "AND i.service_id = '" . $service_id . "' "
-        . 'AND i.id = m.index_id');
-    if ($DBRESULT->rowCount()) {
-        $row = $DBRESULT->fetchRow();
+    $statement = $pearDBO->prepare(
+        'SELECT id FROM index_data i, metrics m WHERE i.host_id = :host_id'
+        . " AND m.hidden = '0'"
+        . ' AND i.service_id = :service_id'
+        . ' AND i.id = m.index_id'
+    );
+    $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($statement->rowCount()) {
+        $row = $statement->fetchRow();
 
         return $row['id'];
     }

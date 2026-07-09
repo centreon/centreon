@@ -1,21 +1,14 @@
 import { atom } from 'jotai';
-import { atomWithStorage } from 'jotai/utils';
-import { Configuration, Filters } from '../models';
-import { columnsAtomKey, filtersAtomKey } from './constants';
+
+import { Configuration } from '../models';
 import { ModalState } from './models';
 
 export const configurationAtom = atom<Configuration | null>({
-  resourceType: null,
-  api: { endpoints: null, adapter: null },
+  api: { endpoints: null },
+  defaultSelectedColumnIds: [],
   filtersInitialValues: { name: '' },
-  defaultSelectedColumnIds: []
+  resourceType: null
 });
-
-export const filtersAtom = atomWithStorage<Filters>(filtersAtomKey, {
-  name: ''
-});
-
-export const selectedColumnIdsAtom = atomWithStorage(columnsAtomKey, []);
 
 export const modalStateAtom = atom<ModalState>({
   id: null,
@@ -25,5 +18,3 @@ export const modalStateAtom = atom<ModalState>({
 
 export const isFormDirtyAtom = atom<boolean>(false);
 export const isCloseConfirmationDialogOpenAtom = atom<boolean>(false);
-
-export const isWelcomePageDisplayedAtom = atom<boolean>(true);
