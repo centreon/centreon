@@ -1,216 +1,327 @@
 {$form.javascript}
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
+{literal}
+<style type="text/css">
+/* iPhone toggle (self-contained) */
+.cf-form-wrapper .cl-toggle { position: relative; top: auto; left: auto; margin: 0; padding: 0; display: inline-block; width: 36px; height: 20px; cursor: pointer; flex-shrink: 0; pointer-events: auto; }
+.cf-form-wrapper .cl-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.cf-form-wrapper .cl-toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 20px; transition: background .25s; pointer-events: auto; }
+.cf-form-wrapper .cl-toggle-slider::before { content: ''; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: transform .25s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider { background: var(--color-success, #88B922); }
+.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider::before { transform: translateX(16px); }
+/* a field turned into a toggle row: control + label side by side */
+.cf-field-toggle { display: flex; align-items: center; gap: 10px; }
+.cf-field-toggle .cf-toggle-label { position: static; pointer-events: auto; font-size: 13px; color: var(--list-color, #333); }
+.cf-field-toggle .helpTooltip { position: static; }
+</style>
+{/literal}
+
 <form {$form.attributes}>
-        <div class="headerTabContainer">
-        <ul id="mainnav">
-            <li class="a" id='c1'><a href="#"  style='cursor:pointer' onclick="javascript:montre('1');">{$tabTitle_1}</a></li>
-            <li class="b" id='c2'><a href="#" style='cursor:pointer' onclick="javascript:montre('2');">{$tabTitle_2}</a></li>
-            <li class="b" id='c3'><a href="#" style='cursor:pointer' onclick="javascript:montre('3');">{$tabTitle_3}</a></li>
-        </ul>
-        <div id="validFormTop">
-            {if $o == "a" || $o == "c"}
-		        <p class="oreonbutton">
-                    {if isset($form.submitC)}
-                        {$form.submitC.html}
-                    {else}
-                        {$form.submitA.html}
-                    {/if}
-                    &nbsp;&nbsp;&nbsp;{$form.reset.html}
-                </p>
-            {else if $o == "w"}
-                <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-def" class="active" onclick="cfScrollTo('cf-sec-def', this); return false;">{$tabTitle_1}</a>
+        <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{$tabTitle_2}</a>
+        <a href="#cf-sec-advanced" onclick="cfScrollTo('cf-sec-advanced', this); return false;">{$tabTitle_3}</a>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 1: Trap definition (was tab1)                            -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-def">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$subtitle0}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_name.html}
+                    <label class="cf-label-float">{$form.traps_name.label}</label>
+                    <img class="helpTooltip" name="trapname">
+                </div>
+                <div class="cf-field">
+                    {$form.traps_mode.html}
+                    <label class="cf-label-float">{$form.traps_mode.label}</label>
+                    <img class="helpTooltip" name="mode">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_oid.html}
+                    <label class="cf-label-float">{$form.traps_oid.label}</label>
+                    <img class="helpTooltip" name="oid">
+                </div>
+                <div class="cf-field">
+                    {$form.manufacturer_id.html}
+                    <label class="cf-label-float">{$form.manufacturer_id.label}</label>
+                    <img class="helpTooltip" name="vendor">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 22px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle0}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_args.html}
+                    <label class="cf-label-float">{$form.traps_args.label}</label>
+                    <img class="helpTooltip" name="trap_args">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_status.html}
+                    <label class="cf-label-float">{$form.traps_status.label}</label>
+                    <img class="helpTooltip" name="trap_status">
+                </div>
+                <div class="cf-field">
+                    {$form.severity.html}
+                    <label class="cf-label-float">{$form.severity.label}</label>
+                    <img class="helpTooltip" name="severity">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_advanced_treatment.html}
+                    <label class="cf-label-float">{$form.traps_advanced_treatment.label}</label>
+                    <img class="helpTooltip" name="trap_advanced">
+                </div>
+                <div class="cf-field">
+                    {$form.traps_advanced_treatment_default.html}
+                    <label class="cf-label-float">{$form.traps_advanced_treatment_default.label}</label>
+                    <img class="helpTooltip" name="traps_advanced_treatment_default">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <img class="helpTooltip" name="trap_adv_args">
+                    <span style="font-size:13px;font-weight:600;color:var(--list-color,#333);">{$trap_adv_args}</span>
+                </div>
+                {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="matchingrules" cloneSet=$cloneSetMaching}
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle1}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_submit_result_enable.html}
+                    <label class="cf-label-float">{$form.traps_submit_result_enable.label}</label>
+                    <img class="helpTooltip" name="submit_result_enabled">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle2}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_reschedule_svc_enable.html}
+                    <label class="cf-label-float">{$form.traps_reschedule_svc_enable.label}</label>
+                    <img class="helpTooltip" name="reschedule_enabled">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle3}</div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_execution_command_enable.html}
+                    <label class="cf-label-float">{$form.traps_execution_command_enable.label}</label>
+                    <img class="helpTooltip" name="command_enabled">
+                </div>
+                <div class="cf-field">
+                    {$form.traps_execution_command.html}
+                    <label class="cf-label-float">{$form.traps_execution_command.label}</label>
+                    <img class="helpTooltip" name="command_args">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle4}</div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_comments.html}
+                    <label class="cf-label-float">{$form.traps_comments.label}</label>
+                    <img class="helpTooltip" name="comments">
+                </div>
+            </div>
+            {if isset($form.required)}
+            <div class="cf-row"><small>{$form.required._note}</small></div>
             {/if}
         </div>
-	</div>
-	<div id='tab1' class='tab'>
-	<table class="formTable table">
-        <tbody>
-            <tr class="ListHeader">
-                <td class="FormHeader" colspan="2">
-                    <h3>| {$form.header.title}</h3>
-                </td>
-            </tr>
-            <tr class="list_lvl_1">
-                <td class="ListColLvl1_name" colspan="2">
-                    <h4>{$subtitle0}</h4>
-                </td>
-            </tr>
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="trapname"> {$form.traps_name.label}</td><td class="FormRowValue">{$form.traps_name.html}</td></tr>
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="mode"> {$form.traps_mode.label}</td><td class="FormRowValue">{$form.traps_mode.html}</td></tr>
-            <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="oid"> {$form.traps_oid.label}</td><td class="FormRowValue">{$form.traps_oid.html}</td></tr>
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="vendor"> {$form.manufacturer_id.label}</td><td class="FormRowValue">{$form.manufacturer_id.html}</td></tr>
-            <tr class="list_lvl_1">
-                <td class="ListColLvl1_name" colspan="2">
-                    <h4>{$subtitle0}</h4>
-                     </td>
-                   </tr>
-                   <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="trap_args"> {$form.traps_args.label}</td><td class="FormRowValue">{$form.traps_args.html}</td></tr>
-                   <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="trap_status"> {$form.traps_status.label}</td><td class="FormRowValue">{$form.traps_status.html}</td></tr>
-                   <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="severity"> {$form.severity.label}</td><td class="FormRowValue">{$form.severity.html}</td></tr>
-                   <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="trap_advanced"> {$form.traps_advanced_treatment.label}</td><td class="FormRowValue">{$form.traps_advanced_treatment.html}</td></tr>                   
-                   <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="traps_advanced_treatment_default"> {$form.traps_advanced_treatment_default.label}</td><td class="FormRowValue">{$form.traps_advanced_treatment_default.html}</td></tr>
-                   <tr class="list_two">
-                        <td class="FormRowField"><img class="helpTooltip" name="trap_adv_args"> {$trap_adv_args}</td>
-                        <td class="FormRowValue">
-                            {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="matchingrules" cloneSet=$cloneSetMaching}
-                        </td>
-                   </tr>
-                   <tr class="list_lvl_1">
-                     <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle1}</h4>
-                     </td>
-                   </tr>
-                   <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="submit_result_enabled"> {$form.traps_submit_result_enable.label}</td><td class="FormRowValue">{$form.traps_submit_result_enable.html}</td></tr>
+    </div>
 
-                   <tr class="list_lvl_1">
-                     <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle2}</h4>
-                     </td>
-                   </tr>
-                   <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="reschedule_enabled"> {$form.traps_reschedule_svc_enable.label}</td><td class="FormRowValue">{$form.traps_reschedule_svc_enable.html}</td></tr>
-
-                   <tr class="list_lvl_1">
-                     <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle3}</h4>
-                     </td>
-                   </tr>
-                   <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="command_enabled"> {$form.traps_execution_command_enable.label}</td><td class="FormRowValue">{$form.traps_execution_command_enable.html}</td></tr>
-                   <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="command_args"> {$form.traps_execution_command.label}</td><td class="FormRowValue">{$form.traps_execution_command.html}</td></tr>
-
-                   <tr class="list_lvl_1">
-                     <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle4}</h4>
-                     </td>
-                   </tr>
-                   <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="comments"> {$form.traps_comments.label}</td><td class="FormRowValue">{$form.traps_comments.html}</td></tr>
-                   <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
-                {/if}
-            </td></tr>
-           </tbody>
-	</table>
-	</div>
-        <div id="tab2" class="tab">
-            <table class="formTable table">
-                <tbody>
-                    <tr class="ListHeader">
-                      <td class="FormHeader" colspan="2">
-                        <h3>| {$form.header.title}</h3>
-                      </td>
-                    </tr>
-                    <tr class="list_lvl_1">
-                      <td class="ListColLvl1_name" colspan="2">
-                        <h4>{$resourceTxt}</h4>
-                      </td>
-                    </tr>
-                    <tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="services"> {$serviceTxt}</td>
-                        <td class="FormRowValue">
-                            {if isset($form.host_filter)}
-                              {$form.host_filter.html}
-                            {/if}
-                            {$form.services.html}
-                        </td>
-                    </tr>
-                    <tr class="list_two">
-		        <td class="FormRowField"><img class="helpTooltip" name="service_templates"> {$serviceTemplateTxt}</td>
-			<td class="FormRowValue">{$form.service_templates.html}</td>
-		    </tr>
-                </tbody>
-            </table>
+    <!-- ================================================================ -->
+    <!-- Section 2: Relations (was tab2)                                  -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-relations">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$resourceTxt}
+            <span class="cf-section-chevron">&#9660;</span>
         </div>
-        <div id="tab3" class="tab">
-            <table class="formTable table">
-                <tbody>
-                    <tr class="ListHeader">
-                      <td class="FormHeader" colspan="2">
-                        <h3>| {$form.header.title}</h3>
-                      </td>
-                    </tr>
-                    <tr class="list_lvl_1">
-                      <td class="ListColLvl1_name" colspan="2">
-                        <h4>{$routingDefTxt}</h4>
-                      </td>
-                    </tr>
-                    <tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_routing_mode">&nbsp;{$form.traps_routing_mode.label}</td>
-                        <td class="FormRowValue">{$form.traps_routing_mode.html}</td>
-                    </tr>
-                    <tr class="list_two">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_routing_value">&nbsp;{$form.traps_routing_value.label}</td>
-                        <td class="FormRowValue">{$form.traps_routing_value.html}</td>
-                    </tr>
-					<tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_routing_filter_services">&nbsp;{$form.traps_routing_filter_services.label}</td>
-                        <td class="FormRowValue">{$form.traps_routing_filter_services.html}</td>
-                    </tr>
-                    <tr class="list_lvl_1">
-                      <td class="ListColLvl1_name" colspan="2">
-                        <h4>{$preexecTxt}</h4>
-                      </td>
-                    </tr>
-                    <tr class="list_two">
-                        <td class="FormRowField">
-                            <img class="helpTooltip" name="preexeccmd">&nbsp;{$preexeccmd_str}
-                        </td>
-                        <td class="FormRowValue">
-                            {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="preexec" cloneSet=$cloneSet}
-                        </td>
-                    </tr>
-                    <tr class="list_lvl_1">
-                      <td class="ListColLvl1_name" colspan="2">
-                        <h4>{t}Misc{/t}</h4>
-                      </td>
-                    </tr>
-                    <tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_log">&nbsp;{$form.traps_log.label}</td>
-                        <td class="FormRowValue">{$form.traps_log.html}</td>
-                    </tr>
-                    <tr class="list_two">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_timeout">&nbsp;{$form.traps_timeout.label}</td>
-                        <td class="FormRowValue">{$form.traps_timeout.html}&nbsp;{t}seconds{/t}</td>
-                    </tr>
-                    <tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_exec_interval">&nbsp;{$form.traps_exec_interval.label}</td>
-                        <td class="FormRowValue">{$form.traps_exec_interval.html}&nbsp;{t}seconds{/t}</td>
-                    </tr>
-                    <tr class="list_two">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_exec_interval_type">&nbsp;{$form.traps_exec_interval_type.label}</td>
-                        <td class="FormRowValue">{$form.traps_exec_interval_type.html}</td>
-                    </tr>
-                    <tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_exec_method">&nbsp;{$form.traps_exec_method.label}</td>
-                        <td class="FormRowValue">{$form.traps_exec_method.html}</td>
-                    </tr>
-					<tr class="list_two">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_downtime">&nbsp;{$form.traps_downtime.label}</td>
-                        <td class="FormRowValue">{$form.traps_downtime.html}</td>
-                    </tr>
-					<tr class="list_one">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_output_transform">&nbsp;{$form.traps_output_transform.label}</td>
-                        <td class="FormRowValue">{$form.traps_output_transform.html}</td>
-                    </tr>
-                    <tr class="list_two">
-                        <td class="FormRowField"><img class="helpTooltip" name="traps_customcode">&nbsp;{$form.traps_customcode.label}</td>
-                        <td class="FormRowValue">{$form.traps_customcode.html}</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {if isset($form.host_filter)}{$form.host_filter.html}{/if}
+                    {$form.services.html}
+                    <label class="cf-label-float">{$serviceTxt}</label>
+                    <img class="helpTooltip" name="services">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.service_templates.html}
+                    <label class="cf-label-float">{$serviceTemplateTxt}</label>
+                    <img class="helpTooltip" name="service_templates">
+                </div>
+            </div>
         </div>
-	<div id="validForm">
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 3: Advanced (was tab3)                                   -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-advanced">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$routingDefTxt}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_routing_mode.html}
+                    <label class="cf-label-float">{$form.traps_routing_mode.label}</label>
+                    <img class="helpTooltip" name="traps_routing_mode">
+                </div>
+                <div class="cf-field">
+                    {$form.traps_routing_value.html}
+                    <label class="cf-label-float">{$form.traps_routing_value.label}</label>
+                    <img class="helpTooltip" name="traps_routing_value">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_routing_filter_services.html}
+                    <label class="cf-label-float">{$form.traps_routing_filter_services.label}</label>
+                    <img class="helpTooltip" name="traps_routing_filter_services">
+                </div>
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$preexecTxt}</div>
+            <div class="cf-row">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <img class="helpTooltip" name="preexeccmd">
+                    <span style="font-size:13px;font-weight:600;color:var(--list-color,#333);">{$preexeccmd_str}</span>
+                </div>
+                {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="preexec" cloneSet=$cloneSet}
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Misc{/t}</div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_log.html}
+                    <label class="cf-label-float">{$form.traps_log.label}</label>
+                    <img class="helpTooltip" name="traps_log">
+                </div>
+                <div class="cf-field" style="max-width:220px;">
+                    {$form.traps_timeout.html}&nbsp;{t}seconds{/t}
+                    <label class="cf-label-float">{$form.traps_timeout.label}</label>
+                    <img class="helpTooltip" name="traps_timeout">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:220px;">
+                    {$form.traps_exec_interval.html}&nbsp;{t}seconds{/t}
+                    <label class="cf-label-float">{$form.traps_exec_interval.label}</label>
+                    <img class="helpTooltip" name="traps_exec_interval">
+                </div>
+                <div class="cf-field">
+                    {$form.traps_exec_interval_type.html}
+                    <label class="cf-label-float">{$form.traps_exec_interval_type.label}</label>
+                    <img class="helpTooltip" name="traps_exec_interval_type">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.traps_exec_method.html}
+                    <label class="cf-label-float">{$form.traps_exec_method.label}</label>
+                    <img class="helpTooltip" name="traps_exec_method">
+                </div>
+                <div class="cf-field">
+                    {$form.traps_downtime.html}
+                    <label class="cf-label-float">{$form.traps_downtime.label}</label>
+                    <img class="helpTooltip" name="traps_downtime">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_output_transform.html}
+                    <label class="cf-label-float">{$form.traps_output_transform.label}</label>
+                    <img class="helpTooltip" name="traps_output_transform">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps_customcode.html}
+                    <label class="cf-label-float">{$form.traps_customcode.label}</label>
+                    <img class="helpTooltip" name="traps_customcode">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
         {if $o == "a" || $o == "c"}
-            <p class="oreonbutton">
-                {if isset($form.submitC)}
-                    {$form.submitC.html}
-                {else}
-                    {$form.submitA.html}
-                {/if}
-                &nbsp;&nbsp;&nbsp;{$form.reset.html}
-            </p>
-    {else if $o == "w"}
-        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-    {/if}
-	</div>
-	{$form.hidden}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
+</div>
+
+{$form.hidden}
 </form>
 {$helptext}
+
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+
+    // Render selected boolean fields as iPhone-style toggles
+    function cfMakeToggle(name) {
+        var input = document.querySelector('input[name="' + name + '"]');
+        if (!input) return;
+        var field = input.closest('.cf-field');
+        if (!field) return;
+        var lbl = field.querySelector('.cf-label-float');
+        var text = lbl ? lbl.textContent.trim() : '';
+        var help = field.querySelector('.helpTooltip');
+        var toggle = document.createElement('label');
+        toggle.className = 'cl-toggle';
+        toggle.appendChild(input);
+        var slider = document.createElement('span');
+        slider.className = 'cl-toggle-slider';
+        toggle.appendChild(slider);
+        field.innerHTML = '';
+        field.classList.add('cf-field-toggle');
+        field.appendChild(toggle);
+        var span = document.createElement('span');
+        span.className = 'cf-toggle-label';
+        span.textContent = text;
+        field.appendChild(span);
+        if (help) field.appendChild(help);
+    }
+    [
+        'traps_advanced_treatment',
+        'traps_submit_result_enable',
+        'traps_reschedule_svc_enable',
+        'traps_execution_command_enable',
+        'traps_routing_mode'
+    ].forEach(cfMakeToggle);
+});
+</script>
+{/literal}
