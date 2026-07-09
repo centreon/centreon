@@ -29,7 +29,7 @@ while :; do
   fi
 
   # Retry transient failures only: network error (000), 429, 5xx, or an empty token on 200.
-  if [[ "$attempt" -lt "$MAX_RETRIES" && ( "$http_code" == "000" || "$http_code" == "429" || "$http_code" -ge 500 || "$http_code" == "200" ) ]]; then
+  if [[ "$attempt" -lt "$MAX_RETRIES" && ( "$http_code" == "000" || "$http_code" == "429" || "$http_code" -ge 500 || ( "$http_code" == "200" && ( -z "$token" || "$token" == "null" ) ) ) ]]; then
     echo "Xray auth transient failure (HTTP $http_code), retry $((attempt + 1))/$MAX_RETRIES in ${RETRY_DELAY}s" >&2
     attempt=$((attempt + 1))
     sleep "$RETRY_DELAY"

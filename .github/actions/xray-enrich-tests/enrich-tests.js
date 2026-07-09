@@ -66,7 +66,7 @@ for (const [variableName, variableValue] of Object.entries({
 const jiraAuthorizationHeader = `Basic ${Buffer.from(`${JIRA_USER_EMAIL}:${JIRA_TOKEN}`).toString("base64")}`;
 
 const MAX_HTTP_RETRIES = 5;
-const RETRY_DELAY_MS = 2000; // fixed 2s between retries (5 retries -> up to 10s)
+const RETRY_DELAY_MS = 2000;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Backoff before retrying a transient failure. `status` is null on a network error.
