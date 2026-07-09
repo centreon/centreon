@@ -27,7 +27,7 @@
         </div>
         <div class="cf-section-body">
             <div class="cf-row-inline">
-                <div class="cf-field">
+                <div class="cf-field" style="max-width:260px;">
                     {$form.name.html}
                     <label class="cf-label-float">{$form.name.label}</label>
                     <img class="helpTooltip" name="tip_template_name">
@@ -37,8 +37,14 @@
                     <label class="cf-label-float">{$form.vertical_label.label}</label>
                     <img class="helpTooltip" name="tip_vertical_label">
                 </div>
+                <div class="cf-field">
+                    {$form.default_tpl1.html}
+                    <label class="cf-label-float">{$form.default_tpl1.label}</label>
+                    <img class="helpTooltip" name="tip_default_centreon_graph_template">
+                </div>
             </div>
 
+            <div style="margin:18px 0 20px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Graph size{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field" style="max-width:220px;">
                     {$form.width.html}&nbsp;px
@@ -52,6 +58,7 @@
                 </div>
             </div>
 
+            <div style="margin:18px 0 20px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Limits{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field" style="max-width:220px;">
                     {$form.lower_limit.html}
@@ -79,11 +86,6 @@
                     {$form.scaled.html}
                     <label class="cf-label-float">{$form.scaled.label}</label>
                     <img class="helpTooltip" name="tip_scale_graph_values">
-                </div>
-                <div class="cf-field">
-                    {$form.default_tpl1.html}
-                    <label class="cf-label-float">{$form.default_tpl1.label}</label>
-                    <img class="helpTooltip" name="tip_default_centreon_graph_template">
                 </div>
             </div>
 
