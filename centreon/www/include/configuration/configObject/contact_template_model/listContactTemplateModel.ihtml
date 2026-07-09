@@ -1,5 +1,13 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
+{literal}
+<script type="text/javascript">
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    try { window.parent.cfClosePanel(); } catch(e) {}
+}
+</script>
+{/literal}
+
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Contact templates{/t}</h1>
     <hr class="cl-title-sep">
@@ -7,7 +15,7 @@
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="{$msg.addL}" class="cl-btn-add">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$ctPage}&o=a', '{t}Add a Contact Template{/t}'); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
@@ -48,8 +56,58 @@
 {$form.hidden}
 </form>
 
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
 {literal}
 <script type="text/javascript">
+function cfOpenPanel(url, title) {
+    document.getElementById('cfSidePanelTitle').textContent = title || '';
+    document.getElementById('cfSidePanelFrame').src = url;
+    document.getElementById('cfSideOverlay').classList.add('open');
+    document.getElementById('cfSidePanel').classList.add('open');
+}
+function cfClosePanel() {
+    document.getElementById('cfSideOverlay').classList.remove('open');
+    document.getElementById('cfSidePanel').classList.remove('open');
+    setTimeout(function() { document.getElementById('cfSidePanelFrame').src = 'about:blank'; }, 300);
+    ctListing.fetch(ctListing.getState().num, ctListing.getState().limit, ctListing.getState().search, true);
+}
+(function() {
+    var handle = document.getElementById('cfSidePanelResize');
+    var panel = document.getElementById('cfSidePanel');
+    var dragging = false;
+    handle.addEventListener('mousedown', function(e) {
+        e.preventDefault(); dragging = true; handle.classList.add('active');
+        document.body.style.cursor = 'col-resize';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = 'none';
+    });
+    document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        var w = window.innerWidth - e.clientX;
+        if (w < 400) w = 400; if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+        panel.style.width = w + 'px';
+    });
+    document.addEventListener('mouseup', function() {
+        if (!dragging) return; dragging = false; handle.classList.remove('active');
+        document.body.style.cursor = '';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = '';
+    });
+})();
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
+
 var ctListing = new CentreonListing({
     instanceName:  'ctListing',
     ajaxListUrl:   './include/configuration/configObject/contact_template_model/ajaxContactTemplateListing.php',
@@ -63,15 +121,17 @@ var ctListing = new CentreonListing({
     rowIdField:    'id',
     columns: [
         { id:'alias', render: function(row, l) {
-            var link = 'main.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
-            return '<a href="'+link+'"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
+            var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
+            var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
-            var link = 'main.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.name)+'</a>';
+            var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
+            var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
-        { id:'host_notif_tp', align:'center' },
-        { id:'svc_notif_tp', align:'center' }
+        { id:'host_notif_tp', align:'center', render: function(row, l) { return row.host_notif_tp ? l.escape(row.host_notif_tp) : '-'; }},
+        { id:'svc_notif_tp', align:'center', render: function(row, l) { return row.svc_notif_tp ? l.escape(row.svc_notif_tp) : '-'; }}
     ],
     renderOptions: function(row, l) {
         var checked = row.activate ? ' checked' : '';

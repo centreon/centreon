@@ -1,4 +1,11 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
+{literal}
+<script type="text/javascript">
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    try { window.parent.cfClosePanel(); } catch(e) {}
+}
+</script>
+{/literal}
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Pollers{/t}</h1>
@@ -12,7 +19,7 @@
                             <a href="#" class="cl-btn-add" onclick="var m=document.getElementById('clAddMenu');m.style.display=m.style.display==='block'?'none':'block';return false;">{t}Add{/t}</a>
                             <div id="clAddMenu" style="display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:1000;min-width:160px;margin-top:4px;overflow:hidden;">
                                 <a href="{$wizardAddBtn.link}" isreact="true" target="_top" style="display:block;padding:8px 16px;color:#444;text-decoration:none;font-size:13px;">{$wizardAddBtn.icon} {t}Wizard{/t}</a>
-                                <a href="{$addBtn.link}" style="display:block;padding:8px 16px;color:#444;text-decoration:none;font-size:13px;">{$addBtn.icon} {t}Advanced{/t}</a>
+                                <a href="#" onclick="cfOpenPanel('main.get.php?p={$pollerPage}&o=a', '{t}Add a Poller{/t}'); return false;" style="display:block;padding:8px 16px;color:#444;text-decoration:none;font-size:13px;">{$addBtn.icon} {t}Advanced{/t}</a>
                             </div>
                         </div>
                     {/if}
@@ -66,8 +73,58 @@
 {$form.hidden}
 </form>
 
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
 {literal}
 <script type="text/javascript">
+function cfOpenPanel(url, title) {
+    document.getElementById('cfSidePanelTitle').textContent = title || '';
+    document.getElementById('cfSidePanelFrame').src = url;
+    document.getElementById('cfSideOverlay').classList.add('open');
+    document.getElementById('cfSidePanel').classList.add('open');
+}
+function cfClosePanel() {
+    document.getElementById('cfSideOverlay').classList.remove('open');
+    document.getElementById('cfSidePanel').classList.remove('open');
+    setTimeout(function() { document.getElementById('cfSidePanelFrame').src = 'about:blank'; }, 300);
+    pollerListing.fetch(pollerListing.getState().num, pollerListing.getState().limit, pollerListing.getState().search, true);
+}
+(function() {
+    var handle = document.getElementById('cfSidePanelResize');
+    var panel = document.getElementById('cfSidePanel');
+    var dragging = false;
+    handle.addEventListener('mousedown', function(e) {
+        e.preventDefault(); dragging = true; handle.classList.add('active');
+        document.body.style.cursor = 'col-resize';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = 'none';
+    });
+    document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        var w = window.innerWidth - e.clientX;
+        if (w < 400) w = 400; if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+        panel.style.width = w + 'px';
+    });
+    document.addEventListener('mouseup', function() {
+        if (!dragging) return; dragging = false; handle.classList.remove('active');
+        document.body.style.cursor = '';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = '';
+    });
+})();
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
+
 function displayPopup(id) {
     var popin = jQuery(
         '<div id="config-popin"><div id="loading"><img src="./img/misc/ajax-loader.gif" /></div></div>'
@@ -119,15 +176,20 @@ var pollerListing = new CentreonListing({
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
-            var link = 'main.php?p=' + pollerPage + '&o=' + (isRemoteSrv ? 'w' : 'c') + '&server_id=' + row.id;
-            var html = canCreateEdit ? '<a href="'+link+'">'+l.escape(row.name)+'</a>' : l.escape(row.name);
-            // Info tooltip (PID, Uptime, Version)
-            return html;
+            var mode = isRemoteSrv ? 'w' : 'c';
+            var editUrl = 'main.get.php?p=' + pollerPage + '&o=' + mode + '&server_id=' + row.id;
+            var title = (mode === 'c' ? '{/literal}{t}Modify Poller{/t}{literal}' : '{/literal}{t}View Poller{/t}{literal}') + ' - ' + row.name;
+            if (canCreateEdit) {
+                return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            }
+            return l.escape(row.name);
         }},
         { id:'ip_address', align:'center', render: function(row, l) {
             if (canCreateEdit) {
-                var link = 'main.php?p=' + pollerPage + '&o=' + (isRemoteSrv ? 'w' : 'c') + '&server_id=' + row.id;
-                return '<a href="'+link+'">'+l.escape(row.ip_address)+'</a>';
+                var mode = isRemoteSrv ? 'w' : 'c';
+                var editUrl = 'main.get.php?p=' + pollerPage + '&o=' + mode + '&server_id=' + row.id;
+                var title = (mode === 'c' ? '{/literal}{t}Modify Poller{/t}{literal}' : '{/literal}{t}View Poller{/t}{literal}') + ' - ' + row.name;
+                return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.ip_address)+'</a>';
             }
             return l.escape(row.ip_address);
         }},

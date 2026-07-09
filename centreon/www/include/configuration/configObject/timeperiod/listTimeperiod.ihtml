@@ -1,4 +1,10 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
+{literal}
+<script type="text/javascript">
+CentreonForm.detectSidePanelClose();
+</script>
+{/literal}
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Time periods{/t}</h1>
@@ -7,7 +13,8 @@
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="{$msg.addL}" class="cl-btn-add">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$tpPage}&o=a', '{t}Add a Time Period{/t}'); return false;">{$msg.addT}</a>
+
                 {$form.o1.html}
             </div>
             { else }
@@ -48,8 +55,22 @@
 {$form.hidden}
 </form>
 
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
 {literal}
 <script type="text/javascript">
+
 var tpListing = new CentreonListing({
     instanceName:  'tpListing',
     ajaxListUrl:   './include/configuration/configObject/timeperiod/ajaxTimeperiodListing.php',
@@ -62,14 +83,14 @@ var tpListing = new CentreonListing({
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
-            var editLink = 'main.php?p={/literal}{$tpPage}{literal}&o=c&tp_id=' + row.id;
-            var viewLink = 'main.php?p={/literal}{$tpPage}{literal}&o=s&tp_id=' + row.id;
-            return '<a href="'+editLink+'">'+l.escape(row.name)+'</a>' +
-                '<span style="float:right"><a href="'+viewLink+'"><img src="./img/icones/16x16/table_view.gif" title="View"></a></span>';
+            var editUrl = 'main.get.php?p={/literal}{$tpPage}{literal}&o=c&tp_id=' + row.id;
+            var title = '{/literal}{t}Modify Time Period{/t}{literal} - ' + row.name;
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
-            var link = 'main.php?p={/literal}{$tpPage}{literal}&o=c&tp_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.alias||'')+'</a>';
+            var editUrl = 'main.get.php?p={/literal}{$tpPage}{literal}&o=c&tp_id=' + row.id;
+            var title = '{/literal}{t}Modify Time Period{/t}{literal} - ' + row.name;
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }}
     ],
     renderOptions: function(row) {
@@ -77,5 +98,6 @@ var tpListing = new CentreonListing({
     }
 });
 tpListing.init();
+CentreonForm.initSidePanel(tpListing);
 </script>
 {/literal}
