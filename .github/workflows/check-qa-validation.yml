@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       statuses: write        # post commit statuses
-      issues: write          # remove stale qa-approved label
-      pull-requests: read    # read timeline
+      issues: write          # remove stale qa-approved label + read PR timeline
 
     steps:
       - name: Evaluate QA validation state
@@ -26,7 +25,7 @@ jobs:
         with:
           script: |
             const qaApprovedLabel = 'qa-approved';
-            const statusContext = 'qa/validation';
+            const statusContext = 'qa-validation-status';
             const headSha = context.payload.pull_request.head.sha;
 
             const setStatus = (state, description) =>
