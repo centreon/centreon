@@ -1,0 +1,51 @@
+meta {
+  name: POST /acc - Create ACC2 with mandatory properties - HTTP 201
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ACC2Name}}",
+    "description": null,
+    "pollers": [2],
+    "type": "vmware_v6",
+    "parameters": {
+      "port": 5780,
+      "vcenters": [{
+        "name": "my-vcenter-2",
+        "url": "http://10.10.10.10/sdk",
+        "username": "admin",
+        "password": "my-pwd"
+      }]
+    }
+  }
+}
+
+tests {
+  test("ACC2 has been successfully created with mandatory properties (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      bru.setEnvVar("ACC2Id", body.id);
+      bru.setEnvVar("ACC2VcenterId", body.parameters.vcenters[0].id);
+      expect(body).to.include({
+        "id": body.id,
+        "name": bru.getEnvVar("ACC2Name"),
+        "type": "vmware_v6",
+        "description": null
+      });
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

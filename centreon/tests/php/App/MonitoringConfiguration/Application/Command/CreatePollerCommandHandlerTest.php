@@ -28,10 +28,10 @@ use App\MonitoringConfiguration\Application\Command\CreatePollerCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUuid;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
 use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerUidGenerator;
 use Tests\App\Shared\Double\EventBusSpy;
 
 final class CreatePollerCommandHandlerTest extends TestCase
@@ -40,7 +40,8 @@ final class CreatePollerCommandHandlerTest extends TestCase
     {
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus);
+        $uidGenerator = new FakePollerUidGenerator();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
@@ -55,38 +56,17 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertSame('MyPoller', $poller->name->value);
         self::assertSame(PollerTypeEnum::VM, $poller->pollerType);
         self::assertSame('192.168.1.1', $poller->address->value);
-        self::assertNotNull($poller->uuid);
+        self::assertGreaterThan(0, $poller->uid->value);
         self::assertFalse($poller->isCentral);
         self::assertTrue($poller->isActivated);
-    }
-
-    public function testCreatePollerGeneratesUuidV7(): void
-    {
-        $repository = new FakePollerRepository();
-        $eventBus = new EventBusSpy();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus);
-
-        $command = new CreatePollerCommand(
-            name: new PollerName('MyPoller'),
-            pollerType: PollerTypeEnum::VM,
-            address: new PollerAddress('192.168.1.1'),
-            creatorId: 1,
-        );
-
-        $poller = $handler($command);
-
-        self::assertNotNull($poller->uuid);
-        self::assertMatchesRegularExpression(
-            PollerUuid::UUID_V7_PATTERN,
-            $poller->uuid->value
-        );
     }
 
     public function testCreatePollerWithDockerType(): void
     {
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus);
+        $uidGenerator = new FakePollerUidGenerator();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
 
         $command = new CreatePollerCommand(
             name: new PollerName('DockerPoller'),
@@ -104,7 +84,8 @@ final class CreatePollerCommandHandlerTest extends TestCase
     {
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus);
+        $uidGenerator = new FakePollerUidGenerator();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
 
         $poller = $handler(new CreatePollerCommand(
             name: new PollerName('MyPoller'),

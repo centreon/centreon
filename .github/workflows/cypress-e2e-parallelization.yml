@@ -48,8 +48,22 @@ on:
         type: string
         description: "The frontend dependencies lock file path"
       xray_keys_and_ids:
-        description: "The test execution and the test plan keys and ids"
-        required: true
+        description: "The test execution and the test plan keys and ids (legacy flow)"
+        required: false
+        type: string
+      jira_test_plan_key:
+        description: "Jira Test Plan key; when set, results are imported and linked to it"
+        required: false
+        type: string
+      xray_test_plan_issue_id:
+        required: false
+        type: string
+      database_name:
+        required: false
+        type: string
+      jira_component_name:
+        description: "Jira component override when it differs from module_name (e.g. centreon-web for the 'centreon' module directory)"
+        required: false
         type: string
       is_cloud:
         description: "Define if the version is targeting cloud"
@@ -126,10 +140,11 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.module_name }}/tests/e2e
+        working-directory: ${{ env.WORKING_DIRECTORY }}
     name: ${{ matrix.feature }}
 
     env:
+      WORKING_DIRECTORY: ${{ inputs.module_name }}/tests/e2e
       SLIM_IMAGE_NAME: ${{ inputs.image_name }}-slim-${{ inputs.os }}
 
     steps:
@@ -169,7 +184,7 @@ jobs:
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -188,18 +203,23 @@ jobs:
 
       - name: Install Cypress binary
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
         with:
           timeout_seconds: 120
           max_attempts: 10
           retry_wait_seconds: 30
           retry_on: error
-          command: cd ${{ inputs.module_name }}/tests/e2e && pnpm cypress install --force
+          command: cd "$MODULE_NAME/tests/e2e" && pnpm cypress install --force
 
       - name: Move packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
+        env:
+          PACKAGE_DIRECTORY: ${{ inputs.package_directory }}
+          PACKAGE_EXT: ${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
         run: |
-          mkdir -p ${{ inputs.package_directory }}
-          mv ../../../*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
+          mkdir -p "$PACKAGE_DIRECTORY"
+          mv ../../../*."$PACKAGE_EXT" "$PACKAGE_DIRECTORY"
         shell: bash
 
       - name: Login to Registry
@@ -223,15 +243,20 @@ jobs:
 
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
+        env:
+          IMAGE_TAG: ${{ steps.image_tag.outputs.tag }}
         run: |
-          docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
-          docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }} docker.centreon.com/centreon/${{ env.SLIM_IMAGE_NAME }}:${{ steps.image_tag.outputs.tag }}
+          docker load --input "../../../docker-image/$SLIM_IMAGE_NAME.tar"
+          docker tag "$SLIM_IMAGE_NAME:$IMAGE_TAG" "docker.centreon.com/centreon/$SLIM_IMAGE_NAME:$IMAGE_TAG"
         shell: bash
 
       - name: Get test execution Key
         id: get-test-execution-key
+        env:
+          XRAY_KEYS_AND_IDS: ${{ inputs.xray_keys_and_ids }}
+          OS: ${{ inputs.os }}
         run: |
-          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
+          test_execution_key=$(echo "$XRAY_KEYS_AND_IDS" | jq -r --arg os "$OS" '.["test_execution_key_" + $os]')
           echo "The Test Execution KEY: $test_execution_key"
           echo "test_execution_key=$test_execution_key" >> $GITHUB_ENV
         shell: bash
@@ -241,12 +266,9 @@ jobs:
         shell: bash
 
       - name: Cypress end-to-end testing
-        uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
-        with:
-          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }}.feature --env tags="${{ inputs.test_tags }}"
-          install: false
-          working-directory: ${{ inputs.module_name }}/tests/e2e
         env:
+          FEATURE: ${{ matrix.feature }}
+          TEST_TAGS: ${{ inputs.test_tags }}
           CYPRESS_VERIFY_TIMEOUT: "60000"
           CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
           CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
@@ -256,17 +278,22 @@ jobs:
           CYPRESS_STABILITY: ${{ inputs.stability }}
           CYPRESS_TARGET_STABILITY: ${{ inputs.target_stability }}
           CYPRESS_IS_CLOUD: ${{ inputs.is_cloud }}
+        run: |
+          pnpm run cypress:run --browser electron --spec "features/**/$FEATURE.feature" --env tags="$TEST_TAGS"
 
       - name: Ensure logs directory exists
-        run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+        run: mkdir -p "$MODULE_NAME/tests/e2e/results/cucumber-logs/"
         shell: bash
 
       - name: Replace / with - in the feature path
         id: feature-path
         if: ${{ ! cancelled() }}
+        env:
+          FEATURE_NAME: ${{ matrix.feature }}
         run: |
-          feature_name="${{ matrix.feature }}"
-          feature_name_with_dash="${feature_name//\//-}"
+          feature_name_with_dash="${FEATURE_NAME//\//-}"
           echo "Modified Feature Name: $feature_name_with_dash"
           echo "feature_name_with_dash=$feature_name_with_dash" >> $GITHUB_OUTPUT
 
@@ -280,13 +307,16 @@ jobs:
 
       - name: Move retries.json to reports directory and display warnings
         if: ${{ ! cancelled() }}
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          FEATURE_NAME_WITH_DASH: ${{ steps.feature-path.outputs.feature_name_with_dash }}
         run: |
-            retriesFile="${{ inputs.module_name }}/tests/e2e/results/retries.json"
+            retriesFile="$MODULE_NAME/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
-              jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
-                echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+              jq -r 'to_entries | .[].key' "$retriesFile" | while read -r testName; do
+                echo "::warning::Following test was retried during execution: $testName (retries: $(jq --arg name "$testName" '.[$name]' "$retriesFile"))"
               done
-              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/${{ steps.feature-path.outputs.feature_name_with_dash }}-retries.json"
+              mv "$retriesFile" "$MODULE_NAME/tests/e2e/results/reports/$FEATURE_NAME_WITH_DASH-retries.json"
             fi
         shell: bash
 
@@ -306,50 +336,34 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
           retention-days: 1
 
-  # This action is only for NIGHTLY and testing branches
-  import-reports-to-xray:
+  # Import the cucumber results into Xray and link them to the Test Plan. Skipped for
+  # callers still on the legacy flow (those that do not pass jira_test_plan_key).
+  xray-api-import-results:
     needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      (inputs.stability == 'testing' || inputs.is_nightly == 'true') &&
+      inputs.jira_test_plan_key != '' &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
-        with:
-          version: 10
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-*
-          path: ${{ inputs.name }}-json-xray-reports
-          merge-multiple: true
-
-      - name: Generate Xray Token
-        id: generate-xray-token
-        run: |
-          token_response=$(curl -H "Content-Type: application/json" -X POST --data "{\"client_id\": \"${{ secrets.XRAY_CLIENT_ID }}\", \"client_secret\": \"${{ secrets.XRAY_CLIENT_SECRET }}\"}" "https://xray.cloud.getxray.app/api/v1/authenticate")
-          xray_token=$(echo "$token_response" | sed -n 's/.*"\(.*\)".*/\1/p')
-          echo "xray_token=$xray_token" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Keys
-        run: |
-          test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
-          echo "The Test Execution KEY: $test_execution_key"
-          echo "The Test Plan KEY: $test_plan_key"
-
-      - name: Import results to xray
-        run: |
-          for file in "${{ inputs.name }}-json-xray-reports/"*.json
-          do
-            curl -H "Content-Type: application/json" -X POST -H "Authorization: Bearer ${{ steps.generate-xray-token.outputs.xray_token }}" --data @"$file" https://xray.cloud.getxray.app/api/v2/import/execution/cucumber
-          done
+    uses: ./.github/workflows/xray-api-import-results.yml
+    with:
+      jira_test_plan_key: ${{ inputs.jira_test_plan_key }}
+      report_path: ${{ inputs.module_name }}/tests/e2e/results
+      environment: ${{ inputs.os }}
+      operating_system: ${{ inputs.os }}
+      database_name: ${{ inputs.database_name }}
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      module_name: ${{ inputs.jira_component_name != '' && inputs.jira_component_name || inputs.module_name }}
+      type_test_execution: e2e
+      result_format: cucumber
+      enrich_tests: true
+      artifact_pattern: "*-xray-reports-*"
+    secrets:
+      XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
+      XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
+      XRAY_JIRA_USER_EMAIL: ${{ secrets.jira_user_email }}
+      XRAY_JIRA_TOKEN: ${{ secrets.jira_api_token }}
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-list, cypress-e2e-test-run]
@@ -374,11 +388,13 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
+        env:
+          NAME: ${{ inputs.name }}
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+          pnpx mochawesome-merge "$NAME-json-reports/**/*-report.json" > mochawesome.json
 
-          if ls ${{ inputs.name }}-json-reports/*retries.json 1> /dev/null 2>&1; then
-            cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
+          if ls "$NAME-json-reports/"*retries.json 1> /dev/null 2>&1; then
+            cat "$NAME-json-reports/"*retries.json | jq -s add > retries.json
           else
             echo "{}" > retries.json
           fi
@@ -423,7 +439,7 @@ jobs:
             }
 
   regroup-artifacts:
-    needs: [cypress-e2e-test-list, cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run, xray-api-import-results, cypress-e2e-test-report]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&

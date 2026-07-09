@@ -311,12 +311,6 @@ parameters:
 			path: src/Core/Host/Application/UseCase/PartialUpdateHost/PartialUpdateHostValidation.php
 
 		-
-			message: '#^Method Core\\Host\\Domain\\Model\\Host\:\:setSnmpVersion\(\) has Assert\\AssertionFailedException in PHPDoc @throws tag but it''s not thrown\.$#'
-			identifier: throws.unusedType
-			count: 1
-			path: src/Core/Host/Domain/Model/Host.php
-
-		-
 			message: '#^Instanceof between Psr\\Log\\LoggerInterface and Psr\\Log\\LoggerInterface will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
@@ -411,12 +405,6 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: src/Core/HostSeverity/Infrastructure/Repository/DbReadHostSeverityRepository.php
-
-		-
-			message: '#^Method Core\\HostTemplate\\Domain\\Model\\HostTemplate\:\:setSnmpVersion\(\) has Assert\\AssertionFailedException in PHPDoc @throws tag but it''s not thrown\.$#'
-			identifier: throws.unusedType
-			count: 1
-			path: src/Core/HostTemplate/Domain/Model/HostTemplate.php
 
 		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
@@ -913,12 +901,6 @@ parameters:
 			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
 
 		-
-			message: '#^Parameter \#2 \$hostTemplateIds of method Core\\ServiceTemplate\\Application\\Repository\\WriteServiceTemplateRepositoryInterface\:\:linkToHosts\(\) expects list\<int\>, array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Core/ServiceTemplate/Application/UseCase/PartialUpdateServiceTemplate/PartialUpdateServiceTemplate.php
-
-		-
 			message: '#^Parameter \#2 \$serviceCategoriesIds of method Core\\ServiceCategory\\Application\\Repository\\WriteServiceCategoryRepositoryInterface\:\:linkToService\(\) expects list\<int\>, array\<int\> given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1020,8 +1002,3 @@ parameters:
 			count: 1
 			path: src/Core/User/Application/UseCase/FindUserPermissions/FindUserPermissions.php
 
-		-
-			message: '#^Method Core\\User\\Domain\\Model\\User\:\:setUserInterfaceDensity\(\) has Assert\\AssertionFailedException in PHPDoc @throws tag but it''s not thrown\.$#'
-			identifier: throws.unusedType
-			count: 1
-			path: src/Core/User/Domain/Model/User.php

@@ -21,14 +21,14 @@ runs:
   using: "composite"
 
   steps:
-    - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+    - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       with:
         version: 10
         run_install: false
 
-    - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
-        node-version: 20
+        node-version: 24
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
@@ -39,9 +39,10 @@ runs:
           --config.trustPolicy=no-downgrade \
           --config.minimumReleaseAge=2880 \
           --config.blockExoticSubdeps=true
-      working-directory: ${{ inputs.frontend_directory }}
+      working-directory: ${{ env.FRONTEND_DIRECTORY }}
       shell: bash
       env:
+        FRONTEND_DIRECTORY: ${{ inputs.frontend_directory }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
@@ -57,7 +58,6 @@ runs:
           - ".github/actions/code-coverage-gate-keeper/package.json"
           - "centreon/packages/ui/package.json"
           - "centreon/package.json"
-          - "centreon/tests/rest_api/package.json"
         autoAcceptChanges: ${{ inputs.autoAcceptChanges }}
         exitOnceUploaded: true
         ignoreLastBuildOnBranch: "MON-*"

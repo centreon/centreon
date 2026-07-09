@@ -1160,13 +1160,36 @@ class CentreonGraph
 
     /**
      * @throws Exception
-     * @return array|string|string[]|void|null
+     * @return string|void
      */
     public function displayImageFlow()
     {
-        $commandLine = '';
+        if ($this->checkcurve) {
+            return $this->getImageData();
+        }
 
-        // Send header
+        $imageData = $this->getImageData();
+        // Prevent PHP warnings from corrupting the binary image response (they still reach the error log).
+        ob_start();
+        $validImage = $imageData !== null && getimagesizefromstring($imageData) !== false;
+        ob_end_clean();
+        if ($validImage) {
+            // Force no compress for image
+            $this->setHeaders(false, mb_strlen($imageData, '8bit'));
+            echo $imageData;
+        } else {
+            self::displayError();
+        }
+    }
+
+    /**
+     * Generate the graph image and return its binary PNG data.
+     *
+     * @return string|null PNG binary data, or the RRDtool command line when checkcurve is set
+     */
+    public function getImageData()
+    {
+        $commandLine = '';
 
         $this->flushRrdcached($this->listMetricsId);
 
@@ -1216,7 +1239,6 @@ class CentreonGraph
             $gmt_export = 'export TZ=' . escapeshellarg($timezone) . '; ';
         }
         $this->log($commandLine);
-        // Send Binary Data
         if (! $this->checkcurve) {
             if (is_writable($this->generalOpt['debug_path'])) {
                 $stderr = ['file', $this->generalOpt['debug_path'] . '/rrdtool.log', 'a'];
@@ -1245,13 +1267,13 @@ class CentreonGraph
                 $str = stream_get_contents($pipes[1]);
                 $return_value = proc_close($process);
 
-                // Force no compress for image
-                $this->setHeaders(false, mb_strlen($str, '8bit'));
-                echo $str;
+                return ($return_value === 0 && $str !== false) ? $str : null;
             }
-        } else {
-            return $commandLine;
+
+            return null;
         }
+
+        return $commandLine;
     }
 
     /**

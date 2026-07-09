@@ -475,7 +475,7 @@ CREATE TABLE `cfg_centreonbroker` (
   `stats_activate` enum('0','1') DEFAULT '1',
   `daemon` TINYINT(1),
   `pool_size` int(11) DEFAULT NULL,
-  `bbdo_version` varchar(50) DEFAULT '3.0.1',
+  `bbdo_version` varchar(50) DEFAULT '3.1.0',
   PRIMARY KEY (`config_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1652,7 +1652,7 @@ CREATE TABLE `nagios_server` (
   `centreonbroker_module_path` varchar(255) DEFAULT NULL,
   `centreonconnector_path` varchar(255) DEFAULT NULL,
   `ssh_port` int(11) DEFAULT NULL,
-  `gorgone_communication_type` enum('1', '2') NOT NULL DEFAULT '1',
+  `gorgone_communication_type` enum('1', '2', '3', '4') NOT NULL DEFAULT '1' COMMENT '1: SSH, 2: ZMQ, 3: Pull, 4: PullWSS',
   `gorgone_port` int(11) DEFAULT NULL,
   `init_script_centreontrapd` varchar(255) DEFAULT NULL,
   `snmp_trapd_path_conf` varchar(255) DEFAULT NULL,
@@ -1665,9 +1665,9 @@ CREATE TABLE `nagios_server` (
   `vmware_updated` BOOLEAN NOT NULL DEFAULT 0,
   `is_encryption_ready` BOOLEAN NOT NULL DEFAULT 1,
   `poller_type` enum('vm','docker') NOT NULL DEFAULT 'vm',
-  `uuid` VARCHAR(36) DEFAULT NULL COMMENT 'UUIDv7 (36 chars with hyphens)',
+  `uid` BIGINT UNSIGNED NOT NULL COMMENT 'Snowflake 64-bit unique identifier',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_uuid` (`uuid`),
+  UNIQUE KEY `uniq_uid` (`uid`),
   CONSTRAINT `nagios_server_remote_id_id` FOREIGN KEY (`remote_id`) REFERENCES `nagios_server` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

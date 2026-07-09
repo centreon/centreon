@@ -1,7 +1,7 @@
 import { Group } from '@visx/visx';
 import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals } from 'ramda';
-import type { MutableRefObject, ReactElement } from 'react';
+import type { MutableRefObject, ReactElement, ReactNode } from 'react';
 
 import { margin } from '../../Chart/common';
 import type { ChartAxis } from '../../Chart/models';
@@ -15,7 +15,7 @@ interface Props {
   allUnits: Array<string>;
   axis?: ChartAxis;
   base?: number;
-  children: JSX.Element;
+  children: ReactNode;
   displayedLines: Array<Line>;
   graphHeight: number;
   graphWidth: number;

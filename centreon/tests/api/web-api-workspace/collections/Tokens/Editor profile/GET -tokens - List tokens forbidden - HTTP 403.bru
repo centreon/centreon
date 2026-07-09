@@ -1,0 +1,26 @@
+meta {
+  name: GET /administration/tokens - List tokens forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/tokens
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Editor cannot list tokens.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

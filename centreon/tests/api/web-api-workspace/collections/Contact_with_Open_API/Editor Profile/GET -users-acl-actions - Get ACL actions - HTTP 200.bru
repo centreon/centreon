@@ -1,0 +1,28 @@
+meta {
+  name: GET /users/acl/actions - Get ACL actions - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/users/acl/actions
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Editor can retrieve ACL actions.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("host").that.is.an("object");
+    expect(body).to.have.property("service").that.is.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

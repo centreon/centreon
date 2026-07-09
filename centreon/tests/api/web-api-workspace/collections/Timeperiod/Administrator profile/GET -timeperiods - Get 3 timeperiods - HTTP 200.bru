@@ -1,0 +1,33 @@
+meta {
+  name: GET /timeperiods - Get 3 timeperiods - HTTP 200
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The timeperiods list contains the 3 created timeperiods.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body.result).to.be.an("array");
+
+    const ids = body.result.map(tp => tp.id);
+    expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod1Id")));
+    expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod2Id")));
+    expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod3Id")));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

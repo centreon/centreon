@@ -27,9 +27,10 @@ foreach ($mockedPathConstants as $mockedPathConstant) {
     }
 }
 
+// Keep _CENTREON_MARIA_DB_MIN_VERSION_ in sync with config/centreon.config.php.template (source of truth).
 $mockedPreRequisiteConstants = [
-    '_CENTREON_PHP_VERSION_' => '8.2',
-    '_CENTREON_MARIA_DB_MIN_VERSION_' => '10.5',
+    '_CENTREON_PHP_VERSION_' => '8.4',
+    '_CENTREON_MARIA_DB_MIN_VERSION_' => '11.8',
 ];
 foreach ($mockedPreRequisiteConstants as $mockedPreRequisiteConstant => $value) {
     if (! defined($mockedPreRequisiteConstant)) {

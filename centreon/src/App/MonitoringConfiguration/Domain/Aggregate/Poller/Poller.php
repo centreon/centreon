@@ -44,7 +44,7 @@ final class Poller extends AggregateRoot
         public readonly bool $isDefault,
         public readonly bool $isActivated,
         public readonly PollerTypeEnum $pollerType,
-        public readonly ?PollerUuid $uuid,
+        public readonly PollerUid $uid,
         public readonly Collection $globalMacros,
         public readonly GorgoneConfiguration $gorgoneConfiguration,
         public readonly EngineConfiguration $engineConfiguration,

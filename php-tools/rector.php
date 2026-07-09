@@ -33,4 +33,7 @@ return $rectorConfig
         // files
         __DIR__ . '/.php-cs-fixer.php',
         __DIR__ . '/rector.php',
+    ])
+    ->withSkip([
+        __DIR__ . '/php-cs-fixer/src/Php82MbStrFunctionsFixer.php', // conflicts with fully_qualified_strict_types cs-fixer rule on phpdoc generics
     ]);

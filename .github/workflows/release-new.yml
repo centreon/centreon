@@ -38,6 +38,11 @@ jobs:
     needs: [dependency-scan]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
+    env:
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      RELEASE_NUMBER: ${{ inputs.release_number }}
+      RELEASE_TYPE: ${{ inputs.release_type }}
+      RELEASE_SCOPE: ${{ inputs.release_scope }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -46,8 +51,8 @@ jobs:
 
       - name: Fight against empty inputs
         run: |
-          if [[ -z "${{ inputs.release_branch }}" || -z "${{ inputs.release_number }}" ]]; then
-            echo "Invalid inputs were given for release-branch (${{ inputs.release_branch }}) or release-number (${{ inputs.release_number }}). Exiting."
+          if [[ -z "$RELEASE_BRANCH" || -z "$RELEASE_NUMBER" || "$RELEASE_NUMBER" == "00000000" ]]; then
+            echo "Invalid inputs were given for release-branch ($RELEASE_BRANCH) or release-number ($RELEASE_NUMBER). Exiting."
             exit 1
           else
             echo "Inputs are not empty."
@@ -56,11 +61,10 @@ jobs:
       - name: Check release branch and release type inputs coherence
         run: |
           # Extract release branch prefix
-          RELEASE_BRANCH="${{ inputs.release_branch }}"
           RELEASE_BRANCH_PREFIX="${RELEASE_BRANCH%%-*}"
 
-          echo "Checking inputs coherence against $RELEASE_BRANCH <> ${{ inputs.release_branch }}..."
-          if [[ "$RELEASE_BRANCH_PREFIX" == "${{ inputs.release_type }}" ]]; then
+          echo "Checking inputs coherence on $RELEASE_BRANCH..."
+          if [[ "$RELEASE_BRANCH_PREFIX" == "$RELEASE_TYPE" ]]; then
             echo "Inputs are ok, continue."
           else
             echo "Inputs are NOT ok, exiting."
@@ -70,15 +74,15 @@ jobs:
       - name: Check if release or hotfix branch exists
         run: |
           echo "Given inputs:"
-          echo "Release branch: ${{ inputs.release_branch }}"
-          echo "Release number: ${{ inputs.release_number }}"
-          echo "Release type: ${{ inputs.release_type }}"
-          echo "Release scope: ${{ inputs.release_scope }}"
+          echo "Release branch: $RELEASE_BRANCH"
+          echo "Release number: $RELEASE_NUMBER"
+          echo "Release type: $RELEASE_TYPE"
+          echo "Release scope: $RELEASE_SCOPE"
           echo "Checking for release branch based on workflow input..."
-          if git ls-remote --exit-code --heads origin "refs/heads/${{ inputs.release_branch }}"; then
-            echo "Branch ${{ inputs.release_branch }} does exist, using it as reference for versions."
+          if git ls-remote --exit-code --heads origin "refs/heads/$RELEASE_BRANCH"; then
+            echo "Branch $RELEASE_BRANCH does exist, using it as reference for versions."
           else
-            echo "Branch ${{ inputs.release_branch }} does not exist, exiting."
+            echo "Branch $RELEASE_BRANCH does not exist, exiting."
             exit 1
           fi
         shell: bash
@@ -89,6 +93,10 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       new_release_bundle_tag: ${{ steps.build_release_bundle_tag.outputs.new_release_bundle_tag }}
+    env:
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      RELEASE_NUMBER: ${{ inputs.release_number }}
+      RELEASE_SCOPE: ${{ inputs.release_scope }}
 
     steps:
       - name: Checkout sources
@@ -107,13 +115,13 @@ jobs:
           # MM is month
           # NN is stable release iteration number (00 is always the first one)
           # AA.BB is major version (ex: 25.05)
-          NEW_RELEASE_BUNDLE_TAG="release-${{ inputs.release_scope }}-${{ inputs.release_number }}"
+          NEW_RELEASE_BUNDLE_TAG="release-$RELEASE_SCOPE-$RELEASE_NUMBER"
 
           # Extract major version from release_branch input
-          MAJOR_VERSION=$(echo "${{ inputs.release_branch }}" | cut -d "-" -f2)
+          MAJOR_VERSION=$(echo "$RELEASE_BRANCH" | cut -d "-" -f2)
 
           # Concatenate final NEW_RELEASE_BUNDLE_TAG
-          NEW_RELEASE_BUNDLE_TAG="release-${{ inputs.release_scope }}-${{ inputs.release_number }}-$MAJOR_VERSION"
+          NEW_RELEASE_BUNDLE_TAG="release-$RELEASE_SCOPE-$RELEASE_NUMBER-$MAJOR_VERSION"
 
           # Output to GITHUB_ENV
           echo "new_release_bundle_tag=$NEW_RELEASE_BUNDLE_TAG" >> "$GITHUB_OUTPUT"
@@ -125,12 +133,12 @@ jobs:
           set -eu
           # Check if github.ref is develop or dev-xxx branches where workflow and action are hosted
           # This must never run on any other ref than develop or dev-xxx
-          if [[ "${{ github.ref_name }}" == 'develop' ]]; then
-            echo "[DEBUG] ref hosting release workflow is valid: ${{ github.ref_name }}"
-          elif  [[ "${{ github.ref_name }}" =~ ^dev-[2-9][0-9].[0-9][0-9].x ]]; then
-            echo "[DEBUG] ref hosting release workflow is valid: ${{ github.ref_name }}"
+          if [[ "$GITHUB_REF_NAME" == 'develop' ]]; then
+            echo "[DEBUG] ref hosting release workflow is valid: $GITHUB_REF_NAME"
+          elif [[ "$GITHUB_REF_NAME" =~ ^dev-[2-9][0-9]\.[0-9][0-9]\.x$ ]]; then
+            echo "[DEBUG] ref hosting release workflow is valid: $GITHUB_REF_NAME"
           else
-            echo "::error::ref hosting release workflow is not valid (${{ github.ref }}), please use develop or dev-xxx branch, exiting."
+            echo "::error::ref hosting release workflow is not valid ($GITHUB_REF), please use develop or dev-xxx branch, exiting."
             exit 1
           fi
         shell: bash

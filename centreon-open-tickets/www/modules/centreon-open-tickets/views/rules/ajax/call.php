@@ -20,7 +20,6 @@
  */
 
 require_once __DIR__ . '/../../../centreon-open-tickets.conf.php';
-require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/providers/register.php';
 require_once $centreon_path . 'www/class/centreonXMLBGRequest.class.php';
@@ -52,6 +51,13 @@ if (! isset($_POST['data']) && ! isset($_REQUEST['action'])) {
         ? $get_information['action'] : ($_REQUEST['action'] ?? 'none');
     if (! isset($actions[$action])) {
         $resultat = ['code' => 1, 'msg' => 'Action not good.'];
+    } elseif (
+        in_array($action, ['get-form-config', 'save-form-config', 'validate-format-popup'], true)
+        && $centreon->user->access->page(60420) === CentreonACL::ACL_ACCESS_NONE
+    ) {
+        // Rule configuration actions require access to the Open Tickets "Rules"
+        // page (topology 60420); a bare authenticated session is not enough.
+        $resultat = ['code' => 1, 'msg' => 'Insufficient privileges.'];
     } else {
         include $actions[$action];
     }

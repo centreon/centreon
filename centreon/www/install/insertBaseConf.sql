@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '26.07.0');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '26.09.0');
 
 --
 -- Contenu de la table `contact`
@@ -490,7 +490,8 @@ INSERT INTO `cb_log` (`id`, `name`) VALUES
 (14, 'influxdb'),
 (15, 'graphite'),
 (16, 'victoria_metrics'),
-(17, 'stats');
+(17, 'stats'),
+(18, 'event_script');
 
 --
 -- Contenu de la table `cb_log_level`

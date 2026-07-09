@@ -21,6 +21,7 @@
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Log\LoggerUpgrade;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -32,72 +33,48 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-/** ------------------------------------- Additional configuration ------------------------------------- */
-$addVmwareUpdatedField = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add vmware_updated field into nagios_server table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Adding vmware_updated field into nagios_server table",
-    );
-    if ($pearDB->columnExists(
-        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
-        'nagios_server',
-        'vmware_updated'
-    )) {
-        CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: Field vmware_updated already exists in nagios_server table, skipping modification",
-        );
 
-        return;
-    }
-
-    $pearDB->executeStatement(
-        <<<'SQL'
-            ALTER TABLE `nagios_server`
-            ADD COLUMN `vmware_updated` BOOLEAN NOT NULL DEFAULT 0 AFTER `updated`
-            SQL
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Successfully added vmware_updated field into nagios_server table",
-    );
-};
+// TODO add your functions here
 
 try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
     // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    $addVmwareUpdatedField();
+    // TODO add your function calls to update the configuration database structure here
+
     // Transactional queries for configuration database
+    $errorMessage = 'Unable to start the configuration database transaction';
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
+    // TODO add your function calls to update the configuration database data here
+
+    $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
 
-} catch (Throwable $throwable) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $throwable
-    );
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
+} catch (Throwable $throwable) {
     try {
         if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
             $pearDB->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            exception: $rollbackException
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $rollbackException
         );
 
         throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            previous: $rollbackException
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
         );
     }
 

@@ -1,0 +1,27 @@
+meta {
+  name: GET /platform/installation/status - Get platform installation status - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/platform/installation/status
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Editor can read platform installation status.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

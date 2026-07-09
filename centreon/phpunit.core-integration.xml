@@ -1,35 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
-         bootstrap="tests/php/integration-bootstrap.php"
-         cacheResultFile=".phpunit.core-integration.cache/test-results"
-         executionOrder="depends,defects"
-         beStrictAboutOutputDuringTests="true"
-         failOnRisky="true"
-         failOnWarning="true">
-
-    <testsuites>
-        <testsuite name="core_integration">
-            <directory>tests/php/Core/Integration</directory>
-        </testsuite>
-    </testsuites>
-
-    <php>
-        <ini name="display_errors" value="1" />
-        <ini name="error_reporting" value="-1" />
-        <const name="INTEGRATION_BOOTSTRAP" value="true" />
-        <server name="APP_ENV" value="test" force="true" />
-        <server name="KERNEL_CLASS" value="App\Kernel" />
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;quiet[]=indirect&amp;quiet[]=other" />
-        <server name="SHELL_VERBOSITY" value="-1" />
-        <const name="_CENTREON_LOG_" value="/tmp/centreon-test-logs/" />
-        <const name="_CENTREON_CACHEDIR_" value="/tmp/centreon-test-cache/" />
-        <const name="_CENTREON_VARLIB_" value="/tmp/centreon-test-varlib/" />
-        <const name="_CENTREON_PHP_VERSION_" value="8.2" />
-        <const name="_CENTREON_MARIA_DB_MIN_VERSION_" value="10.5" />
-    </php>
-
-    <!-- No DAMA extension: DatabaseConnection extends PDO and cannot be wrapped by DAMA.
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd" bootstrap="tests/php/integration-bootstrap.php" executionOrder="depends,defects" beStrictAboutOutputDuringTests="true" failOnRisky="true" failOnWarning="true">
+  <testsuites>
+    <testsuite name="core_integration">
+      <directory>tests/php/Core/Integration</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="display_errors" value="1"/>
+    <ini name="error_reporting" value="-1"/>
+    <const name="INTEGRATION_BOOTSTRAP" value="true"/>
+    <server name="APP_ENV" value="test" force="true"/>
+    <server name="KERNEL_CLASS" value="App\Kernel"/>
+    <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;quiet[]=indirect&amp;quiet[]=other"/>
+    <server name="SHELL_VERBOSITY" value="-1"/>
+    <const name="_CENTREON_LOG_" value="/tmp/centreon-test-logs/"/>
+    <const name="_CENTREON_CACHEDIR_" value="/tmp/centreon-test-cache/"/>
+    <const name="_CENTREON_VARLIB_" value="/tmp/centreon-test-varlib/"/>
+    <const name="_CENTREON_PHP_VERSION_" value="8.4"/>
+    <!-- Keep in sync with _CENTREON_MARIA_DB_MIN_VERSION_ in config/centreon.config.php.template (source of truth). -->
+    <const name="_CENTREON_MARIA_DB_MIN_VERSION_" value="11.8"/>
+  </php>
+  <!-- No DAMA extension: DatabaseConnection extends PDO and cannot be wrapped by DAMA.
          Test isolation is handled via manual transactions in CoreApiTestCase. -->
-
 </phpunit>

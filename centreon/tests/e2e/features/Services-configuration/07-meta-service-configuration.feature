@@ -7,17 +7,21 @@ Feature: Edit a meta service
     Given a user is logged in Centreon
     And a meta service is configured
 
-  @TEST_MON-151571
+  @MON-151571
   Scenario: Change the properties of a meta service
     When the user changes the properties of a meta service
     Then the properties are updated
 
-  @TEST_MON-151572
+  @MON-151572
   Scenario: Duplicate one existing meta service
     When the user duplicates a meta service
     Then the new meta service has the same properties
 
-  @TEST_MON-151573
+  @MON-151573
   Scenario: Delete one existing meta service
     When the user deletes a meta service
     Then the deleted meta service is not displayed in the list
+
+  Scenario: Filter the configuration services list by service type
+    When the configuration services list is requested for each selection filter
+    Then services and meta services are returned according to the selected filter

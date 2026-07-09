@@ -99,18 +99,11 @@ runs:
         export VERSION="$INPUT_MAJOR_VERSION.$INPUT_MINOR_VERSION"
         export RELEASE="$INPUT_RELEASE"
         export ARCH="$INPUT_ARCH"
-        if [[ -n "$INPUT_PHP_VERSION" ]]; then
-          PHP_MINOR=$(echo "$INPUT_PHP_VERSION" | cut -d'.' -f2)
-          PHP_NEXT_MINOR=$((PHP_MINOR + 1))
-          export PHP_MIN_VERSION="$INPUT_PHP_VERSION"
-          export PHP_MAX_VERSION="8.${PHP_NEXT_MINOR}"
-        elif [[ "$INPUT_PACKAGE_DISTRIB_NAME" == "el9" ]]; then
-          export PHP_MIN_VERSION="8.2"
-          export PHP_MAX_VERSION="8.3"
-        elif [[ "$INPUT_PACKAGE_DISTRIB_NAME" == "el10" || "$INPUT_PACKAGE_DISTRIB_NAME" == "deb13u1" ]]; then
-          export PHP_MIN_VERSION="8.4"
-          export PHP_MAX_VERSION="8.5"
-        fi
+
+        PHP_MINOR=$(echo "$INPUT_PHP_VERSION" | cut -d'.' -f2)
+        PHP_NEXT_MINOR=$((PHP_MINOR + 1))
+        export PHP_MIN_VERSION="$INPUT_PHP_VERSION"
+        export PHP_MAX_VERSION="8.${PHP_NEXT_MINOR}"
 
         if  [ "$INPUT_PACKAGE_EXTENSION" = "rpm" ]; then
           export DIST="$INPUT_PACKAGE_DISTRIB_SEPARATOR$INPUT_PACKAGE_DISTRIB_NAME"
@@ -130,7 +123,7 @@ runs:
           BUMP_MAJOR_RIGHT="01"
         else
           BUMP_MAJOR_LEFT=$MAJOR_LEFT
-          BUMP_MAJOR_RIGHT=$(( $MAJOR_RIGHT + 1 ))
+          BUMP_MAJOR_RIGHT=$(( 10#$MAJOR_RIGHT + 1 ))
         fi
 
         export NEXT_MAJOR_VERSION="$BUMP_MAJOR_LEFT.$BUMP_MAJOR_RIGHT"
@@ -139,6 +132,7 @@ runs:
         export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
         export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
 
+        REPO_ROOT=$(pwd)
         for FILE in $INPUT_NFPM_FILE_PATTERN; do
           DIRNAME=$(dirname $FILE)
           BASENAME=$(basename $FILE)
@@ -154,6 +148,22 @@ runs:
           if [[ -n "$PHP_MIN_VERSION" ]]; then
             grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g" || true
           fi
+          if [[ "$INPUT_PACKAGE_EXTENSION" == "deb" ]]; then
+            PKG_LICENSE=$(grep '^license:' "$BASENAME" | head -1 | sed 's/^license: *//;s/"//g' | xargs)
+            COPYRIGHT_SRC=""
+            if [[ -f "${REPO_ROOT}/copyright.${PKG_LICENSE}" ]]; then
+              COPYRIGHT_SRC="${REPO_ROOT}/copyright.${PKG_LICENSE}"
+            else
+              for candidate in "${REPO_ROOT}/LICENSE.md" "${REPO_ROOT}/LICENSE"; do
+                [[ -f "$candidate" ]] && COPYRIGHT_SRC="$candidate" && break
+              done
+            fi
+            if [[ -n "$COPYRIGHT_SRC" ]]; then
+              cp "$COPYRIGHT_SRC" ./copyright
+              PACKAGE_NAME=$(grep '^name:' "$BASENAME" | head -1 | sed 's/^name: *//;s/"//g' | xargs)
+              awk -v pkg="$PACKAGE_NAME" 'BEGIN{in_contents=0;injected=0} /^contents:/{in_contents=1} in_contents && /^[a-z]/ && !/^contents:/ && !injected{print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1; in_contents=0} {print} END{if(!injected){if(!in_contents){print "contents:"} print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"}}' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
+            fi
+          fi
           nfpm package --config $BASENAME --packager "$INPUT_PACKAGE_EXTENSION"
           cd -
           mv $DIRNAME/*."$INPUT_PACKAGE_EXTENSION" ./
@@ -161,7 +171,7 @@ runs:
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}

@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/services/categories - List service categories - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/services/categories
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Administrator profile can list real-time service categories.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -3,7 +3,16 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import IconButton from '@mui/material/IconButton';
-import type { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
+
+type TablePaginationActionsProps = {
+  count: number;
+  onPageChange: (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    page: number
+  ) => void;
+  page: number;
+  rowsPerPage: number;
+};
 
 import { useTranslation } from 'react-i18next';
 

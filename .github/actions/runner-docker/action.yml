@@ -20,5 +20,11 @@ runs:
   using: "composite"
 
   steps:
-    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/.github/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" docker.centreon.com/centreon/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
+    - env:
+        CENTREON_PAT: ${{ inputs.centreon_pat }}
+        SCRIPT_NAME: ${{ inputs.script_name }}
+        IMAGE_NAME: ${{ inputs.image_name }}
+        IMAGE_VERSION: ${{ inputs.image_version }}
+        PARAMS: ${{ inputs.params }}
+      run: docker run -i -e "TOKEN=$CENTREON_PAT" --entrypoint "/src/.github/scripts/$SCRIPT_NAME.sh" -v "$PWD:/src" "docker.centreon.com/centreon/$IMAGE_NAME:$IMAGE_VERSION" $PARAMS
       shell: bash

@@ -14277,7 +14277,7 @@ msgstr ""
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
 
@@ -25383,6 +25383,13 @@ msgstr "periodo de tiempo"
 msgid "topology_name"
 msgstr "Nombre de la topología."
 
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+msgstr ""
 
 #: unknown
 # msgid "Create new poller"

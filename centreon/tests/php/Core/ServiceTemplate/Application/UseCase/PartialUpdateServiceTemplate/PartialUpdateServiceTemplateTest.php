@@ -39,6 +39,7 @@ use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -89,6 +90,7 @@ beforeEach(closure: function (): void {
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
     );
 });
 
@@ -652,8 +654,8 @@ it('should load command macros from an inherited template command when the servi
         ->with($serviceTemplateId)
         ->willReturn($serviceTemplate);
 
-    $this->writeVaultRepository
-        ->method('isVaultConfigured')
+    $this->vaultEligibilityService
+        ->method('shouldUseVault')
         ->willReturn(false);
 
     $this->storageEngine
@@ -706,6 +708,48 @@ it('should load command macros from an inherited template command when the servi
     $this->writeServiceMacroRepository
         ->expects($this->never())
         ->method('update');
+
+    ($this->useCase)($request, $this->presenter);
+
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should call linkToHosts once with deduplicated IDs when host_templates contains duplicates', function (): void {
+    $request = new PartialUpdateServiceTemplateRequest(1);
+    $request->hostTemplates = [1, 1];
+    $accessGroups = [9, 11];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturnMap([[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]]);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->with($this->user)
+        ->willReturn($accessGroups);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIdAndAccessGroups')
+        ->with($request->id)
+        ->willReturn(new ServiceTemplate(1, 'fake_name', 'fake_alias'));
+
+    $this->validation
+        ->expects($this->once())
+        ->method('assertHostTemplateIds')
+        ->with($request->hostTemplates);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('unlinkHosts')
+        ->with($request->id);
+
+    $this->writeServiceTemplateRepository
+        ->expects($this->once())
+        ->method('linkToHosts')
+        ->with($request->id, [1]);
 
     ($this->useCase)($request, $this->presenter);
 

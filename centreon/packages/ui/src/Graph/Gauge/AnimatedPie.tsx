@@ -8,6 +8,8 @@ import type { Thresholds } from '../common/models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
 
+const AnimatedPath = animated('path');
+
 const fromLeaveTransition = ({
   endAngle
 }: {
@@ -63,7 +65,7 @@ const AnimatedPie = <Datum,>({
 
   return transitions((props, arc, { key }) => (
     <g key={key}>
-      <animated.path
+      <AnimatedPath
         d={to([props.startAngle, props.endAngle], (startAngle, endAngle) =>
           path({
             ...arc,

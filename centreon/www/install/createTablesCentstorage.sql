@@ -231,7 +231,7 @@ UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `nagios_stats` (
-  `instance_id` int(11) NOT NULL,
+  `instance_id` BIGINT UNSIGNED NOT NULL,
   `stat_key` varchar(255) NOT NULL,
   `stat_value` varchar(255) NOT NULL,
   `stat_label` varchar(255) NOT NULL
@@ -332,6 +332,7 @@ CREATE TABLE `resources` (
   `icon_id` bigint(20) unsigned DEFAULT NULL,
   `flapping` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=false, 1=true',
   `percent_state_change` float DEFAULT NULL,
+  `is_module` tinyint(1) GENERATED ALWAYS AS (CASE WHEN `name` LIKE '_Module_%' OR `parent_name` LIKE '_Module_BAM%' THEN 1 ELSE 0 END) VIRTUAL COMMENT 'computed flag: 1 if internal Module/BAM resource to exclude from listings',
   PRIMARY KEY (`resource_id`),
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
@@ -339,6 +340,10 @@ CREATE TABLE `resources` (
   INDEX `resources_id_index` (`id`),
   INDEX `resources_parent_id_index` (`parent_id`),
   INDEX `resources_enabled_type_index` (`enabled`, `type`),
+  INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC, `resource_id` DESC),
+  INDEX `resources_status_filter_idx` (`enabled`, `status`, `type`, `is_module`, `acknowledged`, `in_downtime`, `status_confirmed`, `poller_id`),
+  INDEX `resources_name_search_idx` (`enabled`, `type`, `is_module`, `poller_id`, `name`),
+  INDEX `resources_severity_filter_idx` (`severity_id`, `enabled`, `is_module`, `type`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

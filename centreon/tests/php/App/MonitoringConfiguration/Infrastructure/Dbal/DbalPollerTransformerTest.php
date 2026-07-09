@@ -54,8 +54,7 @@ final class DbalPollerTransformerTest extends TestCase
         self::assertFalse($poller->isDefault);
         self::assertTrue($poller->isActivated);
         self::assertSame(PollerTypeEnum::VM, $poller->pollerType);
-        self::assertNotNull($poller->uuid);
-        self::assertSame('0194fdc2-fa2f-7cc3-9800-1b2c3d4e5f6a', $poller->uuid->value);
+        self::assertSame(123456789012345, $poller->uid->value);
 
         self::assertSame('/usr/sbin/centengine', $poller->engineConfiguration->startCommand);
         self::assertSame('/usr/sbin/centengine -s', $poller->engineConfiguration->stopCommand);
@@ -84,7 +83,6 @@ final class DbalPollerTransformerTest extends TestCase
     public function testTransformWithNullableFields(): void
     {
         $row = $this->buildRow([
-            'poller_uuid' => null,
             'engine_start_command' => null,
             'engine_stop_command' => null,
             'engine_restart_command' => null,
@@ -105,7 +103,6 @@ final class DbalPollerTransformerTest extends TestCase
 
         $poller = $this->transformer->transform($row);
 
-        self::assertNull($poller->uuid);
         self::assertNull($poller->engineConfiguration->startCommand);
         self::assertNull($poller->engineConfiguration->binaryPath);
         self::assertNull($poller->engineConfiguration->statisticsBinaryPath);
@@ -150,7 +147,7 @@ final class DbalPollerTransformerTest extends TestCase
             'is_default' => 0,
             'is_activated' => '1',
             'poller_type' => 'vm',
-            'poller_uuid' => '0194fdc2-fa2f-7cc3-9800-1b2c3d4e5f6a',
+            'poller_uid' => 123456789012345,
             'gorgone_communication_type' => '1',
             'gorgone_port' => 5557,
             'ssh_port' => 2222,

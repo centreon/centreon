@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add generictext widget - HTTP 204
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-generictext",
+        "widget_type": "/widgets/generictext",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{},\"options\":{\"name\":\"New generic text widget\",\"description\":{\"enabled\":true,\"content\":\"\"}}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Generictext widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -52,7 +52,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_default: int,
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
- *   poller_uuid: string|null,
+ *   poller_uid: int,
  *   gorgone_communication_type: '1'|'2',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
@@ -80,7 +80,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_default: int,
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
- *   poller_uuid: string|null,
+ *   poller_uid: int,
  *   gorgone_communication_type: '1'|'2',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
@@ -146,7 +146,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                     'is_default' => ':is_default',
                     'ns_activate' => ':is_activated',
                     'poller_type' => ':poller_type',
-                    'uuid' => ':uuid',
+                    'uid' => ':uid',
                     'gorgone_communication_type' => ':gorgone_communication_type',
                     'gorgone_port' => ':gorgone_port',
                     'ssh_port' => ':ssh_port',
@@ -172,7 +172,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_default', $poller->isDefault ? 1 : 0)
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
-                ->setParameter('uuid', $poller->uuid?->value)
+                ->setParameter('uid', $poller->uid->value)
                 ->setParameter('gorgone_communication_type', $poller->gorgoneConfiguration->communicationType->value)
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
@@ -199,8 +199,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
             }
         } catch (UniqueConstraintViolationException $exception) {
-            $field = str_contains($exception->getMessage(), 'uniq_uuid') ? 'uuid' : 'name';
-            $value = $field === 'uuid' ? $poller->uuid?->value : $poller->name->value;
+            $field = str_contains($exception->getMessage(), 'uniq_uid')
+                ? 'uid' : 'name';
+            $value = $field === 'uid' ? $poller->uid->value : $poller->name->value;
 
             throw new PollerAlreadyExistsException([$field => $value], previous: $exception);
         }
@@ -340,7 +341,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.is_default AS is_default",
             "{$alias}.ns_activate AS is_activated",
             "{$alias}.poller_type AS poller_type",
-            "{$alias}.uuid AS poller_uuid",
+            "{$alias}.uid AS poller_uid",
             "{$alias}.gorgone_communication_type AS gorgone_communication_type",
             "{$alias}.gorgone_port AS gorgone_port",
             "{$alias}.ssh_port AS ssh_port",
@@ -371,8 +372,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->setParameter('poller_id', $poller->id()->value);
 
         $row = $qb->executeQuery()->fetchAssociative() ?: [];
-        $certSha = $row['certificate_sha'] ?? null;
-        $certCn = $row['certificate_cn'] ?? null;
+        $certSha = ($row['certificate_sha'] ?? '') !== '' ? $row['certificate_sha'] : null;
+        $certCn = ($row['certificate_cn'] ?? '') !== '' ? $row['certificate_cn'] : null;
         $poller->addPollerCMACertificates(
             new PollerCMACertificates(
                 certificateSha: is_string($certSha) ? new CMACertificateSHA($certSha) : null,

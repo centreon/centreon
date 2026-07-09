@@ -459,13 +459,14 @@ Output:\n${displayedOutput}`);
 
 interface RequestOnDatabaseProps {
   database: string;
+  params?: Array<string | number>;
   query: string;
 }
 
 Cypress.Commands.add(
   'requestOnDatabase',
-  ({ database, query }: RequestOnDatabaseProps): Cypress.Chainable => {
-    return cy.task('requestOnDatabase', { database, query });
+  ({ database, query, params }: RequestOnDatabaseProps): Cypress.Chainable => {
+    return cy.task('requestOnDatabase', { database, query, params });
   }
 );
 
@@ -642,8 +643,8 @@ Cypress.Commands.add(
     cy.log(`Getting logs from container ${name} ...`);
 
     return cy.getLogDirectory().then((logDirectory) => {
-      let sourcePhpLogs = '/var/log/php8.2-fpm-centreon-error.log';
-      let targetPhpLogs = `${logDirectory}/php8.2-fpm-centreon-error.log`;
+      let sourcePhpLogs = '/var/log/centreon/prod.web.log';
+      let targetPhpLogs = `${logDirectory}/prod.web.log`;
       let sourceApacheLogs = '/var/log/apache2';
       let targetApacheLogs = `${logDirectory}/apache2`;
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
@@ -1046,7 +1047,8 @@ declare global {
       }: NavigateToProps) => Cypress.Chainable;
       requestOnDatabase: ({
         database,
-        query
+        query,
+        params
       }: RequestOnDatabaseProps) => Cypress.Chainable;
       setUserTokenApiV1: ({
         login,

@@ -1,0 +1,37 @@
+meta {
+  name: GET /services/groups - Get 3 service groups - HTTP 200
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Three service groups are listed.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const ids = [
+      parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      parseInt(bru.getEnvVar("ServiceGroup2Id")),
+      parseInt(bru.getEnvVar("ServiceGroup3Id"))
+    ];
+    ids.forEach(id => {
+      expect(body.result.some(r => r.id === id)).to.be.true;
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

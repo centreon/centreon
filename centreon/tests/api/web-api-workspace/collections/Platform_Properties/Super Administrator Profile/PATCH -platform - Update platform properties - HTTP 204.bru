@@ -1,0 +1,47 @@
+meta {
+  name: PATCH /platform - Update platform properties - HTTP 204
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrlWeb}}/platform
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "platformName": "Centreon-Central",
+    "isRemote": false,
+    "address": "127.0.0.1",
+    "centralServerAddress": "127.0.0.1",
+    "apiUsername": "admin",
+    "apiCredentials": "centreon",
+    "apiScheme": "http",
+    "apiPort": 80,
+    "apiPath": "centreon",
+    "peerValidation": false,
+    "proxy": {
+      "host": null,
+      "port": null,
+      "user": null,
+      "password": null
+    }
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Super administrator can update platform properties.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

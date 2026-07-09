@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Proxy\Domain\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 
@@ -42,6 +43,7 @@ class Proxy implements \Stringable
         private string $url,
         readonly private ?int $port = null,
         private ?string $login = null,
+        #[Sensitive]
         private ?string $password = null,
     ) {
         $this->url = trim($this->url);

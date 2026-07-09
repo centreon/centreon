@@ -12983,10 +12983,10 @@ msgstr "La plateforme n'a pas été trouvée"
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
-"Veuillez consulter les fichiers \"upgrade.log\" et \"sql-error.log\" situés "
+"Veuillez consulter les fichiers \"prod.upgrade.log\" et \"prod.web.log\" situés "
 "dans \"%s\" pour plus de détails"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
@@ -25033,6 +25033,13 @@ msgstr "La commande de redémarrage du moteur ne correspond pas au format attend
 msgid "Broker reload command does not match the expected format. Please check the monitoring server configuration."
 msgstr "La commande de rechargement du broker ne correspond pas au format attendu. Veuillez vérifier la configuration du serveur de supervision."
 
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour continuer."
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+msgstr "Chargement en cours..."
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Create new poller"
 msgstr "Créer un nouveau collecteur"

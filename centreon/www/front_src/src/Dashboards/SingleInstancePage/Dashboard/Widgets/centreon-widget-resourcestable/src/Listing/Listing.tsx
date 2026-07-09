@@ -82,6 +82,9 @@ const Listing = ({
     page,
     isLoading,
     data,
+    exactCount,
+    isExactCountLoading,
+    requestExactCount,
     goToResourceStatusPage,
     hasMetaService,
     selectedResources,
@@ -118,6 +121,10 @@ const Listing = ({
     widgetPrefixQuery
   });
 
+  const isApproximate = data?.meta?.is_approximate === true;
+  const showApproximate = isApproximate && exactCount === null;
+  const effectiveTotalRows = exactCount ?? data?.meta?.total;
+
   return (
     <>
       <MemoizedListing
@@ -130,6 +137,7 @@ const Listing = ({
           />
         }
         actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+        approximateTotalRows={showApproximate}
         checkable
         columnConfiguration={{
           selectedColumnIds: (
@@ -143,6 +151,7 @@ const Listing = ({
           equals(status?.severity_code, SeverityCode.High)
         }
         isActionBarVisible={!isOnPublicPage}
+        isApproximateCountLoading={isExactCountLoading}
         limit={limit}
         loading={isLoading}
         memoProps={[
@@ -153,8 +162,12 @@ const Listing = ({
           isLoading,
           columns,
           displayType,
-          selectedResources
+          selectedResources,
+          showApproximate,
+          isExactCountLoading,
+          exactCount
         ]}
+        onApproximateCountClick={requestExactCount}
         onLimitChange={changeLimit}
         onPaginate={changePage}
         onResetColumns={resetColumns}
@@ -174,7 +187,7 @@ const Listing = ({
           labelCollapse: 'Collapse',
           labelExpand: 'Expand'
         }}
-        totalRows={data?.meta?.total}
+        totalRows={effectiveTotalRows}
       />
       {resourcesToAcknowledge.length > 0 && (
         <AcknowledgeForm

@@ -273,7 +273,7 @@ paths:
         '302':
           description: Found
   /authentication/logout:
-    post:
+    get:
       tags:
         - Authentication
       summary: 'Logout Session'
@@ -1979,6 +1979,12 @@ paths:
       tags:
         - Resource
       summary: 'List all resources including hosts and services'
+      x-remarks: |
+        The `meta.total` field may be approximate when the number of matching resources exceeds 1,000.
+        This is most common when a free-text search spans multiple columns (alias, address, information)
+        because no covering index is available for those columns. In that case `meta.is_approximate` is
+        `true` and `meta.total` is capped at 1,000. To retrieve the exact count, call
+        `GET /monitoring/resources/count` with `all_pages=true` and the same query parameters.
       description: |
         List all the resources in real-time monitoring : hosts and services.
 
@@ -2058,7 +2064,14 @@ paths:
                 type: object
                 properties:
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
-                  meta: { $ref: '#/components/schemas/Meta' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/Meta'
+                      - type: object
+                        properties:
+                          is_approximate:
+                            type: boolean
+                            description: 'True when the result set exceeds 1,000 matching resources and the full count was not computed to avoid a costly full-table scan. meta.total is capped at 1,000. Call GET /monitoring/resources/count with all_pages=true and the same filters to retrieve the exact count.'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -4915,44 +4928,51 @@ paths:
       tags:
         - Command
       responses:
-        '403':
-          description: 'You are not allowed to duplicate commands'
         '200':
-          description: 'Command resource created'
+          description: 'A collection holding the duplication outcome for each requested command'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/DuplicateCommandResource.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DuplicateCommandResource'
+                type: object
+                properties:
+                  '@context': { type: string }
+                  '@id': { type: string }
+                  '@type': { type: string, example: Collection }
+                  totalItems: { type: integer }
+                  member: { type: array, items: { type: object, properties: { '@id': { type: string }, '@type': { type: string, example: DuplicateCommandResource }, command: { type: string, description: 'IRI of the duplicated command (absent when the duplication failed)' }, status: { type: integer }, message: { type: string } }, required: ['@id', '@type', status, message] } }
+              example:
+                '@context': /centreon/api/latest/contexts/Command
+                '@id': /centreon/api/latest/.well-known/genid/b69ebebaa3bb3de34dd8
+                '@type': Collection
+                totalItems: 2
+                member:
+                  - { '@id': /centreon/api/latest/.well-known/genid/c2afa2366f6f99491863, '@type': DuplicateCommandResource, command: /centreon/api/latest/configuration/commands/98, status: 204, message: 'Command duplicated successfully' }
+                  - { '@id': /centreon/api/latest/.well-known/genid/3fa305a034165257c384, '@type': DuplicateCommandResource, status: 404, message: 'Command with ID 99999 not found' }
           links: {  }
         '400':
-          description: 'Invalid input'
+          description: 'Invalid input — the request body failed validation'
           content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-        '422':
-          description: 'An error occurred'
+                type: object
+                properties:
+                  code: { type: integer, example: 400 }
+                  message: { type: string, description: 'One line per violation, formatted as "[propertyPath] message"', example: "[ids] IDs array cannot be empty\n" }
+                required:
+                  - code
+                  - message
+        '403':
+          description: 'You are not allowed to duplicate commands'
           content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
             application/json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
+                type: object
+                properties:
+                  code: { type: integer, example: 0 }
+                  message: { type: string, example: 'You are not allowed to duplicate commands' }
+                required:
+                  - code
+                  - message
       summary: 'Duplicate a Command resource'
       description: 'Duplicate a Command resource'
       parameters: []
@@ -5110,10 +5130,10 @@ paths:
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/Poller.jsonld-poller.read'
+                $ref: '#/components/schemas/Poller.jsonld'
             application/json:
               schema:
-                $ref: '#/components/schemas/Poller-poller.read'
+                $ref: '#/components/schemas/Poller'
           links: {  }
         '400':
           description: 'Invalid input'
@@ -5162,11 +5182,53 @@ paths:
         content:
           application/ld+json:
             schema:
-              $ref: '#/components/schemas/Poller-poller.write'
+              $ref: '#/components/schemas/Poller.CreatePollerInput'
           application/json:
             schema:
-              $ref: '#/components/schemas/Poller-poller.write'
+              $ref: '#/components/schemas/Poller.CreatePollerInput'
         required: true
+  '/configuration/pollers/installation-command/{id}':
+    get:
+      operationId: api_configurationpollersinstallation-command_id_get
+      tags:
+        - Poller
+      responses:
+        '404':
+          description: 'Poller not found'
+        '403':
+          description: 'You are not allowed to access this resource'
+        '200':
+          description: 'InstallationCommandResource resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Poller.InstallationCommandResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poller.InstallationCommandResource'
+      summary: 'Retrieves a poller installation command'
+      description: 'Retrieves a poller installation command'
+      parameters:
+        -
+          name: token-name
+          in: query
+          description: 'Name of the poller token to embed in the installation command. When omitted, the first valid poller token is used.'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: id
+          in: path
+          description: 'Id of the poller for which to generate the installation command.'
+          required: true
+          deprecated: false
+          schema:
+            type: integer
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:
@@ -9908,7 +9970,7 @@ components:
         id:
           type: integer
           nullable: true
-        uuid:
+        uid:
           type: string
           nullable: true
     Poller-poller.write:
@@ -9950,7 +10012,7 @@ components:
             id:
               type: integer
               nullable: true
-            uuid:
+            uid:
               type: string
               nullable: true
     StandardMacro:
@@ -9983,3 +10045,85 @@ components:
           $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
+    Poller:
+      type: object
+      properties:
+        name:
+          type: string
+        poller_type:
+          type: string
+        address:
+          type: string
+        id:
+          type: integer
+          nullable: true
+        uid:
+          type: string
+          nullable: true
+        installation_command:
+          type: string
+          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+          nullable: true
+    Poller.CreatePollerInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        poller_token_name:
+          minLength: 1
+          maxLength: 255
+          type: string
+      required:
+        - poller_token_name
+    Poller.InstallationCommandResource:
+      type: object
+      properties:
+        installation_command:
+          description: 'Poller Installation Command'
+          type: string
+          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    Poller.InstallationCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            installation_command:
+              description: 'Poller Installation Command'
+              type: string
+              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    Poller.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              type: string
+            poller_type:
+              type: string
+            address:
+              type: string
+            id:
+              type: integer
+              nullable: true
+            uid:
+              type: string
+              nullable: true
+            installation_command:
+              type: string
+              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+              nullable: true

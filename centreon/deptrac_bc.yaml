@@ -27,6 +27,8 @@ parameters:
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
               - { type: classNameRegex, value: '#^Doctrine\\#' }
+              - { type: classNameRegex, value: '#^Godruoyi\\#' }
+              - { type: classNameRegex, value: '#^Monolog\\#' }
               - { type: classNameRegex, value: '#^Psr\\#' }
               - { type: classNameRegex, value: '#^Symfony\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\#' }
@@ -48,6 +50,7 @@ parameters:
         - name: PhpNative # PHP built-in attributes and classes
           collectors:
               - { type: classNameRegex, value: '#^Deprecated$#' }
+              - { type: classNameRegex, value: '#^Random\\#' }
 
     ruleset:
         ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases, PhpNative ]

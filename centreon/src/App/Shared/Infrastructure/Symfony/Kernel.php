@@ -43,7 +43,7 @@ final class Kernel extends BaseKernel
 
     public function getLogDir(): string
     {
-        return '/var/log/centreon/symfony.new';
+        return '/var/log/centreon';
     }
 
     public function getProjectDir(): string
@@ -51,14 +51,23 @@ final class Kernel extends BaseKernel
         return \dirname(__DIR__, 5);
     }
 
-    protected function configureContainer(ContainerConfigurator $container): void
+    /**
+     * MicroKernelTrait::registerBundles() relies on a private getBundlesPath() method chain
+     * inherited from BaseKernel via KernelTrait (symfony/dependency-injection). PHP private-method
+     * scoping prevents our getConfigDir() override from affecting that chain in Symfony 8.x,
+     * so we redirect bundle loading explicitly.
+     */
+    public function registerBundles(): iterable
     {
-        $configDir = $this->getConfigDir();
+        $bundlesPath = $this->getProjectDir() . '/config.new/bundles.php';
+        /** @var array<class-string<\Symfony\Component\HttpKernel\Bundle\BundleInterface>, array<string, bool>> $bundles */
+        $bundles = is_file($bundlesPath) ? require $bundlesPath : [];
 
-        $container->import($configDir . '/{packages}/*.yaml');
-        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
-        $container->import($configDir . '/{services}/*.php');
-        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
+        foreach ($bundles as $class => $envs) {
+            if ($envs[$this->environment] ?? $envs['all'] ?? false) {
+                yield new $class();
+            }
+        }
     }
 
     protected function build(ContainerBuilder $container): void
@@ -76,6 +85,19 @@ final class Kernel extends BaseKernel
         $container->registerAttributeForAutoconfiguration(AsEventHandler::class, static function (ChildDefinition $definition): void {
             $definition->addTag('messenger.message_handler', ['bus' => 'event.bus']);
         });
+    }
+
+    /**
+     * @phpstan-ignore method.unused
+     */
+    private function configureContainer(ContainerConfigurator $container): void
+    {
+        $configDir = $this->getConfigDir();
+
+        $container->import($configDir . '/{packages}/*.yaml');
+        $container->import($configDir . '/{packages}/' . $this->environment . '/*.yaml');
+        $container->import($configDir . '/{services}/*.php');
+        $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
     }
 
     private function getConfigDir(): string

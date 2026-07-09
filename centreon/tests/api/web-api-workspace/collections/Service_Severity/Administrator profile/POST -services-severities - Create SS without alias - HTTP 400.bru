@@ -1,0 +1,35 @@
+meta {
+  name: POST /services/severities - Create SS without alias - HTTP 400
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Test_Ghost_SS",
+    "level": 1,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service severity has not been created, because the alias is mandatory.", function () {
+    const body = res.getBody();
+    expect(body.message).to.eql("[alias] The property alias is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

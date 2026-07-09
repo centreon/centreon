@@ -25,12 +25,15 @@ parameters:
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
               - { type: classNameRegex, value: '#^Doctrine\\#' }
+              - { type: classNameRegex, value: '#^Godruoyi\\#' }
+              - { type: classNameRegex, value: '#^Monolog\\#' }
               - { type: classNameRegex, value: '#^Symfony\\(?!(Component\\Uid\\|Component\\DependencyInjection\\Attribute\\))#' }
               - { type: classNameRegex, value: '#^Webmozart\\(?!Assert\\Assert)#' }
 
         - name: Helpers
           collectors:
               - { type: classNameRegex, value: '#^Psr\\#' }
+              - { type: classNameRegex, value: '#^Random\\#' } # PHP 8.2+ native (e.g. Random\RandomException from random_bytes)
               - { type: classNameRegex, value: '#^Symfony\\Component\\DependencyInjection\\Attribute\\#' }
               - { type: classNameRegex, value: '#^Symfony\\Component\\Uid\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\Assert\\Assert#' }

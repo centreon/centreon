@@ -1,0 +1,34 @@
+meta {
+  name: POST /hosts/categories - Create HC without alias - HTTP 400
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Test_H_Category_2.5",
+    "comment": "I wish I could work!"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The host category has not been created, because the alias is mandatory.", function () {
+    const body = res.getBody();
+    expect(body.message).to.eql("[alias] The property alias is required\n");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

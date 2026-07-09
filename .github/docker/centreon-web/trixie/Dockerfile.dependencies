@@ -155,8 +155,17 @@ if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
     centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*+deb13u1 \
     centreon-gorgone=${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*+deb13u1 \
+    centreon-clib=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-engine=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-engine-daemon=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-engine-opentelemetry=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-broker=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-broker-core=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-broker-cbd=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-broker-graphite=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-broker-influxdb=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-connector-perl=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
+    centreon-connector-ssh=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-connector=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1
 else
   apt-get install -y \
@@ -164,6 +173,8 @@ else
     centreon-gorgone \
     centreon-engine \
     centreon-broker-cbd \
+    centreon-broker-graphite \
+    centreon-broker-influxdb \
     centreon-connector
 fi
 

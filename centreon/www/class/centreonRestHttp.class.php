@@ -39,14 +39,15 @@ class CentreonRestHttp
     /** @var string proxy authentication information */
     private $proxyAuthentication = null;
 
-    /** @var CentreonLog|null logFileThe The log file for call errors */
-    private $logObj = null;
+    /** @var Psr\Log\LoggerInterface|null logger for call errors (caller-supplied or built from a log file name) */
+    private $logger = null;
 
     /**
      * CentreonRestHttp constructor
      *
      * @param string $contentType The content type
-     * @param string|null $logFile
+     * @param string|Psr\Log\LoggerInterface|null $logFile a dedicated log file name (e.g.
+     *                                                     'license-manager.log') or a ready logger
      *
      * @throws PDOException
      */
@@ -54,8 +55,23 @@ class CentreonRestHttp
     {
         $this->getProxy();
         $this->contentType = $contentType;
-        if (! is_null($logFile)) {
-            $this->logObj = new CentreonLog([4 => $logFile]);
+        if ($logFile instanceof Psr\Log\LoggerInterface) {
+            $this->logger = $logFile;
+        } elseif (is_string($logFile) && $logFile !== '') {
+            // A historical caller passes a dedicated file name (e.g. 'license-manager.log').
+            // Route it to a dedicated module channel on the unified Monolog pipeline so the
+            // historical file name is preserved while records get masking and formatting.
+            // A malformed name must never break the HTTP client: degrade to a no-op logger.
+            try {
+                $this->logger = Adaptation\Log\Logger::create(
+                    Adaptation\Log\Channel\ModuleLogChannel::fromLogFileName($logFile)
+                );
+            } catch (Adaptation\Log\Exception\LoggerException) {
+                // Strip control chars so a rejected name cannot forge lines in error_log.
+                $safeLogFile = (string) preg_replace('/[[:cntrl:]]/', '?', $logFile);
+                error_log(sprintf('CentreonRestHttp: invalid log file "%s"', $safeLogFile));
+                $this->logger = new Psr\Log\NullLogger();
+            }
         }
     }
 
@@ -95,6 +111,7 @@ class CentreonRestHttp
 
         if ($noCheckCertificate) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         }
 
         if (! $noProxy && ! is_null($this->proxy)) {
@@ -220,13 +237,24 @@ class CentreonRestHttp
      */
     private function insertLog($output, $url, $type = 'RestInternalServerErrorException'): void
     {
-        if (is_null($this->logObj)) {
+        if (is_null($this->logger)) {
             return;
         }
 
-        $logOutput = '[' . $type . '] ' . $url . ' : ' . $output;
-
-        $this->logObj->insertLog(4, $logOutput);
+        // url and response go in the context so the platform sanitizer can redact
+        // query-string secrets and cap their length; the message stays secret-free.
+        // Logging must never replace the REST exception being reported, so a write
+        // failure (or a throwing injected logger) is contained here.
+        try {
+            $this->logger->error(
+                sprintf('[%s] REST call failed', $type),
+                ['url' => $url, 'response' => $output]
+            );
+        } catch (Throwable $e) {
+            // Strip control chars so a throwing logger's message cannot forge lines in error_log.
+            $safeMessage = (string) preg_replace('/[[:cntrl:]]/', '?', $e->getMessage());
+            error_log(sprintf('CentreonRestHttp: failed to write REST error log: %s', $safeMessage));
+        }
     }
 
     /**

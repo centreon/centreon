@@ -1,0 +1,26 @@
+meta {
+  name: GET /contacts/groups - List contact groups - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/contacts/groups
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot list contact groups.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

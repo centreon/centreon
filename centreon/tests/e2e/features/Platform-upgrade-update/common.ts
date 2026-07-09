@@ -100,7 +100,7 @@ const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: [
-        'dnf module enable -y mariadb:10.11',
+        'dnf module enable -y mariadb:11.8',
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
@@ -115,7 +115,7 @@ const installDatabase = (): void => {
     cy.execInContainer({
       command: [
         `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-11.8"
 EOF`,
         'apt-get update',
         'apt-get install -y mariadb-server mariadb-client'
@@ -376,6 +376,14 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             'dnf module reset -y php',
             'dnf module install -y php:8.2',
             'dnf module enable -y php:8.2',
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
+        case 'alma10':
+          // el10 ships php 8.4 in the official repositories (no dnf module)
+          installCommands = [
+            ...installCommands,
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;

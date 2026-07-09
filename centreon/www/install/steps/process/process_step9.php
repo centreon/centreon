@@ -72,7 +72,9 @@ try {
 
     /** @var InstallationHelper $installationHelper */
     $installationHelper = $kernel->getContainer()->get(InstallationHelper::class);
-    $installationHelper->writeEngineContextFile();
+    if (! $installationHelper->engineContextHasContent()) {
+        $installationHelper->writeEngineContextFile();
+    }
     $backupDir = _CENTREON_VARLIB_ . '/installs/'
         . '/install-' . $version . '-' . date('Ymd_His');
     $installDir = realpath(__DIR__ . '/../..');

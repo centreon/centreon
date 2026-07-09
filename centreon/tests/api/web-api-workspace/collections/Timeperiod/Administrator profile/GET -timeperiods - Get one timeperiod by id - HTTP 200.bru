@@ -1,0 +1,30 @@
+meta {
+  name: GET /timeperiods - Get one timeperiod by id - HTTP 200
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/timeperiods/{{Timeperiod1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Timeperiod 1 is returned with its correct properties.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "id": parseInt(bru.getEnvVar("Timeperiod1Id")),
+      "name": bru.getEnvVar("Timeperiod1Name")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

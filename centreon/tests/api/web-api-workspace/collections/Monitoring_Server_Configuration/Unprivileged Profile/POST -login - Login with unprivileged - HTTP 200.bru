@@ -1,0 +1,42 @@
+meta {
+  name: POST /login - Login with unprivileged - HTTP 200
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{user_unprivileged_login}}",
+        "password": "{{user_unprivileged_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Login successful.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("contact");
+    expect(body).to.have.property("security");
+    bru.setVar("currentUserName", body.contact.alias);
+    bru.setVar("currentUserID", body.contact.id);
+    bru.setGlobalEnvVar("authToken", body.security.token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

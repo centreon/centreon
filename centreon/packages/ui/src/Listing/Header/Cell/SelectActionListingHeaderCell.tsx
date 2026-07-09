@@ -48,7 +48,7 @@ const SelectActionListingHeaderCell = ({
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
-          {(props): JSX.Element => (
+          {(props: { close?: () => void } | undefined): JSX.Element => (
             <PredefinedSelectionList
               close={props?.close ?? ((): void => undefined)}
               onSelectRowsWithCondition={onSelectRowsWithCondition}

@@ -1,0 +1,36 @@
+meta {
+  name: POST /monitoring/resources/submit - Submit result forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/submit
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null,
+        "status": 0,
+        "output": "Should be forbidden"
+      }
+    ]
+  }
+}
+
+tests {
+  test("Unprivileged user cannot submit a result (returns 401 when monitoring engine unavailable, otherwise 403).", function () {
+    expect(res.status).to.be.oneOf([401, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

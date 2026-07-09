@@ -1,9 +1,9 @@
 {
-  "name": "redoc-centreon-web-openapi",
+  "name": "API",
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "redoc-latest": "redocly build-docs --theme.openapi.hideDownloadButton=true --output ./index.html $OPENAPI_FILE"
+    "build": "redocly build-docs --theme.openapi.hideDownloadButton=true --output index.html"
   },
   "keywords": [],
   "author": "",

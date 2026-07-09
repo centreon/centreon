@@ -12789,10 +12789,10 @@ msgstr "Platform not found"
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
@@ -19993,6 +19993,13 @@ msgstr "{{label}} should be at least {{min}} characters long"
 msgid "{{total}} element(s) found"
 msgstr "{{total}} element(s) found"
 
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+msgstr ""
 #: unknown
 # msgid "Create new poller"
 # msgstr ""

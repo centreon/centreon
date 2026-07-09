@@ -74,8 +74,13 @@ export const customFetch = <T>({
         };
       }
 
-      return response
-        .json()
+      const responseParsingMethod = response.headers
+        .get('Content-Type')
+        ?.startsWith('text')
+        ? 'text'
+        : 'json';
+
+      return response[responseParsingMethod]()
         .then((data) => {
           if (!response.ok) {
             const defaultError = {

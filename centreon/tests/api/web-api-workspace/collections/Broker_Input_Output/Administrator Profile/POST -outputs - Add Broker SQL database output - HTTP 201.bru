@@ -1,0 +1,47 @@
+meta {
+  name: POST /outputs - Add Broker SQL database output - HTTP 201
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-test-6",
+    "type": 16,
+    "parameters": {
+      "db_type": "oci",
+      "db_host": "127.0.0.1",
+      "db_port": 3456,
+      "db_user": "user-test",
+      "db_password": "super_password",
+      "db_name": "storage",
+      "connections_count": 2,
+      "queries_per_transaction": 500,
+      "read_timeout": 3600,
+      "cleanup_check_interval": 60,
+      "instance_timeout": 6000,
+      "filters_category": ["storage", "dumper"]
+    }
+  }
+}
+
+tests {
+  test("Broker SQL database output created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

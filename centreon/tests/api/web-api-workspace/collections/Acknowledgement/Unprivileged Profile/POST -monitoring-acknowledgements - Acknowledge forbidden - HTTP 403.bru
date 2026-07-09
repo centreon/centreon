@@ -1,0 +1,46 @@
+meta {
+  name: POST /monitoring/acknowledgements - Acknowledge forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledge
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "acknowledgement": {
+      "comment": "Acknowledged by unprivileged user",
+      "is_notify_contacts": false,
+      "with_services": false,
+      "force_active_checks": false,
+      "is_persistent_comment": false,
+      "is_sticky": false
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Unprivileged user cannot acknowledge resources.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

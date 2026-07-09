@@ -10,44 +10,33 @@ on:
       - closed
 
 jobs:
-  delete-feature-repositories:
+  check-other-feature-prs:
     if: |
-      startsWith(github.ref_name, 'MON-')
+      startsWith(github.head_ref, 'MON-')
     runs-on: ubuntu-24.04
     env:
-      GH_TOKEN: ${{ github.token }}
+      # the default github.token has no access to the private sibling
+      # repositories (404), which would abort the check on every run
+      GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+      HEAD_REF: ${{ github.head_ref }}
+    outputs:
+      feature_prs_found: ${{ steps.check.outputs.feature_prs_found }}
     steps:
-      - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
-        env:
-          JF_URL: https://packages.centreon.com
-          JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-
-      - name: Check if feature branch had associated feature repository
-        id: check_feature_repository
-        shell: bash
-        run: |
-          set -x
-          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
-          if [[ -z "$feature_ticket" ]]; then
-            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
-            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
-          elif jf rt curl -s -X GET /api/repositories | jq -r '.[].key' | grep "$feature_ticket"; then
-            echo "::notice::Repositories associated with $feature_ticket found – deletion will be requested."
-            echo "repositories_found=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::No repositories linked to $feature_ticket – workflow ends here."
-            echo "repositories_found=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Check if other feature branches/pull requests of the same ticket exist on other repositories
-        id: check_other_feature_prs
-        if: |
-          steps.check_feature_repository.outputs.repositories_found == 'true'
+        id: check
         shell: bash
         run: |
-          set -x
-          if [[ -n $(gh pr list --repo centreon/centreon-modules --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]] \
-          || [[ -n $(gh pr list --repo centreon/centreon-collect --head ${{ github.head_ref }} --state open --json number | jq -r '.[].number') ]]; then
+          set -euo pipefail
+
+          # Capture each lookup explicitly: under `set -e`/`pipefail` a transient
+          # `gh` failure (rate limit, 5xx, auth blip) aborts this job instead of
+          # being silently read as "no sibling PR". A failed check job leaves the
+          # deletion jobs skipped (their `needs` failed) — i.e. fail closed: never
+          # delete feature repositories on an uncertain sibling-PR lookup.
+          modules_prs=$(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --state open --json number --jq '.[].number')
+          collect_prs=$(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --state open --json number --jq '.[].number')
+
+          if [[ -n "$modules_prs" || -n "$collect_prs" ]]; then
             echo "::notice::Other open feature pull requests have been found on other repositories: no feature repository deletion will be requested."
             echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
           else
@@ -55,17 +44,29 @@ jobs:
             echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Send repository dispatch to delete feature repositories
+  delete-artifactory-feature-repositories:
+    needs: [check-other-feature-prs]
+    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
+    runs-on: ubuntu-24.04
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Send repository dispatch to delete Artifactory feature repositories
         shell: bash
-        if: |
-          steps.check_feature_repository.outputs.repositories_found == 'true' &&
-          steps.check_other_feature_prs.outputs.feature_prs_found == 'false'
+        env:
+          CENTREON_TECHNIQUE_PAT: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
         run: |
-          set -x
-          echo "Sending repository dispatch to delete feature repository workflow..."
-          feature_ticket=$(echo "${{ github.head_ref }}" | grep -oE 'MON-[0-9]+')
+          set -euo pipefail
+
+          feature_ticket=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
+          if [[ -z "$feature_ticket" ]]; then
+            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
+            exit 0
+          fi
+
+          echo "Sending repository dispatch to delete Artifactory feature repositories..."
           curl --fail-with-body -X POST \
-            -H "Authorization: Bearer ${{ secrets.CENTREON_TECHNIQUE_PAT }}" \
+            -H "Authorization: Bearer $CENTREON_TECHNIQUE_PAT" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/centreon/delivery-tooling/dispatches \
             -d "$(jq -n \
@@ -78,7 +79,51 @@ jobs:
               }'
             )"
 
-          if [ $? -ne 0 ]; then
-            echo "::error::Failure to send repository dispatch to delete feature repository. You may want to perform that operation manually."
-            exit 1
+  delete-pulp-feature-repositories:
+    needs: [check-other-feature-prs]
+    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
+    # same runner as the deliver-pulp / promote-pulp jobs: the Pulp api must be
+    # reachable from here, and continue-on-error would mask a network failure
+    runs-on: centreon-ubuntu-22.04
+    # non-blocking during the Pulp migration, consistent with the deliver-pulp /
+    # promote-pulp jobs: a Pulp-side failure must not fail the PR-close workflow.
+    continue-on-error: true
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup pulp-cli
+        uses: ./.github/actions/setup-pulp-cli
+        with:
+          pulp_url: ${{ vars.PULP_API_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Delete feature repositories
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          FEATURE_TICKET=$(echo "$HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
+          if [[ -z "$FEATURE_TICKET" ]]; then
+            echo "::notice::Ticket ID not found due to the branch name not corresponding to standards."
+            exit 0
           fi
+
+          for PLUGIN in rpm deb; do
+            mapfile -t DISTRIBUTIONS < <(pulp "$PLUGIN" distribution list --base-path-contains "feature/$FEATURE_TICKET/" --limit 1000 | jq -r '.[].name')
+            for NAME in "${DISTRIBUTIONS[@]}"; do
+              echo "[INFO] Deleting $PLUGIN distribution $NAME"
+              pulp "$PLUGIN" distribution destroy --name "$NAME"
+            done
+
+            mapfile -t REPOSITORIES < <(pulp "$PLUGIN" repository list --limit 1000 | jq -r --arg pattern "feature-$FEATURE_TICKET-" '.[] | select(.name | contains($pattern)) | .name')
+            for NAME in "${REPOSITORIES[@]}"; do
+              echo "[INFO] Deleting $PLUGIN repository $NAME"
+              pulp "$PLUGIN" repository destroy --name "$NAME"
+            done
+          done

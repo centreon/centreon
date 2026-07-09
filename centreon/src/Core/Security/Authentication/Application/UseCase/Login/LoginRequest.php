@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\Login;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 
 final class LoginRequest
@@ -41,6 +42,7 @@ final class LoginRequest
         public string $providerName,
         public ?string $clientIp = null,
         public ?string $username = null,
+        #[Sensitive]
         public ?string $password = null,
         public ?string $code = null,
         public ?string $refererQueryParameters = null,

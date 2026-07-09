@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Contact;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -198,9 +199,11 @@ class Contact implements UserInterface, ContactInterface
     private $isAllowedToReachWeb;
 
     /** @var string|null Authentication Token */
+    #[Sensitive]
     private $token;
 
     /** @var string|null Encoded password */
+    #[Sensitive]
     private $encodedPassword;
 
     /** @var bool Indicates if this user has access to the configuration section of API */
@@ -575,18 +578,6 @@ class Contact implements UserInterface, ContactInterface
     public function getUsername()
     {
         return $this->name;
-    }
-
-    /**
-     * Removes sensitive data from the user.
-     *
-     * This is important if, at any given point, sensitive information like
-     * the plain-text password is stored on this object.
-     */
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-        // Nothing to do. But we must to define this method
     }
 
     /**

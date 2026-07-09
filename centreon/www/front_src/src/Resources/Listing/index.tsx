@@ -46,6 +46,7 @@ import {
   labelSelectAtLeastOneColumn,
   labelStatus
 } from '../translatedLabels';
+import { exactCountAtom, exactCountLoadingAtom } from './ApproximateCountBadge';
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost,
@@ -59,6 +60,7 @@ import {
   selectedColumnIdsAtom,
   sendingAtom
 } from './listingAtoms';
+import useExactCount from './useExactCount';
 import useLoadResources from './useLoadResources';
 import useViewerMode from './useViewerMode';
 
@@ -102,7 +104,11 @@ const ResourceListing = (): ReactElement => {
     setCriteriaAndNewFilterDerivedAtom
   );
 
+  const [exactCount] = useAtom(exactCountAtom);
+  const [exactCountLoading] = useAtom(exactCountLoadingAtom);
+
   const { initAutorefreshAndLoad } = useLoadResources();
+  const { requestExactCount } = useExactCount();
 
   const { mutateAsync } = useMutationQuery({
     getEndpoint: () => userEndpoint,
@@ -239,10 +245,15 @@ const ResourceListing = (): ReactElement => {
 
   const areColumnsSortable = equals(visualization, Visualization.All);
 
+  const isApproximate = listing?.meta.is_approximate === true;
+  const effectiveTotalRows = exactCount ?? listing?.meta.total;
+  const showApproximate = isApproximate && exactCount === null;
+
   return (
     <Listing
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       actionsBarMemoProps={[selectedResourceDetails]}
+      approximateTotalRows={showApproximate}
       checkable
       columnConfiguration={{
         selectedColumnIds,
@@ -255,6 +266,7 @@ const ResourceListing = (): ReactElement => {
       }
       getId={getId}
       headerMemoProps={[search]}
+      isApproximateCountLoading={exactCountLoading}
       limit={listing?.meta.limit}
       listingVariant={user_interface_density}
       loading={loading}
@@ -270,9 +282,13 @@ const ResourceListing = (): ReactElement => {
         selectedResourceDetails,
         themeMode,
         columns,
-        selectedColumnIds
+        selectedColumnIds,
+        showApproximate,
+        exactCountLoading,
+        exactCount
       ]}
       moveTablePagination={isPanelOpen}
+      onApproximateCountClick={requestExactCount}
       onLimitChange={changeLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
@@ -296,7 +312,7 @@ const ResourceListing = (): ReactElement => {
         labelCollapse: 'Collapse',
         labelExpand: 'Expand'
       }}
-      totalRows={listing?.meta.total}
+      totalRows={effectiveTotalRows}
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,

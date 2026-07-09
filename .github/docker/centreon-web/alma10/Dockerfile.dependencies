@@ -86,24 +86,24 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-10.rpm
-dnf module -y switch-to php:remi-${PHP_VERSION}/common
+# php ${PHP_VERSION} is provided by the official el10 repositories (no remi needed).
+# It is shipped as a versioned application stream (php${PHP_VERSION}-*); curl and
+# json are bundled in php${PHP_VERSION}-common, zip comes from php${PHP_VERSION}-pecl-zip
+# and pear stays version-independent (php-pear).
 dnf install -y \
-  php-common \
-  php-cli \
-  php-pdo \
-  php-mysqlnd \
-  php-gd \
-  php-xml \
-  php-mbstring \
-  php-ldap \
-  php-snmp \
-  php-intl \
-  php-fpm \
-  php-curl \
-  php-zip \
-  php-pear \
-  php-json
+  php${PHP_VERSION}-common \
+  php${PHP_VERSION}-cli \
+  php${PHP_VERSION}-pdo \
+  php${PHP_VERSION}-mysqlnd \
+  php${PHP_VERSION}-gd \
+  php${PHP_VERSION}-xml \
+  php${PHP_VERSION}-mbstring \
+  php${PHP_VERSION}-ldap \
+  php${PHP_VERSION}-snmp \
+  php${PHP_VERSION}-intl \
+  php${PHP_VERSION}-fpm \
+  php${PHP_VERSION}-pecl-zip \
+  php-pear
 
 ###################
 # install plugins #
@@ -145,6 +145,8 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
     centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-graphite-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-influxdb-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
 else
   dnf install -y \
@@ -152,6 +154,8 @@ else
     centreon-gorgone \
     centreon-engine \
     centreon-broker-cbd \
+    centreon-broker-graphite \
+    centreon-broker-influxdb \
     centreon-connector
 fi
 

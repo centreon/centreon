@@ -219,10 +219,7 @@ Given(
                   return installCentreon(installedVersion)
                     .then(() => {
                       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-                        const distrib =
-                          Cypress.env('WEB_IMAGE_OS') === 'alma9'
-                            ? 'el9'
-                            : 'el8';
+                        const distrib = `el${Cypress.env('WEB_IMAGE_OS').replace('alma', '')}`;
 
                         if (Cypress.env('IS_CLOUD')) {
                           cy.log('Configuring cloud internal repository...');
@@ -286,6 +283,23 @@ EOF`,
               );
             });
         });
+    });
+  }
+);
+
+Given(
+  'the central broker is {string} to the cbd daemon',
+  (brokerLink: string) => {
+    // HA platforms default to the central broker NOT linked to the cbd daemon
+    // (daemon = 0). The upgrade must still locate the broker configuration.
+    if (brokerLink !== 'linked' && brokerLink !== 'not linked') {
+      throw new Error(`Unsupported broker_link value: ${brokerLink}`);
+    }
+    const daemon = brokerLink === 'linked' ? '1' : '0';
+
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: `UPDATE cfg_centreonbroker SET daemon = '${daemon}' WHERE config_name = 'central-broker-master'`
     });
   }
 );

@@ -94,7 +94,7 @@ class NewServiceTemplateFactory
         $serviceTemplate->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
         $serviceTemplate->setFirstNotificationDelay($request->firstNotificationDelay);
         $serviceTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
-        $serviceTemplate->setHostTemplateIds($request->hostTemplateIds);
+        $serviceTemplate->setHostTemplateIds(array_values(array_unique($request->hostTemplateIds)));
 
         return $serviceTemplate;
     }

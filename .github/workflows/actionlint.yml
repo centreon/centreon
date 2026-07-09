@@ -33,8 +33,9 @@ jobs:
       - name: Check workflow files
         env:
           SHELLCHECK_OPTS: "--severity=error"
+          ACTIONLINT_EXECUTABLE: ${{ steps.get_actionlint.outputs.executable }}
         run: |
-          ${{ steps.get_actionlint.outputs.executable }} \
+          "$ACTIONLINT_EXECUTABLE" \
             -ignore 'label "centreon-(collect-arm64|ubuntu-22.04|common|perf-testing)" is unknown' \
             -ignore 'label "infrastructure" is unknown' \
             -ignore 'label "documentation" is unknown' \

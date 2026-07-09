@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - run: |
-          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          NIGHTLY_TARGETS=("dev-24.10.x" "dev-25.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run docker-web-dependencies.yml -r "$target"
@@ -115,8 +115,8 @@ jobs:
           ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
           MAJOR_VERSION_TAG: ${{ steps.image_tag.outputs.major_version_tag }}
         run: |
-          WEB_DEPS="ghcr.io/${{ github.repository }}/centreon-web-dependencies"
-          WEB_DEPS_COLLECT="ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect"
+          WEB_DEPS="ghcr.io/$GITHUB_REPOSITORY/centreon-web-dependencies"
+          WEB_DEPS_COLLECT="ghcr.io/$GITHUB_REPOSITORY/centreon-web-dependencies-collect"
 
           TAGS_DEPS="${WEB_DEPS}:${TAG}-${DISTRIB}"
           TAGS_DEPS_COLLECT="${WEB_DEPS_COLLECT}:${TAG}-${DISTRIB}"
