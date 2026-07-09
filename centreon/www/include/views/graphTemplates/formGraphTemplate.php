@@ -111,7 +111,7 @@ if ($o == 'c' || $o == 'a') {
 $form->addElement('checkbox', 'stacked', _('Stacking'));
 $form->addElement('checkbox', 'scaled', _('Scale Graph Values'));
 $form->addElement('textarea', 'comment', _('Comments'), $attrsTextarea);
-$form->addElement('checkbox', 'default_tpl1', _('Default Centreon Graph Template'));
+$form->addElement('checkbox', 'default_tpl1', _('Default Template'));
 
 $form->addElement('hidden', 'graph_id');
 $redirect = $form->addElement('hidden', 'o');
