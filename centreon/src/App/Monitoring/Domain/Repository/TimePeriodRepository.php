@@ -23,6 +23,14 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Domain\Repository;
 
+use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Monitoring\Domain\Exception\TimePeriodNotFoundException;
+
 interface TimePeriodRepository
 {
+    /**
+     * @throws TimePeriodNotFoundException
+     */
+    public function get(TimePeriodId $id): TimePeriod;
 }

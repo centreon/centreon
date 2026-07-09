@@ -27,12 +27,14 @@ use Webmozart\Assert\Assert;
 
 final readonly class NotificationName
 {
+    public string $value;
     public const MIN_LENGTH = 1;
     public const MAX_LENGTH = 250;
 
     public function __construct(
-        public string $value,
+        string $value,
     ) {
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        $this->value = trim($value);
+        Assert::lengthBetween($this->value, self::MIN_LENGTH, self::MAX_LENGTH);
     }
 }

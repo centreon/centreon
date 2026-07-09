@@ -26,7 +26,9 @@ namespace App\Monitoring\Infrastructure\ApiPlatform\Resource\Notification;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
 use App\Monitoring\Domain\Security\NotificationPermissionEnum;
+use App\Monitoring\Infrastructure\ApiPlatform\State\CreateNotificationProcessor;
 use App\Monitoring\Infrastructure\ApiPlatform\State\FindNotificationProvider;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
@@ -39,6 +41,13 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
             securityMessage: "User doesn't have sufficient rights to get notification",
             provider: FindNotificationProvider::class,
         ),
+        new Post(
+            uriTemplate: '/configuration/notifications',
+            security: "is_granted('" . NotificationPermissionEnum::CanReadAndWriteNotifications->value . "')",
+            securityMessage: "User doesn't have sufficient rights to write notification",
+            processor: CreateNotificationProcessor::class,
+            input: CreateNotificationDto::class,
+        )
     ]
 )]
 final class NotificationResource

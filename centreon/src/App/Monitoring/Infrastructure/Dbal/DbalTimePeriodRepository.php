@@ -23,8 +23,14 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Infrastructure\Dbal;
 
+use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Monitoring\Domain\Exception\TimePeriodNotFoundException;
 use App\Monitoring\Domain\Repository\TimePeriodRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\Connection;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @phpstan-type RowTypeAlias = array{
@@ -36,6 +42,15 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
 {
     public const string TABLE_NAME = 'timeperiod';
 
+    public function __construct(
+        #[Autowire(service: 'doctrine.dbal.default_connection')]
+        private Connection $connection,
+        #[Autowire(service: DbalTimePeriodTransformer::class)]
+        private TransformerInterface $transformer,
+    )
+    {
+    }
+
     /**
      * @return array<string>
      */
@@ -45,5 +60,26 @@ final readonly class DbalTimePeriodRepository extends DbalRepository implements 
             "{$alias}.tp_id AS timeperiod_id",
             "{$alias}.tp_name AS timeperiod_name",
         ];
+    }
+
+    public function get(TimePeriodId $id): TimePeriod
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...self::getSelectColumns('t'))
+            ->from(self::TABLE_NAME, 't')
+            ->where('t.tp_id = :id')
+            ->setParameter('id', $id->value);
+
+        /** @var RowTypeAlias|false $row */
+        $row = $qb->executeQuery()->fetchAssociative();
+
+        if ($row === false) {
+            throw new TimePeriodNotFoundException(
+                ['id' => $id->value],
+                sprintf('TimePeriod #%d not found', $id->value)
+            );
+        }
+
+        return $this->transformer->transform($row);
     }
 }
