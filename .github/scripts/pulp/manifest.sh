@@ -29,8 +29,10 @@ manifest_write() {
     packages=$(printf '%s\n' "${MANIFEST_ENTRIES[@]}" | jq -s '.')
   fi
 
+  # NB: the jq variable is named module_name, not module — `module` is a reserved
+  # jq keyword and `$module` fails to parse on stricter jq builds (the CI runner)
   jq -n \
-    --arg module "$module" \
+    --arg module_name "$module" \
     --arg distrib "$distrib" \
     --arg package_type "$package_type" \
     --arg stability "$stability" \
@@ -38,7 +40,7 @@ manifest_write() {
     --arg content_url "$content_url" \
     --argjson packages "$packages" \
     '{
-      "module": $module,
+      "module": $module_name,
       distrib: $distrib,
       package_type: $package_type,
       stability: $stability,
