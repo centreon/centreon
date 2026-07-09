@@ -1,0 +1,929 @@
+/*
+ * Centreon Modern Form Styles
+ *
+ * Shared CSS for redesigned configuration form pages.
+ * Prefix: cf- (centreon-form)
+ *
+ * Applies the new design: single-column layout, floating labels,
+ * accordion sections, modern inputs, consistent with cl-* listing styles.
+ */
+
+/* ==========================================================================
+   Form container
+   ========================================================================== */
+
+.cf-form-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px 20px 80px;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--list-color, #333);
+}
+
+/* ==========================================================================
+   Page title
+   ========================================================================== */
+
+.cf-page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--list-color, #333);
+    margin: 0 0 8px;
+}
+
+/* ==========================================================================
+   Tab navigation (horizontal, above form)
+   ========================================================================== */
+
+.cf-tab-nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--color-divider, #e3e3e3);
+    margin-bottom: 16px;
+}
+
+.cf-tab-nav a {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--body-color, #666);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s;
+    cursor: pointer;
+}
+
+.cf-tab-nav a:hover {
+    color: var(--list-color, #333);
+}
+
+.cf-tab-nav a.active {
+    color: var(--color-primary-light, #2E68AA);
+    border-bottom-color: var(--color-primary-light, #2E68AA);
+    font-weight: 600;
+}
+
+.cf-tab-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--body-background, #fff);
+}
+
+/* ==========================================================================
+   Accordion sections
+   ========================================================================== */
+
+.cf-section {
+    margin-bottom: 8px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--body-background, #fff);
+}
+
+.cf-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: #ddd;
+    color: var(--list-color, #333);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+    border-radius: 4px;
+}
+
+.cf-section-header:hover {
+    background: #d2d2d2;
+}
+
+.cf-section-chevron {
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.cf-section.collapsed .cf-section-chevron {
+    transform: rotate(-90deg);
+}
+
+.cf-section-body {
+    padding: 16px;
+    background: var(--body-background, #fff);
+}
+
+.cf-section.collapsed .cf-section-body {
+    display: none;
+}
+
+/* ==========================================================================
+   Form row (single field)
+   ========================================================================== */
+
+.cf-row {
+    margin-bottom: 16px;
+}
+
+.cf-row-inline {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.cf-row-inline > .cf-field {
+    flex: 1;
+}
+
+/* ==========================================================================
+   Floating label field
+   ========================================================================== */
+
+.cf-field {
+    position: relative;
+}
+
+.cf-field label {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    font-size: 14px;
+    color: var(--body-color, #999);
+    pointer-events: none;
+    transition: all 0.15s ease;
+    background: transparent;
+    padding: 0 4px;
+    z-index: 1;
+}
+
+.cf-field label.cf-label-float {
+    top: -8px;
+    left: 10px;
+    font-size: 11px;
+    color: var(--color-primary-light, #2E68AA);
+    background: var(--body-background, #fff);
+    font-weight: 500;
+}
+
+.cf-field input,
+.cf-field textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    outline: none;
+    background: var(--body-background, #fff);
+    color: var(--list-color, #333);
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+
+.cf-field input:focus,
+.cf-field textarea:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cf-field input::placeholder,
+.cf-field textarea::placeholder {
+    color: transparent;
+}
+
+.cf-field textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* Required indicator — QuickForm already adds * in the label text */
+
+/* Custom form tooltip */
+.cf-tooltip {
+    position: fixed;
+    z-index: 99999;
+    max-width: 320px;
+    padding: 10px 14px;
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    text-align: left;
+}
+
+/* Field layout */
+.cf-field {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.cf-field input,
+.cf-field textarea,
+.cf-field select,
+.cf-field .select2-container {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   Segmented button group (Default / Yes / No)
+   ========================================================================== */
+
+.cf-segmented {
+    display: inline-flex;
+    border: 1px solid var(--color-divider, #d0d0d0);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cf-segmented button {
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+    background: var(--body-background, #fff);
+    color: var(--body-color, #666);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-right: 1px solid var(--color-divider, #d0d0d0);
+}
+
+.cf-segmented button:last-child {
+    border-right: none;
+}
+
+.cf-segmented button:hover {
+    background: var(--color-listing-hover, #E6EDF5);
+}
+
+.cf-segmented button.active {
+    background: var(--color-primary-light, #2E68AA);
+    color: #fff;
+}
+
+.cf-segmented-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+}
+
+.cf-segmented-row > span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+    min-width: 140px;
+}
+
+/* ==========================================================================
+   Clone template entries (host templates, macros)
+   ========================================================================== */
+
+.cf-form-wrapper .clonable .clone-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0;
+}
+
+.cf-form-wrapper .clonable .clone-cell select,
+.cf-form-wrapper .clonable .clone-cell .select2-container {
+    flex: 1;
+    min-width: 0;
+}
+
+.cf-form-wrapper .clonable .clone-cell select {
+    padding: 8px 10px;
+    font-size: 12px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    background: var(--body-background, #fff);
+    color: var(--list-color, #333);
+}
+
+.cf-form-wrapper .clonable .clone-cell .select2-container .select2-selection {
+    min-height: 36px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.cf-form-wrapper .clonable .clone-cell img {
+    opacity: 0.5;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.cf-form-wrapper .clonable .clone-cell img:hover {
+    opacity: 1;
+}
+
+.cf-form-wrapper .clonable {
+    padding: 0;
+    margin: 0;
+}
+
+.cf-form-wrapper .clonable li {
+    list-style: none;
+    padding: 2px 0;
+}
+
+.cf-form-wrapper .clonable li hr {
+    display: none;
+}
+
+.cf-form-wrapper .clonable li p.muted {
+    margin: 0;
+    padding: 4px 0;
+}
+
+/* Macro clone entries — inline floating label layout */
+.cf-form-wrapper .macroclone {
+    padding: 0;
+    margin: 0;
+}
+
+.cf-form-wrapper .macroclone .onemacro {
+    padding: 4px 0;
+    list-style: none;
+}
+
+.cf-form-wrapper .macroclone .onemacro hr {
+    display: none;
+}
+
+.cf-form-wrapper .macroclone .onemacro .clone-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Name span — fixed width */
+.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(1) {
+    width: 180px;
+    flex-shrink: 0;
+    display: flex;
+}
+
+/* Value span — takes remaining space */
+.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+}
+
+/* Password span — just the checkbox, no text */
+.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(3) {
+    font-size: 0;
+    display: flex;
+    align-items: center;
+}
+.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(3) input {
+    font-size: 12px;
+}
+
+/* Inputs fill their span */
+.cf-form-wrapper .macroclone .onemacro input[name^="macroInput"],
+.cf-form-wrapper .macroclone .onemacro input[name^="macroValue"] {
+    width: 100%;
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 12px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    background: var(--body-background, #fff);
+    color: var(--list-color, #333);
+    box-sizing: border-box;
+}
+
+.cf-form-wrapper .macroclone .onemacro input[name^="macroInput"]:focus,
+.cf-form-wrapper .macroclone .onemacro input[name^="macroValue"]:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+    outline: none;
+}
+
+/* Hide br and text labels in spans */
+.cf-form-wrapper .macroclone .onemacro .clone-cell > span > br {
+    display: none;
+}
+
+/* Actions wrapper (built by JS) */
+.cf-form-wrapper .cf-macro-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.cf-form-wrapper .cf-macro-actions img {
+    opacity: 0.4;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.cf-form-wrapper .cf-macro-actions img:hover {
+    opacity: 1;
+}
+
+.cf-form-wrapper .cf-macro-actions span {
+    display: flex;
+    align-items: center;
+}
+
+.cf-form-wrapper .add-new-entry {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    background-color: var(--color-primary-light, #2E68AA);
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.15s;
+}
+
+.cf-form-wrapper .add-new-entry:hover {
+    background-color: var(--color-primary-hover, #255891);
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Chip selection (multi-select toggleable tags)
+   ========================================================================== */
+
+.cf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.cf-chips-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+    margin-right: 6px;
+}
+
+.cf-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--color-divider, #d0d0d0);
+    border-radius: 20px;
+    background: var(--body-background, #fff);
+    color: var(--body-color, #666);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.cf-chip:hover {
+    border-color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #2E68AA);
+}
+
+.cf-chip.active {
+    background: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #2E68AA);
+    color: #fff;
+}
+
+/* Geo address autocomplete dropdown */
+.cf-geo-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    z-index: 100;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.cf-geo-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-divider, #eee);
+    transition: background 0.1s;
+}
+
+.cf-geo-item:last-child {
+    border-bottom: none;
+}
+
+.cf-geo-item:hover {
+    background: var(--color-listing-hover, #E6EDF5);
+}
+
+.cf-geo-item-name {
+    display: block;
+    font-size: 12px;
+    color: var(--list-color, #333);
+}
+
+.cf-geo-item-coords {
+    display: block;
+    font-size: 11px;
+    color: var(--body-color, #999);
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   Select / Select2 overrides
+   ========================================================================== */
+
+.cf-field select {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    outline: none;
+    background: var(--body-background, #fff);
+    color: var(--list-color, #333);
+    cursor: pointer;
+    box-sizing: border-box;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+}
+
+.cf-field select:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cf-field .select2-container {
+    width: 100% !important;
+}
+
+/* Dual-list / multiselect wrappers (<p class="oreonbutton">) fill the remaining
+   row width. The wrapper becomes a flex row so the select2 field and its clear
+   cross (×) sit side by side — field then ×, with the help (?) icon after. */
+.cf-field > .oreonbutton {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    order: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.cf-field > .oreonbutton > select,
+.cf-field > .oreonbutton > .select2-container {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto !important;
+}
+.cf-field > .oreonbutton .clearAllSelect2 {
+    order: 2;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.cf-field .select2-container .select2-selection {
+    min-height: 44px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+.cf-field .select2-container--focus .select2-selection {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+/* Select2 clear button — order it before help icon */
+.cf-field .clearAllSelect2 {
+    order: 8;
+    opacity: 0.4;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.cf-field .clearAllSelect2:hover {
+    opacity: 1;
+}
+
+/* Help tooltip always last, vertically centered */
+.cf-field .helpTooltip {
+    order: 9;
+    align-self: center;
+}
+
+/* ==========================================================================
+   Checkboxes
+   ========================================================================== */
+
+.cf-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    padding: 8px 0;
+}
+
+.cf-checkbox-group label {
+    position: static;
+    font-size: 14px;
+    color: var(--list-color, #555);
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Toggle switch (reuse cl-toggle from listing)
+   ========================================================================== */
+
+.cf-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.cf-toggle-row span {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+}
+
+/* ==========================================================================
+   Dynamic entries (+ Add new entry)
+   ========================================================================== */
+
+.cf-dynamic-list {
+    margin-top: 8px;
+}
+
+.cf-dynamic-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.cf-dynamic-entry input {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--color-divider, #e3e3e3);
+    border-radius: 6px;
+    outline: none;
+    background: var(--body-background, #fff);
+    color: var(--list-color, #333);
+    box-sizing: border-box;
+}
+
+.cf-dynamic-entry input:focus {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cf-dynamic-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-danger, #FF4A4A);
+    font-size: 16px;
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+.cf-dynamic-delete:hover {
+    opacity: 1;
+}
+
+.cf-add-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--color-primary-light, #2E68AA);
+    cursor: pointer;
+    padding: 4px 0;
+    font-weight: 500;
+}
+
+.cf-add-entry:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Action buttons (bottom bar)
+   ========================================================================== */
+
+.cf-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 0;
+    margin-top: 16px;
+}
+
+.cf-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.cf-btn-primary {
+    background: var(--color-primary-light, #2E68AA);
+    color: #fff;
+}
+
+.cf-btn-primary:hover {
+    background: var(--color-primary-hover, #255891);
+}
+
+.cf-btn-secondary {
+    background: var(--color-divider, #e8e8e8);
+    color: var(--list-color, #555);
+}
+
+.cf-btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+/* Override QuickForm button styles inside cf-actions to match cl-btn-add */
+.cf-actions input[type="submit"],
+.cf-actions input[type="reset"],
+.cf-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 20px;
+    min-width: 100px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background-color: var(--color-primary-light, #2E68AA);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+}
+
+.cf-actions input[type="submit"]:hover,
+.cf-actions input[type="reset"]:hover,
+.cf-actions button:hover {
+    background-color: var(--color-primary-hover, #255891);
+}
+
+/* ==========================================================================
+   Validation error state
+   ========================================================================== */
+
+.cf-field.cf-error input,
+.cf-field.cf-error select,
+.cf-field.cf-error textarea {
+    border-color: var(--color-danger, #FF4A4A);
+}
+
+.cf-field.cf-error label {
+    color: var(--color-danger, #FF4A4A);
+}
+
+.cf-error-msg {
+    font-size: 11px;
+    color: var(--color-danger, #FF4A4A);
+    margin-top: 4px;
+    padding-left: 12px;
+}
+
+/* ==========================================================================
+   Side panel (drawer from right)
+   ========================================================================== */
+
+.cf-side-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+}
+
+.cf-side-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.cf-side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 55vw;
+    min-width: 400px;
+    max-width: 95vw;
+    height: 100vh;
+    background: var(--body-background, #fff);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.cf-side-panel.open {
+    transform: translateX(0);
+}
+
+.cf-side-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--color-divider, #e3e3e3);
+    background: var(--body-background, #fff);
+    flex-shrink: 0;
+}
+
+.cf-side-panel-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--list-color, #333);
+}
+
+.cf-side-panel-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--body-color, #999);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+}
+
+.cf-side-panel-close:hover {
+    background: var(--color-divider, #e8e8e8);
+    color: var(--list-color, #333);
+}
+
+.cf-side-panel-body {
+    flex: 1;
+    overflow: hidden;
+}
+
+.cf-side-panel-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Resize handle on left edge */
+.cf-side-panel-resize {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    cursor: col-resize;
+    z-index: 10;
+    background: transparent;
+    transition: background 0.15s;
+}
+
+.cf-side-panel-resize:hover,
+.cf-side-panel-resize.active {
+    background: var(--color-primary-light, #2E68AA);
+}
+
+/* Ensure wz_tooltip inside side panel doesn't overflow */
+.cf-side-panel-body {
+    overflow: visible;
+}

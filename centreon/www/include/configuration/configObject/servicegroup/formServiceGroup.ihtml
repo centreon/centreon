@@ -1,82 +1,148 @@
 {$form.javascript}
-<form {$form.attributes}>
-	<div id="validFormTop">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-	</div>
-	<div id='tab1' class='tab'>
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.information}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="servicegroup_name"> {$form.sg_name.label}</td><td class="FormRowValue">{$form.sg_name.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="alias"> {$form.sg_alias.label}</td><td class="FormRowValue">{$form.sg_alias.html}</td></tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.relation}</h4>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="members"> {$form.sg_hServices.label}</td><td class="FormRowValue">{$form.sg_hServices.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="hg_members"> {$form.sg_hgServices.label}</td><td class="FormRowValue">{$form.sg_hgServices.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="st_members"> {$form.sg_tServices.label}</td><td class="FormRowValue">{$form.sg_tServices.html}</td></tr> 
-        {if isset($form.resource_access_rules)}
-            <tr class="list_lvl_1">
-                <td class="ListColLvl1_name" colspan="2">
-                    <h4>{$resourceAccess}</h4>
-                </td>
-            </tr>
-            <tr class="list_one">
-                <td class="FormRowField"><img class="helpTooltip" name="resource_access_rules"> {$form.resource_access_rules.label}</td>
-                <td class="FormRowField">{$form.resource_access_rules.html}</td>
-            </tr>
-        {/if}
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.furtherInfos}</h4>
-          </td>
-        </tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="geo_coords"> {$form.geo_coords.label}</td><td class="FormRowValue">{$form.geo_coords.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField">{$form.sg_activate.label}</td><td class="FormRowValue">{$form.sg_activate.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField">{$form.sg_comment.label}</td><td class="FormRowValue">{$form.sg_comment.html}</td></tr>
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 
-		{if $o == "a" || $o == "c"}
-			<tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
-				{if isset($form.required)}
-					{$form.required._note}
-				{/if}
-			</td></tr>
-		{/if}
-	</table>
-	</div>
-	<div id="validForm">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-	</div>
-	{$form.hidden}
+<form {$form.attributes}>
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$form.header.information}</a>
+        <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{$form.header.relation}</a>
+        <a href="#cf-sec-additional" onclick="cfScrollTo('cf-sec-additional', this); return false;">{$form.header.furtherInfos}</a>
+    </div>
+
+    <!-- Section: General Information -->
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.information}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.sg_name.html}
+                    <label class="cf-label-float">{$form.sg_name.label}</label>
+                    <img class="helpTooltip" name="servicegroup_name">
+                </div>
+                <div class="cf-field">
+                    {$form.sg_alias.html}
+                    <label class="cf-label-float">{$form.sg_alias.label}</label>
+                    <img class="helpTooltip" name="alias">
+                </div>
+                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span>{$form.sg_activate.label}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-sg-activate-toggle" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.sg_activate.html}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Relations -->
+    <div class="cf-section" id="cf-sec-relations">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.relation}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.sg_hServices.html}
+                    <label class="cf-label-float">{$form.sg_hServices.label}</label>
+                    <img class="helpTooltip" name="members">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.sg_hgServices.html}
+                    <label class="cf-label-float">{$form.sg_hgServices.label}</label>
+                    <img class="helpTooltip" name="hg_members">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.sg_tServices.html}
+                    <label class="cf-label-float">{$form.sg_tServices.label}</label>
+                    <img class="helpTooltip" name="st_members">
+                </div>
+            </div>
+            {if isset($form.resource_access_rules)}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.resource_access_rules.html}
+                    <label class="cf-label-float">{$form.resource_access_rules.label}</label>
+                    <img class="helpTooltip" name="resource_access_rules">
+                </div>
+            </div>
+            {/if}
+        </div>
+    </div>
+
+    <!-- Section: Additional Information -->
+    <div class="cf-section" id="cf-sec-additional">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.furtherInfos}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:250px;">
+                    {$form.geo_coords.html}
+                    <label class="cf-label-float">{$form.geo_coords.label}</label>
+                    <img class="helpTooltip" name="geo_coords">
+                </div>
+                <div class="cf-field" style="flex:1;position:relative;">
+                    <input type="text" id="cfGeoAddress" autocomplete="off" placeholder=" " />
+                    <label>{t}Search an address{/t}</label>
+                    <div id="cfGeoResults" class="cf-geo-dropdown"></div>
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.sg_comment.html}
+                    <label class="cf-label-float">{$form.sg_comment.label}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
+</div>
+
+{$form.hidden}
 </form>
 {$helptext}
+
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage({ geo: true });
+    CentreonForm.syncToggle('cf-sg-activate-toggle', 'sg_activate', '1', '0');
+
+    // Sync auto-create services toggle with checkbox (not a radio)
+    var dupToggle = document.getElementById('cf-toggle-dupSvTpl');
+    var dupCb = document.querySelector('input[name="dupSvTplAssoc"]');
+    if (dupToggle && dupCb) {
+        dupToggle.checked = dupCb.checked;
+        dupToggle.addEventListener('change', function() { dupCb.checked = this.checked; });
+    }
+});
+</script>
+{/literal}
