@@ -26,6 +26,9 @@ const dryRun = process.env.DRY_RUN === "true";
 if (!featuresDir) {
   throw new Error("missing FEATURES_DIR");
 }
+if (!dryRun && !xrayToken) {
+  throw new Error("missing XRAY_TOKEN (required unless DRY_RUN=true)");
+}
 
 const createTestMutation = fs.readFileSync(path.join(__dirname, "create-test.graphql"), "utf8");
 
@@ -114,14 +117,13 @@ async function provisionFeatureFile(featureFile) {
     } else {
       const key = await createTest(name, scenarioGherkin(lines, index));
       lines.splice(index, 0, `${indent}@${key}`);
+      // Persist now so a later failure never re-creates a Test already made.
+      fs.writeFileSync(featureFile, lines.join("\n"));
       console.log(`${shortPath}  ${key} <- ${name}`);
     }
     created++;
   }
 
-  if (created > 0 && !dryRun) {
-    fs.writeFileSync(featureFile, lines.join("\n"));
-  }
   return created;
 }
 
