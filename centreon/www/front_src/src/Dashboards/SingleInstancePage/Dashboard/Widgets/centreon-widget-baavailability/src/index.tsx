@@ -33,6 +33,7 @@ const Widget = ({
       panelOptions={panelOptions}
       refreshCount={refreshCount}
       isFromPreview={isFromPreview}
+      path="/bi/widget/baavailability"
       playlistHash={playlistHash}
       queryClient={queryClient}
       widgetPrefixQuery={widgetPrefixQuery}
