@@ -64,16 +64,14 @@ $form->addElement('submit', 'Search', _('Search'), ['class' => 'btc bt_success']
     }
 </script>
 <?php
-foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => 'javascript: '
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" . _('Do you confirm the duplication ?') . "')) {"
-        . " setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
-        . " setO(this.form.elements['" . $option . "'].value); submit();} "];
-    $form->addElement('select', $option, null, [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
-    $form->setDefaults([$option => null]);
-    $form->getElement($option)->setValue(null);
-}
+$attrs = ['onchange' => 'javascript: '
+    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the duplication ?') . "')) {"
+    . " setO(this.form.elements['o1'].value); submit();} "
+    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
+    . " setO(this.form.elements['o1'].value); submit();} "];
+$form->addElement('select', 'o1', null, [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+$form->setDefaults(['o1' => null]);
+$form->getElement('o1')->setValue(null);
 
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 $tpl->assign('limit', $limit);
