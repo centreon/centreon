@@ -33,8 +33,8 @@ $help['hc_type'] = dgettext(
 );
 $help['hc_severity_level'] = dgettext(
     'help',
-    'Severity level, must be a number. The items displayed will be sorted in ascending order. Thus the '
-    . 'lowest severity is considered than the highest priority.'
+    'Severity level, must be an integer between 1 and 127. The items displayed will be sorted in ascending '
+    . 'order. Thus the lowest severity is considered than the highest priority.'
 );
 $help['hc_severity_icon'] = dgettext('help', 'Icon for this severity.');
 $help['hc_activate'] = dgettext('help', 'Whether or not this category is enabled.');
