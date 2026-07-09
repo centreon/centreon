@@ -21,7 +21,6 @@ on:
       - '.github/workflows/docker-trapd.yml'
     tags:
       - "centreon-web-*"
-      - "centreon-pulp-promote-test-*" # TEMPORARY: MON-201979 smoke test only, revert before merge
   pull_request:
     paths:
       - '.github/docker/centreon-snmptrapd/**'
