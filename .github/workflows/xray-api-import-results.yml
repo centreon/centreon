@@ -150,7 +150,7 @@ jobs:
 
           echo "Importing $results_file ($RESULT_FORMAT) with Jira fields parameters into Xray..."
 
-          # Retry the import on transient failures (network / 429 / 5xx, e.g. the 504 gateway timeout).
+          # Retry the import on transient failures (network, 429, 5xx) except 504 (may duplicate the Test Execution).
           max_retries=5
           retry_delay=2
           attempt=0
@@ -172,7 +172,7 @@ jobs:
               break
             fi
 
-            if [ "$attempt" -lt "$max_retries" ] && { [ "$http_code" = "000" ] || [ "$http_code" = "429" ] || [ "$http_code" -ge 500 ]; }; then
+            if [ "$attempt" -lt "$max_retries" ] && { [ "$http_code" = "000" ] || [ "$http_code" = "429" ] || { [ "$http_code" -ge 500 ] && [ "$http_code" != "504" ]; }; }; then
               echo "Transient import failure (HTTP $http_code), retry $((attempt + 1))/$max_retries in ${retry_delay}s"
               attempt=$((attempt + 1))
               sleep "$retry_delay"
