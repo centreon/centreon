@@ -30,31 +30,37 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerResource;
+use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
+use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Domain\Repository\EngineSecretsRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
 /**
- * @implements ProcessorInterface<CreatePollerResource, CreatePollerResource>
+ * @implements ProcessorInterface<CreatePollerInput, PollerResource>
  */
 final readonly class CreatePollerProcessor implements ProcessorInterface
 {
     /**
-     * @param TransformerInterface<Poller, CreatePollerResource> $transformer
+     * @param TransformerInterface<Poller, PollerResource> $transformer
      */
     public function __construct(
         private CommandBus $commandBus,
-        #[Autowire(service: ResourceCreatePollerTransformer::class)]
+        #[Autowire(service: ResourcePollerTransformer::class)]
         private TransformerInterface $transformer,
         private Security $security,
+        private PollerTokenRepository $pollerTokenRepository,
+        private EngineSecretsRepository $engineSecretsRepository,
     ) {
     }
 
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CreatePollerResource
+    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): PollerResource
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
@@ -66,9 +72,23 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             creatorId: $credentialUser->credential->userId->value,
         );
 
+        $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
+        $appSecret = $this->engineSecretsRepository->getAppSecret();
+        $salt = $this->engineSecretsRepository->getSalt();
+
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        return $this->transformer->transform($model);
+        $factory = new PollerInstallationCommandFactory(
+            $model,
+            $token,
+            $appSecret,
+            $salt,
+        );
+
+        $resource = $this->transformer->transform($model);
+        $resource->installationCommand = $factory->generate();
+
+        return $resource;
     }
 }

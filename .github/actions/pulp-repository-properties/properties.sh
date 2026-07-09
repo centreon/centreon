@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$VERSION" || -z "$STABILITY" || -z "$IS_CLOUD" ]]; then
+  echo "::error::some mandatory inputs are empty, please check the logs."
+  exit 1
+fi
+
+case "$DISTRIB_FAMILY" in
+  el) ROOT_REPO="rpm-standard" ;;
+  debian) ROOT_REPO="apt-standard" ;;
+  ubuntu) ROOT_REPO="ubuntu-standard" ;;
+  *)
+    echo "::error::Unsupported distribution family: $DISTRIB_FAMILY"
+    exit 1
+    ;;
+esac
+
+TESTING_SEGMENT="testing"
+TESTING_POOL_SEGMENT="testing"
+if [[ "$RELEASE_TYPE" == "release" || "$RELEASE_TYPE" == "hotfix" ]]; then
+  TESTING_SEGMENT="testing-$RELEASE_TYPE"
+  TESTING_POOL_SEGMENT="testing/$RELEASE_TYPE"
+fi
+
+STABILITY_SEGMENT="$STABILITY"
+POOL_SEGMENT="$STABILITY"
+if [[ "$STABILITY" == "testing" ]]; then
+  STABILITY_SEGMENT="$TESTING_SEGMENT"
+  POOL_SEGMENT="$TESTING_POOL_SEGMENT"
+fi
+
+REPOSITORY_PREFIX=""
+BASE_PATH_PREFIX=""
+TESTING_REPOSITORY_PREFIX=""
+STABLE_REPOSITORY_PREFIX=""
+STABLE_BASE_PATH_PREFIX=""
+REPOSITORY_NAME=""
+BASE_PATH=""
+SUITE=""
+TESTING_SUITE=""
+STABLE_SUITE=""
+POOL_PATH=""
+TESTING_POOL_PATH=""
+STABLE_POOL_PATH=""
+
+if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+  if [[ "$DISTRIB_FAMILY" != "el" ]]; then
+    echo "::notice::Feature delivery is not supported for $DISTRIB_FAMILY packages, skipping delivery."
+    echo "skip_delivery=true" >> "$GITHUB_OUTPUT"
+    exit 0
+  fi
+
+  FEATURE_TICKET=$(echo "$GH_HEAD_REF" | grep -oE 'MON-[0-9]+' | head -1 || true)
+  if [[ -z "$FEATURE_TICKET" ]]; then
+    echo "::error::Cannot extract the feature ticket from branch name $GH_HEAD_REF"
+    exit 1
+  fi
+
+  REPOSITORY_PREFIX="$ROOT_REPO-feature-$FEATURE_TICKET-$VERSION-$DISTRIB-$STABILITY"
+  BASE_PATH_PREFIX="$ROOT_REPO-feature/$FEATURE_TICKET/$VERSION/$DISTRIB/$STABILITY"
+else
+  if [[ "$IS_CLOUD" == "true" ]]; then
+    ROOT_REPO="$ROOT_REPO-internal"
+  fi
+
+  if [[ "$DISTRIB_FAMILY" == "el" ]]; then
+    REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$STABILITY_SEGMENT"
+    BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
+    TESTING_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$TESTING_SEGMENT"
+    STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-stable"
+    STABLE_BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/stable"
+  else
+    REPOSITORY_NAME="$ROOT_REPO"
+    BASE_PATH="$ROOT_REPO"
+    SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
+    TESTING_SUITE="$DISTRIB-$VERSION-$TESTING_SEGMENT"
+    STABLE_SUITE="$DISTRIB-$VERSION-stable"
+    POOL_PATH="pool/$VERSION/$POOL_SEGMENT/$MODULE_NAME"
+    TESTING_POOL_PATH="pool/$VERSION/$TESTING_POOL_SEGMENT/$MODULE_NAME"
+    STABLE_POOL_PATH="pool/$VERSION/stable/$MODULE_NAME"
+  fi
+fi
+
+echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
+echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
+echo "[DEBUG] - testing_repository_prefix: $TESTING_REPOSITORY_PREFIX"
+echo "[DEBUG] - stable_repository_prefix: $STABLE_REPOSITORY_PREFIX"
+echo "[DEBUG] - stable_base_path_prefix: $STABLE_BASE_PATH_PREFIX"
+echo "[DEBUG] - repository_name: $REPOSITORY_NAME"
+echo "[DEBUG] - base_path: $BASE_PATH"
+echo "[DEBUG] - suite: $SUITE"
+echo "[DEBUG] - testing_suite: $TESTING_SUITE"
+echo "[DEBUG] - stable_suite: $STABLE_SUITE"
+echo "[DEBUG] - pool_path: $POOL_PATH"
+echo "[DEBUG] - testing_pool_path: $TESTING_POOL_PATH"
+echo "[DEBUG] - stable_pool_path: $STABLE_POOL_PATH"
+
+{
+  echo "skip_delivery=false"
+  echo "repository_prefix=$REPOSITORY_PREFIX"
+  echo "base_path_prefix=$BASE_PATH_PREFIX"
+  echo "testing_repository_prefix=$TESTING_REPOSITORY_PREFIX"
+  echo "stable_repository_prefix=$STABLE_REPOSITORY_PREFIX"
+  echo "stable_base_path_prefix=$STABLE_BASE_PATH_PREFIX"
+  echo "repository_name=$REPOSITORY_NAME"
+  echo "base_path=$BASE_PATH"
+  echo "suite=$SUITE"
+  echo "testing_suite=$TESTING_SUITE"
+  echo "stable_suite=$STABLE_SUITE"
+  echo "pool_path=$POOL_PATH"
+  echo "testing_pool_path=$TESTING_POOL_PATH"
+  echo "stable_pool_path=$STABLE_POOL_PATH"
+} >> "$GITHUB_OUTPUT"

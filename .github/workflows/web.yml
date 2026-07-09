@@ -1325,12 +1325,13 @@ jobs:
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
   deliver:
-    runs-on: centreon-common
+    runs-on: ubuntu-24.04
     needs:
       [
         changes,
         get-environment,
-        e2e-test
+        e2e-test,
+        bruno-api-test
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -1345,11 +1346,13 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: deliver ${{ matrix.distrib }}
+    permissions:
+      contents: read
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Deliver RPM package
+      - name: Deliver RPM package on Artifactory
         if: matrix.package_extension == 'rpm'
         uses: ./.github/actions/rpm-delivery
         with:
@@ -1364,7 +1367,7 @@ jobs:
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-      - name: Deliver DEB package
+      - name: Deliver DEB package on Artifactory
         if: matrix.package_extension == 'deb'
         uses: ./.github/actions/deb-delivery
         with:
@@ -1381,7 +1384,7 @@ jobs:
     needs: [get-environment, deliver]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable", "testing"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
@@ -1391,11 +1394,13 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
     name: promote ${{ matrix.distrib }}
+    permissions:
+      contents: read
     steps:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Promote ${{ matrix.distrib }} to stable
+      - name: Promote ${{ matrix.distrib }} to stable on Artifactory
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
@@ -1466,3 +1471,98 @@ jobs:
           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
           module_name: "centreon-web"
           ticket_reason_for_creation: "Nightly"
+
+  deliver-pulp:
+    continue-on-error: true
+    runs-on: centreon-ubuntu-22.04
+    needs:
+      [
+        changes,
+        get-environment,
+        e2e-test
+      ]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.changes.outputs.trigger_delivery == 'true' &&
+      github.event.pull_request.head.repo.fork != true
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+    name: deliver ${{ matrix.distrib }} (pulp)
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Deliver packages on Pulp
+        id: deliver_pulp
+        uses: ./.github/actions/package-delivery-pulp
+        continue-on-error: true
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          version: ${{ needs.get-environment.outputs.major_version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Warn if the Pulp delivery failed
+        if: steps.deliver_pulp.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
+
+  promote-pulp:
+    continue-on-error: true
+    needs: [get-environment, deliver-pulp]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
+    runs-on: centreon-ubuntu-22.04
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+    name: promote ${{ matrix.distrib }} (pulp)
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Promote ${{ matrix.distrib }} to stable on Pulp
+        id: promote_pulp
+        uses: ./.github/actions/promote-to-stable-pulp
+        continue-on-error: true
+        with:
+          module_name: web
+          distrib: ${{ matrix.distrib }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+          release_type: ${{ needs.get-environment.outputs.release_type }}
+          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          pulp_url: ${{ vars.PULP_API_URL }}
+          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+
+      - name: Warn if the Pulp promotion failed
+        if: steps.promote_pulp.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "::warning::Pulp promotion failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory promotion remains authoritative). See the 'Promote to stable on Pulp' step."

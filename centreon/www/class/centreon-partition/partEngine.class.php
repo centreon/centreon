@@ -389,6 +389,10 @@ class PartEngine
             $dbType = match ($versionName) {
                 'MariaDB' => 'mariadb',
                 'MySQL','Source distribution','Percona Server' => 'mysql',
+                // Fallback DBMS-family discriminator for unknown version_comment values, NOT a
+                // minimum-supported-version gate: MariaDB reports 10.x/11.x, MySQL reports 8.x.
+                // The threshold only needs to sit below the lowest supported MariaDB and above the
+                // highest MySQL, so it stays at 10.5.0 to keep classifying platforms mid-upgrade correctly.
                 default => (($versionNumber === null || version_compare($versionNumber, '10.5.0', '>=')) ? 'mariadb' : 'mysql'),
             };
             if ($dbType === 'mysql') {

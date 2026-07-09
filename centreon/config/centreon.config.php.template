@@ -34,7 +34,7 @@ $constants = [
     '_CENTREON_CACHEDIR_' => '@CENTREON_CACHEDIR@',
     '_CENTREON_VARLIB_' => '@CENTREON_VARLIB@',
     '_CENTREON_PHP_VERSION_' => '8.4',
-    '_CENTREON_MARIA_DB_MIN_VERSION_' => '10.5',
+    '_CENTREON_MARIA_DB_MIN_VERSION_' => '11.8',
 ];
 
 $createVaultConfiguration  = function(): VaultConfiguration

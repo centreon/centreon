@@ -5130,10 +5130,10 @@ paths:
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/Poller.jsonld-poller.read'
+                $ref: '#/components/schemas/Poller.jsonld'
             application/json:
               schema:
-                $ref: '#/components/schemas/Poller-poller.read'
+                $ref: '#/components/schemas/Poller'
           links: {  }
         '400':
           description: 'Invalid input'
@@ -5182,11 +5182,53 @@ paths:
         content:
           application/ld+json:
             schema:
-              $ref: '#/components/schemas/Poller-poller.write'
+              $ref: '#/components/schemas/Poller.CreatePollerInput'
           application/json:
             schema:
-              $ref: '#/components/schemas/Poller-poller.write'
+              $ref: '#/components/schemas/Poller.CreatePollerInput'
         required: true
+  '/configuration/pollers/installation-command/{id}':
+    get:
+      operationId: api_configurationpollersinstallation-command_id_get
+      tags:
+        - Poller
+      responses:
+        '404':
+          description: 'Poller not found'
+        '403':
+          description: 'You are not allowed to access this resource'
+        '200':
+          description: 'InstallationCommandResource resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Poller.InstallationCommandResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poller.InstallationCommandResource'
+      summary: 'Retrieves a poller installation command'
+      description: 'Retrieves a poller installation command'
+      parameters:
+        -
+          name: token-name
+          in: query
+          description: 'Name of the poller token to embed in the installation command. When omitted, the first valid poller token is used.'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: id
+          in: path
+          description: 'Id of the poller for which to generate the installation command.'
+          required: true
+          deprecated: false
+          schema:
+            type: integer
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:
@@ -10003,3 +10045,85 @@ components:
           $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
+    Poller:
+      type: object
+      properties:
+        name:
+          type: string
+        poller_type:
+          type: string
+        address:
+          type: string
+        id:
+          type: integer
+          nullable: true
+        uid:
+          type: string
+          nullable: true
+        installation_command:
+          type: string
+          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+          nullable: true
+    Poller.CreatePollerInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        poller_token_name:
+          minLength: 1
+          maxLength: 255
+          type: string
+      required:
+        - poller_token_name
+    Poller.InstallationCommandResource:
+      type: object
+      properties:
+        installation_command:
+          description: 'Poller Installation Command'
+          type: string
+          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    Poller.InstallationCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            installation_command:
+              description: 'Poller Installation Command'
+              type: string
+              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    Poller.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              type: string
+            poller_type:
+              type: string
+            address:
+              type: string
+            id:
+              type: integer
+              nullable: true
+            uid:
+              type: string
+              nullable: true
+            installation_command:
+              type: string
+              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+              nullable: true
