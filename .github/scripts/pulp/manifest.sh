@@ -38,7 +38,7 @@ manifest_write() {
     --arg content_url "$content_url" \
     --argjson packages "$packages" \
     '{
-      module: $module,
+      "module": $module,
       distrib: $distrib,
       package_type: $package_type,
       stability: $stability,
