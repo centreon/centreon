@@ -654,6 +654,30 @@
 }
 
 /* ==========================================================================
+   Sub-section heading / separator
+   Markup: <div class="cf-subsection">Label</div>
+   Modifiers: --flush (first heading under a section header, no top margin)
+              --gap   (extra breathing room below the heading)
+   ========================================================================== */
+
+.cf-subsection {
+    margin: 18px 0 8px;
+    padding-bottom: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--list-color, #555);
+    border-bottom: 1px solid var(--color-divider, #e3e3e3);
+}
+
+.cf-subsection--flush {
+    margin-top: 0;
+}
+
+.cf-subsection--gap {
+    margin-bottom: 22px;
+}
+
+/* ==========================================================================
    Toggle switch (reuse cl-toggle from listing)
    ========================================================================== */
 
