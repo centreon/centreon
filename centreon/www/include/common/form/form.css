@@ -676,7 +676,7 @@
      <label class="cl-toggle"><input type="checkbox"><span class="cl-toggle-slider"></span></label>
    ========================================================================== */
 
-.cf-form-wrapper .cl-toggle {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle {
     position: relative;
     display: inline-block;
     width: 42px;
@@ -690,7 +690,7 @@
     pointer-events: auto;
 }
 
-.cf-form-wrapper .cl-toggle input {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input {
     position: absolute;
     opacity: 0;
     width: 0;
@@ -698,7 +698,7 @@
     margin: 0;
 }
 
-.cf-form-wrapper .cl-toggle-slider {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle-slider {
     position: absolute;
     inset: 0;
     border-radius: 20px;
@@ -707,7 +707,7 @@
     pointer-events: auto;
 }
 
-.cf-form-wrapper .cl-toggle-slider::before {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle-slider::before {
     content: '';
     position: absolute;
     width: 24px;
@@ -721,30 +721,30 @@
 }
 
 /* ON */
-.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:checked + .cl-toggle-slider {
     background: var(--color-success, #88B922);
 }
-.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider::before {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:checked + .cl-toggle-slider::before {
     transform: translateX(22px);
 }
 
 /* Hover: subtle grey halo around the knob */
-.cf-form-wrapper .cl-toggle:hover .cl-toggle-slider::before {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle:hover .cl-toggle-slider::before {
     box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* Focus: light-blue halo */
-.cf-form-wrapper .cl-toggle input:focus-visible + .cl-toggle-slider::before {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:focus-visible + .cl-toggle-slider::before {
     box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* Disabled */
-.cf-form-wrapper .cl-toggle input:disabled + .cl-toggle-slider {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:disabled + .cl-toggle-slider {
     opacity: 0.5;
     cursor: not-allowed;
 }
-.cf-form-wrapper .cl-toggle input:disabled ~ .cl-toggle-slider,
-.cf-form-wrapper .cl-toggle:has(input:disabled) {
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:disabled ~ .cl-toggle-slider,
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle:has(input:disabled) {
     cursor: not-allowed;
 }
 
