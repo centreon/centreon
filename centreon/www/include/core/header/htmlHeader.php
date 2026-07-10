@@ -111,11 +111,11 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/javascript/jquery/plugins/qtip/jquery-qtip.css" rel="stylesheet" type="text/css"/>
 
     <!-- Modern listing styles and JS module -->
-    <link href="./include/common/listing/listing.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="./include/common/listing/listing.js<?php echo $versionParam; ?>"></script>
+    <link href="./include/common/listing/listing.css<?php echo $versionParam . '&t=' . time(); ?>" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="./include/common/listing/listing.js<?php echo $versionParam . '&t=' . time(); ?>"></script>
     <!-- Modern form styles and JS module -->
-    <link href="./include/common/form/form.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam; ?>"></script>
+    <link href="./include/common/form/form.css<?php echo $versionParam . '&t=' . time(); ?>" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam . '&t=' . time(); ?>"></script>
 
     <!-- graph css -->
     <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
