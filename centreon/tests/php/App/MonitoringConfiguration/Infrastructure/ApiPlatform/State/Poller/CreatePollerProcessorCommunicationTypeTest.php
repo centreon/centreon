@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
@@ -86,7 +87,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
     private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
     {
         $poller = new Poller(
-            id: null,
+            id: new PollerId(42),
             name: new PollerName('TestPoller'),
             address: new PollerAddress('192.168.1.1'),
             isCentral: false,
