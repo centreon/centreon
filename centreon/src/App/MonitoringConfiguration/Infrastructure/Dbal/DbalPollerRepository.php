@@ -368,8 +368,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->realTimeConnection->createQueryBuilder();
         $qb->select('i.cma_certificate_sha AS certificate_sha', 'i.cma_certificate_cn  AS certificate_cn')
             ->from('instances', 'i')
-            ->where('i.instance_id = :poller_id')
-            ->setParameter('poller_id', $poller->id()->value);
+            ->where('i.instance_id = :poller_uid')
+            ->setParameter('poller_uid', $poller->uid->value);
 
         $row = $qb->executeQuery()->fetchAssociative() ?: [];
         $certSha = ($row['certificate_sha'] ?? '') !== '' ? $row['certificate_sha'] : null;
