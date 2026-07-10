@@ -2977,13 +2977,10 @@ msgstr "Les criticités sont définies au niveau des catégories d'objets."
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
 msgstr ""
-"Niveau de gravité, doit être un nombre. Les éléments affichés seront triées "
-"par ordre croissant. Ainsi la criticité le plus basse est considérée comme "
-"de la plus prioritaire."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Short description of configuration"
@@ -7134,6 +7131,16 @@ msgstr ""
 #: unknown
 msgid "Severity level, must be a number. "
 msgstr "Niveau de sévérité, doit être un nombre. "
+
+#: unknown
+msgid ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+msgstr ""
+"Niveau de gravité, doit être un nombre. Les éléments affichés seront "
+"triées par ordre croissant. Ainsi la criticité le plus basse est "
+"considérée comme de la plus prioritaire."
 
 #: unknown
 msgid ""
