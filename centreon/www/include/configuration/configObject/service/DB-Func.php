@@ -4317,6 +4317,13 @@ function getServiceTemplatePayload(
         'service_categories' => isset($submittedValues['service_categories'])
             ? array_map('intval', $submittedValues['service_categories'])
             : CentreonUtils::mergeWithInitialValues($form, 'service_categories'),
+        'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
+            && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
+                ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
+                : 2,
+        'freshness_threshold' => $submittedValues['service_freshness_threshold']
+            ? (int) $submittedValues['service_freshness_threshold']
+            : null,
     ];
 
     if (! $isCloudPlatform) {
@@ -4338,13 +4345,6 @@ function getServiceTemplatePayload(
                 && $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'] != 2
                     ? (int) $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled']
                     : 2,
-            'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
-                && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
-                    ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
-                    : 2,
-            'freshness_threshold' => $submittedValues['service_freshness_threshold']
-                ? (int) $submittedValues['service_freshness_threshold']
-                : null,
             'low_flap_threshold' => $submittedValues['service_low_flap_threshold']
                 ? (int) $submittedValues['service_low_flap_threshold']
                 : null,
