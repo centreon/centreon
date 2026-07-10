@@ -107,9 +107,9 @@
 {literal}
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Shared design-system toggles (built before initFormPage so the chip
-    // auto-transform skips them)
-    CentreonForm.makeToggle(['size_to_max', 'scaled', 'default_tpl1']);
+    // Solo checkboxes (size_to_max, scaled, default_tpl1) auto-convert to
+    // design-system toggles; "size to max" greys the upper limit via the
+    // declarative data-cf-disables attribute (see formGraphTemplate.php).
     CentreonForm.initFormPage();
 });
 </script>
