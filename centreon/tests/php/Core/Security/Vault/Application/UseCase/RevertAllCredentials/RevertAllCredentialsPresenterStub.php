@@ -21,27 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Tests\Core\Security\Vault\Application\UseCase\RevertAllCredentials;
 
-class VaultException extends \Exception
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Security\Vault\Application\UseCase\RevertAllCredentials\RevertAllCredentialsPresenterInterface;
+use Core\Security\Vault\Application\UseCase\RevertAllCredentials\RevertAllCredentialsResponse;
+
+class RevertAllCredentialsPresenterStub implements RevertAllCredentialsPresenterInterface
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
+    public ResponseStatusInterface|RevertAllCredentialsResponse $response;
 
-    public static function unableToRevertCredentials(): self
+    public function presentResponse(ResponseStatusInterface|RevertAllCredentialsResponse $response): void
     {
-        return new self(_('Unable to revert passwords'));
-    }
-
-    public static function noVaultConfigured(): self
-    {
-        return new self(_('No vault configured'));
-    }
-
-    public static function vaultNotAvailable(): self
-    {
-        return new self(_('Vault is not available'));
+        $this->response = $response;
     }
 }
