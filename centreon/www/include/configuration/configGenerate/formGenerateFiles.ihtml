@@ -25,13 +25,7 @@
 }
 .gen-adv-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333; }
 
-/* iPhone toggle (self-contained) */
-.gen-wrap .cl-toggle { position: relative; display: inline-block; width: 36px; height: 20px; cursor: pointer; flex-shrink: 0; }
-.gen-wrap .cl-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-.gen-wrap .cl-toggle-slider { position: absolute; inset: 0; background: #ccc; border-radius: 20px; transition: background .25s; }
-.gen-wrap .cl-toggle-slider::before { content: ''; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #fff; border-radius: 50%; transition: transform .25s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.gen-wrap .cl-toggle input:checked + .cl-toggle-slider { background: var(--color-success, #88B922); }
-.gen-wrap .cl-toggle input:checked + .cl-toggle-slider::before { transform: translateX(16px); }
+/* Toggle switch: inherits the shared design-system .cl-toggle from form.css */
 
 /* Stepper */
 .gen-stepper { display: flex; align-items: center; margin: 22px 0 14px; }
