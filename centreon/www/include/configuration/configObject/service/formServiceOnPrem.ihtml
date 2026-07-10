@@ -91,7 +91,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Service Check Options{/t}</div>
+            <div class="cf-subsection">{t}Service Check Options{/t}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.command_command_id.html}
@@ -135,7 +135,7 @@
             </div>
             {/if}
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Service Scheduling Options{/t}</div>
+            <div class="cf-subsection">{t}Service Scheduling Options{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.timeperiod_tp_id.html}
@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Notification receivers{/t}</div>
+            <div class="cf-subsection">{t}Notification receivers{/t}</div>
             {if !isset($isServiceTemplate)}
             <div class="cf-row">
                 <div class="cf-toggle-row">
@@ -285,7 +285,7 @@
                 {/if}
             {/if}
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Notification options{/t}</div>
+            <div class="cf-subsection">{t}Notification options{/t}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -410,7 +410,7 @@
                 </div>
             {/if}
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.traps}</div>
+            <div class="cf-subsection">{$form.header.traps}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -457,7 +457,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Freshness_Control_options}</div>
+            <div class="cf-subsection">{$Freshness_Control_options}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_check_freshness.html}
@@ -471,7 +471,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Flapping_Options}</div>
+            <div class="cf-subsection">{$Flapping_Options}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_flap_detection_enabled.html}
@@ -490,7 +490,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$History_Options}</div>
+            <div class="cf-subsection">{$History_Options}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_retain_status_information.html}
@@ -511,7 +511,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Event_Handler}</div>
+            <div class="cf-subsection">{$Event_Handler}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_event_handler_enabled.html}
@@ -573,7 +573,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.nagios}</div>
+            <div class="cf-subsection">{$form.header.nagios}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.esi_notes_url.html}
@@ -624,7 +624,7 @@
                 {/if}
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherInfos}</div>
+            <div class="cf-subsection">{$form.header.furtherInfos}</div>
             <div class="cf-row-inline">
                 {if !isset($isServiceTemplate)}
                 <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">

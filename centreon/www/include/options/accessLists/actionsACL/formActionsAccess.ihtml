@@ -57,7 +57,7 @@
                     <span style="display:none;">{$form.acl_action_activate.html}</span>
                 </div>
             </div>
-            <div style="margin:18px 0 22px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Assign people to this access list{/t}</div>
+            <div class="cf-subsection cf-subsection--gap">{t}Assign people to this access list{/t}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     <p class="oreonbutton">{$form.acl_groups.html}</p>

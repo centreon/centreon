@@ -46,7 +46,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 22px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle0}</div>
+            <div class="cf-subsection cf-subsection--gap">{$subtitle0}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_args.html}
@@ -86,7 +86,7 @@
                 {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="matchingrules" cloneSet=$cloneSetMaching}
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle1}</div>
+            <div class="cf-subsection">{$subtitle1}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_submit_result_enable.html}
@@ -95,7 +95,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle2}</div>
+            <div class="cf-subsection">{$subtitle2}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_reschedule_svc_enable.html}
@@ -104,7 +104,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle3}</div>
+            <div class="cf-subsection">{$subtitle3}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.traps_execution_command_enable.html}
@@ -118,7 +118,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$subtitle4}</div>
+            <div class="cf-subsection">{$subtitle4}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_comments.html}
@@ -188,7 +188,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$preexecTxt}</div>
+            <div class="cf-subsection">{$preexecTxt}</div>
             <div class="cf-row">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                     <img class="helpTooltip" name="preexeccmd">
@@ -197,7 +197,7 @@
                 {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="preexec" cloneSet=$cloneSet}
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Misc{/t}</div>
+            <div class="cf-subsection">{t}Misc{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.traps_log.html}

@@ -21,7 +21,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.information}</div>
+            <div class="cf-subsection">{$form.header.information}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.nagios_name.html}
@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Folders}</div>
+			<div class="cf-subsection">{$Folders}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.cfg_dir.html}
@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Files}</div>
+			<div class="cf-subsection">{$Files}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.status_file.html}
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$ExternalCommandes}</div>
+			<div class="cf-subsection">{$ExternalCommandes}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.check_external_commands.html}
@@ -120,7 +120,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.information}</div>
+            <div class="cf-subsection">{$form.header.information}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.nagios_comment.html}
@@ -140,7 +140,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$HostCheckOptions}</div>
+            <div class="cf-subsection">{$HostCheckOptions}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.enable_predictive_host_dependency_checks.html}
@@ -148,7 +148,7 @@
                     <img class="helpTooltip" name="enable_predictive_host_dependency_checks">
                 </div>
             </div>
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$ServiceCheckOptions}</div>
+            <div class="cf-subsection">{$ServiceCheckOptions}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.check_for_orphaned_services.html}
@@ -185,7 +185,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$EventHandler}</div>
+            <div class="cf-subsection">{$EventHandler}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.global_host_event_handler.html}
@@ -201,7 +201,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Freshness}</div>
+            <div class="cf-subsection">{$Freshness}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.check_service_freshness.html}
@@ -239,7 +239,7 @@
                 </div>
             </div>
 
-		 	<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$FlappingOptions}</div>
+		 	<div class="cf-subsection">{$FlappingOptions}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.enable_flap_detection.html}
@@ -276,7 +276,7 @@
                 </div>
             </div>
 
-      <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$MiscOptions}</div>
+      <div class="cf-subsection">{$MiscOptions}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.enable_notifications.html}
@@ -333,7 +333,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$LoggingOptions}</div>
+            <div class="cf-subsection">{$LoggingOptions}</div>
       <div class="cf-row">
                 <div class="cf-field">
                     {$form.logger_version.html}
@@ -398,7 +398,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$DebugConfiguration}</div>
+            <div class="cf-subsection">{$DebugConfiguration}</div>
       <!-- LOGGER V1 OPTIONS -->
       <div class="cf-row logger_v1_option">
                 <div class="cf-field">
@@ -520,7 +520,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Timouts}</div>
+			<div class="cf-subsection">{$Timouts}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.service_check_timeout.html}&nbsp;{$Seconds}
@@ -550,7 +550,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$StatesRetention}</div>
+			<div class="cf-subsection">{$StatesRetention}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.retain_state_information.html}
@@ -600,7 +600,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$BrokerModule}</div>
+            <div class="cf-subsection">{$BrokerModule}</div>
 			<div class="cf-row">
                 <div class="cf-field" id="multipleBroker">
                     {include file="file:$centreon_path/www/include/common/templates/clone.ihtml" cloneId="broker" cloneSet=$cloneSet}
@@ -621,7 +621,7 @@
                     <label class="cf-label-float">{$form.broker_module_cfg_file.label}</label>
                 </div>
             </div>
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$MacrosMgmt}</div>
+            <div class="cf-subsection">{$MacrosMgmt}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.enable_macros_filter.html}
@@ -650,7 +650,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$TimeUnit}</div>
+            <div class="cf-subsection">{$TimeUnit}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.sleep_time.html}&nbsp;{$Minutes}
@@ -659,7 +659,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$HostCheckSchedulingOptions}</div>
+			<div class="cf-subsection">{$HostCheckSchedulingOptions}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.host_inter_check_delay_method.html}
@@ -675,7 +675,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$ServiceCheckSchedulingOptions}</div>
+            <div class="cf-subsection">{$ServiceCheckSchedulingOptions}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_inter_check_delay_method.html}
@@ -712,7 +712,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$CachedCheck}</div>
+            <div class="cf-subsection">{$CachedCheck}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.cached_host_check_horizon.html}&nbsp;{$Seconds}
@@ -728,7 +728,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$AutoRescheduling}</div>
+			<div class="cf-subsection">{$AutoRescheduling}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.auto_reschedule_checks.html}
@@ -751,7 +751,7 @@
                 </div>
             </div>
 
-			<div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Optimization}</div>
+			<div class="cf-subsection">{$Optimization}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.enable_environment_macros.html}
@@ -772,7 +772,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Advanced}</div>
+            <div class="cf-subsection">{$Advanced}</div>
 			<div class="cf-row">
                 <div class="cf-field">
                     {$form.date_format.html}
@@ -815,7 +815,7 @@
                     <img class="helpTooltip" name="use_true_regexp_matching">
                 </div>
             </div>
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$AdminInfo}</div>
+            <div class="cf-subsection">{$AdminInfo}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.admin_email.html}
