@@ -1,12 +1,3 @@
-<style>
-{literal}
-    /* Si l'input interne est disabled (géré par votre PHP), le parent md-radio se grise tout seul */
-    .md-radio:has(input[disabled]) {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-{/literal}
-</style>
 {$form.javascript}
 <link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 
