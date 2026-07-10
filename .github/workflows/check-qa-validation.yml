@@ -72,16 +72,18 @@ jobs:
               }
             }
 
-            // Same team-detection logic as before
-            const getRequestedTeamsFromTimeline = async (page) => {
-              const timeline = await github.rest.issues.listEventsForTimeline({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                per_page: 100,
-                page,
-              });
-              return timeline.data
+            // Scan the whole timeline: a QA team's review_requested may be on any page.
+            const getRequestedTeamsFromTimeline = async () => {
+              const events = await github.paginate(
+                github.rest.issues.listEventsForTimeline,
+                {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  per_page: 100,
+                },
+              );
+              return events
                 .filter(e => e.event === 'review_requested' && e?.requested_team?.name)
                 .map(e => e.requested_team.name);
             };
@@ -89,8 +91,7 @@ jobs:
             const teamsWithQaApproval = ['owners-php', 'owners-react', 'owners-cpp'];
             let needsQaApproval = false;
             try {
-              let teams = await getRequestedTeamsFromTimeline(1);
-              if (teams.length === 0) teams = await getRequestedTeamsFromTimeline(2);
+              const teams = await getRequestedTeamsFromTimeline();
               if (teams.length === 0) {
                 core.warning('No requested teams found; assuming QA approval is needed.');
                 needsQaApproval = true;
