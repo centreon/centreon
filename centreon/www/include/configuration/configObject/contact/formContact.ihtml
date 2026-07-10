@@ -74,7 +74,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Groups{/t}</div>
+            <div class="cf-subsection">{t}Groups{/t}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -101,7 +101,7 @@
             </div>
             {/if}
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Misc{/t}</div>
+            <div class="cf-subsection">{t}Misc{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.contact_lang.html}
@@ -149,7 +149,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.hostNotification}</div>
+            <div class="cf-subsection">{$form.header.hostNotification}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.contact_hostNotifOpts.html}
@@ -179,7 +179,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.serviceNotification}</div>
+            <div class="cf-subsection">{$form.header.serviceNotification}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.contact_svNotifOpts.html}
@@ -243,7 +243,7 @@
             {/if}
             {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w"}
             <div id="cf-password-block">
-                <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Password{/t}</div>
+                <div class="cf-subsection">{t}Password{/t}</div>
                 {if $o == "c"}
                 <div class="cf-row">
                     <div class="cf-field" style="max-width:50%;">
@@ -271,7 +271,7 @@
             </div>
             {/if}
             {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w" && $autologinEnabled}
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Autologin{/t}</div>
+            <div class="cf-subsection">{t}Autologin{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field" style="max-width:420px;">
                     {$form.contact_autologin_key.html}
@@ -295,7 +295,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:0 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Global Access Right{/t}</div>
+            <div class="cf-subsection cf-subsection--flush">{t}Global Access Right{/t}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -320,7 +320,7 @@
                 </div>
             </div>
             {if $displayAdminFlag == 1}
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}API Access{/t}</div>
+            <div class="cf-subsection">{t}API Access{/t}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.reach_api.html}
@@ -351,7 +351,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:0 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherAddress}</div>
+            <div class="cf-subsection cf-subsection--flush">{$form.header.furtherAddress}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.contact_address1.html}
@@ -389,7 +389,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherInfos}</div>
+            <div class="cf-subsection">{$form.header.furtherInfos}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.contact_comment.html}
