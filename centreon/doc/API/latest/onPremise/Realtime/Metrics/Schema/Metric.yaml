@@ -21,3 +21,11 @@ properties:
   critical_low_threshold:
     type: float
     nullable: true
+  min:
+    type: number
+    format: float
+    nullable: true
+  max:
+    type: number
+    format: float
+    nullable: true
