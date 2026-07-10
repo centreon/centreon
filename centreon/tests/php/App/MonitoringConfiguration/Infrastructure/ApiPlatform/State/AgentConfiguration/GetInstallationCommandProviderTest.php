@@ -204,10 +204,15 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
     private function insertInstance(int $pollerId, ?string $certificateSha, ?string $certificateCn): void
     {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        // instances.instance_id holds the Snowflake UID (nagios_server.uid), not the poller config id.
+        $instanceId = (int) $connection->fetchOne('SELECT uid FROM nagios_server WHERE id = ?', [$pollerId]);
+
         /** @var Connection $realtimeConnection */
         $realtimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $realtimeConnection->insert('instances', [
-            'instance_id' => $pollerId,
+            'instance_id' => $instanceId,
             'name' => 'test-instance-' . $pollerId,
             'cma_certificate_sha' => $certificateSha,
             'cma_certificate_cn' => $certificateCn,
