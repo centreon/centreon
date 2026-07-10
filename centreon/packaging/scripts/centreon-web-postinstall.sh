@@ -175,6 +175,16 @@ fixSymfonyCacheRights() {
   fi
 }
 
+fixWwwDirRights() {
+  # If a module package (e.g. centreon-pp-manager, centreon-license-manager-common,
+  # centreon-auto-discovery-server, centreon-it-edition-extensions) drops files into
+  # /usr/share/centreon/www/modules before this package installs, dpkg creates that shared
+  # directory with default root:root ownership and never corrects it afterwards, even though
+  # this package's own nfpm declaration says otherwise.
+  chown centreon:centreon /usr/share/centreon/www
+  chmod 0775 /usr/share/centreon/www
+}
+
 fixCentreonCronPermissions() {
   # MON-146883
   # Override permissions for cron scripts
@@ -233,6 +243,7 @@ case "$action" in
     manageLocales $package_type
     setPhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
+    fixWwwDirRights
     fixSymfonyCacheRights $package_type
     fixCentreonCronPermissions $package_type
     ;;
@@ -243,6 +254,7 @@ case "$action" in
     manageLocales $package_type
     migratePhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
+    fixWwwDirRights
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
