@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Misc{/t}</div>
+            <div class="cf-subsection">{t}Misc{/t}</div>
             <div class="cf-row">
                 <div class="cf-field" style="max-width:50%;">
                     {$form.default_page.html}
@@ -79,7 +79,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.hostNotification}</div>
+            <div class="cf-subsection">{$form.header.hostNotification}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.contact_hostNotifOpts.html}
@@ -109,7 +109,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.serviceNotification}</div>
+            <div class="cf-subsection">{$form.header.serviceNotification}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.contact_svNotifOpts.html}
@@ -160,7 +160,7 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div style="margin:0 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherAddress}</div>
+            <div class="cf-subsection cf-subsection--flush">{$form.header.furtherAddress}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.contact_address1.html}
@@ -198,7 +198,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 18px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherInfos}</div>
+            <div class="cf-subsection">{$form.header.furtherInfos}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.contact_comment.html}
