@@ -892,6 +892,52 @@ var CentreonForm = (function () {
     }
 
     // =========================================================================
+    //  MAKE TOGGLE
+    //  Turn QuickForm checkbox field(s) into a Centreon design-system switch.
+    //  Call BEFORE initFormPage so the chip auto-transform skips them.
+    // =========================================================================
+
+    /**
+     * @param {string|string[]} names one or more checkbox element names
+     */
+    function makeToggle(names) {
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
+        names.forEach(function (name) {
+            var input = document.querySelector('input[name="' + name + '"]');
+            if (!input) {
+                return;
+            }
+            var field = input.closest('.cf-field');
+            if (!field) {
+                return;
+            }
+            var lbl = field.querySelector('.cf-label-float') || field.querySelector('label');
+            var text = lbl ? lbl.textContent.trim() : '';
+            var help = field.querySelector('.helpTooltip');
+
+            var toggle = document.createElement('label');
+            toggle.className = 'cl-toggle';
+            toggle.appendChild(input);
+            var slider = document.createElement('span');
+            slider.className = 'cl-toggle-slider';
+            toggle.appendChild(slider);
+
+            field.innerHTML = '';
+            field.classList.add('cf-field-toggle');
+            field.appendChild(toggle);
+            var span = document.createElement('span');
+            span.className = 'cf-toggle-label';
+            span.textContent = text;
+            field.appendChild(span);
+            if (help) {
+                field.appendChild(help);
+            }
+        });
+    }
+
+    // =========================================================================
     //  PUBLIC API
     // =========================================================================
 
@@ -916,6 +962,7 @@ var CentreonForm = (function () {
         initCheckboxChips:    initCheckboxChips,
         initChips:            initChips,
         syncToggle:           syncToggle,
+        makeToggle:           makeToggle,
         initMacroCleanup:     initMacroCleanup,
         initGeoAutocomplete:  initGeoAutocomplete,
         hideBreadcrumbInPanel: hideBreadcrumbInPanel,
@@ -931,3 +978,4 @@ var cfOpenPanel     = CentreonForm.openPanel;
 var cfClosePanel    = function () { CentreonForm.closePanel(CentreonForm._sidePanelListing); };
 var cfToggleSection = CentreonForm.toggleSection;
 var cfScrollTo      = CentreonForm.scrollTo;
+var cfMakeToggle    = CentreonForm.makeToggle;
