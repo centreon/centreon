@@ -27,4 +27,6 @@ enum GorgoneCommunicationTypeEnum: int
 {
     case ZMQ = 1;
     case SSH = 2;
+    case Pull = 3;
+    case PullWss = 4;
 }

@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
@@ -57,6 +58,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private Security $security,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
+        private bool $isCloudPlatform = false,
     ) {
     }
 
@@ -70,6 +73,9 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             pollerType: PollerTypeEnum::from($data->pollerType),
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
+            gorgoneCommunicationType: $this->isCloudPlatform
+                ? GorgoneCommunicationTypeEnum::PullWss
+                : GorgoneCommunicationTypeEnum::ZMQ,
         );
 
         $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
