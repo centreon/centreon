@@ -661,7 +661,7 @@
    ========================================================================== */
 
 .cf-subsection {
-    margin: 18px 0 8px;
+    margin: 18px 0 18px;
     padding-bottom: 4px;
     font-size: 13px;
     font-weight: 600;
@@ -675,6 +675,24 @@
 
 .cf-subsection--gap {
     margin-bottom: 22px;
+}
+
+/* ==========================================================================
+   Disabled / greyed state
+   .cf-disabled is applied by CentreonForm toggle dependencies
+   (data-cf-disables / data-cf-enables). A natively disabled radio/checkbox
+   greys its md wrapper automatically.
+   ========================================================================== */
+
+.cf-form-wrapper .cf-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.cf-form-wrapper .md-radio:has(input:disabled),
+.cf-form-wrapper .md-checkbox:has(input:disabled) {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 /* ==========================================================================
