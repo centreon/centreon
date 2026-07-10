@@ -863,7 +863,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
@@ -910,30 +910,116 @@ var CentreonForm = (function () {
                 return;
             }
             var field = input.closest('.cf-field');
-            if (!field) {
-                return;
+            if (field) {
+                _convertToToggle(field, input);
             }
-            var lbl = field.querySelector('.cf-label-float') || field.querySelector('label');
-            var text = lbl ? lbl.textContent.trim() : '';
-            var help = field.querySelector('.helpTooltip');
+        });
+    }
 
-            var toggle = document.createElement('label');
-            toggle.className = 'cl-toggle';
-            toggle.appendChild(input);
-            var slider = document.createElement('span');
-            slider.className = 'cl-toggle-slider';
-            toggle.appendChild(slider);
+    /**
+     * @private Convert a single checkbox inside a .cf-field into a cl-toggle switch.
+     * The original <input> element is preserved (id, name, handlers) so submission
+     * and any bound JS keep working.
+     */
+    function _convertToToggle(field, input) {
+        if (field.classList.contains('cf-field-toggle')) {
+            return;
+        }
+        var lbl = field.querySelector('.cf-label-float') || field.querySelector('label');
+        var text = lbl ? lbl.textContent.trim() : '';
+        var help = field.querySelector('.helpTooltip');
 
-            field.innerHTML = '';
-            field.classList.add('cf-field-toggle');
-            field.appendChild(toggle);
-            var span = document.createElement('span');
-            span.className = 'cf-toggle-label';
-            span.textContent = text;
-            field.appendChild(span);
-            if (help) {
-                field.appendChild(help);
-            }
+        var toggle = document.createElement('label');
+        toggle.className = 'cl-toggle';
+        toggle.appendChild(input);
+        var slider = document.createElement('span');
+        slider.className = 'cl-toggle-slider';
+        toggle.appendChild(slider);
+
+        field.innerHTML = '';
+        field.classList.add('cf-field-toggle');
+        field.appendChild(toggle);
+        var span = document.createElement('span');
+        span.className = 'cf-toggle-label';
+        span.textContent = text;
+        field.appendChild(span);
+        if (help) {
+            field.appendChild(help);
+        }
+    }
+
+    // =========================================================================
+    //  AUTO SOLO TOGGLES
+    //  Turn every remaining single (solo) QuickForm checkbox into a design-system
+    //  toggle. Multi-checkbox groups (turned into chips) and hidden/clone
+    //  checkboxes are left alone; a field or container marked
+    //  [data-cf-no-auto-toggle] opts out.
+    // =========================================================================
+    function initSoloToggles() {
+        var wrapper = document.querySelector('.cf-form-wrapper');
+        if (!wrapper) return;
+
+        var fields = [];
+        var groups = [];
+        wrapper.querySelectorAll('.md-checkbox input[type="checkbox"]').forEach(function (input) {
+            var mdc = input.closest('.md-checkbox');
+            if (!mdc || mdc.offsetParent === null) return;                        // hidden
+            if (input.closest('.clonable') || input.closest('.macroclone')) return; // clone/macro rows
+            var field = input.closest('.cf-field');
+            if (!field) return;
+            if (field.querySelector('.cf-chips') || field.classList.contains('cf-field-toggle')) return;
+            if (field.closest('[data-cf-no-auto-toggle]')) return;                // opt-out
+            var idx = fields.indexOf(field);
+            if (idx === -1) { fields.push(field); groups.push({ field: field, items: [] }); idx = groups.length - 1; }
+            groups[idx].items.push(input);
+        });
+
+        groups.forEach(function (g) {
+            if (g.items.length !== 1) return;   // solo checkboxes only (groups become chips)
+            try { _convertToToggle(g.field, g.items[0]); } catch (e) {}
+        });
+    }
+
+    // =========================================================================
+    //  TOGGLE DEPENDENCIES (grey out dependent fields)
+    //  Declarative: on a checkbox/toggle set
+    //    data-cf-disables="<selector>"  -> targets disabled + greyed when checked
+    //    data-cf-enables="<selector>"   -> targets disabled + greyed when unchecked
+    //  The attribute may sit on the checkbox itself or on a container holding one.
+    // =========================================================================
+    function initToggleDependencies() {
+        document.querySelectorAll('[data-cf-disables],[data-cf-enables]').forEach(_applyToggleDependency);
+    }
+
+    /** @private Wire one dependency source and apply its initial state. */
+    function _applyToggleDependency(el) {
+        var input = (el.matches && el.matches('input[type="checkbox"]'))
+            ? el
+            : el.querySelector('input[type="checkbox"]');
+        if (!input) return;
+
+        var disSel = el.getAttribute('data-cf-disables');
+        var enSel  = el.getAttribute('data-cf-enables');
+        if (!disSel && !enSel) return;
+
+        function apply() {
+            if (disSel) _setFieldsDisabled(disSel, input.checked);
+            if (enSel)  _setFieldsDisabled(enSel, !input.checked);
+        }
+        input.addEventListener('change', apply);
+        apply();
+    }
+
+    /** @private Disable + grey (or restore) every field/control matched by a selector. */
+    function _setFieldsDisabled(selector, disabled) {
+        document.querySelectorAll(selector).forEach(function (target) {
+            var isControl = target.matches && target.matches('input,select,textarea,button');
+            var box = isControl ? (target.closest('.cf-field') || target) : target;
+            box.classList.toggle('cf-disabled', disabled);
+            if (isControl) target.disabled = disabled;
+            box.querySelectorAll('input,select,textarea,button').forEach(function (el) {
+                el.disabled = disabled;
+            });
         });
     }
 
@@ -963,6 +1049,8 @@ var CentreonForm = (function () {
         initChips:            initChips,
         syncToggle:           syncToggle,
         makeToggle:           makeToggle,
+        initSoloToggles:      initSoloToggles,
+        initToggleDependencies: initToggleDependencies,
         initMacroCleanup:     initMacroCleanup,
         initGeoAutocomplete:  initGeoAutocomplete,
         hideBreadcrumbInPanel: hideBreadcrumbInPanel,
