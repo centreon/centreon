@@ -6,16 +6,9 @@
 /* Hide the breadcrumb on this form */
 .pathway { display: none !important; }
 
-/* iPhone-style toggle (self-contained so it works without the listing CSS) */
-.cf-form-wrapper .cl-toggle { position: relative; display: inline-block; width: 36px; height: 20px; cursor: pointer; flex-shrink: 0; }
-.cf-form-wrapper .cl-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-.cf-form-wrapper .cl-toggle-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 20px; transition: background-color .25s ease; }
-.cf-form-wrapper .cl-toggle-slider::before { content: ''; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: #fff; border-radius: 50%; transition: transform .25s ease; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
-.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider { background-color: var(--color-success, #88B922); }
-.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider::before { transform: translateX(16px); }
-.cf-form-wrapper .cl-toggle input:disabled + .cl-toggle-slider { opacity: .5; cursor: not-allowed; }
+/* Toggle switch: inherits the shared design-system .cl-toggle from form.css */
 
-/* Permission checkboxes rendered as iPhone toggles, two per line */
+/* Permission checkboxes rendered as toggles, two per line */
 .cf-toggle-grid { display: flex; flex-wrap: wrap; column-gap: 32px; row-gap: 2px; margin-top: 4px; }
 .cf-toggle-item { display: flex; align-items: center; gap: 10px; flex: 0 0 calc(50% - 16px); box-sizing: border-box; padding: 6px 0; }
 .cf-toggle-item .cf-toggle-label { font-size: 13px; color: var(--list-color, #333); }
