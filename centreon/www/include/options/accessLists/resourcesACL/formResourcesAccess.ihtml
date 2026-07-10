@@ -86,7 +86,7 @@
                     <span style="display:none;">{$form.acl_res_activate.html}</span>
                 </div>
             </div>
-            <div style="margin:18px 0 22px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Assign people to this access list{/t}</div>
+            <div class="cf-subsection cf-subsection--gap">{t}Assign people to this access list{/t}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.acl_groups.html}
@@ -124,7 +124,7 @@
             </div>
 
             <!-- Host groups -->
-            <div style="margin:18px 0 16px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Host groups{/t}</div>
+            <div class="cf-subsection">{t}Host groups{/t}</div>
             <div class="cf-row">
                 <div class="cf-acl-pickhead">
                     <span class="cf-acl-picklabel">{t}Select hosts by Hostgroups{/t}</span>
@@ -145,7 +145,7 @@
             </div>
 
             <!-- Exclusions -->
-            <div style="margin:18px 0 16px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Exclusions{/t}</div>
+            <div class="cf-subsection">{t}Exclusions{/t}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.acl_hostexclude.html}
