@@ -6,8 +6,18 @@ concurrency:
 
 on:
   pull_request:
-    branches: [develop, 'dev-[2-9][0-9].[0-9][0-9].x', master, '[2-9][0-9].[0-9][0-9].x', 'hotfix-*', 'release-*']
-    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled]
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - hotfix-*
+      - release-*
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+      - labeled
+      - unlabeled
 
 jobs:
   check-qa-validation:
