@@ -671,6 +671,100 @@
 }
 
 /* ==========================================================================
+   Switch / toggle — Centreon design system (34x20)
+   Shared component: markup is
+     <label class="cl-toggle"><input type="checkbox"><span class="cl-toggle-slider"></span></label>
+   ========================================================================== */
+
+.cf-form-wrapper .cl-toggle {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 20px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    top: auto;
+    left: auto;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.cf-form-wrapper .cl-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+.cf-form-wrapper .cl-toggle-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: var(--switch-off-color, #c2c7ce);
+    transition: background 0.2s ease;
+    pointer-events: auto;
+}
+
+.cf-form-wrapper .cl-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: -2px;
+    top: -2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ON */
+.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider {
+    background: var(--color-success, #88B922);
+}
+.cf-form-wrapper .cl-toggle input:checked + .cl-toggle-slider::before {
+    transform: translateX(22px);
+}
+
+/* Hover: subtle grey halo around the knob */
+.cf-form-wrapper .cl-toggle:hover .cl-toggle-slider::before {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Focus: light-blue halo */
+.cf-form-wrapper .cl-toggle input:focus-visible + .cl-toggle-slider::before {
+    box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Disabled */
+.cf-form-wrapper .cl-toggle input:disabled + .cl-toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.cf-form-wrapper .cl-toggle input:disabled ~ .cl-toggle-slider,
+.cf-form-wrapper .cl-toggle:has(input:disabled) {
+    cursor: not-allowed;
+}
+
+/* A field turned into a toggle row: control + label side by side */
+.cf-field-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cf-field-toggle .cf-toggle-label {
+    position: static;
+    pointer-events: auto;
+    font-size: 13px;
+    color: var(--list-color, #333);
+}
+.cf-field-toggle .helpTooltip {
+    position: static;
+}
+
+/* ==========================================================================
    Dynamic entries (+ Add new entry)
    ========================================================================== */
 
