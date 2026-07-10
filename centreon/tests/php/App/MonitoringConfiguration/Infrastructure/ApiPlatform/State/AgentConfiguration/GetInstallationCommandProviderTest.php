@@ -207,7 +207,8 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         // instances.instance_id holds the Snowflake UID (nagios_server.uid), not the poller config id.
-        $instanceId = (int) $connection->fetchOne('SELECT uid FROM nagios_server WHERE id = ?', [$pollerId]);
+        $uid = $connection->fetchOne('SELECT uid FROM nagios_server WHERE id = ?', [$pollerId]);
+        $instanceId = is_numeric($uid) ? (int) $uid : 0;
 
         /** @var Connection $realtimeConnection */
         $realtimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
