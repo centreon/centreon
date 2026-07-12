@@ -130,7 +130,7 @@
 .cl-pagination {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 2px;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -158,15 +158,26 @@
     text-decoration: none;
 }
 
-/* Navigation arrows (first, prev, next, last) */
-.cl-pagination a.cl-page-nav img {
-    width: 14px;
-    height: 14px;
-    opacity: 0.6;
+/* Navigation arrows (first, prev, next, last) — outlined chevrons, tight */
+.cl-pagination a.cl-page-nav {
+    min-width: 16px;
+    padding: 0;
+    color: var(--c-text-secondary, #8a8a8a);
 }
 
-.cl-pagination a.cl-page-nav:hover img {
-    opacity: 1;
+.cl-pagination a.cl-page-nav svg {
+    width: 16px;
+    height: 16px;
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-pagination a.cl-page-nav:hover {
+    background: none;
+}
+
+.cl-pagination a.cl-page-nav:hover svg {
+    stroke: var(--color-primary-light, #2E68AA);
 }
 
 /* Current page indicator */
@@ -424,18 +435,17 @@
     top: -2px;
 }
 
-/* Hide the global breadcrumb on modern listings that carry the page title
-   (the object title replaces it). Scoped to titled listings only. */
-body:has(.cl-page-title) .pathway {
-    display: none;
-}
-
-/* Listing page title + separator */
+/* Listing page title + description (breadcrumb stays visible above) */
 .cl-page-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
-    margin: 6px 0 6px;
+    margin: 8px 0 4px;
     color: var(--list-color, #333);
+}
+.cl-page-desc {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: var(--c-text-secondary, #6b7280);
 }
 .cl-title-sep {
     border: none;
@@ -619,6 +629,304 @@ body:has(.cl-page-title) .pathway {
 
 .cl-clear-select:hover {
     opacity: 1;
+}
+
+/* ==========================================================================
+   Filter bar fields with floating labels (same look as the form fields).
+   Reuses .cf-field / .cf-label-float from form.css; only the horizontal
+   sizing is set here.
+   ========================================================================== */
+
+.cl-filter-bar .cf-field {
+    flex: 0 0 auto;
+    width: 190px;
+}
+
+.cl-filter-bar .cf-field--search {
+    width: 230px;
+}
+
+.cl-filter-bar .cf-field > input {
+    height: 38px;
+}
+
+.cl-filter-bar .cf-field .select2-container {
+    width: 100% !important;
+}
+
+.cl-filter-bar .cf-field .select2-container .select2-selection {
+    height: 38px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.cl-filter-bar .btc {
+    height: 38px;
+}
+
+/* Keep only the single × clear; hide the select2 built-in (circled) clear */
+.cl-filter-bar .clearAllSelect2,
+.cl-filter-bar .select2-selection__clear,
+.cl-adv-panel .clearAllSelect2,
+.cl-adv-panel .select2-selection__clear {
+    display: none !important;
+}
+
+/* Search bar hosted inside the actions bar (between more-actions and pagination):
+   drop the standalone box chrome so it blends into the bar. */
+.cl-actions-bar .cl-filter-box {
+    flex: 1;
+    border: 0;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.cl-actions-bar .cl-filter-bar {
+    justify-content: center;
+}
+
+/* Inline toggle used as a filter (e.g. "Locked") */
+.cl-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--body-color, #555);
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   Standard toolbar search: single live-search field + optional advanced panel
+   Reusable across listings. Some pages use only the search field; others add
+   the "Advanced filters" button and panel.
+   ========================================================================== */
+
+.cl-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Toolbar layout: actions stay left, search cluster pinned to the right.
+   .cl-actions-bar uses justify-content:space-between, so the left group and
+   the right group are pushed to opposite edges. */
+.cl-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Vertical separator between the search area and the pagination */
+.cl-toolbar-sep {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1px;
+    height: 26px;
+    margin: 0 2px;
+    background: var(--c-divider, #e3e3e3);
+}
+
+/* Single live-search field with a leading magnifier icon */
+.cl-search {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.cl-search .cl-search-icon {
+    position: absolute;
+    left: 12px;
+    display: flex;
+    color: var(--c-text-secondary, #6b7280);
+    pointer-events: none;
+}
+
+.cl-search .cl-search-icon svg {
+    width: 16px;
+    height: 16px;
+    /* Override the theme's global svg { fill } so the magnifier stays outlined */
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-search .cl-search-simple {
+    width: 320px;
+    height: 38px;
+    padding: 0 12px 0 36px;
+    border: 1px solid var(--c-stroke, #c2c7ce);
+    border-radius: 4px;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.cl-search .cl-search-simple:focus {
+    border-color: var(--c-primary-main, #2E68AA);
+}
+
+/* Compact variant for multi-field toolbars (e.g. host + service) */
+.cl-search--sm .cl-search-simple {
+    width: 210px;
+}
+
+/* Advanced filters toggle button (outline, primary color, sliders icon) */
+.cl-adv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--c-divider-strong, #b5b5b5);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--c-primary-main, #2E68AA);
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.cl-adv-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-adv-btn:hover {
+    background: rgba(46, 104, 170, 0.06);
+}
+
+.cl-adv-btn.active {
+    border-color: var(--c-primary-main, #2E68AA);
+    background: rgba(46, 104, 170, 0.10);
+}
+
+/* Advanced filters panel (expands below the toolbar) */
+.cl-adv-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.15s ease-out;
+}
+
+.cl-adv-panel.open {
+    max-height: 400px;
+}
+
+.cl-adv-inner {
+    margin-top: 8px;
+    padding: 16px;
+    background: var(--c-bg-panel-groups, #f8f9fa);
+    border: 1px solid var(--c-divider, #e3e3e3);
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.cl-adv-fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+    flex: 1 1 auto;
+}
+
+.cl-adv-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 230px;
+}
+
+.cl-adv-field > input {
+    height: 38px;
+    box-sizing: border-box;
+}
+
+/* Control row: select + per-field clear cross */
+.cl-adv-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.cl-adv-control .select2-container {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cl-adv-clear-field {
+    flex: 0 0 auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0 2px;
+    color: var(--color-danger, #FF4A4A);
+    opacity: 0.55;
+}
+
+.cl-adv-clear-field:hover {
+    opacity: 1;
+}
+
+.cl-adv-field .select2-container {
+    width: 100% !important;
+}
+
+.cl-adv-field .select2-container .select2-selection {
+    height: 38px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.cl-adv-field > label,
+.cl-adv-caption {
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    color: var(--c-text-secondary, #6b7280);
+}
+
+.cl-adv-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: 8px;
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.cl-adv-clear {
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--c-divider-strong, #b5b5b5);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--list-color, #333);
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.cl-adv-search {
+    height: 38px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--c-primary-main, #2E68AA);
+    color: #fff;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 /* ==========================================================================
