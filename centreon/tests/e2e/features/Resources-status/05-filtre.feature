@@ -81,3 +81,12 @@ Feature: Filre Resources
     Given a saved filter that includes a specific host a specific service and a specific service category
     When I apply the filter for the selected host service and service category
     Then only services matching the selected host service and service category are displayed in the results
+
+  # Cloud: identical
+  @MON-205005
+  Scenario: Filtering resources through the monitoring server selector
+    Given the monitoring server selector lists the available monitoring servers
+    When I select a monitoring server and apply the filter
+    Then the resources are filtered by the selected monitoring server
+    When I clear the applied monitoring server filter
+    Then the resources are no longer filtered by any monitoring server
