@@ -95,7 +95,7 @@ try {
     $cntStatus = [];
     $cntStatus[] = $form->createElement('radio', 'connector_status', null, _('Enabled'), '1');
     $cntStatus[] = $form->createElement('radio', 'connector_status', null, _('Disabled'), '0');
-    $form->addGroup($cntStatus, 'connector_status', _('Connector Status'), '&nbsp;&nbsp;');
+    $form->addGroup($cntStatus, 'connector_status', _('Status'), '&nbsp;&nbsp;');
 
     if (isset($cnt['connector_status']) && is_numeric($cnt['connector_status'])) {
         $form->setDefaults(['connector_status' => $cnt['connector_status']]);
