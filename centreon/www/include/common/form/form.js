@@ -639,6 +639,18 @@ var CentreonForm = (function () {
                 radioOff.checked = true;
             }
         });
+
+        // Keep the toggle in sync when the form is reset: the toggle checkbox
+        // has no default checked state, so a native reset would always turn it
+        // off. Re-read the (post-reset) radio value on the next tick.
+        var form = toggle.form || radioOn.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    toggle.checked = radioOn.checked;
+                }, 0);
+            });
+        }
     }
 
     // =========================================================================
