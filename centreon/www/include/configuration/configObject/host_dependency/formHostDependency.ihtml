@@ -9,6 +9,7 @@
     <div class="cf-tab-nav">
         <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$form.header.information}</a>
         <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{t}Relations{/t}</a>
+        <a href="#cf-sec-misc" onclick="cfScrollTo('cf-sec-misc', this); return false;">{t}Misc{/t}</a>
     </div>
 
     <!-- Section: Configuration -->
@@ -19,12 +20,12 @@
         </div>
         <div class="cf-section-body">
             <div class="cf-row-inline">
-                <div class="cf-field">
+                <div class="cf-field" style="max-width:240px;">
                     {$form.dep_name.html}
                     <label class="cf-label-float">{$form.dep_name.label}</label>
                     <img class="helpTooltip" name="name">
                 </div>
-                <div class="cf-field">
+                <div class="cf-field" style="flex:2;">
                     {$form.dep_description.html}
                     <label class="cf-label-float">{$form.dep_description.label}</label>
                     <img class="helpTooltip" name="description">
@@ -37,18 +38,21 @@
                     <img class="helpTooltip" name="inherits_parent">
                 </div>
             </div>
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.execution_failure_criteria.html}
                     <label class="cf-label-float">{$form.execution_failure_criteria.label}</label>
                     <img class="helpTooltip" name="execution_failure_criteria">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.notification_failure_criteria.html}
                     <label class="cf-label-float">{$form.notification_failure_criteria.label}</label>
                     <img class="helpTooltip" name="notification_failure_criteria">
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -81,10 +85,21 @@
                     <img class="helpTooltip" name="dep_hSvChi">
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Section: Misc -->
+    <div class="cf-section" id="cf-sec-misc">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Misc{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.dep_comment.html}
                     <label class="cf-label-float">{$form.dep_comment.label}</label>
+                    <img class="helpTooltip" name="comment">
                 </div>
             </div>
         </div>
