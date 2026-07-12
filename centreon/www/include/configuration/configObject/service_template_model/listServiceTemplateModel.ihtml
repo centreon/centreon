@@ -1,29 +1,56 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
-<form name='form' method='POST'>
-    <div class="cl-filter-box">
-        <div class="cl-filter-bar">
-            <span class="cl-filter-label">{t}Service template{/t}</span>
-            <input type="text" id="clSearchInput" name="searchST" value="{$searchST}" class="cl-search-input" placeholder="{t}Name or alias{/t}" style="max-width:none;width:220px;">
-            <div class="md-checkbox md-checkbox-inline" style="margin:0;">
-                <input type="checkbox" id="displayLocked" name="displayLocked" {if $displayLocked}checked{/if} />
-                <label for="displayLocked">{t}Locked{/t}</label>
-            </div>
-            <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
-        </div>
-    </div>
+{literal}
+<script type="text/javascript">
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    try { window.parent.cfClosePanel(); } catch(e) {}
+}
+</script>
+{/literal}
 
+<form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}Service templates{/t}</h1>
+    <p class="cl-page-desc">{t}Define reusable service configurations to apply across your services.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="{$msg.addL}" class="cl-btn-add">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$stPage}&o=a', '{$msg.addT}'); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
             <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="cl-pagination" id="clPaginationTop"></div>
+            <div class="cl-toolbar-right">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchST" value="{$searchST}" class="cl-search-simple" placeholder="{t}Search service templates{/t}" autocomplete="off">
+                </div>
+                <button type="button" class="cl-adv-btn" data-cl-adv-panel="clAdvPanel" data-cl-label-show="{t}Advanced filters{/t}" data-cl-label-hide="{t}Hide filters{/t}" onclick="clToggleAdvancedFilters(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                    <span class="cl-adv-label">{t}Advanced filters{/t}</span>
+                </button>
+                <span class="cl-toolbar-sep"></span>
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
+        </div>
+
+        <div class="cl-adv-panel" id="clAdvPanel">
+            <div class="cl-adv-inner">
+                <div class="cl-adv-fields">
+                    <div class="cl-filter-toggle">
+                        <label class="cl-toggle">
+                            <input type="checkbox" id="displayLocked" name="displayLocked" {if $displayLocked}checked{/if} />
+                            <span class="cl-toggle-slider"></span>
+                        </label>
+                        <span>{t}Locked{/t}</span>
+                    </div>
+                </div>
+                <div class="cl-adv-actions">
+                    <button type="button" class="cl-adv-clear" onclick="jQuery('#displayLocked').prop('checked', false); document.getElementById('clSearchBtn').click();">{t}Clear{/t}</button>
+                    <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
+                </div>
+            </div>
         </div>
 
         <table class="cl-listing-table">
@@ -40,7 +67,7 @@
                     <th class="cl-col-center">{$headerMenu_retry}</th>
                     <th>{$headerMenu_parent}</th>
                     { if $mode_access == 'w' }
-                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{t}Actions{/t}</th>
                     { /if }
                 </tr>
             </thead>
@@ -49,16 +76,6 @@
             </tbody>
         </table>
 
-        <div class="cl-bottom-bar">
-            { if $mode_access == 'w' }
-            <div class="cl-actions-left">
-                {$form.o2.html}
-            </div>
-            { else }
-            <div>&nbsp;</div>
-            { /if }
-            <div class="cl-pagination" id="clPaginationBottom"></div>
-        </div>
     </div>
 
 <input type='hidden' name='o' id='o' value='42'>
@@ -66,8 +83,58 @@
 {$form.hidden}
 </form>
 
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
 {literal}
 <script type="text/javascript">
+function cfOpenPanel(url, title) {
+    document.getElementById("cfSidePanelTitle").textContent = title || "";
+    document.getElementById("cfSidePanelFrame").src = url;
+    document.getElementById("cfSideOverlay").classList.add("open");
+    document.getElementById("cfSidePanel").classList.add("open");
+}
+function cfClosePanel() {
+    document.getElementById("cfSideOverlay").classList.remove("open");
+    document.getElementById("cfSidePanel").classList.remove("open");
+    setTimeout(function() { document.getElementById("cfSidePanelFrame").src = "about:blank"; }, 300);
+    stListing.fetch(stListing.getState().num, stListing.getState().limit, stListing.getState().search, true);
+}
+(function() {
+    var handle = document.getElementById("cfSidePanelResize");
+    var panel = document.getElementById("cfSidePanel");
+    var dragging = false;
+    handle.addEventListener("mousedown", function(e) {
+        e.preventDefault(); dragging = true; handle.classList.add("active");
+        document.body.style.cursor = "col-resize";
+        var iframe = document.getElementById("cfSidePanelFrame");
+        if (iframe) iframe.style.pointerEvents = "none";
+    });
+    document.addEventListener("mousemove", function(e) {
+        if (!dragging) return;
+        var w = window.innerWidth - e.clientX;
+        if (w < 400) w = 400; if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+        panel.style.width = w + "px";
+    });
+    document.addEventListener("mouseup", function() {
+        if (!dragging) return; dragging = false; handle.classList.remove("active");
+        document.body.style.cursor = "";
+        var iframe = document.getElementById("cfSidePanelFrame");
+        if (iframe) iframe.style.pointerEvents = "";
+    });
+})();
+document.addEventListener("keydown", function(e) { if (e.key === "Escape") cfClosePanel(); });
+
 var stListing = new CentreonListing({
     instanceName:  'stListing',
     ajaxListUrl:   './include/configuration/configObject/service_template_model/ajaxServiceTemplateListing.php',
@@ -78,6 +145,7 @@ var stListing = new CentreonListing({
     storageKey:    'st_listing_limit',
     emptyMessage:  'No service templates found',
     autoRefresh:   30000,
+    liveSearch:    true,
     rowIdField:    'id',
     lockedField:   'locked',
     extraParams:   function() {
@@ -88,12 +156,12 @@ var stListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var icon = row.icon ? '<img src="'+row.icon+'" class="ico-14" style="padding-right:4px;"/>' : '';
-            var link = 'main.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + row.id;
-            return icon + '<a href="'+link+'">'+l.escape(row.name)+'</a>';
+            var link = 'main.get.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + row.id;
+            return icon + '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
-            var link = 'main.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.alias||'')+'</a>';
+            var link = 'main.get.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + row.id;
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'scheduling', align:'center' },
         { id:'templates', render: function(row, l) {
