@@ -713,6 +713,41 @@
 }
 
 /* ==========================================================================
+   Insert builder — stacked rows of "insert into field" controls
+   (a small [+] button next to a picker whose selection is pushed into a
+   textarea/input, e.g. command line / RPN builders)
+   ========================================================================== */
+
+.cf-insert-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cf-insert-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cf-insert-row select {
+    flex: 1;
+    min-width: 0;
+}
+
+.cf-insert-btn {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ==========================================================================
    Switch / toggle — Centreon design system (34x20)
    Shared component: markup is
      <label class="cl-toggle"><input type="checkbox"><span class="cl-toggle-slider"></span></label>
