@@ -17,9 +17,9 @@
  * For more information : contact@centreon.com
  *
  */
+
 if (! $centreon->user->admin
     && isset($resourceId)
-    && $resourceId !== false
     && count($allowedResourceConf)
     && ! isset($allowedResourceConf[$resourceId])
 ) {
@@ -71,11 +71,11 @@ require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
  */
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o == MACRO_ADD) {
-    $form->addElement('header', 'title', _('Add a global macro'));
+    $form->addElement('header', 'title', _('Add a Resource'));
 } elseif ($o == MACRO_MODIFY) {
-    $form->addElement('header', 'title', _('Modify a global macro'));
+    $form->addElement('header', 'title', _('Modify a Resource'));
 } elseif ($o == MACRO_WATCH) {
-    $form->addElement('header', 'title', _('View global macro'));
+    $form->addElement('header', 'title', _('View Resource'));
 }
 
 $isPassword = isset($rs['is_password']) && $rs['is_password'];
@@ -84,8 +84,8 @@ $isPassword = isset($rs['is_password']) && $rs['is_password'];
  * Resources CFG basic information
  */
 $form->addElement('header', 'information', _('General Information'));
-$form->addElement('text', 'resource_name', _('Name'), $attrsText);
-$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _('Value'), $attrsText);
+$form->addElement('text', 'resource_name', _('Resource Name'), $attrsText);
+$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _('MACRO Expression'), $attrsText);
 $form->addElement(
     'checkbox',
     'is_password',
@@ -125,7 +125,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
+$init->setValue(serialize($initialValues));
 
 /**
  * Form definition
@@ -140,8 +140,6 @@ function myReplace()
 
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('resource_name', 'myReplace');
-$form->registerRule('validateName', 'callback', 'validateName');
-$form->addRule('resource_name', _("Name must start and end with a '$'"), 'validateName');
 $form->addRule('resource_name', _('Compulsory Name'), 'required');
 $form->addRule('resource_line', _('Compulsory Alias'), 'required');
 $form->addRule('instance_id', _('Compulsory Instance'), 'required');
