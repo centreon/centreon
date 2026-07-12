@@ -82,6 +82,7 @@ Feature: Filre Resources
     When I apply the filter for the selected host service and service category
     Then only services matching the selected host service and service category are displayed in the results
 
+  @MON-205036
   Scenario: Filtering resources through the monitoring server selector
     Given the monitoring server selector lists the available monitoring servers
     When I select a monitoring server and apply the filter
