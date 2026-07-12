@@ -812,11 +812,15 @@
 .cl-adv-panel {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.15s ease-out;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: max-height 0.28s ease, opacity 0.25s ease, transform 0.28s ease;
 }
 
 .cl-adv-panel.open {
     max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .cl-adv-inner {
