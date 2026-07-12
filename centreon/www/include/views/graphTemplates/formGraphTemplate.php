@@ -143,11 +143,11 @@ if ($o == 'w') {
     $form->freeze();
 } elseif ($o == 'c') {
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_danger']);
     $form->setDefaults($graph);
 } elseif ($o == 'a') {
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_danger']);
 }
 $tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&graph_id=' . $graph_id, 'changeT' => _('Modify')]);
 
