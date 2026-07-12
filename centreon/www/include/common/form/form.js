@@ -225,26 +225,13 @@ var CentreonForm = (function () {
      * - On blur: un-float if the input is empty
      */
     function initFloatLabels() {
+        // The templates render every field label with the .cf-label-float class,
+        // so labels sit on the top border at all times. We keep them there and no
+        // longer drop them back into the field on blur (which looked inconsistent
+        // once a field had been focused). This just guarantees the class is set.
         document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function (input) {
             var label = input.parentElement.querySelector('label');
-            if (!label) return;
-
-            // Float label if input already has a value
-            if (input.value && input.value.trim() !== '') {
-                label.classList.add('cf-label-float');
-            }
-
-            input.addEventListener('focus', function () {
-                var lbl = this.parentElement.querySelector('label');
-                if (lbl) lbl.classList.add('cf-label-float');
-            });
-
-            input.addEventListener('blur', function () {
-                if (!this.value || this.value.trim() === '') {
-                    var lbl = this.parentElement.querySelector('label');
-                    if (lbl) lbl.classList.remove('cf-label-float');
-                }
-            });
+            if (label) label.classList.add('cf-label-float');
         });
     }
 
