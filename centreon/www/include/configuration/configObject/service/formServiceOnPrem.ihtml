@@ -200,10 +200,14 @@
             <div class="cf-subsection">{t}Notification receivers{/t}</div>
             {if !isset($isServiceTemplate)}
             <div class="cf-row">
-                <div class="cf-toggle-row">
+                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
                     <span>{$form.service_use_only_contacts_from_host.label}</span>
-                    <span>{$form.service_use_only_contacts_from_host.html}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-use-host-contacts-toggle" data-cf-disables="#service_cs, #service_cgs, [name='contact_additive_inheritance'], [name='cg_additive_inheritance']" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
                     <img class="helpTooltip" name="use_only_contacts_from_host">
+                    <span style="display:none;">{$form.service_use_only_contacts_from_host.html}</span>
                 </div>
             </div>
             {/if}
@@ -817,30 +821,8 @@ jQuery(function() {
         }
     );
 
-    function bindInhertance() {
-        if (jQuery("input[name='service_use_only_contacts_from_host[service_use_only_contacts_from_host]']:checked").val() == "1") {
-            jQuery("input[name='contact_additive_inheritance']").attr('disabled', 'disabled');
-            jQuery("input[name='cg_additive_inheritance']").attr('disabled', 'disabled');
-            jQuery("#service_cs").attr('disabled', 'disabled');
-            jQuery("#service_cs").select2("val", "");
-            jQuery("#service_cgs").attr('disabled', 'disabled');
-            jQuery("#service_cgs").select2("val", "");
-
-            return;
-        }
-
-        {/literal}{if $form.frozen == false}{literal}
-        jQuery("input[name='contact_additive_inheritance']").removeAttr('disabled');
-        jQuery("input[name='cg_additive_inheritance']").removeAttr('disabled');
-        jQuery("#service_cs").removeAttr('disabled');
-        jQuery("#service_cgs").removeAttr('disabled');
-        {/literal}{/if}{literal}
-    }
-
-    bindInhertance();
-    jQuery("input[name='service_use_only_contacts_from_host[service_use_only_contacts_from_host]']").on('click',function() {
-        bindInhertance();
-    });
+    // "Inherit only contacts/contact groups from host" greying is handled by
+    // CentreonForm (toggle + data-cf-disables on #cf-use-host-contacts-toggle).
 
 
     jQuery('select[name=service_template_model_stm_id], select[name=command_command_id]').on('change',function(event,data) {
@@ -953,6 +935,11 @@ jQuery(function() {
     {/literal}{/if}{literal}
     });
 
+    {/literal}{if !isset($isServiceTemplate)}{literal}
+    // Bind the "use only host contacts" toggle before initFormPage so the
+    // dependency greying reads the correct initial state.
+    CentreonForm.syncToggle('cf-use-host-contacts-toggle', 'service_use_only_contacts_from_host', '1', '0');
+    {/literal}{/if}{literal}
     CentreonForm.initFormPage({ macros: true });
     {/literal}{if !isset($isServiceTemplate)}{literal}
     CentreonForm.syncToggle('cf-service-activate-toggle', 'service_activate', '1', '0');

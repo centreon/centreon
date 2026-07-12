@@ -10,16 +10,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Contacts{/t}</h1>
-    <hr class="cl-title-sep">
-    <div class="cl-filter-box">
-        <div class="cl-filter-bar">
-            <span class="cl-filter-label">{t}Contact{/t}</span>
-            <input type="text" id="clSearchInput" name="searchC" value="{$searchC}" class="cl-search-input" placeholder="{t}Name or alias{/t}">
-            <span class="cl-filter-label" style="margin-left:8px;">{t}Contact group{/t}</span>
-            {$form.contactGroup.html}<button type="button" id="clClearBtn" title="{t}Clear filters{/t}" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--color-danger,#FF4A4A);padding:4px 2px;margin-left:-2px;">&times;</button>
-            <button type="button" id="clSearchBtn" class="btc bt_success" style="margin-left:4px;">{t}Search{/t}</button>
-        </div>
-    </div>
+    <p class="cl-page-desc">{t}Configure the users and notification contacts of your platform.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -31,7 +22,36 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             { else }
             <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="cl-pagination" id="clPaginationTop"></div>
+            <div class="cl-toolbar-right">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC}" class="cl-search-simple" placeholder="{t}Search contacts{/t}" autocomplete="off">
+                </div>
+                <button type="button" class="cl-adv-btn" data-cl-adv-panel="clAdvPanel" data-cl-label-show="{t}Advanced filters{/t}" data-cl-label-hide="{t}Hide filters{/t}" onclick="clToggleAdvancedFilters(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                    <span class="cl-adv-label">{t}Advanced filters{/t}</span>
+                </button>
+                <span class="cl-toolbar-sep"></span>
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
+        </div>
+
+        <div class="cl-adv-panel" id="clAdvPanel">
+            <div class="cl-adv-inner">
+                <div class="cl-adv-fields">
+                    <div class="cl-adv-field">
+                        <label>{t}Contact group{/t}</label>
+                        <div class="cl-adv-control">
+                            {$form.contactGroup.html}
+                            <button type="button" class="cl-adv-clear-field" onclick="jQuery('#contactGroup').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="cl-adv-actions">
+                    <button type="button" class="cl-adv-clear" onclick="jQuery('#contactGroup').val('').trigger('change'); document.getElementById('clSearchBtn').click();">{t}Clear{/t}</button>
+                    <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
+                </div>
+            </div>
         </div>
 
         <table class="cl-listing-table">
@@ -127,8 +147,9 @@ var contactListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'contact_listing_limit',
     emptyMessage:  'No contacts found',
-    extraParams:   function() { var cg = jQuery('#contactGroup').val(); console.log('contactGroup filter value:', cg); return (cg && cg !== '') ? { contactGroup: cg } : {}; },
+    extraParams:   function() { var cg = jQuery('#contactGroup').val(); return (cg && cg !== '') ? { contactGroup: cg } : {}; },
     autoRefresh:   30000,
+    liveSearch:    true,
     rowIdField:    'id',
     columns: [
         { id:'alias', render: function(row, l) {

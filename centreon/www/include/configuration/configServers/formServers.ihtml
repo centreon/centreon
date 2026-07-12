@@ -326,22 +326,11 @@ function cfScrollTo(sectionId, clickedLink) {
 function cfToggleSection(header) { header.parentElement.classList.toggle('collapsed'); }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Float labels for pre-filled inputs
+    // Float labels: templates render them on the top border; keep them there at
+    // all times (no drop back into the field on blur).
     document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function(input) {
-        if (input.value && input.value.trim() !== '') {
-            var label = input.parentElement.querySelector('label');
-            if (label) label.classList.add('cf-label-float');
-        }
-        input.addEventListener('focus', function() {
-            var label = this.parentElement.querySelector('label');
-            if (label) label.classList.add('cf-label-float');
-        });
-        input.addEventListener('blur', function() {
-            if (!this.value || this.value.trim() === '') {
-                var label = this.parentElement.querySelector('label');
-                if (label) label.classList.remove('cf-label-float');
-            }
-        });
+        var label = input.parentElement.querySelector('label');
+        if (label) label.classList.add('cf-label-float');
     });
 
     // Sync toggles with radio buttons (Yes/No and Enabled/Disabled)

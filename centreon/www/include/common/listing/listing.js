@@ -41,6 +41,16 @@ function CentreonListing(config) {
         autoRefresh:  config.autoRefresh !== undefined ? config.autoRefresh : 30000,
         emptyMessage: config.emptyMessage || 'No items found',
 
+        // Live search: fetch as the user types (debounced) instead of requiring
+        // a Search button. Standard for the single search field.
+        liveSearch:      config.liveSearch !== undefined ? config.liveSearch : false,
+        liveSearchDelay: config.liveSearchDelay || 300,
+
+        // Additional search field ids that also trigger a debounced fetch on
+        // input (multi-criteria pages, e.g. host + service). Their values are
+        // sent through extraParams.
+        liveSearchFields: config.liveSearchFields || [],
+
         // Column definitions
         // Each column: { id, header, align, render: function(row, listing) }
         columns: config.columns || [],
@@ -396,10 +406,10 @@ function CentreonListing(config) {
 
         // First / Previous
         if (num > 0) {
-            html += '<a href="#" class="cl-page-nav" onclick="' + instanceName() + '.goToPage(0);return false;">'
-                + '<img src="./img/icons/first_rewind.png" title="First page" /></a>';
-            html += '<a href="#" class="cl-page-nav" onclick="' + instanceName() + '.goToPage(' + (num - 1) + ');return false;">'
-                + '<img src="./img/icons/rewind.png" title="Previous page" /></a>';
+            html += '<a href="#" class="cl-page-nav" title="First page" onclick="' + instanceName() + '.goToPage(0);return false;">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 6 11 12 17 18"/><line x1="7" y1="6" x2="7" y2="18"/></svg></a>';
+            html += '<a href="#" class="cl-page-nav" title="Previous page" onclick="' + instanceName() + '.goToPage(' + (num - 1) + ');return false;">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg></a>';
         }
 
         // Page numbers
@@ -416,10 +426,10 @@ function CentreonListing(config) {
 
         // Next / Last
         if (num < totalPages - 1) {
-            html += '<a href="#" class="cl-page-nav" onclick="' + instanceName() + '.goToPage(' + (num + 1) + ');return false;">'
-                + '<img src="./img/icons/fast_forward.png" title="Next page" /></a>';
-            html += '<a href="#" class="cl-page-nav" onclick="' + instanceName() + '.goToPage(' + (totalPages - 1) + ');return false;">'
-                + '<img src="./img/icons/end_forward.png" title="Last page" /></a>';
+            html += '<a href="#" class="cl-page-nav" title="Next page" onclick="' + instanceName() + '.goToPage(' + (num + 1) + ');return false;">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></a>';
+            html += '<a href="#" class="cl-page-nav" title="Last page" onclick="' + instanceName() + '.goToPage(' + (totalPages - 1) + ');return false;">'
+                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 6 13 12 7 18"/><line x1="17" y1="6" x2="17" y2="18"/></svg></a>';
         }
 
         // Rows-per-page selector
@@ -529,23 +539,64 @@ function CentreonListing(config) {
             });
         }
 
-        // Search button (resets to page 0; in infinite scroll mode, resets scroll state)
-        jQuery('#' + cfg.searchBtnId).on('click', function () {
+        // Apply the current search value (resets to page 0; in infinite scroll
+        // mode, resets scroll state). Shared by the Search button and Enter key.
+        self.applySearch = function () {
             currentSearch = jQuery('#' + cfg.searchInputId).val();
             if (cfg.infiniteScroll) {
                 self.resetScroll();
             } else {
                 self.fetch(0, currentLimit, currentSearch);
             }
-        });
+        };
+
+        // Search button (present on pages with an advanced filters panel)
+        jQuery('#' + cfg.searchBtnId).on('click', self.applySearch);
 
         // Search on Enter key
         jQuery('#' + cfg.searchInputId).on('keypress', function (e) {
             if (e.which === 13) {
                 e.preventDefault();
-                jQuery('#' + cfg.searchBtnId).click();
+                self.applySearch();
             }
         });
+
+        // Live search: fetch as the user types (debounced), no Search button needed
+        if (cfg.liveSearch) {
+            var liveTimer = null;
+            jQuery('#' + cfg.searchInputId).on('input', function () {
+                var val = this.value;
+                clearTimeout(liveTimer);
+                liveTimer = setTimeout(function () {
+                    currentSearch = val;
+                    if (cfg.infiniteScroll) {
+                        self.resetScroll();
+                    } else {
+                        self.fetch(0, currentLimit, currentSearch);
+                    }
+                }, cfg.liveSearchDelay);
+            });
+        }
+
+        // Live search on additional named fields (multi-criteria pages).
+        // Their values reach the server via extraParams; we just trigger a
+        // debounced fetch (or immediate on Enter).
+        if (cfg.liveSearchFields && cfg.liveSearchFields.length) {
+            var multiTimer = null;
+            cfg.liveSearchFields.forEach(function (fid) {
+                var el = jQuery('#' + fid);
+                el.on('input', function () {
+                    clearTimeout(multiTimer);
+                    multiTimer = setTimeout(function () {
+                        if (cfg.infiniteScroll) { self.resetScroll(); }
+                        else { self.fetch(0, currentLimit, currentSearch); }
+                    }, cfg.liveSearchDelay);
+                });
+                el.on('keypress', function (e) {
+                    if (e.which === 13) { e.preventDefault(); self.applySearch(); }
+                });
+            });
+        }
 
         // In infinite scroll mode, always start at page 0 and use a larger batch size
         if (cfg.infiniteScroll) {
@@ -637,3 +688,26 @@ function CentreonListing(config) {
         if (tip) { tip.remove(); tip = null; }
     });
 })();
+
+// ==========================================================================
+// Advanced filters panel toggle (standard listing toolbar)
+// Usage:
+//   <button class="cl-adv-btn" data-cl-adv-panel="clAdvPanel"
+//           data-cl-label-show="Advanced filters"
+//           data-cl-label-hide="Hide filters"
+//           onclick="clToggleAdvancedFilters(this)">
+//     <svg ...></svg><span class="cl-adv-label">Advanced filters</span>
+//   </button>
+// ==========================================================================
+function clToggleAdvancedFilters(btn) {
+    var panel = document.getElementById(btn.getAttribute('data-cl-adv-panel'));
+    if (!panel) return;
+    var open = panel.classList.toggle('open');
+    btn.classList.toggle('active', open);
+    var labelEl = btn.querySelector('.cl-adv-label');
+    var show = btn.getAttribute('data-cl-label-show');
+    var hide = btn.getAttribute('data-cl-label-hide');
+    if (labelEl && show && hide) {
+        labelEl.textContent = open ? hide : show;
+    }
+}

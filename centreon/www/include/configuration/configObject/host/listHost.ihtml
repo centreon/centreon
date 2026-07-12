@@ -10,21 +10,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Hosts{/t}</h1>
-    <hr class="cl-title-sep">
-    <div class="cl-filter-box">
-        <div class="cl-filter-bar">
-            <span class="cl-filter-label">{$Hosts}</span>
-            <input type="text" id="clSearchInput" name="searchH" value="{$searchH}" class="cl-search-input" placeholder="{t}Name, alias or IP{/t}" style="max-width:none;width:180px;">
-            <span class="cl-filter-label">{$Hostgroup}</span>
-            {$form.hostgroup.html}<button type="button" class="cl-clear-select" onclick="jQuery('#hostgroup').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-            <span class="cl-filter-label">{$Poller}</span>
-            {$form.poller.html}<button type="button" class="cl-clear-select" onclick="jQuery('#poller').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-            <span class="cl-filter-label">{$Template}</span>
-            {$form.template.html}<button type="button" class="cl-clear-select" onclick="jQuery('#template').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-            <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
-        </div>
-    </div>
-
+    <p class="cl-page-desc">{t}Configure the hosts monitored by your platform.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -35,7 +21,50 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             { else }
             <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="cl-pagination" id="clPaginationTop"></div>
+            <div class="cl-toolbar-right">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchH" value="{$searchH}" class="cl-search-simple" placeholder="{t}Search hosts{/t}" autocomplete="off">
+                </div>
+                <button type="button" class="cl-adv-btn" data-cl-adv-panel="clAdvPanel" data-cl-label-show="{t}Advanced filters{/t}" data-cl-label-hide="{t}Hide filters{/t}" onclick="clToggleAdvancedFilters(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                    <span class="cl-adv-label">{t}Advanced filters{/t}</span>
+                </button>
+                <span class="cl-toolbar-sep"></span>
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
+        </div>
+
+        <div class="cl-adv-panel" id="clAdvPanel">
+            <div class="cl-adv-inner">
+                <div class="cl-adv-fields">
+                    <div class="cl-adv-field">
+                        <label>{$Hostgroup}</label>
+                        <div class="cl-adv-control">
+                            {$form.hostgroup.html}
+                            <button type="button" class="cl-adv-clear-field" onclick="jQuery('#hostgroup').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                        </div>
+                    </div>
+                    <div class="cl-adv-field">
+                        <label>{$Poller}</label>
+                        <div class="cl-adv-control">
+                            {$form.poller.html}
+                            <button type="button" class="cl-adv-clear-field" onclick="jQuery('#poller').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                        </div>
+                    </div>
+                    <div class="cl-adv-field">
+                        <label>{$Template}</label>
+                        <div class="cl-adv-control">
+                            {$form.template.html}
+                            <button type="button" class="cl-adv-clear-field" onclick="jQuery('#template').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="cl-adv-actions">
+                    <button type="button" class="cl-adv-clear" onclick="jQuery('#hostgroup,#poller,#template').val('').trigger('change'); document.getElementById('clSearchBtn').click();">{t}Clear{/t}</button>
+                    <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
+                </div>
+            </div>
         </div>
 
         <table class="cl-listing-table">
@@ -130,6 +159,7 @@ var hostListing = new CentreonListing({
     storageKey:    'host_listing_limit',
     emptyMessage:  'No hosts found',
     autoRefresh:   15000,
+    liveSearch:    true,
     rowIdField:    'id',
     extraParams:   function() {
         var p = {};
