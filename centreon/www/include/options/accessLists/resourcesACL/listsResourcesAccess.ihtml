@@ -1,21 +1,34 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
+{literal}
+<script type="text/javascript">
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    try { window.parent.cfClosePanel(); } catch(e) {}
+}
+</script>
+{/literal}
+
 <form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}Resource access{/t}</h1>
+    <p class="cl-page-desc">{t}Define which resources each access group can access.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="{$msg.addL}" class="cl-btn-add">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$resAclPage}&o=a', '{$msg.addT}'); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
             <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="cl-search-center">
-                <input type="text" id="clSearchInput" name="searchRA" value="{$searchRA}" placeholder="{t}Search{/t}" class="cl-search-input">
-                <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
+            <div class="cl-toolbar-right">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchRA" value="{$searchRA}" class="cl-search-simple" placeholder="{t}Search resource access{/t}" autocomplete="off">
+                </div>
+                <span class="cl-toolbar-sep"></span>
+                <div class="cl-pagination" id="clPaginationTop"></div>
             </div>
-            <div class="cl-pagination" id="clPaginationTop"></div>
         </div>
 
         <table class="cl-listing-table">
@@ -33,7 +46,7 @@
                     <th class="cl-col-center">{$headerMenu_hg}</th>
                     <th class="cl-col-center">{$headerMenu_sg}</th>
                     <th class="cl-col-center">{$headerMenu_img}</th>
-                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{t}Actions{/t}</th>
                 </tr>
             </thead>
             <tbody id="clTableBody">
@@ -41,16 +54,6 @@
             </tbody>
         </table>
 
-        <div class="cl-bottom-bar">
-            { if $mode_access == 'w' }
-            <div class="cl-actions-left">
-                {$form.o2.html}
-            </div>
-            { else }
-            <div>&nbsp;</div>
-            { /if }
-            <div class="cl-pagination" id="clPaginationBottom"></div>
-        </div>
     </div>
 
 <input type='hidden' name='o' id='o' value='42'>
@@ -58,8 +61,58 @@
 {$form.hidden}
 </form>
 
+<!-- Side panel -->
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+    </div>
+</div>
+
 {literal}
 <script type="text/javascript">
+function cfOpenPanel(url, title) {
+    document.getElementById("cfSidePanelTitle").textContent = title || "";
+    document.getElementById("cfSidePanelFrame").src = url;
+    document.getElementById("cfSideOverlay").classList.add("open");
+    document.getElementById("cfSidePanel").classList.add("open");
+}
+function cfClosePanel() {
+    document.getElementById("cfSideOverlay").classList.remove("open");
+    document.getElementById("cfSidePanel").classList.remove("open");
+    setTimeout(function() { document.getElementById("cfSidePanelFrame").src = "about:blank"; }, 300);
+    resAclListing.fetch(resAclListing.getState().num, resAclListing.getState().limit, resAclListing.getState().search, true);
+}
+(function() {
+    var handle = document.getElementById("cfSidePanelResize");
+    var panel = document.getElementById("cfSidePanel");
+    var dragging = false;
+    handle.addEventListener("mousedown", function(e) {
+        e.preventDefault(); dragging = true; handle.classList.add("active");
+        document.body.style.cursor = "col-resize";
+        var iframe = document.getElementById("cfSidePanelFrame");
+        if (iframe) iframe.style.pointerEvents = "none";
+    });
+    document.addEventListener("mousemove", function(e) {
+        if (!dragging) return;
+        var w = window.innerWidth - e.clientX;
+        if (w < 400) w = 400; if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+        panel.style.width = w + "px";
+    });
+    document.addEventListener("mouseup", function() {
+        if (!dragging) return; dragging = false; handle.classList.remove("active");
+        document.body.style.cursor = "";
+        var iframe = document.getElementById("cfSidePanelFrame");
+        if (iframe) iframe.style.pointerEvents = "";
+    });
+})();
+document.addEventListener("keydown", function(e) { if (e.key === "Escape") cfClosePanel(); });
+
 var resAclListing = new CentreonListing({
     instanceName:  'resAclListing',
     ajaxListUrl:   './include/options/accessLists/resourcesACL/ajaxResourceAclListing.php',
@@ -70,15 +123,16 @@ var resAclListing = new CentreonListing({
     storageKey:    'res_acl_listing_limit',
     emptyMessage:  'No resource ACL found',
     autoRefresh:   30000,
+    liveSearch:    true,
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
-            var link = 'main.php?p={/literal}{$resAclPage}{literal}&o=c&acl_res_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.name)+'</a>';
+            var link = 'main.get.php?p={/literal}{$resAclPage}{literal}&o=c&acl_res_id=' + row.id;
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
-            var link = 'main.php?p={/literal}{$resAclPage}{literal}&o=c&acl_res_id=' + row.id;
-            return '<a href="'+link+'">'+l.escape(row.alias||'')+'</a>';
+            var link = 'main.get.php?p={/literal}{$resAclPage}{literal}&o=c&acl_res_id=' + row.id;
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'all_hosts', align:'center', render: function(row) {
             return row.all_hosts ? '<span style="color:var(--color-success,#88B922);font-size:16px;">&#10003;</span>' : '';
