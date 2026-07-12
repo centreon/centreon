@@ -17,6 +17,7 @@ const monitoringServerSelectorLabel = 'Monitoring server';
 const selectedMonitoringServer = 'Central';
 const otherMonitoringServer = 'Poller test';
 const monitoringServerSearchCriteria = /monitoring_server:Central/;
+const monitoringServerQueryParameter = 'monitoring_server_names';
 
 before(() => {
   cy.intercept({
@@ -731,10 +732,13 @@ When('I select a monitoring server and apply the filter', () => {
     .contains(selectedMonitoringServer);
 
   cy.getByTestId({ testId: 'Filter Search' }).click();
-  cy.wait('@monitoringEndpoint');
 });
 
 Then('the resources are filtered by the selected monitoring server', () => {
+  cy.wait('@monitoringEndpoint')
+    .its('request.url')
+    .should('include', monitoringServerQueryParameter);
+
   cy.get(searchInput)
     .invoke('val')
     .should('match', monitoringServerSearchCriteria);
@@ -743,10 +747,13 @@ Then('the resources are filtered by the selected monitoring server', () => {
 When('I clear the applied monitoring server filter', () => {
   cy.getByTestId({ testId: 'Filter Clear' }).click();
   cy.getByTestId({ testId: 'Filter Search' }).click();
-  cy.wait('@monitoringEndpoint');
 });
 
 Then('the resources are no longer filtered by any monitoring server', () => {
+  cy.wait('@monitoringEndpoint')
+    .its('request.url')
+    .should('not.include', monitoringServerQueryParameter);
+
   cy.get(searchInput)
     .invoke('val')
     .should('not.match', monitoringServerSearchCriteria);
