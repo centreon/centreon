@@ -748,6 +748,30 @@
 }
 
 /* ==========================================================================
+   Clone field — a repeatable (sheepIt) list of rows inside a form field.
+   The float-label pattern does not fit a multi-row clone, so use a static
+   title above the list plus an optional hint below.
+   ========================================================================== */
+
+.cf-field-clone {
+    display: block;
+}
+
+.cf-clone-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-text-primary, #255891);
+    margin-bottom: 6px;
+}
+
+.cf-clone-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--c-text-secondary, #6b7280);
+}
+
+/* ==========================================================================
    Switch / toggle — Centreon design system (34x20)
    Shared component: markup is
      <label class="cl-toggle"><input type="checkbox"><span class="cl-toggle-slider"></span></label>
