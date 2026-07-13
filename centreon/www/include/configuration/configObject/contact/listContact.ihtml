@@ -16,7 +16,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$contactPage}&o=a', '{t}Add a Contact{/t}'); return false;">{$msg.addT}</a>
-                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="btc bt_info ml-2">{$msg.ldap_importT}</a>{/if}
+                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="cl-btn-secondary">{$msg.ldap_importT}</a>{/if}
                 {$form.o1.html}
             </div>
             { else }
