@@ -49,15 +49,15 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('test contacts and groups exist', () => {
   cy.addContact({
-    name: 'test_contact_alpha',
     alias: 'Alpha Contact',
     email: 'alpha@test.com',
+    name: 'test_contact_alpha',
     password: 'Centreon!2021'
   });
   cy.addContact({
-    name: 'test_contact_beta',
     alias: 'Beta Contact',
     email: 'beta@test.com',
+    name: 'test_contact_beta',
     password: 'Centreon!2021'
   });
 });
@@ -72,7 +72,10 @@ When('the user navigates to the contacts listing', () => {
 
 Then('the AJAX listing table is displayed with contact rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('test_contact_alpha').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('test_contact_alpha')
+    .should('exist');
 });
 
 When('the user searches for a specific contact', () => {
@@ -82,12 +85,20 @@ When('the user searches for a specific contact', () => {
 });
 
 Then('only the matching contact is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('test_contact_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('test_contact_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('test_contact_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('test_contact_beta')
+    .should('not.exist');
 });
 
 When('the user clicks the toggle to disable a contact', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxContactToggle.php' }).as('toggleContact');
+  cy.intercept({ method: 'POST', url: '**/ajaxContactToggle.php' }).as(
+    'toggleContact'
+  );
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('test_contact_alpha')
@@ -109,7 +120,9 @@ Then('the contact toggle switches to disabled', () => {
 
 Then('the toggle response is successful', () => {
   cy.get('@toggleContact').its('response.statusCode').should('eq', 200);
-  cy.get('@toggleContact').its('response.body').should('have.property', 'success', true);
+  cy.get('@toggleContact')
+    .its('response.body')
+    .should('have.property', 'success', true);
 });
 
 Then('the admin user toggle is disabled and not clickable', () => {
@@ -130,18 +143,28 @@ When('the user selects a contact and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated contact appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('test_contact_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('test_contact_alpha_1')
+    .should('exist');
 });
 
 When('the user clicks on the contact name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'test_contact_alpha').click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'test_contact_alpha')
+    .click();
 });
 
 When('the user navigates back to the contacts listing', () => {
@@ -151,7 +174,9 @@ When('the user navigates back to the contacts listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'test_contact_alpha');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'test_contact_alpha');
 });
 
 // ---------------------------------------------------------------------------
@@ -164,7 +189,9 @@ When('the user navigates to the contact templates listing', () => {
 
 Then('the AJAX listing table is displayed with contact template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific contact template', () => {
@@ -176,18 +203,22 @@ When('the user searches for a specific contact template', () => {
 Then('only the matching contact template is displayed', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
-    .each($row => {
-      cy.wrap($row).invoke('text').should('match', /contact_template/i);
+    .each(($row) => {
+      cy.wrap($row)
+        .invoke('text')
+        .should('match', /contact_template/i);
     });
 });
 
 When('the user clicks the toggle to disable a contact template', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxContactTemplateToggle.php' }).as('toggleCt');
+  cy.intercept({ method: 'POST', url: '**/ajaxContactTemplateToggle.php' }).as(
+    'toggleCt'
+  );
   cy.getIframeBody()
     .find('#clTableBody tr')
     .first()
     .find('.cl-toggle input[type="checkbox"]')
-    .then($toggle => {
+    .then(($toggle) => {
       if ($toggle.is(':checked')) {
         cy.wrap($toggle).click();
       }
@@ -209,7 +240,9 @@ When('the user navigates to the contact groups listing', () => {
 
 Then('the AJAX listing table is displayed with contact group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific contact group', () => {
@@ -223,7 +256,9 @@ Then('only the matching contact group is displayed', () => {
 });
 
 When('the user clicks the toggle to disable a contact group', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxContactGroupToggle.php' }).as('toggleCg');
+  cy.intercept({ method: 'POST', url: '**/ajaxContactGroupToggle.php' }).as(
+    'toggleCg'
+  );
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('Guest')
