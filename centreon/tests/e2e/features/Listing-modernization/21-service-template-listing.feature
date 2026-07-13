@@ -7,33 +7,27 @@ Feature: Modern service template listing
     Given an admin user is logged in Centreon
     And several service templates exist
 
-  @TEST_LISTING-183
   Scenario: Service template listing loads via AJAX
     When the user navigates to the service templates listing
     Then the AJAX listing table is displayed with service template rows
 
-  @TEST_LISTING-184
   Scenario: Search filters service templates by name
     When the user navigates to the service templates listing
     And the user searches for a specific service template
     Then only the matching service template is displayed
 
-  @TEST_LISTING-185
   Scenario: Each template row has an icon
     When the user navigates to the service templates listing
     Then each row displays a service icon
 
-  @TEST_LISTING-186
   Scenario: Template chain is displayed with links
     When the user navigates to the service templates listing
     Then service template rows show the parent template chain as links
 
-  @TEST_LISTING-187
   Scenario: Scheduling column shows intervals
     When the user navigates to the service templates listing
     Then service template rows show scheduling intervals
 
-  @TEST_LISTING-188
   Scenario: Locked checkbox shows and hides locked templates
     When the user navigates to the service templates listing
     And the locked checkbox is checked
@@ -41,44 +35,37 @@ Feature: Modern service template listing
     When the user unchecks the locked checkbox and searches
     Then locked service templates are hidden
 
-  @TEST_LISTING-189
   Scenario: Locked templates have disabled checkboxes and dup inputs
     When the user navigates to the service templates listing
     And the locked checkbox is checked
     Then locked rows have disabled selection checkboxes
     And locked rows have disabled duplication inputs
 
-  @TEST_LISTING-190
   Scenario: No toggle column exists
     When the user navigates to the service templates listing
     Then no toggle switch is present in the listing
 
-  @TEST_LISTING-191
   Scenario: Pagination and rows per page
     When the user navigates to the service templates listing
     Then the pagination info shows the total count
     When the user changes the rows per page to 10
     Then at most 10 rows are displayed
 
-  @TEST_LISTING-192
   Scenario: Bulk duplication works
     When the user navigates to the service templates listing
     And the user selects a service template and duplicates it
     Then a duplicated service template appears in the listing
 
-  @TEST_LISTING-193
   Scenario: Bulk deletion works
     When the user navigates to the service templates listing
     And the user selects a service template and deletes it
     Then the service template is removed from the listing
 
-  @TEST_LISTING-194
   Scenario: Clicking a name navigates to the edit form
     When the user navigates to the service templates listing
     And the user clicks on a service template name
     Then the service template edit form is displayed
 
-  @TEST_LISTING-195
   Scenario: Session state persists across navigation
     When the user navigates to the service templates listing
     And the user searches for a specific service template

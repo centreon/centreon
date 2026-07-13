@@ -66,7 +66,10 @@ When('the user navigates to the service templates listing', () => {
 
 Then('the AJAX listing table is displayed with service template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('st_test_alpha').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('st_test_alpha')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -80,8 +83,14 @@ When('the user searches for a specific service template', () => {
 });
 
 Then('only the matching service template is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('st_test_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('st_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('st_test_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('st_test_beta')
+    .should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -129,7 +138,7 @@ Then('service template rows show scheduling intervals', () => {
 When('the locked checkbox is checked', () => {
   cy.getIframeBody()
     .find('#displayLocked')
-    .then($cb => {
+    .then(($cb) => {
       if (!$cb.is(':checked')) {
         cy.wrap($cb).click();
         cy.getIframeBody().find('#clSearchBtn').click();
@@ -155,8 +164,8 @@ Then('locked service templates are hidden', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
     .its('length')
-    .then(countWithout => {
-      cy.get('@countWithLocked').then(countWith => {
+    .then((countWithout) => {
+      cy.get('@countWithLocked').then((countWith) => {
         expect(countWithout).to.be.at.most(countWith as unknown as number);
       });
     });
@@ -183,9 +192,7 @@ Then('locked rows have disabled duplication inputs', () => {
 // ---------------------------------------------------------------------------
 
 Then('no toggle switch is present in the listing', () => {
-  cy.getIframeBody()
-    .find('#clTableBody .cl-toggle')
-    .should('not.exist');
+  cy.getIframeBody().find('#clTableBody .cl-toggle').should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -207,9 +214,7 @@ When('the user changes the rows per page to 10', () => {
 });
 
 Then('at most 10 rows are displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.at.most', 10);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
 // ---------------------------------------------------------------------------
@@ -225,14 +230,21 @@ When('the user selects a service template and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated service template appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('st_test_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('st_test_alpha_1')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -248,14 +260,21 @@ When('the user selects a service template and deletes it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the service template is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('st_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('st_test_beta')
+    .should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -263,12 +282,20 @@ Then('the service template is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a service template name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'st_test_alpha').click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'st_test_alpha')
+    .click();
 });
 
 Then('the service template edit form is displayed', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="service_description"]');
-  cy.getIframeBody().find('input[name="service_description"]').should('have.value', 'st_test_alpha');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'input[name="service_description"]'
+  );
+  cy.getIframeBody()
+    .find('input[name="service_description"]')
+    .should('have.value', 'st_test_alpha');
 });
 
 // ---------------------------------------------------------------------------
@@ -282,5 +309,7 @@ When('the user navigates back to the service templates listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'st_test_alpha');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'st_test_alpha');
 });
