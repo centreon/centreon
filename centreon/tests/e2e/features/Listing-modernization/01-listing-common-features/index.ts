@@ -70,12 +70,8 @@ When('the user navigates to the service templates listing', () => {
 
 Then('the listing table is rendered via AJAX', () => {
   // The modern listing uses cl-listing-table class and #clTableBody
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody().find('#clTableBody').should('exist');
 });
 
 Then('the table contains service template rows', () => {
@@ -101,9 +97,7 @@ When('the user types a search term in the search field', () => {
 });
 
 When('the user clicks the search button', () => {
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
@@ -167,9 +161,7 @@ When('the user changes the rows per page to 10', () => {
 });
 
 Then('the listing shows at most 10 rows', () => {
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.at.most', 10);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
 Then('the pagination is recalculated', () => {
@@ -186,7 +178,7 @@ Then('the pagination is recalculated', () => {
 When('the locked checkbox is checked', () => {
   cy.getIframeBody()
     .find('#displayLocked')
-    .then($cb => {
+    .then(($cb) => {
       if (!$cb.is(':checked')) {
         cy.wrap($cb).click();
         cy.getIframeBody().find('#clSearchBtn').click();
@@ -204,9 +196,7 @@ Then('locked service templates are visible in the listing', () => {
 });
 
 When('the user unchecks the locked checkbox and searches', () => {
-  cy.getIframeBody()
-    .find('#displayLocked')
-    .uncheck();
+  cy.getIframeBody().find('#displayLocked').uncheck();
   cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
@@ -216,9 +206,11 @@ Then('locked service templates are hidden from the listing', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
     .its('length')
-    .then(countWithoutLocked => {
-      cy.get('@countWithLocked').then(countWithLocked => {
-        expect(countWithoutLocked).to.be.at.most(countWithLocked as unknown as number);
+    .then((countWithoutLocked) => {
+      cy.get('@countWithLocked').then((countWithLocked) => {
+        expect(countWithoutLocked).to.be.at.most(
+          countWithLocked as unknown as number
+        );
       });
     });
 });
@@ -262,9 +254,7 @@ When('the user selects Duplicate from the More actions dropdown', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated service template appears in the listing', () => {
@@ -288,9 +278,7 @@ When('the user selects Delete from the More actions dropdown', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the service template is removed from the listing', () => {
@@ -314,7 +302,10 @@ When('the user clicks on a service template name', () => {
 });
 
 Then('the service template edit form is displayed', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="service_description"]');
+  cy.waitForElementInIframe(
+    '#main-content',
+    'input[name="service_description"]'
+  );
   cy.getIframeBody()
     .find('input[name="service_description"]')
     .should('have.value', 'test_listing_template');
