@@ -382,8 +382,15 @@ function checkServiceMassiveChangeExistence(array $fields): array|bool
             continue;
         }
 
+        // Only newly created relations can introduce a duplicate: like the incremental
+        // mass change, skip the hosts/hostgroups the service is already linked to.
+        $currentRelations = getServiceLinkedRelations($serviceId);
+
         foreach ($targetHosts as $hostId) {
             $hostId = (int) $hostId;
+            if (isset($currentRelations['hosts'][$hostId])) {
+                continue;
+            }
             if (
                 serviceDescriptionExistsOnHost($description, $hostId, $serviceId)
                 || isset($seenOnHost[$hostId][$description])
@@ -398,6 +405,9 @@ function checkServiceMassiveChangeExistence(array $fields): array|bool
 
         foreach ($targetHostGroups as $hostGroupId) {
             $hostGroupId = (int) $hostGroupId;
+            if (isset($currentRelations['hostGroups'][$hostGroupId])) {
+                continue;
+            }
             if (
                 serviceDescriptionExistsOnHostGroup($description, $hostGroupId, $serviceId)
                 || isset($seenOnHostGroup[$hostGroupId][$description])
@@ -431,6 +441,37 @@ function getServiceDescriptionById(int $serviceId): ?string
     $description = $statement->fetchColumn();
 
     return $description === false ? null : $description;
+}
+
+/**
+ * Returns the hosts and hostgroups a service is currently linked to.
+ *
+ * @param int $serviceId
+ *
+ * @return array{hosts: array<int, true>, hostGroups: array<int, true>} id-keyed sets of current relations
+ */
+function getServiceLinkedRelations(int $serviceId): array
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        'SELECT host_host_id, hostgroup_hg_id FROM host_service_relation WHERE service_service_id = :service_id'
+    );
+    $statement->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+    $statement->execute();
+
+    $hosts = [];
+    $hostGroups = [];
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        if (! empty($row['host_host_id'])) {
+            $hosts[(int) $row['host_host_id']] = true;
+        }
+        if (! empty($row['hostgroup_hg_id'])) {
+            $hostGroups[(int) $row['hostgroup_hg_id']] = true;
+        }
+    }
+
+    return ['hosts' => $hosts, 'hostGroups' => $hostGroups];
 }
 
 /**
