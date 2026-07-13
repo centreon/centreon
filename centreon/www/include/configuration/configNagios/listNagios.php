@@ -34,7 +34,7 @@ $tpl->assign('mode_access', $lvl_access);
 
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_desc', _('Description'));
-$tpl->assign('headerMenu_instance', _('Satellites/Instances'));
+$tpl->assign('headerMenu_instance', _('Poller'));
 $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('nagiosPage', $p);
