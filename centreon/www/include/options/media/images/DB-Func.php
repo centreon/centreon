@@ -509,7 +509,8 @@ function isCorrectMIMEType(array $file): bool
         'zip' => 'application/zip',
         'gzip' => 'application/x-gzip',
     ];
-    $fileExtension = end(explode('.', $file['name']));
+    $explodedFilename = explode('.', $file['name']);
+    $fileExtension = end($explodedFilename);
     if (! array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
         return false;
     }
@@ -702,7 +703,8 @@ function isValidMIMETypeFromArchive(
     ];
 
     foreach ($files as $file) {
-        $fileExtension = end(explode('.', $file));
+        $explodedFilename = explode('.', $file);
+        $fileExtension = end($explodedFilename);
         if (! array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
             return false;
         }
