@@ -344,6 +344,9 @@ function deleteMultDirectory($dirs = [])
         if (count($id) != 1) {
             continue;
         }
+        if (! testDirectoryIsEmpty((int) $id[0])) {
+            continue;
+        }
         deleteDirectory($id[0]);
     }
 }
