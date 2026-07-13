@@ -84,6 +84,32 @@
     line-height: 1;
 }
 
+/* Secondary toolbar button — same footprint as .cl-btn-add, neutral/outlined,
+   for auxiliary actions next to Add (e.g. LDAP import). */
+.cl-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--list-color, #333);
+    background-color: transparent;
+    border: 1px solid var(--c-stroke, #b0b7c3);
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    line-height: 1.4;
+    transition: background-color 0.15s ease;
+}
+
+.cl-btn-secondary:hover {
+    background-color: var(--color-divider, #e8e8e8);
+    color: var(--list-color, #333);
+    text-decoration: none;
+}
+
 /* ==========================================================================
    Search bar (centered between actions and pagination)
    ========================================================================== */
