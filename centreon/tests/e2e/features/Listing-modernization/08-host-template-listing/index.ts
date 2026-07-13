@@ -47,13 +47,13 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('several host templates exist', () => {
   cy.addHostTemplate({
-    name: 'ht_test_alpha',
     alias: 'Host Template Alpha',
+    name: 'ht_test_alpha',
     template: 'generic-host'
   });
   cy.addHostTemplate({
-    name: 'ht_test_beta',
     alias: 'Host Template Beta',
+    name: 'ht_test_beta',
     template: 'generic-host'
   });
 });
@@ -67,9 +67,7 @@ When('the user navigates to the host templates listing', () => {
 });
 
 Then('the AJAX listing table is displayed with host template rows', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('ht_test_alpha')
@@ -81,13 +79,8 @@ Then('the AJAX listing table is displayed with host template rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific host template', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('ht_test_alpha');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('ht_test_alpha');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
@@ -109,7 +102,7 @@ Then('only the matching host template is displayed', () => {
 When('the locked checkbox is checked', () => {
   cy.getIframeBody()
     .find('#displayLocked')
-    .then($cb => {
+    .then(($cb) => {
       if (!$cb.is(':checked')) {
         cy.wrap($cb).click();
         cy.getIframeBody().find('#clSearchBtn').click();
@@ -126,9 +119,7 @@ Then('locked host templates are visible', () => {
 });
 
 When('the user unchecks the locked checkbox and searches', () => {
-  cy.getIframeBody()
-    .find('#displayLocked')
-    .uncheck();
+  cy.getIframeBody().find('#displayLocked').uncheck();
   cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
@@ -137,8 +128,8 @@ Then('locked host templates are hidden', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
     .its('length')
-    .then(countWithout => {
-      cy.get('@countWithLocked').then(countWith => {
+    .then((countWithout) => {
+      cy.get('@countWithLocked').then((countWith) => {
         expect(countWithout).to.be.at.most(countWith as unknown as number);
       });
     });
@@ -179,9 +170,7 @@ When('the user changes the rows per page to 10', () => {
 });
 
 Then('at most 10 rows are displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.at.most', 10);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
 // ---------------------------------------------------------------------------
@@ -203,9 +192,7 @@ When('the user selects a host template and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated host template appears in the listing', () => {
@@ -236,9 +223,7 @@ When('the user selects a host template and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the host template is removed from the listing', () => {
