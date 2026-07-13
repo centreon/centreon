@@ -944,6 +944,23 @@
     border-radius: 50%;
 }
 
+/* ==========================================================================
+   Value tags — tonal pills for boolean/enum cell values (Access, Admin, ...)
+   ========================================================================== */
+.cl-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    white-space: nowrap;
+}
+.cl-tag--success { background: rgba(136, 185, 34, 0.18); color: #4f7a0b; }
+.cl-tag--neutral { background: rgba(0, 0, 0, 0.06); color: #6b7280; }
+.cl-tag--info    { background: rgba(46, 104, 170, 0.15); color: #255891; }
+.cl-tag--warning { background: rgba(255, 166, 0, 0.18); color: #9a6a00; }
+
 .cl-mon-up {
     background: var(--color-success, #88B922);
     box-shadow: 0 0 4px var(--color-success, #88B922);
