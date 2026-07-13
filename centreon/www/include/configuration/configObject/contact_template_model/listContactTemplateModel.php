@@ -39,6 +39,9 @@ $tpl->assign('headerMenu_svNotif', _('Services Notification Period'));
 $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('ctPage', $p);
+// Theme-aware default icon (inline SVG, fill: var(--icons-fill-color)) so it stays
+// visible in both light and dark modes. JSON-encoded for safe <script> embed.
+$tpl->assign('ctIconJs', json_encode(returnSvg('www/img/icons/user-template.svg', 'var(--icons-fill-color)', 16, 16)));
 
 // Restore search from history
 $search = $centreon->historySearch[$url]['search'] ?? '';

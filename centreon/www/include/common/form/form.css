@@ -37,6 +37,8 @@
 
 .cf-tab-nav {
     display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 0;
     border-bottom: 2px solid var(--color-divider, #e3e3e3);
     margin-bottom: 16px;
@@ -48,6 +50,7 @@
     font-weight: 500;
     color: var(--body-color, #666);
     text-decoration: none;
+    white-space: nowrap;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
     transition: color 0.15s, border-color 0.15s;
@@ -59,8 +62,8 @@
 }
 
 .cf-tab-nav a.active {
-    color: var(--color-primary-light, #2E68AA);
-    border-bottom-color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
+    border-bottom-color: var(--color-primary-light, #131D5A);
     font-weight: 600;
 }
 
@@ -78,7 +81,7 @@
 .cf-section {
     margin-bottom: 8px;
     border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border-radius: 12px;
     overflow: hidden;
     background: var(--body-background, #fff);
 }
@@ -87,19 +90,23 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 14px;
-    background: #ddd;
-    color: var(--list-color, #333);
-    font-size: 13px;
-    font-weight: 500;
+    padding: 6px 16px;
+    background: var(--color-background-listing-header, #d9d9d9);
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
     cursor: pointer;
     user-select: none;
-    transition: background 0.15s;
-    border-radius: 4px;
+    transition: filter 0.15s;
+    border-radius: 12px 12px 0 0;
+}
+
+.dark .cf-section-header {
+    color: #fff;
 }
 
 .cf-section-header:hover {
-    background: #d2d2d2;
+    filter: brightness(0.96);
 }
 
 .cf-section-chevron {
@@ -163,7 +170,7 @@
     top: -8px;
     left: 10px;
     font-size: 11px;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
     background: var(--body-background, #fff);
     font-weight: 500;
 }
@@ -184,7 +191,7 @@
 
 .cf-field input:focus,
 .cf-field textarea:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cf-field input::placeholder,
@@ -266,7 +273,7 @@
 }
 
 .cf-segmented button.active {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
     color: #fff;
 }
 
@@ -408,7 +415,7 @@
 
 .cf-form-wrapper .macroclone .onemacro input[name^="macroInput"]:focus,
 .cf-form-wrapper .macroclone .onemacro input[name^="macroValue"]:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
     outline: none;
 }
 
@@ -447,15 +454,15 @@
     font-size: 12px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
-    border-radius: 4px;
+    background-color: var(--color-primary-light, #131D5A);
+    border-radius: 9999px;
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.15s;
 }
 
 .cf-form-wrapper .add-new-entry:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--color-primary-hover, #2A3575);
     text-decoration: none;
 }
 
@@ -493,13 +500,13 @@
 }
 
 .cf-chip:hover {
-    border-color: var(--color-primary-light, #2E68AA);
-    color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
+    color: var(--color-primary-light, #131D5A);
 }
 
 .cf-chip.active {
-    background: var(--color-primary-light, #2E68AA);
-    border-color: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
+    border-color: var(--color-primary-light, #131D5A);
     color: #fff;
 }
 
@@ -570,7 +577,7 @@
 }
 
 .cf-field select:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cf-field .select2-container {
@@ -609,7 +616,7 @@
 }
 
 .cf-field .select2-container--focus .select2-selection {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 /* Select2 clear button — order it before help icon */
@@ -623,22 +630,43 @@
     align-items: center;
     justify-content: center;
     line-height: 0;
+    height: 18px;
 }
 
 .cf-field .clearAllSelect2 img {
     display: block;
     vertical-align: middle;
     margin: 0;
+    height: 18px;
+    width: 18px;
 }
 
 .cf-field .clearAllSelect2:hover {
     opacity: 1;
 }
 
-/* Help tooltip always last, vertically centered */
+/* Help tooltip always last. Normalized to the same box model as the clear
+   button so both icons share one optical center within the flex row
+   (display:block removes the inline-image baseline gap that pushed it down). */
 .cf-field .helpTooltip {
     order: 9;
     align-self: center;
+    flex-shrink: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    vertical-align: middle;
+    height: 18px;
+    width: 18px;
+}
+
+.cf-field .helpTooltip img {
+    display: block;
+    vertical-align: middle;
+    margin: 0;
+    height: 18px;
+    width: 18px;
 }
 
 /* ==========================================================================
@@ -770,7 +798,7 @@
 .cf-clone-title {
     font-size: 13px;
     font-weight: 600;
-    color: var(--c-text-primary, #255891);
+    color: var(--c-text-primary, #2A3575);
     margin-bottom: 6px;
 }
 
@@ -846,7 +874,7 @@
 
 /* Focus: light-blue halo */
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:focus-visible + .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 6px rgba(19, 29, 90, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* Disabled */
@@ -903,7 +931,7 @@
 }
 
 .cf-dynamic-entry input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cf-dynamic-delete {
@@ -926,7 +954,7 @@
     align-items: center;
     gap: 4px;
     font-size: 13px;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
     cursor: pointer;
     padding: 4px 0;
     font-weight: 500;
@@ -953,18 +981,18 @@
     font-size: 14px;
     font-weight: 500;
     border: none;
-    border-radius: 6px;
+    border-radius: 9999px;
     cursor: pointer;
     transition: background 0.15s;
 }
 
 .cf-btn-primary {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
     color: #fff;
 }
 
 .cf-btn-primary:hover {
-    background: var(--color-primary-hover, #255891);
+    background: var(--color-primary-hover, #2A3575);
 }
 
 .cf-btn-secondary {
@@ -988,9 +1016,11 @@
     font-size: 14px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    background-color: var(--color-primary-light, #131D5A);
     border: none;
-    border-radius: 4px;
+    /* `!important`: the legacy `.btc { border-radius: 4px !important }` on the
+       Save/Reset buttons would otherwise flatten the pill shape. */
+    border-radius: 9999px !important;
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 0.15s ease;
@@ -998,22 +1028,26 @@
 
 .cf-actions input[type="submit"]:hover,
 .cf-actions button:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--color-primary-hover, #2A3575);
 }
 
-/* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
-   Reviewers reported clicking it expecting to submit the form. */
+/* Reset mirrors the modern React "Cancel" button: an outlined primary pill,
+   so it is not mistaken for Save. Reviewers reported clicking it expecting
+   to submit the form. The legacy theme styles `.btc`/`.bt_default` with
+   `!important` (border/color/background/radius), so these overrides must use
+   `!important` too — the `.cf-actions` scope keeps them off other buttons. */
 .cf-actions input[type="reset"],
 .cf-actions .bt_default {
-    color: var(--c-text-secondary, #555);
-    background-color: transparent;
-    border: 1px solid var(--c-stroke, #b0b7c3);
+    color: var(--color-primary-light, #131D5A) !important;
+    background: transparent !important;
+    border: 1px solid var(--color-primary-light, #131D5A) !important;
+    border-radius: 9999px !important;
 }
 
 .cf-actions input[type="reset"]:hover,
 .cf-actions .bt_default:hover {
-    background-color: var(--color-divider, #e8e8e8);
-    color: var(--list-color, #333);
+    background: rgba(19, 29, 90, 0.06) !important;
+    color: var(--color-primary-light, #131D5A) !important;
 }
 
 /* ==========================================================================
@@ -1074,6 +1108,10 @@
     transition: transform 0.3s ease;
     display: flex;
     flex-direction: column;
+    /* Round the only inner-facing corner of the drawer (the other edges are
+       flush with the viewport). No overflow:hidden — the panel body relies on
+       overflow:visible for tooltips — so the header rounds its corner too. */
+    border-radius: 12px 0 0 0;
 }
 
 .cf-side-panel.open {
@@ -1088,6 +1126,7 @@
     border-bottom: 1px solid var(--color-divider, #e3e3e3);
     background: var(--body-background, #fff);
     flex-shrink: 0;
+    border-radius: 12px 0 0 0;
 }
 
 .cf-side-panel-title {
@@ -1139,10 +1178,75 @@
 
 .cf-side-panel-resize:hover,
 .cf-side-panel-resize.active {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
 }
 
 /* Ensure wz_tooltip inside side panel doesn't overflow */
 .cf-side-panel-body {
     overflow: visible;
+}
+
+/* ==========================================================================
+   Dark theme
+   --------------------------------------------------------------------------
+   `.dark` is set on the legacy <html> (htmlHeader.php) when contact_theme=dark,
+   mirroring the React shell. form.css consumes theme CSS variables with light
+   fallbacks; several (--color-primary-light, --color-background-listing-header,
+   ...) are NOT redefined by the legacy dark theme, so they fell back to light
+   values and broke the form in dark mode. We redefine the consumed variables at
+   the form roots — specificity (0,2,0) beats the theme's :root — to the React
+   dark palette (packages/ui/src/ThemeProvider/palettes.ts → darkPalette), then
+   add a few explicit overrides for hardcoded colors and light-on-light text.
+   ========================================================================== */
+
+.dark .cf-form-wrapper,
+.dark .cf-side-panel,
+.dark .gen-wrap {
+    --list-color: #e6e6e6;
+    --body-color: #b0b0b0;
+    --body-background: #212121;
+    --color-divider: #4d4d4d;
+    --color-primary-light: #6eaff8;
+    --color-primary-hover: #8bbff9;
+    --color-listing-hover: rgba(255, 255, 255, 0.08);
+    --color-background-listing-header: #666666;
+    --color-danger: #ff6e6e;
+    --color-success: #88b922;
+    --switch-off-color: #555555;
+    --c-text-secondary: #b0b0b0;
+    --c-text-primary: #e6e6e6;
+}
+
+/* Section headers: light text on the elevated dark surface */
+.dark .cf-section-header {
+    color: #ffffff;
+}
+
+/* Contained/primary controls turn light blue in dark, so their text must be
+   dark (React primary.contrastText is #000 in dark) — overrides the hardcoded
+   #fff. Reset/Cancel stays an outlined light-blue pill (its own !important). */
+.dark .cf-btn-primary,
+.dark .cf-actions input[type="submit"],
+.dark .cf-actions button,
+.dark .cf-form-wrapper .add-new-entry,
+.dark .cf-segmented button.active,
+.dark .cf-chip.active {
+    color: #16233a;
+}
+
+/* Secondary button hover: dark-appropriate instead of the hardcoded #d0d0d0 */
+.dark .cf-btn-secondary:hover {
+    background: #5a5a5a;
+}
+
+/* Reset/Cancel hover: light tint instead of the navy rgba on dark */
+.dark .cf-actions input[type="reset"]:hover,
+.dark .cf-actions .bt_default:hover {
+    background: rgba(110, 175, 248, 0.12) !important;
+}
+
+/* Custom tooltip: readable in dark */
+.dark .cf-tooltip {
+    background: #3a3a3a;
+    color: #ffffff;
 }

@@ -144,6 +144,11 @@ function cfClosePanel() {
 })();
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
+// Theme-aware default icon (inline SVG using var(--icons-fill-color)), wrapped
+// with the row spacing so it stays visible in light and dark modes. Custom
+// per-service logos keep their own image; the onerror fallback swaps to this.
+var clDefaultServiceIcon = '<span style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:4px;">' + ({/literal}{$defaultServiceIconJs}{literal}) + '</span>';
+
 var svcHgListing = new CentreonListing({
     instanceName:  'svcHgListing',
     ajaxListUrl:   './include/configuration/configObject/service/ajaxServiceByHgListing.php',
@@ -202,8 +207,8 @@ svcHgListing.renderRows = function(rows) {
         var svcEditUrl = 'main.get.php?p=' + _svcHgPageId + '&o=c&service_id=' + rid;
         var svcTitle = 'Modify a Service - ' + (row.desc || '');
         var svcIcon = row.svc_icon
-            ? '<img src="'+self.escape(row.svc_icon)+'" class="ico-14" style="vertical-align:middle;margin-right:4px;" onerror="this.src=\'./img/icons/service.svg\'" />'
-            : '<img src="./img/icons/service.svg" class="ico-14" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;" />';
+            ? '<img src="'+self.escape(row.svc_icon)+'" class="ico-14" style="vertical-align:middle;margin-right:4px;" onerror="this.outerHTML=clDefaultServiceIcon;" />'
+            : clDefaultServiceIcon;
         tr += '<td><a href="#" onclick="cfOpenPanel(\''+svcEditUrl+'\', \''+self.escape(svcTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+svcIcon+self.escape(row.desc||'')+'</a></td>';
 
         // Scheduling

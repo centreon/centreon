@@ -111,6 +111,10 @@ function cfClosePanel() {
 })();
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
+// Theme-aware default icon (inline SVG using var(--icons-fill-color)), wrapped
+// with the row spacing so it stays visible in light and dark modes.
+var clCtIcon = '<span title="Contact template" style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:4px;">' + ({/literal}{$ctIconJs}{literal}) + '</span>';
+
 var ctListing = new CentreonListing({
     instanceName:  'ctListing',
     ajaxListUrl:   './include/configuration/configObject/contact_template_model/ajaxContactTemplateListing.php',
@@ -127,7 +131,7 @@ var ctListing = new CentreonListing({
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
             var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+clCtIcon+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;

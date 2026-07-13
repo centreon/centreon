@@ -149,6 +149,11 @@ function cfClosePanel() {
 })();
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
+// Theme-aware default icons (inline SVG using var(--icons-fill-color)), wrapped
+// with the row spacing. Custom per-host logos (row.icon) keep their own image.
+var clDefaultHostIcon = '<span style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:8px;">' + ({/literal}{$defaultHostIconJs}{literal}) + '</span>';
+var clServicesIcon = '<span style="display:inline-flex;align-items:center;vertical-align:middle;opacity:.6;">' + ({/literal}{$servicesIconJs}{literal}) + '</span>';
+
 var hostListing = new CentreonListing({
     instanceName:  'hostListing',
     ajaxListUrl:   './include/configuration/configObject/host/ajaxHostListing.php',
@@ -174,8 +179,8 @@ var hostListing = new CentreonListing({
             var editUrl = 'main.get.php?p={/literal}{$hostPage}{literal}&o=c&host_id=' + row.id;
             var title = '{/literal}{t}Modify Host{/t}{literal} - ' + row.name;
             var icon = row.icon
-                ? '<img src="'+l.escape(row.icon)+'" class="ico-16" style="vertical-align:middle;margin-right:8px;" onerror="this.outerHTML=\'<img src=./img/icons/host.svg class=ico-16 style=width:16px;height:16px;vertical-align:middle;margin-right:8px; />\'" />'
-                : '<img src="./img/icons/host.svg" class="ico-16" style="width:16px;height:16px;vertical-align:middle;margin-right:8px;" />';
+                ? '<img src="'+l.escape(row.icon)+'" class="ico-16" style="vertical-align:middle;margin-right:8px;" onerror="this.outerHTML=clDefaultHostIcon;" />'
+                : clDefaultHostIcon;
             return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+icon+l.escape(row.name)+'</a>';
         }},
         { id:'mon_state', align:'center', render: function(row, l) {
@@ -212,7 +217,7 @@ var hostListing = new CentreonListing({
     renderOptions: function(row, l) {
         var svcLink = './main.php?p=602&search=' + encodeURIComponent(row.name);
         var checked = row.activate ? ' checked' : '';
-        return '<a href="'+svcLink+'" title="Display all Services"><img src="./img/icons/all_services.svg" style="width:14px;height:14px;vertical-align:middle;opacity:.6;" /></a>' +
+        return '<a href="'+svcLink+'" title="Display all Services">'+clServicesIcon+'</a>' +
             '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="hostListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
             '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }

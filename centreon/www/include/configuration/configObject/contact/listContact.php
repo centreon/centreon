@@ -44,6 +44,10 @@ $tpl->assign('headerMenu_options', _('Options'));
 $tpl->assign('isAdmin', $centreon->user->admin);
 
 $tpl->assign('contactPage', $p);
+// Theme-aware default icons (inline SVG, fill: var(--icons-fill-color)) so they
+// stay visible in both light and dark modes. JSON-encoded for safe <script> embed.
+$tpl->assign('adminIconJs', json_encode(returnSvg('www/img/icons/admin.svg', 'var(--icons-fill-color)', 16, 16)));
+$tpl->assign('userIconJs', json_encode(returnSvg('www/img/icons/user.svg', 'var(--icons-fill-color)', 16, 16)));
 
 // CSRF token for the single-contact unblock action link
 $tpl->assign('centreonToken', createCSRFToken());

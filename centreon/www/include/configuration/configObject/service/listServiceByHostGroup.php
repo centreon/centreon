@@ -38,6 +38,9 @@ $tpl->assign('headerMenu_parent', _('Template'));
 $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('svcHgPage', $p);
+// Theme-aware default icon (inline SVG, fill: var(--icons-fill-color)) so it stays
+// visible in both light and dark modes. JSON-encoded for safe <script> embed.
+$tpl->assign('defaultServiceIconJs', json_encode(returnSvg('www/img/icons/service.svg', 'var(--icons-fill-color)', 14, 14)));
 
 $searchHG = $centreon->historySearch[$url]['searchHG'] ?? '';
 $searchS  = $centreon->historySearch[$url]['searchS'] ?? '';

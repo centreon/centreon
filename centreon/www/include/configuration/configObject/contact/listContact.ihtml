@@ -138,6 +138,11 @@ function cfClosePanel() {
 })();
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
+// Theme-aware default icons (inline SVG using var(--icons-fill-color)), wrapped
+// with the row spacing so they stay visible in light and dark modes.
+var clAdminIcon = '<span title="Administrator" style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:4px;">' + ({/literal}{$adminIconJs}{literal}) + '</span>';
+var clUserIcon = '<span title="User" style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:4px;">' + ({/literal}{$userIconJs}{literal}) + '</span>';
+
 var contactListing = new CentreonListing({
     instanceName:  'contactListing',
     ajaxListUrl:   './include/configuration/configObject/contact/ajaxContactListing.php',
@@ -155,9 +160,8 @@ var contactListing = new CentreonListing({
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
             var ptitle = '{/literal}{t}Modify a Contact{/t}{literal} - ' + (row.alias || row.name);
-            var icon = row.admin ? './img/icons/admin.svg' : './img/icons/user.svg';
-            var title = row.admin ? 'Administrator' : 'User';
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(ptitle)+'\'); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
+            var iconHtml = row.admin ? clAdminIcon : clUserIcon;
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(ptitle)+'\'); return false;">'+iconHtml+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;

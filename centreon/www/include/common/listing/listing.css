@@ -42,7 +42,7 @@
     padding: 8px 12px;
     font-size: 14px;
     border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
+    border-radius: 9999px;
     background: var(--select-background, #fff);
     cursor: pointer;
     line-height: 1.4;
@@ -61,9 +61,9 @@
     font-size: 14px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    background-color: var(--color-primary-light, #131D5A);
     border: none;
-    border-radius: 4px;
+    border-radius: 9999px;
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
@@ -72,7 +72,7 @@
 }
 
 .cl-btn-add:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--color-primary-hover, #2A3575);
     color: #fff;
     text-decoration: none;
 }
@@ -110,13 +110,13 @@
     padding: 8px 12px;
     font-size: 14px;
     border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
+    border-radius: 8px;
     outline: none;
     transition: border-color 0.15s ease;
 }
 
 .cl-search-input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cl-search-input::placeholder {
@@ -142,7 +142,7 @@
     justify-content: center;
     min-width: 28px;
     height: 28px;
-    border-radius: 4px;
+    border-radius: 9999px;
     font-size: 13px;
     text-decoration: none;
     cursor: pointer;
@@ -150,7 +150,7 @@
 }
 
 .cl-pagination a {
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
 }
 
 .cl-pagination a:hover {
@@ -177,7 +177,7 @@
 }
 
 .cl-pagination a.cl-page-nav:hover svg {
-    stroke: var(--color-primary-light, #2E68AA);
+    stroke: var(--color-primary-light, #131D5A);
 }
 
 /* Current page indicator */
@@ -187,8 +187,8 @@
     justify-content: center;
     min-width: 28px;
     height: 28px;
-    border-radius: 4px;
-    background-color: var(--color-primary-light, #2E68AA);
+    border-radius: 9999px;
+    background-color: var(--color-primary-light, #131D5A);
     color: #fff;
     font-size: 13px;
     font-weight: 600;
@@ -218,7 +218,10 @@
 
 .cl-listing-table {
     width: 100%;
-    border-collapse: collapse;
+    /* separate (not collapse) so the header cells can render rounded top
+       corners — matches the Resource Status listing header (radius-lg = 8px).
+       Row separators are `border-bottom` only, so spacing:0 stays identical. */
+    border-collapse: separate;
     border-spacing: 0;
     background: var(--select-background, #fff);
     border: none;
@@ -227,15 +230,25 @@
 /* -- Table header --------------------------------------------------------- */
 
 .cl-listing-table thead th {
-    padding: 6px 16px;
-    font-weight: 600;
-    font-size: 13px;
+    height: 30px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    font-weight: 700;
+    font-size: 12px;
     color: #000;
     text-align: left;
     border-bottom: none;
     background: var(--color-background-listing-header, #d9d9d9);
     white-space: nowrap;
     user-select: none;
+}
+
+.cl-listing-table thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.cl-listing-table thead th:last-child {
+    border-top-right-radius: 8px;
 }
 
 .dark .cl-listing-table thead th {
@@ -298,7 +311,7 @@
 /* -- Links inside rows ---------------------------------------------------- */
 
 .cl-listing-table tbody td a {
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
     text-decoration: none;
 }
 
@@ -311,7 +324,7 @@
 }
 
 .cl-listing-table tbody tr:hover td a {
-    color: var(--color-primary-hover, #255891);
+    color: var(--color-primary-hover, #2A3575);
 }
 
 /* ==========================================================================
@@ -338,7 +351,7 @@
 }
 
 .cl-dup-input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
     outline: none;
 }
 
@@ -398,7 +411,7 @@
 
 /* Focus: light-blue halo */
 .cl-toggle input:focus-visible + .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 6px rgba(19, 29, 90, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 .cl-toggle input:disabled + .cl-toggle-slider {
@@ -427,16 +440,21 @@
     justify-content: center;
     margin: 0;
     height: 100%;
+    /* The checkbox box is sized in em (1.25em). Pin the font-size so the
+       header "select all" and the row checkboxes render at an identical size,
+       regardless of the differing header (12px) vs row (13px) text sizes. */
+    font-size: 13px;
 }
 
 .cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] {
     margin: 0;
 }
 
-/* Nudge the header "check all" checkbox up to align with the header label */
+/* The header th now has a definite height (30px) and the checkbox is
+   flex-centered at height:100%, so it aligns on its own — no nudge needed. */
 .cl-listing-table thead .cl-col-picker .md-checkbox {
     position: relative;
-    top: -2px;
+    top: 0;
 }
 
 /* Listing page title + description (breadcrumb stays visible above) */
@@ -767,7 +785,8 @@
     height: 38px;
     padding: 0 12px 0 36px;
     border: 1px solid var(--c-stroke, #c2c7ce);
-    border-radius: 4px;
+    /* Match the Resource Status search bar radius (20px) — a rounded pill. */
+    border-radius: 20px;
     font-family: Roboto, sans-serif;
     font-size: 14px;
     outline: none;
@@ -775,7 +794,7 @@
 }
 
 .cl-search .cl-search-simple:focus {
-    border-color: var(--c-primary-main, #2E68AA);
+    border-color: var(--c-primary-main, #131D5A);
 }
 
 /* Compact variant for multi-field toolbars (e.g. host + service) */
@@ -791,9 +810,9 @@
     height: 38px;
     padding: 0 14px;
     border: 1px solid var(--c-divider-strong, #b5b5b5);
-    border-radius: 4px;
+    border-radius: 9999px;
     background: #fff;
-    color: var(--c-primary-main, #2E68AA);
+    color: var(--c-primary-main, #131D5A);
     font-family: Roboto, sans-serif;
     font-size: 14px;
     cursor: pointer;
@@ -808,12 +827,12 @@
 }
 
 .cl-adv-btn:hover {
-    background: rgba(46, 104, 170, 0.06);
+    background: rgba(19, 29, 90, 0.06);
 }
 
 .cl-adv-btn.active {
-    border-color: var(--c-primary-main, #2E68AA);
-    background: rgba(46, 104, 170, 0.10);
+    border-color: var(--c-primary-main, #131D5A);
+    background: rgba(19, 29, 90, 0.10);
 }
 
 /* Advanced filters panel (expands below the toolbar) */
@@ -934,7 +953,7 @@
     padding: 0 18px;
     border: 0;
     border-radius: 4px;
-    background: var(--c-primary-main, #2E68AA);
+    background: var(--c-primary-main, #131D5A);
     color: #fff;
     font-family: Roboto, sans-serif;
     font-size: 14px;
@@ -966,7 +985,7 @@
 }
 .cl-tag--success { background: rgba(136, 185, 34, 0.18); color: #4f7a0b; }
 .cl-tag--neutral { background: rgba(0, 0, 0, 0.06); color: #6b7280; }
-.cl-tag--info    { background: rgba(46, 104, 170, 0.15); color: #255891; }
+.cl-tag--info    { background: rgba(19, 29, 90, 0.15); color: #2A3575; }
 .cl-tag--warning { background: rgba(255, 166, 0, 0.18); color: #9a6a00; }
 
 .cl-mon-up {
@@ -1391,4 +1410,181 @@
     font-style: italic;
     text-align: center;
     font-size: 12px;
+}
+
+/* ==========================================================================
+   Dark theme
+   --------------------------------------------------------------------------
+   The `.dark` class is set on <html> by the React shell (useUser.ts). The
+   legacy Centreon-Dark CSS variables produce an incoherent result here
+   (near-black surfaces, navy links that vanish on dark, black header text),
+   so we override the listing surfaces explicitly to match the React dark
+   palette (packages/ui/src/ThemeProvider/palettes.ts → darkPalette):
+     paper #212121 · widget #2E2E2E · divider #666 · text #FFF/#CCC
+     primary.main #6eaff8 (contrastText #000) · listingHeader #666
+   `.dark .cl-*` = specificity (0,2,0), so these win over both the base
+   light rules and any :root-scoped legacy variables.
+   ========================================================================== */
+
+/* -- Surfaces & data table ------------------------------------------------ */
+.dark .cl-listing-table,
+.dark .cl-listing-table tbody tr {
+    background: #212121;
+}
+
+.dark .cl-listing-table thead th {
+    background: #666666;
+    color: #ffffff;
+}
+
+.dark .cl-listing-table tbody td {
+    color: #cccccc;
+    border-bottom-color: #3d3d3d;
+}
+
+.dark .cl-listing-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .cl-listing-table tbody tr:hover td {
+    color: #ffffff;
+}
+
+/* Row links (host / resource names) */
+.dark .cl-listing-table tbody td a,
+.dark .cl-pagination a {
+    color: #6eaff8;
+}
+
+.dark .cl-listing-table tbody tr:hover td a {
+    color: #8bbff9;
+}
+
+/* -- Titles & descriptions ------------------------------------------------ */
+.dark .cl-page-title {
+    color: #ffffff;
+}
+
+.dark .cl-page-desc,
+.dark .cl-page-info,
+.dark .cl-filter-toggle,
+.dark .cl-adv-field > label,
+.dark .cl-adv-caption {
+    color: #a0a0a0;
+}
+
+.dark .cl-title-sep {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* -- Primary contained controls (Add button, current page) ---------------- */
+.dark .cl-btn-add {
+    background-color: #6eaff8;
+    color: #16233a;
+}
+
+.dark .cl-btn-add:hover {
+    background-color: #8bbff9;
+    color: #16233a;
+}
+
+.dark .cl-pagination span.cl-page-current {
+    background-color: #6eaff8;
+    color: #16233a;
+}
+
+.dark .cl-pagination a:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+.dark .cl-pagination a.cl-page-nav {
+    color: #a0a0a0;
+}
+
+.dark .cl-pagination a.cl-page-nav:hover svg {
+    stroke: #6eaff8;
+}
+
+/* -- Inputs, selects & search --------------------------------------------- */
+.dark .cl-actions-left select,
+.dark .cl-limit-select,
+.dark .cl-search-input,
+.dark .cl-dup-input,
+.dark .cl-search .cl-search-simple {
+    background: #212121;
+    color: #e6e6e6;
+    border-color: #4d4d4d;
+}
+
+.dark .cl-search-input:focus,
+.dark .cl-dup-input:focus,
+.dark .cl-search .cl-search-simple:focus {
+    border-color: #6eaff8;
+}
+
+.dark .cl-search-input::placeholder,
+.dark .cl-search .cl-search-simple::placeholder {
+    color: #7a7a7a;
+}
+
+.dark .cl-search .cl-search-icon {
+    color: #a0a0a0;
+}
+
+.dark .cl-toolbar-sep {
+    background: #3d3d3d;
+}
+
+/* -- Advanced filters button & panel -------------------------------------- */
+.dark .cl-adv-btn {
+    background: #212121;
+    color: #6eaff8;
+    border-color: #4d4d4d;
+}
+
+.dark .cl-adv-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.dark .cl-adv-btn.active {
+    border-color: #6eaff8;
+    background: rgba(110, 175, 248, 0.15);
+}
+
+.dark .cl-adv-inner {
+    background: #252525;
+    border-color: #3d3d3d;
+}
+
+.dark .cl-adv-clear {
+    background: #212121;
+    color: #e6e6e6;
+    border-color: #4d4d4d;
+}
+
+.dark .cl-adv-search {
+    background: #6eaff8;
+    color: #16233a;
+}
+
+/* -- Toggle switch (off state) -------------------------------------------- */
+.dark .cl-toggle-slider {
+    background: #555555;
+}
+
+/* -- Value tags (tonal pills) --------------------------------------------- */
+.dark .cl-tag--success { background: rgba(159, 199, 78, 0.18); color: #9FC74E; }
+.dark .cl-tag--neutral { background: rgba(255, 255, 255, 0.10); color: #bdbdbd; }
+.dark .cl-tag--info    { background: rgba(110, 175, 248, 0.18); color: #8bbff9; }
+.dark .cl-tag--warning { background: rgba(252, 196, 129, 0.18); color: #FCC481; }
+
+/* -- Misc surfaces -------------------------------------------------------- */
+.dark .cl-meta-header {
+    background: #212121;
+    color: #cccccc;
+    border-color: #3d3d3d;
+}
+
+.dark .cl-loading {
+    color: #888888;
 }

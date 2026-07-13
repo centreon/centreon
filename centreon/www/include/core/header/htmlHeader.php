@@ -31,6 +31,7 @@ $versionParam = isset($centreon->informations) && isset($centreon->informations[
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 
 $variablesThemeCSS  = 'Centreon-Light';
+$themeModeClass = '';
 $userId = (int) $centreon->user->user_id;
 $statement = $pearDB->prepare('SELECT contact_theme FROM contact WHERE contact_id = :contactId');
 $statement->bindValue(':contactId', $userId, PDO::PARAM_INT);
@@ -42,6 +43,11 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
             break;
         case 'dark':
             $variablesThemeCSS = 'Centreon-Dark';
+            // Mirror the React shell (useUser.ts adds `.dark` on the top
+            // document). Legacy pages render inside an iframe whose <html>
+            // never receives that class, so the modern skin's `.dark .cl-*`
+            // and `.dark .cf-*` rules would otherwise be dead in dark mode.
+            $themeModeClass = 'dark';
             break;
         default:
             throw new Exception('Unknown contact theme : ' . $result['contact_theme']);
@@ -49,7 +55,7 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $centreon->user->lang; ?>">
+<html lang="<?php echo $centreon->user->lang; ?>"<?php echo $themeModeClass !== '' ? ' class="' . $themeModeClass . '"' : ''; ?>>
     <title>Centreon - IT & Network Monitoring</title>
     <link rel="shortcut icon" href="./img/favicon.ico"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>

@@ -45,6 +45,11 @@ $tpl->assign('Hostgroup', _('Hostgroup'));
 $tpl->assign('Poller', _('Poller'));
 $tpl->assign('Template', _('Template'));
 $tpl->assign('listServicesIcon', returnSvg('www/img/icons/all_services.svg', 'var(--icons-fill-color)', 18, 18));
+// Theme-aware default icons rendered inline (fill: var(--icons-fill-color)) so
+// they stay visible in both light and dark modes. JSON-encoded for safe
+// embedding inside the listing's inline <script> (escapes </script>, quotes).
+$tpl->assign('defaultHostIconJs', json_encode(returnSvg('www/img/icons/host.svg', 'var(--icons-fill-color)', 16, 16)));
+$tpl->assign('servicesIconJs', json_encode(returnSvg('www/img/icons/all_services.svg', 'var(--icons-fill-color)', 14, 14)));
 $tpl->assign('HelpServices', _('Display all Services for this host'));
 
 // Restore search from history

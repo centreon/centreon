@@ -152,6 +152,12 @@ function cfClosePanel() {
 })();
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
+// Theme-aware default icons (inline SVG using var(--icons-fill-color)), wrapped
+// with the row spacing so they stay visible in light and dark modes. Custom
+// per-host/service logos keep their own image; the onerror fallback swaps to these.
+var clDefaultHostIcon = '<span style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:6px;">' + ({/literal}{$defaultHostIconJs}{literal}) + '</span>';
+var clDefaultServiceIcon = '<span style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:4px;">' + ({/literal}{$defaultServiceIconJs}{literal}) + '</span>';
+
 var svcListing = new CentreonListing({
     instanceName:  'svcListing',
     ajaxListUrl:   './include/configuration/configObject/service/ajaxServiceByHostListing.php',
@@ -204,8 +210,8 @@ svcListing.renderRows = function(rows) {
         if (row.host_name !== lastHost) {
             var hostLink = 'main.php?p=60101&o=c&host_id=' + row.host_id;
             var hostIcon = row.host_icon
-                ? '<img src="'+self.escape(row.host_icon)+'" class="ico-16" style="vertical-align:middle;margin-right:6px;" onerror="this.src=\'./img/icons/host.svg\'" />'
-                : '<img src="./img/icons/host.svg" class="ico-16" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" />';
+                ? '<img src="'+self.escape(row.host_icon)+'" class="ico-16" style="vertical-align:middle;margin-right:6px;" onerror="this.outerHTML=clDefaultHostIcon;" />'
+                : clDefaultHostIcon;
             // Host monitoring badge
             var hBadge = '';
             if (row.host_mon_state !== null && row.host_mon_state !== undefined) {
@@ -226,8 +232,8 @@ svcListing.renderRows = function(rows) {
         var svcEditUrl = 'main.get.php?p=' + _svcPageId + '&o=c&service_id=' + rid;
         var svcTitle = 'Modify a Service - ' + (row.desc || '');
         var svcIcon = row.svc_icon
-            ? '<img src="'+self.escape(row.svc_icon)+'" class="ico-14" style="vertical-align:middle;margin-right:4px;" onerror="this.src=\'./img/icons/service.svg\'" />'
-            : '<img src="./img/icons/service.svg" class="ico-14" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;" />';
+            ? '<img src="'+self.escape(row.svc_icon)+'" class="ico-14" style="vertical-align:middle;margin-right:4px;" onerror="this.outerHTML=clDefaultServiceIcon;" />'
+            : clDefaultServiceIcon;
         tr += '<td><a href="#" onclick="cfOpenPanel(\''+svcEditUrl+'\', \''+self.escape(svcTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+svcIcon+self.escape(row.desc||'')+'</a></td>';
 
         // Monitoring status
