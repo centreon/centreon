@@ -8,11 +8,13 @@ Feature: Time period Configuration
     Given a user is logged in Centreon
 
   # jours à exclure : 1er janvier, 1er mai, 14 juillet, 25 décembre
+  @MON-205082
   Scenario: Time period excluding holidays
     When a user creates a time period with separated holidays dates excluded
     Then all properties of my time period are saved
 
   # période à exclure : du 1er au 31 août
+  @MON-205081
   Scenario: Time period excluding a range of dates
     When a user creates a time period with a range of dates to exclude
     Then all properties of my time period are saved with the exclusions
