@@ -65,17 +65,55 @@ for (const [variableName, variableValue] of Object.entries({
 
 const jiraAuthorizationHeader = `Basic ${Buffer.from(`${JIRA_USER_EMAIL}:${JIRA_TOKEN}`).toString("base64")}`;
 
+const MAX_HTTP_RETRIES = 5;
+const RETRY_DELAY_MS = 2000;
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Backoff before retrying a transient failure. `status` is null on a network error.
+// Return the delay in ms, or null to stop retrying.
+function retryDelayMs(attempt, status) {
+  if (attempt >= MAX_HTTP_RETRIES) return null;
+  const isTransient = status === null || status === 429 || status >= 500;
+  if (!isTransient) return null;
+  return RETRY_DELAY_MS;
+}
+
+// Fetch with retry/backoff on transient failures (policy in retryDelayMs).
+async function fetchWithRetry(operation, label) {
+  for (let attempt = 0; ; attempt++) {
+    let response = null;
+    let networkError = null;
+    try {
+      response = await operation();
+      if (response.ok) return response;
+    } catch (error) {
+      networkError = error;
+    }
+    const delay = retryDelayMs(attempt, networkError ? null : response.status);
+    if (delay == null) {
+      if (networkError) throw networkError;
+      return response;
+    }
+    console.log(`  ${label}: transient failure, retry #${attempt + 1} in ${delay}ms`);
+    await sleep(delay);
+  }
+}
+
 // Jira REST call -> { ok, status, body } where body is parsed JSON or raw text.
 async function callJiraRest(httpMethod, endpointPath, requestPayload) {
-  const response = await fetch(`${JIRA_REST_BASE_URL}${endpointPath}`, {
-    method: httpMethod,
-    headers: {
-      Authorization: jiraAuthorizationHeader,
-      Accept: "application/json",
-      ...(requestPayload ? { "Content-Type": "application/json" } : {}),
-    },
-    ...(requestPayload ? { body: JSON.stringify(requestPayload) } : {}),
-  });
+  const response = await fetchWithRetry(
+    () =>
+      fetch(`${JIRA_REST_BASE_URL}${endpointPath}`, {
+        method: httpMethod,
+        headers: {
+          Authorization: jiraAuthorizationHeader,
+          Accept: "application/json",
+          ...(requestPayload ? { "Content-Type": "application/json" } : {}),
+        },
+        ...(requestPayload ? { body: JSON.stringify(requestPayload) } : {}),
+      }),
+    `${httpMethod} ${endpointPath}`,
+  );
   const responseText = await response.text();
   let parsedBody;
   try {
@@ -94,14 +132,18 @@ function loadGraphqlOperation(operationName) {
 
 // Xray GraphQL call -> parsed JSON. Throws on a GraphQL-level error array.
 async function callXrayGraphql(graphqlQuery, queryVariables) {
-  const response = await fetch(XRAY_GRAPHQL_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${XRAY_TOKEN}`,
-    },
-    body: JSON.stringify({ query: graphqlQuery, variables: queryVariables }),
-  });
+  const response = await fetchWithRetry(
+    () =>
+      fetch(XRAY_GRAPHQL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${XRAY_TOKEN}`,
+        },
+        body: JSON.stringify({ query: graphqlQuery, variables: queryVariables }),
+      }),
+    "Xray GraphQL",
+  );
   const responseJson = await response.json();
   if (responseJson.errors && responseJson.errors.length > 0) {
     throw new Error(`Xray GraphQL error: ${JSON.stringify(responseJson.errors)}`);
@@ -337,30 +379,37 @@ async function main() {
       continue;
     }
     console.log(`::group::Enrich ${issueKey} (${issueId})`);
-
-    // 1. Xray Test Type (set + verify + retry once)
-    if (TEST_TYPE) {
-      await setTestTypeWithRetry(issueId, issueKey, TEST_TYPE);
-    }
-
-    // 2. Component and labels (Jira)
-    if (COMPONENT || LABELS) {
-      const fieldsUpdatePayload = buildFieldsUpdatePayload(COMPONENT, LABELS);
-      const { ok, status, body } = await callJiraRest("PUT", `/issue/${issueKey}`, fieldsUpdatePayload);
-      if (ok) {
-        console.log("  component/labels updated");
-      } else {
-        console.log(`WARNING: failed to update fields for ${issueKey} (HTTP ${status}): ${JSON.stringify(body)}`);
-        failureCount++;
+    // Isolate each test: a failure here is logged and counted, never aborts the batch.
+    let testFailed = false;
+    try {
+      // 1. Xray Test Type (set + verify + retry once)
+      if (TEST_TYPE) {
+        await setTestTypeWithRetry(issueId, issueKey, TEST_TYPE);
       }
+
+      // 2. Component and labels (Jira)
+      if (COMPONENT || LABELS) {
+        const fieldsUpdatePayload = buildFieldsUpdatePayload(COMPONENT, LABELS);
+        const { ok, status, body } = await callJiraRest("PUT", `/issue/${issueKey}`, fieldsUpdatePayload);
+        if (ok) {
+          console.log("  component/labels updated");
+        } else {
+          console.log(`WARNING: failed to update fields for ${issueKey} (HTTP ${status}): ${JSON.stringify(body)}`);
+          testFailed = true;
+        }
+      }
+
+      // 3. Resolve: walk the known Test chain to a done status.
+      if (RESOLVE === "true") {
+        const finalStatus = await driveToResolved(issueKey, TEST_RESOLVE_TRANSITION_IDS);
+        console.log(`  final status: ${finalStatus?.id} - ${finalStatus?.name}`);
+      }
+    } catch (error) {
+      console.log(`WARNING: enrichment error for ${issueKey}: ${error.message} — will be retried on a re-run`);
+      testFailed = true;
     }
 
-    // 3. Resolve: walk the known Test chain to a done status.
-    if (RESOLVE === "true") {
-      const finalStatus = await driveToResolved(issueKey, TEST_RESOLVE_TRANSITION_IDS);
-      console.log(`  final status: ${finalStatus?.id} - ${finalStatus?.name}`);
-    }
-
+    if (testFailed) failureCount++;
     console.log("::endgroup::");
   }
 
@@ -376,13 +425,14 @@ async function main() {
     console.log("::endgroup::");
   }
 
+  const enrichedCount = tests.length - skippedCount - failureCount;
+  console.log(
+    `Enrichment done: ${enrichedCount} enriched, ${skippedCount} already up-to-date, ${failureCount} left un-enriched.`,
+  );
   if (failureCount > 0) {
-    console.error(`Enrichment finished with ${failureCount} failure(s).`);
+    console.error(`${failureCount} test(s) left un-enriched — re-run the job to finish (it resumes idempotently).`);
     process.exit(1);
   }
-  console.log(
-    `Enrichment done: ${tests.length - skippedCount} enriched, ${skippedCount} already up-to-date (skipped).`,
-  );
 }
 
 main().catch((error) => {
