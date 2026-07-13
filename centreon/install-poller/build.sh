@@ -52,8 +52,8 @@ fi
 cp -f main-head.sh "${target}"
 
 if [[ "$(uname)" == "Darwin" ]]; then
-  gsed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
-  gsed -i "s/<VERSION>/${full_version}/g" "${target}"
+  sed -i '' "s/major=\"\"/major=\"$major\"/g" "${target}"
+  sed -i '' "s/<VERSION>/${full_version}/g" "${target}"
 else
   sed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
   sed -i "s/<VERSION>/${full_version}/g" "${target}"
