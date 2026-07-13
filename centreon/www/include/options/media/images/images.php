@@ -71,7 +71,6 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if (! in_array(false, $selectIds)) {
-                deleteMultDirectory($selectIds);
                 deleteMultImg($selectIds);
             }
         } else {
