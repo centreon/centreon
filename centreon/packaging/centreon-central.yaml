@@ -17,6 +17,9 @@ vendor: "Centreon"
 homepage: "https://www.centreon.com"
 license: "Apache-2.0"
 
+scripts:
+  postinstall: ./scripts/centreon-central-postinstall.sh
+
 overrides:
   rpm:
     depends:
