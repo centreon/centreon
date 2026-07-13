@@ -131,7 +131,10 @@ var msListing = new CentreonListing({
             var title = '{/literal}{t}Modify a Meta Service{/t}{literal} - ' + row.name;
             return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
-        { id:'calcul_type', align:'center' },
+        { id:'calcul_type', align:'center', render: function(row) {
+            var map = { 'AVE':'Average', 'SOM':'Sum', 'MIN':'Min', 'MAX':'Max' };
+            return map[row.calcul_type] || row.calcul_type || '';
+        }},
         { id:'warning', align:'center', render: function(row) { return row.warning || '-'; }},
         { id:'critical', align:'center', render: function(row) { return row.critical || '-'; }}
     ],
