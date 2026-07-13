@@ -48,9 +48,7 @@ When('the user navigates to the changelog page', () => {
 });
 
 Then('the changelog listing is displayed', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
     .find('#clTableBody tr')
     .should('have.length.greaterThan', 0);
@@ -58,9 +56,7 @@ Then('the changelog listing is displayed', () => {
 
 Then('no pagination controls are shown', () => {
   // Infinite scroll mode: no page number links
-  cy.getIframeBody()
-    .find('#clPaginationTop a.cl-page-num')
-    .should('not.exist');
+  cy.getIframeBody().find('#clPaginationTop a.cl-page-num').should('not.exist');
 });
 
 Then('a scroll info counter is displayed', () => {
@@ -77,21 +73,16 @@ Then('a scroll info counter is displayed', () => {
 When('the user searches for an object name in the changelog', () => {
   // First, create a known object to search for
   cy.addHost({
-    name: 'changelog_test_host',
     address: '127.0.0.1',
+    name: 'changelog_test_host',
     template: 'generic-host'
   });
 
   // Revisit changelog
   visitAndWait();
 
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('changelog_test_host');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('changelog_test_host');
+  cy.getIframeBody().find('#clSearchBtn').click();
 
   // Wait for reload
   cy.getIframeBody()
@@ -102,7 +93,7 @@ When('the user searches for an object name in the changelog', () => {
 Then('only matching changelog entries are displayed', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
-    .each($row => {
+    .each(($row) => {
       cy.wrap($row).should('contain', 'changelog_test_host');
     });
 });
@@ -112,9 +103,7 @@ Then('only matching changelog entries are displayed', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects an object type filter', () => {
-  cy.getIframeBody()
-    .find('#clSearchType')
-    .select('host');
+  cy.getIframeBody().find('#clSearchType').select('host');
 
   cy.getIframeBody()
     .find('#clTableBody tr td')
@@ -124,7 +113,7 @@ When('the user selects an object type filter', () => {
 Then('only entries of that type are displayed', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
-    .each($row => {
+    .each(($row) => {
       cy.wrap($row).find('td').eq(3).should('contain', 'host');
     });
 });
@@ -135,10 +124,7 @@ Then('only entries of that type are displayed', () => {
 
 When('an Added or Changed entry exists', () => {
   // The host creation above should have produced an "Added" entry
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('Added')
-    .should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('Added').should('exist');
 });
 
 When('the user clicks the expand button on that entry', () => {
@@ -155,18 +141,12 @@ When('the user clicks the expand button on that entry', () => {
     .first()
     .click();
 
-  cy.wait('@detailRequest')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@detailRequest').its('response.statusCode').should('eq', 200);
 });
 
 Then('a diff panel appears below the row', () => {
-  cy.getIframeBody()
-    .find('.cl-detail-row')
-    .should('exist');
-  cy.getIframeBody()
-    .find('.cl-diff-container')
-    .should('exist');
+  cy.getIframeBody().find('.cl-detail-row').should('exist');
+  cy.getIframeBody().find('.cl-diff-container').should('exist');
 });
 
 Then('the diff shows field names and values', () => {
@@ -189,22 +169,15 @@ When('the user expands a changelog entry', () => {
     .find('#clTableBody .cl-expand-btn:not(.disabled)')
     .first()
     .click();
-  cy.getIframeBody()
-    .find('.cl-detail-row')
-    .should('exist');
+  cy.getIframeBody().find('.cl-detail-row').should('exist');
 });
 
 When('the user clicks the expand button again', () => {
-  cy.getIframeBody()
-    .find('#clTableBody .cl-expand-btn.open')
-    .first()
-    .click();
+  cy.getIframeBody().find('#clTableBody .cl-expand-btn.open').first().click();
 });
 
 Then('the diff panel is removed', () => {
-  cy.getIframeBody()
-    .find('.cl-detail-row')
-    .should('not.exist');
+  cy.getIframeBody().find('.cl-detail-row').should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -214,8 +187,9 @@ Then('the diff panel is removed', () => {
 When('an Enabled or Disabled entry exists', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .then($body => {
-      const hasEnabled = $body.text().includes('Enabled') || $body.text().includes('Disabled');
+    .then(($body) => {
+      const hasEnabled =
+        $body.text().includes('Enabled') || $body.text().includes('Disabled');
       expect(hasEnabled).to.be.true;
     });
 });
@@ -235,26 +209,17 @@ Then('its expand button is grayed out and not clickable', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on an object name link', () => {
-  cy.getIframeBody()
-    .find('#clTableBody td a')
-    .first()
-    .click();
+  cy.getIframeBody().find('#clTableBody td a').first().click();
 });
 
 Then('the timeline detail page is displayed', () => {
   cy.waitForElementInIframe('#main-content', '.cld-wrapper');
-  cy.getIframeBody()
-    .find('.cld-timeline')
-    .should('exist');
-  cy.getIframeBody()
-    .find('.cld-entry')
-    .should('have.length.greaterThan', 0);
+  cy.getIframeBody().find('.cld-timeline').should('exist');
+  cy.getIframeBody().find('.cld-entry').should('have.length.greaterThan', 0);
 });
 
 Then('a back button returns to the changelog listing', () => {
-  cy.getIframeBody()
-    .find('.cld-back-btn')
-    .click();
+  cy.getIframeBody().find('.cld-back-btn').click();
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.getIframeBody()
     .find('#clTableBody tr')
