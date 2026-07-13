@@ -133,7 +133,7 @@ var brokerListing = new CentreonListing({
             return row.inputs ? '<span style="display:inline-block;min-width:22px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:var(--color-primary-light,#2E68AA);background:rgba(46,104,170,.12);">'+row.inputs+'</span>' : '<span style="opacity:.4;">0</span>';
         }},
         { id:'outputs', align:'center', render: function(row) {
-            return row.outputs ? '<span style="display:inline-block;min-width:22px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:var(--color-success,#88B922);background:rgba(136,185,34,.12);">'+row.outputs+'</span>' : '<span style="opacity:.4;">0</span>';
+            return row.outputs ? '<span style="display:inline-block;min-width:22px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:var(--color-primary-light,#2E68AA);background:rgba(46,104,170,.12);">'+row.outputs+'</span>' : '<span style="opacity:.4;">0</span>';
         }}
     ],
     renderOptions: function(row, l) {
