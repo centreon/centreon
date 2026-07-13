@@ -19,6 +19,7 @@ function runVmInstall() {
   consoleTitle "Checking prerequisites:"
   _vmCheckRoot
   _vmDetectDistribution
+  _vmCheckSelinux
 
   if _vmIsInstalled; then
     local installed_major

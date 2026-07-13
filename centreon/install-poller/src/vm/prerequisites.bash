@@ -91,6 +91,28 @@ function _vmDetectDistribution() {
   esac
 }
 
+function _vmCheckSelinux() {
+  if [ -z "${_EL_MAJOR}" ]; then
+    return 0
+  fi
+
+  if ! command -v getenforce >/dev/null 2>&1; then
+    consoleInfo "SELinux: getenforce not found, skipping check"
+    logInfo "SELinux check skipped: getenforce not found"
+    return 0
+  fi
+
+  local selinux_status
+  selinux_status=$(getenforce)
+  if [ "${selinux_status}" = "Enforcing" ]; then
+    consoleError "SELinux is in Enforcing mode. Set it to Permissive or Disabled (setenforce 0, then update /etc/selinux/config) before installing the poller."
+    logError "SELinux check failed: Enforcing"
+    exit 1
+  fi
+  consoleInfo "SELinux: ${selinux_status}: OK"
+  logInfo "SELinux check: ${selinux_status} OK"
+}
+
 function _vmCheckRam() {
   local ram_kb
   ram_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
