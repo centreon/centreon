@@ -347,6 +347,153 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
 }
 
 /**
+ * Form rule for the service "Mass Change": forbids moving one or several services onto a
+ * host (or hostgroup) that already holds another service with the same description, and also
+ * catches the case where two selected services sharing the same description are moved onto the
+ * same host/hostgroup within the same mass change.
+ *
+ * @param array $fields submitted form values
+ *
+ * @return array|bool true when valid, otherwise an [elementName => errorMessage] array
+ */
+function checkServiceMassiveChangeExistence(array $fields): array|bool
+{
+    if (empty($fields['select'])) {
+        return true;
+    }
+
+    $targetHosts = is_array($fields['service_hPars'] ?? null) ? $fields['service_hPars'] : [];
+    $targetHostGroups = is_array($fields['service_hgPars'] ?? null) ? $fields['service_hgPars'] : [];
+
+    if (! count($targetHosts) && ! count($targetHostGroups)) {
+        return true;
+    }
+
+    $serviceIds = array_filter(array_map('intval', explode(',', (string) $fields['select'])));
+
+    // Descriptions already claimed on each target relation within this mass change,
+    // so two selected services with the same description cannot land on the same host.
+    $seenOnHost = [];
+    $seenOnHostGroup = [];
+
+    foreach ($serviceIds as $serviceId) {
+        $description = getServiceDescriptionById($serviceId);
+        if ($description === null) {
+            continue;
+        }
+
+        foreach ($targetHosts as $hostId) {
+            $hostId = (int) $hostId;
+            if (
+                serviceDescriptionExistsOnHost($description, $hostId, $serviceId)
+                || isset($seenOnHost[$hostId][$description])
+            ) {
+                return ['service_hPars' => _(
+                    'One or more of the selected services cannot be moved: '
+                    . 'a service with the same description already exists on the target host(s).'
+                )];
+            }
+            $seenOnHost[$hostId][$description] = true;
+        }
+
+        foreach ($targetHostGroups as $hostGroupId) {
+            $hostGroupId = (int) $hostGroupId;
+            if (
+                serviceDescriptionExistsOnHostGroup($description, $hostGroupId, $serviceId)
+                || isset($seenOnHostGroup[$hostGroupId][$description])
+            ) {
+                return ['service_hgPars' => _(
+                    'One or more of the selected services cannot be moved: '
+                    . 'a service with the same description already exists on the target host group(s).'
+                )];
+            }
+            $seenOnHostGroup[$hostGroupId][$description] = true;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @param int $serviceId
+ *
+ * @return string|null the service description, or null when the service does not exist
+ */
+function getServiceDescriptionById(int $serviceId): ?string
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        'SELECT service_description FROM service WHERE service_id = :service_id'
+    );
+    $statement->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+    $statement->execute();
+    $description = $statement->fetchColumn();
+
+    return $description === false ? null : $description;
+}
+
+/**
+ * @param string $description
+ * @param int $hostId
+ * @param int $excludeServiceId service to exclude from the lookup (the one being moved)
+ *
+ * @return bool true when another service with the same description is already linked to the host
+ */
+function serviceDescriptionExistsOnHost(string $description, int $hostId, int $excludeServiceId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT 1
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            WHERE hsr.host_host_id = :host_id
+                AND service.service_description = :service_description
+                AND service.service_id != :service_id
+            SQL
+    );
+    $statement->bindValue(':host_id', $hostId, PDO::PARAM_INT);
+    $statement->bindValue(':service_description', $description, PDO::PARAM_STR);
+    $statement->bindValue(':service_id', $excludeServiceId, PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
+/**
+ * @param string $description
+ * @param int $hostGroupId
+ * @param int $excludeServiceId service to exclude from the lookup (the one being moved)
+ *
+ * @return bool true when another service with the same description is already linked to the hostgroup
+ */
+function serviceDescriptionExistsOnHostGroup(string $description, int $hostGroupId, int $excludeServiceId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT 1
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id
+                AND service.service_description = :service_description
+                AND service.service_id != :service_id
+            SQL
+    );
+    $statement->bindValue(':hostgroup_hg_id', $hostGroupId, PDO::PARAM_INT);
+    $statement->bindValue(':service_description', $description, PDO::PARAM_STR);
+    $statement->bindValue(':service_id', $excludeServiceId, PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
+/**
  * Get service id by combination of host or hostgroup relations
  *
  * @param string $serviceDescription
