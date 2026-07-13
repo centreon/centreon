@@ -23,15 +23,23 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
+
 interface WriteSessionRepositoryInterface
 {
     /**
      * Invalidate a session.
+     *
+     * @throws RepositoryException
      */
     public function invalidate(): void;
 
     /**
+     * Start a session (included the legacy session).
+     *
      * @param \Centreon $legacySession
+     *
+     * @throws RepositoryException
      *
      * @return bool
      */

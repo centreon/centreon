@@ -386,6 +386,12 @@ const monitoredServiceQuery = (hostName: string = centralHost): string =>
 const latestDowntimeQuery = (hostId: number, serviceId: number): string =>
   `SELECT start_time, end_time FROM downtimes WHERE service_id = ${serviceId} AND host_id = ${hostId} AND cancelled = 0 ORDER BY downtime_id DESC LIMIT 1`;
 
+// Lifecycle of the latest non-cancelled downtime for a host/service
+// (centreon_storage): the engine sets actual_start_time when the downtime
+// becomes active and actual_end_time when it ends.
+const downtimeLifecycleQuery = (hostId: number, serviceId: number): string =>
+  `SELECT actual_start_time, actual_end_time, start_time, end_time FROM downtimes WHERE host_id = ${hostId} AND service_id = ${serviceId} AND cancelled = 0 ORDER BY downtime_id DESC LIMIT 1`;
+
 // --- Recurrent downtime cron output ----------------------------------------
 
 // The recurrent-downtime cron writes its emitted external commands into the
@@ -431,6 +437,7 @@ const scheduledWindowFor = (
 
 export {
   centralHost,
+  downtimeLifecycleQuery,
   expectedSeconds,
   formDate,
   isoDay,

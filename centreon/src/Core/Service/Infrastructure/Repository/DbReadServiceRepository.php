@@ -174,7 +174,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     /**
      * @inheritDoc
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool
     {
         if ($accessGroups === []) {
             $this->debug('Access groups array empty');
@@ -200,6 +200,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 AND scr.sc_id IN ({$subRequest})
                 SQL;
 
+        $hostFilter = $hostId === null ? '' : 'AND acl.`host_id` = :host_id';
+
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
                 SELECT 1
@@ -207,13 +209,17 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 LEFT JOIN `:db`.`service_categories_relation` scr
                     ON scr.`service_service_id` = s.`service_id`
                 JOIN `:dbstg`.`centreon_acl` acl
+                    ON s.`service_id` = acl.`service_id`
                 WHERE acl.`group_id` IN ({$bindParamsAsString})
+                    {$hostFilter}
                     AND s.`service_id` = :service_id
-                    AND s.`service_register` = '1'
                     {$categoryAcls}
                 SQL
         ));
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
+        if ($hostId !== null) {
+            $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        }
         foreach ($bindValuesArray as $bindParam => $bindValue) {
             $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
         }

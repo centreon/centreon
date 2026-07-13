@@ -1,7 +1,7 @@
 {
   "name": "centreon/centreon-open-tickets",
   "description": "Module dedicated to open case on various Ticket systems",
-  "version": "26.07",
+  "version": "26.09",
   "type": "project",
   "keywords": [
     "centreon",
@@ -25,9 +25,8 @@
   "require-dev": {
     "beberlei/assert": "3.3.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
-    "pestphp/pest": "2.36.*",
-    "symfony/console": "7.4.*"
+    "pestphp/pest": "3.*",
+    "symfony/console": "8.1.*"
   },
   "autoload": {
     "psr-4": {
@@ -49,7 +48,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.4"
+      "php": "8.4.1"
     },
     "preferred-install": {
       "*": "dist"
@@ -121,7 +120,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.4.*"
+      "require": "8.1.*"
     }
   }
 }

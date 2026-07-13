@@ -25,7 +25,6 @@ return [
     'legacy' => [
         'paths' => [
             // directories
-            'features',
             'www',
             // files
             '.php-cs-fixer.conf.php',

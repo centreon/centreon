@@ -10,7 +10,7 @@ while true ; do
   sleep "$POLL_INTERVAL"
   SQL_RESULT=$(timeout "$MYSQL_TIMEOUT" mysql -h"${MYSQL_HOST}" \
     -uroot -p"${MYSQL_ROOT_PASSWORD}" \
-    centreon -e "SELECT id FROM nagios_server WHERE name NOT IN (SELECT name from centreon_storage.instances)" 2>&1)
+    "${MYSQL_DB_CONFIGURATION:-centreon}" -e "SELECT id FROM nagios_server WHERE name NOT IN (SELECT name from ${MYSQL_DB_STORAGE:-centreon_storage}.instances)" 2>&1)
   if [ $? -eq 124 ]; then
     echo "MySQL query timed out"
     continue

@@ -287,6 +287,23 @@ EOF`,
   }
 );
 
+Given(
+  'the central broker is {string} to the cbd daemon',
+  (brokerLink: string) => {
+    // HA platforms default to the central broker NOT linked to the cbd daemon
+    // (daemon = 0). The upgrade must still locate the broker configuration.
+    if (brokerLink !== 'linked' && brokerLink !== 'not linked') {
+      throw new Error(`Unsupported broker_link value: ${brokerLink}`);
+    }
+    const daemon = brokerLink === 'linked' ? '1' : '0';
+
+    cy.requestOnDatabase({
+      database: 'centreon',
+      query: `UPDATE cfg_centreonbroker SET daemon = '${daemon}' WHERE config_name = 'central-broker-master'`
+    });
+  }
+);
+
 afterEach(() => {
   cy.visitEmptyPage().stopContainer({ name: 'web' });
 });

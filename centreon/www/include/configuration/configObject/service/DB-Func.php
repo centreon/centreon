@@ -31,13 +31,14 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -469,13 +470,11 @@ function deleteServiceInDB(array $services = []): void
 
     $serviceIds = array_keys($services);
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     /** @var WriteVaultRepositoryInterface $writeVaultRepository */
     $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         deleteResourceSecretsInVault($writeVaultRepository, [], $serviceIds);
     }
 
@@ -703,10 +702,8 @@ function multipleServiceInDB(
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     $selectServiceStatement = $pearDB->prepare('SELECT * FROM service WHERE service_id = :serviceId LIMIT 1');
     foreach ($services as $key => $value) {
         if (filter_var($key, FILTER_VALIDATE_INT) === false) {
@@ -1031,7 +1028,7 @@ function multipleServiceInDB(
                             }
                         }
 
-                        if ($macroPasswords !== [] && $vaultConfiguration !== null) {
+                        if ($macroPasswords !== [] && $vaultEligibilityService->shouldUseVault()) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -1121,13 +1118,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // Retrieve vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
@@ -1244,7 +1239,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $deleteMacroStatement->execute();
     }
 
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -1299,13 +1294,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $uuidGenerator = $kernel->getContainer()->get(UUIDGeneratorInterface::class);
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // Retrieve UUID for vault path before updating values in database.
     $uuid = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
@@ -1446,15 +1439,26 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
             updateServiceSecretsInVaultFromMC(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
                 $uuid,
                 (int) $serviceId,
-                $service->getFormattedMacros()
+                $updatedPasswordMacros
             );
         } catch (Throwable $ex) {
             error_log((string) $ex);
@@ -2162,12 +2166,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         return $macro['macro_password'] === '1';
     });
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && $passwordMacros !== []) {
+    if ($vaultEligibilityService->shouldUseVault() && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -2399,12 +2401,10 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         return $macro['macroPassword'] === '1';
     });
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && $passwordMacros !== []) {
+    if ($vaultEligibilityService->shouldUseVault() && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -2501,13 +2501,11 @@ function updateService($service_id = null, $from_MC = false, $params = [])
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // Retrieve vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
@@ -2680,7 +2678,7 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         $statement->execute();
     }
 
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -2734,14 +2732,12 @@ function updateService_MC($service_id = null, $params = [])
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
@@ -2962,7 +2958,7 @@ function updateService_MC($service_id = null, $params = [])
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -4531,7 +4527,17 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  */
 function callApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new InternalApiClient();
+    $kernel = Kernel::createForWeb();
+
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
 
     return $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 }

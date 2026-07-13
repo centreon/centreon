@@ -26,7 +26,7 @@ $resultat = [
 
 // We get Host or Service
 $selected_values = explode(',', $get_information['form']['selection']);
-$db_storage = new CentreonDBManager('centstorage');
+$db_storage = new CentreonDB('centstorage');
 
 $problems = [];
 
