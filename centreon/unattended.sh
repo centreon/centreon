@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Define all supported constants
-OPTIONS="hst:v:r:l:p:d:V:-:"
+OPTIONS="hsDt:v:r:l:p:d:V:-:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
 declare -A SUPPORTED_VERSION=([24.10]=1 [25.10]=1 [26.07]=1)
@@ -28,6 +28,8 @@ selinux_mode=${ENV_SELINUX_MODE:-"permissive"}  #Default SELinux mode to be used
 wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is not run auto
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
 tls=${ENV_DB_TLS:-"disabled"}                   # default DB TLS mode
+debug_mode=${ENV_DEBUG_MODE:-"false"}           #Default debug mode (set -x xtrace) is disabled
+LOG_FILE=""                                      #Path of the log file (set up in main, see ENV_LOG_FILE)
 
 function genpasswd() {
 	local _pwd
@@ -88,7 +90,7 @@ function usage() {
 	echo
 	echo "Usage:"
 	echo
-	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
+	echo " $script_short_name [install|update (default: install)] [-t <central|poller> (default: central)] [-v <24.10|25.10|26.07> (default: 25.10)] [-r <stable|testing-hotfix|testing-release|unstable> (default: stable)] [-d <MariaDB|MySQL> (default: MariaDB)] [--tls <enabled|disabled> (default: disabled)] [-l <DEBUG|INFO|WARN|ERROR>] [-s (for silent install)] [-p <centreon admin password>] [-D (enable debug mode: shell xtrace + DEBUG log level)] [-h (show this help output)] [-V configure a vault, using format <address>;<port>;<root_path>;<role_id>;<secret_id>]"
 	echo
 	echo Example:
 	echo
@@ -114,7 +116,7 @@ function usage() {
 #
 function log() {
 
-	TIMESTAMP=$(date --rfc-3339=seconds)
+	TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S.%3N%:z')
 
 	if [[ -z "${1}" || -z "${2}" ]]; then
 		echo "${TIMESTAMP} - ERROR: Missing argument"
@@ -213,6 +215,12 @@ function parse_subcommand_options() {
 			log "INFO" "The installation wizard will be executed by the script"
 			;;
 
+		D)
+			debug_mode="true"
+			runtime_log_level="DEBUG"
+			log "INFO" "Debug mode requested (shell xtrace + DEBUG log level)"
+			;;
+
 		p)
 			centreon_admin_password=$OPTARG
 			;;
@@ -306,10 +314,42 @@ function parse_subcommand_options() {
 }
 #======== end of function parse_subcommand_options()
 
+#========= begin of function maybe_enable_debug()
+# Enable shell xtrace when debug mode is requested (via the -D flag or
+# ENV_DEBUG_MODE=true) and force the DEBUG log level. The PS4 prefix carries a
+# millisecond timestamp and the source/line/function so every traced line is locatable.
+#
+function maybe_enable_debug() {
+	if [ "${debug_mode}" == "true" ]; then
+		runtime_log_level="DEBUG"
+		export PS4='+ $(date "+%H:%M:%S.%3N") ${BASH_SOURCE##*/}:${LINENO}:${FUNCNAME[0]:-main}() '
+		set -x
+	fi
+}
+#========= end of function maybe_enable_debug()
+
+#========= begin of function notice()
+# Announce an installation milestone: record it (INFO) in the log file and mirror
+# it to the real console (fd 3) when output is redirected to a log file, so the
+# operator can follow progress in both places during the long-running steps.
+#
+function notice() {
+	log "INFO" ">>> $1"
+	if [ -n "${LOG_FILE:-}" ]; then
+		printf '>>> %s\n' "$1" >&3
+	fi
+}
+#========= end of function notice()
+
 #========= begin of function error_and_exit()
 # display the ERROR log message then exit the script
 function error_and_exit() {
 	log "ERROR" "$1"
+	# When output is redirected to a log file, also surface the failure (and where to
+	# look) on the real console (fd 3), so a provisioning run does not fail silently.
+	if [ -n "${LOG_FILE:-}" ]; then
+		printf 'unattended.sh FAILED: %s - see %s\n' "$1" "${LOG_FILE}" >&3
+	fi
 	exit 1
 }
 #========= end of function error_and_exit()
@@ -319,11 +359,15 @@ function error_and_exit() {
 #
 function pause() {
 	local timeout=$default_timeout_in_sec
-	if [ -n $2 ]; then
+	if [ -n "${2:-}" ]; then
 		timeout=$2
 	fi
-	read -t $timeout -s -n 1 -p "${1}"
+	# Returns 0 if a key was pressed within the timeout, non-zero if the timeout elapsed,
+	# so the caller can report whether the operator skipped the wait.
+	local rc=0
+	read -t $timeout -s -n 1 -p "${1}" || rc=$?
 	echo ""
+	return $rc
 }
 #========= end of function pause()
 
@@ -1884,6 +1928,81 @@ function test_password_policy() {
 }
 #========= end of function test_password_policy()
 
+#========= begin of function display_services_recap()
+# Print a final platform healthcheck just before the credentials are displayed.
+# Topology-aware (only the services relevant to the installed role are checked) and
+# rendered in the same banner style as the run summary, recorded in the log file and
+# mirrored to the console. Purely informational: it tolerates inactive units (guarded
+# systemctl calls) so it never aborts the script.
+#
+function display_services_recap() {
+	local entry name unit topos active enabled state db_unit
+
+	if [ "${has_systemd:-0}" -ne 1 ]; then
+		log "WARN" "Systemd is not available: cannot report platform healthcheck"
+		return 0
+	fi
+
+	# Resolve the database unit from the chosen DBMS (robust for install and update).
+	if [ "$dbms" == "MariaDB" ]; then
+		db_unit="mariadb"
+	else
+		db_unit="${mysql_service_name:-mysqld}"
+	fi
+
+	# label | systemd unit | topologies the check applies to (space-separated)
+	# http and php units differ per distro (httpd/php-fpm on EL, apache2/php8.x-fpm on
+	# Debian); they are resolved via the variables set in set_required_prerequisite.
+	# centengine is checked on central only: on pollers the engine/broker shows up as cbd.
+	local -a recap_services=(
+		"database|${db_unit}|central"
+		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
+		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
+		"centengine|centengine|central"
+		"gorgone|gorgoned|central poller"
+		"cbd|cbd|central poller"
+		"centreontrapd|centreontrapd|central poller"
+		"snmptrapd|snmptrapd|central poller"
+		"snmpd|snmpd|central poller"
+	)
+
+	local -a results=()
+	for entry in "${recap_services[@]}"; do
+		IFS='|' read -r name unit topos <<<"$entry"
+		# Skip services that do not apply to the installed topology.
+		[[ " $topos " == *" $topology "* ]] || continue
+		active=$(systemctl is-active "$unit" 2>/dev/null || true)
+		enabled=$(systemctl is-enabled "$unit" 2>/dev/null || true)
+		if [ "$active" == "active" ]; then
+			state="[OK]    "
+		else
+			state="[FAILED]"
+		fi
+		results+=("$(printf '  %s %-14s (%-13s) active=%-10s enabled=%s' \
+			"$state" "$name" "$unit" "${active:-unknown}" "${enabled:-unknown}")")
+	done
+
+	# Record in the log file.
+	log "INFO" "============== Centreon platform healthcheck ([$topology]) =============="
+	for entry in "${results[@]}"; do
+		log "INFO" "$entry"
+	done
+	log "INFO" "========================================================================"
+
+	# Mirror to the console (fd 3) when output is redirected to a log file.
+	if [ -n "${LOG_FILE:-}" ]; then
+		{
+			echo "============== Centreon platform healthcheck ([$topology]) =============="
+			for entry in "${results[@]}"; do
+				echo "$entry"
+			done
+			echo "========================================================================"
+		} >&3
+	fi
+	return 0
+}
+#========= end of function display_services_recap()
+
 #####################################################
 ################ MAIN SCRIPT EXECUTION ##############
 
@@ -1917,6 +2036,35 @@ install)
 	;;
 
 esac
+
+# Keep a handle to the original console (fd 3) for the credentials recap and the
+# start/finish/failure notices, so they remain visible even when all other output
+# is redirected to the log file.
+exec 3>&1
+
+# Write all output (stdout+stderr) straight to a real log file with a plain redirect.
+# Set up AFTER argument parsing so that '-h'/usage and argument errors stay on the
+# console (no log file created for them), but BEFORE maybe_enable_debug and password
+# generation so '-D' xtrace (which would echo generated passwords) lands in the file,
+# not on the console. This is deliberately NOT 'tee'/process-substitution: in
+# packer/provisioning runs bash does not wait for the async 'tee' to flush on exit,
+# which can truncate the log. A direct redirect is synchronous and preserves the exit
+# code (no pipeline). Disable with ENV_LOG_TO_FILE=false; override path with ENV_LOG_FILE.
+if [ "${ENV_LOG_TO_FILE:-true}" == "true" ]; then
+	LOG_FILE=${ENV_LOG_FILE:-/var/log/centreon-unattended-$(date +%Y%m%d-%H%M%S).log}
+	if mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null && : > "$LOG_FILE" 2>/dev/null; then
+		chmod 600 "$LOG_FILE" 2>/dev/null || true
+		echo "unattended.sh: all output is written to [$LOG_FILE] (credentials are shown on the console only)." >&3
+		exec >> "$LOG_FILE" 2>&1
+		log "INFO" "===== unattended.sh started, logging to [$LOG_FILE] ====="
+	else
+		log "WARN" "Could not create log file [$LOG_FILE]; continuing with console output only"
+		LOG_FILE=""
+	fi
+fi
+
+# Enable shell xtrace now if debug mode was requested (-D flag or ENV_DEBUG_MODE=true)
+maybe_enable_debug
 
 # Validate the resolved TLS mode (from ENV_DB_TLS or the --tls flag) before using it.
 [[ ${SUPPORTED_TLS[$tls]} ]] || error_and_exit "Unsupported TLS mode: '$tls' (expected enabled or disabled)"
@@ -1952,19 +2100,51 @@ else
 	fi
 fi
 
-## Display all configured parameters
+## Display all configured parameters (recorded in the log file)
 log "INFO" "Start to execute operation [$operation] with following configuration parameters:"
 log "INFO" " topology: \t[$topology]"
 log "INFO" " version: \t[$version]"
 log "INFO" " repository: [$repo]"
+log "INFO" " database: \t[$dbms]"
 log "INFO" " TLS mode: \t[$tls]"
-
+log "INFO" " debug mode: [$debug_mode]"
 log "WARN" "It will start in [$default_timeout_in_sec] seconds. If you don't want to wait, press any key to continue or Ctrl-C to exit"
-pause "" $default_timeout_in_sec
+
+# Mirror the run summary + countdown to the real console (fd 3) so the operator sees
+# what the run will use, even when all output is redirected to the log file.
+# Skipped when logging to console only (LOG_FILE empty), to avoid printing twice.
+if [ -n "${LOG_FILE:-}" ]; then
+	{
+		echo "================ unattended.sh - run summary ================"
+		echo "  operation : $operation"
+		echo "  topology  : $topology"
+		echo "  version   : $version"
+		echo "  repository: $repo"
+		echo "  database  : $dbms"
+		echo "  TLS mode  : $tls"
+		echo "  debug mode: $debug_mode"
+		echo "  log file  : $LOG_FILE"
+		echo "============================================================"
+		echo "Starting in $default_timeout_in_sec seconds - press any key to continue now, or Ctrl-C to abort."
+	} >&3
+fi
+
+# Wait (or until a key is pressed), then confirm the input registered and announce
+# what happens next, so the operator is not left staring at a silent terminal.
+if pause "" $default_timeout_in_sec; then
+	start_trigger="key pressed"
+else
+	start_trigger="${default_timeout_in_sec}s timeout elapsed"
+fi
+log "INFO" "Input registered ($start_trigger). Starting [$operation] of Centreon [$topology] now - configuring repositories and installing packages, this may take several minutes."
+if [ -n "${LOG_FILE:-}" ]; then
+	echo "Input registered ($start_trigger). Starting [$operation] of Centreon [$topology] now (this may take several minutes); follow progress in $LOG_FILE" >&3
+fi
 
 ##
 # Analyze system and set the variables
 ##
+notice "Phase 1: checking prerequisites and configuring repositories"
 set_required_prerequisite
 ##
 # Check if systemd is present
@@ -1980,6 +2160,7 @@ install)
 
 	gorgone_selinux_package_name="centreon-gorgone-selinux"
 
+	notice "Phase 2: installing Centreon [$topology] packages (this is the longest step)"
 	case $topology in
 	central)
 		CENTREON_SELINUX_PACKAGES=(centreon-common-selinux centreon-web-selinux centreon-broker-selinux centreon-engine-selinux $gorgone_selinux_package_name centreon-plugins-selinux)
@@ -1994,9 +2175,11 @@ install)
 		;;
 	esac
 
+	notice "Phase 3: post-install configuration (services, firewall, SELinux)"
 	update_after_installation
 
 	if [ "$topology" == "central" ] && [ "$wizard_autoplay" == "true" ]; then
+		notice "Phase 4: running the Centreon installation wizard"
 		# The wizard talks plain HTTP (no -L/-k); run it BEFORE enabling the HTTPS :80->:443 redirect.
 		play_install_wizard
 	else
@@ -2024,8 +2207,10 @@ update)
 	case $topology in
 
 	central)
+		notice "Phase 1: updating Centreon [$topology] packages"
 		update_centreon_packages
 		if [ "$wizard_autoplay" == "true" ]; then
+			notice "Phase 2: applying updates through the Centreon API"
 			play_update
 			restart_centreon_process
 			log "INFO" "Log in to Centreon web interface via the URL: http://$central_ip/centreon"
@@ -2036,6 +2221,7 @@ update)
 		;;
 	poller)
 		CENTREON_DOC_URL=""
+		notice "Phase 1: updating Centreon [$topology] packages"
 		update_centreon_packages
 		restart_centreon_process
 		;;
@@ -2046,25 +2232,36 @@ update)
 
 esac
 
+# Final platform healthcheck (topology-aware), just before the credentials output.
+display_services_recap
+
 ## Major change - remind it again (in case of log level is ERROR)
 if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" = "install" ]; then
 	# Move the tmp file to the dest file
 	mv $tmp_passwords_file $passwords_file
-	echo
-	echo "****** IMPORTANT ******"
-	if [ "$wizard_autoplay" == "true" ]; then
-		echo "As you will need passwords for users such as [root,centreon] on your $DBMS database system and [admin] on your Centreon platform, random passwords are generated"
-	else
-		echo "As you will need a password for the user [root] on your $DBMS database system, a random password is generated"
-	fi
-	echo "Passwords are currently saved in [$passwords_file]"
-	cat $passwords_file
-	echo
-	echo "Please save them securely and then delete this file!"
-	echo
+	# Send the credentials to the console only (fd 3), never to the log file.
+	{
+		echo
+		echo "****** IMPORTANT ******"
+		if [ "$wizard_autoplay" == "true" ]; then
+			echo "As you will need passwords for users such as [root,centreon] on your $dbms database system and [admin] on your Centreon platform, random passwords are generated"
+		else
+			echo "As you will need a password for the user [root] on your $dbms database system, a random password is generated"
+		fi
+		echo "Passwords are currently saved in [$passwords_file]"
+		cat $passwords_file
+		echo
+		echo "Please save them securely and then delete this file!"
+		echo
+	} >&3
 fi
 if [ -e $tmp_passwords_file ] && [ "$operation" = "update" ]; then
 	rm -f $tmp_passwords_file
+fi
+
+# Final notice on the console (the rest of the run is in the log file).
+if [ -n "${LOG_FILE:-}" ]; then
+	echo "unattended.sh finished successfully. Full log: ${LOG_FILE}" >&3
 fi
 
 exit 0
