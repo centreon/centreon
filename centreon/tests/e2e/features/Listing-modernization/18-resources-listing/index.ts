@@ -55,7 +55,9 @@ When('the user navigates to the resources listing', () => {
 
 Then('the AJAX listing table is displayed with resource rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 Then('the USER1 resource is visible', () => {
@@ -109,7 +111,9 @@ Then('the resource toggle switches to disabled', () => {
 
 Then('the toggle response is successful', () => {
   cy.get('@toggleRes').its('response.statusCode').should('eq', 200);
-  cy.get('@toggleRes').its('response.body').should('have.property', 'success', true);
+  cy.get('@toggleRes')
+    .its('response.body')
+    .should('have.property', 'success', true);
 });
 
 // ---------------------------------------------------------------------------
@@ -119,7 +123,8 @@ Then('the toggle response is successful', () => {
 When('the resource is disabled', () => {
   cy.executeSqlQuery({
     database: 'centreon',
-    query: "UPDATE cfg_resource SET resource_activate = '0' WHERE resource_name = '$USER1$'"
+    query:
+      "UPDATE cfg_resource SET resource_activate = '0' WHERE resource_name = '$USER1$'"
   });
   visitAndWait();
 });
@@ -174,7 +179,11 @@ When('the user selects a resource and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
@@ -182,7 +191,9 @@ Then('a duplicated resource appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
   // Duplicated resource should appear
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 1);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 1);
 });
 
 // ---------------------------------------------------------------------------
@@ -195,7 +206,9 @@ When('the user clicks on a resource name', () => {
 
 Then('the resource edit form is displayed', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="resource_name"]');
-  cy.getIframeBody().find('input[name="resource_name"]').should('have.value', '$USER1$');
+  cy.getIframeBody()
+    .find('input[name="resource_name"]')
+    .should('have.value', '$USER1$');
 });
 
 // ---------------------------------------------------------------------------
