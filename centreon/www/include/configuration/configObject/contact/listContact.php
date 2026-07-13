@@ -45,6 +45,9 @@ $tpl->assign('isAdmin', $centreon->user->admin);
 
 $tpl->assign('contactPage', $p);
 
+// CSRF token for the single-contact unblock action link
+$tpl->assign('centreonToken', createCSRFToken());
+
 // Restore search from history
 $search = $centreon->historySearch[$url]['search'] ?? '';
 $tpl->assign('searchC', $search);
