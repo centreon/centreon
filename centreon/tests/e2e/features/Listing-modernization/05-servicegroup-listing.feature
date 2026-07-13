@@ -7,63 +7,53 @@ Feature: Modern service group listing
     Given an admin user is logged in Centreon
     And several service groups exist
 
-  @TEST_LISTING-038
   Scenario: Service group listing loads via AJAX
     When the user navigates to the service groups listing
     Then the AJAX listing table is displayed with service group rows
 
-  @TEST_LISTING-039
   Scenario: Search filters service groups by name
     When the user navigates to the service groups listing
     And the user searches for a specific service group
     Then only the matching service group is displayed
 
-  @TEST_LISTING-040
   Scenario: Toggle disables a service group
     When the user navigates to the service groups listing
     And the user clicks the toggle to disable a service group
     Then the toggle switches to disabled state
     And the AJAX response is successful
 
-  @TEST_LISTING-041
   Scenario: Toggle enables a service group
     When the user navigates to the service groups listing
     And the service group is disabled
     And the user clicks the toggle to enable the service group
     Then the toggle switches to enabled state
 
-  @TEST_LISTING-042
   Scenario: Two consecutive toggles succeed with CSRF rotation
     When the user navigates to the service groups listing
     And the user toggles a service group off then on
     Then both toggle requests succeed
 
-  @TEST_LISTING-043
   Scenario: Pagination works correctly
     When the user navigates to the service groups listing
     Then the pagination info shows the total count
     When the user changes the rows per page to 10
     Then at most 10 rows are displayed
 
-  @TEST_LISTING-044
   Scenario: Bulk duplication works
     When the user navigates to the service groups listing
     And the user selects a service group and duplicates it
     Then a duplicated service group appears in the listing
 
-  @TEST_LISTING-045
   Scenario: Bulk deletion works
     When the user navigates to the service groups listing
     And the user selects a service group and deletes it
     Then the service group is removed from the listing
 
-  @TEST_LISTING-046
   Scenario: Clicking a name navigates to the edit form
     When the user navigates to the service groups listing
     And the user clicks on a service group name
     Then the service group edit form is displayed
 
-  @TEST_LISTING-047
   Scenario: Session state persists across navigation
     When the user navigates to the service groups listing
     And the user searches for a specific service group
