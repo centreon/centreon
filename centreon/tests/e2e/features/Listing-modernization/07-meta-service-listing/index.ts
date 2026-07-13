@@ -47,12 +47,12 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('a meta service exists', () => {
   cy.addMetaService({
-    name: 'meta_alpha',
-    maxCheckAttempts: '3'
+    maxCheckAttempts: '3',
+    name: 'meta_alpha'
   });
   cy.addMetaService({
-    name: 'meta_beta',
-    maxCheckAttempts: '3'
+    maxCheckAttempts: '3',
+    name: 'meta_beta'
   });
 });
 
@@ -65,9 +65,7 @@ When('the user navigates to the meta services listing', () => {
 });
 
 Then('the AJAX listing table is displayed with meta service rows', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('meta_alpha')
@@ -79,13 +77,8 @@ Then('the AJAX listing table is displayed with meta service rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific meta service', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('meta_alpha');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('meta_alpha');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
@@ -131,9 +124,7 @@ Then('the meta service toggle switches to disabled', () => {
 });
 
 Then('the toggle response is successful', () => {
-  cy.get('@toggleMeta')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@toggleMeta').its('response.statusCode').should('eq', 200);
   cy.get('@toggleMeta')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -146,7 +137,8 @@ Then('the toggle response is successful', () => {
 When('the meta service is disabled', () => {
   cy.executeSqlQuery({
     database: 'centreon',
-    query: "UPDATE meta_service SET meta_activate = '0' WHERE meta_name = 'meta_alpha'"
+    query:
+      "UPDATE meta_service SET meta_activate = '0' WHERE meta_name = 'meta_alpha'"
   });
   visitAndWait();
 });
@@ -165,9 +157,7 @@ When('the user clicks the toggle to enable the meta service', () => {
     .should('not.be.checked')
     .click();
 
-  cy.wait('@toggleMetaOn')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleMetaOn').its('response.statusCode').should('eq', 200);
 });
 
 Then('the meta service toggle switches to enabled', () => {
@@ -209,9 +199,7 @@ When('the user selects a meta service and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated meta service appears in the listing', () => {
@@ -242,9 +230,7 @@ When('the user selects a meta service and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the meta service is removed from the listing', () => {
@@ -261,10 +247,7 @@ Then('the meta service is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a meta service name', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', 'meta_alpha')
-    .click();
+  cy.getIframeBody().find('#clTableBody').contains('a', 'meta_alpha').click();
 });
 
 Then('the meta service edit form is displayed', () => {
@@ -285,7 +268,5 @@ When('the user navigates back to the meta services listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .should('have.value', 'meta_alpha');
+  cy.getIframeBody().find('#clSearchInput').should('have.value', 'meta_alpha');
 });
