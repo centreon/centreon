@@ -1,5 +1,36 @@
 #!/bin/bash
 
+# Fail fast: exit on any error and on failures inside pipelines.
+# 'set -u' is intentionally NOT enabled: this script relies on many optional unset
+# variables (use_vault, requested_*, ENV_*, ...). 'errtrace' makes the ERR trap fire
+# inside functions, subshells and command substitutions too.
+set -Eeo pipefail
+set -o errtrace
+
+#========= begin of function on_error()
+# ERR trap handler: report any *unanticipated* command failure with a timestamp,
+# exit code, line number and the failing command, then exit with that code.
+# Commands that may carry secrets are redacted so nothing sensitive reaches the
+# persistent log file or the console error line (this does NOT touch the intended
+# credential channels: /etc/centreon/generated.tobesecured and the fd-3 recap).
+function on_error() {
+	local code="${1}" line="${2}" cmd="${3}"
+	case "${cmd}" in
+		*IDENTIFIED\ BY*|*IDENTIFIED\ WITH*|*--data*|*-p\"*|*password*|*genpasswd*|*X-AUTH-TOKEN*|*centreon-auth-token*|*token=*)
+			cmd="<command redacted>" ;;
+	esac
+	printf '%s - ERROR - command failed (exit %s) at line %s: %s\n' \
+		"$(date '+%Y-%m-%d %H:%M:%S.%3N%:z')" "${code}" "${line}" "${cmd}" >&2
+	# Surface the failure on the real console (fd 3) too, so a provisioning run that
+	# sends all output to the log file still shows that (and where) it failed.
+	if [ -n "${LOG_FILE:-}" ]; then
+		printf 'unattended.sh FAILED (exit %s at line %s) - see %s\n' "${code}" "${line}" "${LOG_FILE}" >&3
+	fi
+	exit "${code}"
+}
+#========= end of function on_error()
+trap 'on_error "$?" "${LINENO}" "${BASH_COMMAND}"' ERR
+
 ### Define all supported constants
 OPTIONS="hsDt:v:r:l:p:d:V:-:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
@@ -10,7 +41,7 @@ declare -A SUPPORTED_DBMS=([MariaDB]=1 [MySQL]=1)
 declare -A SUPPORTED_TLS=([enabled]=1 [disabled]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
-default_ip=$(hostname -I | awk '{print $1}')
+default_ip=$(hostname -I | awk '{print $1}') || true
 ###
 
 #Define default values
@@ -34,17 +65,17 @@ LOG_FILE=""                                      #Path of the log file (set up i
 function genpasswd() {
 	local _pwd
 
-	PWD_LOWER=$(tr -dc '[:lower:]' </dev/urandom | head -c4)
-	PWD_UPPER=$(tr -dc '[:upper:]' </dev/urandom | head -c4)
-	PWD_DIGIT=$(tr -dc '[:digit:]' </dev/urandom | head -c4)
-	PWD_SPECIAL=$(tr -dc '!?@*' </dev/urandom | head -c4)
+	# 'head -c4' closes the pipe early, so 'tr' receives SIGPIPE and exits non-zero;
+	# under 'pipefail' that would trip the ERR trap. Guard each pipeline with '|| true'.
+	PWD_LOWER=$(tr -dc '[:lower:]' </dev/urandom | head -c4) || true
+	PWD_UPPER=$(tr -dc '[:upper:]' </dev/urandom | head -c4) || true
+	PWD_DIGIT=$(tr -dc '[:digit:]' </dev/urandom | head -c4) || true
+	PWD_SPECIAL=$(tr -dc '!?@*' </dev/urandom | head -c4) || true
 
 	_pwd="$PWD_LOWER$PWD_UPPER$PWD_DIGIT$PWD_SPECIAL"
-	_pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n')
+	_pwd=$(echo $_pwd |fold -w 1 |shuf |tr -d '\n') || true
 
-	echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
-
-	if [ $? -ne 0 ]; then
+	if ! echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file; then
 		echo "ERROR: Cannot save the random password to [$tmp_passwords_file]"
 		exit 1
 	fi
@@ -133,12 +164,17 @@ function log() {
 	# get the log message (full log message)
 	log_message="${@}"
 
-	# check if the log_message_level is greater than the runtime_log_level
-	[[ ${SUPPORTED_LOG_LEVEL[$log_message_level]} ]] || return 1
+	# Skip messages whose level is unknown or below the configured runtime level.
+	# Always return 0 (suppression is a success): a bare "log" call returning a
+	# non-zero status would otherwise abort the script under 'set -e'.
+	[[ ${SUPPORTED_LOG_LEVEL[$log_message_level]} ]] || return 0
 
-	((${SUPPORTED_LOG_LEVEL[$log_message_level]} < ${SUPPORTED_LOG_LEVEL[$runtime_log_level]})) && return 2
+	if ((${SUPPORTED_LOG_LEVEL[$log_message_level]} < ${SUPPORTED_LOG_LEVEL[$runtime_log_level]})); then
+		return 0
+	fi
 
 	echo -e "${TIMESTAMP} - $log_message_level - $log_message"
+	return 0
 
 }
 #======== end of function log()
@@ -501,8 +537,8 @@ function install_mariadb_repo_setup() {
 	local script rc
 	script=$(mktemp)
 	curl -fsSL https://r.mariadb.com/downloads/mariadb_repo_setup -o "$script" || error_and_exit "Failed to download mariadb_repo_setup"
-	bash "$script" "$@"
-	rc=$?
+	rc=0
+	bash "$script" "$@" || rc=$?
 	rm -f "$script"
 	return $rc
 }
@@ -519,23 +555,19 @@ function set_mariadb_repos() {
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale
+		install_mariadb_repo_setup --os-type=debian --os-version="$detected_os_version" --mariadb-server-version="$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
 	elif (( $(version_int) >= $(version_int 26.07) )); then
 		# el9 has no 11.8 dnf module stream and el10 dropped dnf modularity, so MariaDB 11.8
 		# is installed from the MariaDB official repository for both.
-		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale
+		install_mariadb_repo_setup --os-type=rhel --os-version="$detected_os_major" --mariadb-server-version="mariadb-$detected_mariadb_version" --skip-maxscale || error_and_exit "Could not install the $dbms repository"
 	else
-	    dnf module enable mariadb:$detected_mariadb_version -y -q
+	    dnf module enable mariadb:$detected_mariadb_version -y -q || error_and_exit "Could not install the $dbms repository"
 	fi
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install the $dbms repository"
-	else
-		log "INFO" "Successfully installed the $dbms repository"
-	fi
+	log "INFO" "Successfully installed the $dbms repository"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1
+		rm -f /etc/apt/sources.list.d/mariadb.list.old_*  > /dev/null 2>&1 || true
 	else
-		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1
+		rm -f /etc/yum.repos.d/mariadb.repo.old_* > /dev/null 2>&1 || true
 	fi
 }
 #========= end of function set_mariadb_repos()
@@ -557,7 +589,7 @@ function setup_mysql() {
 			# preselect that channel so the install stays non-interactive.
 			mysql_apt_config="mysql-apt-config_0.8.34-1_all.deb"
 			curl -fJLO "https://dev.mysql.com/get/$mysql_apt_config" || error_and_exit "Failed to download $mysql_apt_config"
-			echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.4-lts" | debconf-set-selections
+			echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.4-lts" | debconf-set-selections || error_and_exit "Failed to preseed mysql-apt-config"
 			export DEBIAN_FRONTEND="noninteractive" && $PKG_MGR install -y "./$mysql_apt_config" || error_and_exit "Failed to install $mysql_apt_config"
 		else
 			curl -fJLO https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb || error_and_exit "Failed to download mysql-apt-config"
@@ -565,15 +597,14 @@ function setup_mysql() {
 		fi
 		# mysql-apt-config ships an expired/unrelated key; refresh the keyring (signed-by in mysql.list)
 		# with the renewed B7B3B788A8D3785C key (valid to 2027) so apt can verify the repo.
-		mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2)
+		mysql_keyring=$(grep -ohm1 'signed-by=[^] ]*' /etc/apt/sources.list.d/mysql.list 2>/dev/null | cut -d= -f2) || true
 		[ -z "$mysql_keyring" ] && mysql_keyring=/etc/apt/trusted.gpg.d/mysql.gpg
 		# pipefail so a failed download fails here instead of writing an empty keyring
-		( set -o pipefail; curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring" )
-		if [ $? -ne 0 ]; then
+		if ! ( set -o pipefail; curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor --yes -o "$mysql_keyring" ); then
 			error_and_exit "Failed to refresh the MySQL APT signing key from https://repo.mysql.com/RPM-GPG-KEY-mysql-2025"
 		fi
 		$PKG_MGR -y update || error_and_exit "apt update failed after configuring the MySQL repository"
-		$PKG_MGR install -y mysql-server mysql-common
+		$PKG_MGR install -y mysql-server mysql-common || error_and_exit "Could not install the $dbms server packages"
 	else
 		if [[ "$detected_mysql_version" == "8.4" ]]; then
 			# el9 / el10 AppStream only provides MySQL 8.0, so the MySQL 8.4 LTS community
@@ -582,28 +613,24 @@ function setup_mysql() {
 			# The release rpm's signing key expired 2025-10-22, so dnf rejects the re-signed packages. Replace it
 			# with the renewed key (same fingerprint B7B3B788A8D3785C, valid to 2027): refresh the on-disk file,
 			# drop the expired key from the rpm keyring (else the re-import is a no-op), then import the renewed one.
-			curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
+			curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023 || error_and_exit "Failed to download the MySQL RPM GPG key"
 			old_mysql_key=$(rpm -q gpg-pubkey 2>/dev/null | grep -i a8d3785c || true)
 			if [ -n "$old_mysql_key" ]; then rpm -e $old_mysql_key 2>/dev/null || true; fi
-			rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023
+			rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-mysql-2023 || error_and_exit "Failed to import the MySQL RPM GPG key"
 			# install_weak_deps=False: the distro mariadb stack is only a Recommends here; without it dnf
 			# pulls mariadb alongside Oracle MySQL and they collide on /usr/bin/mysql.
-			$PKG_MGR install -y --setopt=install_weak_deps=False mysql-server
+			$PKG_MGR install -y --setopt=install_weak_deps=False mysql-server || error_and_exit "Could not install the $dbms server packages"
 		else
-			$PKG_MGR install -y mysql-server mysql
+			$PKG_MGR install -y mysql-server mysql || error_and_exit "Could not install the $dbms server packages"
 		fi
 	fi
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not install the $dbms repository"
-	else
-		log "INFO" "Successfully installed the $dbms repository"
-	fi
-	systemctl enable --now $mysql_service_name
+	log "INFO" "Successfully installed the $dbms repository"
+	systemctl enable --now $mysql_service_name || error_and_exit "Failed to enable and start $mysql_service_name"
 	if (( $(version_int) < $(version_int 24.10) )); then
 		echo "default-authentication-plugin=mysql_native_password" >> $mysql_config_file
 	fi
-	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service
-	systemctl daemon-reload
+	sed -Ei 's/LimitNOFILE\s\=\s[0-9]{1,}/LimitNOFILE = 32000/' /usr/lib/systemd/system/$mysql_service_name.service || log "WARN" "Could not raise LimitNOFILE for $mysql_service_name"
+	systemctl daemon-reload || true
 }
 #========= end of function setup_mysql()
 
@@ -633,25 +660,25 @@ function set_required_prerequisite() {
 			case "$detected_os_release" in
 			redhat-release*)
 				BASE_PACKAGES=(dnf-plugins-core)
-				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
-				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms
-				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+				subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms || log "WARN" "Could not enable the codeready-builder repository (best-effort)"
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-8-rhui-rpms || true
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || error_and_exit "Failed to install the EPEL release package"
 				;;
 
 			centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 				BASE_PACKAGES=(dnf-plugins-core epel-release)
-				$PKG_MGR config-manager --set-enabled powertools
+				$PKG_MGR config-manager --set-enabled powertools || true
 				;;
 
 			centos-release-8.[1-2]*)
 				BASE_PACKAGES=(dnf-plugins-core epel-release)
-				$PKG_MGR config-manager --set-enabled PowerTools
+				$PKG_MGR config-manager --set-enabled PowerTools || true
 				;;
 
 			oraclelinux-release* | enterprise-release*)
 				BASE_PACKAGES=(dnf-plugins-core)
-				$PKG_MGR config-manager --set-enabled ol8_codeready_builder
-				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+				$PKG_MGR config-manager --set-enabled ol8_codeready_builder || true
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || error_and_exit "Failed to install the EPEL release package"
 			;;
 			esac
 
@@ -659,9 +686,9 @@ function set_required_prerequisite() {
 				case "$version" in
 					"24.10" | "25.10")
 						log "INFO" "Installing PHP 8.2 and enable it"
-						$PKG_MGR module reset php -y -q
-						$PKG_MGR module install php:8.2 -y -q
-						$PKG_MGR module enable php:8.2 -y -q
+						$PKG_MGR module reset php -y -q || true
+						$PKG_MGR module install php:8.2 -y -q || error_and_exit "Failed to install the PHP 8.2 module"
+						$PKG_MGR module enable php:8.2 -y -q || error_and_exit "Failed to enable the PHP 8.2 module"
 						;;
 					*)
 						log "INFO" "Installing PHP 8.2 from OS official repositories"
@@ -680,20 +707,20 @@ function set_required_prerequisite() {
 			case "$detected_os_release" in
 			redhat-release*)
 				BASE_PACKAGES=(dnf-plugins-core)
-				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms
-				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms
-				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+				subscription-manager repos --enable codeready-builder-for-rhel-9-x86_64-rpms || log "WARN" "Could not enable the codeready-builder repository (best-effort)"
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-9-rhui-rpms || true
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || error_and_exit "Failed to install the EPEL release package"
 				;;
 
 			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 				BASE_PACKAGES=(dnf-plugins-core epel-release)
-				$PKG_MGR config-manager --set-enabled crb
+				$PKG_MGR config-manager --set-enabled crb || true
 				;;
 
 			oraclelinux-release* | enterprise-release*)
 				BASE_PACKAGES=(dnf-plugins-core)
-				$PKG_MGR config-manager --set-enabled ol9_codeready_builder
-				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+				$PKG_MGR config-manager --set-enabled ol9_codeready_builder || true
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || error_and_exit "Failed to install the EPEL release package"
 			;;
 			esac
 
@@ -706,9 +733,9 @@ function set_required_prerequisite() {
 					$PKG_MGR module -y switch-to php:remi-8.4/common || error_and_exit "Failed to switch to the PHP 8.4 module from remi"
 				elif (( $(version_int) >= $(version_int 24.10) )); then
 					log "INFO" "Installing PHP 8.2 and enable it"
-					$PKG_MGR module reset php -y -q
-					$PKG_MGR module install php:8.2 -y -q
-					$PKG_MGR module enable php:8.2 -y -q
+					$PKG_MGR module reset php -y -q || true
+					$PKG_MGR module install php:8.2 -y -q || error_and_exit "Failed to install the PHP 8.2 module"
+					$PKG_MGR module enable php:8.2 -y -q || error_and_exit "Failed to enable the PHP 8.2 module"
 				else
 					log "INFO" "Installing PHP from OS official repositories"
 				fi
@@ -728,20 +755,20 @@ function set_required_prerequisite() {
 			case "$detected_os_release" in
 			redhat-release*)
 				BASE_PACKAGES=(dnf-plugins-core)
-				subscription-manager repos --enable codeready-builder-for-rhel-10-x86_64-rpms
-				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-10-rhui-rpms
-				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+				subscription-manager repos --enable codeready-builder-for-rhel-10-x86_64-rpms || log "WARN" "Could not enable the codeready-builder repository (best-effort)"
+				$PKG_MGR config-manager --set-enabled codeready-builder-for-rhel-10-rhui-rpms || true
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm || error_and_exit "Failed to install the EPEL release package"
 				;;
 
 			centos-release* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
 				BASE_PACKAGES=(dnf-plugins-core epel-release)
-				$PKG_MGR config-manager --set-enabled crb
+				$PKG_MGR config-manager --set-enabled crb || true
 				;;
 
 			oraclelinux-release* | enterprise-release*)
 				BASE_PACKAGES=(dnf-plugins-core)
-				$PKG_MGR config-manager --set-enabled ol10_codeready_builder
-				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
+				$PKG_MGR config-manager --set-enabled ol10_codeready_builder || true
+				dnf install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm || error_and_exit "Failed to install the EPEL release package"
 			;;
 			esac
 
@@ -758,10 +785,10 @@ function set_required_prerequisite() {
 		esac
 
 		log "INFO" "Installing packages ${BASE_PACKAGES[@]}"
-		$PKG_MGR -q install -y ${BASE_PACKAGES[@]}
+		$PKG_MGR -q install -y ${BASE_PACKAGES[@]} || error_and_exit "Failed to install base packages: ${BASE_PACKAGES[*]}"
 
 		log "INFO" "Updating package gnutls"
-		$PKG_MGR -q update -y gnutls
+		$PKG_MGR -q update -y gnutls || log "WARN" "Could not update gnutls"
 
 		set_centreon_repos
 		if [ "$topology" == "central" ]; then
@@ -771,7 +798,8 @@ function set_required_prerequisite() {
 				setup_mysql
 			fi
 			log "INFO" "Installing glibc langpack for Centreon UI translation"
-			$PKG_MGR-q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1
+			# Optional UI-translation langpacks: keep non-fatal (was masked by a '$PKG_MGR-q' typo).
+			$PKG_MGR -q install -y glibc-langpack-fr glibc-langpack-es glibc-langpack-pt glibc-langpack-de > /dev/null 2>&1 || true
 		fi
 		;;
 	debian-release*)
@@ -799,14 +827,14 @@ function set_required_prerequisite() {
 		# Don't gate prerequisite install on 'apt update': a prior run may have added the not-yet-signed
 		# Centreon repos, making update fail. Run it best-effort, then install wget/gnupg2/curl unconditionally
 		# (a '&&' here would skip them and leave gpg absent for the key import below).
-		${PKG_MGR} update
+		${PKG_MGR} update || true
 		base_apt_packages="lsb-release ca-certificates apt-transport-https wget gnupg2 curl"
 		# software-properties-common (add-apt-repository) is kept on Debian 12 but dropped on Debian 13,
 		# where the package no longer exists; this script adds repos via .list files, so it is not needed.
 		if [[ "$detected_os_version" == "12" ]]; then
 			base_apt_packages="$base_apt_packages software-properties-common"
 		fi
-		${PKG_MGR} install -y $base_apt_packages
+		${PKG_MGR} install -y $base_apt_packages || error_and_exit "Failed to install base Debian packages: $base_apt_packages"
 		repo_prefix="apt"
 		# non-".10" versions are only published to the internal APT repository
 		if uses_internal_repo; then
@@ -815,8 +843,8 @@ function set_required_prerequisite() {
 			apt_standard_repo="$repo_prefix-standard"
 		fi
 
-		# Get CPU architecture type
-		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]')
+		# Get CPU architecture type ('|| true': absent 'Vendor ID' line just means non-ARM)
+		VENDORID=$(lscpu | grep -e '^Vendor ID:' | cut -d ':' -f2 | tr -d '[:space:]') || true
 		ARCH=""
 		if [[ "$VENDORID" == "ARM" ]]; then
 			ARCH="[ arch=all,arm64 ]"
@@ -837,8 +865,7 @@ function set_required_prerequisite() {
 		done
 		# Import the Centreon APT signing key (pipefail so a failed download/dearmor is caught, not hidden).
 		log "INFO" "Importing the Centreon APT signing key"
-		( set -o pipefail; wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null )
-		if [ $? -ne 0 ]; then
+		if ! ( set -o pipefail; wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null ); then
 			error_and_exit "Failed to import the Centreon APT signing key from https://apt-key.centreon.com"
 		fi
 
@@ -851,7 +878,7 @@ function set_required_prerequisite() {
 				setup_mysql
 			fi
 		else
-			${PKG_MGR} update
+			${PKG_MGR} update || true
 		fi
 		;;
 	esac
@@ -883,9 +910,7 @@ function set_selinux_config() {
 	if [ -e /etc/selinux/config ]; then
 		log "WARN" "Modifying /etc/selinux/config. You must reboot your machine."
 
-		sed -i "s/^SELINUX=.*\$/SELINUX=$1/" /etc/selinux/config
-
-		if [ $? -ne 0 ]; then
+		if ! sed -i "s/^SELINUX=.*\$/SELINUX=$1/" /etc/selinux/config; then
 			error_and_exit "Could not change SELinux mode. You might need to run this script as root."
 		fi
 	else
@@ -901,7 +926,7 @@ function set_selinux_config() {
 function set_runtime_selinux_mode() {
 	log "INFO" "Set runtime SELinux mode to [$1]"
 
-	_current_mode=$(getenforce | tr '[:upper:]' '[:lower:]')
+	_current_mode=$(getenforce 2>/dev/null | tr '[:upper:]' '[:lower:]' || true)
 
 	log "DEBUG" "Current SELinux mode is [$_current_mode]"
 
@@ -925,11 +950,14 @@ function set_runtime_selinux_mode() {
 		;;
 	esac
 
-	setenforce $_request_mode
+	# Capture setenforce's status once: reading $? twice (as before) tested the
+	# previous '[' instead of setenforce, making the "disabled" branch dead code.
+	_se_rc=0
+	setenforce $_request_mode || _se_rc=$?
 
-	if [ $? -eq 2 ]; then
+	if [ "$_se_rc" -eq 2 ]; then
 		error_and_exit "Could not change SELinux mode. You might need to run this script as root."
-	elif [ $? -eq 1 ]; then
+	elif [ "$_se_rc" -eq 1 ]; then
 		log "WARN" "Current SELinux mode is disabled. Nothing to do"
 	fi
 
@@ -1026,14 +1054,15 @@ function generate_db_tls_certificates() {
 		echo "DNS.2 = localhost"
 		ip_idx=1
 		echo "IP.$ip_idx = 127.0.0.1"
-		for ip in $(ip -o -4 addr show 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | grep -vx "0.0.0.0" | grep -vx "127.0.0.1" | sort -u); do
+		for ip in $(ip -o -4 addr show 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | grep -vx "0.0.0.0" | grep -vx "127.0.0.1" | sort -u || true); do
 			ip_idx=$((ip_idx + 1))
 			echo "IP.$ip_idx = $ip"
 		done
 	} > "$ext_file"
 
 	log "INFO" "Generating DB server certificate (CN=$fqdn) with SANs for all interface IPs"
-	openssl genrsa -out "$srv_key" 2048 || error_and_exit "Failed to generate the DB server key"
+	# umask 077 so the private key is never briefly world-readable before the chmod 600 below.
+	( umask 077; openssl genrsa -out "$srv_key" 2048 ) || error_and_exit "Failed to generate the DB server key"
 	openssl req -new -key "$srv_key" -out "$csr_file" -subj "/C=FR/L=Paris/O=Centreon/CN=$fqdn" || error_and_exit "Failed to generate the DB server certificate request"
 	openssl x509 -req -in "$csr_file" -CA "$ca_cert" -CAkey "$ca_key" -CAcreateserial \
 		-out "$srv_cert" -days 825 -sha256 -extfile "$ext_file" -extensions v3_req || error_and_exit "Failed to sign the DB server certificate"
@@ -1042,7 +1071,7 @@ function generate_db_tls_certificates() {
 	# Cert is public (0644). The key must be readable by the DB user only: MariaDB/MySQL run as
 	# 'mysql' and refuse a world-readable key.
 	chmod 644 "$srv_cert"
-	chown mysql:mysql "$srv_key" "$srv_cert"
+	chown mysql:mysql "$srv_key" "$srv_cert" || error_and_exit "Failed to set ownership on the DB TLS key/cert"
 	chmod 600 "$srv_key"
 
 	TLS_CA_CERT="$ca_cert"
@@ -1069,8 +1098,8 @@ function configure_db_tls() {
 	# OS-specific destinations for the trust store, server drop-in and client cnf.
 	local server_dropin client_dropin
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		cp "$TLS_CA_CERT" /usr/local/share/ca-certificates/centreon-db-ca.crt
-		update-ca-certificates >/dev/null
+		cp "$TLS_CA_CERT" /usr/local/share/ca-certificates/centreon-db-ca.crt || error_and_exit "Failed to stage the DB CA certificate into the trust store"
+		update-ca-certificates >/dev/null || error_and_exit "Failed to update the system CA trust store"
 		if [[ "$dbms" == "MariaDB" ]]; then
 			server_dropin="/etc/mysql/mariadb.conf.d/99-centreon-tls.cnf"
 		else
@@ -1078,8 +1107,8 @@ function configure_db_tls() {
 		fi
 		client_dropin="/etc/mysql/conf.d/centreon-tls-client.cnf"
 	else
-		cp "$TLS_CA_CERT" /etc/pki/ca-trust/source/anchors/centreon-db-ca.crt
-		update-ca-trust extract
+		cp "$TLS_CA_CERT" /etc/pki/ca-trust/source/anchors/centreon-db-ca.crt || error_and_exit "Failed to stage the DB CA certificate into the trust store"
+		update-ca-trust extract || error_and_exit "Failed to update the system CA trust store"
 		server_dropin="/etc/my.cnf.d/centreon-tls.cnf"
 		client_dropin="/etc/my.cnf.d/centreon-tls-client.cnf"
 	fi
@@ -1143,7 +1172,7 @@ function configure_db_tls_consumers() {
 	local gorgone_cfg="/etc/centreon/config.d/10-database.yaml"
 	if [[ -f "$gorgone_cfg" ]]; then
 		log "INFO" "Patching gorgone DB DSN with mysql_ssl in $gorgone_cfg"
-		sed -i "/dsn: \"mysql:/{/mysql_ssl=/! s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca=$ca_cert\"|}" "$gorgone_cfg"
+		sed -i "/dsn: \"mysql:/{/mysql_ssl=/! s|\(dsn: \"mysql:[^\"]*\)\"|\1;mysql_ssl=1;mysql_ssl_ca=$ca_cert\"|}" "$gorgone_cfg" || log "WARN" "Could not patch gorgone DB DSN for TLS in $gorgone_cfg"
 		systemctl restart gorgoned >/dev/null 2>&1 || true
 	else
 		log "WARN" "gorgone DB config $gorgone_cfg not found; skipping gorgone DB TLS (run the web install wizard first)"
@@ -1152,6 +1181,7 @@ function configure_db_tls_consumers() {
 	# centreon-broker DB TLS is driven by Centreon's configuration (stored in DB, regenerated on export),
 	# so it cannot be set reliably from this script. Surface it as a manual follow-up.
 	log "WARN" "centreon-broker DB TLS must be enabled via Centreon configuration (broker config export); not set by this script"
+	return 0
 }
 #========= end of function configure_db_tls_consumers()
 
@@ -1219,8 +1249,8 @@ function configure_web_tls() {
 
 	# Open 443 if firewalld is active (update_firewall_config only opens http/snmp). No-op on Debian (no firewalld).
 	if command -v firewall-cmd >/dev/null 2>&1 && firewall-cmd --state >/dev/null 2>&1; then
-		firewall-cmd --zone=public --add-service=https --permanent >/dev/null 2>&1
-		firewall-cmd --reload >/dev/null 2>&1
+		firewall-cmd --zone=public --add-service=https --permanent >/dev/null 2>&1 || log "WARN" "Could not add firewall service https (best-effort)"
+		firewall-cmd --reload >/dev/null 2>&1 || log "WARN" "Could not reload firewall rules"
 	fi
 
 	systemctl restart "$HTTP_SERVICE_UNIT" || error_and_exit "Could not restart $HTTP_SERVICE_UNIT after enabling HTTPS"
@@ -1239,22 +1269,27 @@ function secure_dbms_setup() {
 	log "WARN" "You can use mysqladmin in order to set a new password for user root"
 
 	log "INFO" "Restarting $dbms service first"
-	systemctl daemon-reload
+	systemctl daemon-reload || error_and_exit "Could not reload systemd before restarting $dbms"
+	# Note: SQL runs via 'if ! client ...' so a failure is handled with a clean message and never
+	# reaches the ERR trap (which could otherwise expose the password from the command).
 	if [[ $dbms == "MariaDB" ]]; then
-		systemctl restart mariadb
+		systemctl restart mariadb || error_and_exit "Could not restart $dbms service"
 		log "INFO" "Executing SQL requests for $dbms"
 		# MariaDB 11.x (Debian 13) no longer ships the legacy 'mysql' client symlink; prefer 'mariadb'.
 		if command -v mariadb >/dev/null 2>&1; then mariadb_client="mariadb"; else mariadb_client="mysql"; fi
-		$mariadb_client -u root --verbose <<-EOF
+		if ! $mariadb_client -u root --verbose <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED BY '${db_root_password//\'/\'\'}';
 			DELETE FROM mysql.global_priv WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DELETE FROM mysql.global_priv WHERE User='';
 			DROP DATABASE IF EXISTS test;
 			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
-EOF
+		EOF
+		then
+			error_and_exit "Could not apply the requests"
+		fi
 	else
-		systemctl restart $mysql_service_name
+		systemctl restart $mysql_service_name || error_and_exit "Could not restart $dbms service"
 		log "INFO" "Executing SQL requests for $dbms"
 		if (( $(version_int) >= $(version_int 24.10) )); then
 			default_authentication_plugin="caching_sha2_password"
@@ -1275,28 +1310,27 @@ EOF
 			else
 				mysql_error_log="/var/log/mysqld.log"
 			fi
-			mysql_temp_pw=$(grep 'temporary password is generated for root@localhost' "$mysql_error_log" 2>/dev/null | tail -1 | sed -E 's/.*root@localhost: //')
+			mysql_temp_pw=$(grep 'temporary password is generated for root@localhost' "$mysql_error_log" 2>/dev/null | tail -1 | sed -E 's/.*root@localhost: //') || true
 			if [ -z "$mysql_temp_pw" ]; then
 				error_and_exit "Could not authenticate to MySQL as root (no passwordless access and no temporary password in $mysql_error_log)"
 			fi
 			mysql_root_auth=(--ssl-mode=DISABLED --connect-expired-password -u root -p"${mysql_temp_pw}")
 		fi
 
-		mysql "${mysql_root_auth[@]}" --verbose <<-EOF
+		if ! mysql "${mysql_root_auth[@]}" --verbose <<-EOF
 			ALTER USER 'root'@'localhost' IDENTIFIED WITH '${default_authentication_plugin}' BY '${db_root_password}';
 			DELETE FROM mysql.user WHERE User='';
 			DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 			DROP DATABASE IF EXISTS test;
 			DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 			FLUSH PRIVILEGES;
-EOF
+		EOF
+		then
+			error_and_exit "Could not apply the requests"
+		fi
 	fi
 
-	if [ $? -ne 0 ]; then
-		error_and_exit "Could not apply the requests"
-	else
-		log "INFO" "Successfully applied the SQL requests for enhancing your $dbms"
-	fi
+	log "INFO" "Successfully applied the SQL requests for enhancing your $dbms"
 
 }
 #========= end of function secure_dbms_setup()
@@ -1309,8 +1343,7 @@ function install_centreon_repo() {
 
 	log "INFO" "Centreon official repositories installation..."
 
-	$PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE
-	if [ $? -ne 0 ]; then
+	if ! $PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE; then
 		error_and_exit "Could not install Centreon repository"
 	fi
 }
@@ -1322,25 +1355,18 @@ function install_centreon_repo() {
 function update_firewall_config() {
 
 	log "INFO" "Update firewall configuration..."
-	command -v firewall-cmd >/dev/null 2>&1
-
-	if [ $? -eq 0 ]; then
-		firewall-cmd --state >/dev/null 2>&1
-		if [ $? -eq 0 ]; then
+	if command -v firewall-cmd >/dev/null 2>&1; then
+		if firewall-cmd --state >/dev/null 2>&1; then
 			for svc in http snmp snmptrap; do
-				firewall-cmd --zone=public --add-service=$svc --permanent >/dev/null 2>&1
-				if [ $? -ne 0 ]; then
-					error_and_exit "Could not configure firewall. You might need to run this script as root."
-				fi
+				firewall-cmd --zone=public --add-service=$svc --permanent >/dev/null 2>&1 ||
+					log "WARN" "Could not add firewall service $svc (best-effort)"
 			done
 			for port in "5556/tcp" "5669/tcp"; do
-				firewall-cmd --zone=public --add-port=$port --permanent >/dev/null 2>&1
-				if [ $? -ne 0 ]; then
-					error_and_exit "Could not configure firewall. You might need to run this script as root."
-				fi
+				firewall-cmd --zone=public --add-port=$port --permanent >/dev/null 2>&1 ||
+					log "WARN" "Could not add firewall port $port (best-effort)"
 			done
 			log "INFO" "Reloading firewall rules"
-			firewall-cmd --reload
+			firewall-cmd --reload || log "WARN" "Could not reload firewall rules"
 		else
 			log "WARN" "Firewall was not active"
 		fi
@@ -1368,15 +1394,17 @@ function enable_new_services() {
 				;;
 			esac
 			log "DEBUG" "On central..."
-			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon
-			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd
-			systemctl start centreontrapd
+			# Best-effort: a single service failing to start must not abort the run,
+			# so the final health recap can report it (see display_services_recap).
+			systemctl enable "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd gorgoned centreontrapd cbd centengine centreon || log "WARN" "Some services could not be enabled (see recap below)"
+			systemctl restart "$DBMS_SERVICE_NAME" "$PHP_SERVICE_UNIT" "$HTTP_SERVICE_UNIT" snmpd snmptrapd || log "WARN" "Some services could not be restarted (see recap below)"
+			systemctl start centreontrapd || log "WARN" "centreontrapd could not be started (see recap below)"
 			;;
 
 		poller)
 			log "DEBUG" "On poller..."
-			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned
-			systemctl start centreontrapd snmptrapd
+			systemctl enable centreon centengine centreontrapd snmpd snmptrapd gorgoned || log "WARN" "Some services could not be enabled"
+			systemctl start centreontrapd snmptrapd || log "WARN" "Some services could not be started"
 			;;
 		esac
 	else
@@ -1423,7 +1451,7 @@ function urlencode() {
 function install_wizard_post() {
 	log "INFO" " wizard install step ${2} response ->  $(curl -s -o /dev/null -w "%{http_code}" "http://${central_ip}/centreon/install/steps/process/${2}" \
 		-H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
-		-H "Cookie: ${1}" --data "${3}")"
+		-H "Cookie: ${1}" --data "${3}" || true)"
 }
 #========= end of function install_wizard_post()
 
@@ -1436,8 +1464,8 @@ function play_install_wizard() {
 	enc_db_centreon_password=$(urlencode "$db_centreon_password")
 	enc_centreon_admin_password=$(urlencode "$centreon_admin_password")
 
-	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}')
-	curl -s "http://${central_ip}/centreon/install/steps/step.php?action=stepContent" -H "Cookie: ${sessionID}" >/dev/null
+	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}') || true
+	curl -s "http://${central_ip}/centreon/install/steps/step.php?action=stepContent" -H "Cookie: ${sessionID}" >/dev/null || true
 	install_wizard_post ${sessionID} "process_step3.php" 'centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
     case $version in
     "24."*)
@@ -1486,7 +1514,7 @@ function test_api_connection () {
 	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
 	--output ${api_output} \
 	--write-out %{http_code} \
-	> ${api_return_code} 2> ${api_error_message}
+	> ${api_return_code} 2> ${api_error_message} || true
 
 	# Analyse result
 	errorLevel=$?
@@ -1508,7 +1536,7 @@ function test_api_connection () {
 #========= begin of function play_update_api()
 function play_update_api () {
 	log "INFO" "Install jq binary"
-	$PKG_MGR -q install -y jq > /dev/null 2>&1
+	$PKG_MGR -q install -y jq > /dev/null 2>&1 || error_and_exit "Failed to install jq (required for the update API)"
 
 	log "INFO" "Update Centreon using API"
 
@@ -1529,15 +1557,15 @@ function play_update_api () {
 	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
 	--output ${api_output} \
 	--write-out %{http_code} \
-	> ${api_return_code} 2> ${api_error_message}
+	> ${api_return_code} 2> ${api_error_message} || true
 
 	# Analyse result
 	errorLevel=$?
 	httpResponse=$(cat ${api_return_code})
 	message=$(cat ${api_output})
 	if [[ -f ${api_output} && -s "${api_output}" ]];then
-		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
-		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
+		hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
 	else
 		hasErrors=0
 	fi
@@ -1567,14 +1595,14 @@ function play_update_api () {
 	--data '{"components":[{"name":"centreon-web"}]}' \
 	--output ${api_output} \
 	--write-out %{http_code} \
-	> ${api_return_code} 2> ${api_error_message}
+	> ${api_return_code} 2> ${api_error_message} || true
 
 	errorLevel=$?
 	httpResponse=$(cat ${api_return_code})
 	message=$(cat ${api_output})
 	if [[ -f ${api_output} && -s "${api_output}" ]];then
-		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
-		hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
+		hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
 	else
 		hasErrors=0
 	fi
@@ -1598,7 +1626,7 @@ function play_update_api () {
     --data "username=admin&password=${centreon_admin_password}" \
     --output ${api_output} \
     --write-out %{http_code} \
-    > ${api_return_code} 2> ${api_error_message}
+    > ${api_return_code} 2> ${api_error_message} || true
 
 
     # Analyse result
@@ -1606,8 +1634,8 @@ function play_update_api () {
     httpResponse=$(cat ${api_return_code})
     message=$(cat ${api_output})
     if [[ -f ${api_output} && -s "${api_output}" ]];then
-        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
-        hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
+        hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
     else
         hasErrors=0
     fi
@@ -1634,15 +1662,15 @@ function play_update_api () {
     --header "centreon-auth-token: ${tokenv1}" \
     --output ${api_output} \
     --write-out %{http_code} \
-    > ${api_return_code} 2> ${api_error_message}
+    > ${api_return_code} 2> ${api_error_message} || true
 
     # Analyse result
     errorLevel=$?
     httpResponse=$(cat ${api_return_code})
     message=$(cat ${api_output})
 	if [[ -f ${api_output} && -s "${api_output}" ]];then
-        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
-        hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
+        hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
     else
         hasErrors=0
     fi
@@ -1653,7 +1681,7 @@ function play_update_api () {
 	    #
         # Get list of modules and update them if needed
 		#
-        modules=$(echo ${message} | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
+        modules=$(echo ${message} | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
         for module in ${modules}
         do
 			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
@@ -1667,7 +1695,7 @@ function play_update_api () {
                 --header "centreon-auth-token: ${tokenv1}" \
                 --output ${api_output} \
                 --write-out %{http_code} \
-                > ${api_return_code} 2> ${api_error_message}
+                > ${api_return_code} 2> ${api_error_message} || true
 
                 # Analyse result
                 errorLevel=$?
@@ -1675,8 +1703,8 @@ function play_update_api () {
                 sub_message=$(cat ${api_output})
 
 				if [[ -f ${api_output} && -s "${api_output}" ]];then
-					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
-					hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
+					hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
 				else
 					hasErrors=0
 				fi
@@ -1684,8 +1712,8 @@ function play_update_api () {
                 if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
                     error_and_exit "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
                 else
-                    status=$(echo ${sub_message} | jq '.status')
-                    status_message=$(echo ${sub_message} | jq '.result.message')
+                    status=$(echo ${sub_message} | jq '.status') || true
+                    status_message=$(echo ${sub_message} | jq '.result.message') || true
                     if [ "${status}" = "false" ]; then
                         log "WARN" "Error during update of ${module_information[0]} module: ${status_message}"
                     fi
@@ -1696,7 +1724,7 @@ function play_update_api () {
 		#
         # Get list of widgets and update them if needed
 		#
-        widgets=$(echo ${message} | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"')
+        widgets=$(echo ${message} | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
         for widget in ${widgets}
         do
 			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
@@ -1710,7 +1738,7 @@ function play_update_api () {
                 --header "centreon-auth-token: ${tokenv1}" \
                 --output ${api_output} \
                 --write-out %{http_code} \
-                > ${api_return_code} 2> ${api_error_message}
+                > ${api_return_code} 2> ${api_error_message} || true
 
                 # Analyse result
                 errorLevel=$?
@@ -1718,8 +1746,8 @@ function play_update_api () {
                 sub_message=$(cat ${api_output})
 
 				if [[ -f ${api_output} && -s "${api_output}" ]];then
-					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys}
-					hasErrors=`grep --quiet --invert errors ${api_error_keys};echo $?`
+					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
+					hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
 				else
 					hasErrors=0
 				fi
@@ -1727,8 +1755,8 @@ function play_update_api () {
                 if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
                     error_and_exit "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
                 else
-                    status=$(echo ${sub_message} | jq '.status')
-                    status_message=$(echo ${sub_message} | jq '.result.message')
+                    status=$(echo ${sub_message} | jq '.status') || true
+                    status_message=$(echo ${sub_message} | jq '.result.message') || true
                     if [ "${status}" = "false" ]; then
                         log "WARN" "Error during update of ${widget_information[0]} widget: ${status_message}"
                     fi
@@ -1737,6 +1765,7 @@ function play_update_api () {
         done
     fi
 
+	return 0
 }
 #========= end of function play_update_api()
 
@@ -1767,13 +1796,14 @@ function install_central() {
 	fi
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		_install_rc=0
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
-			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon
+			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon || _install_rc=$?
 		else
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon || _install_rc=$?
 		fi
 
-		if [ $? -ne 0 ]; then
+		if [ "$_install_rc" -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	else
@@ -1783,9 +1813,7 @@ function install_central() {
 		local db_opts=""
 		[[ "$dbms" == "MySQL" ]] && db_opts="--setopt=install_weak_deps=False"
 		# install core Centreon packages from enabled repo
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $db_opts $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"
-
-		if [ $? -ne 0 ]; then
+		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y $db_opts $CENTREON_DBMS_PKG centreon --enablerepo="$CENTREON_REPO"; }; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	fi
@@ -1803,7 +1831,7 @@ function install_central() {
 			$timezoneName = "UTC";
 		}
 		echo $timezoneName;
-	' 2>/dev/null)
+	' 2>/dev/null) || true
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# Determine the PHP version Centreon expects for this release...
 		if (( $(version_int) >= $(version_int 26.07) )); then
@@ -1814,7 +1842,7 @@ function install_central() {
 			expected_php_version=""
 		fi
 		# ...then cross-check against the PHP actually installed (authoritative for the on-disk path).
-		installed_php_version=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null)
+		installed_php_version=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null) || true
 		if [[ -z "$expected_php_version" ]]; then
 			php_version="$installed_php_version"
 		elif [[ -n "$installed_php_version" && "$installed_php_version" != "$expected_php_version" ]]; then
@@ -1846,18 +1874,18 @@ function install_poller() {
 	log "INFO" "Poller installation from ${CENTREON_REPO}"
 
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
+		_install_rc=0
 		if (( $(version_int) >= $(version_int 24.10) && $(version_int) <= $(version_int 24.12) )); then
-			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller
+			$PKG_MGR install -y $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
 		else
-			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller
+			$PKG_MGR install -y --no-install-recommends $CENTREON_DBMS_PKG centreon-poller || _install_rc=$?
 		fi
 
-		if [ $? -ne 0 ]; then
+		if [ "$_install_rc" -ne 0 ]; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	else
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO
-		if [ $? -ne 0 ]; then
+		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q install -y centreon-poller-centreon-engine --enablerepo=$CENTREON_REPO; }; then
 			error_and_exit "Could not install Centreon (package centreon)"
 		fi
 	fi
@@ -1870,10 +1898,9 @@ function install_poller() {
 function update_centreon_packages() {
 	log "INFO" "Update Centreon packages using ${CENTREON_REPO}"
 	if [[ "${detected_os_release}" =~ debian-release-.* ]]; then
-		$PKG_MGR upgrade centreon
+		$PKG_MGR upgrade centreon || error_and_exit "Could not update Centreon"
 	else
-		$PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO
-		if [ $? -ne 0 ]; then
+		if ! { $PKG_MGR -q clean all --enablerepo="*" && $PKG_MGR -q update -y centreon\* --enablerepo=$CENTREON_REPO; }; then
 			error_and_exit "Could not update Centreon"
 		fi
 	fi
@@ -1884,7 +1911,7 @@ function update_centreon_packages() {
 # Restart Centreon process
 #
 function restart_centreon_process() {
-	systemctl restart centreon snmpd snmptrapd
+	systemctl restart centreon snmpd snmptrapd || log "WARN" "Could not restart all Centreon processes (see recap below)"
 }
 #========= end of function restart_centreon_process()
 
@@ -1903,8 +1930,8 @@ function update_after_installation() {
 
 	if ! [[ "${detected_os_release}" =~ debian-release-.* ]]; then
 		# install Centreon SELinux packages first (as getenforce is still at 0)
-		$PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"
-		if [ $? -ne 0 ]; then
+		# Non-fatal: missing SELinux rules should not abort the installation.
+		if ! $PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"; then
 			log "ERROR" "Could not install Centreon SELinux packages"
 		else
 			log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
@@ -2081,7 +2108,9 @@ if [ "$operation" == "install" ]; then
 			centreon_admin_password=${ENV_CENTREON_ADMIN_PASSWD:-"$(genpasswd "Centreon user: admin")"}
 		else
 			test_password_policy
-   		echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file
+			if ! echo "User defined password set for user [Centreon user: admin] is [$centreon_admin_password]" >>$tmp_passwords_file; then
+				error_and_exit "Cannot save the admin password to [$tmp_passwords_file]"
+			fi
 		fi
 		# Set from ENV or Administrator first name
 		centreon_admin_firstname=${ENV_CENTREON_ADMIN_FIRSTNAME:-"John"}
@@ -2237,8 +2266,8 @@ display_services_recap
 
 ## Major change - remind it again (in case of log level is ERROR)
 if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" = "install" ]; then
-	# Move the tmp file to the dest file
-	mv $tmp_passwords_file $passwords_file
+	# Move the tmp file to the dest file (non-fatal: the install already succeeded)
+	mv $tmp_passwords_file $passwords_file || log "WARN" "Could not move $tmp_passwords_file to $passwords_file"
 	# Send the credentials to the console only (fd 3), never to the log file.
 	{
 		echo
@@ -2249,7 +2278,7 @@ if [ -e $tmp_passwords_file ] && [ "$topology" == "central" ] && [ "$operation" 
 			echo "As you will need a password for the user [root] on your $dbms database system, a random password is generated"
 		fi
 		echo "Passwords are currently saved in [$passwords_file]"
-		cat $passwords_file
+		cat $passwords_file || true
 		echo
 		echo "Please save them securely and then delete this file!"
 		echo
