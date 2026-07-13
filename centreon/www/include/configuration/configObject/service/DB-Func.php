@@ -365,7 +365,7 @@ function checkServiceMassiveChangeExistence(array $fields): array|bool
     $targetHosts = is_array($fields['service_hPars'] ?? null) ? $fields['service_hPars'] : [];
     $targetHostGroups = is_array($fields['service_hgPars'] ?? null) ? $fields['service_hgPars'] : [];
 
-    if (! count($targetHosts) && ! count($targetHostGroups)) {
+    if ($targetHosts === [] && $targetHostGroups === []) {
         return true;
     }
 
