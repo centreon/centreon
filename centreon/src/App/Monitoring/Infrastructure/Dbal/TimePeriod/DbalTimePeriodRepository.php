@@ -21,22 +21,29 @@
 
 declare(strict_types=1);
 
-namespace App\Monitoring\Domain\Aggregate\Notification;
+namespace App\Monitoring\Infrastructure\Dbal\TimePeriod;
 
-use Webmozart\Assert\Assert;
+use App\Monitoring\Domain\Repository\TimePeriodRepository;
+use App\Shared\Infrastructure\Dbal\DbalRepository;
 
-final readonly class NotificationName
+/**
+ * @phpstan-type RowTypeAlias = array{
+ *    timeperiod_id: int,
+ *    timeperiod_name: string,
+ * }
+ */
+final readonly class DbalTimePeriodRepository extends DbalRepository implements TimePeriodRepository
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 250;
+    public const string TABLE_NAME = 'timeperiod';
 
-    public string $value;
-
-    public function __construct(
-        string $value,
-    ) {
-        $value = trim($value);
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        $this->value = $value;
+    /**
+     * @return array<string>
+     */
+    public static function getSelectColumns(string $alias = 't'): array
+    {
+        return [
+            "{$alias}.tp_id AS timeperiod_id",
+            "{$alias}.tp_name AS timeperiod_name",
+        ];
     }
 }

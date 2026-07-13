@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Infrastructure\ApiPlatform\Resource\Notification;
 
-class ContactGroupDto
+class ServiceGroupDto
 {
     public function __construct(
         public int $id,

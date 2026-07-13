@@ -21,27 +21,27 @@
 
 declare(strict_types=1);
 
-namespace App\Monitoring\Infrastructure\Dbal;
+namespace App\Monitoring\Infrastructure\Dbal\HostGroup;
 
-use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriod;
-use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriodId;
-use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriodName;
+use App\Monitoring\Domain\Aggregate\HostGroup\HostGroup;
+use App\Monitoring\Domain\Aggregate\HostGroup\HostGroupId;
+use App\Monitoring\Domain\Aggregate\HostGroup\HostGroupName;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @phpstan-import-type RowTypeAlias from DbalTimePeriodRepository
- * @implements TransformerInterface<RowTypeAlias, TimePeriod>
+ * @phpstan-import-type RowTypeAlias from DbalHostGroupRepository
+ * @implements TransformerInterface<RowTypeAlias, HostGroup>
  */
-final readonly class DbalTimePeriodTransformer implements TransformerInterface
+final readonly class DbalHostGroupTransformer implements TransformerInterface
 {
     /**
-     * @param RowTypeAlias $from $from
+     * @param RowTypeAlias $from
      */
-    public function transform(mixed $from): TimePeriod
+    public function transform(mixed $from): HostGroup
     {
-        return new TimePeriod(
-            new TimePeriodId($from['timeperiod_id']),
-            new TimePeriodName($from['timeperiod_name']),
+        return new HostGroup(
+            new HostGroupId($from['hostgroup_id']),
+            new HostGroupName($from['hostgroup_name']),
         );
     }
 }

@@ -21,20 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\Monitoring\Domain\Aggregate\Notification;
+namespace App\Monitoring\Domain\Aggregate\User;
 
 use Webmozart\Assert\Assert;
 
-final readonly class NotificationName
+final readonly class UserAlias
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 250;
-
     public string $value;
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 200;
 
-    public function __construct(
-        string $value,
-    ) {
+    public function __construct(string $value)
+    {
         $value = trim($value);
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
         $this->value = $value;

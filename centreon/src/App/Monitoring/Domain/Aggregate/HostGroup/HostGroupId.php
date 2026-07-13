@@ -21,22 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Monitoring\Domain\Aggregate\Notification;
+namespace App\Monitoring\Domain\Aggregate\HostGroup;
 
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
-final readonly class NotificationName
-{
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 250;
+final readonly class HostGroupId extends AggregateRootId {
 
-    public string $value;
-
-    public function __construct(
-        string $value,
-    ) {
-        $value = trim($value);
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        $this->value = $value;
-    }
 }

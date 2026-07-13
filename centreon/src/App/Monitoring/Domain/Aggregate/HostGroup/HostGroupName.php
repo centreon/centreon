@@ -21,14 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\Monitoring\Domain\Aggregate\Notification;
+namespace App\Monitoring\Domain\Aggregate\HostGroup;
 
 use Webmozart\Assert\Assert;
 
-final readonly class NotificationName
-{
+final readonly class HostGroupName {
     public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 250;
+    public const MAX_LENGTH = 200;
 
     public string $value;
 

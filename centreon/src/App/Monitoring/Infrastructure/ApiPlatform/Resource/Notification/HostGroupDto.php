@@ -21,22 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\Monitoring\Domain\Aggregate\Notification;
+namespace App\Monitoring\Infrastructure\ApiPlatform\Resource\Notification;
 
-use Webmozart\Assert\Assert;
-
-final readonly class NotificationName
+class HostGroupDto
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 250;
-
-    public string $value;
-
     public function __construct(
-        string $value,
+        public int $id,
+        public string $name,
     ) {
-        $value = trim($value);
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        $this->value = $value;
     }
 }

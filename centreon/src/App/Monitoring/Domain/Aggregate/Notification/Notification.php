@@ -23,7 +23,12 @@ declare(strict_types=1);
 
 namespace App\Monitoring\Domain\Aggregate\Notification;
 
-use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriod;
+use App\Monitoring\Domain\Aggregate\HostGroup\HostGroup;
+use App\Monitoring\Domain\Aggregate\Notification\Message\Message;
+use App\Monitoring\Domain\Aggregate\ServiceGroup\ServiceGroup;
+use App\Monitoring\Domain\Aggregate\TimePeriod\TimePeriodId;
+use App\Monitoring\Domain\Aggregate\User\UserId;
+use App\Monitoring\Domain\Aggregate\UserGroup\UserGroupId;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
 /**
@@ -31,11 +36,29 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
  */
 final class Notification extends AggregateRoot
 {
+    /**
+     * @param list<UserId> $userIds
+     * @param list<UserGroupId> $userGroupIds
+     * @param list<Message> $messages
+     * @param list<HostEventEnum> $hostGroupEvents
+     * @param list<ServiceEventEnum> $serviceGroupEvents
+     * @param list<ServiceEventEnum> $serviceEvents
+     * @param list<HostGroup> $hostGroups
+     * @param list<ServiceGroup> $serviceGroups
+     */
     public function __construct(
         ?NotificationId $id,
         public readonly NotificationName $name,
         public readonly bool $isActivated,
-        public readonly TimePeriod $timePeriod,
+        public readonly TimePeriodId $timePeriod,
+        public readonly array $userIds,
+        public readonly array $messages,
+        public readonly array $userGroupIds,
+        public readonly array $hostGroupEvents,
+        public readonly array $serviceGroupEvents,
+        public readonly array $serviceEvents,
+        public readonly array $hostGroups,
+        public readonly array $serviceGroups,
     ) {
         parent::__construct($id);
     }

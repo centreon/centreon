@@ -26,7 +26,7 @@ namespace App\Monitoring\Infrastructure\ApiPlatform\Resource\Notification;
 class ResourceDto
 {
     /**
-     * @param list<array{id: int, name: string}> $ids
+     * @param list<HostGroupDto> $ids
      * @param ?array{event_services: list<int>} $extra
      */
     public function __construct(

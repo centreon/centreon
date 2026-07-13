@@ -25,10 +25,14 @@ namespace App\Monitoring\Infrastructure\ApiPlatform\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Monitoring\Domain\Aggregate\Notification\Notification;
 use App\Monitoring\Domain\Aggregate\Notification\NotificationId;
 use App\Monitoring\Domain\Exception\NotificationNotFoundException;
+use App\Monitoring\Domain\Exception\UserNotFoundException;
+use App\Monitoring\Domain\Repository\HostGroupRepository;
 use App\Monitoring\Domain\Repository\NotificationRepository;
+use App\Monitoring\Domain\Repository\ServiceGroupRepository;
+use App\Monitoring\Domain\Repository\UserGroupRepository;
+use App\Monitoring\Domain\Repository\UserRepository;
 use App\Monitoring\Infrastructure\ApiPlatform\Resource\Notification\NotificationResource;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -40,20 +44,22 @@ use Webmozart\Assert\Assert;
 final readonly class FindNotificationProvider implements ProviderInterface
 {
     /**
-     * @param NotificationRepository $notificationRepository
-     * @param TransformerInterface<Notification, NotificationResource> $transformer
+     * @param TransformerInterface<NotificationResourceInput, NotificationResource> $transformer
      */
     public function __construct(
         private NotificationRepository $notificationRepository,
+        private UserRepository $userRepository,
+        private UserGroupRepository $userGroupRepository,
+        private HostGroupRepository $hostGroupRepository,
+        private ServiceGroupRepository $serviceGroupRepository,
         #[Autowire(service: NotificationResourceTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }
 
     /**
-     * @param array<array<string, mixed>> $uriVariables
-     *
      * @throws NotificationNotFoundException
+     * @throws UserNotFoundException
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): NotificationResource
     {
@@ -62,7 +68,13 @@ final readonly class FindNotificationProvider implements ProviderInterface
         $notification = $this->notificationRepository->get(
             new NotificationId($uriVariables['id'])
         );
+        $users = $this->userRepository->findByNotification($notification->id());
+        $userGroups = $this->userGroupRepository->findByNotification($notification->id());
+        $hostGroups = $this->hostGroupRepository->findByNotificationId($notification->id());
+        $serviceGroups = $this->serviceGroupRepository->findByNotificationId($notification->id());
 
-        return $this->transformer->transform($notification);
+        return $this->transformer->transform(
+            new NotificationResourceInput($notification, $users, $userGroups, $hostGroups, $serviceGroups),
+        );
     }
 }

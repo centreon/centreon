@@ -46,7 +46,7 @@ final class NotificationResource
     /**
      * @param list<MessageDto> $messages
      * @param list<UserDto> $users
-     * @param list<ContactGroupDto> $contactGroups
+     * @param list<UserGroupDto> $userGroups
      * @param list<ResourceDto> $resources
      */
     public function __construct(
@@ -56,10 +56,15 @@ final class NotificationResource
         #[ApiProperty(genId: false)]
         public TimePeriodDto $timePeriod,
         public bool $isActivated,
+        #[ApiProperty(genId: false)]
+        #[ApiProperty(types: 'Message')]
         public array $messages,
+        #[ApiProperty(genId: false)]
         public array $users,
         #[SerializedName('contactgroups')]
-        public array $contactGroups,
+        #[ApiProperty(genId: false)]
+        public array $userGroups,
+        #[ApiProperty(genId: false)]
         public array $resources,
     ) {
     }

@@ -22,7 +22,14 @@
 declare(strict_types=1);
 
 namespace App\Monitoring\Infrastructure\ApiPlatform\Resource\Notification;
-
 class MessageDto
 {
+    public function __construct(
+        public string $channel,
+        public string $subject,
+        public string $message,
+        public string $formattedMessage,
+    )
+    {
+    }
 }

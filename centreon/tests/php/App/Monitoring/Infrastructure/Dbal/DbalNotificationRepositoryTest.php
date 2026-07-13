@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Monitoring\Infrastructure\Dbal;
 
 use App\Monitoring\Domain\Aggregate\Notification\NotificationId;
-use App\Monitoring\Infrastructure\Dbal\DbalNotificationRepository;
+use App\Monitoring\Infrastructure\Dbal\Notification\DbalNotificationRepository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
