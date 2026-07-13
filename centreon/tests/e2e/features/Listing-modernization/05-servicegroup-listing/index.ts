@@ -47,12 +47,12 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('several service groups exist', () => {
   cy.addServiceGroup({
-    name: 'sg_alpha',
-    alias: 'Service Group Alpha'
+    alias: 'Service Group Alpha',
+    name: 'sg_alpha'
   });
   cy.addServiceGroup({
-    name: 'sg_beta',
-    alias: 'Service Group Beta'
+    alias: 'Service Group Beta',
+    name: 'sg_beta'
   });
 });
 
@@ -65,17 +65,9 @@ When('the user navigates to the service groups listing', () => {
 });
 
 Then('the AJAX listing table is displayed with service group rows', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_beta')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('sg_alpha').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('sg_beta').should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -83,21 +75,13 @@ Then('the AJAX listing table is displayed with service group rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific service group', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('sg_alpha');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('sg_alpha');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
 Then('only the matching service group is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('sg_alpha').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('sg_beta')
@@ -135,9 +119,7 @@ Then('the toggle switches to disabled state', () => {
 });
 
 Then('the AJAX response is successful', () => {
-  cy.get('@toggleSg')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@toggleSg').its('response.statusCode').should('eq', 200);
   cy.get('@toggleSg')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -150,7 +132,8 @@ Then('the AJAX response is successful', () => {
 When('the service group is disabled', () => {
   cy.executeSqlQuery({
     database: 'centreon',
-    query: "UPDATE servicegroup SET sg_activate = '0' WHERE sg_name = 'sg_alpha'"
+    query:
+      "UPDATE servicegroup SET sg_activate = '0' WHERE sg_name = 'sg_alpha'"
   });
   visitAndWait();
 });
@@ -169,9 +152,7 @@ When('the user clicks the toggle to enable the service group', () => {
     .should('not.be.checked')
     .click();
 
-  cy.wait('@toggleSgOn')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleSgOn').its('response.statusCode').should('eq', 200);
 });
 
 Then('the toggle switches to enabled state', () => {
@@ -220,9 +201,7 @@ When('the user toggles a service group off then on', () => {
 });
 
 Then('both toggle requests succeed', () => {
-  cy.get('@toggle2')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@toggle2').its('response.statusCode').should('eq', 200);
   cy.get('@toggle2')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -247,9 +226,7 @@ When('the user changes the rows per page to 10', () => {
 });
 
 Then('at most 10 rows are displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.at.most', 10);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
 // ---------------------------------------------------------------------------
@@ -271,9 +248,7 @@ When('the user selects a service group and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated service group appears in the listing', () => {
@@ -304,9 +279,7 @@ When('the user selects a service group and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the service group is removed from the listing', () => {
@@ -323,10 +296,7 @@ Then('the service group is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a service group name', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', 'sg_alpha')
-    .click();
+  cy.getIframeBody().find('#clTableBody').contains('a', 'sg_alpha').click();
 });
 
 Then('the service group edit form is displayed', () => {
@@ -347,7 +317,5 @@ When('the user navigates back to the service groups listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .should('have.value', 'sg_alpha');
+  cy.getIframeBody().find('#clSearchInput').should('have.value', 'sg_alpha');
 });
