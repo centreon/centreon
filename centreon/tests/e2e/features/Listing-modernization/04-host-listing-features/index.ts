@@ -47,18 +47,18 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('several hosts exist with different properties', () => {
   cy.addHost({
-    name: 'host_alpha',
     address: '10.0.0.1',
+    name: 'host_alpha',
     template: 'generic-host'
   });
   cy.addHost({
-    name: 'host_beta',
     address: '10.0.0.2',
+    name: 'host_beta',
     template: 'generic-host'
   });
   cy.addHost({
-    name: 'host_gamma',
     address: '192.168.1.1',
+    name: 'host_gamma',
     template: 'generic-host'
   });
 });
@@ -72,12 +72,8 @@ When('the user navigates to the host listing', () => {
 });
 
 Then('the AJAX listing table is displayed', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody().find('#clTableBody').should('exist');
 });
 
 Then('host rows contain name, alias, address and poller columns', () => {
@@ -98,13 +94,8 @@ Then('host rows contain name, alias, address and poller columns', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific host name', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('host_alpha');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('host_alpha');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
@@ -131,13 +122,8 @@ Then('non-matching hosts are hidden', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches by IP address', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('192.168');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('192.168');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
@@ -159,18 +145,15 @@ Then('only hosts with that address are displayed', () => {
 When('the user selects a hostgroup in the filter', () => {
   // Create a hostgroup and assign host_alpha to it
   cy.addHostGroup({
-    name: 'test_hg_filter',
     alias: 'Test HG',
-    hosts: ['host_alpha']
+    hosts: ['host_alpha'],
+    name: 'test_hg_filter'
   });
 
   visitAndWait();
 
   // Open select2 for hostgroup
-  cy.getIframeBody()
-    .find('#hostgroup')
-    .next('.select2-container')
-    .click();
+  cy.getIframeBody().find('#hostgroup').next('.select2-container').click();
   cy.getIframeBody()
     .find('.select2-results__option')
     .contains('test_hg_filter')
@@ -178,9 +161,7 @@ When('the user selects a hostgroup in the filter', () => {
 });
 
 When('the user clicks the search button', () => {
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
@@ -212,10 +193,7 @@ Then('all hosts are displayed again', () => {
     .find('#clTableBody')
     .contains('host_alpha')
     .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('host_beta')
-    .should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('host_beta').should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -244,9 +222,7 @@ When('the user clicks the toggle to disable the test host', () => {
     .find('.cl-toggle input[type="checkbox"]')
     .click();
 
-  cy.wait('@toggleHost')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleHost').its('response.statusCode').should('eq', 200);
 });
 
 Then('the test host toggle switches to disabled', () => {
@@ -283,9 +259,7 @@ When('the user clicks the toggle to enable the test host', () => {
     .find('.cl-toggle input[type="checkbox"]')
     .click();
 
-  cy.wait('@toggleHost')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleHost').its('response.statusCode').should('eq', 200);
 });
 
 Then('the test host toggle switches to enabled', () => {
@@ -304,7 +278,7 @@ Then('the test host toggle switches to enabled', () => {
 Then('each host row has an icon next to the name', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
-    .each($row => {
+    .each(($row) => {
       cy.wrap($row).find('img').should('have.length.greaterThan', 0);
     });
 });
@@ -350,13 +324,11 @@ Then('host rows with templates show clickable template links', () => {
     .find('#clTableBody')
     .contains('host_alpha')
     .parents('tr')
-    .then($row => {
+    .then(($row) => {
       // generic-host template should be linked
       const html = $row.html();
       if (html.includes('generic-host')) {
-        cy.wrap($row)
-          .find('a[href*="p=60103"]')
-          .should('exist');
+        cy.wrap($row).find('a[href*="p=60103"]').should('exist');
       }
     });
 });
@@ -373,9 +345,7 @@ When('the user changes the rows per page to 10', () => {
 });
 
 Then('at most 10 host rows are displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.at.most', 10);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
 When('the user navigates to page 2', () => {
@@ -403,29 +373,25 @@ Then('the page indicator shows page 2', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks the select all checkbox in the header', () => {
-  cy.getIframeBody()
-    .find('#checkall')
-    .click();
+  cy.getIframeBody().find('#checkall').click();
 });
 
 Then('all host row checkboxes are checked', () => {
   cy.getIframeBody()
     .find('#clTableBody .cl-col-picker input[type="checkbox"]')
-    .each($cb => {
+    .each(($cb) => {
       cy.wrap($cb).should('be.checked');
     });
 });
 
 When('the user clicks the select all checkbox again', () => {
-  cy.getIframeBody()
-    .find('#checkall')
-    .click();
+  cy.getIframeBody().find('#checkall').click();
 });
 
 Then('all host row checkboxes are unchecked', () => {
   cy.getIframeBody()
     .find('#clTableBody .cl-col-picker input[type="checkbox"]')
-    .each($cb => {
+    .each(($cb) => {
       cy.wrap($cb).should('not.be.checked');
     });
 });
@@ -435,10 +401,7 @@ Then('all host row checkboxes are unchecked', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on the test host name', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', 'host_alpha')
-    .click();
+  cy.getIframeBody().find('#clTableBody').contains('a', 'host_alpha').click();
 });
 
 Then('the host edit form is displayed with the correct host', () => {
@@ -491,9 +454,7 @@ When('the user navigates back to the host listing', () => {
 });
 
 Then('the search field still contains the host name', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .should('have.value', 'host_alpha');
+  cy.getIframeBody().find('#clSearchInput').should('have.value', 'host_alpha');
 });
 
 Then('the listing shows the same filtered results', () => {
