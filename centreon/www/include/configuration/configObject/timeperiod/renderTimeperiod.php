@@ -21,9 +21,13 @@ if (! isset($centreon)) {
     exit();
 }
 
-$tpG = $_GET['tp_id'] ?? null;
-$tpP = $_POST['tp_id'] ?? null;
-$tp_id = $tpG ?: $tpP;
+// tp_id is concatenated into SQL downstream (CentreonTimePeriodRenderer):
+// force it to a strict integer to prevent SQL injection via the request.
+$rawTpId = $_GET['tp_id'] ?? $_POST['tp_id'] ?? null;
+$tp_id = filter_var($rawTpId, FILTER_VALIDATE_INT);
+if ($tp_id === false || $tp_id <= 0) {
+    $tp_id = null;
+}
 $path = './include/configuration/configObject/timeperiod/';
 require_once $path . 'DB-Func.php';
 require_once './include/common/common-Func.php';

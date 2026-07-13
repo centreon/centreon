@@ -1,116 +1,92 @@
-<link href="{$path}renderTimeperiod.css" rel="stylesheet" type="text/css">
- {$form.javascript}
+<link href="{$path}renderTimeperiod.css?v=1" rel="stylesheet" type="text/css">
+<link href="./include/common/listing/listing.css" rel="stylesheet" type="text/css">
+{$form.javascript}
 <form {$form.attributes}>
-<div id='tab1' class='tab'>
-	<table class="ListTable">
-		<tr class="ListHeader">
-			<td class="FormHeader">
-				<img src='./img/icones/16x16/calendar.gif'>&nbsp;&nbsp;{$form.header.title}
-			</td>
-			<td class="FormHeader" style='text-align: right;'>
-				{$form.tp_id.html}
-			</td>
-		</tr>
-		{if !$tpId}
-		<tr>
-			<td class='FormRowField' colspan='2'><center><b>{$labels.no_tp_selected}</b></center></td>
-		</tr>
-		{else}
-		<tr class="list_lvl_1">
-			<td class="ListColLvl1_name" colspan="2">
-				<img src='./img/icones/16x16/note.gif'>&nbsp;&nbsp;{$form.header.information}
-			</td>
-		</tr>
-		<tr class="list_one">
-			<td class="FormRowField">{$form.tp_name.label}</td>
-			<td class="FormRowValue">{$tp->getName()}</td>
-		</tr>
-		<tr class="list_two">
-			<td class="FormRowField">{$form.tp_alias.label}</td>
-			<td class="FormRowValue">{$tp->getAlias()}</td>
-		</tr>
-		<tr class="list_lvl_1">
-			<td class="ListColLvl1_name" colspan="2">
-				<img src='./img/icones/16x16/calendar.gif'>&nbsp;&nbsp;{$form.header.notification}
-			</td>
-		</tr>
-		<tr class="list_one">
-			<td class="FormRowField" colspan="2">
-				<table>
-					<tr>
-						<td class="FormRowField">
-							<table>
-								<tr class="list_one">
-									<td class="FormRowField">Day</td>
-                                    <td class="FormRowField" style="border:0px; width:360px;">
-                                    	<span style="border:0px; display:inline-block; width:50px;">0</span>
-                                        <span style="border:0px; display:inline-block; width:58px;">4</span>
-										<span style="border:0px; display:inline-block; width:58px;">8</span>
-                                        <span style="border:0px; display:inline-block; width:55px;">12</span>
-                                        <span style="border:0px; display:inline-block; width:55px;">16</span>
-                                        <span style="border:0px; display:inline-block; width:54px;">20</span>
-                                        <span style="border:0px; display:inline-block; width:auto;">24</span>
-									</td>
-								</tr>
-                    			{foreach from=$tp->getTimeline() key=day item=dtl}
-								<tr class="list_one">
-									<td class="FormRowField">{$form.$day.label}</td>
-                        			<td class="FormRowValue">
-	                            		<table>
-		                                	<tr style="border:0px;">
-												{foreach name=times from=$dtl item=time}
-												<td class="{$time.style}" style="border:0px; width:{$time.size}px;" onmouseover="showTip(event,'{$time.From}')" onmouseout="hideTip()"></td>
-		                                        {/foreach}
-											</tr>
-										</table>
-									</td>
-								</tr>
-								{/foreach}
-							</table>
-						</td>
-						<td class="FormRowField" style="vertical-align:middle;">
-							<br/>
-							<table>
-								<tr class="list_one"><td class="unset" style="width:50px;"> </td><td>{$labels.unset_timerange}</td></tr>
-								<tr style="height:6px;"><td colspan=2> </td></tr>
-								<tr class="list_one"><td class="included" style="width:50px;"> </td><td>{$labels.included_timerange}</td></tr>
-								<tr style="height:6px;"><td colspan=2> </td></tr>
-								<tr class="list_one"><td class="excluded" style="width:50px;"> </td><td>{$labels.excluded_timerange}</td></tr>
-								<tr style="height:6px;"><td colspan=2> </td></tr>
-								<tr class="list_one"><td class="warning" style="width:50px;"> </td><td>{$labels.timerange_overlaps}</td></tr>
-								<tr style="height:6px;"><td colspan=2> </td></tr>
-								<tr class="list_one"><td colspan=2>{$labels.hover_for_info}</td></tr>
-							</table>
-						</td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr class="list_lvl_1">
-			<td class="ListColLvl1_name" colspan="2">
-				<img src='./img/icones/16x16/date-time_preferences.gif'>&nbsp;&nbsp;{$form.header.exception}
-			</td>
-		</tr>
-		<tr class="list_two">
-			<td class='FormRowField' colspan="2">
-				<table id="exceptionTable" class="ListTableSmall" style='text-align:left; padding-top:0px'>
-					<tr>
-						<th class="ListColLeft">TimePeriod</th>
-						<th class="ListColLeft">Day</th>
-						<th class="ListColLeft">TimeRange</th>
-					</tr>
-					{foreach from=$tp->getExceptionList() item=exception}
-					<tr class="FormRowField">
-						<td class="ListColLeft">{$exception.fromTpName}</td>
-						<td class="ListColLeft">{$exception.day}</td>
-						<td class="ListColLeft">{$exception.range}</td>
-					</tr>
-					{/foreach}
-				</table>
-			</td>
-		</tr>
-		{/if}
-	</table>
+<div class="tp-wrap">
+
+    <div class="tp-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        {$form.header.title}
+    </div>
+
+    <div class="tp-switch">
+        {$form.tp_id.html}
+    </div>
+
+    {if !$tpId}
+        <div class="tp-empty">{$labels.no_tp_selected}</div>
+    {else}
+
+    <div class="tp-section-title">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        {$form.header.information}
+    </div>
+    <div class="tp-meta">
+        <div><span>{$form.tp_name.label}</span><b>{$tp->getName()|escape}</b></div>
+        <div><span>{$form.tp_alias.label}</span><b>{$tp->getAlias()|escape}</b></div>
+    </div>
+
+    <div class="tp-section-title">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        {$form.header.notification}
+    </div>
+    <div class="tp-timeline">
+        <table class="tp-grid">
+            <tr>
+                <td class="tp-day-label">&nbsp;</td>
+                <td class="tp-axis" style="width:360px;">
+                    <span style="width:50px;">0</span><span style="width:58px;">4</span><span style="width:58px;">8</span><span style="width:55px;">12</span><span style="width:55px;">16</span><span style="width:54px;">20</span><span style="width:auto;">24</span>
+                </td>
+            </tr>
+            {foreach from=$tp->getTimeline() key=day item=dtl}
+            <tr>
+                <td class="tp-day-label">{$form.$day.label}</td>
+                <td>
+                    <table style="width:360px;"><tr style="border:0px;">
+                        {foreach name=times from=$dtl item=time}
+                        <td class="{$time.style}" style="border:0px; width:{$time.size}px;" onmouseover="showTip(event,'{$time.From}')" onmouseout="hideTip()"></td>
+                        {/foreach}
+                    </tr></table>
+                </td>
+            </tr>
+            {/foreach}
+        </table>
+
+        <div class="tp-legend">
+            <div class="tp-legend-item"><span class="tp-swatch unset"></span>{$labels.unset_timerange}</div>
+            <div class="tp-legend-item"><span class="tp-swatch included"></span>{$labels.included_timerange}</div>
+            <div class="tp-legend-item"><span class="tp-swatch excluded"></span>{$labels.excluded_timerange}</div>
+            <div class="tp-legend-item"><span class="tp-swatch warning"></span>{$labels.timerange_overlaps}</div>
+            <div class="tp-legend-hint">{$labels.hover_for_info}</div>
+        </div>
+    </div>
+
+    <div class="tp-section-title">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        {$form.header.exception}
+    </div>
+    <table id="exceptionTable" class="cl-listing-table">
+        <thead>
+            <tr>
+                <th>{t}Time period{/t}</th>
+                <th>{t}Day{/t}</th>
+                <th>{t}Time range{/t}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {foreach from=$tp->getExceptionList() item=exception}
+            <tr>
+                <td>{$exception.fromTpName|escape}</td>
+                <td>{$exception.day|escape}</td>
+                <td>{$exception.range|escape}</td>
+            </tr>
+        {foreachelse}
+            <tr><td colspan="3" class="tp-empty">-</td></tr>
+        {/foreach}
+        </tbody>
+    </table>
+
+    {/if}
 </div>
 {$form.hidden}
 </form>
