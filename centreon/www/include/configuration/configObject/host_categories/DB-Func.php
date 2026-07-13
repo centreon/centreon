@@ -71,11 +71,20 @@ function getHostCategoryValues(): array
 function checkSeverity(array $fields)
 {
     $errors = [];
-    if (! empty($fields['hc_type']) && ($fields['hc_severity_level'] ?? '') === '') {
-        $errors['hc_severity_level'] = 'Severity level is required';
-    }
-    if (! empty($fields['hc_type']) && ($fields['hc_severity_icon'] ?? '') === '') {
-        $errors['hc_severity_icon'] = 'Severity icon is required';
+    if (! empty($fields['hc_type'])) {
+        $level = $fields['hc_severity_level'] ?? '';
+        if ($level === '') {
+            $errors['hc_severity_level'] = 'Severity level is required';
+        } else {
+            $intLevel = filter_var($level, FILTER_VALIDATE_INT);
+            if ($intLevel === false || $intLevel < 1 || $intLevel > 127) {
+                $errors['hc_severity_level'] = 'Severity level must be an integer between 1 and 127';
+            }
+        }
+
+        if (($fields['hc_severity_icon'] ?? '') === '') {
+            $errors['hc_severity_icon'] = 'Severity icon is required';
+        }
     }
 
     return $errors ?: true;

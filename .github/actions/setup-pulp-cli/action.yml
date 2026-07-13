@@ -49,8 +49,12 @@ runs:
           exit 1
         fi
 
+        # retry on transient GitHub OIDC token service errors (5xx/timeouts):
+        # the endpoint occasionally returns 503, and a single blip must not break
+        # the whole delivery.
         PULP_TOKEN=$(
-          curl -fsSL -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+          curl -fsSL --retry 5 --retry-delay 3 --retry-all-errors \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             -G --data-urlencode "audience=$AUDIENCE" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq -r '.value'
         )
