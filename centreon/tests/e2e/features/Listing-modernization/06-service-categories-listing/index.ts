@@ -47,12 +47,12 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('several service categories exist', () => {
   cy.addServiceCategory({
-    name: 'sc_alpha',
-    description: 'Service Category Alpha'
+    description: 'Service Category Alpha',
+    name: 'sc_alpha'
   });
   cy.addServiceCategory({
-    name: 'sc_beta',
-    description: 'Service Category Beta'
+    description: 'Service Category Beta',
+    name: 'sc_beta'
   });
 });
 
@@ -65,17 +65,9 @@ When('the user navigates to the service categories listing', () => {
 });
 
 Then('the AJAX listing table is displayed with service category rows', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sc_alpha')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sc_beta')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('sc_alpha').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('sc_beta').should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -83,21 +75,13 @@ Then('the AJAX listing table is displayed with service category rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific service category', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('sc_alpha');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('sc_alpha');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
 Then('only the matching service category is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sc_alpha')
-    .should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('sc_alpha').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('sc_beta')
@@ -135,9 +119,7 @@ Then('the toggle switches to disabled state', () => {
 });
 
 Then('the AJAX toggle response is successful', () => {
-  cy.get('@toggleSc')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@toggleSc').its('response.statusCode').should('eq', 200);
   cy.get('@toggleSc')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -150,7 +132,8 @@ Then('the AJAX toggle response is successful', () => {
 When('the service category is disabled', () => {
   cy.executeSqlQuery({
     database: 'centreon',
-    query: "UPDATE service_categories SET sc_activate = '0' WHERE sc_name = 'sc_alpha'"
+    query:
+      "UPDATE service_categories SET sc_activate = '0' WHERE sc_name = 'sc_alpha'"
   });
   visitAndWait();
 });
@@ -169,9 +152,7 @@ When('the user clicks the toggle to enable the service category', () => {
     .should('not.be.checked')
     .click();
 
-  cy.wait('@toggleScOn')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleScOn').its('response.statusCode').should('eq', 200);
 });
 
 Then('the toggle switches to enabled state', () => {
@@ -202,9 +183,7 @@ When('the user changes the rows per page to 10', () => {
 });
 
 Then('at most 10 rows are displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.at.most', 10);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
 // ---------------------------------------------------------------------------
@@ -226,9 +205,7 @@ When('the user selects a service category and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated service category appears in the listing', () => {
@@ -259,9 +236,7 @@ When('the user selects a service category and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the service category is removed from the listing', () => {
@@ -278,10 +253,7 @@ Then('the service category is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a service category name', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', 'sc_alpha')
-    .click();
+  cy.getIframeBody().find('#clTableBody').contains('a', 'sc_alpha').click();
 });
 
 Then('the service category edit form is displayed', () => {
@@ -302,7 +274,5 @@ When('the user navigates back to the service categories listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .should('have.value', 'sc_alpha');
+  cy.getIframeBody().find('#clSearchInput').should('have.value', 'sc_alpha');
 });
