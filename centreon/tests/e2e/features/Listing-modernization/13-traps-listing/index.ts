@@ -60,12 +60,12 @@ Given('a trap definition exists', () => {
 
 Given('a manufacturer exists', () => {
   cy.addManufacturer({
-    name: 'mnftr_test_alpha',
-    alias: 'Test Manufacturer'
+    alias: 'Test Manufacturer',
+    name: 'mnftr_test_alpha'
   });
   cy.addManufacturer({
-    name: 'mnftr_test_beta',
-    alias: 'Test Manufacturer 2'
+    alias: 'Test Manufacturer 2',
+    name: 'mnftr_test_beta'
   });
 });
 
@@ -88,7 +88,9 @@ When('the user navigates to the traps listing', () => {
 
 Then('the AJAX listing table is displayed with trap rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific trap', () => {
@@ -98,8 +100,14 @@ When('the user searches for a specific trap', () => {
 });
 
 Then('only the matching trap is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('trap_test_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('trap_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('trap_test_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('trap_test_beta')
+    .should('not.exist');
 });
 
 When('the user selects a trap and duplicates it', () => {
@@ -111,14 +119,21 @@ When('the user selects a trap and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated trap appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('trap_test_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('trap_test_alpha_1')
+    .should('exist');
 });
 
 When('the user selects a trap and deletes it', () => {
@@ -130,18 +145,28 @@ When('the user selects a trap and deletes it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the trap is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('trap_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('trap_test_beta')
+    .should('not.exist');
 });
 
 When('the user clicks on the trap name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'trap_test_alpha').click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'trap_test_alpha')
+    .click();
 });
 
 When('the user navigates back to the traps listing', () => {
@@ -151,7 +176,9 @@ When('the user navigates back to the traps listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'trap_test_alpha');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'trap_test_alpha');
 });
 
 // ---------------------------------------------------------------------------
@@ -164,7 +191,9 @@ When('the user navigates to the manufacturers listing', () => {
 
 Then('the AJAX listing table is displayed with manufacturer rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific manufacturer', () => {
@@ -174,8 +203,14 @@ When('the user searches for a specific manufacturer', () => {
 });
 
 Then('only the matching manufacturer is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('mnftr_test_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('mnftr_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('mnftr_test_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('mnftr_test_beta')
+    .should('not.exist');
 });
 
 When('the user selects a manufacturer and duplicates it', () => {
@@ -187,14 +222,21 @@ When('the user selects a manufacturer and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated manufacturer appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('mnftr_test_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('mnftr_test_alpha_1')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -207,7 +249,9 @@ When('the user navigates to the trap groups listing', () => {
 
 Then('the AJAX listing table is displayed with trap group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific trap group', () => {
@@ -217,8 +261,14 @@ When('the user searches for a specific trap group', () => {
 });
 
 Then('only the matching trap group is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('tg_test_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('tg_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('tg_test_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('tg_test_beta')
+    .should('not.exist');
 });
 
 When('the user selects a trap group and duplicates it', () => {
@@ -230,12 +280,19 @@ When('the user selects a trap group and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated trap group appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('tg_test_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('tg_test_alpha_1')
+    .should('exist');
 });
