@@ -619,6 +619,16 @@
     transition: opacity 0.15s;
     flex-shrink: 0;
     align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.cf-field .clearAllSelect2 img {
+    display: block;
+    vertical-align: middle;
+    margin: 0;
 }
 
 .cf-field .clearAllSelect2:hover {
@@ -987,9 +997,23 @@
 }
 
 .cf-actions input[type="submit"]:hover,
-.cf-actions input[type="reset"]:hover,
 .cf-actions button:hover {
     background-color: var(--color-primary-hover, #255891);
+}
+
+/* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
+   Reviewers reported clicking it expecting to submit the form. */
+.cf-actions input[type="reset"],
+.cf-actions .bt_default {
+    color: var(--c-text-secondary, #555);
+    background-color: transparent;
+    border: 1px solid var(--c-stroke, #b0b7c3);
+}
+
+.cf-actions input[type="reset"]:hover,
+.cf-actions .bt_default:hover {
+    background-color: var(--color-divider, #e8e8e8);
+    color: var(--list-color, #333);
 }
 
 /* ==========================================================================
