@@ -55,7 +55,9 @@ When('the user navigates to the pollers listing', () => {
 
 Then('the AJAX listing table is displayed with poller rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 Then('the Central poller is visible', () => {
@@ -74,9 +76,7 @@ When('the user searches for a specific poller', () => {
 
 Then('only the matching poller is displayed', () => {
   cy.getIframeBody().find('#clTableBody').contains('Central').should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length', 1);
+  cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
 });
 
 // ---------------------------------------------------------------------------
@@ -110,9 +110,7 @@ Then('the poller toggle switches to disabled', () => {
 });
 
 Then('the toggle response is successful', () => {
-  cy.get('@togglePoller')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@togglePoller').its('response.statusCode').should('eq', 200);
   cy.get('@togglePoller')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -144,9 +142,7 @@ When('the user clicks the toggle to enable the poller', () => {
     .should('not.be.checked')
     .click();
 
-  cy.wait('@togglePollerOn')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@togglePollerOn').its('response.statusCode').should('eq', 200);
 });
 
 Then('the poller toggle switches to enabled', () => {
