@@ -4,11 +4,11 @@
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
             <span class="cl-filter-label">{t}Object{/t}</span>
-            <input type="text" id="clSearchInput" name="searchO" value="" placeholder="{t}Object name{/t}" class="cl-search-input" style="max-width:none;width:180px;">
+            <input type="text" id="clSearchInput" name="searchO" value="" placeholder="{t}Object name{/t}" class="cl-search-input" style="max-width:none;width:190px;">
             <span class="cl-filter-label">{t}User{/t}</span>
-            <input type="text" id="clSearchUser" name="searchU" value="" placeholder="{t}User name{/t}" class="cl-search-input" style="max-width:none;width:160px;">
+            <input type="text" id="clSearchUser" name="searchU" value="" placeholder="{t}User name{/t}" class="cl-search-input" style="max-width:none;width:190px;">
             <span class="cl-filter-label">{t}Type{/t}</span>
-            <select id="clSearchType" class="cl-search-input" style="min-width:160px;">
+            <select id="clSearchType" class="cl-search-input" style="max-width:none;width:190px;">
                 <option value="">{t}All object types{/t}</option>
             </select>
             <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
@@ -26,7 +26,7 @@
                 <tr>
                     <th style="width:30px"></th>
                     <th style="width:170px">{t}Date{/t}</th>
-                    <th style="width:120px">{t}Modification type{/t}</th>
+                    <th class="cl-col-center" style="width:120px">{t}Modification type{/t}</th>
                     <th style="width:140px">{t}Object type{/t}</th>
                     <th>{t}Object Name{/t}</th>
                     <th style="width:180px">{t}Author{/t}</th>
@@ -185,7 +185,7 @@
                 var pad = function(n) { return n < 10 ? '0'+n : n; };
                 return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
             }},
-            { id:'action_type', render: function(row) {
+            { id:'action_type', align:'center', render: function(row) {
                 var cls = badgeClass[row.badge] || 'service_warning';
                 return '<span class="badge '+cls+'">'+row.action_type+'</span>';
             }},
