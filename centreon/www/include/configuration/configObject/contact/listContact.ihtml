@@ -168,19 +168,31 @@ var contactListing = new CentreonListing({
         { id:'host_notif', align:'center', render: function(row, l) { return row.host_notif ? l.escape(row.host_notif) : '-'; }},
         { id:'svc_notif', align:'center', render: function(row, l) { return row.svc_notif ? l.escape(row.svc_notif) : '-'; }},
         { id:'lang', align:'center' },
-        { id:'access', align:'center', render: function(row) { return row.access ? 'Enabled' : 'Disabled'; }},
-        { id:'admin', align:'center', render: function(row) { return row.admin ? 'Yes' : 'No'; }}
+        { id:'access', align:'center', render: function(row) {
+            return row.access
+                ? '<span class="cl-tag cl-tag--success">Enabled</span>'
+                : '<span class="cl-tag cl-tag--neutral">Disabled</span>';
+        }},
+        { id:'admin', align:'center', render: function(row) {
+            return row.admin
+                ? '<span class="cl-tag cl-tag--info">Yes</span>'
+                : '<span class="cl-tag cl-tag--neutral">No</span>';
+        }}
     ],
     renderOptions: function(row, l) {
         // Cannot toggle yourself
         var checked = row.activate ? ' checked' : '';
+        // Unblock action for locked users (admin only); full reload after the action.
+        var unblock = '';
+        if (row.blocked) {
+            unblock = '<a href="main.get.php?p={/literal}{$contactPage}{literal}&o=un&contact_id=' + row.id + '&centreon_token={/literal}{$centreonToken}{literal}" title="Unblock user" class="cl-unblock" style="margin-right:8px;" onclick="return confirm(\'Do you really want to unblock this user?\');"><img src="./img/icons/lock_closed.png" class="ico-14"/></a>';
+        }
+        var dup = '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
         if (row.is_current_user) {
             // Show toggle disabled for current user (can't self-disable)
-            return '<label class="cl-toggle"><input type="checkbox"'+checked+' disabled /><span class="cl-toggle-slider"></span></label>' +
-                '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
+            return unblock + '<label class="cl-toggle"><input type="checkbox"'+checked+' disabled /><span class="cl-toggle-slider"></span></label>' + dup;
         }
-        return '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="contactListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
-            '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
+        return unblock + '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="contactListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' + dup;
     }
 });
 contactListing.init();
