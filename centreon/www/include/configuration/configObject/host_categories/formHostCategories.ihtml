@@ -81,7 +81,7 @@
                     <img class="helpTooltip" name="hc_severity_level">
                 </div>
                 <div class="cf-field" id="severity_icon">
-                    {$form.hc_severity_icon.html}&nbsp;<img id='icon_id_ctn' src='./img/blank.gif' height='16' width='16'>
+                    {$form.hc_severity_icon.html}&nbsp;<img id='icon_id_ctn' src='./img/blank.gif' height='22' width='22' style="vertical-align:middle;background:#fff;border:1px solid var(--c-stroke,#d0d5dd);border-radius:4px;padding:2px;">
                     <label class="cf-label-float">{$form.hc_severity_icon.label}</label>
                     <img class="helpTooltip" name="hc_severity_icon">
                 </div>
@@ -137,8 +137,23 @@ function toggleSeverityFields() {
     }
 }
 
+// Render each media option with a 16x16 thumbnail in the selector
+function cfIconOption(state) {
+    if (!state.id || String(state.id).indexOf('REP') === 0 || isNaN(parseInt(state.id, 10))) {
+        return state.text; // directory header or empty option
+    }
+    var url = './include/common/getHiddenImage.php?id=' + state.id + '&logo=1';
+    var label = String(state.text).replace(/^[\s ]+/, '');
+    return jQuery('<span><img src="' + url + '" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;object-fit:contain;">' + label + '</span>');
+}
+
 jQuery(function() {
     showLogo('icon_id_ctn', document.getElementById('icon_id').value);
+    jQuery('#icon_id').select2({
+        templateResult: cfIconOption,
+        templateSelection: cfIconOption,
+        width: '100%'
+    });
     var sevToggle = document.getElementById('cf-hc-type-toggle');
     var sevCheckbox = document.getElementById('hc_type');
     if (sevToggle && sevCheckbox) sevToggle.checked = sevCheckbox.checked;
