@@ -51,40 +51,40 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('a host dependency exists', () => {
   cy.addHostDependency({
-    name: 'dep_host_alpha',
-    description: 'Test host dependency'
+    description: 'Test host dependency',
+    name: 'dep_host_alpha'
   });
   cy.addHostDependency({
-    name: 'dep_host_beta',
-    description: 'Test host dependency 2'
+    description: 'Test host dependency 2',
+    name: 'dep_host_beta'
   });
 });
 
 Given('a hostgroup dependency exists', () => {
   cy.addHostGroupDependency({
-    name: 'dep_hg_alpha',
-    description: 'Test HG dependency'
+    description: 'Test HG dependency',
+    name: 'dep_hg_alpha'
   });
 });
 
 Given('a service dependency exists', () => {
   cy.addServiceDependency({
-    name: 'dep_svc_alpha',
-    description: 'Test service dependency'
+    description: 'Test service dependency',
+    name: 'dep_svc_alpha'
   });
 });
 
 Given('a servicegroup dependency exists', () => {
   cy.addServiceGroupDependency({
-    name: 'dep_sg_alpha',
-    description: 'Test SG dependency'
+    description: 'Test SG dependency',
+    name: 'dep_sg_alpha'
   });
 });
 
 Given('a metaservice dependency exists', () => {
   cy.addMetaServiceDependency({
-    name: 'dep_ms_alpha',
-    description: 'Test meta dependency'
+    description: 'Test meta dependency',
+    name: 'dep_ms_alpha'
   });
 });
 
@@ -98,7 +98,9 @@ When('the user navigates to the host dependencies listing', () => {
 
 Then('the AJAX listing table is displayed with dependency rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific dependency', () => {
@@ -108,8 +110,14 @@ When('the user searches for a specific dependency', () => {
 });
 
 Then('only the matching dependency is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('dep_host_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('dep_host_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('dep_host_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('dep_host_beta')
+    .should('not.exist');
 });
 
 When('the user selects a dependency and duplicates it', () => {
@@ -121,14 +129,21 @@ When('the user selects a dependency and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated dependency appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('dep_host_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('dep_host_alpha_1')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -168,7 +183,10 @@ When('the user navigates to the metaservice dependencies listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a dependency name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'dep_host_alpha').click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'dep_host_alpha')
+    .click();
 });
 
 When('the user navigates back to the host dependencies listing', () => {
@@ -178,5 +196,7 @@ When('the user navigates back to the host dependencies listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'dep_host_alpha');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'dep_host_alpha');
 });
