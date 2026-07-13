@@ -64,7 +64,10 @@ When('the user navigates to the escalations listing', () => {
 
 Then('the AJAX listing table is displayed with escalation rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('esc_test_alpha').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('esc_test_alpha')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -78,8 +81,14 @@ When('the user searches for a specific escalation', () => {
 });
 
 Then('only the matching escalation is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('esc_test_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('esc_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('esc_test_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('esc_test_beta')
+    .should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -106,14 +115,21 @@ When('the user selects an escalation and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated escalation appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('esc_test_alpha_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('esc_test_alpha_1')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -129,14 +145,21 @@ When('the user selects an escalation and deletes it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the escalation is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('esc_test_beta').should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('esc_test_beta')
+    .should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -144,12 +167,17 @@ Then('the escalation is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on an escalation name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'esc_test_alpha').click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'esc_test_alpha')
+    .click();
 });
 
 Then('the escalation edit form is displayed', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="esc_name"]');
-  cy.getIframeBody().find('input[name="esc_name"]').should('have.value', 'esc_test_alpha');
+  cy.getIframeBody()
+    .find('input[name="esc_name"]')
+    .should('have.value', 'esc_test_alpha');
 });
 
 // ---------------------------------------------------------------------------
@@ -163,5 +191,7 @@ When('the user navigates back to the escalations listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'esc_test_alpha');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'esc_test_alpha');
 });
