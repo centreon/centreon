@@ -201,15 +201,14 @@ var pollerListing = new CentreonListing({
         { id:'is_running', align:'center', render: function(row, l) {
             var color = row.is_running ? 'var(--color-success,#88B922)' : 'var(--color-danger,#FF4A4A)';
             var tipContent = '<b>PID:</b> '+l.escape(row.pid)+'<br><b>Uptime:</b> '+l.escape(row.uptime)+'<br><b>Version:</b> '+l.escape(row.version);
-            return '<span data-cl-tooltip="'+tipContent.replace(/"/g,'&quot;')+'" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+color+';box-shadow:0 0 4px '+color+';cursor:help;"></span>';
+            return '<span data-cl-tooltip="'+tipContent.replace(/"/g,'&quot;')+'" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:'+color+';box-shadow:0 0 5px '+color+';cursor:help;"></span>';
         }},
         { id:'conf_changed', align:'center', render: function(row) {
             if (row.conf_changed === 'N/A') return '<span style="opacity:.4;">&#8212;</span>';
-            var color = row.conf_changed_flag === 0 ? 'var(--color-success,#88B922)' : 'var(--color-warning,#FD9B27)';
             if (row.conf_changed_flag === 0) {
-                return '<span title="Up to date" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+color+';box-shadow:0 0 4px '+color+';"></span>';
+                return '<span class="cl-tag cl-tag--success" title="Configuration up to date">Up to date</span>';
             }
-            return '<span data-cl-tooltip="<b>Configuration changed</b><br>An export and restart is required to apply changes." style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+color+';box-shadow:0 0 4px '+color+';cursor:help;"></span>';
+            return '<span class="cl-tag cl-tag--warning" data-cl-tooltip="<b>Configuration changed</b><br>An export and restart is required to apply changes." style="cursor:help;">Changed</span>';
         }},
         { id:'last_alive', align:'center', render: function(row) {
             if (!row.last_alive) return '-';
@@ -221,13 +220,13 @@ var pollerListing = new CentreonListing({
     ],
     renderOptions: function(row, l) {
         var html = '';
-        // Edit engine config
+        // Edit engine config — opens in the side panel (save closes it and refreshes)
         if (row.cfg_id && canCreateEdit && !isRemoteSrv) {
-            html += '<a href="./main.php?p=60903&o=c&nagios_id='+row.cfg_id+'" title="Edit monitoring engine configuration"><img src="./img/icons/edit_conf.png" class="ico-16"/></a>';
+            html += '<a href="#" title="Edit monitoring engine configuration" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;" onclick="cfOpenPanel(\'main.get.php?p=60903&o=c&nagios_id='+row.cfg_id+'\', \'Engine configuration\'); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></a>';
         }
         // Gorgone popup
         if ((row.gorgone_comm === 1 && row.activate) || row.type === 'Central') {
-            html += '<span onclick="displayPopup('+row.id+')" style="cursor:pointer" title="Gorgone configuration"><img src="./img/icons/show_template.png" class="ico-16"/></span>';
+            html += '<span onclick="displayPopup('+row.id+')" style="cursor:pointer;margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;" title="Gorgone configuration"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span>';
         }
         // Toggle
         var checked = row.activate ? ' checked' : '';
