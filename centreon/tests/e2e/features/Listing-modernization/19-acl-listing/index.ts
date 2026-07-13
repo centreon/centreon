@@ -50,8 +50,8 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('an ACL group exists', () => {
   cy.addAclAccessGroup({
-    name: 'acl_grp_test',
-    alias: 'Test ACL Group'
+    alias: 'Test ACL Group',
+    name: 'acl_grp_test'
   });
 });
 
@@ -65,7 +65,9 @@ When('the user navigates to the ACL groups listing', () => {
 
 Then('the AJAX listing table is displayed with ACL group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user searches for a specific ACL group', () => {
@@ -75,11 +77,16 @@ When('the user searches for a specific ACL group', () => {
 });
 
 Then('only the matching ACL group is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('acl_grp_test').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('acl_grp_test')
+    .should('exist');
 });
 
 When('the user clicks the toggle to disable an ACL group', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxGroupAclToggle.php' }).as('toggleAclGrp');
+  cy.intercept({ method: 'POST', url: '**/ajaxGroupAclToggle.php' }).as(
+    'toggleAclGrp'
+  );
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('acl_grp_test')
@@ -102,14 +109,21 @@ When('the user selects an ACL group and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated ACL group appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('acl_grp_test_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('acl_grp_test_1')
+    .should('exist');
 });
 
 When('the user clicks on an ACL group name', () => {
@@ -123,7 +137,9 @@ When('the user navigates back to the ACL groups listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'acl_grp_test');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'acl_grp_test');
 });
 
 // ---------------------------------------------------------------------------
@@ -136,11 +152,15 @@ When('the user navigates to the ACL menus listing', () => {
 
 Then('the AJAX listing table is displayed with ACL menu rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user clicks the toggle on an ACL menu row', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxMenuAclToggle.php' }).as('toggleAclMenu');
+  cy.intercept({ method: 'POST', url: '**/ajaxMenuAclToggle.php' }).as(
+    'toggleAclMenu'
+  );
   cy.getIframeBody()
     .find('#clTableBody tr')
     .first()
@@ -151,7 +171,9 @@ When('the user clicks the toggle on an ACL menu row', () => {
 
 Then('the ACL menu toggle response is successful', () => {
   cy.get('@toggleAclMenu').its('response.statusCode').should('eq', 200);
-  cy.get('@toggleAclMenu').its('response.body').should('have.property', 'success', true);
+  cy.get('@toggleAclMenu')
+    .its('response.body')
+    .should('have.property', 'success', true);
 });
 
 // ---------------------------------------------------------------------------
@@ -164,11 +186,15 @@ When('the user navigates to the ACL actions listing', () => {
 
 Then('the AJAX listing table is displayed with ACL action rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user clicks the toggle on an ACL action row', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxActionAclToggle.php' }).as('toggleAclAction');
+  cy.intercept({ method: 'POST', url: '**/ajaxActionAclToggle.php' }).as(
+    'toggleAclAction'
+  );
   cy.getIframeBody()
     .find('#clTableBody tr')
     .first()
@@ -179,7 +205,9 @@ When('the user clicks the toggle on an ACL action row', () => {
 
 Then('the ACL action toggle response is successful', () => {
   cy.get('@toggleAclAction').its('response.statusCode').should('eq', 200);
-  cy.get('@toggleAclAction').its('response.body').should('have.property', 'success', true);
+  cy.get('@toggleAclAction')
+    .its('response.body')
+    .should('have.property', 'success', true);
 });
 
 // ---------------------------------------------------------------------------
@@ -192,11 +220,15 @@ When('the user navigates to the ACL resources listing', () => {
 
 Then('the AJAX listing table is displayed with ACL resource rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user clicks the toggle on an ACL resource row', () => {
-  cy.intercept({ method: 'POST', url: '**/ajaxResourceAclToggle.php' }).as('toggleAclRes');
+  cy.intercept({ method: 'POST', url: '**/ajaxResourceAclToggle.php' }).as(
+    'toggleAclRes'
+  );
   cy.getIframeBody()
     .find('#clTableBody tr')
     .first()
@@ -207,5 +239,7 @@ When('the user clicks the toggle on an ACL resource row', () => {
 
 Then('the ACL resource toggle response is successful', () => {
   cy.get('@toggleAclRes').its('response.statusCode').should('eq', 200);
-  cy.get('@toggleAclRes').its('response.body').should('have.property', 'success', true);
+  cy.get('@toggleAclRes')
+    .its('response.body')
+    .should('have.property', 'success', true);
 });
