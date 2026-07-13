@@ -47,12 +47,12 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('several host categories exist', () => {
   cy.addHostCategory({
-    name: 'hc_alpha',
-    alias: 'Host Category Alpha'
+    alias: 'Host Category Alpha',
+    name: 'hc_alpha'
   });
   cy.addHostCategory({
-    name: 'hc_beta',
-    alias: 'Host Category Beta'
+    alias: 'Host Category Beta',
+    name: 'hc_beta'
   });
 });
 
@@ -65,17 +65,9 @@ When('the user navigates to the host categories listing', () => {
 });
 
 Then('the AJAX listing table is displayed with host category rows', () => {
-  cy.getIframeBody()
-    .find('table.cl-listing-table')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('hc_alpha')
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('hc_beta')
-    .should('exist');
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('hc_alpha').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('hc_beta').should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -83,21 +75,13 @@ Then('the AJAX listing table is displayed with host category rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific host category', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type('hc_alpha');
-  cy.getIframeBody()
-    .find('#clSearchBtn')
-    .click();
+  cy.getIframeBody().find('#clSearchInput').clear().type('hc_alpha');
+  cy.getIframeBody().find('#clSearchBtn').click();
   waitForAjaxRefresh();
 });
 
 Then('only the matching host category is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('hc_alpha')
-    .should('exist');
+  cy.getIframeBody().find('#clTableBody').contains('hc_alpha').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('hc_beta')
@@ -135,9 +119,7 @@ Then('the toggle switches to disabled state', () => {
 });
 
 Then('the toggle response is successful', () => {
-  cy.get('@toggleHc')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@toggleHc').its('response.statusCode').should('eq', 200);
   cy.get('@toggleHc')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -150,7 +132,8 @@ Then('the toggle response is successful', () => {
 When('the host category is disabled', () => {
   cy.executeSqlQuery({
     database: 'centreon',
-    query: "UPDATE hostcategories SET hc_activate = '0' WHERE hc_name = 'hc_alpha'"
+    query:
+      "UPDATE hostcategories SET hc_activate = '0' WHERE hc_name = 'hc_alpha'"
   });
   visitAndWait();
 });
@@ -169,9 +152,7 @@ When('the user clicks the toggle to enable the host category', () => {
     .should('not.be.checked')
     .click();
 
-  cy.wait('@toggleHcOn')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleHcOn').its('response.statusCode').should('eq', 200);
 });
 
 Then('the toggle switches to enabled state', () => {
@@ -213,9 +194,7 @@ When('the user selects a host category and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate');
+  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated host category appears in the listing', () => {
@@ -246,9 +225,7 @@ When('the user selects a host category and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete');
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
 });
 
 Then('the host category is removed from the listing', () => {
@@ -265,10 +242,7 @@ Then('the host category is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a host category name', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', 'hc_alpha')
-    .click();
+  cy.getIframeBody().find('#clTableBody').contains('a', 'hc_alpha').click();
 });
 
 Then('the host category edit form is displayed', () => {
@@ -289,7 +263,5 @@ When('the user navigates back to the host categories listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .should('have.value', 'hc_alpha');
+  cy.getIframeBody().find('#clSearchInput').should('have.value', 'hc_alpha');
 });
