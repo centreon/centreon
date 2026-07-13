@@ -84,13 +84,13 @@ for ARCH in noarch x86_64; do
   BASE_PATH="$BASE_PATH_PREFIX/$ARCH"
 
   if ! pulp rpm repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
-    echo "[INFO] Creating rpm repository $REPOSITORY_NAME"
-    pulp rpm repository create --name "$REPOSITORY_NAME" --retain-package-versions 1 >/dev/null
+    echo "::error::rpm repository $REPOSITORY_NAME does not exist. Pulp repositories and distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before delivering."
+    exit 1
   fi
 
   if ! pulp rpm distribution show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
-    echo "[INFO] Creating rpm distribution $REPOSITORY_NAME served at $BASE_PATH"
-    pulp rpm distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
+    echo "::error::rpm distribution $REPOSITORY_NAME does not exist. Pulp distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before delivering. Refusing to create it here to avoid an unguarded distribution."
+    exit 1
   fi
 
   REPOSITORY_HREF=$(pulp rpm repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
