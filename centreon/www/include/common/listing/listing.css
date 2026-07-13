@@ -1120,9 +1120,8 @@
     background: var(--table-header-background, #6b7888);
     color: #fff;
     font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 12px;
+    letter-spacing: 0.2px;
 }
 .cl-diff-header span {
     flex: 1;
@@ -1228,8 +1227,7 @@
     margin: 2px 0 0;
     font-size: 12px;
     color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
 }
 .cld-back-btn {
     display: inline-flex;
@@ -1346,6 +1344,13 @@
 }
 .cld-card-badge {
     flex-shrink: 0;
+    margin-left: 30px;
+}
+/* Center the label inside status badges (they have a min-width) */
+.cl-listing-table .badge,
+.cld-card-badge .badge,
+.cld-diff-panel .badge {
+    text-align: center;
 }
 .cld-card-author {
     font-size: 12px;
@@ -1371,9 +1376,8 @@
     background: var(--table-header-background, #6b7888);
     color: #fff;
     font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 12px;
+    letter-spacing: 0.2px;
     padding: 7px 12px;
     text-align: left;
 }
