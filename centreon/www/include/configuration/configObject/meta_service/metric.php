@@ -180,5 +180,9 @@ if ($valid) {
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('valid', $valid);
+    // In edit mode (o=cs) the request carries msr_id, not meta_id; recover the
+    // meta service id from the loaded relation so Back returns to the right list.
+    $backMetaId = (int) ($meta_id ?: ($metric['meta_id'] ?? 0));
+    $tpl->assign('backUrl', 'main.get.php?p=' . $p . '&o=ci&meta_id=' . $backMetaId);
     $tpl->display('metric.ihtml');
 }

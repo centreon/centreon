@@ -1,8 +1,8 @@
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 
-<div class="cl-meta-header" id="metricMetaHeader">{t}Loading...{/t}</div>
-
 <form name='form' method='POST'>
+    <h1 class="cl-page-title">{t}Metrics{/t}</h1>
+    <p class="cl-page-desc" id="metricMetaHeader">{t}Loading...{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -29,7 +29,7 @@
                     <th>{$headerMenu_service}</th>
                     <th class="cl-col-center">{$headerMenu_metric}</th>
                     { if $mode_access == 'w' }
-                    <th class="cl-col-right">{$headerMenu_options}</th>
+                    <th class="cl-col-right">{t}Actions{/t}</th>
                     { /if }
                 </tr>
             </thead>
@@ -38,16 +38,6 @@
             </tbody>
         </table>
 
-        <div class="cl-bottom-bar">
-            { if $mode_access == 'w' }
-            <div class="cl-actions-left">
-                {$form.o2.html}
-            </div>
-            { else }
-            <div>&nbsp;</div>
-            { /if }
-            <div class="cl-pagination" id="clPaginationBottom"></div>
-        </div>
     </div>
 
 <input type='hidden' name='o' id='o' value='42'>
@@ -57,6 +47,11 @@
 
 {literal}
 <script type="text/javascript">
+// Hide the breadcrumb when this listing is shown inside the side panel
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    var _bc = document.querySelector('.pathway');
+    if (_bc) { _bc.style.display = 'none'; }
+}
 var metricListing = new CentreonListing({
     instanceName:  'metricListing',
     ajaxListUrl:   './include/configuration/configObject/meta_service/ajaxMetaMetricListing.php',
@@ -83,7 +78,9 @@ var metricListing = new CentreonListing({
     },
     onDataLoaded: function(data) {
         if (data.meta_name) {
-            jQuery('#metricMetaHeader').text('Meta Service - ' + data.meta_name + ' (' + data.meta_calc_type + ')');
+            var map = { 'AVE':'Average', 'SOM':'Sum', 'MIN':'Min', 'MAX':'Max' };
+            var ct = map[data.meta_calc_type] || data.meta_calc_type || '';
+            jQuery('#metricMetaHeader').text('Meta service: ' + data.meta_name + (ct ? ' — ' + ct : ''));
         }
     }
 });

@@ -1,36 +1,66 @@
 {$form.javascript}
-<div>
-    <form {$form.attributes}>
-            <table class="ListTable">
-                    <tr class="ListHeader">
-                    	<td class="FormHeader" colspan="2">{$form.header.title}</td>
-                    <tr>
-                    <tr class="list_one">
-                		<td>{$form.host_id.label}</td>
-                		<td>{$form.host_id.html}</td>
-                    </tr>
-	                <tr class="list_two">
-                        <td>{$form.metric_sel.label}</td>
-                        <td>{$form.metric_sel.html}</td>
-	                </tr>
-                    <tr class="list_one">
-                        <td>{$form.msr_comment.label}</td>
-                        <td>{$form.msr_comment.html}</td>
-                    </tr>
-                    <tr class="list_two">
-                        <td>{$form.activate.label}</td>
-                        <td>{$form.activate.html}</td>
-                    </tr>
-            </table>
-            <div id="validForm">
-                <p>
-                    {if isset($form.submitC)}
-                        {$form.submitC.html}
-                    {else}
-                        {$form.submitA.html}
-                    {/if}
-                    &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
+<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
+
+<form {$form.attributes}>
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.title}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.host_id.html}
+                    <label class="cf-label-float">{$form.host_id.label}</label>
+                </div>
+                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <label class="cl-toggle"><input type="checkbox" id="cf-activate-toggle"><span class="cl-toggle-slider"></span></label>
+                    <span>{$form.activate.label}</span>
+                    <span style="display:none;">{$form.activate.html}</span>
+                </div>
             </div>
-            {$form.hidden}
-    </form>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.metric_sel.html}
+                    <label class="cf-label-float">{$form.metric_sel.label}</label>
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.msr_comment.html}
+                    <label class="cf-label-float">{$form.msr_comment.label}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cf-actions">
+        {if isset($backUrl)}
+            <button type="button" class="cf-btn-back" style="color:var(--c-text-secondary,#555);background-color:transparent;border:1px solid var(--c-stroke,#b0b7c3);" onclick="window.location.href='{$backUrl}';">&#8592;&nbsp;{t}Back to metrics{/t}</button>
+        {/if}
+        {$form.reset.html}
+        {if isset($form.submitC)}
+            {$form.submitC.html}
+        {else}
+            {$form.submitA.html}
+        {/if}
+    </div>
+
 </div>
+{$form.hidden}
+</form>
+
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.CentreonForm) {
+        CentreonForm.initFormPage();
+        CentreonForm.syncToggle('cf-activate-toggle', 'activate', '1', '0');
+    }
+});
+</script>
+{/literal}
