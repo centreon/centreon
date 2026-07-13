@@ -356,16 +356,21 @@ class CentreonHostgroups
      */
     public function getHostsByHostgroupName($hgName)
     {
-        $hostList = [];
-        $query = 'SELECT host_name, host_id  '
+        $rows = $this->DB->fetchAllAssociative(
+            'SELECT host_name, host_id '
             . 'FROM hostgroup_relation hgr, host h, hostgroup hg '
             . 'WHERE hgr.host_host_id = h.host_id '
             . 'AND hgr.hostgroup_hg_id = hg.hg_id '
             . "AND h.host_activate = '1' "
-            . "AND hg.hg_name = '" . $this->DB->escape($hgName) . "'";
-        $result = $this->DB->query($query);
-        while ($elem = $result->fetchrow()) {
-            $hostList[] = ['host' => $elem['host_name'], 'host_id' => $elem['host_id'], 'hg_name' => $hgName];
+            . 'AND hg.hg_name = :hg_name',
+            QueryParameters::create([
+                QueryParameter::string('hg_name', (string) $hgName),
+            ])
+        );
+
+        $hostList = [];
+        foreach ($rows as $row) {
+            $hostList[] = ['host' => $row['host_name'], 'host_id' => $row['host_id'], 'hg_name' => $hgName];
         }
 
         return $hostList;

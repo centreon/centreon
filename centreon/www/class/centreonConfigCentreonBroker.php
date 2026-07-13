@@ -910,13 +910,16 @@ class CentreonConfigCentreonBroker
      */
     public function getForms($config_id, $tag, $page, $tpl)
     {
-        $query = "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
-            FROM cfg_centreonbroker_info WHERE config_id = %d
-            AND config_group = '%s'
+        $query = 'SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
+            FROM cfg_centreonbroker_info WHERE config_id = :configId
+            AND config_group = :configGroup
             AND subgrp_id IS NULL
-            ORDER BY config_group_id";
+            ORDER BY config_group_id';
         try {
-            $res = $this->db->query(sprintf($query, $config_id, $tag));
+            $res = $this->db->prepare($query);
+            $res->bindValue(':configId', (int) $config_id, PDO::PARAM_INT);
+            $res->bindValue(':configGroup', $tag, PDO::PARAM_STR);
+            $res->execute();
         } catch (PDOException $e) {
             return [];
         }
