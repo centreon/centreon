@@ -141,7 +141,7 @@ var msListing = new CentreonListing({
     renderOptions: function(row, l) {
         var html = '';
         if (row.select_mode === 1) {
-            html += '<a href="main.php?p={/literal}{$msPage}{literal}&meta_id='+row.id+'&o=ci" title="Components"><img src="img/icons/redirect.png" class="ico-16" alt="Components"/></a>';
+            html += '<a href="main.php?p={/literal}{$msPage}{literal}&meta_id='+row.id+'&o=ci" title="Components" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></a>';
         }
         var checked = row.activate ? ' checked' : '';
         html += '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="msListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
