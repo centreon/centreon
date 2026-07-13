@@ -55,11 +55,16 @@ When('the user navigates to the engine config listing', () => {
 
 Then('the AJAX listing table is displayed with engine config rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.greaterThan', 0);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 Then('the Central engine config is visible', () => {
-  cy.getIframeBody().find('#clTableBody').contains('Centreon Engine').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('Centreon Engine')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -73,7 +78,10 @@ When('the user searches for a specific engine config', () => {
 });
 
 Then('only the matching engine config is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('Centreon Engine').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('Centreon Engine')
+    .should('exist');
   cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
 });
 
@@ -108,9 +116,7 @@ Then('the engine config toggle switches to disabled', () => {
 });
 
 Then('the toggle response is successful', () => {
-  cy.get('@toggleEngine')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.get('@toggleEngine').its('response.statusCode').should('eq', 200);
   cy.get('@toggleEngine')
     .its('response.body')
     .should('have.property', 'success', true);
@@ -123,7 +129,8 @@ Then('the toggle response is successful', () => {
 When('the engine config is disabled', () => {
   cy.executeSqlQuery({
     database: 'centreon',
-    query: "UPDATE cfg_nagios SET nagios_activate = '0' WHERE nagios_name LIKE '%Centreon Engine%'"
+    query:
+      "UPDATE cfg_nagios SET nagios_activate = '0' WHERE nagios_name LIKE '%Centreon Engine%'"
   });
   visitAndWait();
 });
@@ -142,9 +149,7 @@ When('the user clicks the toggle to enable the engine config', () => {
     .should('not.be.checked')
     .click();
 
-  cy.wait('@toggleEngineOn')
-    .its('response.statusCode')
-    .should('eq', 200);
+  cy.wait('@toggleEngineOn').its('response.statusCode').should('eq', 200);
 });
 
 Then('the engine config toggle switches to enabled', () => {
@@ -180,14 +185,21 @@ When('the user selects an engine config and duplicates it', () => {
     .click();
   cy.getIframeBody()
     .find('select[name="o1"]')
-    .invoke('attr', 'onchange', "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }");
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
 Then('a duplicated engine config appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   waitForAjaxRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('Centreon Engine_1').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('Centreon Engine_1')
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -195,12 +207,17 @@ Then('a duplicated engine config appears in the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on an engine config name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'Centreon Engine').click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'Centreon Engine')
+    .click();
 });
 
 Then('the engine config edit form is displayed', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="nagios_name"]');
-  cy.getIframeBody().find('input[name="nagios_name"]').should('contain.value', 'Centreon Engine');
+  cy.getIframeBody()
+    .find('input[name="nagios_name"]')
+    .should('contain.value', 'Centreon Engine');
 });
 
 // ---------------------------------------------------------------------------
@@ -214,5 +231,7 @@ When('the user navigates back to the engine config listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'Centreon Engine');
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'Centreon Engine');
 });
