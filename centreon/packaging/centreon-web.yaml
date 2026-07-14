@@ -136,7 +136,7 @@ contents:
       group: "centreon"
       mode: 0664
 
-  - src: "../bin/{centFillTrapDB,centreon_trap_send,centreon-update-configuration}"
+  - src: "../bin/{centFillTrapDB,centreon_trap_send}"
     dst: "/usr/share/centreon/bin/"
     file_info:
       mode: 0755
@@ -145,9 +145,6 @@ contents:
     type: symlink
   - src: "/usr/share/centreon/bin/centreon_trap_send"
     dst: "/usr/bin/centreon_trap_send"
-    type: symlink
-  - src: "/usr/share/centreon/bin/centreon-update-configuration"
-    dst: "/usr/bin/centreon-update-configuration"
     type: symlink
 
   - src: "../bin/centreon_health"
@@ -319,6 +316,15 @@ contents:
 
   - src: "./src/centreon-apache-https.conf"
     dst: "/usr/share/centreon/examples/centreon-apache-https.conf"
+    file_info:
+      mode: 0644
+  - src: "./src/centreon-apache-gorgone.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-gorgone.conf"
+    file_info:
+      mode: 0644
+
+  - src: "./src/centreon-apache-https-gorgone.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-https-gorgone.conf"
     file_info:
       mode: 0644
 

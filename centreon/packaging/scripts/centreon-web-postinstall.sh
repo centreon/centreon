@@ -236,8 +236,6 @@ case "$action" in
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
     archiveLegacyPhpFpmLog $package_type
-    gorgone-update-configuration.pl websocket $package_type
-
     ;;
   *)
     # $1 == version being installed
