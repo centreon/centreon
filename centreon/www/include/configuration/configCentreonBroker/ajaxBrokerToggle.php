@@ -36,12 +36,27 @@ $newToken = $helper->validateCsrfToken();
 
 $helper->requireWriteAccess(60909);
 
-// Verify exists
-$checkStmt = $pearDB->prepare('SELECT config_id FROM cfg_centreonbroker WHERE config_id = :id');
+// Verify exists and capture its poller for the ACL check below
+$checkStmt = $pearDB->prepare('SELECT ns_nagios_server FROM cfg_centreonbroker WHERE config_id = :id');
 $checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
 $checkStmt->execute();
-if (! $checkStmt->fetch()) {
+$brokerCfg = $checkStmt->fetch(PDO::FETCH_ASSOC);
+if (! $brokerCfg) {
     AjaxListingHelper::jsonError('Object not found', 404);
+}
+
+// Resource-level ACL: page-level write access is not enough - a user could
+// otherwise toggle any broker configuration by id (IDOR). The configuration's
+// poller must be one the user is allowed to manage (same scope as the listing).
+if (! $helper->isAdmin()) {
+    $acl = $helper->getAcl();
+    $pollerIds = [];
+    foreach ($acl->getPollerAclConf(['fields' => ['id']]) as $poller) {
+        $pollerIds[] = (int) $poller['id'];
+    }
+    if (! in_array((int) $brokerCfg['ns_nagios_server'], $pollerIds, true)) {
+        AjaxListingHelper::jsonError('Access denied', 403);
+    }
 }
 
 // Get name for logging
