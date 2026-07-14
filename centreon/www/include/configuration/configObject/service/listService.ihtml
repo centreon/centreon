@@ -199,8 +199,9 @@ svcListing.renderRows = function(rows) {
     for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
         var rid = row.id;
+        var rkey = row.key || rid;
 
-        var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rid+'" name="select['+rid+']" value="1" /><label class="empty-label" for="select_'+rid+'"></label></div></td>';
+        var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rkey+'" name="select['+rid+']" value="1" /><label class="empty-label" for="select_'+rkey+'"></label></div></td>';
 
         // Host (grouped)
         if (row.host_name !== lastHost) {

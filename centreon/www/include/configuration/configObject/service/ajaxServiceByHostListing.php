@@ -40,32 +40,13 @@ $hostId    = filter_var($_GET['hostId'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 $ilResult = $pearDB->query("SELECT `value` FROM `options` WHERE `key` = 'interval_length'");
 $intervalLength = (int) ($ilResult->fetchColumn() ?: 60);
 
-// Icon caches (bulk load)
-$hostIconCache = [];
-$iconResult = $pearDB->query(
-    "SELECT ehi.host_host_id, CONCAT(vid.dir_alias, '/', vi.img_path) AS icon_path"
-    . " FROM extended_host_information ehi"
-    . " INNER JOIN view_img vi ON ehi.ehi_icon_image = vi.img_id"
-    . " INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id"
-    . " INNER JOIN view_img_dir vid ON vidr.dir_dir_parent_id = vid.dir_id"
-    . " WHERE ehi.ehi_icon_image IS NOT NULL"
-);
-while ($row = $iconResult->fetch(PDO::FETCH_ASSOC)) {
-    $hostIconCache[(int) $row['host_host_id']] = './img/media/' . $row['icon_path'];
-}
-
-$svcIconCache = [];
-$svcIconResult = $pearDB->query(
-    "SELECT esi.service_service_id, CONCAT(vid.dir_alias, '/', vi.img_path) AS icon_path"
-    . " FROM extended_service_information esi"
-    . " INNER JOIN view_img vi ON esi.esi_icon_image = vi.img_id"
-    . " INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id"
-    . " INNER JOIN view_img_dir vid ON vidr.dir_dir_parent_id = vid.dir_id"
-    . " WHERE esi.esi_icon_image IS NOT NULL"
-);
-while ($row = $svcIconResult->fetch(PDO::FETCH_ASSOC)) {
-    $svcIconCache[(int) $row['service_service_id']] = './img/media/' . $row['icon_path'];
-}
+// Icons are resolved per page (only for the rows actually displayed) and follow
+// the template chain when an object carries no icon of its own; see the icon
+// resolvers further down. These caches are shared across the current page rows.
+$imgPathCache    = []; // view_img id -> media path
+$svcIconIdCache  = []; // service_id  -> own icon image id (null if none)
+$hostIconIdCache = []; // host_id     -> own icon image id (null if none)
+$hostTplCache    = []; // host_id     -> ordered parent template host ids
 
 // Build query
 $joins = " FROM service sv"
@@ -215,6 +196,66 @@ function getTemplateChain(int $tplId, CentreonDB $db, array &$cache, int $depth 
     return $chain;
 }
 
+// --- Icon resolution (page-scoped, template-inherited) --------------------
+
+// Resolve a view_img id to its media path, lazily (only for icons we display).
+function imgMediaPath(CentreonDB $db, ?int $imgId, array &$cache): ?string {
+    if (! $imgId) return null;
+    if (array_key_exists($imgId, $cache)) return $cache[$imgId];
+    $stmt = $db->prepare(
+        "SELECT CONCAT(vid.dir_alias, '/', vi.img_path) AS p"
+        . " FROM view_img vi"
+        . " INNER JOIN view_img_dir_relation vidr ON vidr.img_img_id = vi.img_id"
+        . " INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id"
+        . " WHERE vi.img_id = :id LIMIT 1"
+    );
+    $stmt->execute([':id' => $imgId]);
+    $p = $stmt->fetchColumn();
+    return $cache[$imgId] = $p ? ('./img/media/' . $p) : null;
+}
+
+// A service's own icon image id (extended_service_information), null if none.
+function serviceOwnIconId(CentreonDB $db, int $serviceId, array &$cache): ?int {
+    if (array_key_exists($serviceId, $cache)) return $cache[$serviceId];
+    $stmt = $db->prepare("SELECT esi_icon_image FROM extended_service_information WHERE service_service_id = :id LIMIT 1");
+    $stmt->execute([':id' => $serviceId]);
+    $v = $stmt->fetchColumn();
+    return $cache[$serviceId] = $v ? (int) $v : null;
+}
+
+// A host's own icon image id (extended_host_information), null if none.
+function hostOwnIconId(CentreonDB $db, int $hostId, array &$cache): ?int {
+    if (array_key_exists($hostId, $cache)) return $cache[$hostId];
+    $stmt = $db->prepare("SELECT ehi_icon_image FROM extended_host_information WHERE host_host_id = :id LIMIT 1");
+    $stmt->execute([':id' => $hostId]);
+    $v = $stmt->fetchColumn();
+    return $cache[$hostId] = $v ? (int) $v : null;
+}
+
+// A host's parent templates (host_template_relation), most significant first.
+function hostParentTemplates(CentreonDB $db, int $hostId, array &$cache): array {
+    if (isset($cache[$hostId])) return $cache[$hostId];
+    $stmt = $db->prepare("SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :id ORDER BY `order` ASC");
+    $stmt->execute([':id' => $hostId]);
+    $ids = [];
+    while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $ids[] = (int) $r['host_tpl_id'];
+    }
+    return $cache[$hostId] = $ids;
+}
+
+// A host's icon image id, following the host template chain when it has none.
+function resolveHostIconId(CentreonDB $db, int $hostId, array &$iconCache, array &$tplCache, int $depth = 0): ?int {
+    if ($depth > 10 || ! $hostId) return null;
+    $own = hostOwnIconId($db, $hostId, $iconCache);
+    if ($own) return $own;
+    foreach (hostParentTemplates($db, $hostId, $tplCache) as $tplId) {
+        $inherited = resolveHostIconId($db, $tplId, $iconCache, $tplCache, $depth + 1);
+        if ($inherited) return $inherited;
+    }
+    return null;
+}
+
 // Resolve inherited interval by walking template chain
 function resolveInterval(?string $direct, array $tplChain, string $field): ?int {
     if ($direct !== null && $direct !== '') return (int) $direct;
@@ -261,13 +302,25 @@ foreach ($results as $svc) {
     $rtmKey = $hid . '_' . $sid;
     $mon = $rtmStatus[$rtmKey] ?? null;
 
+    // Service icon: its own, else the first one found up the template chain
+    $svcIconId = serviceOwnIconId($pearDB, $sid, $svcIconIdCache);
+    if (! $svcIconId) {
+        foreach ($templates as $tpl) {
+            $svcIconId = serviceOwnIconId($pearDB, (int) $tpl['id'], $svcIconIdCache);
+            if ($svcIconId) break;
+        }
+    }
+    // Host icon: its own, else inherited from the host template chain
+    $hostIconId = resolveHostIconId($pearDB, $hid, $hostIconIdCache, $hostTplCache);
+
     $rows[] = [
         'id'         => $sid,
+        'key'        => $hid . '_' . $sid,
         'host_id'    => $hid,
         'host_name'  => $svc['host_name'],
-        'host_icon'  => $hostIconCache[$hid] ?? null,
+        'host_icon'  => imgMediaPath($pearDB, $hostIconId, $imgPathCache),
         'desc'       => $desc,
-        'svc_icon'   => $svcIconCache[$sid] ?? null,
+        'svc_icon'   => imgMediaPath($pearDB, $svcIconId, $imgPathCache),
         'scheduling' => $scheduling,
         'templates'  => $templates,
         'activate'   => (int) $svc['service_activate'],
