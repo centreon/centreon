@@ -93,13 +93,13 @@
         </button>
     </div>
     <p id="noSelectedPoller" class="gen-nopoller" hidden>{$noPollerSelectedLabel}</p>
+    <p id="noSelectedAction" class="gen-nopoller" hidden>{t}Please select at least one action (Generate &amp; Test, Move or Restart/Reload).{/t}</p>
 
     <!-- Advanced (right under the poller field) -->
     <details class="gen-adv">
         <summary>{t}Advanced{/t}</summary>
         <div class="gen-adv-body">
             <div class="gen-adv-row">{$form.gen.html} <span>{$form.gen.label}</span></div>
-            <div class="gen-adv-row">{$form.debug.html} <span>{$form.debug.label}</span></div>
             <div class="gen-adv-row">{$form.move.html} <span>{$form.move.label}</span></div>
             <div class="gen-adv-row">{$form.restart.html} <span>{$form.restart.label}</span> &nbsp;&mdash;&nbsp; {$form.restart_mode.label} {$form.restart_mode.html}</div>
         </div>
