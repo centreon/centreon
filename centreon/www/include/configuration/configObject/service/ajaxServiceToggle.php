@@ -34,11 +34,36 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
 
 $newToken = $helper->validateCsrfToken();
 
-// ACL: require write access on services page (60201 or 60202)
+// ACL: require write access on the services page (60201 or 60202) AND, at the
+// resource level, that the user actually has access to this specific service.
+// Checking only the page would let a user toggle any service by id (IDOR).
 if (! $helper->isAdmin()) {
     $acl = $helper->getAcl();
     if ($acl->page(60201) !== 1 && $acl->page(60202) !== 1) {
         AjaxListingHelper::jsonError('Write access denied', 403);
+    }
+    $aclGroupIds = array_keys($acl->getAccessGroups());
+    if ($aclGroupIds === []) {
+        AjaxListingHelper::jsonError('Access denied', 403);
+    }
+    $aclDbName = $acl->getNameDBAcl();
+    $aclPlaceholders = [];
+    $aclParams = [':sid' => $objId];
+    foreach ($aclGroupIds as $idx => $gid) {
+        $key = ':acl_g' . $idx;
+        $aclPlaceholders[] = $key;
+        $aclParams[$key] = (int) $gid;
+    }
+    $aclStmt = $pearDB->prepare(
+        "SELECT 1 FROM `{$aclDbName}`.centreon_acl"
+        . " WHERE service_id = :sid AND group_id IN (" . implode(',', $aclPlaceholders) . ") LIMIT 1"
+    );
+    foreach ($aclParams as $key => $value) {
+        $aclStmt->bindValue($key, $value, PDO::PARAM_INT);
+    }
+    $aclStmt->execute();
+    if (! $aclStmt->fetchColumn()) {
+        AjaxListingHelper::jsonError('Access denied', 403);
     }
 }
 
