@@ -22,6 +22,7 @@ import {
   labelAllColumns,
   labelAllPages,
   labelCheck,
+  labelCheckCommandSent,
   labelCheckDescription,
   labelComment,
   labelCurrentPageOnly,
@@ -439,6 +440,10 @@ describe('Actions', () => {
       });
       cy.contains(labelForcedCheckCommandSent).should('be.visible');
 
+      cy.wrap(null).should(() => {
+        expect(store.get(selectedResourcesAtom)).to.deep.equal([]);
+      });
+
       cy.makeSnapshot();
     });
 
@@ -464,6 +469,12 @@ describe('Actions', () => {
             }
           ]
         });
+      });
+
+      cy.contains(labelCheckCommandSent).should('be.visible');
+
+      cy.wrap(null).should(() => {
+        expect(store.get(selectedResourcesAtom)).to.deep.equal([]);
       });
 
       cy.makeSnapshot();
