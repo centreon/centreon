@@ -214,7 +214,9 @@ svcHgListing.renderRows = function(rows) {
         if (row.templates && row.templates.length) {
             var parts = [];
             for (var t = 0; t < row.templates.length; t++) {
-                parts.push('<a href="main.php?p=60206&o=c&service_id='+row.templates[t].id+'">'+self.escape(row.templates[t].name)+'</a>');
+                var tplUrl = 'main.get.php?p=60206&o=c&service_id=' + row.templates[t].id;
+                var tplName = self.escape(row.templates[t].name);
+                parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
             }
             tplHtml = parts.join(' &gt; ');
         }

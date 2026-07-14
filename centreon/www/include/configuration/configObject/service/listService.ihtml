@@ -204,7 +204,8 @@ svcListing.renderRows = function(rows) {
 
         // Host (grouped)
         if (row.host_name !== lastHost) {
-            var hostLink = 'main.php?p=60101&o=c&host_id=' + row.host_id;
+            var hostEditUrl = 'main.get.php?p=60101&o=c&host_id=' + row.host_id;
+            var hostTitle = 'Modify Host - ' + (row.host_name || '');
             var hostIcon = row.host_icon
                 ? '<img src="'+self.escape(row.host_icon)+'" class="ico-16" style="vertical-align:middle;margin-right:6px;" onerror="this.src=\'./img/icons/host.svg\'" />'
                 : '<img src="./img/icons/host.svg" class="ico-16" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" />';
@@ -218,7 +219,7 @@ svcListing.renderRows = function(rows) {
                 if (row.host_mon_output) hTip += '<br>' + self.escape(row.host_mon_output).substring(0,100);
                 hBadge = ' <span class="cl-mon-badge '+hCls+'" data-cl-tooltip="'+hTip.replace(/"/g,'&quot;')+'" style="cursor:help;margin-left:4px;"></span>';
             }
-            tr += '<td><a href="'+hostLink+'">'+hostIcon+self.escape(row.host_name)+'</a>'+hBadge+'</td>';
+            tr += '<td><a href="#" onclick="cfOpenPanel(\''+hostEditUrl+'\', \''+self.escape(hostTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+hostIcon+self.escape(row.host_name)+'</a>'+hBadge+'</td>';
             lastHost = row.host_name;
         } else {
             tr += '<td></td>';
@@ -252,7 +253,9 @@ svcListing.renderRows = function(rows) {
         if (row.templates && row.templates.length) {
             var parts = [];
             for (var t = 0; t < row.templates.length; t++) {
-                parts.push('<a href="main.php?p=60206&o=c&service_id='+row.templates[t].id+'">'+self.escape(row.templates[t].name)+'</a>');
+                var tplUrl = 'main.get.php?p=60206&o=c&service_id=' + row.templates[t].id;
+                var tplName = self.escape(row.templates[t].name);
+                parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
             }
             tplHtml = parts.join(' &gt; ');
         }
