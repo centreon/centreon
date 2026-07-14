@@ -72,7 +72,11 @@ if (! $helper->isAdmin()) {
             $bindParams[$key] = (int) $gid;
         }
         $aclIn = implode(',', $aclPlaceholders);
-        $joins .= " INNER JOIN `{$aclDbName}`.centreon_acl acl ON acl.service_id = sv.service_id AND acl.group_id IN ({$aclIn}) ";
+        // The ACL row must reference a host that actually belongs to the hostgroup
+        // being displayed. Matching on service_id alone would list a service shared
+        // across hostgroups under a hostgroup the user has no access to (leak).
+        $joins .= " INNER JOIN `{$aclDbName}`.centreon_acl acl ON acl.service_id = sv.service_id AND acl.group_id IN ({$aclIn}) "
+            . " INNER JOIN hostgroup_relation hgr_acl ON hgr_acl.hostgroup_hg_id = hg.hg_id AND hgr_acl.host_host_id = acl.host_id ";
     } else {
         $helper->jsonResponse([], 0, 0, $limit);
     }
