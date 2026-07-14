@@ -316,6 +316,38 @@
 document.addEventListener('DOMContentLoaded', function() {
     CentreonForm.initFormPage();
     CentreonForm.syncToggle('cf-acl-topo-activate-toggle', 'acl_topo_activate', '1', '0');
+
+    // Upward cascade: granting a sub-menu also grants its parent menu(s) so the
+    // page stays reachable — without touching sibling menus.
+    var aclTree = document.querySelector('.cf-acl-tree');
+    if (aclTree) {
+        var grantByCid = function (cid) {
+            var inputs = aclTree.querySelectorAll('[id="i' + cid + '"]');
+            if (!inputs.length) { return; }
+            if (inputs[0].type === 'radio') {
+                var alreadyGranted = false;
+                inputs.forEach(function (r) { if (r.checked && r.value !== '0') { alreadyGranted = true; } });
+                if (!alreadyGranted) {
+                    inputs.forEach(function (r) { r.checked = (r.value === '1'); }); // read/write
+                }
+            } else {
+                inputs.forEach(function (cb) { if (cb.type === 'checkbox') { cb.checked = true; } });
+            }
+        };
+        var grantAncestors = function (input) {
+            var ul = input.closest('ul.arbo_b, ul.arbo_c, ul.arbo_d');
+            while (ul && ul.id) {
+                grantByCid(ul.id);
+                ul = ul.parentElement ? ul.parentElement.closest('ul.arbo_b, ul.arbo_c, ul.arbo_d') : null;
+            }
+        };
+        aclTree.addEventListener('change', function (e) {
+            var t = e.target;
+            if (!t || !t.name || t.name.indexOf('acl_r_topos') !== 0) { return; }
+            var granted = (t.type === 'checkbox') ? t.checked : (t.type === 'radio' && t.checked && t.value !== '0');
+            if (granted) { grantAncestors(t); }
+        });
+    }
 });
 </script>
 {/literal}
