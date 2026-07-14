@@ -711,3 +711,27 @@ function clToggleAdvancedFilters(btn) {
         labelEl.textContent = open ? hide : show;
     }
 }
+
+// ==========================================================================
+//  Toast — lightweight bottom-right notification for listing actions
+//    clToast('Message', 'success' | 'error' | 'info')
+// ==========================================================================
+function clToast(message, type) {
+    type = type || 'info';
+    var wrap = document.getElementById('clToastWrap');
+    if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'clToastWrap';
+        wrap.className = 'cl-toast-wrap';
+        document.body.appendChild(wrap);
+    }
+    var toast = document.createElement('div');
+    toast.className = 'cl-toast ' + type;
+    toast.textContent = message;
+    wrap.appendChild(toast);
+    requestAnimationFrame(function () { toast.classList.add('show'); });
+    setTimeout(function () {
+        toast.classList.remove('show');
+        setTimeout(function () { if (toast.parentNode) { toast.parentNode.removeChild(toast); } }, 300);
+    }, 4500);
+}
