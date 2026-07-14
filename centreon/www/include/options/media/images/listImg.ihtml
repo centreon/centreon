@@ -111,6 +111,52 @@
     .cf-side-panel-close:hover { background: var(--color-divider, #e8e8e8); color: var(--list-color, #333); }
     .cf-side-panel-body { flex: 1; overflow: hidden; }
     .cf-side-panel-body iframe { width: 100%; height: 100%; border: none; }
+
+    /* Lightweight modal (e.g. New folder) */
+    .cl-modal-overlay {
+        position: fixed; inset: 0; z-index: 10000;
+        background: rgba(0, 0, 0, 0.45);
+        display: none; align-items: center; justify-content: center;
+    }
+    .cl-modal-overlay.open { display: flex; }
+    .cl-modal {
+        background: #fff; width: 420px; max-width: calc(100vw - 32px);
+        border-radius: 8px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        overflow: hidden; animation: clModalIn 0.12s ease-out;
+    }
+    @keyframes clModalIn {
+        from { transform: translateY(-8px); opacity: 0; }
+        to   { transform: none; opacity: 1; }
+    }
+    .cl-modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 18px; border-bottom: 1px solid var(--color-divider, #e8e8e8);
+        font-size: 16px; font-weight: 600; color: var(--list-color, #333);
+    }
+    .cl-modal-close {
+        border: 0; background: none; font-size: 22px; line-height: 1; cursor: pointer;
+        color: #888; border-radius: 4px; width: 28px; height: 28px;
+    }
+    .cl-modal-close:hover { background: var(--color-divider, #e8e8e8); color: #333; }
+    .cl-modal-body { padding: 18px; }
+    .cl-modal-label {
+        display: block; font-size: 12px; font-weight: 600; color: #6c6c6c; margin-bottom: 6px;
+    }
+    .cl-modal-input {
+        width: 100%; box-sizing: border-box; padding: 9px 11px;
+        border: 1px solid var(--c-stroke, #d0d5dd); border-radius: 6px;
+        font-size: 14px; outline: none;
+    }
+    .cl-modal-input:focus {
+        border-color: var(--color-primary, #009fdf);
+        box-shadow: 0 0 0 3px rgba(0, 159, 223, 0.15);
+    }
+    .cl-modal-hint { font-size: 11px; color: #a7a9ac; margin-top: 6px; }
+    .cl-modal-error { font-size: 12px; color: #d9534f; margin-top: 8px; min-height: 14px; }
+    .cl-modal-footer {
+        display: flex; justify-content: flex-end; gap: 8px;
+        padding: 14px 18px; border-top: 1px solid var(--color-divider, #e8e8e8); background: #fafafa;
+    }
     {/literal}
 </style>
 
@@ -130,8 +176,8 @@
                 {if $writeAccess == 1}
                     <button type="button" class="btc bt_danger" onclick="imagesDelete();">{$wi_delete}</button>
                 {/if}
-                {if $isAdmin == 1}
-                    <button type="button" class="btc bt_info" onclick="imagesSyncPopup();">{$wi_sync}</button>
+                {if $canCreateFolder == 1}
+                    <button type="button" id="imagesSyncBtn" class="btc bt_info" onclick="imagesSync();">{$wi_sync}</button>
                 {/if}
                 {if $availableSpace != ''}<span class="cl-filter-label">{$availableSpace}&nbsp;{$wi_available}</span>{/if}
             </div>
@@ -190,6 +236,26 @@
     </div>
 </div>
 
+<div class="cl-modal-overlay" id="imagesDirModal" onclick="if(event.target===this)imagesDirModalClose();">
+    <div class="cl-modal" role="dialog" aria-modal="true" aria-labelledby="imagesDirModalTitle">
+        <div class="cl-modal-header">
+            <span id="imagesDirModalTitle">{t}New folder{/t}</span>
+            <button type="button" class="cl-modal-close" onclick="imagesDirModalClose();" aria-label="{t}Close{/t}">&times;</button>
+        </div>
+        <div class="cl-modal-body">
+            <label class="cl-modal-label" for="imagesDirName">{t}Directory name{/t}</label>
+            <input type="text" id="imagesDirName" class="cl-modal-input" maxlength="255" autocomplete="off"
+                   placeholder="{t}e.g. my-folder{/t}" onkeydown="imagesDirModalKey(event);">
+            <div class="cl-modal-hint">{t}Allowed characters: letters, digits, "-" and "_".{/t}</div>
+            <div class="cl-modal-error" id="imagesDirError"></div>
+        </div>
+        <div class="cl-modal-footer">
+            <button type="button" class="btc bt_default" onclick="imagesDirModalClose();">{t}Cancel{/t}</button>
+            <button type="button" class="btc bt_success" id="imagesDirCreateBtn" onclick="imagesCreateDirSubmit();">{t}Create{/t}</button>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
     var imagesPageId       = '{$pageId}';
     var imagesIsAdmin      = {if $isAdmin == 1}true{else}false{/if};
@@ -201,9 +267,10 @@
     var imagesAddTitle     = {$addTitleJs};
     var imagesMoveOk       = {$moveOkJs};
     var imagesMoveKo       = {$moveKoJs};
-    var imagesNewFolderPrompt = {$newFolderPromptJs};
     var imagesFolderCreated   = {$folderCreatedJs};
     var imagesFolderInvalid   = {$folderInvalidJs};
+    var imagesSyncDone        = {$syncDoneJs};
+    var imagesSyncKo          = {$syncKoJs};
 </script>
 
 {literal}
@@ -390,16 +457,36 @@
         });
     }
 
-    // Create a new (empty) directory, then refresh the list
+    // Open the "New folder" modal
     function imagesCreateDir() {
-        var name = window.prompt(imagesNewFolderPrompt, '');
-        if (name === null) { return; }
-        name = jQuery.trim(name);
-        if (name === '') { return; }
-        if (!/^[A-Za-z0-9_-]+$/.test(name)) {
-            if (window.clToast) { clToast(imagesFolderInvalid, 'error'); }
+        var input = document.getElementById('imagesDirName');
+        var err   = document.getElementById('imagesDirError');
+        if (err) { err.textContent = ''; }
+        if (input) { input.value = ''; }
+        document.getElementById('imagesDirModal').classList.add('open');
+        if (input) { setTimeout(function () { input.focus(); }, 30); }
+    }
+
+    function imagesDirModalClose() {
+        document.getElementById('imagesDirModal').classList.remove('open');
+    }
+
+    function imagesDirModalKey(ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); imagesCreateDirSubmit(); }
+        else if (ev.key === 'Escape') { imagesDirModalClose(); }
+    }
+
+    // Create a new (empty) directory from the modal, then refresh the list
+    function imagesCreateDirSubmit() {
+        var input = document.getElementById('imagesDirName');
+        var err   = document.getElementById('imagesDirError');
+        var btn   = document.getElementById('imagesDirCreateBtn');
+        var name  = jQuery.trim(input ? input.value : '');
+        if (name === '' || !/^[A-Za-z0-9_-]+$/.test(name)) {
+            if (err) { err.textContent = imagesFolderInvalid; }
             return;
         }
+        if (btn) { btn.disabled = true; }
         jQuery.ajax({
             url: './include/options/media/images/ajaxImagesCreateDir.php',
             type: 'POST',
@@ -410,15 +497,19 @@
                     imagesListing.setCsrfToken(resp.centreon_token);
                 }
                 if (resp && resp.success) {
+                    imagesDirModalClose();
                     if (window.clToast) { clToast(imagesFolderCreated, 'success'); }
                     var s = imagesListing.getState();
                     imagesListing.fetch(s.num, s.limit, s.search, true);
-                } else if (window.clToast) {
-                    clToast((resp && resp.error) ? resp.error : imagesFolderInvalid, 'error');
+                } else if (err) {
+                    err.textContent = (resp && resp.error) ? resp.error : imagesFolderInvalid;
                 }
             },
             error: function () {
-                if (window.clToast) { clToast(imagesFolderInvalid, 'error'); }
+                if (err) { err.textContent = imagesFolderInvalid; }
+            },
+            complete: function () {
+                if (btn) { btn.disabled = false; }
             }
         });
     }
@@ -454,13 +545,40 @@
         });
     }
 
-    // Synchronize media directories from disk (legacy popup, kept for now)
-    function imagesSyncPopup() {
-        window.open(
-            './main.get.php?p=' + imagesPageId + '&o=sd&min=1',
-            '',
-            'toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes,width=350,height=250'
-        );
+    // Synchronize the media library from disk (AJAX), report a summary and refresh
+    function imagesSync() {
+        var btn = document.getElementById('imagesSyncBtn');
+        if (btn) { btn.disabled = true; }
+        jQuery.ajax({
+            url: './include/options/media/images/ajaxImagesSync.php',
+            type: 'POST',
+            dataType: 'json',
+            data: { centreon_token: imagesListing.getCsrfToken() },
+            success: function (resp) {
+                if (resp && resp.centreon_token) {
+                    imagesListing.setCsrfToken(resp.centreon_token);
+                }
+                if (resp && resp.success) {
+                    var s = resp.stats || {};
+                    var summary = imagesSyncDone
+                        .replace('%d1', s.dirCreated || 0)
+                        .replace('%d2', s.regCounter || 0)
+                        .replace('%d3', s.gdCounter || 0)
+                        .replace('%d4', s.fileRemoved || 0);
+                    if (window.clToast) { clToast(summary, 'success'); }
+                    var st = imagesListing.getState();
+                    imagesListing.fetch(st.num, st.limit, st.search, true);
+                } else if (window.clToast) {
+                    clToast((resp && resp.error) ? resp.error : imagesSyncKo, 'error');
+                }
+            },
+            error: function () {
+                if (window.clToast) { clToast(imagesSyncKo, 'error'); }
+            },
+            complete: function () {
+                if (btn) { btn.disabled = false; }
+            }
+        });
     }
 
     // ----- Side panel (loads the add form as a chrome-less fragment) -----

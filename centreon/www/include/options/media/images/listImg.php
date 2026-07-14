@@ -90,8 +90,9 @@ $tpl->assign('delConfirmJs', json_encode(_('Do you confirm the deletion ?'), $js
 $tpl->assign('addTitleJs', json_encode(_('Add Image(s)'), $jsonFlags));
 $tpl->assign('moveOkJs', json_encode(_('Image moved.'), $jsonFlags));
 $tpl->assign('moveKoJs', json_encode(_('The image could not be moved.'), $jsonFlags));
-$tpl->assign('newFolderPromptJs', json_encode(_('New directory name:'), $jsonFlags));
 $tpl->assign('folderCreatedJs', json_encode(_('Directory created.'), $jsonFlags));
 $tpl->assign('folderInvalidJs', json_encode(_('Invalid directory name (allowed: letters, digits, "-" and "_").'), $jsonFlags));
+$tpl->assign('syncDoneJs', json_encode(_('Synchronization done: %d1 folder(s), %d2 image(s) added, %d3 converted, %d4 removed.'), $jsonFlags));
+$tpl->assign('syncKoJs', json_encode(_('The media synchronization failed.'), $jsonFlags));
 
 $tpl->display('listImg.ihtml');
