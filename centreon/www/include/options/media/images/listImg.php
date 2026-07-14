@@ -53,10 +53,16 @@ if (! $isCloudPlatform) {
 // Write access: admin, or write level (1) on this page
 $writeAccess = $isAdmin || ($centreon->user->access->page($p) == 1);
 
+// Folder creation is only offered to users allowed to see every folder
+// (same restriction as uploading into a brand new directory)
+$canCreateFolder = $writeAccess
+    && ($isAdmin || ! empty($centreon->user->access->hasAccessToAllImageFolders));
+
 // Page identity
 $tpl->assign('pageId', $p);
 $tpl->assign('isAdmin', $isAdmin ? 1 : 0);
 $tpl->assign('writeAccess', $writeAccess ? 1 : 0);
+$tpl->assign('canCreateFolder', $canCreateFolder ? 1 : 0);
 $tpl->assign('defaultLimit', $defaultLimit);
 $tpl->assign('availableSpace', $availableSpace);
 
@@ -82,5 +88,10 @@ $tpl->assign('emptyMessageJs', json_encode(_('No image found'), $jsonFlags));
 $tpl->assign('emptyDirJs', json_encode(_('Empty directory'), $jsonFlags));
 $tpl->assign('delConfirmJs', json_encode(_('Do you confirm the deletion ?'), $jsonFlags));
 $tpl->assign('addTitleJs', json_encode(_('Add Image(s)'), $jsonFlags));
+$tpl->assign('moveOkJs', json_encode(_('Image moved.'), $jsonFlags));
+$tpl->assign('moveKoJs', json_encode(_('The image could not be moved.'), $jsonFlags));
+$tpl->assign('newFolderPromptJs', json_encode(_('New directory name:'), $jsonFlags));
+$tpl->assign('folderCreatedJs', json_encode(_('Directory created.'), $jsonFlags));
+$tpl->assign('folderInvalidJs', json_encode(_('Invalid directory name (allowed: letters, digits, "-" and "_").'), $jsonFlags));
 
 $tpl->display('listImg.ihtml');
