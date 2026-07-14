@@ -126,18 +126,20 @@ $tpl->assign('limit', $limit);
 <?php
 
 if (! $isRemote) {
-    $attrs = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . " 	setO(this.form.elements['o1'].value); submit();} "
-        . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-        . _('You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE.\\nDo you confirm the deletion ?')
-        . "')) { setO(this.form.elements['o1'].value); submit();} "
-        . "this.form.elements['o1'].selectedIndex = 0"];
-    $form->addElement('select', 'o1', null, [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+    $attrs = ['onchange' => 'pollerMoreAction(this);'];
+    $form->addElement(
+        'select',
+        'o1',
+        null,
+        [
+            null => _('More actions...'),
+            'm' => _('Duplicate'),
+            'd' => _('Delete'),
+            'reload' => _('Reload engine'),
+            'restart' => _('Restart engine'),
+        ],
+        $attrs
+    );
     $o1 = $form->getElement('o1');
     $o1->setValue(null);
 }
