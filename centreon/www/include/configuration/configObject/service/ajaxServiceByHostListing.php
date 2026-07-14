@@ -139,22 +139,21 @@ while ($svc = $statement->fetch(PDO::FETCH_ASSOC)) {
     $results[] = $svc;
 }
 
-// RTM status (only for services on this page)
+// Real-time status (only for the objects on this page), read from the modern
+// unified `resources` table rather than the legacy broker `services`/`hosts`
+// tables: it is better indexed and is the source of truth in unified_sql mode.
 $pearDBO = new CentreonDB('centstorage');
 $rtmStatus = [];
+$hostRtm = [];
 if (! empty($results)) {
-    $svcKeys = [];
-    foreach ($results as $r) {
-        $svcKeys[] = (int) $r['host_id'] . '_' . (int) $r['service_id'];
-    }
-    // Build host_id list for RTM query
-    $hostIds = array_unique(array_map(function($r) { return (int) $r['host_id']; }, $results));
+    // The current page's host ids drive both the service and host lookups
+    $hostIds = array_unique(array_map(static function ($r) { return (int) $r['host_id']; }, $results));
     if (! empty($hostIds)) {
         $inList = implode(',', $hostIds);
-        // Service RTM
+        // Services: type = 0, id = service_id, parent_id = host_id
         $rtmResult = $pearDBO->query(
-            "SELECT s.host_id, s.service_id, s.state, s.output, s.last_check"
-            . " FROM services s WHERE s.host_id IN ({$inList}) AND s.enabled = 1"
+            "SELECT parent_id AS host_id, id AS service_id, status AS state, output, last_check"
+            . " FROM resources WHERE type = 0 AND enabled = 1 AND parent_id IN ({$inList})"
         );
         while ($row = $rtmResult->fetch(PDO::FETCH_ASSOC)) {
             $rtmStatus[(int) $row['host_id'] . '_' . (int) $row['service_id']] = [
@@ -163,9 +162,10 @@ if (! empty($results)) {
                 'last_check' => $row['last_check'] ? (int) $row['last_check'] : null,
             ];
         }
-        // Host RTM
+        // Hosts: type = 1, id = host_id
         $hostRtmResult = $pearDBO->query(
-            "SELECT host_id, state, output, last_check FROM hosts WHERE host_id IN ({$inList})"
+            "SELECT id AS host_id, status AS state, output, last_check"
+            . " FROM resources WHERE type = 1 AND enabled = 1 AND id IN ({$inList})"
         );
         while ($row = $hostRtmResult->fetch(PDO::FETCH_ASSOC)) {
             $hostRtm[(int) $row['host_id']] = [
@@ -176,7 +176,6 @@ if (! empty($results)) {
         }
     }
 }
-$hostRtm = $hostRtm ?? [];
 
 // Template name cache (for hierarchy)
 $tplStmt = $pearDB->prepare("SELECT service_id, service_description FROM service WHERE service_id = :id");
