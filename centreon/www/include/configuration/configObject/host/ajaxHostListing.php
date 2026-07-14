@@ -167,24 +167,26 @@ while ($host = $statement->fetch(PDO::FETCH_ASSOC)) {
     $hostResults[] = $host;
 }
 
-// Real-time monitoring status from centstorage (only for listed hosts, by ID)
+// Real-time status (only for the listed hosts), read from the modern unified
+// `resources` table (type = 1 = host) rather than the legacy broker `hosts`
+// table: it is better indexed and is the source of truth under unified_sql.
 $pearDBO = new CentreonDB('centstorage');
 $rtmStatus = [];
 if (! empty($hostResults)) {
     $hostIds = array_map(function ($h) { return (int) $h['host_id']; }, $hostResults);
     $inList = implode(',', $hostIds);
     $rtmResult = $pearDBO->query(
-        "SELECT host_id, name, state, acknowledged, scheduled_downtime_depth, last_check, output, last_state_change"
-        . " FROM hosts WHERE host_id IN ({$inList})"
+        "SELECT id AS host_id, status AS state, acknowledged, in_downtime, last_check, output, last_status_change"
+        . " FROM resources WHERE type = 1 AND enabled = 1 AND id IN ({$inList})"
     );
     while ($row = $rtmResult->fetch(PDO::FETCH_ASSOC)) {
         $rtmStatus[(int) $row['host_id']] = [
             'state'      => (int) $row['state'],
             'ack'        => (int) $row['acknowledged'],
-            'dt'         => (int) $row['scheduled_downtime_depth'],
+            'dt'         => (int) $row['in_downtime'],
             'last_check' => $row['last_check'] ? (int) $row['last_check'] : null,
             'output'     => $row['output'],
-            'since'      => $row['last_state_change'] ? (int) $row['last_state_change'] : null,
+            'since'      => $row['last_status_change'] ? (int) $row['last_status_change'] : null,
         ];
     }
 }
