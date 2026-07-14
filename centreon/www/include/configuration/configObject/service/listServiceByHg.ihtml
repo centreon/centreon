@@ -189,10 +189,10 @@ svcHgListing.renderRows = function(rows) {
 
         var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rid+'" name="select['+rid+']" value="1" /><label class="empty-label" for="select_'+rid+'"></label></div></td>';
 
-        // Hostgroup (grouped)
+        // Hostgroup (grouped) — plain text: linking here would boot the React SPA
+        // and break the legacy listing context
         if (row.hg_name !== lastHg) {
-            var hgLink = './configuration/hosts/groups?mode=edit&id=' + row.hg_id;
-            tr += '<td><a href="'+hgLink+'">'+self.escape(row.hg_name)+'</a></td>';
+            tr += '<td>'+self.escape(row.hg_name)+'</td>';
             lastHg = row.hg_name;
         } else {
             tr += '<td></td>';
