@@ -28,7 +28,6 @@ const IMAGE_MODIFY = 'ci';
 const IMAGE_MODIFY_DIRECTORY = 'cd';
 const IMAGE_MOVE = 'm';
 const IMAGE_DELETE = 'd';
-const IMAGE_SYNC_DIR = 'sd';
 
 $imageId = filter_var(
     $_GET['img_id'] ?? $_POST['img_id'] ?? null,
@@ -80,9 +79,6 @@ switch ($o) {
             unvalidFormMessage();
         }
         require_once $path . 'listImg.php';
-        break;
-    case IMAGE_SYNC_DIR:
-        require_once $path . 'syncDir.php';
         break;
     default:
         require_once $path . 'listImg.php';

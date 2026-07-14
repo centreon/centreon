@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -20,146 +21,111 @@
 
 use enshrined\svgSanitize\Sanitizer;
 
-require_once realpath(__DIR__ . '/../../../../../config/centreon.config.php');
-
-require_once './class/centreonDB.class.php';
-require_once './class/centreonLog.class.php';
-
-$pearDB = new CentreonDB();
-$mediaLogInstance = CentreonLog::create();
+require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
+require_once _CENTREON_PATH_ . '/www/class/centreonLog.class.php';
 
 /**
- * Counters
+ * Scans ./img/media, registers new directories and images, converts gd2 -> png,
+ * sanitizes SVG files and prunes DB rows whose file no longer exists on disk.
+ *
+ * Must be called with the working directory set to the Centreon web root.
+ *
+ * @return array{fileRemoved:int,dirCreated:int,regCounter:int,gdCounter:int}
  */
-global $regCounter, $gdCounter, $fileRemoved, $dirCreated;
+function runMediaSync(): array
+{
+    global $regCounter, $gdCounter, $dirCreated;
 
-$sid = session_id();
-if ($sid === false) {
-    exit;
-}
+    $pearDB = new CentreonDB();
+    $mediaLogInstance = CentreonLog::create();
 
-if (isset($sid)) {
-    $DBRESULT = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $pearDB->escape($sid) . "'");
-    if ($DBRESULT->rowCount() === 0) {
-        exit();
-    }
-}
+    $dir = './img/media/';
+    $rejectedDir = ['.' => 1, '..' => 1];
 
-$dir = './img/media/';
+    $dirCreated = 0;
+    $regCounter = 0;
+    $gdCounter = 0;
 
-$rejectedDir = ['.' => 1, '..' => 1];
-
-$dirCreated = 0;
-$regCounter = 0;
-$gdCounter = 0;
-
-if (is_dir($dir)) {
-    if ($dh = opendir($dir)) {
-        while (($subdir = readdir($dh)) !== false) {
-            if (! isset($rejectedDir[$subdir]) && filetype($dir . $subdir) === 'dir') {
-                try {
-                    $dir_id = checkDirectory($subdir, $pearDB);
-                } catch (Exception $ex) {
-                    $mediaLogInstance->error(
-                        CentreonLog::TYPE_BUSINESS_LOG,
-                        $ex->getMessage(),
-                        [],
-                        $ex
-                    );
-                    continue;
-                }
-                if ($dh2 = opendir($dir . $subdir)) {
-                    while (($picture = readdir($dh2)) !== false) {
-                        if (! isset($rejectedDir[$picture])) {
-                            try {
-                                checkPicture($picture, $dir . $subdir, $dir_id, $pearDB);
-                            } catch (Exception $ex) {
-                                $mediaLogInstance->error(
-                                    CentreonLog::TYPE_BUSINESS_LOG,
-                                    $ex->getMessage(),
-                                    [],
-                                    $ex
-                                );
+    if (is_dir($dir)) {
+        if ($dh = opendir($dir)) {
+            while (($subdir = readdir($dh)) !== false) {
+                if (! isset($rejectedDir[$subdir]) && filetype($dir . $subdir) === 'dir') {
+                    try {
+                        $dir_id = checkDirectory($subdir, $pearDB);
+                    } catch (Exception $ex) {
+                        $mediaLogInstance->error(
+                            CentreonLog::TYPE_BUSINESS_LOG,
+                            $ex->getMessage(),
+                            [],
+                            $ex
+                        );
+                        continue;
+                    }
+                    if ($dh2 = opendir($dir . $subdir)) {
+                        while (($picture = readdir($dh2)) !== false) {
+                            if (! isset($rejectedDir[$picture])) {
+                                try {
+                                    checkPicture($picture, $dir . $subdir, $dir_id, $pearDB);
+                                } catch (Exception $ex) {
+                                    $mediaLogInstance->error(
+                                        CentreonLog::TYPE_BUSINESS_LOG,
+                                        $ex->getMessage(),
+                                        [],
+                                        $ex
+                                    );
+                                }
                             }
                         }
+                        closedir($dh2);
                     }
-                    closedir($dh2);
                 }
             }
+            closedir($dh);
         }
-        closedir($dh);
     }
+
+    $fileRemoved = deleteOldPictures($pearDB);
+
+    return [
+        'fileRemoved' => $fileRemoved,
+        'dirCreated'  => $dirCreated,
+        'regCounter'  => $regCounter,
+        'gdCounter'   => $gdCounter,
+    ];
 }
 
-$fileRemoved = deleteOldPictures($pearDB);
-
-// Display Stats
-
-?>
-<script type="text/javascript">
-    jQuery('body').css('overflow-x', 'hidden');
-    function reloadAndClose() {
-        window.opener.location.reload();
-        window.close();
-    }
-</script>
-<br>
-<?php
-echo '<b>&nbsp;&nbsp;' . _('Media Detection') . '</b>';
-?>
-<br><br>
-<div style="width:250px;height:50px;margin-left:5px;padding:20px;background-color:#FFFFFF;border:1px #CDCDCD solid;-moz-border-radius:4px;">
-    <div style='float:left;width:270px;text-align:left;'>
-        <p>
-            <?php
-            echo _('Bad picture alias detected :') . " {$fileRemoved}<br>";
-echo _('New directory added :') . " {$dirCreated}<br>";
-echo _('New images added :') . " {$regCounter}<br>";
-echo _('Convert gd2 -> png :') . " {$gdCounter}<br><br><br>";
-?>
-        </p>
-        <br><br><br>
-        <center><a href='javascript:window.opener.location.reload();javascript:window.close();'>
-                <?php echo _('Close'); ?>
-            </a></center>
-    </div>
-    <br>
-    <?php
-
-    // recreates local centreon directories as defined in DB
-
-    /**
-     * Recreates local centreon directories as defined in DB.
-     *
-     * @param string $directory
-     * @param CentreonDB $db
-     *
-     * @throws CentreonDbException
-     * @return int Id of the directory
-     */
-    function checkDirectory(string $directory, CentreonDB $db): int
-    {
-        global $dirCreated;
+/**
+ * Recreates local centreon directories as defined in DB.
+ *
+ * @param string $directory
+ * @param CentreonDB $db
+ *
+ * @throws CentreonDbException
+ * @return int Id of the directory
+ */
+function checkDirectory(string $directory, CentreonDB $db): int
+{
+    global $dirCreated;
+    $statement = $db->prepareQuery(
+        'SELECT dir_id FROM view_img_dir WHERE dir_alias = :directory'
+    );
+    $db->executePreparedQuery($statement, [':directory' => $directory]);
+    $directoryId = $db->fetchColumn($statement);
+    if ($directoryId === false) {
         $statement = $db->prepareQuery(
-            'SELECT dir_id FROM view_img_dir WHERE dir_alias = :directory'
+            <<<'SQL'
+                INSERT INTO view_img_dir (`dir_name`, `dir_alias`)
+                VALUES (:directory, :directory)
+                SQL
         );
         $db->executePreparedQuery($statement, [':directory' => $directory]);
-        $directoryId = $db->fetchColumn($statement);
-        if ($directoryId === false) {
-            $statement = $db->prepareQuery(
-                <<<'SQL'
-                    INSERT INTO view_img_dir (`dir_name`, `dir_alias`)
-                    VALUES (:directory, :directory)
-                    SQL
-            );
-            $db->executePreparedQuery($statement, [':directory' => $directory]);
-            $directoryId = $db->lastInsertId();
-            @mkdir("./img/media/{$directory}");
-            $dirCreated++;
-        }
-
-        return $directoryId;
+        $directoryId = $db->lastInsertId();
+        @mkdir("./img/media/{$directory}");
+        $dirCreated++;
     }
+
+    return $directoryId;
+}
 
 /**
  * Inserts $dir_id/$picture into DB if not registered yet
@@ -340,6 +306,3 @@ function deleteOldPictures(CentreonDB $pearDB): int
 
     return $fileRemoved;
 }
-
-?>
-</div>
