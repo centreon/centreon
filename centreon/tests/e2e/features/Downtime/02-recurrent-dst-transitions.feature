@@ -11,44 +11,54 @@ Feature: Recurrent downtime around DST transitions
 
   # Spring forward — clocks jump 02:00 -> 03:00, so 02:00-03:00 does not exist (23h day)
 
+  @MON-205055
   Scenario: recurrent downtime starting on a non-existent spring-forward time is clamped
     When a recurrent downtime starting at the non-existent spring-forward time is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205054
   Scenario: recurrent downtime ending on a non-existent spring-forward time is clamped
     When a recurrent downtime ending at the non-existent spring-forward time is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205053
   Scenario: recurrent downtime fully inside the spring-forward gap is not scheduled
     When a recurrent downtime fully inside the spring-forward gap is applied
     Then the downtime is not scheduled
 
+  @MON-205052
   Scenario: recurrent downtime over a full spring-forward day lasts 23h
     When a recurrent downtime covering the whole spring-forward day is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205051
   Scenario: recurrent downtime on the day after the spring-forward transition lasts 24h
     When a recurrent downtime covering the day after the spring-forward transition is applied
     Then the scheduled downtime matches the expected start, end and duration
 
   # Fall back — clocks go 03:00 -> 02:00, so 02:00-03:00 happens twice (25h day)
 
+  @MON-205050
   Scenario: recurrent downtime starting in the repeated fall-back hour is scheduled as entered
     When a recurrent downtime starting in the repeated fall-back hour is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205049
   Scenario: recurrent downtime ending in the repeated fall-back hour is scheduled as entered
     When a recurrent downtime ending in the repeated fall-back hour is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205048
   Scenario: recurrent downtime fully inside the repeated fall-back hour is scheduled
     When a recurrent downtime fully inside the repeated fall-back hour is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205047
   Scenario: recurrent downtime over a full fall-back day lasts 25h
     When a recurrent downtime covering the whole fall-back day is applied
     Then the scheduled downtime matches the expected start, end and duration
 
+  @MON-205046
   Scenario: recurrent downtime on the day after the fall-back transition lasts 24h
     When a recurrent downtime covering the day after the fall-back transition is applied
     Then the scheduled downtime matches the expected start, end and duration

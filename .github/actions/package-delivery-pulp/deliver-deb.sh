@@ -71,13 +71,13 @@ if [[ ${#FILES[@]} -eq 0 ]]; then
 fi
 
 if ! pulp deb repository show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
-  echo "[INFO] Creating deb repository $REPOSITORY_NAME"
-  pulp deb repository create --name "$REPOSITORY_NAME" >/dev/null
+  echo "::error::deb repository $REPOSITORY_NAME does not exist. Pulp repositories and distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before delivering."
+  exit 1
 fi
 
 if ! pulp deb distribution show --name "$REPOSITORY_NAME" >/dev/null 2>&1; then
-  echo "[INFO] Creating deb distribution $REPOSITORY_NAME served at $BASE_PATH"
-  pulp deb distribution create --name "$REPOSITORY_NAME" --base-path "$BASE_PATH" --repository "$REPOSITORY_NAME" >/dev/null
+  echo "::error::deb distribution $REPOSITORY_NAME does not exist. Pulp distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before delivering. Refusing to create it here to avoid an unguarded distribution."
+  exit 1
 fi
 
 REPOSITORY_HREF=$(pulp deb repository show --name "$REPOSITORY_NAME" | jq -r '.pulp_href')
