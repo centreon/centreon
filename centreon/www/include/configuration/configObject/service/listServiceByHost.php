@@ -45,9 +45,19 @@ $searchS = $centreon->historySearch[$url]['searchS'] ?? '';
 $templateVal = $centreon->historySearch[$url]['template'] ?? '';
 $statusVal = $centreon->historySearch[$url]['status'] ?? '';
 $hostStatusVal = $centreon->historySearch[$url]['hostStatus'] ?? 0;
+
+// Direct entry points from other pages:
+// - legacy "search" parameter -> pre-fill the host search field
+// - "hostId" parameter -> show only the services of that host (exact match)
+if (isset($_GET['search']) && $_GET['search'] !== '') {
+    $searchH = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search']);
+}
+$hostId = filter_var($_GET['hostId'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+
 $tpl->assign('searchH', $searchH);
 $tpl->assign('searchS', $searchS);
 $tpl->assign('hostStatusChecked', $hostStatusVal);
+$tpl->assign('hostId', $hostId);
 
 $dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
 $gopt = $dbResult->fetch();

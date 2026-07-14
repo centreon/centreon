@@ -34,6 +34,7 @@ $searchS   = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchS'] ?? '');
 $template  = filter_var($_GET['template'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 $status    = filter_var($_GET['status'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 $hostStatus = filter_var($_GET['hostStatus'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+$hostId    = filter_var($_GET['hostId'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 
 // Interval length from options table
 $ilResult = $pearDB->query("SELECT `value` FROM `options` WHERE `key` = 'interval_length'");
@@ -93,6 +94,12 @@ if (! $helper->isAdmin()) {
     }
 }
 $joins .= $aclJoin;
+
+// Exact host filter (e.g. when coming from the host listing)
+if ($hostId > 0) {
+    $conditions .= 'AND host.host_id = :hostId ';
+    $bindParams[':hostId'] = $hostId;
+}
 
 // Host search
 if ($searchH !== '') {

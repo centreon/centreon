@@ -172,6 +172,8 @@ var svcListing = new CentreonListing({
         var tp = jQuery('#template').val(); if (tp) p.template = tp;
         var st = jQuery('#status').val(); if (st) p.status = st;
         if (jQuery('#hostStatusCb').is(':checked')) p.hostStatus = 1;
+        var hid = {/literal}{$hostId|default:0}{literal};
+        if (hid > 0) { p.hostId = hid; }
         return p;
     }
 });
@@ -278,6 +280,20 @@ jQuery('#clSearchBtn').off('click').on('click', function() {
 jQuery('#clSearchH, #clSearchS').on('keypress', function(e) {
     if (e.which === 13) { e.preventDefault(); jQuery('#clSearchBtn').click(); }
 });
+
+// Arriving with a hostId (e.g. from the host listing) is a fresh filter:
+// drop any remembered page so the filtered result starts on page 1.
+(function () {
+    var hid = {/literal}{$hostId|default:0}{literal};
+    if (hid > 0) {
+        try {
+            var k = 'cl_state_svc_byhost_listing_limit';
+            var s = JSON.parse(sessionStorage.getItem(k) || '{}');
+            s.num = 0;
+            sessionStorage.setItem(k, JSON.stringify(s));
+        } catch (e) {}
+    }
+})();
 
 svcListing.init();
 
