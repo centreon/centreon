@@ -159,7 +159,9 @@ if ($o == IMAGE_ADD) {
     );
 
     $directorySelect->setSelected($img['dir_id']);
-    $form->addElement('file', 'filename', _('Image'));
+    // Editing an image is about renaming / moving it to another directory /
+    // updating its comment. Replacing the file is not offered here (use delete +
+    // upload for that), so no file input.
     $subC = $form->addElement(
         'submit',
         'submitC',
@@ -168,8 +170,6 @@ if ($o == IMAGE_ADD) {
     );
     $form->setDefaults($img);
     $form->addRule('img_name', _('Compulsory image name'), 'required');
-    $form->registerRule('isCorrectMIMEType', 'callback', 'isCorrectMIMEType');
-    $form->addRule('filename', _('Invalid Image Format.'), 'isCorrectMIMEType');
 } elseif ($o == IMAGE_WATCH) {
     $form->addElement('header', 'title', _('View Image'));
     $form->addElement('text', 'img_name', _('Image Name'), $attrsText);
@@ -244,6 +244,11 @@ foreach ($help as $key => $text) {
         . $key . '">' . $text . '</span>' . "\n";
 }
 $tpl->assign('helptext', $helptext);
+
+// Preview source for the edit/view panel
+if (isset($img['dir_alias'], $img['img_path'])) {
+    $tpl->assign('previewSrc', './img/media/' . $img['dir_alias'] . '/' . $img['img_path']);
+}
 
 $valid = false;
 if ($form->validate()) {

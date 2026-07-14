@@ -46,6 +46,14 @@
         object-fit: contain;
     }
 
+    /* Drag & drop: move an image onto another directory */
+    .cl-listing-table tbody tr.cl-img-row[draggable="true"] { cursor: grab; }
+    .cl-listing-table tbody tr.cl-img-dragging { opacity: 0.45; }
+    .cl-listing-table tbody tr.cl-dir-row.cl-dir-drop td {
+        background: var(--primary-100, #e3f0ff);
+        box-shadow: inset 0 0 0 2px var(--primary, #009fdf);
+    }
+
     /* Uniform action-bar buttons (same height/padding for Add, Delete, Sync) */
     .cl-actions-left .cl-btn-add,
     .cl-actions-left button.btc {
@@ -112,17 +120,13 @@
 </div>
 
 <form name="form" id="Form">
-    <div class="cl-filter-box">
-        <div class="cl-filter-bar">
-            <input type="text" id="clSearchInput" name="search" value="" class="cl-search-input" placeholder="{t}Name or directory{/t}" style="width:220px;">
-            <button type="button" id="clSearchBtn" class="btc bt_success">{$wi_search}</button>
-        </div>
-    </div>
-
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" onclick="cfOpenPanel('./main.get.php?p={$pageId}&o=a', imagesAddTitle); return false;">{$wi_add}</a>
+                {if $canCreateFolder == 1}
+                    <button type="button" class="btc bt_default" onclick="imagesCreateDir();">{t}New folder{/t}</button>
+                {/if}
                 {if $writeAccess == 1}
                     <button type="button" class="btc bt_danger" onclick="imagesDelete();">{$wi_delete}</button>
                 {/if}
@@ -131,7 +135,14 @@
                 {/if}
                 {if $availableSpace != ''}<span class="cl-filter-label">{$availableSpace}&nbsp;{$wi_available}</span>{/if}
             </div>
-            <div class="cl-pagination" id="clPaginationTop"></div>
+            <div class="cl-toolbar-right">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="search" value="" class="cl-search-simple" placeholder="{t}Search name or directory{/t}" autocomplete="off">
+                </div>
+                <span class="cl-toolbar-sep"></span>
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
         </div>
 
         <table class="cl-listing-table">
@@ -188,6 +199,11 @@
     var imagesEmptyDir     = {$emptyDirJs};
     var imagesDelConfirm   = {$delConfirmJs};
     var imagesAddTitle     = {$addTitleJs};
+    var imagesMoveOk       = {$moveOkJs};
+    var imagesMoveKo       = {$moveKoJs};
+    var imagesNewFolderPrompt = {$newFolderPromptJs};
+    var imagesFolderCreated   = {$folderCreatedJs};
+    var imagesFolderInvalid   = {$folderInvalidJs};
 </script>
 
 {literal}
@@ -207,6 +223,7 @@
             storageKey:    'images_listing_limit',
             defaultLimit:  imagesDefaultLimit,
             autoRefresh:   0,
+            liveSearch:    true,
             showCheckboxes: false,
             emptyMessage:  imagesEmptyMessage,
             columns:       [{ id: 'name' }, { id: 'image' }, { id: 'comment' }]
@@ -248,7 +265,9 @@
 
                 if (row.dir_id !== lastDir) {
                     lastDir = row.dir_id;
-                    html += '<tr class="cl-dir-row">'
+                    html += '<tr class="cl-dir-row" data-dir-id="' + row.dir_id + '"'
+                            + (picker ? ' ondragover="imagesDragOver(event)" ondragleave="imagesDragLeave(event)" ondrop="imagesDrop(event,' + row.dir_id + ')"' : '')
+                            + '>'
                         + (picker ? dirCheckbox(row.dir_id) : '')
                         + '<td colspan="5">'
                             + '<a href="./main.php?p=' + imagesPageId + '&o=cd&dir_id=' + row.dir_id + '"><b>'
@@ -258,12 +277,16 @@
                 }
 
                 if (row.img_id) {
-                    var editUrl = './main.php?p=' + imagesPageId + '&o=ci&img_id=' + row.img_id;
-                    html += '<tr>'
+                    var editUrl = './main.get.php?p=' + imagesPageId + '&o=ci&img_id=' + row.img_id;
+                    var openImg = 'cfOpenPanel(\'' + editUrl + '\', \'' + self.escape(row.img_name) + '\'); return false;';
+                    html += '<tr class="cl-img-row"'
+                            + (picker ? ' draggable="true" data-img-id="' + row.img_id + '" data-dir-id="' + row.dir_id + '"'
+                                + ' ondragstart="imagesDragStart(event,' + row.img_id + ',' + row.dir_id + ')" ondragend="imagesDragEnd(event)"' : '')
+                            + '>'
                         + (picker ? imgCheckbox(row.dir_id, row.img_id) : '')
                         + '<td><img src="./img/media/' + encodeURI(row.img_path) + '" alt="" class="cl-thumb" onerror="this.style.visibility=\'hidden\';" /> '
-                            + '<a href="' + editUrl + '">' + self.escape(row.img_name) + '</a></td>'
-                        + '<td><a href="' + editUrl + '">' + self.escape(row.img_path) + '</a></td>'
+                            + '<a href="#" onclick="' + openImg + '">' + self.escape(row.img_name) + '</a></td>'
+                        + '<td><a href="#" onclick="' + openImg + '">' + self.escape(row.img_path) + '</a></td>'
                         + '<td>' + self.escape(row.img_comment) + '</td>'
                         + '<td class="cl-col-center">' + imagesHumanSize(row.size) + '</td>'
                         + '<td class="cl-col-center">' + imagesFormatDate(row.mtime) + '</td>'
@@ -305,6 +328,99 @@
     function imagesToggleDir(cb) {
         var dirId = cb.getAttribute('data-dir-parent');
         jQuery('#clTableBody input.img-child[data-dir="' + dirId + '"]').prop('checked', cb.checked);
+    }
+
+    // --- Drag & drop: move an image to another directory ------------------
+    var imagesDragId = null;
+
+    function imagesDragStart(ev, imgId, fromDirId) {
+        imagesDragId = { imgId: imgId, fromDirId: fromDirId };
+        ev.dataTransfer.effectAllowed = 'move';
+        try { ev.dataTransfer.setData('text/plain', String(imgId)); } catch (e) {}
+        ev.currentTarget.classList.add('cl-img-dragging');
+    }
+
+    function imagesDragEnd(ev) {
+        ev.currentTarget.classList.remove('cl-img-dragging');
+        jQuery('#clTableBody tr.cl-dir-drop').removeClass('cl-dir-drop');
+    }
+
+    function imagesDragOver(ev) {
+        if (!imagesDragId) { return; }
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = 'move';
+        ev.currentTarget.classList.add('cl-dir-drop');
+    }
+
+    function imagesDragLeave(ev) {
+        ev.currentTarget.classList.remove('cl-dir-drop');
+    }
+
+    function imagesDrop(ev, dirId) {
+        ev.preventDefault();
+        ev.currentTarget.classList.remove('cl-dir-drop');
+        if (!imagesDragId) { return; }
+        var imgId = imagesDragId.imgId;
+        // Dropping onto the directory it already belongs to: nothing to do
+        if (parseInt(imagesDragId.fromDirId, 10) === parseInt(dirId, 10)) {
+            imagesDragId = null;
+            return;
+        }
+        imagesDragId = null;
+        jQuery.ajax({
+            url: './include/options/media/images/ajaxImagesMove.php',
+            type: 'POST',
+            dataType: 'json',
+            data: { img_id: imgId, dir_id: dirId, centreon_token: imagesListing.getCsrfToken() },
+            success: function (resp) {
+                if (resp && resp.centreon_token) {
+                    imagesListing.setCsrfToken(resp.centreon_token);
+                }
+                if (resp && resp.success) {
+                    if (window.clToast) { clToast(imagesMoveOk, 'success'); }
+                    var s = imagesListing.getState();
+                    imagesListing.fetch(s.num, s.limit, s.search, true);
+                } else if (window.clToast) {
+                    clToast((resp && resp.error) ? resp.error : imagesMoveKo, 'error');
+                }
+            },
+            error: function () {
+                if (window.clToast) { clToast(imagesMoveKo, 'error'); }
+            }
+        });
+    }
+
+    // Create a new (empty) directory, then refresh the list
+    function imagesCreateDir() {
+        var name = window.prompt(imagesNewFolderPrompt, '');
+        if (name === null) { return; }
+        name = jQuery.trim(name);
+        if (name === '') { return; }
+        if (!/^[A-Za-z0-9_-]+$/.test(name)) {
+            if (window.clToast) { clToast(imagesFolderInvalid, 'error'); }
+            return;
+        }
+        jQuery.ajax({
+            url: './include/options/media/images/ajaxImagesCreateDir.php',
+            type: 'POST',
+            dataType: 'json',
+            data: { name: name, centreon_token: imagesListing.getCsrfToken() },
+            success: function (resp) {
+                if (resp && resp.centreon_token) {
+                    imagesListing.setCsrfToken(resp.centreon_token);
+                }
+                if (resp && resp.success) {
+                    if (window.clToast) { clToast(imagesFolderCreated, 'success'); }
+                    var s = imagesListing.getState();
+                    imagesListing.fetch(s.num, s.limit, s.search, true);
+                } else if (window.clToast) {
+                    clToast((resp && resp.error) ? resp.error : imagesFolderInvalid, 'error');
+                }
+            },
+            error: function () {
+                if (window.clToast) { clToast(imagesFolderInvalid, 'error'); }
+            }
+        });
     }
 
     // Delete the selected images and/or directories (AJAX), then refresh the list
