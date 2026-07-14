@@ -48,7 +48,7 @@ foreach ($tab_nagios_server as $key => $name) {
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
 $form->addElement('checkbox', 'debug', _('Run monitoring engine debug (-v)'), null, ['id' => 'ndebug']);
-$form->addElement('checkbox', 'gen', _('Generate Configuration Files'), null, ['id' => 'ngen']);
+$form->addElement('checkbox', 'gen', _('Generate & Test configuration'), null, ['id' => 'ngen']);
 $form->addElement('checkbox', 'move', _('Move Export Files'), null, ['id' => 'nmove']);
 $form->addElement('checkbox', 'restart', _('Restart Monitoring Engine'), null, ['id' => 'nrestart']);
 $form->addElement(
@@ -142,6 +142,30 @@ $tpl->display('formGenerateFiles.ihtml');
         if (state) el.classList.add(state);
     }
 
+    // Restore every step + connector (before recomputing which ones will run)
+    function genResetStepper() {
+        ['generate', 'restart', 'postcmd'].forEach(function (s) {
+            var e = document.getElementById('stp-' + s);
+            if (e) { e.style.display = ''; }
+        });
+        var conns = document.querySelectorAll('.gen-stepper .gen-connector');
+        for (var i = 0; i < conns.length; i++) { conns[i].style.display = ''; }
+    }
+
+    // Hide a step whose option is unchecked, along with one adjacent connector
+    function genHideStep(id) {
+        var el = document.getElementById('stp-' + id);
+        if (!el) { return; }
+        el.style.display = 'none';
+        var next = el.nextElementSibling;
+        if (next && next.classList.contains('gen-connector')) {
+            next.style.display = 'none';
+        } else {
+            var prev = el.previousElementSibling;
+            if (prev && prev.classList.contains('gen-connector')) { prev.style.display = 'none'; }
+        }
+    }
+
     function genTabState(pid, state) {
         var el = document.getElementById('gen-tab-' + pid);
         if (!el) return;
@@ -200,20 +224,30 @@ $tpl->display('formGenerateFiles.ihtml');
         var meta = {};
         jQuery('#nhost option:selected').each(function () { meta[this.value] = this.text; });
 
+        // "Generate & Test" is a single option: generation always runs with the
+        // engine test (-v). Each action is independent, so the user can also
+        // only push the configuration (move) or only restart/reload the engine.
         var genOpt = jQuery('#ngen').is(':checked');
-        var debugOpt = jQuery('#ndebug').is(':checked');
+        var debugOpt = genOpt;
         var moveOpt = jQuery('#nmove').is(':checked');
         var restartOpt = jQuery('#nrestart').is(':checked');
         var mode = jQuery('#nrestart_mode').val();
         var token = jQuery('#centreon_token').val();
 
-        // Safety: never move files or restart without a passing validation (-v).
-        // If a deploy step is requested, force the test so it can gate the flow.
-        if (moveOpt || restartOpt) { debugOpt = true; }
+        // At least one action must be selected.
+        if (!genOpt && !moveOpt && !restartOpt) {
+            document.getElementById('noSelectedAction').hidden = false;
+            return;
+        }
+        document.getElementById('noSelectedAction').hidden = true;
 
         var btn = document.getElementById('applyBtn');
         btn.disabled = true;
         ['generate', 'restart', 'postcmd'].forEach(function (s) { genStep(s, null); });
+        // Only display the steps that will actually run (hide unchecked options)
+        genResetStepper();
+        if (!(genOpt || debugOpt)) { genHideStep('generate'); }
+        if (!(moveOpt || restartOpt)) { genHideStep('restart'); }
         var bar = document.getElementById('genBar');
         bar.style.background = 'var(--color-success, #88B922)';
         bar.style.width = '0%';
@@ -285,7 +319,9 @@ $tpl->display('formGenerateFiles.ihtml');
                         if (res.debug) { genLog(pid, '<span class="muted">' + res.debug + '</span>\n'); }
                     } else {
                         genTabState(pid, 'ok');
-                        genLog(pid, '<span class="ok">&#10003;</span>' + (res.status ? ' <span class="muted">' + res.status + '</span>' : '') + '\n');
+                        // Post-command result is meaningful: show it in green, not muted grey
+                        var stCls = sub.post ? 'ok' : 'muted';
+                        genLog(pid, '<span class="ok">&#10003;</span>' + (res.status ? ' <span class="' + stCls + '">' + res.status + '</span>' : '') + '\n');
                     }
                     done++; genProgress(done, total);
                 }
