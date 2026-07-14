@@ -204,7 +204,9 @@ var hostListing = new CentreonListing({
             var parts = [];
             for (var i=0; i<row.templates.length; i++) {
                 var t = row.templates[i];
-                parts.push('<a href="main.php?p=60103&o=c&host_id='+t.id+'">'+l.escape(t.name)+'</a>');
+                var tplUrl = 'main.get.php?p=60103&o=c&host_id=' + t.id;
+                var tplName = l.escape(t.name);
+                parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
             }
             return parts.join(' | ');
         }}
