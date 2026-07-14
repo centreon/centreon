@@ -216,8 +216,10 @@ svcListing.renderRows = function(rows) {
                 var hLabels = ['UP','DOWN','UNREACHABLE'];
                 var hLabel = hLabels[row.host_mon_state] || 'PENDING';
                 var hTip = '<b>'+hLabel+'</b>';
-                if (row.host_mon_output) hTip += '<br>' + self.escape(row.host_mon_output).substring(0,100);
-                hBadge = ' <span class="cl-mon-badge '+hCls+'" data-cl-tooltip="'+hTip.replace(/"/g,'&quot;')+'" style="cursor:help;margin-left:4px;"></span>';
+                var hOut = row.host_mon_output ? String(row.host_mon_output).substring(0,100) : '';
+                hBadge = ' <span class="cl-mon-badge '+hCls+'" data-cl-tooltip="'+hTip.replace(/"/g,'&quot;')+'"'
+                    + (hOut ? ' data-cl-tooltip-text="'+self.escape(hOut).replace(/"/g,'&quot;')+'"' : '')
+                    + ' style="cursor:help;margin-left:4px;"></span>';
             }
             tr += '<td><a href="#" onclick="cfOpenPanel(\''+hostEditUrl+'\', \''+self.escape(hostTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+hostIcon+self.escape(row.host_name)+'</a>'+hBadge+'</td>';
             lastHost = row.host_name;
@@ -241,8 +243,10 @@ svcListing.renderRows = function(rows) {
             var mLabel = monLabels[row.mon_state] || 'PENDING';
             var tip = '<b>'+mLabel+'</b>';
             if (row.mon_last) tip += '<br>Last: ' + new Date(row.mon_last*1000).toLocaleString();
-            if (row.mon_output) tip += '<br>' + self.escape(row.mon_output).substring(0,100);
-            tr += '<td class="cl-col-center"><span class="cl-mon-badge '+mCls+'" data-cl-tooltip="'+tip.replace(/"/g,'&quot;')+'" style="cursor:help;"></span></td>';
+            var mOut = row.mon_output ? String(row.mon_output).substring(0,100) : '';
+            tr += '<td class="cl-col-center"><span class="cl-mon-badge '+mCls+'" data-cl-tooltip="'+tip.replace(/"/g,'&quot;')+'"'
+                + (mOut ? ' data-cl-tooltip-text="'+self.escape(mOut).replace(/"/g,'&quot;')+'"' : '')
+                + ' style="cursor:help;"></span></td>';
         }
 
         // Scheduling
@@ -305,9 +309,10 @@ svcListing.init();
     var tip = null;
     jQuery(document).on('mouseenter', '[data-cl-tooltip]', function() {
         var content = jQuery(this).attr('data-cl-tooltip');
-        if (!content) return;
+        var extra = jQuery(this).attr('data-cl-tooltip-text');
+        if (!content && !extra) return;
         if (tip) tip.remove();
-        tip = jQuery('<div></div>').html(content).css({
+        tip = jQuery('<div></div>').css({
             position:'fixed', zIndex:99999,
             background:'#222', color:'#eee',
             border:'1px solid #555', borderRadius:'6px',
@@ -315,6 +320,13 @@ svcListing.init();
             whiteSpace:'nowrap', boxShadow:'0 2px 8px rgba(0,0,0,.3)',
             pointerEvents:'none', maxWidth:'400px'
         });
+        // Structural part (app-generated labels) is safe HTML; the plugin output
+        // is untrusted and injected as a text node so it is never parsed as HTML
+        if (content) { tip.html(content); }
+        if (extra) {
+            if (content) { tip.append('<br>'); }
+            tip.append(document.createTextNode(extra));
+        }
         jQuery('body').append(tip);
         var r = this.getBoundingClientRect();
         var t = r.top - tip.outerHeight() - 6;
