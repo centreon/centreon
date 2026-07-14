@@ -812,6 +812,11 @@ if ($o === HOST_MASSIVE_CHANGE) {
 
 $form->addElement('select2', 'host_hcs', _('Host Categories'), [], $attributes['host_categories']);
 
+if ($isCloudPlatform && $o !== HOST_MASSIVE_CHANGE) {
+    $form->addElement('select2', 'host_parents', _('Parent Hosts'), [], $attributes['host_parents']);
+    $form->addElement('select2', 'host_childs', _('Child Hosts'), [], $attributes['host_child']);
+}
+
 if ($o === HOST_MASSIVE_CHANGE) {
     $mc_mod_nsid = [];
     $mc_mod_nsid[] = $form->createElement('radio', 'mc_mod_nsid', null, _('Incremental'), '0');
