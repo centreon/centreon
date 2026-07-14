@@ -139,14 +139,15 @@ while ($svc = $statement->fetch(PDO::FETCH_ASSOC)) {
     $results[] = $svc;
 }
 
-// Real-time status (only for the objects on this page), read from the modern
-// unified `resources` table rather than the legacy broker `services`/`hosts`
-// tables: it is better indexed and is the source of truth in unified_sql mode.
+// Real-time service status (only for the services on this page), read from the
+// modern unified `resources` table rather than the legacy broker `services`
+// table: it is better indexed and is the source of truth in unified_sql mode.
+// (Host monitoring status is intentionally not fetched here: this is a service
+// configuration listing, so a host's live state is not relevant.)
 $pearDBO = new CentreonDB('centstorage');
 $rtmStatus = [];
-$hostRtm = [];
 if (! empty($results)) {
-    // The current page's host ids drive both the service and host lookups
+    // The current page's host ids scope the real-time lookup
     $hostIds = array_unique(array_map(static function ($r) { return (int) $r['host_id']; }, $results));
     if (! empty($hostIds)) {
         $inList = implode(',', $hostIds);
@@ -157,18 +158,6 @@ if (! empty($results)) {
         );
         while ($row = $rtmResult->fetch(PDO::FETCH_ASSOC)) {
             $rtmStatus[(int) $row['host_id'] . '_' . (int) $row['service_id']] = [
-                'state'  => (int) $row['state'],
-                'output' => $row['output'],
-                'last_check' => $row['last_check'] ? (int) $row['last_check'] : null,
-            ];
-        }
-        // Hosts: type = 1, id = host_id
-        $hostRtmResult = $pearDBO->query(
-            "SELECT id AS host_id, status AS state, output, last_check"
-            . " FROM resources WHERE type = 1 AND enabled = 1 AND id IN ({$inList})"
-        );
-        while ($row = $hostRtmResult->fetch(PDO::FETCH_ASSOC)) {
-            $hostRtm[(int) $row['host_id']] = [
                 'state'  => (int) $row['state'],
                 'output' => $row['output'],
                 'last_check' => $row['last_check'] ? (int) $row['last_check'] : null,
@@ -326,8 +315,6 @@ foreach ($results as $svc) {
         'mon_state'      => $mon ? $mon['state'] : null,
         'mon_output'     => $mon ? $mon['output'] : null,
         'mon_last'       => $mon ? $mon['last_check'] : null,
-        'host_mon_state' => isset($hostRtm[$hid]) ? $hostRtm[$hid]['state'] : null,
-        'host_mon_output'=> isset($hostRtm[$hid]) ? $hostRtm[$hid]['output'] : null,
     ];
 }
 

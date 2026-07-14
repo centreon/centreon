@@ -210,19 +210,9 @@ svcListing.renderRows = function(rows) {
             var hostIcon = row.host_icon
                 ? '<img src="'+self.escape(row.host_icon)+'" class="ico-16" style="vertical-align:middle;margin-right:6px;" onerror="this.src=\'./img/icons/host.svg\'" />'
                 : '<img src="./img/icons/host.svg" class="ico-16" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" />';
-            // Host monitoring badge
-            var hBadge = '';
-            if (row.host_mon_state !== null && row.host_mon_state !== undefined) {
-                var hCls = ['cl-mon-up','cl-mon-down','cl-mon-unreach'][row.host_mon_state] || 'cl-mon-pending';
-                var hLabels = ['UP','DOWN','UNREACHABLE'];
-                var hLabel = hLabels[row.host_mon_state] || 'PENDING';
-                var hTip = '<b>'+hLabel+'</b>';
-                var hOut = row.host_mon_output ? String(row.host_mon_output).substring(0,100) : '';
-                hBadge = ' <span class="cl-mon-badge '+hCls+'" data-cl-tooltip="'+hTip.replace(/"/g,'&quot;')+'"'
-                    + (hOut ? ' data-cl-tooltip-text="'+self.escape(hOut).replace(/"/g,'&quot;')+'"' : '')
-                    + ' style="cursor:help;margin-left:4px;"></span>';
-            }
-            tr += '<td><a href="#" onclick="cfOpenPanel(\''+hostEditUrl+'\', \''+self.escape(hostTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+hostIcon+self.escape(row.host_name)+'</a>'+hBadge+'</td>';
+            // No host monitoring badge here: this is a service configuration
+            // listing, so the host's live state is not relevant.
+            tr += '<td><a href="#" onclick="cfOpenPanel(\''+hostEditUrl+'\', \''+self.escape(hostTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+hostIcon+self.escape(row.host_name)+'</a></td>';
             lastHost = row.host_name;
         } else {
             tr += '<td></td>';
