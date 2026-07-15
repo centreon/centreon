@@ -70,3 +70,17 @@ parameters:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
+        App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiPrefixAliasLoader:
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\AgentConfiguration\InstallationCommandResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CreateCommandResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource
+            - App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\StandardMacroResource
