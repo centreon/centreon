@@ -31,6 +31,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
@@ -41,6 +43,7 @@ use App\Shared\Domain\Repository\EngineSecretsRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\Response;
 use Webmozart\Assert\Assert;
 
 /**
@@ -56,6 +59,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         #[Autowire(service: ResourcePollerTransformer::class)]
         private TransformerInterface $transformer,
         private Security $security,
+        private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
@@ -65,11 +69,20 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): PollerResource
     {
+        $pollerName = new PollerName($data->name);
+        if ($this->pollerRepository->findOneByName($pollerName) instanceof Poller) {
+            throw new PollerAlreadyExistsException(
+                criteria: ['poller_name' => $pollerName],
+                message: 'Poller with this name already exists',
+                code: Response::HTTP_CONFLICT
+            );
+        }
+
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $command = new CreatePollerCommand(
-            name: new PollerName($data->name),
+            name: $pollerName,
             pollerType: PollerTypeEnum::from($data->pollerType),
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,

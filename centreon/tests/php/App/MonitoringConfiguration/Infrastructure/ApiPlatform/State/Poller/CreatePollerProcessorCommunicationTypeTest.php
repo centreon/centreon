@@ -40,6 +40,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
@@ -134,10 +135,14 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         $engineSecretsRepository->method('getAppSecret')->willReturn('app-secret');
         $engineSecretsRepository->method('getSalt')->willReturn('salt');
 
+        $pollerRepository = $this->createMock(PollerRepository::class);
+        $pollerRepository->method('findOneByName')->willReturn(null);
+
         return new CreatePollerProcessor(
             commandBus: $commandBus,
             transformer: new ResourcePollerTransformer(),
             security: $security,
+            pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
             isCloudPlatform: $isCloudPlatform,
