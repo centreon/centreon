@@ -210,6 +210,8 @@ export default (on: Cypress.PluginEvents): void => {
     startContainers: async ({
       composeFile,
       databaseImage,
+      dbConfiguration,
+      dbStorage,
       openidImage,
       profiles,
       samlImage,
@@ -219,16 +221,24 @@ export default (on: Cypress.PluginEvents): void => {
         const composeFileDir = path.dirname(composeFile);
         const composeFileName = path.basename(composeFile);
 
+        const environment: Record<string, string> = {
+          MYSQL_IMAGE: databaseImage,
+          OPENID_IMAGE: openidImage,
+          SAML_IMAGE: samlImage,
+          WEB_IMAGE: webImage,
+        };
+        if (dbConfiguration) {
+          environment.MYSQL_DB_CONFIGURATION = dbConfiguration;
+        }
+        if (dbStorage) {
+          environment.MYSQL_DB_STORAGE = dbStorage;
+        }
+
         dockerEnvironment = await new DockerComposeEnvironment(
           composeFileDir,
           composeFileName
         )
-          .withEnvironment({
-            MYSQL_IMAGE: databaseImage,
-            OPENID_IMAGE: openidImage,
-            SAML_IMAGE: samlImage,
-            WEB_IMAGE: webImage
-          })
+          .withEnvironment(environment)
           .withProfiles(...profiles)
           .withStartupTimeout(120000)
           .withWaitStrategy(
