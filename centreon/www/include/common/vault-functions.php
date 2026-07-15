@@ -1471,6 +1471,265 @@ function updateDatabaseYamlFile(array $vaultPaths): void
         ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/config.d/10-database.yaml');
 }
 
+// DATABASE & GORGONE CREDENTIALS REVERT
+
+/**
+ * Revert database credentials from Vault back to the config files and delete the Vault secret.
+ *
+ * This is the reverse of {@see migrateAndUpdateDatabaseCredentials()} / {@see migrateDatabaseCredentialsToVault()}.
+ * It is handled outside of a Symfony Command as this must be executed as root.
+ *
+ * The operation is idempotent/resumable: if the config file no longer holds a Vault path, it is a no-op.
+ * The plaintext is restored to the config files *before* the Vault secret is deleted, so an interruption
+ * can never lose the credentials. A Vault deletion failure is logged and tolerated.
+ *
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ *
+ * @throws Throwable
+ */
+function revertAndUpdateDatabaseCredentials(
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
+): void {
+    echo 'Revert of database credentials' . PHP_EOL;
+
+    $stored = retrieveDatabaseCredentialsFromConfigFile();
+    if (! str_starts_with($stored['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+        echo 'Database credentials are not stored in Vault, nothing to revert' . PHP_EOL;
+
+        return;
+    }
+
+    $readVaultRepository->setCustomPath(AbstractVaultRepository::DATABASE_VAULT_PATH);
+    $secrets = $readVaultRepository->findFromPath($stored['username']);
+
+    if (
+        ! array_key_exists(VaultConfiguration::DATABASE_USERNAME_KEY, $secrets)
+        || ! array_key_exists(VaultConfiguration::DATABASE_PASSWORD_KEY, $secrets)
+    ) {
+        throw new Exception('Unable to retrieve database credentials from Vault');
+    }
+
+    updateConfigFilesWithDbCredentials([
+        'username' => $secrets[VaultConfiguration::DATABASE_USERNAME_KEY],
+        'password' => $secrets[VaultConfiguration::DATABASE_PASSWORD_KEY],
+    ]);
+
+    deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::DATABASE_VAULT_PATH, $stored['username']);
+
+    echo 'Revert of database credentials completed' . PHP_EOL;
+}
+
+/**
+ * Update the different config files with the plaintext database credentials.
+ *
+ * Reverse of {@see updateConfigFilesWithVaultPath()}.
+ *
+ * @param array{username: string, password: string} $credentials
+ *
+ * @throws Exception
+ */
+function updateConfigFilesWithDbCredentials(array $credentials): void
+{
+    $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
+    $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
+
+    restoreCentreonConfPhpFile($credentials);
+    if ($featureFlagManager->isEnabled('vault_broker')) {
+        restoreCentreonConfPmFile($credentials);
+        restoreDatabaseYamlFile($credentials);
+    }
+}
+
+/**
+ * Reverse of {@see updateCentreonConfPhpFile()}: write the plaintext credentials back.
+ *
+ * @param array{username: string, password: string} $credentials
+ *
+ * @throws Exception
+ */
+function restoreCentreonConfPhpFile(array $credentials): void
+{
+    if (! file_exists(_CENTREON_ETC_ . '/centreon.conf.php')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/centreon.conf.php')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+    }
+
+    $newContentPhp = preg_replace_callback(
+        '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*(.*)/',
+        static fn (): string => "\$conf_centreon['user'] = '" . $credentials['username'] . "';",
+        $content
+    );
+    $newContentPhp = preg_replace_callback(
+        '/\$conf_centreon\[[\'\"]password[\'\"]\]\s*=\s*(.*)/',
+        static fn (): string => "\$conf_centreon['password'] = '" . $credentials['password'] . "';",
+        (string) $newContentPhp
+    );
+
+    file_put_contents(_CENTREON_ETC_ . '/centreon.conf.php', $newContentPhp)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/centreon.conf.php');
+}
+
+/**
+ * Reverse of {@see updateCentreonConfPmFile()}: write the plaintext credentials back.
+ *
+ * @param array{username: string, password: string} $credentials
+ *
+ * @throws Exception
+ */
+function restoreCentreonConfPmFile(array $credentials): void
+{
+    if (! file_exists(_CENTREON_ETC_ . '/conf.pm')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/conf.pm')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/conf.pm');
+    }
+
+    $newContentPm = preg_replace_callback(
+        '/"db_user"\s*=>\s*(.*)/',
+        static fn (): string => '"db_user" => "' . $credentials['username'] . '",',
+        $content
+    );
+    $newContentPm = preg_replace_callback(
+        '/"db_passwd"\s*=>\s*(.*)/',
+        static fn (): string => '"db_passwd" => "' . $credentials['password'] . '"',
+        (string) $newContentPm
+    );
+    $newContentPm = preg_replace_callback(
+        '/\$mysql_user\s*=\s*(.*)/',
+        static fn (): string => '$mysql_user = "' . $credentials['username'] . '";',
+        (string) $newContentPm
+    );
+    $newContentPm = preg_replace_callback(
+        '/\$mysql_passwd\s*=\s*(.*)/',
+        static fn (): string => '$mysql_passwd = "' . $credentials['password'] . '";',
+        (string) $newContentPm
+    );
+
+    file_put_contents(_CENTREON_ETC_ . '/conf.pm', $newContentPm)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/conf.pm');
+}
+
+/**
+ * Reverse of {@see updateDatabaseYamlFile()}: write the plaintext credentials back.
+ *
+ * @param array{username: string, password: string} $credentials
+ *
+ * @throws Exception
+ */
+function restoreDatabaseYamlFile(array $credentials): void
+{
+    if (! file_exists(_CENTREON_ETC_ . '/config.d/10-database.yaml')
+        || ($content = file_get_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml')) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_
+            . '/config.d/10-database.yaml');
+    }
+    $newContentYaml = preg_replace_callback(
+        '/username: (.*)/',
+        static fn (): string => 'username: "' . $credentials['username'] . '"',
+        $content
+    );
+    $newContentYaml = preg_replace_callback(
+        '/password: (.*)/',
+        static fn (): string => 'password: "' . $credentials['password'] . '"',
+        (string) $newContentYaml
+    );
+
+    file_put_contents(_CENTREON_ETC_ . '/config.d/10-database.yaml', $newContentYaml)
+        ?: throw new Exception('Unable to update file: ' . _CENTREON_ETC_ . '/config.d/10-database.yaml');
+}
+
+/**
+ * Revert Gorgone API credentials from Vault back to the config file and delete the Vault secret.
+ *
+ * Reverse of {@see migrateGorgoneCredentialsToVault()} + {@see updateGorgoneApiFile()}. The `vault_gorgone`
+ * feature-flag gating is handled by the caller (the bin orchestrator).
+ *
+ * @param ReadVaultRepositoryInterface $readVaultRepository
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ *
+ * @throws Throwable
+ */
+function revertGorgoneCredentialsToDb(
+    ReadVaultRepositoryInterface $readVaultRepository,
+    WriteVaultRepositoryInterface $writeVaultRepository,
+): void {
+    $storedPassword = retrieveGorgoneApiCredentialsFromConfigFile();
+    if (! str_starts_with($storedPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        echo 'Gorgone API credentials are not stored in Vault, nothing to revert' . PHP_EOL;
+
+        return;
+    }
+
+    $readVaultRepository->setCustomPath(AbstractVaultRepository::GORGONE_VAULT_PATH);
+    $secrets = $readVaultRepository->findFromPath($storedPassword);
+
+    if (! array_key_exists(VaultConfiguration::GORGONE_PASSWORD, $secrets)) {
+        throw new Exception('Unable to retrieve Gorgone API credentials from Vault');
+    }
+
+    restoreGorgoneApiFile($secrets[VaultConfiguration::GORGONE_PASSWORD]);
+
+    deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::GORGONE_VAULT_PATH, $storedPassword);
+}
+
+/**
+ * Reverse of {@see updateGorgoneApiFile()}: write the plaintext Gorgone API password back.
+ *
+ * @param string $password the plaintext Gorgone API password
+ *
+ * @throws Exception
+ */
+function restoreGorgoneApiFile(string $password): void
+{
+    $filePath = '/etc/centreon-gorgone/config.d/31-centreon-api.yaml';
+
+    if (
+        ! file_exists($filePath)
+        || ($content = file_get_contents($filePath)) === false
+    ) {
+        throw new Exception('Unable to retrieve content of file: ' . $filePath);
+    }
+
+    $newContentYaml = preg_replace_callback(
+        '/password: (.*)/',
+        static fn (): string => 'password: "' . $password . '"',
+        $content
+    );
+
+    file_put_contents($filePath, $newContentYaml) ?: throw new Exception('Unable to update file: ' . $filePath);
+}
+
+/**
+ * Delete a secret from Vault. Deletion failures are logged and tolerated (the revert continues).
+ *
+ * @param WriteVaultRepositoryInterface $writeVaultRepository
+ * @param string $customPath one of the {@see AbstractVaultRepository} path constants
+ * @param string $vaultPath the `secret::...` reference currently stored, used to extract the UUID
+ */
+function deleteVaultSecret(
+    WriteVaultRepositoryInterface $writeVaultRepository,
+    string $customPath,
+    string $vaultPath,
+): void {
+    if (! preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches)) {
+        echo 'Unable to extract UUID from Vault path, skipping Vault deletion' . PHP_EOL;
+
+        return;
+    }
+    $uuid = $matches[2];
+
+    try {
+        $writeVaultRepository->setCustomPath($customPath);
+        $writeVaultRepository->delete($uuid);
+    } catch (Throwable $ex) {
+        echo 'Unable to delete secret from Vault, continuing: ' . $ex->getMessage() . PHP_EOL;
+    }
+}
+
 // BROKER CONFIG
 
 /**
