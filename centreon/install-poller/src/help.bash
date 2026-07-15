@@ -51,7 +51,7 @@ function help() {
     echo ""
     echo "Notes:"
     echo -e "  --cloud true\t\t\tGorgone address auto-derived: gorgone-centreon-<central_url>, port 443, ssl=true"
-    echo -e "  --cloud false\t\t\tGorgone address from --central_url (host:port), ssl=false (override with --gorgone-ssl)"
+    echo -e "  --cloud false\t\t\tGorgone address from --central_url (host[:port], default port 80), ssl=false (override with --gorgone-ssl / port in --central_url once SSL is configured on the central)"
     ;;
   *)
     echo "Available commands:"

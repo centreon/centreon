@@ -154,6 +154,11 @@ function _installValidateArgs() {
 
 # Single source of truth for the gorgone connection parameters,
 # shared by both the docker and vm code paths.
+# Gorgone's poller-facing websocket is fronted by Apache (mod_proxy_wstunnel) on
+# the standard web port in both modes, not on a gorgone-specific port anymore.
+# --cloud still controls address derivation and the SSL/port default, since
+# Cloud is always HTTPS/443 while on-prem defaults to the out-of-the-box
+# plain-HTTP vhost (port 80, ssl=false) until the admin configures SSL.
 function _installDeriveCentral() {
   if [ "${CLOUD_MODE}" = "true" ]; then
     GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
@@ -163,7 +168,7 @@ function _installDeriveCentral() {
   else
     GORGONE_ADDRESS="${CENTRAL_HOST}"
     GORGONE_SSL="${GORGONE_SSL:-false}"
-    CENTRAL_PORT="${CENTRAL_PORT:-8086}"
+    CENTRAL_PORT="${CENTRAL_PORT:-80}"
     ENGINE_PORT="5669"
   fi
 }
