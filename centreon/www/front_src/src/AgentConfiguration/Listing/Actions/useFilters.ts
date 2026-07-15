@@ -46,7 +46,7 @@ export const useFilters = (): UseFiltersState => {
 
   const isClearDisabled = equals(filters, filtersInitialValues);
 
-  const changeName = (event): void => {
+  const changeName = (event: React.ChangeEvent<HTMLInputElement>): void => {
     changeFilter({ field: 'name', newEntries: event.target.value });
   };
 
@@ -59,7 +59,10 @@ export const useFilters = (): UseFiltersState => {
     changeFilter({ field: 'type', newEntries: selectedTypes });
   };
 
-  const changerPollers = (_, values: Array<SelectEntry>): void => {
+  const changerPollers = (
+    _: SyntheticEvent,
+    values: Array<SelectEntry>
+  ): void => {
     const pollers = map(
       pick(['id', 'name']),
       values || []
@@ -68,11 +71,11 @@ export const useFilters = (): UseFiltersState => {
     changeFilter({ field: 'poller.id', newEntries: pollers });
   };
 
-  const deletePoller = (_, item): void => {
+  const deletePoller = (_: SyntheticEvent, item: SelectEntry): void => {
     deleteFilterEntry({ entryToDelete: item, field: 'poller.id' });
   };
 
-  const deleteType = (_, option): void => {
+  const deleteType = (_: SyntheticEvent, option: SelectEntry): void => {
     deleteFilterEntry({ entryToDelete: option, field: 'type' });
   };
 

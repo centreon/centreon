@@ -28,7 +28,7 @@ export const useSearch = (): UseSearch => {
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
     changeFilter({ field: 'name', newEntries: target.value });
 
     searchDebounced.current(target.value);
