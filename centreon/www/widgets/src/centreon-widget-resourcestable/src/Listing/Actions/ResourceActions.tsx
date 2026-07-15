@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { all, equals, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
@@ -42,7 +42,7 @@ const ResourceActions = (): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
-  const resources = useAtomValue(selectedResourcesAtom);
+  const [resources, setSelectedResources] = useAtom(selectedResourcesAtom);
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
 
@@ -50,10 +50,12 @@ const ResourceActions = (): JSX.Element => {
 
   const onSuccessCheckAction = (): void => {
     showSuccessMessage(t(labelCheckCommandSent));
+    setSelectedResources([]);
   };
 
   const onSuccessForcedCheckAction = (): void => {
     showSuccessMessage(t(labelForcedCheckCommandSent));
+    setSelectedResources([]);
   };
 
   const checkAction: CheckActionModel = {
