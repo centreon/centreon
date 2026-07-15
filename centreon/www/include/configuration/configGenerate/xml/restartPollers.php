@@ -103,6 +103,16 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
     }
 
     $centreon = $_SESSION['centreon'];
+
+    // Reloading / restarting the monitoring engine requires the "Generate
+    // configuration files" action ACL, exactly like the export page. Without
+    // this check a user with page access but no generate_cfg right could
+    // trigger an engine reload/restart from the poller listing.
+    if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+        echo 'Access denied';
+
+        exit();
+    }
 }
 
 if (! isset($_POST['poller']) || ! isset($_POST['mode'])) {
