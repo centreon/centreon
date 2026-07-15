@@ -127,19 +127,18 @@ $tpl->assign('limit', $limit);
 
 if (! $isRemote) {
     $attrs = ['onchange' => 'pollerMoreAction(this);'];
-    $form->addElement(
-        'select',
-        'o1',
-        null,
-        [
-            null => _('More actions...'),
-            'm' => _('Duplicate'),
-            'd' => _('Delete'),
-            'reload' => _('Reload engine'),
-            'restart' => _('Restart engine'),
-        ],
-        $attrs
-    );
+    $moreActions = [
+        null => _('More actions...'),
+        'm' => _('Duplicate'),
+        'd' => _('Delete'),
+    ];
+    // Reloading / restarting the monitoring engine requires the "Generate
+    // configuration files" action ACL (same right as the export page).
+    if ($centreon->user->admin || $can_generate) {
+        $moreActions['reload'] = _('Reload engine');
+        $moreActions['restart'] = _('Restart engine');
+    }
+    $form->addElement('select', 'o1', null, $moreActions, $attrs);
     $o1 = $form->getElement('o1');
     $o1->setValue(null);
 }
