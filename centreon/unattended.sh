@@ -359,6 +359,16 @@ function maybe_enable_debug() {
 	if [ "${debug_mode}" == "true" ]; then
 		runtime_log_level="DEBUG"
 		export PS4='+ $(date "+%H:%M:%S.%3N") ${BASH_SOURCE##*/}:${LINENO}:${FUNCNAME[0]:-main}() '
+		# Send xtrace (may expand passwords/tokens) to a dedicated 0600 file so the main log stays secret-free.
+		if [ -n "${LOG_FILE:-}" ]; then
+			DEBUG_TRACE_FILE="${LOG_FILE%.log}.debug.log"
+			if { : > "$DEBUG_TRACE_FILE"; } 2>/dev/null && exec 9>>"$DEBUG_TRACE_FILE"; then
+				chmod 600 "$DEBUG_TRACE_FILE" 2>/dev/null || true
+				export BASH_XTRACEFD=9
+				log "WARN" "Debug trace written to [$DEBUG_TRACE_FILE] - it MAY CONTAIN CREDENTIALS; handle/delete it securely"
+				echo "unattended.sh: debug trace (may contain credentials) -> $DEBUG_TRACE_FILE" >&3
+			fi
+		fi
 		set -x
 	fi
 }
