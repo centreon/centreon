@@ -11,7 +11,7 @@ import {
   filtersAtom,
   pageAtom
 } from '../../atoms';
-import { filtersInitialValues, FiltersState } from '../../utils';
+import { FiltersState, filtersInitialValues } from '../../utils';
 
 type NamedEntity = {
   id: number;
