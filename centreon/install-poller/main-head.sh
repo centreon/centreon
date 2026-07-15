@@ -37,6 +37,8 @@ POLLER_NAME=""
 CENTRAL_URL=""
 CENTRAL_HOST=""
 CENTRAL_PORT=""
+# ssl inferred from the http(s):// scheme in --central_url, if any (empty = not specified)
+CENTRAL_URL_SSL=""
 APP_SECRET=""
 SALT=""
 

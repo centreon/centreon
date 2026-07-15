@@ -53,6 +53,10 @@ function _installParseArguments() {
     --central_url)
       shift
       CENTRAL_URL=$1
+      case "${CENTRAL_URL}" in
+        https://*) CENTRAL_URL_SSL="true" ;;
+        http://*) CENTRAL_URL_SSL="false" ;;
+      esac
       local _url_no_scheme
       _url_no_scheme=$(echo "${CENTRAL_URL}" | sed 's|^https\?://||')
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
@@ -156,19 +160,37 @@ function _installValidateArgs() {
 # shared by both the docker and vm code paths.
 # Gorgone's poller-facing websocket is fronted by Apache (mod_proxy_wstunnel) on
 # the standard web port in both modes, not on a gorgone-specific port anymore.
-# --cloud still controls address derivation and the SSL/port default, since
-# Cloud is always HTTPS/443 while on-prem defaults to the out-of-the-box
-# plain-HTTP vhost (port 80, ssl=false) until the admin configures SSL.
+#
+# SSL is resolved in priority order: explicit --gorgone-ssl, then the
+# http(s):// scheme in --central_url, then the --cloud default (Cloud is
+# always HTTPS; on-prem defaults to the out-of-the-box plain-HTTP vhost
+# until the admin configures SSL). The port then defaults to 443/80 to
+# match whichever SSL value was resolved, unless explicitly set via
+# --central_url's host:port.
 function _installDeriveCentral() {
   if [ "${CLOUD_MODE}" = "true" ]; then
     GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
-    GORGONE_SSL="${GORGONE_SSL:-true}"
-    CENTRAL_PORT="${CENTRAL_PORT:-443}"
     ENGINE_PORT="443"
   else
     GORGONE_ADDRESS="${CENTRAL_HOST}"
-    GORGONE_SSL="${GORGONE_SSL:-false}"
-    CENTRAL_PORT="${CENTRAL_PORT:-80}"
     ENGINE_PORT="5669"
+  fi
+
+  if [ -z "${GORGONE_SSL}" ]; then
+    if [ -n "${CENTRAL_URL_SSL}" ]; then
+      GORGONE_SSL="${CENTRAL_URL_SSL}"
+    elif [ "${CLOUD_MODE}" = "true" ]; then
+      GORGONE_SSL="true"
+    else
+      GORGONE_SSL="false"
+    fi
+  fi
+
+  if [ -z "${CENTRAL_PORT}" ]; then
+    if [ "${GORGONE_SSL}" = "true" ]; then
+      CENTRAL_PORT="443"
+    else
+      CENTRAL_PORT="80"
+    fi
   fi
 }
