@@ -201,12 +201,21 @@ var hostListing = new CentreonListing({
         { id:'poller', align:'center' },
         { id:'templates', align:'center', render: function(row, l) {
             if (!row.templates || !row.templates.length) return '';
+            // Host Templates menu ACL: 0 = no access, 1 = read/write, 2 = read-only
+            var tplAccess = {/literal}{$hostTplAccess}{literal};
             var parts = [];
             for (var i=0; i<row.templates.length; i++) {
                 var t = row.templates[i];
-                var tplUrl = 'main.get.php?p=60103&o=c&host_id=' + t.id;
                 var tplName = l.escape(t.name);
-                parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
+                if (tplAccess === 1 || tplAccess === 2) {
+                    // read/write -> edit (o=c), read-only -> view (o=w, frozen form)
+                    var mode = (tplAccess === 1) ? 'c' : 'w';
+                    var tplUrl = 'main.get.php?p=60103&o=' + mode + '&host_id=' + t.id;
+                    parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
+                } else {
+                    // no access to the Host Templates menu -> not clickable
+                    parts.push(tplName);
+                }
             }
             return parts.join(' | ');
         }}

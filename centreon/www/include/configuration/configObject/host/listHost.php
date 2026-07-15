@@ -31,6 +31,11 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
+// Menu ACL on the Host Templates page (topology 60103): 0 = no access,
+// 1 = read/write, 2 = read-only (admins get read/write). Drives whether a host
+// template is clickable in the listing and, if so, in edit or view mode.
+$tpl->assign('hostTplAccess', (int) $centreon->user->access->page(60103));
+
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_desc', _('Alias'));
 $tpl->assign('headerMenu_address', _('IP / DNS'));
