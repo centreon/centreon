@@ -1443,15 +1443,38 @@ function urlencode() {
 }
 #========= end of function urlencode()
 
+#========= begin of function api_curl()
+# Single fail-hard entry point for every wizard/API curl call: aborts unless the HTTP
+# status is 200/201/204 (widen per-call with API_EXTRA_OK). Sets API_HTTP_CODE; writes
+# the response body to $2. Call as a plain statement, never $(api_curl ...).
+function api_curl() {
+	local desc="$1" body="$2"; shift 2
+	local rc=0
+	API_HTTP_CODE=$(curl --silent --insecure --output "$body" --write-out '%{http_code}' "$@") || rc=$?
+	if [ "$rc" -ne 0 ]; then
+		error_and_exit "${desc}: could not reach the Centreon API on ${central_ip} (curl exit ${rc})"
+	fi
+	local ok
+	for ok in 200 201 204 ${API_EXTRA_OK:-}; do
+		[ "$API_HTTP_CODE" = "$ok" ] && return 0
+	done
+	error_and_exit "${desc}: unexpected HTTP status ${API_HTTP_CODE} (response: $(head -c 400 "$body" 2>/dev/null | tr -d '\n'))"
+}
+#========= end of function api_curl()
+
 #========= begin of function install_wizard_post()
-# execute a post request of the install wizard
-# - session cookie
-# - php command
-# - request body
+# execute a post request of the install wizard (fail-hard via api_curl)
+# - $1 : session cookie
+# - $2 : wizard step php script
+# - $3 : request body (optional)
 function install_wizard_post() {
-	log "INFO" " wizard install step ${2} response ->  $(curl -s -o /dev/null -w "%{http_code}" "http://${central_ip}/centreon/install/steps/process/${2}" \
-		-H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
-		-H "Cookie: ${1}" --data "${3}" || true)"
+	api_curl "install wizard step ${2}" /dev/null \
+		"http://${central_ip}/centreon/install/steps/process/${2}" \
+		--request POST \
+		--header 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+		--header "Cookie: ${1}" \
+		--data "${3:-}"
+	log "INFO" "wizard install step ${2} response -> ${API_HTTP_CODE}"
 }
 #========= end of function install_wizard_post()
 
@@ -1465,7 +1488,9 @@ function play_install_wizard() {
 	enc_centreon_admin_password=$(urlencode "$centreon_admin_password")
 
 	sessionID=$(curl -s -v "http://${central_ip}/centreon/install/install.php" 2>&1 | grep Set-Cookie | awk '{print $3}') || true
-	curl -s "http://${central_ip}/centreon/install/steps/step.php?action=stepContent" -H "Cookie: ${sessionID}" >/dev/null || true
+	[ -n "$sessionID" ] || error_and_exit "Could not obtain an install-wizard session cookie from ${central_ip}"
+	api_curl "install wizard stepContent" /dev/null \
+		"http://${central_ip}/centreon/install/steps/step.php?action=stepContent" --header "Cookie: ${sessionID}"
 	install_wizard_post ${sessionID} "process_step3.php" 'centreon_engine_stats_binary=%2Fusr%2Fsbin%2Fcentenginestats&monitoring_var_lib=%2Fvar%2Flib%2Fcentreon-engine&centreon_engine_connectors=%2Fusr%2Flib64%2Fcentreon-connector&centreon_engine_lib=%2Fusr%2Flib64%2Fcentreon-engine&centreonplugins=%2Fusr%2Flib%2Fcentreon%2Fplugins%2F'
     case $version in
     "24."*)
@@ -1497,39 +1522,18 @@ function play_install_wizard() {
 function test_api_connection () {
 	log "INFO" "Test admin password to access Centreon's API"
 
-	# Define temporary files
-	api_output="/tmp/unattended.sh_api_output"
-	api_return_code="/tmp/unattended.sh_api_return_code"
-	api_error_message="/tmp/unattended.sh_api_error_message"
-	api_error_keys="/tmp/unattended.sh_api_error_keys"
-
-	#
-	# Log in to Centreon API to get token
-	#
-	curl "${central_ip}/centreon/api/latest/login" \
-	--silent \
-	--insecure \
-	--request POST \
-	--header 'Content-Type: application/json' \
-	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
-	--output ${api_output} \
-	--write-out %{http_code} \
-	> ${api_return_code} 2> ${api_error_message} || true
-
-	# Analyse result
-	errorLevel=$?
-	httpResponse=$(cat ${api_return_code})
-	message=$(cat ${api_output})
-
-	if [[ $errorLevel -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-		error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-	else
-		token=$(echo $message | sed 's/.*{"token":"\(.*\)"}}/\1/g')
-		if [ -z "${token}" ]; then
-			error_and_exit "Unable to extract token from message: $message"
-		fi
-		log "DEBUG" "APIv2 token: ${token}"
-	fi
+	local api_output
+	api_output=$(mktemp)
+	# Log in to Centreon API to get a token (fail-hard via api_curl: only 200/201/204 pass)
+	api_curl "Centreon API login" "$api_output" \
+		"${central_ip}/centreon/api/latest/login" \
+		--request POST \
+		--header 'Content-Type: application/json' \
+		--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}"
+	token=$(sed 's/.*{"token":"\(.*\)"}}/\1/g' "$api_output")
+	rm -f "$api_output"
+	[ -n "${token}" ] || error_and_exit "Unable to extract the API token from the login response"
+	log "DEBUG" "APIv2 token: ${token}"
 }
 #========= end of function test_api_connection()
 
@@ -1540,231 +1544,85 @@ function play_update_api () {
 
 	log "INFO" "Update Centreon using API"
 
-	# Define temporary files
-	api_output="/tmp/unattended.sh_api_output"
-	api_return_code="/tmp/unattended.sh_api_return_code"
-	api_error_message="/tmp/unattended.sh_api_error_message"
-	api_error_keys="/tmp/unattended.sh_api_error_keys"
+	local api_body message modules module widgets widget clear_line status status_message
+	local -a module_information widget_information
+	api_body=$(mktemp)
 
-	#
-	# Log in to Centreon API to get token
-	#
-	curl "${central_ip}/centreon/api/latest/login" \
-	--silent \
-	--insecure \
-	--request POST \
-	--header 'Content-Type: application/json' \
-	--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}" \
-	--output ${api_output} \
-	--write-out %{http_code} \
-	> ${api_return_code} 2> ${api_error_message} || true
+	# APIv2 login -> token
+	api_curl "Centreon API login" "$api_body" \
+		"${central_ip}/centreon/api/latest/login" \
+		--request POST \
+		--header 'Content-Type: application/json' \
+		--data "{\"security\": {\"credentials\": {\"login\": \"admin\",\"password\": \"${centreon_admin_password}\"}}}"
+	token=$(sed 's/.*{"token":"\(.*\)"}}/\1/g' "$api_body")
+	[ -n "${token}" ] || error_and_exit "Unable to extract the API token from the login response"
+	log "DEBUG" "APIv2 token: ${token}"
 
-	# Analyse result
-	errorLevel=$?
-	httpResponse=$(cat ${api_return_code})
-	message=$(cat ${api_output})
-	if [[ -f ${api_output} && -s "${api_output}" ]];then
-		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
-		hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
-	else
-		hasErrors=0
-	fi
+	# Trigger the centreon-web update. 204 = done; 404 is tolerated (returned when there is
+	# nothing to update on this version).
+	API_EXTRA_OK="404"
+	api_curl "Centreon Web update" "$api_body" \
+		"${central_ip}/centreon/api/latest/platform/updates" \
+		--request PATCH \
+		--header "X-AUTH-TOKEN: ${token}" \
+		--header 'Content-Type: application/json' \
+		--data '{"components":[{"name":"centreon-web"}]}'
+	API_EXTRA_OK=""
+	log "INFO" "Centreon Web update completed"
 
-	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-		error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-	else
-		token=$(echo $message | sed 's/.*{"token":"\(.*\)"}}/\1/g')
-		if [ -z "${token}" ]; then
-			error_and_exit "Unable to extract token from message: $message"
+	# APIv1 login -> tokenv1
+	api_curl "Centreon APIv1 login" "$api_body" \
+		"${central_ip}/centreon/api/index.php?action=authenticate" \
+		--request POST \
+		--data "username=admin&password=${centreon_admin_password}"
+	tokenv1=$(cut -f2 -d":" "$api_body" | sed -e "s/\"//g" -e "s/}//" -e 's|\\||g')
+	[ -n "${tokenv1}" ] || error_and_exit "Unable to extract the APIv1 token from the login response"
+	log "DEBUG" "APIv1 token: ${tokenv1}"
+
+	# Get the list of installed modules and widgets
+	api_curl "Centreon module/widget list" "$api_body" \
+		"${central_ip}/centreon/api/index.php?object=centreon_module&action=list" \
+		--request GET \
+		--header "centreon-auth-token: ${tokenv1}"
+	message=$(cat "$api_body")
+
+	# Update each module whose current version differs from the available one
+	modules=$(echo "${message}" | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
+	for module in ${modules}; do
+		clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< "${module}")
+		IFS="|" read -a module_information <<< "${clear_line}"
+		if [ "${module_information[1]}" != "${module_information[2]}" ]; then
+			api_curl "update of ${module_information[0]} module" "$api_body" \
+				"${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module_information[0]}&type=module" \
+				--request POST \
+				--header "centreon-auth-token: ${tokenv1}"
+			status=$(jq '.status' "$api_body") || true
+			status_message=$(jq '.result.message' "$api_body") || true
+			if [ "${status}" = "false" ]; then
+				log "WARN" "Error during update of ${module_information[0]} module: ${status_message}"
+			fi
 		fi
-		log "DEBUG" "APIv2 token: ${token}"
-	fi
+	done
 
-	# Clean files
-	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
+	# Update each widget whose current version differs from the available one
+	widgets=$(echo "${message}" | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
+	for widget in ${widgets}; do
+		clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< "${widget}")
+		IFS="|" read -a widget_information <<< "${clear_line}"
+		if [ "${widget_information[1]}" != "${widget_information[2]}" ]; then
+			api_curl "update of ${widget_information[0]} widget" "$api_body" \
+				"${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${widget_information[0]}&type=widget" \
+				--request POST \
+				--header "centreon-auth-token: ${tokenv1}"
+			status=$(jq '.status' "$api_body") || true
+			status_message=$(jq '.result.message' "$api_body") || true
+			if [ "${status}" = "false" ]; then
+				log "WARN" "Error during update of ${widget_information[0]} widget: ${status_message}"
+			fi
+		fi
+	done
 
-	#
-	# Call Centreon Web update API
-	#
-	curl "${central_ip}/centreon/api/latest/platform/updates"  \
-	--silent \
-	--insecure \
-	--request PATCH \
-	--header "X-AUTH-TOKEN: ${token}" \
-	--header 'Content-Type: application/json' \
-	--data '{"components":[{"name":"centreon-web"}]}' \
-	--output ${api_output} \
-	--write-out %{http_code} \
-	> ${api_return_code} 2> ${api_error_message} || true
-
-	errorLevel=$?
-	httpResponse=$(cat ${api_return_code})
-	message=$(cat ${api_output})
-	if [[ -f ${api_output} && -s "${api_output}" ]];then
-		jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
-		hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
-	else
-		hasErrors=0
-	fi
-
-	if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "204" && "$httpResponse" != "404" ]]; then
-		error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-	else
-		log "INFO" "Centreon Web update completed"
-	fi
-
-	# Clean files
-	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
-
-	#
-	# Log in to Centreon APIv1 to get token
-	#
-    curl "${central_ip}/centreon/api/index.php?action=authenticate"  \
-    --silent \
-    --insecure \
-    --request POST \
-    --data "username=admin&password=${centreon_admin_password}" \
-    --output ${api_output} \
-    --write-out %{http_code} \
-    > ${api_return_code} 2> ${api_error_message} || true
-
-
-    # Analyse result
-    errorLevel=$?
-    httpResponse=$(cat ${api_return_code})
-    message=$(cat ${api_output})
-    if [[ -f ${api_output} && -s "${api_output}" ]];then
-        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
-        hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
-    else
-        hasErrors=0
-    fi
-
-    if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-        error_and_exit "API connection error (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-    else
-        tokenv1=$(echo ${message} | cut -f2 -d":" | sed -e "s/\"//g" -e "s/}//" -e 's|\\||g')
-        if [ -z "${tokenv1}" ]; then
-            error_and_exit "Unable to extract token from message: $message"
-        fi
-		log "DEBUG" "APIv1 token: ${token}"
-    fi
-
-	rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
-
-    #
-    # Get list of installed extensions
-    #
-    curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=list"  \
-    --silent \
-    --insecure \
-    --request GET \
-    --header "centreon-auth-token: ${tokenv1}" \
-    --output ${api_output} \
-    --write-out %{http_code} \
-    > ${api_return_code} 2> ${api_error_message} || true
-
-    # Analyse result
-    errorLevel=$?
-    httpResponse=$(cat ${api_return_code})
-    message=$(cat ${api_output})
-	if [[ -f ${api_output} && -s "${api_output}" ]];then
-        jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
-        hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
-    else
-        hasErrors=0
-    fi
-
-    if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-        error_and_exit "Error during update (errorLevel $errorLevel, http response code $httpResponse, message: $message)"
-    else
-	    #
-        # Get list of modules and update them if needed
-		#
-        modules=$(echo ${message} | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
-        for module in ${modules}
-        do
-			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
-            clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${module})
-            IFS="|" read -a module_information <<< ${clear_line}
-            if [ "${module_information[1]}" != "${module_information[2]}" ]; then
-                curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${module_information[0]}&type=module" \
-                --silent \
-                --insecure \
-                --request POST \
-                --header "centreon-auth-token: ${tokenv1}" \
-                --output ${api_output} \
-                --write-out %{http_code} \
-                > ${api_return_code} 2> ${api_error_message} || true
-
-                # Analyse result
-                errorLevel=$?
-                httpResponse=$(cat ${api_return_code})
-                sub_message=$(cat ${api_output})
-
-				if [[ -f ${api_output} && -s "${api_output}" ]];then
-					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
-					hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
-				else
-					hasErrors=0
-				fi
-
-                if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-                    error_and_exit "Error during update of ${module_information[0]} module (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
-                else
-                    status=$(echo ${sub_message} | jq '.status') || true
-                    status_message=$(echo ${sub_message} | jq '.result.message') || true
-                    if [ "${status}" = "false" ]; then
-                        log "WARN" "Error during update of ${module_information[0]} module: ${status_message}"
-                    fi
-                fi
-            fi
-        done
-
-		#
-        # Get list of widgets and update them if needed
-		#
-        widgets=$(echo ${message} | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
-        for widget in ${widgets}
-        do
-			rm -f ${api_output} ${api_return_code} ${api_error_message} ${api_error_keys}
-            clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< ${widget})
-            IFS="|" read -a widget_information <<< ${clear_line}
-            if [ "${widget_information[1]}" != "${widget_information[2]}" ]; then
-                curl "${central_ip}/centreon/api/index.php?object=centreon_module&action=update&id=${widget_information[0]}&type=widget" \
-                --silent \
-                --insecure \
-                --request POST \
-                --header "centreon-auth-token: ${tokenv1}" \
-                --output ${api_output} \
-                --write-out %{http_code} \
-                > ${api_return_code} 2> ${api_error_message} || true
-
-                # Analyse result
-                errorLevel=$?
-                httpResponse=$(cat ${api_return_code})
-                sub_message=$(cat ${api_output})
-
-				if [[ -f ${api_output} && -s "${api_output}" ]];then
-					jq --raw-output 'keys | @csv' ${api_output} | sed 's/"//g' > ${api_error_keys} || true
-					hasErrors=0; grep --quiet --invert errors ${api_error_keys} || hasErrors=$?
-				else
-					hasErrors=0
-				fi
-
-                if [[ $errorLevel -gt 0 ]] || [[ $hasErrors -gt 0 ]] || [[ "$httpResponse" != "200" ]]; then
-                    error_and_exit "Error during update of ${widget_information[0]} widget (errorLevel $errorLevel, http response code $httpResponse, message: $sub_message)"
-                else
-                    status=$(echo ${sub_message} | jq '.status') || true
-                    status_message=$(echo ${sub_message} | jq '.result.message') || true
-                    if [ "${status}" = "false" ]; then
-                        log "WARN" "Error during update of ${widget_information[0]} widget: ${status_message}"
-                    fi
-                fi
-            fi
-        done
-    fi
-
+	rm -f "$api_body"
 	return 0
 }
 #========= end of function play_update_api()
