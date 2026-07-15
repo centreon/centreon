@@ -1587,7 +1587,9 @@ function play_update_api () {
 	message=$(cat "$api_body")
 
 	# Update each module whose current version differs from the available one
-	modules=$(echo "${message}" | jq '.result.module.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
+	# '[]?' tolerates a valid "no modules" response (empty/missing list); a jq parse error
+	# (malformed/non-JSON body) still exits non-zero and fails hard.
+	modules=$(echo "${message}" | jq '.result.module.entities[]? | "\(.id)|\(.version.current)|\(.version.available)"') || error_and_exit "Failed to parse the module list from the API response (invalid JSON)"
 	for module in ${modules}; do
 		clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< "${module}")
 		IFS="|" read -a module_information <<< "${clear_line}"
@@ -1605,7 +1607,8 @@ function play_update_api () {
 	done
 
 	# Update each widget whose current version differs from the available one
-	widgets=$(echo "${message}" | jq '.result.widget.entities[] | "\(.id)|\(.version.current)|\(.version.available)"') || true
+	# see the module list above: tolerate an empty list, fail hard on malformed JSON.
+	widgets=$(echo "${message}" | jq '.result.widget.entities[]? | "\(.id)|\(.version.current)|\(.version.available)"') || error_and_exit "Failed to parse the widget list from the API response (invalid JSON)"
 	for widget in ${widgets}; do
 		clear_line=$(sed -e 's/^"//' -e 's/"$//' <<< "${widget}")
 		IFS="|" read -a widget_information <<< "${clear_line}"
