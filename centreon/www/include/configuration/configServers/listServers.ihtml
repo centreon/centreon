@@ -23,7 +23,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
                             </div>
                         </div>
                     {/if}
-                    {$form.o1.html}
+                    <span class="cl-more-actions"><span class="cl-more-actions-icon" aria-hidden="true">&#x22EF;</span>{$form.o1.html}</span>
                     {if $can_generate == 1}
                         <a id="exportConfigurationLink" href="#" class="btc bt_success" style="padding:8px 16px;font-size:14px;border-radius:4px;line-height:1.4;white-space:nowrap;opacity:0.5;pointer-events:none;">
                             {$exportBtn.icon} {$exportBtn.text}
@@ -31,12 +31,13 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
                     {/if}
                 {/if}
             </div>
-            <div class="cl-toolbar-right">
+            <div class="cl-search-center">
                 <div class="cl-search">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                     <input type="text" id="clSearchInput" name="searchP" value="{$searchP}" class="cl-search-simple" placeholder="{t}Search pollers{/t}" autocomplete="off">
                 </div>
-                <span class="cl-toolbar-sep"></span>
+            </div>
+            <div class="cl-toolbar-right">
                 <div class="cl-pagination" id="clPaginationTop"></div>
             </div>
         </div>

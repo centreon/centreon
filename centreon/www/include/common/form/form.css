@@ -81,7 +81,7 @@
 .cf-section {
     margin-bottom: 8px;
     border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
     background: var(--body-background, #fff);
 }
@@ -98,7 +98,7 @@
     cursor: pointer;
     user-select: none;
     transition: filter 0.15s;
-    border-radius: 12px 12px 0 0;
+    border-radius: 8px 8px 0 0;
 }
 
 .dark .cf-section-header {
@@ -560,7 +560,8 @@
 
 .cf-field select {
     width: 100%;
-    padding: 10px;
+    height: 40px;
+    padding: 0 32px 0 12px;
     font-size: 12px;
     border: 1px solid var(--color-divider, #e3e3e3);
     border-radius: 6px;
@@ -573,7 +574,6 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
-    padding-right: 32px;
 }
 
 .cf-field select:focus {
@@ -609,7 +609,7 @@
 }
 
 .cf-field .select2-container .select2-selection {
-    min-height: 44px;
+    min-height: 40px;
     border: 1px solid var(--color-divider, #e3e3e3);
     border-radius: 6px;
     padding: 6px 12px;
@@ -818,8 +818,8 @@
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle {
     position: relative;
     display: inline-block;
-    width: 42px;
-    height: 20px;
+    width: 34px;
+    height: 18px;
     flex-shrink: 0;
     margin: 0;
     padding: 0;
@@ -840,7 +840,7 @@
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle-slider {
     position: absolute;
     inset: 0;
-    border-radius: 20px;
+    border-radius: 18px;
     background: var(--switch-off-color, #c2c7ce);
     transition: background 0.2s ease;
     pointer-events: auto;
@@ -849,13 +849,13 @@
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle-slider::before {
     content: '';
     position: absolute;
-    width: 24px;
-    height: 24px;
-    left: -2px;
-    top: -2px;
+    width: 14px;
+    height: 14px;
+    left: 2px;
+    top: 2px;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -864,17 +864,17 @@
     background: var(--color-success, #88B922);
 }
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:checked + .cl-toggle-slider::before {
-    transform: translateX(22px);
+    transform: translateX(16px);
 }
 
 /* Hover: subtle grey halo around the knob */
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle:hover .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* Focus: light-blue halo */
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:focus-visible + .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(19, 29, 90, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 4px rgba(19, 29, 90, 0.25), 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* Disabled */
@@ -977,11 +977,16 @@
 }
 
 .cf-btn {
-    padding: 10px 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 16px;
+    box-sizing: border-box;
     font-size: 14px;
     font-weight: 500;
     border: none;
-    border-radius: 9999px;
+    border-radius: 18px;
     cursor: pointer;
     transition: background 0.15s;
 }
@@ -1011,7 +1016,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 20px;
+    height: 36px;
+    padding: 0 16px;
+    box-sizing: border-box;
     min-width: 100px;
     font-size: 14px;
     font-weight: 500;
@@ -1020,7 +1027,7 @@
     border: none;
     /* `!important`: the legacy `.btc { border-radius: 4px !important }` on the
        Save/Reset buttons would otherwise flatten the pill shape. */
-    border-radius: 9999px !important;
+    border-radius: 18px !important;
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 0.15s ease;
@@ -1031,23 +1038,44 @@
     background-color: var(--color-primary-hover, #2A3575);
 }
 
+/* Disabled primary action (e.g. Upload before any file is picked) */
+.cf-actions input[type="submit"]:disabled,
+.cf-actions button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 /* Reset mirrors the modern React "Cancel" button: an outlined primary pill,
    so it is not mistaken for Save. Reviewers reported clicking it expecting
    to submit the form. The legacy theme styles `.btc`/`.bt_default` with
    `!important` (border/color/background/radius), so these overrides must use
    `!important` too — the `.cf-actions` scope keeps them off other buttons. */
+/* Reset = ghost text button (navy), pushed to the far left of the actions row,
+   disabled/greyed when the form is pristine — mirrors the advanced-filters
+   "Clear". `margin-right:auto` pushes it left without affecting single-button
+   rows. The disabled state is toggled in form.js (initResetButton). */
 .cf-actions input[type="reset"],
 .cf-actions .bt_default {
+    margin-right: auto !important;
+    min-width: 0 !important;
+    padding: 0 12px !important;
     color: var(--color-primary-light, #131D5A) !important;
     background: transparent !important;
-    border: 1px solid var(--color-primary-light, #131D5A) !important;
-    border-radius: 9999px !important;
+    border: none !important;
+    font-weight: 500 !important;
 }
 
 .cf-actions input[type="reset"]:hover,
 .cf-actions .bt_default:hover {
-    background: rgba(19, 29, 90, 0.06) !important;
-    color: var(--color-primary-light, #131D5A) !important;
+    background: transparent !important;
+    color: var(--color-primary-hover, #2A3575) !important;
+}
+
+.cf-actions input[type="reset"]:disabled,
+.cf-actions .bt_default:disabled {
+    color: var(--color-grey-chateau, #a7a9ac) !important;
+    opacity: 0.7 !important;
+    cursor: default !important;
 }
 
 /* ==========================================================================
@@ -1097,7 +1125,8 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 55vw;
+    /* Default width: 2/3 of the viewport */
+    width: 66.67vw;
     min-width: 400px;
     max-width: 95vw;
     height: 100vh;
@@ -1239,14 +1268,221 @@
     background: #5a5a5a;
 }
 
-/* Reset/Cancel hover: light tint instead of the navy rgba on dark */
+/* Reset/Cancel = ghost text in dark (no background, lighter blue on hover) */
 .dark .cf-actions input[type="reset"]:hover,
 .dark .cf-actions .bt_default:hover {
-    background: rgba(110, 175, 248, 0.12) !important;
+    background: transparent !important;
+    color: #8bbff9 !important;
+}
+.dark .cf-actions input[type="reset"]:disabled,
+.dark .cf-actions .bt_default:disabled {
+    color: #666666 !important;
 }
 
 /* Custom tooltip: readable in dark */
 .dark .cf-tooltip {
     background: #3a3a3a;
     color: #ffffff;
+}
+
+/* ==========================================================================
+   Select2 — restyled to resemble the React multi-select
+   --------------------------------------------------------------------------
+   form.css is loaded globally (htmlHeader.php), and select2's dropdown is
+   appended to <body>, so these rules are intentionally unscoped. Explicit
+   colors (React palette) keep it consistent in forms AND listing filters;
+   dark variants key off `.dark` on <html>. Light: primary #131D5A; dark:
+   primary #6eaff8. Behaviour is untouched — this is CSS only.
+   ========================================================================== */
+
+/* --- Selection box (single & multiple). !important beats the Generic-theme
+       rules that force border-radius:0 on select2. --- */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid #c2c7ce !important;
+    border-radius: 8px !important;
+    min-height: 40px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--multiple,
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--multiple {
+    border-color: #131D5A !important;
+    box-shadow: 0 0 0 1px #131D5A;
+}
+
+/* --- Single select: vertically center the chosen text --- */
+.select2-container--default .select2-selection--single {
+    display: flex;
+    align-items: center;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.4 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* --- Single select: replace the default triangle with a clean, centered
+       chevron (the arrow box spans the full height and flex-centers the mark) --- */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    top: 0 !important;
+    right: 6px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    display: none;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    margin-top: -3px;
+    border-right: 2px solid #6b7280;
+    border-bottom: 2px solid #6b7280;
+    transform: rotate(45deg);
+    pointer-events: none;
+    transition: transform 0.15s ease;
+}
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow::after {
+    margin-top: 3px;
+    transform: rotate(-135deg);
+}
+
+/* --- Multiple select chips. Centreon splits each chip into `.select2-content`
+       (the text, floated left) and `.select2-selection__choice__remove` (the ×,
+       floated right); the theme colors them grey with !important. We recolor
+       both halves navy so together they read as one React-style pill. --- */
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 4px 4px 0 0 !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
+    height: 24px;
+    box-sizing: border-box;
+    background-color: #131D5A !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 16px 0 0 16px !important;
+    padding: 0 6px 0 12px !important;
+    font-size: 13px;
+    line-height: 24px !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    box-sizing: border-box;
+    background-color: #131D5A !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 0 16px 16px 0 !important;
+    padding: 0 10px 0 6px !important;
+    margin: 0 !important;
+    font-size: 15px;
+    line-height: 24px !important;
+    opacity: 0.9;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    background-color: #131D5A !important;
+    opacity: 1;
+}
+
+/* --- Dropdown panel --- */
+.select2-dropdown {
+    border: 1px solid #c2c7ce !important;
+    border-radius: 8px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+}
+.select2-search--dropdown .select2-search__field {
+    border: 1px solid #c2c7ce !important;
+    border-radius: 6px !important;
+    padding: 6px 10px;
+    outline: none;
+}
+.select2-search--dropdown .select2-search__field:focus {
+    border-color: #131D5A !important;
+}
+/* Placeholder (single selection + multi inline search) — greyed like inputs */
+.select2-container--default .select2-selection__placeholder,
+.select2-search--inline .select2-search__field::placeholder {
+    color: var(--c-text-secondary, #8a8a8a) !important;
+    opacity: 1;
+}
+.dark .select2-container--default .select2-selection__placeholder,
+.dark .select2-search--inline .select2-search__field::placeholder {
+    color: #7a7a7a !important;
+}
+.select2-results__option {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #E6EDF5 !important;
+    color: #131D5A !important;
+}
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: rgba(19, 29, 90, 0.08) !important;
+    color: #131D5A !important;
+    font-weight: 500;
+}
+
+/* ---------- Dark theme (dropdown is on <body>, so keyed off html.dark) ------ */
+.dark .select2-container--default .select2-selection--single,
+.dark .select2-container--default .select2-selection--multiple {
+    background-color: #212121 !important;
+    border-color: #4d4d4d !important;
+}
+.dark .select2-container--default.select2-container--focus .select2-selection--single,
+.dark .select2-container--default.select2-container--focus .select2-selection--multiple,
+.dark .select2-container--default.select2-container--open .select2-selection--single,
+.dark .select2-container--default.select2-container--open .select2-selection--multiple {
+    border-color: #6eaff8 !important;
+    box-shadow: 0 0 0 1px #6eaff8;
+}
+.dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #e6e6e6;
+}
+.dark .select2-container--default .select2-selection--single .select2-selection__arrow::after {
+    border-color: #a0a0a0;
+}
+.dark .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
+    background-color: #6eaff8 !important;
+    color: #16233a !important;
+}
+.dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    background-color: #6eaff8 !important;
+    color: #16233a !important;
+}
+.dark .select2-dropdown {
+    background-color: #212121 !important;
+    border-color: #4d4d4d !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+.dark .select2-search--dropdown .select2-search__field {
+    background-color: #212121 !important;
+    border-color: #4d4d4d !important;
+    color: #e6e6e6;
+}
+.dark .select2-search--dropdown .select2-search__field:focus {
+    border-color: #6eaff8 !important;
+}
+.dark .select2-results__option {
+    color: #cccccc;
+}
+.dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+.dark .select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: rgba(110, 175, 248, 0.15) !important;
+    color: #6eaff8 !important;
 }

@@ -11,7 +11,7 @@
             <select id="clSearchType" class="cl-search-input" style="min-width:160px;">
                 <option value="">{t}All object types{/t}</option>
             </select>
-            <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
+            <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
         </div>
     </div>
 
@@ -63,9 +63,9 @@
     });
 
     var badgeClass = {
-        'ok': 'service_ok',
-        'warning': 'service_warning',
-        'critical': 'service_critical'
+        'ok': 'cl-tag--success',
+        'warning': 'cl-tag--warning',
+        'critical': 'cl-tag--error'
     };
 
     var detailUrl = './include/Administration/configChangelog/ajaxChangelogDetail.php';
@@ -186,8 +186,8 @@
                 return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
             }},
             { id:'action_type', render: function(row) {
-                var cls = badgeClass[row.badge] || 'service_warning';
-                return '<span class="badge '+cls+'">'+row.action_type+'</span>';
+                var cls = badgeClass[row.badge] || 'cl-tag--warning';
+                return '<span class="cl-tag '+cls+'" style="min-width:82px;">'+row.action_type+'</span>';
             }},
             { id:'object_type', render: function(row, l) {
                 return l.escape(row.object_type);

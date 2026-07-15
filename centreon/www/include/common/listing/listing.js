@@ -158,6 +158,34 @@ function CentreonListing(config) {
         }
     }
 
+    // Enable the "More actions" ghost button only when at least one row is
+    // selected (mirrors the React listing behaviour).
+    function updateBulkState() {
+        var anyChecked = jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').length > 0;
+        jQuery('.cl-more-actions').each(function () {
+            jQuery(this).toggleClass('cl-disabled', !anyChecked);
+            jQuery(this).find('select').prop('disabled', !anyChecked);
+        });
+    }
+
+    // Enable the advanced-filters "Clear" ghost button only when there is
+    // something to clear (a search term or any advanced filter set).
+    function updateClearState() {
+        var hasFilter = false;
+        jQuery('.cl-adv-panel .cl-adv-field select, .cl-adv-panel .cl-adv-field input').each(function () {
+            if (jQuery(this).val()) {
+                hasFilter = true;
+            }
+        });
+        jQuery('.cl-adv-clear').prop('disabled', !hasFilter);
+
+        // Per-field clear (×): only show it when that field has a value
+        jQuery('.cl-adv-control').each(function () {
+            var field = jQuery(this).find('select, input').first();
+            jQuery(this).toggleClass('cl-has-value', !!(field.length && field.val()));
+        });
+    }
+
     // =====================================================================
     // Public: fetch data from the AJAX listing endpoint
     //   silent = true  → no loading indicator, no fade (used by auto-refresh)
@@ -245,6 +273,8 @@ function CentreonListing(config) {
                 firstLoad = false;
                 // Reset bulk action dropdowns to default
                 jQuery('select[name="o1"], select[name="o2"]').prop('selectedIndex', 0);
+                updateBulkState();
+                updateClearState();
                 if (cfg.onDataLoaded) cfg.onDataLoaded(data);
             },
             error: function () {
@@ -402,38 +432,20 @@ function CentreonListing(config) {
         var endRow   = Math.min((num + 1) * limit, total);
         var info     = startRow + '-' + endRow + ' of ' + total;
 
+        // React-style layout: [rows-per-page ▾] [count] [first][prev][next][last]
+        // The four nav arrows are always shown and greyed (disabled) at the ends.
+        var nav = function (title, disabled, page, inner) {
+            var svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+            if (disabled) {
+                return '<span class="cl-page-nav cl-page-nav--disabled" title="' + title + '">' + svg + '</span>';
+            }
+            return '<a href="#" class="cl-page-nav" title="' + title + '" onclick="' + instanceName() + '.goToPage(' + page + ');return false;">' + svg + '</a>';
+        };
+
         var html = '';
 
-        // First / Previous
-        if (num > 0) {
-            html += '<a href="#" class="cl-page-nav" title="First page" onclick="' + instanceName() + '.goToPage(0);return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 6 11 12 17 18"/><line x1="7" y1="6" x2="7" y2="18"/></svg></a>';
-            html += '<a href="#" class="cl-page-nav" title="Previous page" onclick="' + instanceName() + '.goToPage(' + (num - 1) + ');return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg></a>';
-        }
-
-        // Page numbers
-        var startPage = Math.max(0, num - 5);
-        var endPage   = Math.min(totalPages - 1, num + 5);
-        for (var i = startPage; i <= endPage; i++) {
-            if (i === num) {
-                html += '<span class="cl-page-current">' + (i + 1) + '</span>';
-            } else {
-                html += '<a href="#" class="cl-page-num" onclick="' + instanceName() + '.goToPage(' + i + ');return false;">'
-                    + (i + 1) + '</a>';
-            }
-        }
-
-        // Next / Last
-        if (num < totalPages - 1) {
-            html += '<a href="#" class="cl-page-nav" title="Next page" onclick="' + instanceName() + '.goToPage(' + (num + 1) + ');return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></a>';
-            html += '<a href="#" class="cl-page-nav" title="Last page" onclick="' + instanceName() + '.goToPage(' + (totalPages - 1) + ');return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 6 13 12 7 18"/><line x1="17" y1="6" x2="17" y2="18"/></svg></a>';
-        }
-
         // Rows-per-page selector
-        html += ' <select class="cl-limit-select" onchange="' + instanceName() + '.changeLimit(this.value);">';
+        html += '<select class="cl-limit-select" onchange="' + instanceName() + '.changeLimit(this.value);">';
         var limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
         for (var j = 0; j < limits.length; j++) {
             var sel = limits[j] === limit ? ' selected' : '';
@@ -443,6 +455,14 @@ function CentreonListing(config) {
 
         // Row count info
         html += '<span class="cl-page-info">' + info + '</span>';
+
+        // Navigation arrows (first / previous / next / last)
+        var isFirst = num <= 0;
+        var isLast = num >= totalPages - 1;
+        html += nav('First page', isFirst, 0, '<polyline points="17 6 11 12 17 18"/><line x1="7" y1="6" x2="7" y2="18"/>');
+        html += nav('Previous page', isFirst, num - 1, '<polyline points="15 6 9 12 15 18"/>');
+        html += nav('Next page', isLast, num + 1, '<polyline points="9 6 15 12 9 18"/>');
+        html += nav('Last page', isLast, totalPages - 1, '<polyline points="7 6 13 12 7 18"/><line x1="17" y1="6" x2="17" y2="18"/>');
 
         jQuery('#' + cfg.paginationTopId).html(html);
         jQuery('#' + cfg.paginationBottomId).html(html);
@@ -506,6 +526,7 @@ function CentreonListing(config) {
         table.find('tbody .cl-col-picker input[type=checkbox]').each(function () {
             jQuery(this).prop('checked', masterCheckbox.checked);
         });
+        updateBulkState();
     };
 
     // =====================================================================
@@ -549,6 +570,41 @@ function CentreonListing(config) {
                 self.fetch(0, currentLimit, currentSearch);
             }
         };
+
+        // Clear (×) for the search field only — independent of advanced filters.
+        // Injected here so every listing gets it without markup changes.
+        (function () {
+            var input = document.getElementById(cfg.searchInputId);
+            if (!input || !input.closest) return;
+            var wrap = input.closest('.cl-search');
+            if (!wrap || wrap.querySelector('.cl-search-clear')) return;
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'cl-search-clear';
+            btn.setAttribute('aria-label', 'Clear search');
+            btn.setAttribute('title', 'Clear');
+            btn.innerHTML = '&times;';
+            input.parentNode.insertBefore(btn, input.nextSibling);
+            var sync = function () {
+                wrap.classList.toggle('cl-search--has-value', !!input.value);
+            };
+            btn.addEventListener('click', function () {
+                input.value = '';
+                sync();
+                input.focus();
+                self.applySearch();
+            });
+            jQuery(input).on('input', sync);
+            sync();
+        })();
+
+        // Toggle "More actions" enabled state as rows are (de)selected
+        jQuery(document).on('change', '#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]', updateBulkState);
+
+        // Toggle "Clear" enabled state as the search term / advanced filters change
+        jQuery('#' + cfg.searchInputId).on('input', updateClearState);
+        jQuery(document).on('change', '.cl-adv-panel .cl-adv-field select, .cl-adv-panel .cl-adv-field input', updateClearState);
+        updateClearState();
 
         // Search button (present on pages with an advanced filters panel)
         jQuery('#' + cfg.searchBtnId).on('click', self.applySearch);
@@ -671,22 +727,35 @@ function CentreonListing(config) {
 // Usage: <span data-cl-tooltip="PID: 123<br>Uptime: 2d">ⓘ</span>
 // ==========================================================================
 (function () {
-    var tip = null;
-    jQuery(document).on('mouseenter', '[data-cl-tooltip]', function () {
-        var content = jQuery(this).attr('data-cl-tooltip');
-        if (!content) return;
-        tip = jQuery('<div class="cl-tooltip-popup">' + content + '</div>');
-        jQuery('body').append(tip);
-        var rect = this.getBoundingClientRect();
-        var top = rect.top - tip.outerHeight() - 6;
-        if (top < 0) top = rect.bottom + 6;
-        tip.css({
-            top: top + 'px',
-            left: (rect.left + rect.width / 2 - tip.outerWidth() / 2) + 'px'
+    // listing.js is loaded before jQuery in htmlHeader.php, so defer this
+    // top-level jQuery usage until the DOM is ready (jQuery is loaded by then).
+    function initClTooltip() {
+        if (typeof jQuery === 'undefined') {
+            return;
+        }
+        var tip = null;
+        jQuery(document).on('mouseenter', '[data-cl-tooltip]', function () {
+            var content = jQuery(this).attr('data-cl-tooltip');
+            if (!content) return;
+            tip = jQuery('<div class="cl-tooltip-popup">' + content + '</div>');
+            jQuery('body').append(tip);
+            var rect = this.getBoundingClientRect();
+            var top = rect.top - tip.outerHeight() - 6;
+            if (top < 0) top = rect.bottom + 6;
+            tip.css({
+                top: top + 'px',
+                left: (rect.left + rect.width / 2 - tip.outerWidth() / 2) + 'px'
+            });
+        }).on('mouseleave', '[data-cl-tooltip]', function () {
+            if (tip) { tip.remove(); tip = null; }
         });
-    }).on('mouseleave', '[data-cl-tooltip]', function () {
-        if (tip) { tip.remove(); tip = null; }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initClTooltip);
+    } else {
+        initClTooltip();
+    }
 })();
 
 // ==========================================================================
@@ -709,5 +778,123 @@ function clToggleAdvancedFilters(btn) {
     var hide = btn.getAttribute('data-cl-label-hide');
     if (labelEl && show && hide) {
         labelEl.textContent = open ? hide : show;
+    }
+}
+
+// ==========================================================================
+// Reusable confirmation / alert modal (replaces native confirm()/alert()).
+// Matches the React confirmation dialog: title, message, Cancel + action.
+//   clConfirm({ title, message, confirmLabel, cancelLabel, danger,
+//               onConfirm, onCancel })   — message may contain HTML
+//   clAlert(message, title)              — single "OK" info dialog
+// ==========================================================================
+function clModal(opts) {
+    opts = opts || {};
+
+    var overlay = document.createElement('div');
+    overlay.className = 'cl-modal-overlay';
+
+    var actions = '';
+    if (!opts.alert) {
+        actions += '<button type="button" class="cl-modal-btn cl-modal-cancel">'
+            + (opts.cancelLabel || 'Cancel') + '</button>';
+    }
+    actions += '<button type="button" class="cl-modal-btn cl-modal-confirm'
+        + (opts.danger ? ' cl-modal-confirm--danger' : '') + '">'
+        + (opts.confirmLabel || 'OK') + '</button>';
+
+    var dialog = document.createElement('div');
+    dialog.className = 'cl-modal';
+    dialog.setAttribute('role', 'dialog');
+    dialog.innerHTML =
+        '<div class="cl-modal-header">'
+        + '<h3 class="cl-modal-title">' + (opts.title || '') + '</h3>'
+        + '<button type="button" class="cl-modal-close" aria-label="Close">&times;</button>'
+        + '</div>'
+        + '<div class="cl-modal-body">' + (opts.message || '') + '</div>'
+        + '<div class="cl-modal-actions">' + actions + '</div>';
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+    // Next frame so the open transition plays
+    setTimeout(function () { overlay.classList.add('cl-modal-open'); }, 10);
+
+    var closed = false;
+    function close() {
+        if (closed) return;
+        closed = true;
+        document.removeEventListener('keydown', onKey);
+        overlay.classList.remove('cl-modal-open');
+        setTimeout(function () {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 200);
+    }
+    function cancel() { close(); if (opts.onCancel) opts.onCancel(); }
+    function confirm() { close(); if (opts.onConfirm) opts.onConfirm(); }
+    function onKey(e) {
+        if (e.key === 'Escape') cancel();
+        else if (e.key === 'Enter') confirm();
+    }
+
+    dialog.querySelector('.cl-modal-close').addEventListener('click', cancel);
+    var cancelBtn = dialog.querySelector('.cl-modal-cancel');
+    if (cancelBtn) cancelBtn.addEventListener('click', cancel);
+    dialog.querySelector('.cl-modal-confirm').addEventListener('click', confirm);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) cancel(); });
+    document.addEventListener('keydown', onKey);
+    dialog.querySelector('.cl-modal-confirm').focus();
+}
+
+function clConfirm(opts) { clModal(opts); }
+
+function clAlert(message, title) {
+    clModal({ alert: true, message: message, title: title || '', confirmLabel: 'OK' });
+}
+
+// Handle a "More actions" (o1/o2) select change with styled confirmation
+// modals instead of native confirm()/alert(). Messages/labels come from the
+// select's data-* attributes (translated in PHP), with English fallbacks.
+function clMoreAction(select) {
+    if (!select || select.selectedIndex <= 0) return;
+    var form = select.form;
+    var value = select.value;
+    var attr = function (name, fallback) {
+        return select.getAttribute(name) || fallback;
+    };
+    var reset = function () { select.selectedIndex = 0; };
+    var doAction = function () {
+        if (typeof window.setO === 'function') window.setO(value);
+        // Use the prototype in case a field named "submit" shadows form.submit
+        if (form) HTMLFormElement.prototype.submit.call(form);
+    };
+
+    // Row-based actions require at least one selected row
+    if (typeof window.isChecked === 'function' && !window.isChecked()) {
+        clAlert(attr('data-msg-select', 'Please select one or more items'));
+        reset();
+        return;
+    }
+
+    if (value === 'd') { // Delete
+        clConfirm({
+            danger: true,
+            title: attr('data-title-delete', 'Delete'),
+            message: attr('data-msg-delete', 'You are about to delete the selected object(s). This action cannot be undone. Do you want to delete?'),
+            confirmLabel: attr('data-label-delete', 'Delete'),
+            cancelLabel: attr('data-label-cancel', 'Cancel'),
+            onConfirm: doAction,
+            onCancel: reset
+        });
+    } else if (value === 'm') { // Duplicate
+        clConfirm({
+            title: attr('data-title-duplicate', 'Duplicate'),
+            message: attr('data-msg-duplicate', 'Do you want to duplicate the selected object(s)?'),
+            confirmLabel: attr('data-label-duplicate', 'Duplicate'),
+            cancelLabel: attr('data-label-cancel', 'Cancel'),
+            onConfirm: doAction,
+            onCancel: reset
+        });
+    } else { // Enable / Disable / Mass Change / Deploy — no confirmation
+        doAction();
     }
 }

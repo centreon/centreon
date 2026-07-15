@@ -81,32 +81,32 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 $setO = "function setO(_i) { document.forms['form'].elements['o'].value = _i; }";
 
-$attrs = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements[this.name].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements[this.name].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " setO(this.form.elements[this.name].value); submit();} "
-    . "else if (this.form.elements[this.name].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " setO(this.form.elements[this.name].value); submit();} "
-    . "else if (this.form.elements[this.name].selectedIndex == 3){"
-    . " setO(this.form.elements[this.name].value); submit();} "
-    . "this.form.elements[this.name].selectedIndex = 0"];
+    // Styled confirmation modals (clMoreAction in listing.js) replace the
+    // native confirm()/alert(); messages passed as data-* attributes.
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete' => _('Delete service template'),
+        'data-msg-delete' => _('You are about to delete the selected service template(s). This action cannot be undone. Do you want to delete?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate' => _('Duplicate service template'),
+        'data-msg-duplicate' => _('Do you want to duplicate the selected service template(s)?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
 
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change')],
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change')],
     $attrs
 );
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change')],
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change')],
     $attrs
 );
 $form->setDefaults(['o1' => null, 'o2' => null]);

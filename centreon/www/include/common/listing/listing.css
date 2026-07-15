@@ -37,16 +37,56 @@
     gap: 12px;
 }
 
-/* "More actions" dropdown in actions bar */
-.cl-actions-left select {
-    padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 9999px;
-    background: var(--select-background, #fff);
+/* "More actions" — rendered as a ghost text button matching the React
+   HostGroups page: the "⋯" icon sits BEFORE the label, both centered, with no
+   border/background and no native <select> chrome. */
+.cl-more-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 18px;
+    /* Ghost text button, primary color — matches the React HostGroups button */
+    color: var(--color-primary-light, #131D5A);
     cursor: pointer;
-    line-height: 1.4;
+    transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.cl-more-actions:hover {
+    background: var(--color-listing-hover, #E6EDF5);
+}
+
+/* Disabled until at least one row is selected (mirrors the React behaviour) */
+.cl-more-actions.cl-disabled {
+    color: var(--color-grey-chateau, #a7a9ac);
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: default;
+}
+
+.cl-more-actions-icon {
+    display: inline-flex;
+    align-items: center;
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* Strip the native <select> chrome so only the label shows (icon is the span) */
+.cl-actions-left .cl-more-actions select {
     height: auto;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 /* ==========================================================================
@@ -56,18 +96,24 @@
 .cl-btn-add {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    font-size: 14px;
+    justify-content: center;
+    /* Match the React medium primary button (HostGroups "Add"): 16px text,
+       24px line-height, 8px gap between the + icon and the label. */
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
     font-weight: 500;
+    line-height: 24px;
     color: #fff;
     background-color: var(--color-primary-light, #131D5A);
     border: none;
-    border-radius: 9999px;
+    border-radius: 20px;
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
-    line-height: 1.4;
     transition: background-color 0.15s ease;
 }
 
@@ -79,7 +125,7 @@
 
 .cl-btn-add::before {
     content: '+';
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 400;
     line-height: 1;
 }
@@ -130,7 +176,7 @@
 .cl-pagination {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -158,26 +204,43 @@
     text-decoration: none;
 }
 
-/* Navigation arrows (first, prev, next, last) — outlined chevrons, tight */
-.cl-pagination a.cl-page-nav {
-    min-width: 16px;
+/* Navigation arrows (first, prev, next, last) — MUI-style icon buttons,
+   matching the React (HostGroups) pagination: ~20px icons, 32px round buttons,
+   grey, circular hover. */
+.cl-pagination a.cl-page-nav,
+.cl-pagination span.cl-page-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
     padding: 0;
+    border-radius: 9999px;
     color: var(--c-text-secondary, #8a8a8a);
 }
 
-.cl-pagination a.cl-page-nav svg {
-    width: 16px;
-    height: 16px;
+.cl-pagination a.cl-page-nav svg,
+.cl-pagination span.cl-page-nav svg {
+    width: 20px;
+    height: 20px;
     fill: none !important;
     stroke: currentColor;
 }
 
 .cl-pagination a.cl-page-nav:hover {
-    background: none;
+    background-color: var(--color-listing-hover, #E6EDF5);
 }
 
 .cl-pagination a.cl-page-nav:hover svg {
     stroke: var(--color-primary-light, #131D5A);
+}
+
+/* Disabled nav arrows (at the first / last page) — greyed, non-interactive */
+.cl-pagination .cl-page-nav--disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
 }
 
 /* Current page indicator */
@@ -196,20 +259,27 @@
 
 /* "X-Y of Z" label */
 .cl-pagination .cl-page-info {
-    font-size: 13px;
-    color: var(--body-color, #555);
-    padding: 0 4px;
+    font-size: 14px;
+    color: var(--c-text-secondary, #8a8a8a);
+    padding: 0 8px;
 }
 
-/* Rows-per-page selector */
+/* Rows-per-page selector — borderless text + chevron, like the MUI
+   TablePagination select used on the React (HostGroups) pages. */
 .cl-pagination .cl-limit-select {
-    padding: 4px 8px;
-    font-size: 13px;
-    border: 1px solid var(--color-divider, #E3E3E3);
-    border-radius: 4px;
-    background: var(--select-background, #fff);
+    height: 32px;
+    padding: 0 22px 0 6px;
+    font-size: 14px;
+    color: var(--body-color, #555);
+    border: none;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
     cursor: pointer;
-    min-width: 50px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 /* ==========================================================================
@@ -283,8 +353,10 @@
 }
 
 .cl-listing-table tbody td {
-    padding: 4px 16px;
-    font-size: 13px;
+    height: 30px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    font-size: 12px;
     color: var(--body-color, #555);
     border-bottom: 1px solid var(--color-divider, #E3E3E3);
     vertical-align: middle;
@@ -362,8 +434,8 @@
 .cl-toggle {
     position: relative;
     display: inline-block;
-    width: 42px;
-    height: 20px;
+    width: 34px;
+    height: 18px;
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -379,20 +451,20 @@
     position: absolute;
     inset: 0;
     background: var(--switch-off-color, #c2c7ce);
-    border-radius: 20px;
+    border-radius: 18px;
     transition: background 0.2s ease;
 }
 
 .cl-toggle-slider::before {
     content: '';
     position: absolute;
-    width: 24px;
-    height: 24px;
-    left: -2px;
-    top: -2px;
+    width: 14px;
+    height: 14px;
+    left: 2px;
+    top: 2px;
     background: #fff;
     border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -401,17 +473,17 @@
 }
 
 .cl-toggle input:checked + .cl-toggle-slider::before {
-    transform: translateX(22px);
+    transform: translateX(16px);
 }
 
 /* Hover: subtle grey halo around the knob */
 .cl-toggle:hover .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* Focus: light-blue halo */
 .cl-toggle input:focus-visible + .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(19, 29, 90, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 4px rgba(19, 29, 90, 0.25), 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .cl-toggle input:disabled + .cl-toggle-slider {
@@ -616,9 +688,22 @@
 .cl-filter-bar .cl-search-input {
     max-width: none;
     width: 200px;
-    height: 28px;
-    padding: 4px 8px;
-    font-size: 13px;
+    height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+/* Native <select> in the filter bar — styled like our simple select (chevron) */
+.cl-filter-bar select.cl-search-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 32px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
 }
 
 .cl-filter-bar .select2-container {
@@ -673,7 +758,7 @@
 }
 
 .cl-filter-bar .cf-field > input {
-    height: 38px;
+    height: 40px;
 }
 
 .cl-filter-bar .cf-field .select2-container {
@@ -681,8 +766,8 @@
 }
 
 .cl-filter-bar .cf-field .select2-container .select2-selection {
-    height: 38px;
-    min-height: 38px;
+    height: 40px;
+    min-height: 40px;
     display: flex;
     align-items: center;
 }
@@ -767,6 +852,8 @@
 .cl-search .cl-search-icon {
     position: absolute;
     left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     color: var(--c-text-secondary, #6b7280);
     pointer-events: none;
@@ -783,7 +870,8 @@
 .cl-search .cl-search-simple {
     width: 320px;
     height: 38px;
-    padding: 0 12px 0 36px;
+    /* Right padding leaves room for the clear (×) button */
+    padding: 0 36px 0 36px;
     border: 1px solid var(--c-stroke, #c2c7ce);
     /* Match the Resource Status search bar radius (20px) — a rounded pill. */
     border-radius: 20px;
@@ -835,6 +923,76 @@
     background: rgba(19, 29, 90, 0.10);
 }
 
+/* Only the search bars that embed the advanced-filters icon need room on the
+   right for it — other listings keep the default right padding. */
+.cl-search:has(.cl-adv-btn--in-search) .cl-search-simple {
+    padding-right: 68px;
+}
+
+/* Clear (×) button for the search field — independent of the advanced filters.
+   Injected by listing.js; shown only when the input has a value. */
+.cl-search .cl-search-clear {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    color: var(--c-text-secondary, #6b7280);
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.7;
+    z-index: 2;
+}
+.cl-search .cl-search-clear:hover {
+    background: rgba(0, 0, 0, 0.06);
+    opacity: 1;
+}
+.cl-search.cl-search--has-value .cl-search-clear {
+    display: inline-flex;
+}
+/* When the advanced-filters icon is embedded, place the clear left of it */
+.cl-search:has(.cl-adv-btn--in-search) .cl-search-clear {
+    right: 40px;
+}
+
+/* Advanced-filters button embedded inside the search bar as an icon-only
+   toggle, pinned to the right edge of the pill (text label omitted). */
+.cl-search .cl-adv-btn--in-search {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 30px;
+    width: 30px;
+    min-width: 30px;
+    padding: 0;
+    gap: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--c-text-secondary, #6b7280);
+    justify-content: center;
+}
+
+.cl-search .cl-adv-btn--in-search:hover {
+    background: var(--color-listing-hover, #E6EDF5);
+    color: var(--c-primary-main, #131D5A);
+}
+
+.cl-search .cl-adv-btn--in-search.active {
+    background: rgba(19, 29, 90, 0.10);
+    color: var(--c-primary-main, #131D5A);
+}
+
 /* Advanced filters panel (expands below the toolbar) */
 .cl-adv-panel {
     max-height: 0;
@@ -852,10 +1010,14 @@
 
 .cl-adv-inner {
     margin-top: 8px;
-    padding: 16px;
-    background: var(--c-bg-panel-groups, #f8f9fa);
+    /* Breathing room between the expanded filter panel and the table header */
+    margin-bottom: 12px;
+    padding: 20px;
+    /* Elevated white card, matching the React advanced-search container */
+    background: var(--select-background, #fff);
     border: 1px solid var(--c-divider, #e3e3e3);
-    border-radius: 6px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: flex-end;
     gap: 16px;
@@ -870,19 +1032,38 @@
 }
 
 .cl-adv-field {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 4px;
     width: 230px;
 }
 
 .cl-adv-field > input {
-    height: 38px;
+    height: 40px;
+    width: 100%;
     box-sizing: border-box;
+    padding: 0 12px;
+    border: 1px solid var(--c-stroke, #c2c7ce);
+    border-radius: 8px;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    outline: none;
+    background: var(--select-background, #fff);
+    color: var(--list-color, #333);
+}
+.cl-adv-field > input:focus {
+    border-color: var(--c-primary-main, #131D5A);
+}
+
+/* Toggle filter (e.g. "Disabled hosts") sits in the advanced-filters row next
+   to 40px-tall selects; give it the same height so it centers against them. */
+.cl-adv-fields .cl-filter-toggle {
+    height: 40px;
 }
 
 /* Control row: select + per-field clear cross */
 .cl-adv-control {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -893,20 +1074,44 @@
     min-width: 0;
 }
 
+/* Clear (×) integrated INSIDE the field, just left of the chevron, styled as a
+   grey circular button — matches the React select clear. Room is reserved on
+   the right of the rendered text so it never overlaps. */
+.cl-adv-control .select2-container .select2-selection__rendered {
+    padding-right: 54px !important;
+}
+
 .cl-adv-clear-field {
-    flex: 0 0 auto;
-    background: none;
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
     border: none;
+    border-radius: 50%;
+    background: none;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1;
-    padding: 0 2px;
-    color: var(--color-danger, #FF4A4A);
-    opacity: 0.55;
+    color: var(--c-text-secondary, #6b7280);
+    opacity: 0.7;
 }
 
 .cl-adv-clear-field:hover {
+    background: rgba(0, 0, 0, 0.06);
     opacity: 1;
+}
+
+/* Hide the per-field clear (×) until the field actually has a value
+   (the `cl-has-value` class is toggled in listing.js). */
+.cl-adv-control:not(.cl-has-value) .cl-adv-clear-field {
+    display: none;
 }
 
 .cl-adv-field .select2-container {
@@ -914,17 +1119,33 @@
 }
 
 .cl-adv-field .select2-container .select2-selection {
-    height: 38px;
-    min-height: 38px;
+    height: 40px;
+    min-height: 40px;
     display: flex;
     align-items: center;
 }
 
-.cl-adv-field > label,
 .cl-adv-caption {
     font-family: Roboto, sans-serif;
     font-size: 12px;
     color: var(--c-text-secondary, #6b7280);
+}
+
+/* Floating (notched) label sitting on the field's top border — MUI-outlined
+   style. Its background matches the filter panel so it "cuts" the border. */
+.cl-adv-field > label {
+    position: absolute;
+    top: -7px;
+    left: 10px;
+    z-index: 3;
+    padding: 0 4px;
+    background: var(--select-background, #fff);
+    font-family: Roboto, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--c-primary-main, #131D5A);
+    pointer-events: none;
 }
 
 .cl-adv-actions {
@@ -936,23 +1157,32 @@
     flex: 0 0 auto;
 }
 
+/* Clear = ghost text button (navy), disabled/greyed when nothing to clear —
+   mirrors the React HostGroups filter. The disabled state is toggled in JS. */
 .cl-adv-clear {
-    height: 38px;
-    padding: 0 16px;
-    border: 1px solid var(--c-divider-strong, #b5b5b5);
-    border-radius: 4px;
-    background: #fff;
-    color: var(--list-color, #333);
+    height: 36px;
+    padding: 0 12px;
+    border: none;
+    background: transparent;
+    color: var(--c-primary-main, #131D5A);
     font-family: Roboto, sans-serif;
     font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
+    transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.cl-adv-clear:disabled {
+    color: var(--color-grey-chateau, #a7a9ac);
+    cursor: default;
+    opacity: 0.7;
 }
 
 .cl-adv-search {
-    height: 38px;
+    height: 36px;
     padding: 0 18px;
     border: 0;
-    border-radius: 4px;
+    border-radius: 18px;
     background: var(--c-primary-main, #131D5A);
     color: #fff;
     font-family: Roboto, sans-serif;
@@ -982,11 +1212,20 @@
     font-weight: 600;
     line-height: 18px;
     white-space: nowrap;
+    text-align: center;
 }
-.cl-tag--success { background: rgba(136, 185, 34, 0.18); color: #4f7a0b; }
+.cl-tag--success { background: rgba(136, 185, 34, 0.18); color: #5f8117; }
 .cl-tag--neutral { background: rgba(0, 0, 0, 0.06); color: #6b7280; }
 .cl-tag--info    { background: rgba(19, 29, 90, 0.15); color: #2A3575; }
 .cl-tag--warning { background: rgba(255, 166, 0, 0.18); color: #9a6a00; }
+.cl-tag--error   { background: rgba(255, 74, 74, 0.14); color: #c0392b; }
+
+/* Dark theme — softer pastel fills with light text */
+.dark .cl-tag--success { background: rgba(159, 199, 78, 0.20); color: #9FC74E; }
+.dark .cl-tag--neutral { background: rgba(255, 255, 255, 0.10); color: #bdbdbd; }
+.dark .cl-tag--info    { background: rgba(110, 175, 248, 0.18); color: #8bbff9; }
+.dark .cl-tag--warning { background: rgba(252, 196, 129, 0.20); color: #FCC481; }
+.dark .cl-tag--error   { background: rgba(255, 110, 110, 0.20); color: #FF8A8A; }
 
 .cl-mon-up {
     background: var(--color-success, #88B922);
@@ -1118,9 +1357,9 @@
 }
 .cl-diff-header {
     display: flex;
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
-    font-weight: 600;
+    background: var(--color-background-listing-header, #d9d9d9);
+    color: #000;
+    font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1128,6 +1367,7 @@
 .cl-diff-header span {
     flex: 1;
     padding: 6px 10px;
+    text-align: center;
 }
 .cl-diff-header span:first-child {
     flex: 0 0 200px;
@@ -1211,7 +1451,7 @@
     width: 42px;
     height: 42px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #3a7bbf, #2c5f8f);
+    background: linear-gradient(135deg, #2A3575, #131D5A);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1235,19 +1475,23 @@
 .cld-back-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    padding: 8px 16px;
-    border-radius: 6px;
-    background: var(--color-divider, #e8e8e8);
-    color: var(--list-color, #555);
+    height: 36px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    border-radius: 18px;
+    background: transparent;
+    border: 1px solid var(--c-divider-strong, #b5b5b5);
+    color: var(--color-primary-light, #131D5A);
     text-decoration: none;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s;
 }
 .cld-back-btn:hover {
-    background: #3a7bbf;
-    color: #fff;
+    background: var(--color-listing-hover, #E6EDF5);
+    color: var(--color-primary-light, #131D5A);
     text-decoration: none;
 }
 
@@ -1285,11 +1529,12 @@
     border: 2px solid #fff;
     box-shadow: 0 0 0 2px var(--color-divider, #ddd);
 }
-.cld-dot.dot-create  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
-.cld-dot.dot-change  { background: #e67e22; box-shadow: 0 0 0 2px #e67e22; }
-.cld-dot.dot-delete  { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; }
-.cld-dot.dot-enable  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
-.cld-dot.dot-disable { background: #e74c3c; box-shadow: 0 0 0 2px #e74c3c; }
+/* Dots use the same colors as the modification-type chips (.cl-tag) */
+.cld-dot.dot-create,
+.cld-dot.dot-enable  { background: #5f8117; box-shadow: 0 0 0 2px #5f8117; }
+.cld-dot.dot-change  { background: #9a6a00; box-shadow: 0 0 0 2px #9a6a00; }
+.cld-dot.dot-delete,
+.cld-dot.dot-disable { background: #c0392b; box-shadow: 0 0 0 2px #c0392b; }
 
 /* Entry card */
 .cld-card {
@@ -1369,14 +1614,14 @@
     font-size: 12px;
 }
 .cld-diff-table th {
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
-    font-weight: 600;
+    background: var(--color-background-listing-header, #d9d9d9);
+    color: #000;
+    font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 7px 12px;
-    text-align: left;
+    text-align: center;
 }
 .cld-diff-table td {
     padding: 6px 12px;
@@ -1468,9 +1713,14 @@
 .dark .cl-page-desc,
 .dark .cl-page-info,
 .dark .cl-filter-toggle,
-.dark .cl-adv-field > label,
 .dark .cl-adv-caption {
     color: #a0a0a0;
+}
+
+/* Floating label in dark: primary color, background matches the dark panel */
+.dark .cl-adv-field > label {
+    background: #252525;
+    color: #6eaff8;
 }
 
 .dark .cl-title-sep {
@@ -1497,7 +1747,8 @@
     background-color: rgba(255, 255, 255, 0.10);
 }
 
-.dark .cl-pagination a.cl-page-nav {
+.dark .cl-pagination a.cl-page-nav,
+.dark .cl-pagination span.cl-page-nav {
     color: #a0a0a0;
 }
 
@@ -1505,15 +1756,45 @@
     stroke: #6eaff8;
 }
 
+/* Borderless rows-per-page select in dark */
+.dark .cl-limit-select {
+    background-color: transparent;
+    color: #e6e6e6;
+    border: none;
+}
+
 /* -- Inputs, selects & search --------------------------------------------- */
-.dark .cl-actions-left select,
-.dark .cl-limit-select,
 .dark .cl-search-input,
 .dark .cl-dup-input,
+.dark .cl-adv-field > input,
 .dark .cl-search .cl-search-simple {
     background: #212121;
     color: #e6e6e6;
     border-color: #4d4d4d;
+}
+.dark .cl-adv-field > input:focus {
+    border-color: #6eaff8;
+}
+
+.dark .cl-search .cl-search-clear {
+    color: #a0a0a0;
+}
+.dark .cl-search .cl-search-clear:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #e6e6e6;
+}
+
+/* "More actions" ghost text button in dark */
+.dark .cl-more-actions {
+    color: #6eaff8;
+}
+
+.dark .cl-more-actions:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.dark .cl-more-actions.cl-disabled {
+    color: #666666;
 }
 
 .dark .cl-search-input:focus,
@@ -1551,20 +1832,45 @@
     background: rgba(110, 175, 248, 0.15);
 }
 
+/* Embedded (in-search) icon variant: transparent, no border */
+.dark .cl-search .cl-adv-btn--in-search {
+    background: transparent;
+    color: #a0a0a0;
+    border: none;
+}
+
+.dark .cl-search .cl-adv-btn--in-search:hover,
+.dark .cl-search .cl-adv-btn--in-search.active {
+    background: rgba(255, 255, 255, 0.10);
+    color: #6eaff8;
+}
+
 .dark .cl-adv-inner {
     background: #252525;
     border-color: #3d3d3d;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
 }
 
 .dark .cl-adv-clear {
-    background: #212121;
-    color: #e6e6e6;
-    border-color: #4d4d4d;
+    background: transparent;
+    color: #6eaff8;
+    border: none;
+}
+.dark .cl-adv-clear:disabled {
+    color: #666666;
 }
 
 .dark .cl-adv-search {
     background: #6eaff8;
     color: #16233a;
+}
+
+.dark .cl-adv-clear-field {
+    color: #a0a0a0;
+}
+.dark .cl-adv-clear-field:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #e6e6e6;
 }
 
 /* -- Toggle switch (off state) -------------------------------------------- */
@@ -1586,5 +1892,285 @@
 }
 
 .dark .cl-loading {
+    color: #888888;
+}
+
+/* ==========================================================================
+   Confirmation / alert modal (clConfirm / clAlert) — matches the React dialog
+   ========================================================================== */
+.cl-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 100000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    padding: 16px;
+}
+.cl-modal-overlay.cl-modal-open {
+    opacity: 1;
+}
+
+.cl-modal {
+    width: 100%;
+    max-width: 520px;
+    background: var(--select-background, #fff);
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    padding: 20px 24px 20px;
+    transform: translateY(8px);
+    transition: transform 0.2s ease;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.cl-modal-overlay.cl-modal-open .cl-modal {
+    transform: translateY(0);
+}
+
+.cl-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.cl-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-primary-light, #131D5A);
+}
+.cl-modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: var(--c-text-secondary, #8a8a8a);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 50%;
+    transition: background 0.15s, color 0.15s;
+}
+.cl-modal-close:hover {
+    background: var(--color-listing-hover, #E6EDF5);
+    color: var(--list-color, #333);
+}
+
+.cl-modal-body {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--list-color, #333);
+    margin-bottom: 20px;
+}
+
+.cl-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+}
+.cl-modal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 18px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 18px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s, color 0.15s;
+}
+.cl-modal-cancel {
+    background: transparent;
+    color: var(--color-primary-light, #131D5A);
+    border: 1px solid var(--c-divider-strong, #b5b5b5);
+}
+.cl-modal-cancel:hover {
+    background: var(--color-listing-hover, #E6EDF5);
+}
+.cl-modal-confirm {
+    background: var(--color-primary-light, #131D5A);
+    color: #fff;
+}
+.cl-modal-confirm:hover {
+    background: var(--color-primary-hover, #2A3575);
+}
+.cl-modal-confirm--danger {
+    background: var(--color-danger, #FF4A4A);
+    color: #fff;
+}
+.cl-modal-confirm--danger:hover {
+    background: #e0202e;
+}
+
+/* -- Dark theme (modal is appended to <body>, keyed off html.dark) --------- */
+.dark .cl-modal {
+    background: #212121;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+.dark .cl-modal-title {
+    color: #ffffff;
+}
+.dark .cl-modal-body {
+    color: #e6e6e6;
+}
+.dark .cl-modal-close {
+    color: #a0a0a0;
+}
+.dark .cl-modal-close:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+}
+.dark .cl-modal-cancel {
+    color: #6eaff8;
+    border-color: #4d4d4d;
+}
+.dark .cl-modal-cancel:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.dark .cl-modal-confirm {
+    background: #6eaff8;
+    color: #16233a;
+}
+.dark .cl-modal-confirm:hover {
+    background: #8bbff9;
+}
+.dark .cl-modal-confirm--danger {
+    background: #FF6E6E;
+    color: #16233a;
+}
+.dark .cl-modal-confirm--danger:hover {
+    background: #ff8a8a;
+}
+
+/* ==========================================================================
+   Dark theme — Administration > Logs (changelog) page specifics
+   ========================================================================== */
+.dark .cl-filter-box {
+    background: #252525;
+    border-color: #3d3d3d;
+}
+.dark .cl-filter-label {
+    color: #b0b0b0;
+}
+.dark .cl-scroll-area .cl-listing-table thead th {
+    background: #666666;
+}
+.dark .cl-expand-btn {
+    background: #4d4d4d;
+    color: #e6e6e6;
+}
+.dark .cl-detail-row td {
+    background: #1c1c1c;
+}
+.dark .cl-diff-container {
+    border-color: #3d3d3d;
+}
+.dark .cl-diff-header {
+    background: #666666;
+    color: #ffffff;
+}
+.dark .cl-diff-row {
+    border-bottom-color: #3d3d3d;
+}
+.dark .cl-diff-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+.dark .cl-diff-field {
+    color: #cccccc;
+    border-right-color: #3d3d3d;
+}
+.dark .cl-diff-before {
+    background: rgba(255, 110, 110, 0.10);
+    color: #ff8a8a;
+    border-right-color: #3d3d3d;
+}
+.dark .cl-diff-after {
+    background: rgba(159, 199, 78, 0.12);
+    color: #9FC74E;
+}
+.dark .cl-diff-empty {
+    color: #888888;
+}
+
+/* ==========================================================================
+   Dark theme — Administration > Logs detail (changelog timeline) page
+   ========================================================================== */
+.dark .cld-header {
+    background: #252525;
+    border-color: #3d3d3d;
+}
+.dark .cld-header-text h2 {
+    color: #ffffff;
+}
+.dark .cld-header-text .cld-subtitle {
+    color: #a0a0a0;
+}
+.dark .cld-back-btn {
+    border-color: #4d4d4d;
+    color: #6eaff8;
+}
+.dark .cld-back-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #6eaff8;
+}
+.dark .cld-timeline::before {
+    background: #3d3d3d;
+}
+.dark .cld-dot {
+    border-color: #212121;
+}
+.dark .cld-dot.dot-create,
+.dark .cld-dot.dot-enable  { background: #9FC74E; box-shadow: 0 0 0 2px #9FC74E; }
+.dark .cld-dot.dot-change  { background: #FCC481; box-shadow: 0 0 0 2px #FCC481; }
+.dark .cld-dot.dot-delete,
+.dark .cld-dot.dot-disable { background: #ff8a8a; box-shadow: 0 0 0 2px #ff8a8a; }
+.dark .cld-card {
+    background: #212121;
+    border-color: #3d3d3d;
+}
+.dark .cld-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+.dark .cld-card-header:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+.dark .cld-card-toggle {
+    background: #4d4d4d;
+    color: #e6e6e6;
+}
+.dark .cld-card-date {
+    color: #a0a0a0;
+}
+.dark .cld-card-author {
+    color: #8a8a8a;
+}
+.dark .cld-diff-panel {
+    border-top-color: #3d3d3d;
+}
+.dark .cld-diff-table th {
+    background: #666666;
+    color: #ffffff;
+}
+.dark .cld-diff-table td {
+    border-bottom-color: #3d3d3d;
+}
+.dark .cld-diff-table .cld-fname {
+    color: #cccccc;
+}
+.dark .cld-diff-table .cld-fbefore {
+    background: rgba(255, 110, 110, 0.10);
+    color: #ff8a8a;
+}
+.dark .cld-diff-table .cld-fafter {
+    background: rgba(159, 199, 78, 0.12);
+    color: #9FC74E;
+}
+.dark .cld-no-changes {
     color: #888888;
 }

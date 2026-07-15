@@ -80,7 +80,10 @@ $tpl->assign('wi_search', _('Search'));
 $jsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
 $tpl->assign('emptyMessageJs', json_encode(_('No image found'), $jsonFlags));
 $tpl->assign('emptyDirJs', json_encode(_('Empty directory'), $jsonFlags));
-$tpl->assign('delConfirmJs', json_encode(_('Do you confirm the deletion ?'), $jsonFlags));
+$tpl->assign('delConfirmJs', json_encode(_('You are about to delete the selected image(s). This action cannot be undone. Do you want to delete?'), $jsonFlags));
+$tpl->assign('delTitleJs', json_encode(_('Delete image(s)'), $jsonFlags));
+$tpl->assign('delLabelJs', json_encode(_('Delete'), $jsonFlags));
+$tpl->assign('cancelLabelJs', json_encode(_('Cancel'), $jsonFlags));
 $tpl->assign('addTitleJs', json_encode(_('Add Image(s)'), $jsonFlags));
 
 $tpl->display('listImg.ihtml');

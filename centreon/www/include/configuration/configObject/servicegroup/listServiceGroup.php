@@ -70,47 +70,47 @@ $tpl->assign(
     }
 </script>
 <?php
-$attrs1 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . ''];
+    // Styled confirmation modals (clMoreAction in listing.js) replace the
+    // native confirm()/alert(); messages passed as data-* attributes.
+    $attrs1 = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete' => _('Delete service group'),
+        'data-msg-delete' => _('You are about to delete the selected service group(s). This action cannot be undone. Do you want to delete?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate' => _('Duplicate service group'),
+        'data-msg-duplicate' => _('Do you want to duplicate the selected service group(s)?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs1
 );
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
 
-$attrs = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . ''];
+    // Styled confirmation modals (clMoreAction in listing.js) replace the
+    // native confirm()/alert(); messages passed as data-* attributes.
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete' => _('Delete service group'),
+        'data-msg-delete' => _('You are about to delete the selected service group(s). This action cannot be undone. Do you want to delete?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate' => _('Duplicate service group'),
+        'data-msg-duplicate' => _('Do you want to duplicate the selected service group(s)?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
 $form->addElement(
     'select',
     'o2',
     null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')],
     $attrs
 );
 $o2 = $form->getElement('o2');

@@ -16,7 +16,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$gtPage}&o=a', '{t}Add a graph template{/t}'); return false;">{$msg.addT}</a>
-                {$form.o1.html}
+                <span class="cl-more-actions"><span class="cl-more-actions-icon" aria-hidden="true">&#x22EF;</span>{$form.o1.html}</span>
             </div>
             { else }
             <div class="cl-actions-left">&nbsp;</div>

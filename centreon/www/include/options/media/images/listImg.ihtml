@@ -46,20 +46,42 @@
         object-fit: contain;
     }
 
-    /* Uniform action-bar buttons (same height/padding for Add, Delete, Sync) */
-    .cl-actions-left .cl-btn-add,
+    /* Search bar spacing (own row above the action bar) */
+    .cl-images-search {
+        margin-bottom: 12px;
+    }
+
+    /* Delete / Synchronize: modern secondary pills, matching the design system.
+       Add uses the shared .cl-btn-add (primary pill). */
     .cl-actions-left button.btc {
-        display: inline-flex;
+        display: inline-flex !important;
         align-items: center;
         justify-content: center;
         gap: 6px;
-        height: 34px;
-        padding: 0 16px;
-        font-size: 13px;
+        height: 40px !important;
+        padding: 0 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
         line-height: 1;
         box-sizing: border-box;
-        border-radius: 4px;
+        border-radius: 20px !important;
+        border: 1px solid var(--c-divider-strong, #b5b5b5) !important;
+        background: var(--select-background, #fff) !important;
+        color: var(--list-color, #333) !important;
+        cursor: pointer;
         vertical-align: middle;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .cl-actions-left button.btc:hover {
+        background: var(--color-listing-hover, #E6EDF5) !important;
+    }
+    /* Delete keeps a danger accent */
+    .cl-actions-left button.bt_danger {
+        color: var(--color-danger, #FF4A4A) !important;
+        border-color: var(--color-danger, #FF4A4A) !important;
+    }
+    .cl-actions-left button.bt_danger:hover {
+        background: rgba(255, 74, 74, 0.08) !important;
     }
 
     /* Slide-in side panel (same pattern as the pollers configuration page) */
@@ -112,10 +134,10 @@
 </div>
 
 <form name="form" id="Form">
-    <div class="cl-filter-box">
-        <div class="cl-filter-bar">
-            <input type="text" id="clSearchInput" name="search" value="" class="cl-search-input" placeholder="{t}Name or directory{/t}" style="width:220px;">
-            <button type="button" id="clSearchBtn" class="btc bt_success">{$wi_search}</button>
+    <div class="cl-images-search">
+        <div class="cl-search">
+            <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input type="text" id="clSearchInput" name="search" value="" class="cl-search-simple" placeholder="{t}Name or directory{/t}">
         </div>
     </div>
 
@@ -187,6 +209,9 @@
     var imagesEmptyMessage = {$emptyMessageJs};
     var imagesEmptyDir     = {$emptyDirJs};
     var imagesDelConfirm   = {$delConfirmJs};
+    var imagesDelTitle     = {$delTitleJs};
+    var imagesDelLabel     = {$delLabelJs};
+    var imagesCancelLabel  = {$cancelLabelJs};
     var imagesAddTitle     = {$addTitleJs};
 </script>
 
@@ -207,6 +232,7 @@
             storageKey:    'images_listing_limit',
             defaultLimit:  imagesDefaultLimit,
             autoRefresh:   0,
+            liveSearch:    true,
             showCheckboxes: false,
             emptyMessage:  imagesEmptyMessage,
             columns:       [{ id: 'name' }, { id: 'image' }, { id: 'comment' }]
@@ -316,24 +342,30 @@
         if (jQuery.isEmptyObject(selection)) {
             return;
         }
-        if (!confirm(imagesDelConfirm)) {
-            return;
-        }
-        jQuery.ajax({
-            url: './include/options/media/images/ajaxImagesDelete.php',
-            type: 'POST',
-            dataType: 'json',
-            data: { select: selection, centreon_token: imagesListing.getCsrfToken() },
-            success: function (resp) {
-                if (resp && resp.centreon_token) {
-                    imagesListing.setCsrfToken(resp.centreon_token);
-                }
-                var checkall = document.getElementById('checkall');
-                if (checkall) {
-                    checkall.checked = false;
-                }
-                var s = imagesListing.getState();
-                imagesListing.fetch(s.num, s.limit, s.search, true);
+        clConfirm({
+            danger: true,
+            title: imagesDelTitle,
+            message: imagesDelConfirm,
+            confirmLabel: imagesDelLabel,
+            cancelLabel: imagesCancelLabel,
+            onConfirm: function () {
+                jQuery.ajax({
+                    url: './include/options/media/images/ajaxImagesDelete.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { select: selection, centreon_token: imagesListing.getCsrfToken() },
+                    success: function (resp) {
+                        if (resp && resp.centreon_token) {
+                            imagesListing.setCsrfToken(resp.centreon_token);
+                        }
+                        var checkall = document.getElementById('checkall');
+                        if (checkall) {
+                            checkall.checked = false;
+                        }
+                        var s = imagesListing.getState();
+                        imagesListing.fetch(s.num, s.limit, s.search, true);
+                    }
+                });
             }
         });
     }

@@ -6,6 +6,8 @@
 
     .up-wrap { max-width: 760px; }
     .up-field { margin-bottom: 14px; }
+    /* Spacing between CentreonForm fields (floating labels need the room) */
+    .up-wrap .cf-field { margin-bottom: 18px; }
     .up-field > label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--body-color, #2d3436); }
 
     .up-dropzone {
@@ -52,7 +54,63 @@
         width: 90%;
     }
     .ov-msg { margin: 0 0 16px; font-size: 14px; line-height: 1.4; color: var(--body-color, #2d3436); }
-    .ov-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .ov-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+
+    /* Overwrite modal action buttons — styled like our action buttons.
+       Hierarchy: Overwrite = primary pill, Overwrite all = outlined,
+       Skip / Skip all = ghost text. */
+    .ov-actions button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        padding: 0 16px;
+        box-sizing: border-box;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1;
+        border: none !important;
+        border-radius: 18px !important;
+        cursor: pointer;
+        background: transparent !important;
+        color: var(--color-primary-light, #131D5A) !important;
+        transition: background 0.15s, color 0.15s;
+    }
+    .ov-actions button[data-ov="once"] {
+        background: var(--color-primary-light, #131D5A) !important;
+        color: #fff !important;
+    }
+    .ov-actions button[data-ov="once"]:hover {
+        background: var(--color-primary-hover, #2A3575) !important;
+    }
+    .ov-actions button[data-ov="all"] {
+        border: 1px solid var(--color-primary-light, #131D5A) !important;
+    }
+    .ov-actions button[data-ov="all"]:hover,
+    .ov-actions button[data-ov="skip"]:hover,
+    .ov-actions button[data-ov="skipall"]:hover {
+        background: rgba(19, 29, 90, 0.06) !important;
+    }
+
+    /* Dark theme */
+    .dark .ov-actions button {
+        color: #6eaff8 !important;
+    }
+    .dark .ov-actions button[data-ov="once"] {
+        background: #6eaff8 !important;
+        color: #16233a !important;
+    }
+    .dark .ov-actions button[data-ov="once"]:hover {
+        background: #8bbff9 !important;
+    }
+    .dark .ov-actions button[data-ov="all"] {
+        border-color: #6eaff8 !important;
+    }
+    .dark .ov-actions button[data-ov="all"]:hover,
+    .dark .ov-actions button[data-ov="skip"]:hover,
+    .dark .ov-actions button[data-ov="skipall"]:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
     {/literal}
 </style>
 
@@ -61,22 +119,26 @@
     <p class="images-subtitle">{$pageSubtitle}</p>
 </div>
 
-<div class="up-wrap">
-    <div class="up-field">
-        <label>{$wi_directory}</label>
+<div class="cf-form-wrapper up-wrap">
+    <div class="cf-field">
         <select id="uploadDir">
             {foreach from=$directories item=d}
                 <option value="{$d}">{$d}</option>
             {/foreach}
         </select>
-        {if $canCreateDir == 1}
-            <input type="text" id="uploadNewDir" placeholder="{$wi_newDirectory}" style="margin-left:8px;width:200px;">
-        {/if}
+        <label class="cf-label-float">{$wi_directory}</label>
     </div>
 
-    <div class="up-field">
-        <label>{$wi_comment}</label>
-        <textarea id="uploadComment" rows="2" style="width:100%;box-sizing:border-box;"></textarea>
+    {if $canCreateDir == 1}
+    <div class="cf-field">
+        <input type="text" id="uploadNewDir" placeholder=" ">
+        <label class="cf-label-float">{$wi_newDirectory}</label>
+    </div>
+    {/if}
+
+    <div class="cf-field">
+        <textarea id="uploadComment" rows="2"></textarea>
+        <label class="cf-label-float">{$wi_comment}</label>
     </div>
 
     <div class="up-field">
@@ -88,9 +150,9 @@
         <div id="uploadList" class="up-list"></div>
     </div>
 
-    <div class="up-actions">
-        <button type="button" id="uploadBtn" class="btc bt_success">{$wi_upload}</button>
-        <a href="#" onclick="uploadCancel(); return false;" class="btc bt_default">{$wi_cancel}</a>
+    <div class="cf-actions">
+        <button type="button" class="bt_default" onclick="uploadCancel(); return false;">{$wi_cancel}</button>
+        <button type="button" id="uploadBtn">{$wi_upload}</button>
     </div>
 </div>
 

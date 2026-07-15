@@ -62,16 +62,36 @@ $form->setDefaults(['p' => $p, 'meta_id' => $meta_id]);
     }
 </script>
 <?php
-$attrs1 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "];
-$form->addElement('select', 'o1', null, [null => _('More actions...'), 'ds' => _('Delete')], $attrs1);
+// Styled confirmation modals (clMoreAction in listing.js) replace the
+// native confirm()/alert(); messages passed as data-* attributes.
+$attrs1 = [
+    'onchange' => 'clMoreAction(this);',
+    'data-msg-select' => _('Please select one or more items'),
+    'data-title-delete' => _('Delete metric'),
+    'data-msg-delete' => _('You are about to delete the selected metric(s). This action cannot be undone. Do you want to delete?'),
+    'data-label-delete' => _('Delete'),
+    'data-title-duplicate' => _('Duplicate metric'),
+    'data-msg-duplicate' => _('Do you want to duplicate the selected metric(s)?'),
+    'data-label-duplicate' => _('Duplicate'),
+    'data-label-cancel' => _('Cancel'),
+];
+$form->addElement('select', 'o1', null, [null => _('More actions'), 'ds' => _('Delete')], $attrs1);
 $form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "];
-$form->addElement('select', 'o2', null, [null => _('More actions...'), 'ds' => _('Delete')], $attrs2);
+// Styled confirmation modals (clMoreAction in listing.js) replace the
+// native confirm()/alert(); messages passed as data-* attributes.
+$attrs2 = [
+    'onchange' => 'clMoreAction(this);',
+    'data-msg-select' => _('Please select one or more items'),
+    'data-title-delete' => _('Delete metric'),
+    'data-msg-delete' => _('You are about to delete the selected metric(s). This action cannot be undone. Do you want to delete?'),
+    'data-label-delete' => _('Delete'),
+    'data-title-duplicate' => _('Duplicate metric'),
+    'data-msg-duplicate' => _('Do you want to duplicate the selected metric(s)?'),
+    'data-label-duplicate' => _('Duplicate'),
+    'data-label-cancel' => _('Cancel'),
+];
+$form->addElement('select', 'o2', null, [null => _('More actions'), 'ds' => _('Delete')], $attrs2);
 $form->setDefaults(['o2' => null]);
 
 $o1 = $form->getElement('o1');

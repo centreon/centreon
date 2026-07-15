@@ -235,6 +235,30 @@ var CentreonForm = (function () {
         });
     }
 
+    /**
+     * Give select2 fields a placeholder (the field label) like the simple
+     * selects have. Sets data-placeholder on the underlying <select> (read by
+     * select2 if it initializes later) and the multi search field's placeholder
+     * (if select2 is already initialized).
+     */
+    function initSelect2Placeholders() {
+        document.querySelectorAll('.cf-field').forEach(function (field) {
+            var label = field.querySelector(':scope > label');
+            if (!label) return;
+            var text = label.textContent.replace('*', '').trim();
+            if (!text) return;
+
+            var select = field.querySelector('select');
+            if (select && !select.getAttribute('data-placeholder')) {
+                select.setAttribute('data-placeholder', text);
+            }
+            var searchField = field.querySelector('.select2-selection--multiple .select2-search__field');
+            if (searchField && !searchField.getAttribute('placeholder')) {
+                searchField.setAttribute('placeholder', text);
+            }
+        });
+    }
+
     // =========================================================================
     //  CUSTOM TOOLTIPS
     //  Hover tooltips that replace the legacy wz_tooltip / TagToTip system.
@@ -847,6 +871,27 @@ var CentreonForm = (function () {
     // =========================================================================
 
     /**
+     * Disable the Reset button until the form is actually modified, then
+     * re-disable it after a reset — mirrors the advanced-filters "Clear".
+     */
+    function initResetButton() {
+        var wrapper = document.querySelector('.cf-form-wrapper');
+        if (!wrapper) return;
+        var reset = wrapper.querySelector('.cf-actions input[type="reset"], .cf-actions .bt_default');
+        if (!reset) return;
+        var form = reset.form || wrapper.querySelector('form');
+        if (!form) return;
+
+        reset.disabled = true;
+        var enable = function () { reset.disabled = false; };
+        form.addEventListener('input', enable);
+        form.addEventListener('change', enable);
+        form.addEventListener('reset', function () {
+            setTimeout(function () { reset.disabled = true; }, 0);
+        });
+    }
+
+    /**
      * Initialize all form components on a form page.
      * Call this once in the form template's DOMContentLoaded handler.
      *
@@ -862,7 +907,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initResetButton];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);

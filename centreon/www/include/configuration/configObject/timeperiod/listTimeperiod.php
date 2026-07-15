@@ -68,24 +68,24 @@ $tpl->assign(
 <?php
 
 foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . ''];
+    // Styled confirmation modals (clMoreAction in listing.js) replace the
+    // native confirm()/alert(); messages passed as data-* attributes.
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete' => _('Delete time period'),
+        'data-msg-delete' => _('You are about to delete the selected time period(s). This action cannot be undone. Do you want to delete?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate' => _('Duplicate time period'),
+        'data-msg-duplicate' => _('Do you want to duplicate the selected time period(s)?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
     $form->addElement(
         'select',
         $option,
         null,
-        [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
+        [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')],
         $attrs
     );
     $form->setDefaults([$option => null]);

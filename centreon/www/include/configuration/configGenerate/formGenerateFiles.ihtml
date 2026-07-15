@@ -5,14 +5,16 @@
 .gen-wrap { max-width: 920px; }
 .gen-top { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
 .gen-top .cf-field { flex: 1; min-width: 300px; }
+/* Apply = primary action button (same style as Save) */
 .gen-apply {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 24px; font-size: 14px; font-weight: 600;
-    border: none; border-radius: 6px; cursor: pointer;
-    background: var(--bt-info-background-color, #2E68AA); color: #fff;
-    transition: filter .15s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 36px; padding: 0 16px; box-sizing: border-box;
+    font-size: 14px; font-weight: 500;
+    border: none; border-radius: 18px; cursor: pointer;
+    background: var(--color-primary-light, #131D5A); color: #fff;
+    transition: background-color .15s ease;
 }
-.gen-apply:hover { filter: brightness(0.94); }
+.gen-apply:hover { background: var(--color-primary-hover, #2A3575); }
 .gen-apply:disabled { opacity: .5; cursor: not-allowed; }
 .gen-nopoller { color: #FF4A4A; font-size: 13px; margin: 4px 0 0; }
 
@@ -74,6 +76,18 @@
 .gen-console .ok { color: #8fce46; } .gen-console .err { color: #ff6b6b; }
 .gen-console .warn { color: #f3b34d; } .gen-console .muted { color: #8b95a1; }
 .gen-console b { color: #fff; }
+
+/* -- Dark theme (page is inside .cf-form-wrapper, so primary vars adapt;
+      these override the remaining hardcoded light colors) ------------------ */
+.dark .gen-apply { color: #16233a; }
+.dark .gen-adv .gen-adv-body { background: #252525; border-color: #4d4d4d; }
+.dark .gen-adv-row { color: #e6e6e6; }
+.dark .gen-step { color: #8a8a8a; }
+.dark .gen-step .dot { background: #4d4d4d; }
+.dark .gen-connector { background: #4d4d4d; }
+.dark .gen-progress { background: #333333; }
+.dark .gen-pct { color: #a0a0a0; }
+.dark .gen-tab .st { background: #4d4d4d; }
 </style>
 {/literal}
 

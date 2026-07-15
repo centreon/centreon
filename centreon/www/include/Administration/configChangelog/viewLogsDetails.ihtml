@@ -40,12 +40,12 @@
                     <span class="cld-card-toggle {if !$canExpand}no-expand{/if}">+</span>
                     <span class="cld-card-date">{$list.action_log_date}</span>
                     <span class="cld-card-badge">
-                        {if $atype == 'Create'}<span class="badge service_ok">{$atype}</span>
-                        {elseif $atype == 'Change' || $atype == 'Mass change'}<span class="badge service_warning">{$atype}</span>
-                        {elseif $atype == 'Delete'}<span class="badge service_critical">{$atype}</span>
-                        {elseif $atype == 'Enable'}<span class="badge service_ok">{$atype}</span>
-                        {elseif $atype == 'Disable'}<span class="badge service_critical">{$atype}</span>
-                        {else}<span class="badge service_warning">{$atype}</span>{/if}
+                        {if $atype == 'Create'}<span class="cl-tag cl-tag--success" style="min-width:82px;">{$atype}</span>
+                        {elseif $atype == 'Change' || $atype == 'Mass change'}<span class="cl-tag cl-tag--warning" style="min-width:82px;">{$atype}</span>
+                        {elseif $atype == 'Delete'}<span class="cl-tag cl-tag--error" style="min-width:82px;">{$atype}</span>
+                        {elseif $atype == 'Enable'}<span class="cl-tag cl-tag--success" style="min-width:82px;">{$atype}</span>
+                        {elseif $atype == 'Disable'}<span class="cl-tag cl-tag--error" style="min-width:82px;">{$atype}</span>
+                        {else}<span class="cl-tag cl-tag--warning" style="min-width:82px;">{$atype}</span>{/if}
                     </span>
                     <span class="cld-card-author">{$list.log_contact_id}</span>
                 </div>

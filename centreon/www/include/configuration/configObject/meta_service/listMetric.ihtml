@@ -8,7 +8,7 @@
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
                 <a href="{$msg.addL1}" class="cl-btn-add">{$msg.addT}</a>
-                {$form.o1.html}
+                <span class="cl-more-actions"><span class="cl-more-actions-icon" aria-hidden="true">&#x22EF;</span>{$form.o1.html}</span>
             </div>
             { else }
             <div class="cl-actions-left">&nbsp;</div>
