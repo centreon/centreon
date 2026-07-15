@@ -4,7 +4,13 @@ set -euo pipefail
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
 export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 
+# Database names default to the stock values but can be overridden.
+MYSQL_DB_CONFIGURATION="${MYSQL_DB_CONFIGURATION:-centreon}"
+MYSQL_DB_STORAGE="${MYSQL_DB_STORAGE:-centreon_storage}"
+
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
+sed -i "s/\"db_configuration\": \"[^\"]*\"/\"db_configuration\": \"${MYSQL_DB_CONFIGURATION}\"/" /usr/share/centreon/www/install/tmp/database.json
+sed -i "s/\"db_storage\": \"[^\"]*\"/\"db_storage\": \"${MYSQL_DB_STORAGE}\"/" /usr/share/centreon/www/install/tmp/database.json
 
 if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/install ]; then
   cd /usr/share/centreon/www/install/steps/process
@@ -30,7 +36,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   echo "Creating Centreon configuration files..."
   su apache -s /bin/bash -c "php configFileSetup.php"
 
-  if [ "$(mysql -N -s -h"${MYSQL_HOST}" -u root -e "SELECT count(*) from information_schema.tables WHERE table_schema='centreon' and table_name='nagios_server'")" -eq 1 ]; then
+  if [ "$(mysql -N -s -h"${MYSQL_HOST}" -u root -e "SELECT count(*) from information_schema.tables WHERE table_schema='${MYSQL_DB_CONFIGURATION}' and table_name='nagios_server'")" -eq 1 ]; then
     echo "Centreon is already installed."
 
     echo "Creating Centreon database user..."
@@ -51,7 +57,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     echo "Creating database partition tables..."
     su apache -s /bin/bash -c "php partitionTables.php"
 
-    mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
+    mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h"${MYSQL_HOST}" -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
 
     if [ "${CENTREON_DATASET:-0}" = "1" ]; then
@@ -60,7 +66,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
       for file in "$DATA_DUMP_DIR"/*; do
         [ -e "$file" ] || continue
         echo "Inserting dump $(basename "$file") ..."
-        mysql -h"${MYSQL_HOST}" -uroot centreon < "$file"
+        mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" < "$file"
       done
     fi
   fi
@@ -69,8 +75,8 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   su apache -s /bin/bash -c "php generationCache.php"
 
   echo "Disabling statistics collection..."
-  mysql -h"${MYSQL_HOST}" -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
-  mysql -h"${MYSQL_HOST}" -uroot centreon -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
+  mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
+  mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
 
   restore_mysql_settings
   trap - EXIT
@@ -97,7 +103,7 @@ setAdminLanguage() {
 
   echo "Setting language to $1"
 
-  mysql -h"${MYSQL_HOST}" -uroot centreon -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
+  mysql -h"${MYSQL_HOST}" -uroot "${MYSQL_DB_CONFIGURATION}" -e "UPDATE contact SET contact_lang = '$1.UTF-8' WHERE contact_alias = 'admin'"
 }
 
 installLanguagePack() {
