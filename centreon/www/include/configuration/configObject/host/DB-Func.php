@@ -985,7 +985,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
         'host_notification_interval',
@@ -997,7 +996,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_comment',
         'host_checks_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1019,7 +1017,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_passive_checks_enabled',
         'host_notifications_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
