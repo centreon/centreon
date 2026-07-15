@@ -67,21 +67,21 @@ append_without_header() {
 }
 
 ## Copying lib files
-append_without_header ./lib/term.bash
-append_without_header ./lib/color.bash
-append_without_header ./lib/console.bash
-append_without_header ./lib/log.bash
-append_without_header ./lib/command.bash
+append_without_header ./lib/term.sh
+append_without_header ./lib/color.sh
+append_without_header ./lib/console.sh
+append_without_header ./lib/log.sh
+append_without_header ./lib/command.sh
 
 ## Copying src files
-append_without_header ./src/cmdparse.bash
-append_without_header ./src/help.bash
-append_without_header ./src/commands/docker.bash
+append_without_header ./src/cmdparse.sh
+append_without_header ./src/help.sh
+append_without_header ./src/commands/docker.sh
 ## VM submodules (loaded before the orchestrator)
-append_without_header ./src/vm/prerequisites.bash
-append_without_header ./src/vm/packages.bash
-append_without_header ./src/vm/configure.bash
-append_without_header ./src/vm/services.bash
-append_without_header ./src/commands/vm.bash
-append_without_header ./src/commands/install.bash
+append_without_header ./src/vm/prerequisites.sh
+append_without_header ./src/vm/packages.sh
+append_without_header ./src/vm/configure.sh
+append_without_header ./src/vm/services.sh
+append_without_header ./src/commands/vm.sh
+append_without_header ./src/commands/install.sh
 cat main-tail.sh >> ${target}
