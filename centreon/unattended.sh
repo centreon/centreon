@@ -1803,7 +1803,7 @@ function update_after_installation() {
 		# install Centreon SELinux packages first (as getenforce is still at 0)
 		# Non-fatal: missing SELinux rules should not abort the installation.
 		if ! $PKG_MGR -q install -y ${CENTREON_SELINUX_PACKAGES[@]} --enablerepo="$CENTREON_REPO"; then
-			log "ERROR" "Could not install Centreon SELinux packages"
+			log "WARN" "Could not install Centreon SELinux packages (best-effort)"
 		else
 			log "INFO" "Centreon SELinux rules are installed. Please consult the documentation https://docs.centreon.com/docs/administration/secure-platform for more details."
 		fi
@@ -1851,14 +1851,15 @@ function display_services_recap() {
 	# label | systemd unit | topologies the check applies to (space-separated)
 	# http and php units differ per distro (httpd/php-fpm on EL, apache2/php8.x-fpm on
 	# Debian); they are resolved via the variables set in set_required_prerequisite.
-	# centengine is checked on central only: on pollers the engine/broker shows up as cbd.
+	# Topologies mirror what enable_new_services actually starts: centengine runs on
+	# central AND pollers; cbd is central-only (pollers do not ship/enable a cbd unit).
 	local -a recap_services=(
 		"database|${db_unit}|central"
 		"httpd|${HTTP_SERVICE_UNIT:-httpd}|central"
 		"php-fpm|${PHP_SERVICE_UNIT:-php-fpm}|central"
-		"centengine|centengine|central"
+		"centengine|centengine|central poller"
 		"gorgone|gorgoned|central poller"
-		"cbd|cbd|central poller"
+		"cbd|cbd|central"
 		"centreontrapd|centreontrapd|central poller"
 		"snmptrapd|snmptrapd|central poller"
 		"snmpd|snmpd|central poller"
