@@ -67,7 +67,7 @@ function _vmInstallPowertools() {
       commandExitOnError "Cannot install dnf-plugins-core and epel-release" \
         dnf -y install dnf-plugins-core epel-release
       commandExitOnError "Cannot enable CRB" \
-        dnf config-manager --set-enabled crb
+        crb enable
       ;;
     "ol10"*)
       # TODO: double check prerequisite for 26.10 release
