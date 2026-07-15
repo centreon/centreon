@@ -76,7 +76,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $address = '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254);
 
-        $response = $this->request('POST', '/api/latest/configuration/pollers', [
+        $response = $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $name,
                 'poller_type' => 'vm',
@@ -111,7 +111,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         $name = $this->uniqueName('WithAddr');
         $address = '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254);
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $name,
                 'poller_type' => 'vm',
@@ -132,7 +132,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('Docker'),
                 'poller_type' => 'docker',
@@ -153,7 +153,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         $this->login();
         $name = $this->uniqueName('Dup');
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $name,
                 'poller_type' => 'vm',
@@ -164,7 +164,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         ]);
         self::assertResponseIsSuccessful();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $name,
                 'poller_type' => 'vm',
@@ -180,7 +180,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('Invalid'),
                 'poller_type' => 'invalid',
@@ -197,7 +197,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => '',
                 'poller_type' => 'vm',
@@ -214,7 +214,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => str_repeat('a', 41),
                 'poller_type' => 'vm',
@@ -231,7 +231,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('NoToken'),
                 'poller_type' => 'vm',
@@ -247,7 +247,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('UnknownToken'),
                 'poller_type' => 'vm',
@@ -262,7 +262,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
     public function testCannotCreatePollerIfNotLogged(): void
     {
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('Unauth'),
                 'poller_type' => 'vm',
@@ -288,7 +288,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $name = $this->uniqueName('NonAdmin');
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $name,
                 'poller_type' => 'vm',
@@ -313,7 +313,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('Forbidden'),
                 'poller_type' => 'vm',
@@ -333,7 +333,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('NoCentral'),
                 'poller_type' => 'vm',
@@ -349,7 +349,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('EmptyCentral'),
                 'poller_type' => 'vm',
@@ -366,7 +366,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('WsCentral'),
                 'poller_type' => 'vm',
@@ -383,7 +383,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('LongCentral'),
                 'poller_type' => 'vm',
@@ -400,7 +400,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('SchemeCentral'),
                 'poller_type' => 'vm',
@@ -417,7 +417,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('POST', '/api/latest/configuration/pollers', [
+        $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('SchemeAddress'),
                 'poller_type' => 'vm',
@@ -434,7 +434,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('POST', '/api/latest/configuration/pollers', [
+        $response = $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('BasePath'),
                 'poller_type' => 'vm',
@@ -459,7 +459,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('POST', '/api/latest/configuration/pollers', [
+        $response = $this->request('POST', '/api/configuration/pollers', [
             'json' => [
                 'name' => $this->uniqueName('TrailingSlash'),
                 'poller_type' => 'vm',
