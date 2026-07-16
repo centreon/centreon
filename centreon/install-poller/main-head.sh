@@ -21,8 +21,11 @@ set -u
 major=""
 
 ## Configuration variable
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_FILE="${SCRIPT_DIR}/log/install-poller.log"
+# Not BASH_SOURCE[0]-based: when run via `curl | bash`, the script has no file
+# on disk to locate. Use the current directory instead, same as docker.sh
+# already does for its generated .env/docker-compose.yaml.
+WORK_DIR="$(pwd)"
+LOG_FILE="${WORK_DIR}/log/install-poller.log"
 
 # Deployment type: docker | vm (required, no default)
 POLLER_TYPE=""
