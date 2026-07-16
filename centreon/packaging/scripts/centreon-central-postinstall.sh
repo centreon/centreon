@@ -12,19 +12,6 @@ rebuildSymfonyCache() {
     return
   fi
 
-  # rpm re-lays-down every package-declared file on every transaction, including
-  # www/install, even on a host where the web install wizard already finished and
-  # removed it (dpkg does not restore a file removed after install, so this only
-  # bites rpm). ModuleRouteLoader treats that directory's mere presence as
-  # "installation in progress" and deliberately compiles an empty route collection
-  # for every module while it exists, so a copy re-created by this same rpm
-  # transaction would silently disable autodiscovery/license-manager/etc. API
-  # routes as soon as we rebuild the cache below. Clear it first whenever the
-  # system is already installed.
-  if [ -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/install ]; then
-    rm -rf /usr/share/centreon/www/install
-  fi
-
   rm -rf /var/cache/centreon/symfony
   if [ "$1" = "rpm" ]; then
     su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" 2> /dev/null || :
