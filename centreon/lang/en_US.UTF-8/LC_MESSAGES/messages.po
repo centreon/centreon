@@ -3976,10 +3976,6 @@ msgstr "Debug file (Directory + File)"
 msgid "Debug file Maximum Size"
 msgstr "Debug file Maximum Size"
 
-#: centreon/www/include/Administration/parameters/debug/form.php
-msgid "Debug level"
-msgstr "Debug level"
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Debug messages"
 msgstr "Debug messages"
@@ -19269,6 +19265,10 @@ msgstr ""
 #: unknown
 msgid "Date format"
 msgstr "Date format"
+
+#: unknown
+msgid "Debug level"
+msgstr "Debug level"
 
 #: unknown
 msgid "Destination Directory"

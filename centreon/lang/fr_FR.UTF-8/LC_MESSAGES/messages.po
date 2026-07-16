@@ -4053,10 +4053,6 @@ msgstr "Fichier de débogage (répertoire + fichier)"
 msgid "Debug file Maximum Size"
 msgstr "Taille maximale du fichier de débogage"
 
-#: centreon/www/include/Administration/parameters/debug/form.php
-msgid "Debug level"
-msgstr "Niveau de débug"
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Debug messages"
 msgstr "Événements de débogage"
@@ -20283,6 +20279,10 @@ msgstr "Informations de la base de données"
 #: unknown
 msgid "Date format"
 msgstr "Format de date"
+
+#: unknown
+msgid "Debug level"
+msgstr "Niveau de débug"
 
 #: unknown
 msgid "Default Engine"

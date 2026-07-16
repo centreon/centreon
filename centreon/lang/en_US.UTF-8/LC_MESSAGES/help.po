@@ -2834,14 +2834,6 @@ msgstr "Set as default graph template."
 msgid "Set the domain for search the service"
 msgstr "Set the domain for search the service"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Severities are defined in the service category object."
@@ -5934,3 +5926,11 @@ msgstr ""
 "Select a local file to upload. You can upload jpg, png, gif, gd2 and svg "
 "files. Multiple images can be uploaded together inside archives like zip, "
 "tar, tar.gz or tar.bz2."
+
+#: unknown
+msgid ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+msgstr ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"

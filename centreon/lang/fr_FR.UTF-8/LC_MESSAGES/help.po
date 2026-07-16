@@ -3042,14 +3042,6 @@ msgstr "Modèle de graphe par défaut."
 msgid "Set the domain for search the service"
 msgstr "Configure le domaine pour la recherche du service"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-"Définit le niveau de log le plus bas: Debug => Info => Notice => Warning => "
-"Error => Critical => Alert => Emergency"
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Les criticités sont définies au niveau des catégories d'objets."
@@ -7127,6 +7119,14 @@ msgstr "Couleur des services en statut inconnu."
 #: unknown
 msgid "Service WARNING Color."
 msgstr "Couleur des services en statut d'alerte."
+
+#: unknown
+msgid ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+msgstr ""
+"Définit le niveau de log le plus bas: Debug => Info => Notice => Warning "
+"=> Error => Critical => Alert => Emergency"
 
 #: unknown
 msgid "Severity level"

@@ -4246,10 +4246,6 @@ msgstr "Arquivo de Depuração (Diretorio + Arquivo)"
 msgid "Debug file Maximum Size"
 msgstr "Tamanho máximo do arquivo de depuração"
 
-#: centreon/www/include/Administration/parameters/debug/form.php
-msgid "Debug level"
-msgstr ""
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Debug messages"
 msgstr "Mensagens de Depuração"
