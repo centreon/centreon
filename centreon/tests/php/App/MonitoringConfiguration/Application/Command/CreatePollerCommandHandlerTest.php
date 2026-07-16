@@ -25,6 +25,7 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
@@ -59,6 +60,27 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertGreaterThan(0, $poller->uid->value);
         self::assertFalse($poller->isCentral);
         self::assertTrue($poller->isActivated);
+        self::assertSame(GorgoneCommunicationTypeEnum::ZMQ, $poller->gorgoneConfiguration->communicationType);
+    }
+
+    public function testCreatePollerWithPullWssCommunicationType(): void
+    {
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $uidGenerator = new FakePollerUidGenerator();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
+
+        $command = new CreatePollerCommand(
+            name: new PollerName('CloudPoller'),
+            pollerType: PollerTypeEnum::VM,
+            address: new PollerAddress('192.168.1.1'),
+            creatorId: 1,
+            gorgoneCommunicationType: GorgoneCommunicationTypeEnum::PullWss,
+        );
+
+        $poller = $handler($command);
+
+        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $poller->gorgoneConfiguration->communicationType);
     }
 
     public function testCreatePollerWithDockerType(): void
