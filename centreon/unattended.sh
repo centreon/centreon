@@ -350,12 +350,12 @@ function parse_subcommand_options() {
 }
 #======== end of function parse_subcommand_options()
 
-#========= begin of function maybe_enable_debug()
+#========= begin of function setup_debug_mode()
 # Enable shell xtrace when debug mode is requested (via the -D flag or
 # ENV_DEBUG_MODE=true) and force the DEBUG log level. The PS4 prefix carries a
 # millisecond timestamp and the source/line/function so every traced line is locatable.
 #
-function maybe_enable_debug() {
+function setup_debug_mode() {
 	if [ "${debug_mode}" == "true" ]; then
 		runtime_log_level="DEBUG"
 		export PS4='+ $(date "+%H:%M:%S.%3N") ${BASH_SOURCE##*/}:${LINENO}:${FUNCNAME[0]:-main}() '
@@ -372,7 +372,7 @@ function maybe_enable_debug() {
 		set -x
 	fi
 }
-#========= end of function maybe_enable_debug()
+#========= end of function setup_debug_mode()
 
 #========= begin of function notice()
 # Announce an installation milestone: record it (INFO) in the log file and mirror
@@ -1943,7 +1943,7 @@ exec 3>&1
 
 # Write all output (stdout+stderr) straight to a real log file with a plain redirect.
 # Set up AFTER argument parsing so that '-h'/usage and argument errors stay on the
-# console (no log file created for them), but BEFORE maybe_enable_debug and password
+# console (no log file created for them), but BEFORE setup_debug_mode and password
 # generation so '-D' xtrace (which would echo generated passwords) lands in the file,
 # not on the console. This is deliberately NOT 'tee'/process-substitution: in
 # packer/provisioning runs bash does not wait for the async 'tee' to flush on exit,
@@ -1963,7 +1963,7 @@ if [ "${ENV_LOG_TO_FILE:-true}" == "true" ]; then
 fi
 
 # Enable shell xtrace now if debug mode was requested (-D flag or ENV_DEBUG_MODE=true)
-maybe_enable_debug
+setup_debug_mode
 
 # Validate the resolved TLS mode (from ENV_DB_TLS or the --tls flag) before using it.
 [[ ${SUPPORTED_TLS[$tls]} ]] || error_and_exit "Unsupported TLS mode: '$tls' (expected enabled or disabled)"
