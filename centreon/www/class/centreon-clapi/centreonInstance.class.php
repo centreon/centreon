@@ -49,7 +49,7 @@ class CentreonInstance extends CentreonObject
     public const ORDER_SSH_PORT = 2;
     public const ORDER_GORGONE_PROTOCOL = 3;
     public const ORDER_GORGONE_PORT = 4;
-    public const GORGONE_COMMUNICATION = ['ZMQ' => '1', 'SSH' => '2'];
+    public const GORGONE_COMMUNICATION = ['ZMQ' => '1', 'SSH' => '2', 'PULL' => '3', 'PULLWSS' => '4'];
     public const INCORRECTIPADDRESS = 'Invalid IP address format';
 
     /** @var CentreonConfigPoller */
@@ -67,11 +67,19 @@ class CentreonInstance extends CentreonObject
     {
         parent::__construct($dependencyInjector);
         $this->object = new Centreon_Object_Instance($dependencyInjector);
+        $isCloudPlatform = filter_var(
+            $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+            FILTER_VALIDATE_BOOL,
+            FILTER_NULL_ON_FAILURE
+        ) === true;
+        $defaultGorgoneCommunicationType = $isCloudPlatform
+            ? self::GORGONE_COMMUNICATION['PULLWSS']
+            : self::GORGONE_COMMUNICATION['ZMQ'];
         $this->params = [
             'localhost' => '0',
             'ns_activate' => '1',
             'ssh_port' => '22',
-            'gorgone_communication_type' => self::GORGONE_COMMUNICATION['ZMQ'],
+            'gorgone_communication_type' => $defaultGorgoneCommunicationType,
             'gorgone_port' => '5556',
             'nagios_bin' => '/usr/sbin/centengine',
             'nagiostats_bin' => '/usr/bin/centenginestats',
@@ -110,6 +118,9 @@ class CentreonInstance extends CentreonObject
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['ns_ip_address'] = $params[self::ORDER_ADDRESS];
 
+        if ($params[self::ORDER_GORGONE_PROTOCOL] === '') {
+            $params[self::ORDER_GORGONE_PROTOCOL] = $this->params['gorgone_communication_type'];
+        }
         if (is_numeric($params[self::ORDER_GORGONE_PROTOCOL])) {
             $revertGorgoneCom = array_flip(self::GORGONE_COMMUNICATION);
             $params[self::ORDER_GORGONE_PROTOCOL] = $revertGorgoneCom[$params[self::ORDER_GORGONE_PROTOCOL]];
