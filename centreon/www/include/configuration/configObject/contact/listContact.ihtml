@@ -25,7 +25,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             <div class="cl-toolbar-right">
                 <div class="cl-search">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC}" class="cl-search-simple" placeholder="{t}Search contacts{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC|escape}" class="cl-search-simple" placeholder="{t}Search contacts{/t}" autocomplete="off">
                 </div>
                 <button type="button" class="cl-adv-btn" data-cl-adv-panel="clAdvPanel" data-cl-label-show="{t}Advanced filters{/t}" data-cl-label-hide="{t}Hide filters{/t}" onclick="clToggleAdvancedFilters(this)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
@@ -138,6 +138,17 @@ function cfClosePanel() {
 })();
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
+// Escape a value for safe embedding inside an HTML attribute (l.escape covers
+// text nodes only and leaves quotes intact)
+function clAttrEscape(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 var contactListing = new CentreonListing({
     instanceName:  'contactListing',
     ajaxListUrl:   './include/configuration/configObject/contact/ajaxContactListing.php',
@@ -157,12 +168,12 @@ var contactListing = new CentreonListing({
             var ptitle = '{/literal}{t}Modify a Contact{/t}{literal} - ' + (row.alias || row.name);
             var icon = row.admin ? './img/icons/admin.svg' : './img/icons/user.svg';
             var title = row.admin ? 'Administrator' : 'User';
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(ptitle)+'\'); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" data-panel-url="'+clAttrEscape(editUrl)+'" data-panel-title="'+clAttrEscape(ptitle)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
             var ptitle = '{/literal}{t}Modify a Contact{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(ptitle)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clAttrEscape(editUrl)+'" data-panel-title="'+clAttrEscape(ptitle)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'email', align:'center' },
         { id:'host_notif', align:'center', render: function(row, l) { return row.host_notif ? l.escape(row.host_notif) : '-'; }},
