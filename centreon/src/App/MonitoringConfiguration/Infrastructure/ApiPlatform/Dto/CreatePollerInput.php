@@ -27,14 +27,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\Validator\ExistingPollerToken;
-use App\MonitoringConfiguration\Infrastructure\Validator\UniquePollerName;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreatePollerInput
 {
     public function __construct(
         #[Assert\Length(min: PollerName::MIN_LENGTH, max: PollerName::MAX_LENGTH)]
-        #[UniquePollerName]
         public string $name,
 
         #[Assert\Choice(choices: [PollerTypeEnum::VM->value, PollerTypeEnum::Docker->value])]

@@ -62,7 +62,9 @@ final readonly class CreatePollerCommandHandler
             pollerType: $command->pollerType,
             uid: $uid,
             globalMacros: new Collection([], GlobalMacro::class),
-            gorgoneConfiguration: new GorgoneConfiguration(),
+            gorgoneConfiguration: new GorgoneConfiguration(
+                communicationType: $command->gorgoneCommunicationType,
+            ),
             engineConfiguration: new EngineConfiguration(),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),
