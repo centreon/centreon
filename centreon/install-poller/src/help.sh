@@ -27,7 +27,7 @@ function help() {
   case ${subcommand} in
   install)
     echo "Flags:"
-    echo -e "  --cloud bool\t\t\tCloud mode: true (default) | false (on-prem)"
+    echo -e "  --cloud\t\t\tEnable Cloud mode (default: on-prem)"
     echo ""
     echo "Required flags (all types):"
     echo -e "  --type string\t\t\tDeployment type: docker | vm"
@@ -50,8 +50,8 @@ function help() {
     echo -e "  --with-cma\t\t\tEnable Centreon Monitoring Agent support (TLS certs mounts + port 4317)"
     echo ""
     echo "Notes:"
-    echo -e "  --cloud true\t\t\tGorgone address auto-derived: gorgone-centreon-<central_url>, port 443, ssl=true"
-    echo -e "  --cloud false\t\t\tGorgone address from --central_url; ssl/port default to false/80, or true/443 if --central_url starts with https://, or --gorgone-ssl if set"
+    echo -e "  --cloud\t\t\tGorgone address auto-derived: gorgone-centreon-<central_url>, port 443, ssl=true"
+    echo -e "  (no --cloud)\t\t\tOn-prem: Gorgone address from --central_url; ssl/port default to false/80, or true/443 if --central_url starts with https://, or --gorgone-ssl if set"
     ;;
   *)
     echo "Available commands:"
