@@ -44,11 +44,13 @@
         <table class="cl-listing-table">
             <thead><tr><th>{$headerMenu_host_esc}</th></tr></thead>
             <tbody>
+            {assign var=hostOld value=''}
             {section name=elem loop=$elemArrHostEsc}
             {assign var=host value=$elemArrHostEsc[elem].RowMenu_host}
             <tr>
                 <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrHostEsc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
             </tr>
+            {assign var=hostOld value=$host}
             {sectionelse}
             <tr><td class="dn-empty">-</td></tr>
             {/section}
@@ -61,13 +63,14 @@
         <table class="cl-listing-table">
             <thead><tr><th>{$headerMenu_host}</th><th>{$headerMenu_service_esc}</th></tr></thead>
             <tbody>
+            {assign var=hostOld value=''}
             {section name=elem loop=$elemArrSvcEsc}
             {assign var=host value=$elemArrSvcEsc[elem].RowMenu_host}
             <tr>
                 <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrSvcEsc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
                 <td>{$elemArrSvcEsc[elem].RowMenu_service}</td>
             </tr>
-            {assign var=hostOld value=$elemArrSvc[elem].RowMenu_host}
+            {assign var=hostOld value=$host}
             {sectionelse}
             <tr><td colspan="2" class="dn-empty">-</td></tr>
             {/section}
@@ -80,11 +83,13 @@
         <table class="cl-listing-table">
             <thead><tr><th>{$headerMenu_host}</th></tr></thead>
             <tbody>
+            {assign var=hostOld value=''}
             {section name=elem loop=$elemArrHost}
             {assign var=host value=$elemArrHost[elem].RowMenu_host}
             <tr>
                 <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrHost[elem].RowMenu_host}{else}&nbsp;{/if}</td>
             </tr>
+            {assign var=hostOld value=$host}
             {sectionelse}
             <tr><td class="dn-empty">-</td></tr>
             {/section}
@@ -97,13 +102,14 @@
         <table class="cl-listing-table">
             <thead><tr><th>{$headerMenu_host}</th><th>{$headerMenu_service}</th></tr></thead>
             <tbody>
+            {assign var=hostOld value=''}
             {section name=elem loop=$elemArrSvc}
             {assign var=host value=$elemArrSvc[elem].RowMenu_host}
             <tr>
                 <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrSvc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
                 <td>{$elemArrSvc[elem].RowMenu_service}</td>
             </tr>
-            {assign var=hostOld value=$elemArrSvc[elem].RowMenu_host}
+            {assign var=hostOld value=$host}
             {sectionelse}
             <tr><td colspan="2" class="dn-empty">-</td></tr>
             {/section}
