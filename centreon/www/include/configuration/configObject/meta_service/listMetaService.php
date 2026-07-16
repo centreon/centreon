@@ -117,4 +117,10 @@ $o2->setValue(null);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the meta services page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Build virtual services that aggregate metrics from other services.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add meta service'), $welcomeJsonFlags));
+
 $tpl->display('listMetaService.ihtml');

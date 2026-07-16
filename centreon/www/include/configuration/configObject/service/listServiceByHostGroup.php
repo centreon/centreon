@@ -102,4 +102,10 @@ $tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the services by host group page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Configure services grouped by host group.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add service'), $welcomeJsonFlags));
+
 $tpl->display('listServiceByHg.ihtml');

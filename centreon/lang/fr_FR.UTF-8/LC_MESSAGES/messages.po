@@ -11147,6 +11147,10 @@ msgstr "Modifier un connecteur"
 msgid "Modify a Contact Group"
 msgstr "Modifier un groupe de contact"
 
+#: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
+msgid "Modify a Contact"
+msgstr "Modifier un contact"
+
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 msgid "Modify a Data Source Template"
 msgstr "Modifier un modèle de source de données"

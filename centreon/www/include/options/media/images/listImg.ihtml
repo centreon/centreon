@@ -46,42 +46,85 @@
         object-fit: contain;
     }
 
-    /* Search bar spacing (own row above the action bar) */
-    .cl-images-search {
-        margin-bottom: 12px;
+    /* "More actions" dropdown grouping Delete + Synchronize, matching the ghost
+       ⋯ button used on the other listings. Kept as a click-menu (not the shared
+       .cl-more-actions <select>) because Synchronize must stay available even
+       with no image selected, whereas the shared control disables until a row
+       is picked. Add uses the shared .cl-btn-add (primary pill). */
+    .cl-media-actions {
+        position: relative;
+        display: inline-block;
     }
-
-    /* Delete / Synchronize: modern secondary pills, matching the design system.
-       Add uses the shared .cl-btn-add (primary pill). */
-    .cl-actions-left button.btc {
-        display: inline-flex !important;
+    .cl-media-more {
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
         gap: 6px;
-        height: 40px !important;
-        padding: 0 16px !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        line-height: 1;
-        box-sizing: border-box;
-        border-radius: 20px !important;
-        border: 1px solid var(--c-divider-strong, #b5b5b5) !important;
-        background: var(--select-background, #fff) !important;
-        color: var(--list-color, #333) !important;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 18px;
+        font-size: 16px;
+        color: var(--color-primary-light, #131D5A);
         cursor: pointer;
-        vertical-align: middle;
-        transition: background 0.15s, border-color 0.15s;
+        user-select: none;
+        transition: background 0.15s ease, color 0.15s ease;
     }
-    .cl-actions-left button.btc:hover {
-        background: var(--color-listing-hover, #E6EDF5) !important;
+    .cl-media-more:hover {
+        background: var(--color-listing-hover, #E6EDF5);
     }
-    /* Delete keeps a danger accent */
-    .cl-actions-left button.bt_danger {
-        color: var(--color-danger, #FF4A4A) !important;
-        border-color: var(--color-danger, #FF4A4A) !important;
+    .cl-media-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 4px;
+        min-width: 220px;
+        background: var(--select-background, #fff);
+        border: 1px solid var(--color-divider, #ccc);
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+        z-index: 1000;
+        overflow: hidden;
     }
-    .cl-actions-left button.bt_danger:hover {
-        background: rgba(255, 74, 74, 0.08) !important;
+    .cl-media-menu.open {
+        display: block;
+    }
+    .cl-media-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 16px;
+        font-size: 13px;
+        color: var(--list-color, #333);
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .cl-media-menu-item:hover {
+        background: var(--color-listing-hover, #E6EDF5);
+        text-decoration: none;
+    }
+    .cl-media-menu-item--danger {
+        color: var(--color-danger, #FF4A4A);
+    }
+    /* Dark mode */
+    .dark .cl-media-more {
+        color: #6eaff8;
+    }
+    .dark .cl-media-more:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+    .dark .cl-media-menu {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+    .dark .cl-media-menu-item {
+        color: #e0e0e0;
+    }
+    .dark .cl-media-menu-item:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+    .dark .cl-media-menu-item--danger {
+        color: #ff6e6e;
     }
 
     /* Slide-in side panel (same pattern as the pollers configuration page) */
@@ -113,10 +156,10 @@
 
     .cf-side-panel-header {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 12px 20px; border-bottom: 1px solid var(--color-divider, #e3e3e3);
+        padding: 20px 20px 8px;
         background: var(--body-background, #fff); flex-shrink: 0;
     }
-    .cf-side-panel-title { font-size: 16px; font-weight: 600; color: var(--list-color, #333); }
+    .cf-side-panel-title { font-size: 24px; font-weight: 700; line-height: 32px; color: var(--color-primary-light, #131D5A); }
     .cf-side-panel-close {
         background: none; border: none; font-size: 22px; color: var(--body-color, #999);
         cursor: pointer; padding: 4px 8px; border-radius: 4px; line-height: 1;
@@ -130,30 +173,39 @@
 
 <div class="images-title-bar">
     <h2 class="images-title">{$pageTitle}</h2>
-    <p class="images-subtitle">{$pageSubtitle}</p>
 </div>
 
 <form name="form" id="Form">
-    <div class="cl-images-search">
-        <div class="cl-search">
-            <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-            <input type="text" id="clSearchInput" name="search" value="" class="cl-search-simple" placeholder="{t}Name or directory{/t}">
-        </div>
-    </div>
-
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" onclick="cfOpenPanel('./main.get.php?p={$pageId}&o=a', imagesAddTitle); return false;">{$wi_add}</a>
-                {if $writeAccess == 1}
-                    <button type="button" class="btc bt_danger" onclick="imagesDelete();">{$wi_delete}</button>
-                {/if}
-                {if $isAdmin == 1}
-                    <button type="button" class="btc bt_info" onclick="imagesSyncPopup();">{$wi_sync}</button>
+                {if $writeAccess == 1 || $isAdmin == 1}
+                    <div class="cl-media-actions" id="clMediaActions">
+                        <span class="cl-media-more" id="clMediaMoreBtn" role="button" tabindex="0" onclick="imagesToggleMoreMenu(event);">
+                            <span class="cl-more-actions-icon" aria-hidden="true">&#x22EF;</span>{$wi_moreActions}
+                        </span>
+                        <div class="cl-media-menu" id="clMediaMenu">
+                            {if $writeAccess == 1}
+                                <a href="#" class="cl-media-menu-item cl-media-menu-item--danger" onclick="imagesDeleteFromMenu(); return false;">{$wi_delete}</a>
+                            {/if}
+                            {if $isAdmin == 1}
+                                <a href="#" class="cl-media-menu-item" onclick="imagesCloseMoreMenu(); imagesSyncPopup(); return false;">{$wi_sync}</a>
+                            {/if}
+                        </div>
+                    </div>
                 {/if}
                 {if $availableSpace != ''}<span class="cl-filter-label">{$availableSpace}&nbsp;{$wi_available}</span>{/if}
             </div>
-            <div class="cl-pagination" id="clPaginationTop"></div>
+            <div class="cl-search-center">
+                <div class="cl-search">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="search" value="" class="cl-search-simple" placeholder="{t}Name or directory{/t}">
+                </div>
+            </div>
+            <div class="cl-toolbar-right">
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
         </div>
 
         <table class="cl-listing-table">
@@ -213,6 +265,10 @@
     var imagesDelLabel     = {$delLabelJs};
     var imagesCancelLabel  = {$cancelLabelJs};
     var imagesAddTitle     = {$addTitleJs};
+    var imagesSelectMsg    = {$selectMsgJs};
+    var imagesWelcomeTitle = {$welcomeTitleJs};
+    var imagesWelcomeDesc  = {$welcomeDescJs};
+    var imagesWelcomeCta   = {$welcomeCtaJs};
 </script>
 
 {literal}
@@ -235,6 +291,14 @@
             liveSearch:    true,
             showCheckboxes: false,
             emptyMessage:  imagesEmptyMessage,
+            emptyState: {
+                title:       imagesWelcomeTitle,
+                description: imagesWelcomeDesc,
+                ctaLabel:    imagesWelcomeCta,
+                onCta: function() {
+                    cfOpenPanel('./main.get.php?p=' + imagesPageId + '&o=a', imagesAddTitle);
+                }
+            },
             columns:       [{ id: 'name' }, { id: 'image' }, { id: 'comment' }]
         });
 
@@ -370,6 +434,31 @@
         });
     }
 
+    // ----- "More actions" dropdown -----
+    function imagesToggleMoreMenu(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        var menu = document.getElementById('clMediaMenu');
+        if (menu) { menu.classList.toggle('open'); }
+    }
+    function imagesCloseMoreMenu() {
+        var menu = document.getElementById('clMediaMenu');
+        if (menu) { menu.classList.remove('open'); }
+    }
+    // Delete from the menu: require a selection first (mirrors clMoreAction's guard)
+    function imagesDeleteFromMenu() {
+        imagesCloseMoreMenu();
+        if (jQuery('#clTableBody input.img-check:checked').length === 0) {
+            clAlert(imagesSelectMsg);
+            return;
+        }
+        imagesDelete();
+    }
+    // Close the menu when clicking outside of it
+    document.addEventListener('click', function (e) {
+        var dd = document.getElementById('clMediaActions');
+        if (dd && !dd.contains(e.target)) { imagesCloseMoreMenu(); }
+    });
+
     // Synchronize media directories from disk (legacy popup, kept for now)
     function imagesSyncPopup() {
         window.open(
@@ -381,7 +470,7 @@
 
     // ----- Side panel (loads the add form as a chrome-less fragment) -----
     function cfOpenPanel(url, title) {
-        document.getElementById('cfSidePanelTitle').textContent = title || '';
+        document.getElementById('cfSidePanelTitle').textContent = (title || '').split(' - ')[0].trim();
         document.getElementById('cfSidePanelFrame').src = url;
         document.getElementById('cfSideOverlay').classList.add('open');
         document.getElementById('cfSidePanel').classList.add('open');

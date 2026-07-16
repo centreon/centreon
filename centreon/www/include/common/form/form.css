@@ -13,11 +13,25 @@
    ========================================================================== */
 
 .cf-form-wrapper {
-    max-width: 900px;
-    margin: 0 auto;
+    /* Full width so the form uses the whole panel and its content lines up with
+       the panel header title (both sit 20px from the panel edge). Previously
+       capped at 900px + centered, which wasted horizontal space and indented the
+       content relative to the title. */
+    max-width: none;
+    margin: 0;
     padding: 16px 20px 80px;
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--list-color, #333);
+}
+
+/* The form loads as its own page inside the panel iframe, wrapped by the legacy
+   <section class="main"> which adds `padding: 0 15px`. Drop that gutter on form
+   pages so the content aligns with the panel header title (only cf-form-wrapper's
+   20px remains). Scoped via :has so listing/other legacy pages keep their gutter.
+   Loaded after style.css and specificity (0,2,0) > .main (0,1,0), so it wins. */
+.main:has(.cf-form-wrapper) {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* ==========================================================================
@@ -1151,17 +1165,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--color-divider, #e3e3e3);
+    padding: 20px 20px 8px;
     background: var(--body-background, #fff);
     flex-shrink: 0;
     border-radius: 12px 0 0 0;
 }
 
+/* Match the React HostGroups modal title: bold, 24px, primary color
+   (--color-primary-light is remapped to #6eaff8 in the .dark form scope). */
 .cf-side-panel-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--list-color, #333);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 32px;
+    color: var(--color-primary-light, #131D5A);
 }
 
 .cf-side-panel-close {
@@ -1393,6 +1409,75 @@
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
     background-color: #131D5A !important;
     opacity: 1;
+}
+
+/* --- Multi-select single-row collapse. Chips are kept on one line; overflowing
+       chips are clipped and a navy "+N" pill (injected by CentreonForm) reveals
+       them on click. The pill matches the chip color (navy / light-blue dark). --- */
+.cf-field .select2-selection--multiple {
+    position: relative;
+}
+.cf-field .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    overflow: hidden;
+}
+/* Chips never shrink */
+.cf-field .select2-selection--multiple .select2-selection__choice {
+    flex: 0 0 auto;
+}
+/* Collapsed: keep wrapping (so width stays bound to the field — chips never push
+   the selector wider than its column) but clamp to a single visible row. Chips
+   that wrap onto row 2+ are hidden and counted into the "+N" chip. */
+.select2-selection--multiple.cf-chips-collapsed .select2-selection__rendered {
+    flex-wrap: wrap;
+    align-content: flex-start;
+    max-height: 30px;
+    padding-right: 44px; /* reserve room for the +N chip */
+}
+.select2-selection--multiple.cf-chips-expanded .select2-selection__rendered {
+    flex-wrap: wrap;
+    max-height: none;
+    padding-right: 40px;
+}
+/* The "+N" reveal — a distinct, clickable neutral chip (not navy, so it reads
+   as an action rather than a selected value) */
+.cf-chips-more {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    height: 24px;
+    min-width: 28px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border-radius: 16px;
+    background-color: #e7e9ef;
+    color: #131D5A;
+    border: 1px solid #c2c7ce;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 3;
+    user-select: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.cf-chips-more:hover {
+    background-color: #d8dce9;
+    border-color: #131D5A;
+}
+.dark .cf-chips-more {
+    background-color: #3a3a3a;
+    color: #e6e6e6;
+    border-color: #555555;
+}
+.dark .cf-chips-more:hover {
+    background-color: #4a4a4a;
+    border-color: #6eaff8;
 }
 
 /* --- Dropdown panel --- */

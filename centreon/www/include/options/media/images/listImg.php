@@ -74,6 +74,7 @@ $tpl->assign('wi_available', _('Available'));
 $tpl->assign('wi_add', _('Add'));
 $tpl->assign('wi_delete', _('Delete'));
 $tpl->assign('wi_sync', _('Synchronize Media Directory'));
+$tpl->assign('wi_moreActions', _('More actions'));
 $tpl->assign('wi_search', _('Search'));
 
 // JS-safe strings
@@ -85,5 +86,10 @@ $tpl->assign('delTitleJs', json_encode(_('Delete image(s)'), $jsonFlags));
 $tpl->assign('delLabelJs', json_encode(_('Delete'), $jsonFlags));
 $tpl->assign('cancelLabelJs', json_encode(_('Cancel'), $jsonFlags));
 $tpl->assign('addTitleJs', json_encode(_('Add Image(s)'), $jsonFlags));
+$tpl->assign('selectMsgJs', json_encode(_('Please select one or more images'), $jsonFlags));
+// Welcome / empty-state labels (JS-safe)
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the images page'), $jsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Browse and manage the images available in Centreon.'), $jsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add image'), $jsonFlags));
 
 $tpl->display('listImg.ihtml');

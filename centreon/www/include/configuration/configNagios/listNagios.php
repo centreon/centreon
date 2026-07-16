@@ -98,4 +98,10 @@ $tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the engine configuration page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Configure the monitoring engine settings applied to your pollers.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add engine configuration'), $welcomeJsonFlags));
+
 $tpl->display('listNagios.ihtml');

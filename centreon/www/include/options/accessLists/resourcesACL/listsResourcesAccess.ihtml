@@ -10,7 +10,6 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Resource access{/t}</h1>
-    <p class="cl-page-desc">{t}Define which resources each access group can access.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -123,6 +122,14 @@ var resAclListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'res_acl_listing_limit',
     emptyMessage:  'No resource ACL found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$resAclPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

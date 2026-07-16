@@ -10,7 +10,6 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Host dependencies{/t}</h1>
-    <p class="cl-page-desc">{t}Suppress host notifications based on the state of other hosts.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -74,7 +73,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 {literal}
 <script type="text/javascript">
 function cfOpenPanel(url, title) {
-    document.getElementById('cfSidePanelTitle').textContent = title || '';
+    document.getElementById('cfSidePanelTitle').textContent = (title || '').split(' - ')[0].trim();
     document.getElementById('cfSidePanelFrame').src = url;
     document.getElementById('cfSideOverlay').classList.add('open');
     document.getElementById('cfSidePanel').classList.add('open');
@@ -118,6 +117,14 @@ var hdListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'host_dependency_listing_limit',
     emptyMessage:  'No dependencies found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$depHDPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

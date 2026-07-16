@@ -8,7 +8,6 @@ CentreonForm.detectSidePanelClose();
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Host categories{/t}</h1>
-    <p class="cl-page-desc">{t}Group hosts into categories to organize and filter your configuration.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -83,6 +82,14 @@ var hcListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'hc_listing_limit',
     emptyMessage:  'No host categories found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$hcPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

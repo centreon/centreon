@@ -101,4 +101,10 @@ $tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the contact groups page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Group contacts together to manage notifications collectively.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add contact group'), $welcomeJsonFlags));
+
 $tpl->display('listContactGroup.ihtml');

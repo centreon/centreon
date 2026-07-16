@@ -121,4 +121,10 @@ function setO(_i) { document.forms['form'].elements['o'].value = _i; }
 </script>
 <?php
 
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the service templates page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Define reusable service configurations to apply across your services.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add service template'), $welcomeJsonFlags));
+
 $tpl->display('listServiceTemplateModel.ihtml');

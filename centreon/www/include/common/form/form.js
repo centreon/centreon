@@ -48,7 +48,7 @@ var CentreonForm = (function () {
             return;
         }
 
-        titleEl.textContent = title || '';
+        titleEl.textContent = (title || '').split(' - ')[0].trim();
         frameEl.src = url;
         overlay.classList.add('open');
         panel.classList.add('open');
@@ -252,10 +252,123 @@ var CentreonForm = (function () {
             if (select && !select.getAttribute('data-placeholder')) {
                 select.setAttribute('data-placeholder', text);
             }
-            var searchField = field.querySelector('.select2-selection--multiple .select2-search__field');
-            if (searchField && !searchField.getAttribute('placeholder')) {
-                searchField.setAttribute('placeholder', text);
+            // Multi-select inline-search placeholder is managed dynamically by
+            // initMultiSelectCollapse (shown only when nothing is selected), so
+            // it is intentionally not forced here.
+            var singleSearch = field.querySelector('.select2-selection--single .select2-search__field');
+            if (singleSearch && !singleSearch.getAttribute('placeholder')) {
+                singleSearch.setAttribute('placeholder', text);
             }
+        });
+    }
+
+    // =========================================================================
+    //  MULTI-SELECT SINGLE-ROW COLLAPSE
+    //  Keep a select2 multiple selection on one line; overflowing chips are
+    //  clipped and a "+N" pill reveals them. The pill toggles expand/collapse;
+    //  the selection also auto-expands while its dropdown is open so the inline
+    //  search field is usable, then re-collapses on close.
+    // =========================================================================
+
+    function initMultiSelectCollapse() {
+        var $ = window.jQuery;
+        document.querySelectorAll('.cf-field .select2-selection--multiple').forEach(function (sel) {
+            if (sel.getAttribute('data-cf-collapse')) return;
+            sel.setAttribute('data-cf-collapse', '1');
+
+            var field = sel.closest('.cf-field');
+            var selectEl = field ? field.querySelector('select') : null;
+
+            // The label text used as the inline-search placeholder — shown only
+            // when nothing is selected. Otherwise select2's tiny search field
+            // leaks a sliver of it (e.g. a stray "C") next to the chips.
+            var labelEl = field ? field.querySelector(':scope > label') : null;
+            var phText = labelEl ? labelEl.textContent.replace('*', '').trim() : '';
+            function syncPlaceholder() {
+                var searchField = sel.querySelector('.select2-search__field');
+                if (!searchField) return;
+                var hasChips = !!sel.querySelector('.select2-selection__choice');
+                searchField.setAttribute('placeholder', hasChips ? '' : phText);
+            }
+
+            var more = document.createElement('span');
+            more.className = 'cf-chips-more';
+            more.style.display = 'none';
+            // Don't let clicks on the pill open the select2 dropdown.
+            more.addEventListener('mousedown', function (e) { e.preventDefault(); e.stopPropagation(); });
+            more.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sel.classList.contains('cf-chips-expanded')) {
+                    collapse();
+                } else {
+                    expand(true);
+                }
+            });
+            sel.appendChild(more);
+            sel.classList.add('cf-chips-collapsed');
+
+            function expand(manual) {
+                sel.classList.add('cf-chips-expanded');
+                sel.classList.remove('cf-chips-collapsed');
+                // Only offer a manual collapse control when the user expanded it.
+                if (manual) {
+                    more.textContent = '−'; // − (minus) to collapse back
+                    more.style.display = '';
+                } else {
+                    more.style.display = 'none';
+                }
+            }
+
+            function collapse() {
+                sel.classList.remove('cf-chips-expanded');
+                sel.classList.add('cf-chips-collapsed');
+                recount();
+            }
+
+            // Count chips wrapped onto row 2+ (clipped by the collapsed max-height).
+            // Chips share an offsetParent (the positioned selection box), so the
+            // top row is the minimum offsetTop and anything below it is hidden.
+            function recount() {
+                if (sel.classList.contains('cf-chips-expanded')) return;
+                var rendered = sel.querySelector('.select2-selection__rendered');
+                var choices = rendered
+                    ? rendered.querySelectorAll('.select2-selection__choice')
+                    : [];
+                if (!choices.length) { more.style.display = 'none'; return; }
+                var firstTop = Infinity;
+                choices.forEach(function (c) { if (c.offsetTop < firstTop) firstTop = c.offsetTop; });
+                var hidden = 0;
+                choices.forEach(function (c) { if (c.offsetTop > firstTop + 2) hidden++; });
+                if (hidden > 0) {
+                    more.textContent = '+' + hidden;
+                    more.style.display = '';
+                } else {
+                    more.style.display = 'none';
+                }
+            }
+
+            // Re-measure when chips are added/removed (select2 re-renders the list).
+            var rendered = sel.querySelector('.select2-selection__rendered');
+            if (rendered && window.MutationObserver) {
+                new MutationObserver(function () {
+                    syncPlaceholder();
+                    if (!sel.classList.contains('cf-chips-expanded')) recount();
+                }).observe(rendered, { childList: true, subtree: true });
+            }
+            window.addEventListener('resize', recount);
+
+            // Auto-expand while the dropdown is open (inline search needs to show),
+            // re-collapse on close.
+            if ($ && selectEl) {
+                $(selectEl)
+                    .on('select2:open', function () { expand(false); })
+                    .on('select2:close', function () { collapse(); syncPlaceholder(); })
+                    .on('change', syncPlaceholder);
+            }
+
+            syncPlaceholder();
+            recount();
         });
     }
 
@@ -907,7 +1020,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initResetButton];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initResetButton];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
@@ -915,6 +1028,14 @@ var CentreonForm = (function () {
         steps.forEach(function (step) {
             try { step(); } catch (e) { if (window.console) console.error('CentreonForm init step failed', e); }
         });
+
+        // select2 may finish rendering just after DOMContentLoaded; re-run the
+        // select2-dependent steps once (both are idempotent) so late-rendered
+        // multi-selects still get their placeholder and single-row collapse.
+        setTimeout(function () {
+            try { initSelect2Placeholders(); } catch (e) {}
+            try { initMultiSelectCollapse(); } catch (e) {}
+        }, 400);
     }
 
     // =========================================================================
@@ -1088,6 +1209,7 @@ var CentreonForm = (function () {
         initFloatLabels:      initFloatLabels,
         initTooltips:         initTooltips,
         initSegmentedButtons: initSegmentedButtons,
+        initMultiSelectCollapse: initMultiSelectCollapse,
         initYesNoSegments:    initYesNoSegments,
         initCheckboxChips:    initCheckboxChips,
         initChips:            initChips,

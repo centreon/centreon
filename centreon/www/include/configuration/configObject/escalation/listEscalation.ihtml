@@ -10,7 +10,6 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Escalations{/t}</h1>
-    <p class="cl-page-desc">{t}Escalate notifications to additional contacts when problems persist.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -118,6 +117,14 @@ var escListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'esc_listing_limit',
     emptyMessage:  'No escalations found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$escPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

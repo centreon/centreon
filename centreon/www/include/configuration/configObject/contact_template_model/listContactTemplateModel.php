@@ -61,6 +61,12 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
+// Welcome / empty-state labels (JS-safe)
+$jsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the contact templates page'), $jsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Define reusable contact configurations to apply across your users.'), $jsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add contact template'), $jsonFlags));
+
 ?>
 <script type="text/javascript">
     function setO(_i) {

@@ -130,6 +130,75 @@
     line-height: 1;
 }
 
+/* Secondary action button — outlined pill matching the React MUI "secondary"
+   variant: primary-colored border + text on a transparent background. Same
+   dimensions/typography as .cl-btn-add so both sit level in the actions bar,
+   but visually subordinate to the single primary "Add" button. */
+.cl-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    color: var(--color-primary-light, #131D5A);
+    background-color: transparent;
+    border: 1px solid var(--color-primary-light, #131D5A);
+    border-radius: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.cl-btn-secondary:hover {
+    background-color: var(--color-listing-hover, #E6EDF5);
+    color: var(--color-primary-light, #131D5A);
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   Welcome / empty-state page — shown in place of the listing when a resource
+   has no items at all (total 0, no active search/filter). Mirrors the React
+   CrudPage empty state: centered title + optional description + primary CTA.
+   ========================================================================== */
+.cl-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+    padding: 72px 24px;
+    min-height: 320px;
+}
+
+.cl-welcome-title {
+    margin: 0;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--body-color, #2d3436);
+}
+
+.cl-welcome-desc {
+    margin: 0;
+    max-width: 560px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--body-color, #6f7384);
+    opacity: 0.8;
+}
+
+.cl-welcome-cta {
+    margin-top: 4px;
+}
+
 /* ==========================================================================
    Search bar (centered between actions and pagination)
    ========================================================================== */
@@ -1738,6 +1807,24 @@
     color: #16233a;
 }
 
+.dark .cl-btn-secondary {
+    color: #6eaff8;
+    border-color: #6eaff8;
+}
+
+.dark .cl-btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #6eaff8;
+}
+
+.dark .cl-welcome-title {
+    color: #f0f0f0;
+}
+
+.dark .cl-welcome-desc {
+    color: #cccccc;
+}
+
 .dark .cl-pagination span.cl-page-current {
     background-color: #6eaff8;
     color: #16233a;
@@ -1794,7 +1881,13 @@
 }
 
 .dark .cl-more-actions.cl-disabled {
-    color: #666666;
+    /* Match the React HostGroups "More actions" ghost button. MUI's text-variant
+       button uses palette.action.disabled for its disabled color, which in the
+       Centreon dark palette is #999999 (see ThemeProvider/palettes.ts) — NOT
+       text.disabled (#666666). The base .cl-disabled rule also dims to
+       opacity 0.6, so reset that to full opacity too. */
+    color: #999999;
+    opacity: 1;
 }
 
 .dark .cl-search-input:focus,

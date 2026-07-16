@@ -41,6 +41,17 @@ function CentreonListing(config) {
         autoRefresh:  config.autoRefresh !== undefined ? config.autoRefresh : 30000,
         emptyMessage: config.emptyMessage || 'No items found',
 
+        // Welcome / empty-state page. When set AND the resource is genuinely
+        // empty (total === 0 with no active search/filter), the whole listing
+        // chrome (toolbar + table) is replaced by a centered welcome block with
+        // a single primary CTA — mirroring the React CrudPage empty state.
+        // A no-match search keeps the normal "No X found" row so the user can
+        // clear the filter. Shape:
+        //   { title, description, ctaLabel, onCta: function() {...} }
+        // The CTA is only rendered when writeAccess is true; otherwise the
+        // message shows alone.
+        emptyState: config.emptyState || null,
+
         // Live search: fetch as the user types (debounced) instead of requiring
         // a Search button. Standard for the single search field.
         liveSearch:      config.liveSearch !== undefined ? config.liveSearch : false,
@@ -186,6 +197,70 @@ function CentreonListing(config) {
         });
     }
 
+    // Whether any search term or filter is currently applied. Checked against
+    // the live DOM (not just the `search` argument) so multi-field pages —
+    // whose extra search inputs travel through extraParams — are covered too.
+    // Used to distinguish a genuinely empty resource (→ welcome page) from a
+    // search that simply returned nothing (→ "No X found" row).
+    function hasActiveFilter() {
+        var active = false;
+        var isSet = function (el) {
+            el = jQuery(el);
+            if (!el.length) return false;
+            if (el.is(':checkbox')) return el.is(':checked');
+            var v = el.val();
+            return !!(v && String(v).trim() !== '');
+        };
+        // Main search input
+        if (isSet('#' + cfg.searchInputId)) active = true;
+        // Extra live-search fields (e.g. host / service / host group)
+        (cfg.liveSearchFields || []).forEach(function (id) {
+            if (isSet('#' + id)) active = true;
+        });
+        // Advanced-filter panel fields
+        jQuery('.cl-adv-panel .cl-adv-field select, .cl-adv-panel .cl-adv-field input').each(function () {
+            if (isSet(this)) active = true;
+        });
+        return active;
+    }
+
+    // Replace the listing chrome (toolbar + table) with a centered welcome
+    // block. The CTA is only rendered with write access.
+    function showWelcome() {
+        var container = jQuery('#' + cfg.tableBodyId).closest('.cl-listing-container');
+        if (!container.length) return;
+        container.children('.cl-actions-bar, .cl-listing-table, .cl-bottom-bar').hide();
+
+        var es = cfg.emptyState || {};
+        var welcome = container.children('.cl-welcome');
+        if (!welcome.length) {
+            welcome = jQuery('<div class="cl-welcome"></div>');
+            container.append(welcome);
+        }
+
+        var canCreate = !!(cfg.writeAccess && typeof es.onCta === 'function' && es.ctaLabel);
+        var html = '';
+        if (es.title)       { html += '<h2 class="cl-welcome-title">' + self.escape(es.title) + '</h2>'; }
+        if (es.description) { html += '<p class="cl-welcome-desc">' + self.escape(es.description) + '</p>'; }
+        if (canCreate)      { html += '<button type="button" class="cl-btn-add cl-welcome-cta"></button>'; }
+        welcome.html(html);
+
+        if (canCreate) {
+            var btn = welcome.find('.cl-welcome-cta');
+            btn.text(es.ctaLabel); // .text() escapes
+            btn.on('click', function () { es.onCta(); });
+        }
+        welcome.show();
+    }
+
+    // Restore the normal listing chrome and drop the welcome block.
+    function hideWelcome() {
+        var container = jQuery('#' + cfg.tableBodyId).closest('.cl-listing-container');
+        if (!container.length) return;
+        container.children('.cl-welcome').hide();
+        container.children('.cl-actions-bar, .cl-listing-table, .cl-bottom-bar').show();
+    }
+
     // =====================================================================
     // Public: fetch data from the AJAX listing endpoint
     //   silent = true  → no loading indicator, no fade (used by auto-refresh)
@@ -219,6 +294,15 @@ function CentreonListing(config) {
         var checkedIds = getCheckedIds();
 
         if (firstLoad) {
+            // For welcome-enabled listings, keep the toolbar + table hidden on
+            // the very first load until the response tells us whether the
+            // resource is empty (→ welcome) or not (→ listing). Otherwise the
+            // server-rendered chrome flashes for a moment before showWelcome()
+            // replaces it.
+            if (cfg.emptyState) {
+                jQuery('#' + cfg.tableBodyId).closest('.cl-listing-container')
+                    .children('.cl-actions-bar, .cl-listing-table, .cl-bottom-bar').hide();
+            }
             jQuery('#' + cfg.tableBodyId).html(
                 '<tr><td colspan="99" class="cl-loading">Loading...</td></tr>'
             );
@@ -252,7 +336,11 @@ function CentreonListing(config) {
                     isLoadingMore = false;
                     // Update info
                     self.renderScrollInfo(totalLoaded, data.total);
+                } else if (cfg.emptyState && data.total === 0 && !hasActiveFilter()) {
+                    // Genuinely empty resource → full-page welcome / CTA
+                    showWelcome();
                 } else {
+                    hideWelcome();
                     tbody.removeClass('cl-fade-in');
                     self.renderRows(data.rows);
                     if (cfg.infiniteScroll) {
@@ -281,6 +369,9 @@ function CentreonListing(config) {
                 isLoadingMore = false;
                 jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
                 if (firstLoad) {
+                    // Reveal the chrome we hid for welcome-enabled listings so
+                    // the error is visible instead of a blank page.
+                    if (cfg.emptyState) hideWelcome();
                     jQuery('#' + cfg.tableBodyId).html(
                         '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
                     );

@@ -10,7 +10,6 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Menu access{/t}</h1>
-    <p class="cl-page-desc">{t}Control which configuration menus each access group can see.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -119,6 +118,14 @@ var menuAclListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'menu_acl_listing_limit',
     emptyMessage:  'No menu ACL found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$menuAclPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

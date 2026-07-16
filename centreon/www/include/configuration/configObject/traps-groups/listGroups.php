@@ -80,4 +80,10 @@ $tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the trap groups page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Group SNMP traps together to manage them collectively.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add trap group'), $welcomeJsonFlags));
+
 $tpl->display('listGroups.ihtml');

@@ -265,7 +265,7 @@ export const lightPalette: PaletteOptions = {
   mode: ThemeMode.light,
   pending: {
     contrastText: '#000',
-    main: '#1EBE3B'
+    main: '#1EBEB3'
   },
   primary: {
     contrastText: '#fff',
@@ -282,7 +282,7 @@ export const lightPalette: PaletteOptions = {
   statusBackground: {
     error: '#FF6E6E',
     none: alpha('#2E68AA', 0.1),
-    pending: '#1EBE3B',
+    pending: '#1EBEB3',
     success: '#9FC74E',
     unknown: '#E3E3E3',
     warning: '#FCC481'
@@ -412,8 +412,8 @@ export const darkPalette: PaletteOptions = {
   },
   mode: ThemeMode.dark,
   pending: {
-    contrastText: '#212121',
-    main: '#1EBE3B'
+    contrastText: '#FFFFFF',
+    main: '#118077'
   },
   primary: {
     contrastText: '#000',
@@ -428,7 +428,7 @@ export const darkPalette: PaletteOptions = {
   statusBackground: {
     error: '#FF6E6E',
     none: alpha('#2E68AA', 0.1),
-    pending: '#1EBE3B',
+    pending: '#118077',
     success: '#9FC74E',
     unknown: '#666666',
     warning: '#FCC481'

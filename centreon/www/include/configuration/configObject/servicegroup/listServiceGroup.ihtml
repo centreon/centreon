@@ -8,7 +8,6 @@ CentreonForm.detectSidePanelClose();
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Service groups{/t}</h1>
-    <p class="cl-page-desc">{t}Group services together to manage them collectively.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -84,6 +83,14 @@ var sgListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'sg_listing_limit',
     emptyMessage:  'No service groups found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$sgPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

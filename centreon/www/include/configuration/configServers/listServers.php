@@ -110,7 +110,7 @@ if (! $isRemote) {
         'link' => 'DYNAMIC_LINK',
         'text' => _('Export configuration'),
         'class' => 'btc bt-poller-action bt_info',
-        'icon' => returnSvg('www/img/icons/export.svg', 'var(--button-icons-fill-color)', 14, 14),
+        'icon' => returnSvg('www/img/icons/export.svg', 'currentColor', 14, 14),
     ]);
 }
 
@@ -148,4 +148,10 @@ if (! $isRemote) {
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the pollers page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Configure the monitoring pollers that run your checks.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add poller'), $welcomeJsonFlags));
+
 $tpl->display('listServers.ihtml');

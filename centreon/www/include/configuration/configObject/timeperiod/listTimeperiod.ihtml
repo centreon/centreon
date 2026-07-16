@@ -8,7 +8,6 @@ CentreonForm.detectSidePanelClose();
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Time periods{/t}</h1>
-    <p class="cl-page-desc">{t}Define time ranges used to schedule checks and notifications.{/t}</p>
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }
@@ -83,6 +82,14 @@ var tpListing = new CentreonListing({
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'tp_listing_limit',
     emptyMessage:  'No time periods found',
+    emptyState: {
+        title:       {/literal}{$welcomeTitleJs}{literal},
+        description: {/literal}{$welcomeDescJs}{literal},
+        ctaLabel:    {/literal}{$welcomeCtaJs}{literal},
+        onCta: function() {
+            cfOpenPanel('main.get.php?p={/literal}{$tpPage}{literal}&o=a', {/literal}{$welcomeCtaJs}{literal});
+        }
+    },
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',

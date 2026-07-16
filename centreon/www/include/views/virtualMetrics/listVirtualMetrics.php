@@ -91,4 +91,10 @@ $tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
+// Welcome / empty-state labels (JS-safe)
+$welcomeJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT;
+$tpl->assign('welcomeTitleJs', json_encode(_('Welcome to the virtual metrics page'), $welcomeJsonFlags));
+$tpl->assign('welcomeDescJs', json_encode(_('Build computed metrics (RPN) derived from existing service metrics.'), $welcomeJsonFlags));
+$tpl->assign('welcomeCtaJs', json_encode(_('Add virtual metric'), $welcomeJsonFlags));
+
 $tpl->display('listVirtualMetrics.ihtml');
