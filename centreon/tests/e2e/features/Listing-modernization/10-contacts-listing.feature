@@ -30,6 +30,8 @@ Feature: Modern contacts, contact templates and contact groups listings
     When the user navigates to the contacts listing
     And the user selects a contact and duplicates it
     Then a duplicated contact appears in the listing
+    When the user selects the duplicated contact and deletes it
+    Then the duplicated contact is no longer listed
 
   Scenario: Contact template listing loads via AJAX
     When the user navigates to the contact templates listing
