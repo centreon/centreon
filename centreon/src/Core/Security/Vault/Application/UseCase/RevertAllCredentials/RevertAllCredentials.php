@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace Core\Security\Vault\Application\UseCase\RevertAllCredentials;
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Domain\Log\LoggerTrait;
-use CentreonLog;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
@@ -177,7 +178,7 @@ final class RevertAllCredentials
             );
             $presenter->presentResponse($this->response);
         } catch (\Throwable $e) {
-            CentreonLog::create()->error(logTypeId: CentreonLog::TYPE_BUSINESS_LOG, message: $e->getMessage(), exception: $e);
+            Logger::create(LogChannelEnum::WEB)->error($e->getMessage(), ['exception' => $e]);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToRevertCredentials()));
         }
     }
