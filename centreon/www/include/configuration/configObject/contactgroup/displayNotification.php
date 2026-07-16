@@ -26,14 +26,24 @@ if (! isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/class/centreonNotification.class.php';
 
 /**
- * Get user list
+ * Get contact group list (ACL-filtered for non-admin users)
  */
 $contact = ['' => null];
-$DBRESULT = $pearDB->query('SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias');
-while ($ct = $DBRESULT->fetchRow()) {
-    $contact[$ct['cg_id']] = $ct['cg_name'];
+if ($centreon->user->admin) {
+    $DBRESULT = $pearDB->query('SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias');
+    while ($ct = $DBRESULT->fetchRow()) {
+        $contact[$ct['cg_id']] = $ct['cg_name'];
+    }
+    $DBRESULT->closeCursor();
+} else {
+    $cgAcl = $centreon->user->access->getContactGroupAclConf(
+        ['fields' => ['cg_id', 'cg_name'], 'keys' => ['cg_id'], 'order' => ['cg_alias']],
+        false
+    );
+    foreach ($cgAcl as $cgId => $cg) {
+        $contact[$cgId] = $cg['cg_name'];
+    }
 }
-$DBRESULT->closeCursor();
 
 // Object init
 $mediaObj = new CentreonMedia($pearDB);
@@ -55,11 +65,18 @@ $style = 'one';
 $groups = "''";
 if (isset($_POST['contact'])) {
     $contactgroup_id = (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8');
+} elseif (isset($_GET['contact'])) {
+    // The contact group selector submits its form through GET
+    $contactgroup_id = (int) $_GET['contact'];
 } elseif (isset($_GET['cg_id'])) {
     $contactgroup_id = (int) $_GET['cg_id'];
 } else {
     $contactgroup_id = 0;
-    $formData = ['contact' => $contactgroup_id];
+}
+
+// ACL: reject contact groups outside the user's access groups
+if ($contactgroup_id && ! isset($contact[$contactgroup_id])) {
+    $contactgroup_id = 0;
 }
 
 $formData = ['contact' => $contactgroup_id];
