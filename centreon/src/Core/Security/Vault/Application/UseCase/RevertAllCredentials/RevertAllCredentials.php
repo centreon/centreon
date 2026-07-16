@@ -33,6 +33,7 @@ use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Application\VaultEligibilityService;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -75,6 +76,7 @@ final class RevertAllCredentials
 
     /**
      * @param ReadVaultRepositoryInterface $readVaultRepository
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
      * @param VaultEligibilityService $vaultEligibilityService
      * @param ReadHostRepositoryInterface $readHostRepository
      * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
@@ -98,6 +100,7 @@ final class RevertAllCredentials
      */
     public function __construct(
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
@@ -206,6 +209,7 @@ final class RevertAllCredentials
         $response->results = new CredentialReverter(
             $credentials,
             $this->readVaultRepository,
+            $this->writeVaultRepository,
             $this->writeHostRepository,
             $this->writeHostTemplateRepository,
             $this->writeHostMacroRepository,

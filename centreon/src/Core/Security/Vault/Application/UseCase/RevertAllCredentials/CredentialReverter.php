@@ -30,7 +30,9 @@ use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
@@ -56,8 +58,10 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  * Reverse of {@see \Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialMigrator}.
  *
  * For each credential currently stored as a vault path (`secret::...`) in the database, it reads the
- * plaintext back from the vault and writes it into the original database column. It never removes
- * anything from the vault.
+ * plaintext back from the vault and writes it into the original database column. Once every credential
+ * has been restored, the corresponding vault secrets are deleted in a second pass (one delete per unique
+ * UUID). The delete pass runs after all reads/DB writes so that credentials sharing a UUID are all restored
+ * before the entry is removed; a vault deletion failure is logged and tolerated (the revert still succeeds).
  *
  * @implements \IteratorAggregate<CredentialRecordedDto|CredentialErrorDto>
  */
@@ -69,6 +73,7 @@ class CredentialReverter implements \IteratorAggregate, \Countable
     /**
      * @param \Countable&\Traversable<CredentialDto> $credentials
      * @param ReadVaultRepositoryInterface $readVaultRepository
+     * @param WriteVaultRepositoryInterface $writeVaultRepository
      * @param WriteHostRepositoryInterface $writeHostRepository
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
      * @param WriteHostMacroRepositoryInterface $writeHostMacroRepository
@@ -92,6 +97,7 @@ class CredentialReverter implements \IteratorAggregate, \Countable
     public function __construct(
         private readonly \Traversable&\Countable $credentials,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
@@ -116,6 +122,9 @@ class CredentialReverter implements \IteratorAggregate, \Countable
 
     public function getIterator(): \Traversable
     {
+        /** @var array<string, array{path: string, uuid: string}> $vaultSecretsToDelete keyed by "path::uuid" */
+        $vaultSecretsToDelete = [];
+
         /**
          * @var CredentialDto $credential
          */
@@ -143,8 +152,14 @@ class CredentialReverter implements \IteratorAggregate, \Countable
                     ),
                 };
 
+                $uuid = $this->getUuidFromPath($credential->value);
+                if ($uuid !== null) {
+                    $path = $this->resolveVaultPath($credential->type);
+                    $vaultSecretsToDelete[$path . '::' . $uuid] = ['path' => $path, 'uuid' => $uuid];
+                }
+
                 $status = new CredentialRecordedDto();
-                $status->uuid = $this->getUuidFromPath($credential->value) ?? '';
+                $status->uuid = $uuid ?? '';
                 $status->resourceId = $credential->resourceId;
                 $status->vaultPath = $credential->value;
                 $status->type = $credential->type;
@@ -162,11 +177,54 @@ class CredentialReverter implements \IteratorAggregate, \Countable
                 yield $status;
             }
         }
+
+        $this->deleteVaultSecrets($vaultSecretsToDelete);
     }
 
     public function count(): int
     {
         return count($this->credentials);
+    }
+
+    /**
+     * Delete the reverted secrets from the vault, one call per unique UUID.
+     *
+     * Runs after all credentials have been restored so that credentials sharing a UUID are all written back
+     * before the entry is removed. A deletion failure is logged and tolerated: the plaintext is already in
+     * the database, so the revert has succeeded regardless.
+     *
+     * @param array<string, array{path: string, uuid: string}> $vaultSecretsToDelete
+     */
+    private function deleteVaultSecrets(array $vaultSecretsToDelete): void
+    {
+        foreach ($vaultSecretsToDelete as $secret) {
+            try {
+                $this->writeVaultRepository->setCustomPath($secret['path']);
+                $this->writeVaultRepository->delete($secret['uuid']);
+            } catch (\Throwable $ex) {
+                $this->error(
+                    'Unable to delete secret from vault, continuing',
+                    ['uuid' => $secret['uuid'], 'path' => $secret['path'], 'trace' => (string) $ex]
+                );
+            }
+        }
+    }
+
+    /**
+     * Map a credential type to its vault custom path, matching the migrator's paths.
+     */
+    private function resolveVaultPath(CredentialTypeEnum $type): string
+    {
+        return match ($type) {
+            CredentialTypeEnum::TYPE_HOST,
+            CredentialTypeEnum::TYPE_HOST_TEMPLATE => AbstractVaultRepository::HOST_VAULT_PATH,
+            CredentialTypeEnum::TYPE_SERVICE => AbstractVaultRepository::SERVICE_VAULT_PATH,
+            CredentialTypeEnum::TYPE_POLLER_MACRO => AbstractVaultRepository::POLLER_MACRO_VAULT_PATH,
+            CredentialTypeEnum::TYPE_KNOWLEDGE_BASE_PASSWORD => AbstractVaultRepository::KNOWLEDGE_BASE_PATH,
+            CredentialTypeEnum::TYPE_OPEN_ID => AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH,
+            CredentialTypeEnum::TYPE_BROKER_INPUT_OUTPUT => AbstractVaultRepository::BROKER_VAULT_PATH,
+            CredentialTypeEnum::TYPE_ADDITIONAL_CONNECTOR_CONFIGURATION => AbstractVaultRepository::ACC_VAULT_PATH,
+        };
     }
 
     /**

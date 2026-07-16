@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\VaultEligibilityService;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -61,6 +62,7 @@ use Core\Security\Vault\Application\UseCase\RevertAllCredentials\Reverter\VmWare
 beforeEach(function (): void {
     $this->useCase = new RevertAllCredentials(
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
         $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),

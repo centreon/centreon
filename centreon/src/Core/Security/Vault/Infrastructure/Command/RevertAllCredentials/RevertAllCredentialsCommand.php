@@ -51,7 +51,7 @@ final class RevertAllCredentialsCommand extends Command
 
         } catch (\Throwable $ex) {
             $this->error($ex->getMessage(), ['trace' => (string) $ex]);
-            $output->writeln("<error>{(string) {$ex}}</error>");
+            $output->writeln("<error>{$ex->getMessage()}</error>");
 
             return self::FAILURE;
         }

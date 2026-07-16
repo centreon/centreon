@@ -32,6 +32,8 @@ use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Broker\Domain\Model\Type as BrokerIOType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Domain\Model\ContactTemplate;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
@@ -71,6 +73,7 @@ function vaultPath(string $uuid, string $key): string
 
 beforeEach(function (): void {
     $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
+    $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class);
     $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class);
     $this->writeHostTemplateRepository = $this->createMock(WriteHostTemplateRepositoryInterface::class);
     $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class);
@@ -203,6 +206,7 @@ beforeEach(function (): void {
     $this->buildReverter = fn (\ArrayIterator $credentials): CredentialReverter => new CredentialReverter(
         credentials: $credentials,
         readVaultRepository: $this->readVaultRepository,
+        writeVaultRepository: $this->writeVaultRepository,
         writeHostRepository: $this->writeHostRepository,
         writeHostTemplateRepository: $this->writeHostTemplateRepository,
         writeHostMacroRepository: $this->writeHostMacroRepository,
@@ -329,6 +333,35 @@ it('yields an error when reading from the vault fails', function (): void {
     }
 });
 
-it('never removes anything from the vault', function (): void {
-    expect(method_exists(ReadVaultRepositoryInterface::class, 'delete'))->toBeFalse();
+it('deletes the vault secret once per unique uuid after restoring, deduplicating shared uuids', function (): void {
+    // credential1 (host) and credential2 (host template) share the same uuid and vault path.
+    $credentials = new \ArrayIterator([$this->credential1, $this->credential2]);
+
+    $this->writeVaultRepository->expects($this->once())
+        ->method('setCustomPath')
+        ->with(AbstractVaultRepository::HOST_VAULT_PATH);
+    $this->writeVaultRepository->expects($this->once())
+        ->method('delete')
+        ->with($this->uuid);
+
+    $reverter = ($this->buildReverter)($credentials);
+
+    foreach ($reverter as $status) {
+        expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
+    }
+});
+
+it('tolerates a vault deletion failure and still reports the credential as reverted', function (): void {
+    $credentials = new \ArrayIterator([$this->credential1]);
+
+    $this->writeVaultRepository->method('delete')
+        ->willThrowException(new \Exception('vault delete failed'));
+
+    $reverter = ($this->buildReverter)($credentials);
+
+    $statuses = iterator_to_array($reverter);
+
+    expect($statuses)->toHaveCount(1);
+    expect($statuses[0])->toBeInstanceOf(CredentialRecordedDto::class);
+    expect($statuses[0]->resourceId)->toBe(1);
 });
