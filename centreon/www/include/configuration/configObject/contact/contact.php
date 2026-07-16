@@ -208,7 +208,8 @@ try {
             require_once $path . 'listContact.php';
             break;
         case MASSIVE_UNBLOCK_CONTACT:
-            if ($handleCsrfOrFail()) {
+            // Unblocking is reserved to administrators
+            if ($centreon->user->admin && $handleCsrfOrFail()) {
                 unblockContactInDB($select);
             }
             require_once $path . 'listContact.php';
@@ -250,7 +251,8 @@ try {
             require_once $path . 'listContact.php';
             break;
         case UNBLOCK_CONTACT:
-            if ($handleCsrfOrFail()) {
+            // Unblocking is reserved to administrators
+            if ($centreon->user->admin && $handleCsrfOrFail()) {
                 unblockContactInDB($contactId);
             }
             require_once $path . 'listContact.php';

@@ -41,6 +41,16 @@ $newToken = $helper->validateCsrfToken();
 
 $helper->requireWriteAccess(60301);
 
+// ACL: at the resource level, a non-admin user may only toggle contacts covered
+// by their access groups. Page-level access alone would allow toggling any
+// contact by id (IDOR).
+if (! $helper->isAdmin()) {
+    $contactAcl = $helper->getAcl()->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']]);
+    if (! isset($contactAcl[$objId])) {
+        AjaxListingHelper::jsonError('Access denied', 403);
+    }
+}
+
 // Verify exists
 $checkStmt = $pearDB->prepare("SELECT contact_id FROM contact WHERE contact_id = :id AND contact_register = '1'");
 $checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
