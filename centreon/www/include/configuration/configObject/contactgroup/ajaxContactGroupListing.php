@@ -34,7 +34,7 @@ $limit  = $params['limit'];
 if (! $helper->isAdmin()) {
     $acl = $helper->getAcl();
     $cgAcl = $acl->getContactGroupAclConf(
-        ['fields' => ['cg_id', 'cg_name', 'cg_alias', 'cg_activate'], 'order' => ['cg_name']],
+        ['fields' => ['cg_id', 'cg_name', 'cg_alias', 'cg_activate'], 'keys' => ['cg_id'], 'order' => ['cg_name']],
         false
     );
 
