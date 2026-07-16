@@ -894,8 +894,6 @@ jobs:
         run: rm -f centreon/packaging/*-selinux.yaml
         shell: bash
 
-      # TODO(MON-205365): the destination path baked into packaging/centreon-web.yaml
-      # is a draft awaiting confirmation from the web team.
       - name: Build install-poller script
         env:
           MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}

@@ -430,7 +430,7 @@ contents:
   # ${base_uri} prefix ("/centreon" by default) may not match what the web team
   # wants for the final curl one-liner — revisit once the route is agreed.
   - src: "../install-poller/install.sh"
-    dst: "/usr/share/centreon/www/install-poller/install.sh"
+    dst: "/usr/share/centreon/www/poller/install.sh"
     file_info:
       owner: "centreon"
       group: "centreon"
