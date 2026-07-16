@@ -53,13 +53,28 @@ if ($contactGroup > 0) {
     $cgCond = ' AND c.contact_id IN (SELECT contact_contact_id FROM contactgroup_contact_relation WHERE contactgroup_cg_id = :cg_id) ';
 }
 
+// ACL: non-admin users only see the contacts covered by their access groups
+$aclCond = '';
+$aclParams = [];
+if (! $helper->isAdmin()) {
+    $acl = $helper->getAcl();
+    $contactAcl = $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']]);
+    if ($contactAcl === []) {
+        $helper->jsonResponse([], 0, 0, $limit);
+    }
+    foreach (array_keys($contactAcl) as $index => $contactId) {
+        $aclParams[':acl_c' . $index] = (int) $contactId;
+    }
+    $aclCond = ' AND c.contact_id IN (' . implode(',', array_keys($aclParams)) . ') ';
+}
+
 $statement = $pearDB->prepare(
     'SELECT SQL_CALC_FOUND_ROWS c.contact_id, c.contact_name, c.contact_alias, c.contact_email,'
     . ' c.timeperiod_tp_id, c.timeperiod_tp_id2,'
     . ' c.contact_host_notification_options, c.contact_service_notification_options,'
     . ' c.contact_lang, c.contact_oreon, c.contact_admin, c.contact_activate,'
     . ' c.contact_register, c.contact_auth_type, c.contact_ldap_required_sync, c.blocking_time'
-    . " FROM contact c WHERE c.contact_register = '1' " . $searchCond . $cgCond
+    . " FROM contact c WHERE c.contact_register = '1' " . $searchCond . $cgCond . $aclCond
     . ' ORDER BY c.contact_name LIMIT :offset, :limit'
 );
 foreach ($searchParams as $key => $val) {
@@ -67,6 +82,9 @@ foreach ($searchParams as $key => $val) {
 }
 if ($contactGroup > 0) {
     $statement->bindValue(':cg_id', $contactGroup, PDO::PARAM_INT);
+}
+foreach ($aclParams as $key => $val) {
+    $statement->bindValue($key, $val, PDO::PARAM_INT);
 }
 $statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
 $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -98,7 +116,7 @@ while ($c = $statement->fetch(PDO::FETCH_ASSOC)) {
         'is_current_user' => ((int) $c['contact_id'] === (int) $currentUserId),
         'auth_type'       => $c['contact_auth_type'],
         'ldap_sync'       => $c['contact_ldap_required_sync'],
-        'blocked'         => $c['blocking_time'] !== null,
+        'blocked'         => $isAdmin && $c['blocking_time'] !== null,
     ];
 }
 
