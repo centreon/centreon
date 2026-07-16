@@ -28,8 +28,9 @@ afterEach(() => {
 function visitAndWait(page: string): void {
   cy.visit(page);
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  waitForAjaxRefresh();
   cy.getIframeBody()
-    .find('#clTableBody tr')
+    .find('#clTableBody .cl-col-picker input[type="checkbox"]')
     .should('have.length.greaterThan', 0);
 }
 
@@ -37,6 +38,15 @@ function waitForAjaxRefresh(): void {
   cy.getIframeBody()
     .find('#clTableBody tr td')
     .should('not.contain', 'Loading');
+}
+
+function stubIframeConfirm(): void {
+  cy.get('iframe#main-content').then(($iframe) => {
+    const iframeWindow = ($iframe[0] as HTMLIFrameElement).contentWindow;
+    if (iframeWindow) {
+      cy.stub(iframeWindow, 'confirm').returns(true);
+    }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -135,19 +145,13 @@ Then('the admin user toggle is disabled and not clickable', () => {
 });
 
 When('the user selects a contact and duplicates it', () => {
+  stubIframeConfirm();
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('test_contact_alpha')
     .parents('tr')
     .find('.cl-col-picker input[type="checkbox"]')
     .click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
 });
 
@@ -158,6 +162,26 @@ Then('a duplicated contact appears in the listing', () => {
     .find('#clTableBody')
     .contains('test_contact_alpha_1')
     .should('exist');
+});
+
+When('the user selects the duplicated contact and deletes it', () => {
+  stubIframeConfirm();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('test_contact_alpha_1')
+    .parents('tr')
+    .find('.cl-col-picker input[type="checkbox"]')
+    .click();
+  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+});
+
+Then('the duplicated contact is no longer listed', () => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  waitForAjaxRefresh();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('test_contact_alpha_1')
+    .should('not.exist');
 });
 
 When('the user clicks on the contact name', () => {
@@ -190,7 +214,7 @@ When('the user navigates to the contact templates listing', () => {
 Then('the AJAX listing table is displayed with contact template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
-    .find('#clTableBody tr')
+    .find('#clTableBody .cl-col-picker input[type="checkbox"]')
     .should('have.length.greaterThan', 0);
 });
 
@@ -215,19 +239,23 @@ When('the user clicks the toggle to disable a contact template', () => {
     'toggleCt'
   );
   cy.getIframeBody()
-    .find('#clTableBody tr')
-    .first()
+    .find('#clTableBody')
+    .contains('contact_template')
+    .parents('tr')
     .find('.cl-toggle input[type="checkbox"]')
-    .then(($toggle) => {
-      if ($toggle.is(':checked')) {
-        cy.wrap($toggle).click();
-      }
-    });
+    .should('be.checked')
+    .click();
   cy.wait('@toggleCt');
 });
 
 Then('the contact template toggle switches to disabled', () => {
   cy.get('@toggleCt').its('response.statusCode').should('eq', 200);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('contact_template')
+    .parents('tr')
+    .find('.cl-toggle input[type="checkbox"]')
+    .should('not.be.checked');
 });
 
 // ---------------------------------------------------------------------------
@@ -241,7 +269,7 @@ When('the user navigates to the contact groups listing', () => {
 Then('the AJAX listing table is displayed with contact group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
-    .find('#clTableBody tr')
+    .find('#clTableBody .cl-col-picker input[type="checkbox"]')
     .should('have.length.greaterThan', 0);
 });
 
@@ -264,10 +292,17 @@ When('the user clicks the toggle to disable a contact group', () => {
     .contains('Guest')
     .parents('tr')
     .find('.cl-toggle input[type="checkbox"]')
+    .should('be.checked')
     .click();
   cy.wait('@toggleCg');
 });
 
 Then('the contact group toggle switches to disabled', () => {
   cy.get('@toggleCg').its('response.statusCode').should('eq', 200);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('Guest')
+    .parents('tr')
+    .find('.cl-toggle input[type="checkbox"]')
+    .should('not.be.checked');
 });
