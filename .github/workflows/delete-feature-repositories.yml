@@ -37,10 +37,10 @@ jobs:
           collect_prs=$(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --label "delivery-feature" --state open --json number --jq '.[].number')
 
           if [[ -n "$modules_prs" || -n "$collect_prs" ]]; then
-            echo "::notice::Other open delivery-feature pull requests have been found on other repositories for this ticket: no feature repository deletion will be requested."
+            echo "::notice::Other open delivery-feature pull request has been found on other repositories for this ticket: no feature repository deletion will be requested."
             echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::No other open delivery-feature pull requests have been found on other repositories for this ticket: a feature repository deletion will be requested."
+            echo "::notice::No other open delivery-feature pull request has been found on other repositories for this ticket: a feature repository deletion will be requested."
             echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
           fi
 
