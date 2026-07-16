@@ -4328,10 +4328,6 @@ msgstr ""
 msgid "Debug file Maximum Size"
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/debug/form.php
-msgid "Debug level"
-msgstr ""
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Debug messages"
 msgstr ""

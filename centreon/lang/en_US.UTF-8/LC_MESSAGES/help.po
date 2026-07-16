@@ -2778,14 +2778,6 @@ msgstr "Set as default graph template."
 msgid "Set the domain for search the service"
 msgstr "Set the domain for search the service"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Severities are defined in the service category object."
@@ -5843,6 +5835,14 @@ msgid ""
 msgstr ""
 "MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave "
 "empty to use the default value."
+
+#: unknown
+msgid ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+msgstr ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
 
 #: unknown
 msgid ""

@@ -4173,10 +4173,6 @@ msgstr "Debug file (Directory + File)"
 msgid "Debug file Maximum Size"
 msgstr "Debug file Maximum Size"
 
-#: centreon/www/include/Administration/parameters/debug/form.php
-msgid "Debug level"
-msgstr "Debug level"
-
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Debug messages"
 msgstr "Debug messages"
@@ -20136,6 +20132,10 @@ msgstr "Cannot retrieve the database version information"
 #: unknown
 msgid "Centreon Central address, as seen by this server"
 msgstr "Centreon Central address, as seen by this server"
+
+#: unknown
+msgid "Debug level"
+msgstr "Debug level"
 
 #: unknown
 msgid ""

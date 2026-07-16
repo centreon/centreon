@@ -2882,12 +2882,6 @@ msgstr "Als Standardgraph-Template verwenden."
 msgid "Set the domain for search the service"
 msgstr "Name der Domäne, in der nach dem LDAP-Dienst gesucht wird"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Schweregrade werden im Servicekategorieobjekt angegeben."
