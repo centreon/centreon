@@ -35,8 +35,7 @@ function _installParseArguments() {
       POLLER_TYPE=$1
       ;;
     --cloud)
-      shift
-      CLOUD_MODE=$1
+      CLOUD_MODE="true"
       ;;
     --poller_token)
       shift
@@ -119,14 +118,6 @@ function _installValidateArgs() {
       ;;
     esac
   fi
-
-  case "${CLOUD_MODE}" in
-  true|false) ;;
-  *)
-    consoleError "Invalid --cloud '${CLOUD_MODE}'. Valid values: true, false."
-    ret=1
-    ;;
-  esac
 
   if [ -z "${GORGONE_TOKEN}" ]; then
     consoleError "--poller_token is required."
