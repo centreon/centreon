@@ -33,6 +33,7 @@ const Widget = ({
       globalRefreshInterval={globalRefreshInterval}
       refreshCount={refreshCount}
       id={id}
+      path="/bam/widget"
       playlistHash={playlistHash}
       queryClient={queryClient}
       widgetPrefixQuery={widgetPrefixQuery}
