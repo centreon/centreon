@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -40,6 +41,17 @@ final readonly class ResourcePollerTransformer implements TransformerInterface
             pollerType: $from->pollerType->value,
             address: $from->address->value,
             uid: (string) $from->uid->value,
+            gorgoneCommunicationType: $this->communicationTypeToString($from->gorgoneConfiguration->communicationType),
         );
+    }
+
+    private function communicationTypeToString(GorgoneCommunicationTypeEnum $communicationType): string
+    {
+        return match ($communicationType) {
+            GorgoneCommunicationTypeEnum::ZMQ => 'zmq',
+            GorgoneCommunicationTypeEnum::SSH => 'ssh',
+            GorgoneCommunicationTypeEnum::Pull => 'pull',
+            GorgoneCommunicationTypeEnum::PullWss => 'pullwss',
+        };
     }
 }
