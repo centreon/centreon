@@ -181,6 +181,9 @@ var svcListing = new CentreonListing({
 // Custom renderRows for host grouping (assigned after construction to avoid Smarty issues)
 var _svcPageId = {/literal}'{$svcPage}'{literal};
 var _svcWriteAccess = {/literal}'{$mode_access}'{literal} === 'w';
+// Menu ACL on the linked pages: 0 = no access, 1 = read/write, 2 = read-only
+var hostAccess = {/literal}{$hostAccess}{literal};
+var svcTplAccess = {/literal}{$svcTplAccess}{literal};
 
 svcListing.renderRows = function(rows) {
     var self = svcListing;
@@ -205,14 +208,22 @@ svcListing.renderRows = function(rows) {
 
         // Host (grouped)
         if (row.host_name !== lastHost) {
-            var hostEditUrl = 'main.get.php?p=60101&o=c&host_id=' + row.host_id;
-            var hostTitle = 'Modify Host - ' + (row.host_name || '');
             var hostIcon = row.host_icon
                 ? '<img src="'+self.escape(row.host_icon)+'" class="ico-16" style="vertical-align:middle;margin-right:6px;" onerror="this.src=\'./img/icons/host.svg\'" />'
                 : '<img src="./img/icons/host.svg" class="ico-16" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;" />';
             // No host monitoring badge here: this is a service configuration
             // listing, so the host's live state is not relevant.
-            tr += '<td><a href="#" onclick="cfOpenPanel(\''+hostEditUrl+'\', \''+self.escape(hostTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+hostIcon+self.escape(row.host_name)+'</a></td>';
+            // Hosts menu ACL: 0 = no access, 1 = read/write, 2 = read-only
+            var hostName = self.escape(row.host_name);
+            if (hostAccess === 1 || hostAccess === 2) {
+                var hMode = (hostAccess === 1) ? 'c' : 'w';
+                var hostEditUrl = 'main.get.php?p=60101&o=' + hMode + '&host_id=' + row.host_id;
+                var hostTitle = 'Modify Host - ' + (row.host_name || '');
+                tr += '<td><a href="#" onclick="cfOpenPanel(\''+hostEditUrl+'\', \''+self.escape(hostTitle).replace(/\x27/g,"&#39;")+'\'); return false;">'+hostIcon+hostName+'</a></td>';
+            } else {
+                // no access to the Hosts menu -> not clickable
+                tr += '<td>'+hostIcon+hostName+'</td>';
+            }
             lastHost = row.host_name;
         } else {
             tr += '<td></td>';
@@ -248,9 +259,16 @@ svcListing.renderRows = function(rows) {
         if (row.templates && row.templates.length) {
             var parts = [];
             for (var t = 0; t < row.templates.length; t++) {
-                var tplUrl = 'main.get.php?p=60206&o=c&service_id=' + row.templates[t].id;
                 var tplName = self.escape(row.templates[t].name);
-                parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
+                if (svcTplAccess === 1 || svcTplAccess === 2) {
+                    // read/write -> edit (o=c), read-only -> view (o=w, frozen form)
+                    var tMode = (svcTplAccess === 1) ? 'c' : 'w';
+                    var tplUrl = 'main.get.php?p=60206&o=' + tMode + '&service_id=' + row.templates[t].id;
+                    parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
+                } else {
+                    // no access to the Service Templates menu -> not clickable
+                    parts.push(tplName);
+                }
             }
             tplHtml = parts.join(' &gt; ');
         }

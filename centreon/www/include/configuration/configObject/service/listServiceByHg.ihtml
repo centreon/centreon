@@ -170,6 +170,8 @@ var svcHgListing = new CentreonListing({
 // Custom renderRows for hostgroup grouping
 var _svcHgPageId = {/literal}'{$svcHgPage}'{literal};
 var _svcHgWriteAccess = {/literal}'{$mode_access}'{literal} === 'w';
+// Service Templates menu ACL: 0 = no access, 1 = read/write, 2 = read-only
+var svcTplAccess = {/literal}{$svcTplAccess}{literal};
 
 svcHgListing.renderRows = function(rows) {
     var self = svcHgListing;
@@ -214,9 +216,14 @@ svcHgListing.renderRows = function(rows) {
         if (row.templates && row.templates.length) {
             var parts = [];
             for (var t = 0; t < row.templates.length; t++) {
-                var tplUrl = 'main.get.php?p=60206&o=c&service_id=' + row.templates[t].id;
                 var tplName = self.escape(row.templates[t].name);
-                parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
+                if (svcTplAccess === 1 || svcTplAccess === 2) {
+                    var tMode = (svcTplAccess === 1) ? 'c' : 'w';
+                    var tplUrl = 'main.get.php?p=60206&o=' + tMode + '&service_id=' + row.templates[t].id;
+                    parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+tplName.replace(/\x27/g,"&#39;")+'\'); return false;">'+tplName+'</a>');
+                } else {
+                    parts.push(tplName);
+                }
             }
             tplHtml = parts.join(' &gt; ');
         }

@@ -31,6 +31,12 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
+// Menu ACL on the linked pages (0 = no access, 1 = read/write, 2 = read-only;
+// admins get read/write). Drives whether the host and the service templates are
+// clickable in the listing and, if so, in edit (o=c) or view (o=w) mode.
+$tpl->assign('hostAccess', (int) $centreon->user->access->page(60101));
+$tpl->assign('svcTplAccess', (int) $centreon->user->access->page(60206));
+
 $tpl->assign('headerMenu_name', _('Host'));
 $tpl->assign('headerMenu_desc', _('Service'));
 $tpl->assign('headerMenu_sched', _('Scheduling'));
