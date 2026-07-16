@@ -23,6 +23,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/centreon.config.php';
 require_once __DIR__ . '/../www/include/common/vault-functions.php';
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -51,11 +53,15 @@ try {
     /** @var WriteVaultRepositoryInterface $writeVaultRepository */
     $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
 
+    echo 'Revert of database credentials' . PHP_EOL;
     revertAndUpdateDatabaseCredentials($readVaultRepository, $writeVaultRepository);
+    echo 'Revert of database credentials completed' . PHP_EOL;
+
     revertGorgoneApiCredentials($readVaultRepository, $writeVaultRepository);
     revertApplicationCredentials();
 
 } catch (Throwable $ex) {
+    Logger::create(LogChannelEnum::WEB)->error($ex->getMessage(), ['exception' => $ex]);
     echo $ex->getMessage() . PHP_EOL;
 }
 

@@ -19,6 +19,7 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -1492,11 +1493,9 @@ function revertAndUpdateDatabaseCredentials(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
 ): void {
-    echo 'Revert of database credentials' . PHP_EOL;
-
     $stored = retrieveDatabaseCredentialsFromConfigFile();
     if (! str_starts_with($stored['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-        echo 'Database credentials are not stored in Vault, nothing to revert' . PHP_EOL;
+        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Database credentials are not stored in Vault, nothing to revert');
 
         return;
     }
@@ -1518,7 +1517,7 @@ function revertAndUpdateDatabaseCredentials(
 
     deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::DATABASE_VAULT_PATH, $stored['username']);
 
-    echo 'Revert of database credentials completed' . PHP_EOL;
+    Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Database credentials reverted from Vault to configuration files');
 }
 
 /**
@@ -1659,7 +1658,7 @@ function revertGorgoneCredentialsToDb(
 ): void {
     $storedPassword = retrieveGorgoneApiCredentialsFromConfigFile();
     if (! str_starts_with($storedPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
-        echo 'Gorgone API credentials are not stored in Vault, nothing to revert' . PHP_EOL;
+        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Gorgone API credentials are not stored in Vault, nothing to revert');
 
         return;
     }
@@ -1674,6 +1673,8 @@ function revertGorgoneCredentialsToDb(
     restoreGorgoneApiFile($secrets[VaultConfiguration::GORGONE_PASSWORD]);
 
     deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::GORGONE_VAULT_PATH, $storedPassword);
+
+    Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Gorgone API credentials reverted from Vault to configuration file');
 }
 
 /**
@@ -1716,7 +1717,10 @@ function deleteVaultSecret(
     string $vaultPath,
 ): void {
     if (! preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches)) {
-        echo 'Unable to extract UUID from Vault path, skipping Vault deletion' . PHP_EOL;
+        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->warning(
+            'Unable to extract UUID from Vault path, skipping Vault deletion',
+            ['path' => $customPath]
+        );
 
         return;
     }
@@ -1725,8 +1729,15 @@ function deleteVaultSecret(
     try {
         $writeVaultRepository->setCustomPath($customPath);
         $writeVaultRepository->delete($uuid);
+        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info(
+            'Secret deleted from Vault',
+            ['uuid' => $uuid, 'path' => $customPath]
+        );
     } catch (Throwable $ex) {
-        echo 'Unable to delete secret from Vault, continuing: ' . $ex->getMessage() . PHP_EOL;
+        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->error(
+            'Unable to delete secret from Vault, continuing',
+            ['uuid' => $uuid, 'path' => $customPath, 'exception' => $ex]
+        );
     }
 }
 
