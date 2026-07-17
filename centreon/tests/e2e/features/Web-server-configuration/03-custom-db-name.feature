@@ -3,7 +3,7 @@ Feature: Central poller configuration generation with non-standard database name
   I want the central poller configuration to be generated successfully
   So that my configuration can be deployed regardless of the physical database names
 
-  @MON-204575
+  @MON-204816
   Scenario: Generate central poller configuration with non-standard database names
     Given a platform whose databases are not named centreon or centreon_storage
     When the administrator exports the central poller configuration

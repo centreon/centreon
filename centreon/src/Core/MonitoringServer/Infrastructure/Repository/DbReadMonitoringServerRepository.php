@@ -385,9 +385,10 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT 1
-                FROM `:dbstg`.`instances`
-                WHERE instance_id = :monitoringServerId
-                    AND is_encryption_ready = 1
+                FROM `:dbstg`.`instances` i
+                INNER JOIN `:db`.`nagios_server` ns ON ns.uid = i.instance_id
+                WHERE ns.id = :monitoringServerId
+                    AND i.is_encryption_ready = 1
                 SQL
         ));
         $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);

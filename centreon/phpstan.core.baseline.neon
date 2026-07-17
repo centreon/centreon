@@ -937,12 +937,6 @@ parameters:
 			path: src/Core/Severity/RealTime/Infrastructure/Repository/DbReadSeverityRepository.php
 
 		-
-			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Core/Tag/RealTime/Infrastructure/Repository/Tag/DbReadTagRepository.php
-
-		-
 			message: '#^Parameter \#1 \$extraTimePeriods of method Core\\TimePeriod\\Domain\\Model\\TimePeriod\:\:setExtraTimePeriods\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\ExtraTimePeriod\>, array\<Core\\TimePeriod\\Domain\\Model\\ExtraTimePeriod\> given\.$#'
 			identifier: argument.type
 			count: 1

@@ -730,11 +730,22 @@ class CentreonConfigPoller
      */
     public function getPollerState()
     {
+        // instances.instance_id (centreon_storage) holds the Snowflake UID stored in
+        // nagios_server.uid; map it back to the poller config id so callers can look up
+        // the state by nagios_server.id.
+        $uidToId = [];
+        $nagiosResult = $this->DB->query('SELECT id, uid FROM nagios_server');
+        while ($row = $nagiosResult->fetchRow()) {
+            $uidToId[$row['uid']] = $row['id'];
+        }
+
         $pollerState = [];
-        $dbResult = $this->DBC->query('SELECT instance_id, running, name FROM instances');
+        $dbResult = $this->DBC->query('SELECT instance_id, running FROM instances');
 
         while ($row = $dbResult->fetchRow()) {
-            $pollerState[$row['instance_id']] = $row['running'];
+            if (isset($uidToId[$row['instance_id']])) {
+                $pollerState[$uidToId[$row['instance_id']]] = $row['running'];
+            }
         }
 
         return $pollerState;

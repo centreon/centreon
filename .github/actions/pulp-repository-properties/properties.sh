@@ -6,8 +6,14 @@ if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$VERSION" || -z "$STABILITY" || 
   exit 1
 fi
 
+# parse-distrib emits the el family either generically ("el") or per version
+# ("el7"/"el8"/"el9"/"el10" on centreon-collect); normalize it to "el" so the
+# family checks below are portable across both conventions.
 case "$DISTRIB_FAMILY" in
-  el) ROOT_REPO="rpm-standard" ;;
+  el | el[0-9]*)
+    ROOT_REPO="rpm-standard"
+    DISTRIB_FAMILY="el"
+    ;;
   debian) ROOT_REPO="apt-standard" ;;
   ubuntu) ROOT_REPO="ubuntu-standard" ;;
   *)

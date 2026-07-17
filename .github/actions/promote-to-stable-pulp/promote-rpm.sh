@@ -76,16 +76,13 @@ for ARCH in noarch x86_64; do
   STABLE_BASE_PATH="$STABLE_BASE_PATH_PREFIX/$ARCH"
 
   if ! pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
-    echo "[INFO] Creating rpm repository $STABLE_REPOSITORY_NAME"
-    # no --retain-package-versions on stable: it keeps the full version history
-    # (unlike testing/unstable which retain only the latest), matching
-    # create-rpm-repos.sh. normally create-repos pre-creates it, this is a fallback.
-    pulp rpm repository create --name "$STABLE_REPOSITORY_NAME" >/dev/null
+    echo "::error::stable rpm repository $STABLE_REPOSITORY_NAME does not exist. Pulp repositories and distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before promoting."
+    exit 1
   fi
 
   if ! pulp rpm distribution show --name "$STABLE_REPOSITORY_NAME" >/dev/null 2>&1; then
-    echo "[INFO] Creating rpm distribution $STABLE_REPOSITORY_NAME served at $STABLE_BASE_PATH"
-    pulp rpm distribution create --name "$STABLE_REPOSITORY_NAME" --base-path "$STABLE_BASE_PATH" --repository "$STABLE_REPOSITORY_NAME" >/dev/null
+    echo "::error::stable rpm distribution $STABLE_REPOSITORY_NAME does not exist. Pulp distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before promoting. Refusing to create it here to avoid an unguarded distribution."
+    exit 1
   fi
 
   STABLE_REPOSITORY_HREF=$(pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
