@@ -70,17 +70,6 @@ properties:
     minimum: 1
     nullable: true
     example: null
-  freshness_checked:
-    type: integer
-    description: |
-      Indicates whether freshness is checked or not
-      * `0` - STATUS_DISABLED
-      * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
-  freshness_threshold:
-    type: integer
-    nullable: true
-    description: "Specify the freshness threshold (in seconds)."
   severity_id:
     type: integer
     description: "Severity ID."
