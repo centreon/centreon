@@ -168,7 +168,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'poller_token_name' => $this->tokenName,
             ],
         ]);
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(409);
     }
 
     public function testCannotCreatePollerWithInvalidType(): void

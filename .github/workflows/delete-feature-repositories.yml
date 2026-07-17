@@ -12,11 +12,11 @@ on:
 jobs:
   check-other-feature-prs:
     if: |
-      startsWith(github.head_ref, 'MON-')
+      startsWith(github.head_ref, 'MON-') &&
+      github.event.pull_request.base.ref == 'develop' &&
+      contains(github.event.pull_request.labels.*.name, 'delivery-feature')
     runs-on: ubuntu-24.04
     env:
-      # the default github.token has no access to the private sibling
-      # repositories (404), which would abort the check on every run
       GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
       HEAD_REF: ${{ github.head_ref }}
     outputs:
@@ -33,14 +33,14 @@ jobs:
           # being silently read as "no sibling PR". A failed check job leaves the
           # deletion jobs skipped (their `needs` failed) — i.e. fail closed: never
           # delete feature repositories on an uncertain sibling-PR lookup.
-          modules_prs=$(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --state open --json number --jq '.[].number')
-          collect_prs=$(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --state open --json number --jq '.[].number')
+          modules_prs=$(gh pr list --repo centreon/centreon-modules --head "$HEAD_REF" --label "delivery-feature" --state open --json number --jq '.[].number')
+          collect_prs=$(gh pr list --repo centreon/centreon-collect --head "$HEAD_REF" --label "delivery-feature" --state open --json number --jq '.[].number')
 
           if [[ -n "$modules_prs" || -n "$collect_prs" ]]; then
-            echo "::notice::Other open feature pull requests have been found on other repositories: no feature repository deletion will be requested."
+            echo "::notice::Other open delivery-feature pull request has been found on other repositories for this ticket: no feature repository deletion will be requested."
             echo "feature_prs_found=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::Other open feature pull requests have not been found on other repositories: a feature repository deletion will be requested."
+            echo "::notice::No other open delivery-feature pull request has been found on other repositories for this ticket: a feature repository deletion will be requested."
             echo "feature_prs_found=false" >> "$GITHUB_OUTPUT"
           fi
 
