@@ -14,12 +14,6 @@ manageUsersAndGroups() {
   usermod centreon -a -G centreon-engine,centreon-broker
   usermod centreon-gorgone -a -G centreon-engine
   usermod centreon-gorgone -a -G centreon-broker
-  # centreon-gorgone must be in the centreon group to write into shared dirs
-  # like /var/cache/centreon (owned by centreon:centreon). centreon-gorgone's
-  # own postinstall also attempts this, but isn't guaranteed to run after
-  # centreon-common creates the centreon group. centreon-poller is always the
-  # last package in this transaction, so redo it here to be order-independent.
-  usermod centreon-gorgone -a -G centreon
 }
 
 updateEngineBrokerConfigurationRights() {
