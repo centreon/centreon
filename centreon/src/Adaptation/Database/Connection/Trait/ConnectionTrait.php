@@ -160,7 +160,7 @@ trait ConnectionTrait
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
             $bareTableName = str_replace('`', '', $tableName);
-            if (preg_match('/^[a-zA-Z_]\w*(\.[a-zA-Z_]\w*)?$/', $bareTableName) !== 1) {
+            if (preg_match('/^[\w$][\w$-]*(\.[\w$][\w$-]*)?$/', $bareTableName) !== 1) {
                 throw ConnectionException::batchInsertQueryBadUsage("Invalid table name: {$tableName}");
             }
             if ($columns === []) {
@@ -168,7 +168,7 @@ trait ConnectionTrait
             }
             foreach ($columns as $column) {
                 $bareColumn = str_replace('`', '', $column);
-                if (preg_match('/^[a-zA-Z_]\w*$/', $bareColumn) !== 1) {
+                if (preg_match('/^[\w$][\w$-]*$/', $bareColumn) !== 1) {
                     throw ConnectionException::batchInsertQueryBadUsage("Invalid column name: {$column}");
                 }
             }
