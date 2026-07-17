@@ -72,6 +72,17 @@ properties:
     description: "Define an optional URL that can be used to specify actions to be performed on the service."
     nullable: true
     maxLength: 65535
+  freshness_checked:
+    type: integer
+    description: |
+      Indicates whether freshness is checked or not
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+  freshness_threshold:
+    type: integer
+    nullable: true
+    description: "Specify the freshness threshold (in seconds)."
   icon_id:
     type: integer
     description: "Define the image ID that should be associated with this service."

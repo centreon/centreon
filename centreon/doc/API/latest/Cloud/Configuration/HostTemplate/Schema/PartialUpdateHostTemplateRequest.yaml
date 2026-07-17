@@ -136,6 +136,17 @@ properties:
     description: "Event handler command ID"
     example: 1
     nullable: true
+  freshness_checked:
+    type: integer
+    description: |
+      Indicates whether freshness is checked or not
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+  freshness_threshold:
+    type: integer
+    nullable: true
+    description: "Specify the freshness threshold (in seconds)."
   note_url:
     type: string
     nullable: true

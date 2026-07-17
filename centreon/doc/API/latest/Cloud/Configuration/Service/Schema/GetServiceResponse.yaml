@@ -41,6 +41,17 @@ allOf:
         type: integer
         nullable: true
         description: 'Event handler command ID.'
+      freshness_checked:
+        type: integer
+        description: |
+          Indicates whether freshness is checked or not
+          * `0` - STATUS_DISABLED
+          * `1` - STATUS_ENABLED
+          * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+      freshness_threshold:
+        type: integer
+        nullable: true
+        description: "Specify the freshness threshold (in seconds)."
       max_check_attempts:
         type: integer
         description: 'Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state.'
