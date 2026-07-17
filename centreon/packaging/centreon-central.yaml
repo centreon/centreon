@@ -28,7 +28,7 @@ overrides:
       - centreon-broker-cbd >= ${MAJOR_VERSION}
       - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
       - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
-      - centreon-gorgone-centreon-config < ${MAJOR_VERSION}
+      - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
       - centreon-license-manager >= ${MAJOR_VERSION}
       - centreon-license-manager < ${NEXT_MAJOR_VERSION}
       - centreon-pp-manager >= ${MAJOR_VERSION}
