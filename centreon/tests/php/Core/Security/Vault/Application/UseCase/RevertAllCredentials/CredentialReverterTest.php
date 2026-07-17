@@ -101,10 +101,10 @@ beforeEach(function (): void {
     $this->credential2->value = vaultPath($this->uuid, VaultConfiguration::HOST_SNMP_COMMUNITY_KEY);
 
     $this->credential3 = new CredentialDto();
-    $this->credential3->resourceId = 3;
+    $this->credential3->resourceId = 1;
     $this->credential3->type = CredentialTypeEnum::TYPE_SERVICE;
-    $this->credential3->name = 'MACRO';
-    $this->credential3->value = vaultPath($this->uuid, '_SERVICEMACRO');
+    $this->credential3->name = '_MACRO_SERVICE1';
+    $this->credential3->value = vaultPath($this->uuid, '_MACRO_SERVICE1');
 
     $this->credential4 = new CredentialDto();
     $this->credential4->resourceId = 4;
@@ -245,20 +245,30 @@ it('reverts hosts, host templates and service macros back to the database', func
         ->with($this->callback(
             fn (Host $host): bool => $host->getSnmpCommunity() === 'plaintext-' . VaultConfiguration::HOST_SNMP_COMMUNITY_KEY
         ));
+    $this->writeHostTemplateRepository->expects($this->once())
+        ->method('update')
+        ->with($this->callback(
+            fn (HostTemplate $hostTemplate): bool => $hostTemplate->getSnmpCommunity() === 'plaintext-' . VaultConfiguration::HOST_SNMP_COMMUNITY_KEY
+        ));
+    $this->writeServiceMacroRepository->expects($this->once())
+        ->method('update')
+        ->with($this->callback(
+            fn (Macro $macro): bool => $macro->getValue() === 'plaintext-_MACRO_SERVICE1'
+        ));
 
     $reverter = ($this->buildReverter)($credentials);
 
     foreach ($reverter as $status) {
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
         expect($status->uuid)->toBe($this->uuid);
-        expect($status->resourceId)->toBeIn([1, 2, 3]);
+        expect($status->resourceId)->toBeIn([1, 2]);
         expect($status->vaultPath)->toStartWith(VaultConfiguration::VAULT_PATH_PATTERN);
         expect($status->type)->toBeIn([
             CredentialTypeEnum::TYPE_HOST,
             CredentialTypeEnum::TYPE_HOST_TEMPLATE,
             CredentialTypeEnum::TYPE_SERVICE,
         ]);
-        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, 'MACRO']);
+        expect($status->credentialName)->toBeIn([VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, '_MACRO_SERVICE1']);
     }
 });
 
@@ -349,6 +359,37 @@ it('deletes the vault secret once per unique uuid after restoring, deduplicating
     foreach ($reverter as $status) {
         expect($status)->toBeInstanceOf(CredentialRecordedDto::class);
     }
+});
+
+it('keeps a shared vault secret when a credential using it failed to revert', function (): void {
+    // credential1 (host) and credential2 (host template) share the same uuid and vault path.
+    // credential2 fails to revert, so the shared secret must be kept: deleting it would leave
+    // the still-referenced database path unrecoverable.
+    $this->credential2->value = vaultPath($this->uuid, 'missing-key');
+
+    $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
+    $this->readVaultRepository->method('findFromPath')->willReturnCallback(function (string $path): array {
+        $segments = explode('::', $path);
+        $key = end($segments);
+        if ($key === 'missing-key') {
+            return []; // simulate a credential that cannot be read back
+        }
+
+        return [$key => 'plaintext-' . $key];
+    });
+
+    $credentials = new \ArrayIterator([$this->credential1, $this->credential2]);
+
+    $this->writeVaultRepository->expects($this->never())->method('delete');
+
+    $reverter = ($this->buildReverter)($credentials);
+    $statuses = iterator_to_array($reverter);
+
+    expect($statuses)->toHaveCount(2);
+    expect($statuses[0])->toBeInstanceOf(CredentialRecordedDto::class);
+    expect($statuses[0]->resourceId)->toBe(1);
+    expect($statuses[1])->toBeInstanceOf(CredentialErrorDto::class);
+    expect($statuses[1]->resourceId)->toBe(2);
 });
 
 it('tolerates a vault deletion failure and still reports the credential as reverted', function (): void {

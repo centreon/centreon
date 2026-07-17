@@ -124,6 +124,8 @@ class CredentialReverter implements \IteratorAggregate, \Countable
     {
         /** @var array<string, array{path: string, uuid: string}> $vaultSecretsToDelete keyed by "path::uuid" */
         $vaultSecretsToDelete = [];
+        /** @var array<string, true> $failedVaultSecretKeys "path::uuid" keys backing a credential that failed */
+        $failedVaultSecretKeys = [];
 
         /**
          * @var CredentialDto $credential
@@ -168,6 +170,12 @@ class CredentialReverter implements \IteratorAggregate, \Countable
                 yield $status;
             } catch (\Throwable $ex) {
                 $this->error($ex->getMessage(), ['trace' => (string) $ex]);
+
+                $uuid = $this->getUuidFromPath($credential->value);
+                if ($uuid !== null) {
+                    $failedVaultSecretKeys[$this->resolveVaultPath($credential->type) . '::' . $uuid] = true;
+                }
+
                 $status = new CredentialErrorDto();
                 $status->resourceId = $credential->resourceId;
                 $status->type = $credential->type;
@@ -176,6 +184,12 @@ class CredentialReverter implements \IteratorAggregate, \Countable
 
                 yield $status;
             }
+        }
+
+        // Never delete a secret whose UUID still backs a credential that failed to revert, otherwise the
+        // still-referenced database path (e.g. a shared OpenID client id/secret) would become unrecoverable.
+        foreach (array_keys($failedVaultSecretKeys) as $key) {
+            unset($vaultSecretsToDelete[$key]);
         }
 
         $this->deleteVaultSecrets($vaultSecretsToDelete);
@@ -351,8 +365,9 @@ class CredentialReverter implements \IteratorAggregate, \Countable
         }
         $inputOutputs = $this->brokerInputOutputs[$credential->resourceId];
         foreach ($inputOutputs as $inputOutput) {
-            if (str_starts_with($credential->name, $inputOutput->getName())) {
-                $credentialNamePart = str_replace($inputOutput->getName() . '_', '', $credential->name);
+            $prefix = $inputOutput->getName() . '_';
+            if (str_starts_with($credential->name, $prefix)) {
+                $credentialNamePart = mb_substr($credential->name, mb_strlen($prefix));
                 $params = $inputOutput->getParameters();
                 foreach ($params as $paramName => $param) {
                     if (is_array($param)) {
@@ -394,6 +409,9 @@ class CredentialReverter implements \IteratorAggregate, \Countable
             if ($acc->getId() === $credential->resourceId) {
                 $updatedAcc = $acc;
                 foreach ($this->accCredentialReverters as $reverter) {
+                    if (! $reverter->isValidFor($updatedAcc->getType())) {
+                        continue;
+                    }
                     $updatedAcc = $reverter->revertMigratedCredential($updatedAcc, $credential, $plaintext);
                 }
                 $this->accs[$index] = $updatedAcc;
