@@ -20,6 +20,7 @@
  */
 
 use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger as AdaptationLogger;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -1480,9 +1481,12 @@ function updateDatabaseYamlFile(array $vaultPaths): void
  * This is the reverse of {@see migrateAndUpdateDatabaseCredentials()} / {@see migrateDatabaseCredentialsToVault()}.
  * It is handled outside of a Symfony Command as this must be executed as root.
  *
- * The operation is idempotent/resumable: if the config file no longer holds a Vault path, it is a no-op.
- * The plaintext is restored to the config files *before* the Vault secret is deleted, so an interruption
- * can never lose the credentials. A Vault deletion failure is logged and tolerated.
+ * The operation is idempotent: if the config file no longer holds a Vault path, it is a no-op.
+ * The plaintext is restored to the config files *before* the Vault secret is deleted, so an
+ * interruption can never lose the credentials. The resume is not fully self-healing though: if the
+ * run is interrupted after the config is restored but before the Vault secret is deleted, a re-run
+ * short-circuits on the no-op check above and leaves the (now unused) Vault secret in place. Such an
+ * orphaned secret is tolerated, as is an outright Vault deletion failure (both are logged).
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
@@ -1495,7 +1499,7 @@ function revertAndUpdateDatabaseCredentials(
 ): void {
     $stored = retrieveDatabaseCredentialsFromConfigFile();
     if (! str_starts_with($stored['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Database credentials are not stored in Vault, nothing to revert');
+        AdaptationLogger::create(LogChannelEnum::WEB)->info('Database credentials are not stored in Vault, nothing to revert');
 
         return;
     }
@@ -1517,7 +1521,7 @@ function revertAndUpdateDatabaseCredentials(
 
     deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::DATABASE_VAULT_PATH, $stored['username']);
 
-    Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Database credentials reverted from Vault to configuration files');
+    AdaptationLogger::create(LogChannelEnum::WEB)->info('Database credentials reverted from Vault to configuration files');
 }
 
 /**
@@ -1525,12 +1529,22 @@ function revertAndUpdateDatabaseCredentials(
  *
  * Reverse of {@see updateConfigFilesWithVaultPath()}.
  *
+ * The credentials stored in Vault are the raw bytes {@see retrieveDatabaseCredentialsFromConfigFile()}
+ * captured from centreon.conf.php, i.e. still in PHP single-quote escaped form. They are decoded to
+ * their logical value once here, then each writer re-encodes them for its own file syntax. This keeps
+ * a credential containing `"`, `$`, `@` or `\` from corrupting conf.pm / the YAML files.
+ *
  * @param array{username: string, password: string} $credentials
  *
  * @throws Exception
  */
 function updateConfigFilesWithDbCredentials(array $credentials): void
 {
+    $credentials = [
+        'username' => decodeFromPhpSingleQuoted($credentials['username']),
+        'password' => decodeFromPhpSingleQuoted($credentials['password']),
+    ];
+
     $featuresFileContent = file_get_contents(__DIR__ . '/../../../config/features.json');
     $featureFlagManager = new FeatureFlags(false, $featuresFileContent);
 
@@ -1539,6 +1553,64 @@ function updateConfigFilesWithDbCredentials(array $credentials): void
         restoreCentreonConfPmFile($credentials);
         restoreDatabaseYamlFile($credentials);
     }
+}
+
+/**
+ * Decode a value captured from a PHP single-quoted literal back to its logical form.
+ *
+ * PHP single-quoted strings only recognise `\\` (backslash) and `\'` (single quote) as escapes, so
+ * this reverses exactly those two sequences. This is the inverse of {@see encodeForPhpSingleQuoted()}.
+ *
+ * @param string $value the raw bytes as captured between the single quotes in centreon.conf.php
+ *
+ * @return string the logical (unescaped) value
+ */
+function decodeFromPhpSingleQuoted(string $value): string
+{
+    return preg_replace('/\\\\([\\\\\'])/', '$1', $value);
+}
+
+/**
+ * Escape a logical value so it can be embedded in a PHP single-quoted literal (`'...'`).
+ *
+ * @param string $value the logical value
+ *
+ * @return string the escaped value (backslash and single quote prefixed with a backslash)
+ */
+function encodeForPhpSingleQuoted(string $value): string
+{
+    return addcslashes($value, "\\'");
+}
+
+/**
+ * Escape a logical value so it can be embedded in a Perl double-quoted string (`"..."`).
+ *
+ * Perl interpolates `$` and `@` and treats `\` and `"` specially inside double quotes, so all four
+ * are prefixed with a backslash. Backslash is escaped first to avoid re-escaping the ones inserted
+ * afterwards.
+ *
+ * @param string $value the logical value
+ *
+ * @return string the escaped value
+ */
+function encodeForPerlDoubleQuoted(string $value): string
+{
+    return str_replace(['\\', '"', '$', '@'], ['\\\\', '\\"', '\\$', '\\@'], $value);
+}
+
+/**
+ * Escape a logical value so it can be embedded in a YAML double-quoted scalar (`"..."`).
+ *
+ * A YAML double-quoted scalar only needs `\` and `"` escaped to stay valid. Backslash is escaped
+ * first to avoid re-escaping the one inserted for `"`.
+ *
+ * @param string $value the logical value
+ *
+ * @return string the escaped value
+ */
+function encodeForYamlDoubleQuoted(string $value): string
+{
+    return str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
 }
 
 /**
@@ -1558,12 +1630,12 @@ function restoreCentreonConfPhpFile(array $credentials): void
 
     $newContentPhp = preg_replace_callback(
         '/\$conf_centreon\[[\'\"]user[\'\"]\]\s*=\s*(.*)/',
-        static fn (): string => "\$conf_centreon['user'] = '" . $credentials['username'] . "';",
+        static fn (): string => "\$conf_centreon['user'] = '" . encodeForPhpSingleQuoted($credentials['username']) . "';",
         $content
     );
     $newContentPhp = preg_replace_callback(
         '/\$conf_centreon\[[\'\"]password[\'\"]\]\s*=\s*(.*)/',
-        static fn (): string => "\$conf_centreon['password'] = '" . $credentials['password'] . "';",
+        static fn (): string => "\$conf_centreon['password'] = '" . encodeForPhpSingleQuoted($credentials['password']) . "';",
         (string) $newContentPhp
     );
 
@@ -1586,24 +1658,27 @@ function restoreCentreonConfPmFile(array $credentials): void
         throw new Exception('Unable to retrieve content of file: ' . _CENTREON_ETC_ . '/conf.pm');
     }
 
+    $encodedUser = encodeForPerlDoubleQuoted($credentials['username']);
+    $encodedPassword = encodeForPerlDoubleQuoted($credentials['password']);
+
     $newContentPm = preg_replace_callback(
         '/"db_user"\s*=>\s*(.*)/',
-        static fn (): string => '"db_user" => "' . $credentials['username'] . '",',
+        static fn (): string => '"db_user" => "' . $encodedUser . '",',
         $content
     );
     $newContentPm = preg_replace_callback(
         '/"db_passwd"\s*=>\s*(.*)/',
-        static fn (): string => '"db_passwd" => "' . $credentials['password'] . '"',
+        static fn (): string => '"db_passwd" => "' . $encodedPassword . '"',
         (string) $newContentPm
     );
     $newContentPm = preg_replace_callback(
         '/\$mysql_user\s*=\s*(.*)/',
-        static fn (): string => '$mysql_user = "' . $credentials['username'] . '";',
+        static fn (): string => '$mysql_user = "' . $encodedUser . '";',
         (string) $newContentPm
     );
     $newContentPm = preg_replace_callback(
         '/\$mysql_passwd\s*=\s*(.*)/',
-        static fn (): string => '$mysql_passwd = "' . $credentials['password'] . '";',
+        static fn (): string => '$mysql_passwd = "' . $encodedPassword . '";',
         (string) $newContentPm
     );
 
@@ -1628,12 +1703,12 @@ function restoreDatabaseYamlFile(array $credentials): void
     }
     $newContentYaml = preg_replace_callback(
         '/username: (.*)/',
-        static fn (): string => 'username: "' . $credentials['username'] . '"',
+        static fn (): string => 'username: "' . encodeForYamlDoubleQuoted($credentials['username']) . '"',
         $content
     );
     $newContentYaml = preg_replace_callback(
         '/password: (.*)/',
-        static fn (): string => 'password: "' . $credentials['password'] . '"',
+        static fn (): string => 'password: "' . encodeForYamlDoubleQuoted($credentials['password']) . '"',
         (string) $newContentYaml
     );
 
@@ -1647,6 +1722,9 @@ function restoreDatabaseYamlFile(array $credentials): void
  * Reverse of {@see migrateGorgoneCredentialsToVault()} + {@see updateGorgoneApiFile()}. The `vault_gorgone`
  * feature-flag gating is handled by the caller (the bin orchestrator).
  *
+ * Same guarantees as {@see revertAndUpdateDatabaseCredentials()}: the config file is restored before
+ * the Vault secret is deleted, and an interruption between the two leaves a tolerated orphaned secret.
+ *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  *
@@ -1658,7 +1736,7 @@ function revertGorgoneCredentialsToDb(
 ): void {
     $storedPassword = retrieveGorgoneApiCredentialsFromConfigFile();
     if (! str_starts_with($storedPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
-        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Gorgone API credentials are not stored in Vault, nothing to revert');
+        AdaptationLogger::create(LogChannelEnum::WEB)->info('Gorgone API credentials are not stored in Vault, nothing to revert');
 
         return;
     }
@@ -1674,7 +1752,7 @@ function revertGorgoneCredentialsToDb(
 
     deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::GORGONE_VAULT_PATH, $storedPassword);
 
-    Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info('Gorgone API credentials reverted from Vault to configuration file');
+    AdaptationLogger::create(LogChannelEnum::WEB)->info('Gorgone API credentials reverted from Vault to configuration file');
 }
 
 /**
@@ -1697,7 +1775,7 @@ function restoreGorgoneApiFile(string $password): void
 
     $newContentYaml = preg_replace_callback(
         '/password: (.*)/',
-        static fn (): string => 'password: "' . $password . '"',
+        static fn (): string => 'password: "' . encodeForYamlDoubleQuoted($password) . '"',
         $content
     );
 
@@ -1717,7 +1795,7 @@ function deleteVaultSecret(
     string $vaultPath,
 ): void {
     if (! preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches)) {
-        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->warning(
+        AdaptationLogger::create(LogChannelEnum::WEB)->warning(
             'Unable to extract UUID from Vault path, skipping Vault deletion',
             ['path' => $customPath]
         );
@@ -1729,12 +1807,12 @@ function deleteVaultSecret(
     try {
         $writeVaultRepository->setCustomPath($customPath);
         $writeVaultRepository->delete($uuid);
-        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->info(
+        AdaptationLogger::create(LogChannelEnum::WEB)->info(
             'Secret deleted from Vault',
             ['uuid' => $uuid, 'path' => $customPath]
         );
     } catch (Throwable $ex) {
-        Adaptation\Log\Logger::create(LogChannelEnum::WEB)->error(
+        AdaptationLogger::create(LogChannelEnum::WEB)->error(
             'Unable to delete secret from Vault, continuing',
             ['uuid' => $uuid, 'path' => $customPath, 'exception' => $ex]
         );
