@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 
-const dbConfiguration = 'quality_centreon_config';
-const dbStorage = 'quality_centreon_storage';
+const dbConfiguration = 'quality-centreon_config';
+const dbStorage = 'quality-centreon_storage';
 
 before(() => {
   cy.startContainers({ dbConfiguration, dbStorage });
