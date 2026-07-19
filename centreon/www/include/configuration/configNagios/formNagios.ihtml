@@ -1,5 +1,4 @@
 {$form.javascript}
-<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 
 <form {$form.attributes}>
 <div class="cf-form-wrapper">
