@@ -1,5 +1,4 @@
 {$form.javascript}
-<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 {literal}
 <style>
 /* Hide breadcrumb and page title when loaded in side panel */
