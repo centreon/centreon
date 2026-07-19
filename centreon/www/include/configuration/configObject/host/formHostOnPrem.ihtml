@@ -1,5 +1,4 @@
 {$form.javascript}{$javascript}
-<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 <div id="popin"><p id="msg-wrapper"></p></div>
 <form {$form.attributes}>
     {if $inheritance !="1" }
