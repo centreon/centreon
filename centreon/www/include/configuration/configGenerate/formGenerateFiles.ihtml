@@ -1,5 +1,4 @@
 {$form.javascript}
-<link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 {literal}
 <style type="text/css">
 .gen-wrap { max-width: 920px; }
