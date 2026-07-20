@@ -149,14 +149,14 @@ const useStyles = makeStyles()((theme) => ({
   },
   loader: { display: 'flex', justifyContent: 'center' },
   searchbarContainer: {
-    // The whole bar is the pill; the inner field has no border of its own.
+    // The whole bar is the search box; the inner field has no border of its own.
     '& .MuiOutlinedInput-notchedOutline': {
       border: 'none'
     },
     alignItems: 'center',
     backgroundColor: theme.palette.background.paper,
     border: `1.5px solid ${theme.palette.divider}`,
-    borderRadius: '20px',
+    borderRadius: '4px',
     display: 'flex',
     gap: theme.spacing(0.5),
     overflow: 'hidden',

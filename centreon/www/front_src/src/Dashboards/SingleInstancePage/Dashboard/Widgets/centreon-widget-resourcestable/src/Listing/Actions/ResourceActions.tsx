@@ -1,14 +1,11 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import {
-  Method,
-  SeverityCode,
-  useMutationQuery,
-  useSnackbar
-} from '@centreon/ui';
+import IconAcknowledge from '@mui/icons-material/Person';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { all, pathEq } from 'ramda';
+import { SeverityCode, useSnackbar } from '@centreon/ui';
+
+import { useAtom, useSetAtom } from 'jotai';
+import { all, equals, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -17,29 +14,29 @@ import {
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../../atom';
+import IconDowntime from '../Columns/Icons/Downtime';
 import {
   labelAcknowledge,
-  labelAcknowledgeDescription,
-  labelCheck,
   labelCheckCommandSent,
   labelCheckDescription,
-  labelForcedCheck,
   labelForcedCheckCommandSent,
   labelForcedCheckDescription,
-  labelSetDowntime,
-  labelSetDowntimeDescription
+  labelSetDowntime
 } from '../translatedLabels';
 import useAclQuery from './aclQuery';
-import { checkEndpoint } from './api/endpoint';
-import { adjustCheckedResources } from './Check/helpers';
-import ResourceActionsMenuButton from './ResourceActionsMenuButton';
+import CheckActionButton from './Check';
+import { Action, CheckActionModel } from './model';
+import ResourceActionButton from './ResourceActionButton';
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
+  action: {
+    marginRight: theme.spacing(1)
+  },
   flex: {
     alignItems: 'center',
     display: 'flex'
   }
-});
+}));
 
 const ResourceActions = (): JSX.Element => {
   const { classes } = useStyles();
@@ -50,13 +47,70 @@ const ResourceActions = (): JSX.Element => {
   const setResourcesToAcknowledge = useSetAtom(resourcesToAcknowledgeAtom);
   const setResourcesToSetDowntime = useSetAtom(resourcesToSetDowntimeAtom);
 
-  const { canAcknowledge, canCheck, canDowntime, canForcedCheck } =
-    useAclQuery();
+  const { canAcknowledge, canDowntime } = useAclQuery();
 
-  const { mutateAsync: checkResource } = useMutationQuery({
-    getEndpoint: () => checkEndpoint,
-    method: Method.POST
-  });
+  const onSuccessCheckAction = (): void => {
+    showSuccessMessage(t(labelCheckCommandSent));
+    setSelectedResources([]);
+  };
+
+  const onSuccessForcedCheckAction = (): void => {
+    showSuccessMessage(t(labelForcedCheckCommandSent));
+    setSelectedResources([]);
+  };
+
+  const checkAction: CheckActionModel = {
+    action: Action.Check,
+    data: {
+      listOptions: {
+        descriptionCheck: labelCheckDescription,
+        descriptionForcedCheck: labelForcedCheckDescription
+      },
+
+      successCallback: {
+        onSuccessCheckAction,
+        onSuccessForcedCheckAction
+      }
+    },
+    extraRules: null
+  };
+
+  const actions = [
+    { action: Action.Acknowledge, extraRules: null },
+    checkAction,
+    { action: Action.Downtime, extraRules: null }
+  ];
+
+  const extractActionsInformation = (
+    key: Action
+  ): Record<string, boolean | undefined> | Record<string, never> => {
+    const item = actions.find(({ action }) => action === key);
+
+    return item
+      ? {
+          [`extraDisabled${key}`]: item.extraRules?.disabled,
+          [`display${key}`]: true,
+          [`extraPermitted${key}`]: item.extraRules?.permitted
+        }
+      : {};
+  };
+
+  const {
+    displayAcknowledge,
+    extraDisabledAcknowledge,
+    extraPermittedAcknowledge
+  } = extractActionsInformation(Action.Acknowledge);
+
+  const { displayCheck } = extractActionsInformation(Action.Check);
+
+  const extraCheckData = (
+    actions.find(({ action }) =>
+      equals(action, Action.Check)
+    ) as CheckActionModel
+  )?.data;
+
+  const { displayDowntime, extraDisabledDowntime, extraPermittedDowntime } =
+    extractActionsInformation(Action.Downtime);
 
   const prepareToAcknowledge = (): void => {
     setResourcesToAcknowledge(resources);
@@ -66,77 +120,74 @@ const ResourceActions = (): JSX.Element => {
     setResourcesToSetDowntime(resources);
   };
 
-  const checkResources = (isForced: boolean): void => {
-    checkResource({
-      payload: {
-        check: { is_forced: isForced },
-        resources: adjustCheckedResources({ resources })
-      }
-    }).then(() => {
-      showSuccessMessage(
-        t(isForced ? labelForcedCheckCommandSent : labelCheckCommandSent)
-      );
-    });
-  };
-
   const areSelectedResourcesOk = all(
     pathEq(SeverityCode.OK, ['status', 'severity_code']),
     resources
   );
 
-  const hasSelectedResources = resources.length > 0;
+  const defaultDisableAcknowledge =
+    !canAcknowledge(resources) || areSelectedResourcesOk;
 
   const disableAcknowledge =
-    !canAcknowledge(resources) || areSelectedResourcesOk;
-  const disableDowntime = !canDowntime(resources);
-  const disableCheck = !canCheck(resources);
-  const disableForcedCheck = !canForcedCheck(resources);
+    extraDisabledAcknowledge || defaultDisableAcknowledge;
 
-  const isAcknowledgePermitted =
+  const defaultDisableDowntime = !canDowntime(resources);
+
+  const disableDowntime = extraDisabledDowntime || defaultDisableDowntime;
+
+  const hasSelectedResources = resources.length > 0;
+
+  const defaultIsAcknowledgePermitted =
     canAcknowledge(resources) || !hasSelectedResources;
-  const isDowntimePermitted = canDowntime(resources) || !hasSelectedResources;
-  const isCheckPermitted = canCheck(resources) || !hasSelectedResources;
-  const isForcedCheckPermitted =
-    canForcedCheck(resources) || !hasSelectedResources;
 
-  const actions = [
-    {
-      description: labelAcknowledgeDescription,
-      disabled: disableAcknowledge,
-      label: labelAcknowledge,
-      onClick: prepareToAcknowledge,
-      permitted: isAcknowledgePermitted,
-      testId: 'mainAcknowledge'
-    },
-    {
-      description: labelSetDowntimeDescription,
-      disabled: disableDowntime,
-      label: labelSetDowntime,
-      onClick: prepareToSetDowntime,
-      permitted: isDowntimePermitted,
-      testId: 'mainSetDowntime'
-    },
-    {
-      description: labelCheckDescription,
-      disabled: disableCheck,
-      label: labelCheck,
-      onClick: () => checkResources(false),
-      permitted: isCheckPermitted,
-      testId: 'mainCheck'
-    },
-    {
-      description: labelForcedCheckDescription,
-      disabled: disableForcedCheck,
-      label: labelForcedCheck,
-      onClick: () => checkResources(true),
-      permitted: isForcedCheckPermitted,
-      testId: 'mainForcedCheck'
-    }
-  ];
+  const isAcknowledgePermitted = !defaultIsAcknowledgePermitted
+    ? defaultIsAcknowledgePermitted
+    : extraPermittedAcknowledge;
+
+  const defaultIsDowntimePermitted =
+    canDowntime(resources) || !hasSelectedResources;
+  const isDowntimePermitted = !defaultIsDowntimePermitted
+    ? defaultIsDowntimePermitted
+    : extraPermittedDowntime;
 
   return (
     <div className={classes.flex}>
-      <ResourceActionsMenuButton actionGroups={[actions]} />
+      <div className={classes.flex}>
+        {displayAcknowledge && (
+          <div className={classes.action}>
+            <ResourceActionButton
+              disabled={disableAcknowledge}
+              icon={<IconAcknowledge />}
+              label={t(labelAcknowledge)}
+              onClick={prepareToAcknowledge}
+              permitted={isAcknowledgePermitted}
+              testId="mainAcknowledge"
+            />
+          </div>
+        )}
+
+        {displayDowntime && (
+          <div className={classes.action}>
+            <ResourceActionButton
+              disabled={disableDowntime}
+              icon={<IconDowntime />}
+              label={t(labelSetDowntime)}
+              onClick={prepareToSetDowntime}
+              permitted={isDowntimePermitted}
+              testId="mainSetDowntime"
+            />
+          </div>
+        )}
+        {displayCheck && (
+          <div className={classes.action}>
+            <CheckActionButton
+              resources={resources}
+              testId="mainCheck"
+              {...extraCheckData}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

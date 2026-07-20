@@ -9,7 +9,7 @@ const useStyles = makeStyles()((theme) => ({
     maxWidth: theme.spacing(31)
   },
   title: {
-    color: theme.palette.primary.main,
+    color: theme.palette.info.main,
     fontWeight: 'bold'
   }
 }));

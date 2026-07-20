@@ -174,20 +174,55 @@ var CentreonForm = (function () {
     // =========================================================================
 
     /**
+     * Collapse every accordion section except the one to keep open, so a single
+     * section is ever expanded at a time.
+     *
+     * @param {HTMLElement} [keep] - The section element that must stay open.
+     */
+    function collapseSectionsExcept(keep) {
+        document.querySelectorAll('.cf-section').forEach(function (section) {
+            if (section !== keep) {
+                section.classList.add('collapsed');
+            }
+        });
+    }
+
+    /**
+     * Sync the tab navigation active state with the currently open section.
+     *
+     * @param {string} sectionId - The DOM id of the open section.
+     */
+    function setActiveTab(sectionId) {
+        document.querySelectorAll('.cf-tab-nav a').forEach(function (a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + sectionId);
+        });
+    }
+
+    /**
      * Toggle an accordion section open/closed.
      * The section element gets the CSS class "collapsed" which hides its body.
+     * Only one section can be open at a time: opening a section collapses all
+     * the others.
      *
      * @param {HTMLElement} header - The .cf-section-header element that was clicked.
      */
     function toggleSection(header) {
         var section = header.parentElement;
-        if (section) {
-            section.classList.toggle('collapsed');
+        if (!section) {
+            return;
         }
+
+        var willOpen = section.classList.contains('collapsed');
+        if (willOpen) {
+            collapseSectionsExcept(section);
+            setActiveTab(section.id);
+        }
+        section.classList.toggle('collapsed');
     }
 
     /**
-     * Smooth-scroll to a section and expand it if collapsed.
+     * Smooth-scroll to a section and expand it, collapsing every other section
+     * so only the target stays open.
      * Used by the tab navigation anchors at the top of the form.
      *
      * @param {string}      sectionId   - The DOM id of the target section (e.g. "cf-sec-basic").
@@ -196,10 +231,8 @@ var CentreonForm = (function () {
     function scrollTo(sectionId, clickedLink) {
         var section = document.getElementById(sectionId);
         if (section) {
-            // Expand if currently collapsed
-            if (section.classList.contains('collapsed')) {
-                section.classList.remove('collapsed');
-            }
+            collapseSectionsExcept(section);
+            section.classList.remove('collapsed');
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -210,6 +243,22 @@ var CentreonForm = (function () {
         if (clickedLink) {
             clickedLink.classList.add('active');
         }
+    }
+
+    /**
+     * Accordion default state: collapse every section except the first, so the
+     * form opens with only its first section expanded.
+     */
+    function initAccordion() {
+        var sections = document.querySelectorAll('.cf-section');
+        sections.forEach(function (section, index) {
+            if (index === 0) {
+                section.classList.remove('collapsed');
+                setActiveTab(section.id);
+            } else {
+                section.classList.add('collapsed');
+            }
+        });
     }
 
     // =========================================================================
@@ -1020,7 +1069,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initResetButton];
+        var steps = [initAccordion, initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initResetButton];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);

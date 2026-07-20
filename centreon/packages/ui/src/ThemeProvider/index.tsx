@@ -93,24 +93,19 @@ const getInputBaseInputStyle = ({ size }: InputBaseProps): CSSInterpolation => {
   };
 };
 
-// Fully rounded buttons: the radius is half of the button height so the
-// vertical edges become perfect half-circles (pill shape) for every size.
 const getButtonRootStyle = ({ size }: ButtonProps): CSSInterpolation => {
   if (equals(size, 'medium')) {
     return {
-      borderRadius: '20px',
       height: '40px'
     };
   }
   if (equals(size, 'large')) {
     return {
-      borderRadius: '24px',
       height: '48px'
     };
   }
 
   return {
-    borderRadius: '18px',
     height: '36px'
   };
 };

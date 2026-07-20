@@ -501,6 +501,18 @@
   // (cl-toggle) switch, laid out two per line. The real inputs are preserved
   // (just re-wrapped) so submission and the "select all" logic keep working.
   document.addEventListener('DOMContentLoaded', function () {
+    // Accordion default: open only the first section.
+    document.querySelectorAll('.cf-section').forEach(function (s, i) {
+      if (i === 0) {
+        s.classList.remove('collapsed');
+        document.querySelectorAll('.cf-tab-nav a').forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + s.id);
+        });
+      } else {
+        s.classList.add('collapsed');
+      }
+    });
+
     // Bind the status toggle (moved up to the first line) to its hidden radio.
     if (window.CentreonForm && CentreonForm.syncToggle) {
       CentreonForm.syncToggle('cf-acl-action-activate-toggle', 'acl_action_activate', '1', '0');

@@ -314,16 +314,42 @@
 
 {literal}
 <script type="text/javascript">
+function cfCollapseSectionsExcept(keep) {
+    document.querySelectorAll('.cf-section').forEach(function(s) {
+        if (s !== keep) s.classList.add('collapsed');
+    });
+}
+function cfSetActiveTab(sectionId) {
+    document.querySelectorAll('.cf-tab-nav a').forEach(function(a) {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + sectionId);
+    });
+}
 function cfScrollTo(sectionId, clickedLink) {
     var section = document.getElementById(sectionId);
     if (section) {
+        cfCollapseSectionsExcept(section);
+        section.classList.remove('collapsed');
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (section.classList.contains('collapsed')) section.classList.remove('collapsed');
     }
     document.querySelectorAll('.cf-tab-nav a').forEach(function(a) { a.classList.remove('active'); });
     if (clickedLink) clickedLink.classList.add('active');
 }
-function cfToggleSection(header) { header.parentElement.classList.toggle('collapsed'); }
+function cfToggleSection(header) {
+    var section = header.parentElement;
+    if (!section) return;
+    if (section.classList.contains('collapsed')) {
+        cfCollapseSectionsExcept(section);
+        cfSetActiveTab(section.id);
+    }
+    section.classList.toggle('collapsed');
+}
+// Accordion default: only the first section stays open.
+(function() {
+    document.querySelectorAll('.cf-section').forEach(function(s, i) {
+        if (i === 0) { s.classList.remove('collapsed'); cfSetActiveTab(s.id); }
+        else { s.classList.add('collapsed'); }
+    });
+})();
 
 document.addEventListener('DOMContentLoaded', function() {
     // Float labels for pre-filled inputs

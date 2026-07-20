@@ -15,16 +15,14 @@ import Text from './Text';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
-    alignItems: 'flex-start',
-    paddingInline: theme.spacing(1)
+    alignItems: 'flex-start'
   },
   container: {
     backgroundColor: theme.palette.background.default,
-    borderRadius: theme.spacing(1),
     display: 'flex',
     flexDirection: 'column',
     minWidth: theme.spacing(13.5),
-    overflow: 'hidden'
+    padding: theme.spacing(0, 1)
   },
   icon: {
     minWidth: theme.spacing(3)
@@ -87,7 +85,6 @@ const CheckOptionsList = ({
     <Popper
       anchorEl={anchorEl}
       className={classes.popover}
-      modifiers={[{ name: 'offset', options: { offset: [0, 4] } }]}
       open={open}
       placement="bottom-start"
     >

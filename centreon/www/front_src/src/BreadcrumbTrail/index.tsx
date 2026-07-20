@@ -97,7 +97,7 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
         alignItems: 'center',
         display: 'flex',
         flexDirection: 'row',
-        gap: 1,
+        gap: 0.5,
         width: 'fit-content'
       }}
     >

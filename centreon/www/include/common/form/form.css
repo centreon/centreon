@@ -469,7 +469,7 @@
     font-weight: 500;
     color: #fff;
     background-color: var(--color-primary-light, #131D5A);
-    border-radius: 9999px;
+    border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.15s;
@@ -505,7 +505,7 @@
     font-size: 12px;
     font-weight: 500;
     border: 1px solid var(--color-divider, #d0d0d0);
-    border-radius: 20px;
+    border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--body-color, #666);
     cursor: pointer;
@@ -1000,7 +1000,7 @@
     font-size: 14px;
     font-weight: 500;
     border: none;
-    border-radius: 18px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background 0.15s;
 }
@@ -1041,7 +1041,7 @@
     border: none;
     /* `!important`: the legacy `.btc { border-radius: 4px !important }` on the
        Save/Reset buttons would otherwise flatten the pill shape. */
-    border-radius: 18px !important;
+    border-radius: 4px !important;
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 0.15s ease;
@@ -1385,7 +1385,7 @@
     background-color: #131D5A !important;
     color: #fff !important;
     border: none !important;
-    border-radius: 16px 0 0 16px !important;
+    border-radius: 4px 0 0 4px !important;
     padding: 0 6px 0 12px !important;
     font-size: 13px;
     line-height: 24px !important;
@@ -1399,7 +1399,7 @@
     background-color: #131D5A !important;
     color: #fff !important;
     border: none !important;
-    border-radius: 0 16px 16px 0 !important;
+    border-radius: 0 4px 4px 0 !important;
     padding: 0 10px 0 6px !important;
     margin: 0 !important;
     font-size: 15px;
@@ -1454,7 +1454,7 @@
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    border-radius: 16px;
+    border-radius: 4px;
     background-color: #e7e9ef;
     color: #131D5A;
     border: 1px solid #c2c7ce;

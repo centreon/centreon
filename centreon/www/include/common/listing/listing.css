@@ -46,7 +46,7 @@
     gap: 6px;
     height: 36px;
     padding: 0 12px;
-    border-radius: 18px;
+    border-radius: 4px;
     /* Ghost text button, primary color — matches the React HostGroups button */
     color: var(--color-primary-light, #131D5A);
     cursor: pointer;
@@ -110,7 +110,7 @@
     color: #fff;
     background-color: var(--color-primary-light, #131D5A);
     border: none;
-    border-radius: 20px;
+    border-radius: 4px;
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
@@ -149,7 +149,7 @@
     color: var(--color-primary-light, #131D5A);
     background-color: transparent;
     border: 1px solid var(--color-primary-light, #131D5A);
-    border-radius: 20px;
+    border-radius: 4px;
     text-decoration: none;
     cursor: pointer;
     white-space: nowrap;
@@ -257,7 +257,7 @@
     justify-content: center;
     min-width: 28px;
     height: 28px;
-    border-radius: 9999px;
+    border-radius: 4px;
     font-size: 13px;
     text-decoration: none;
     cursor: pointer;
@@ -285,7 +285,7 @@
     width: 32px;
     height: 32px;
     padding: 0;
-    border-radius: 9999px;
+    border-radius: 4px;
     color: var(--c-text-secondary, #8a8a8a);
 }
 
@@ -319,7 +319,7 @@
     justify-content: center;
     min-width: 28px;
     height: 28px;
-    border-radius: 9999px;
+    border-radius: 4px;
     background-color: var(--color-primary-light, #131D5A);
     color: #fff;
     font-size: 13px;
@@ -943,7 +943,7 @@
     padding: 0 36px 0 36px;
     border: 1px solid var(--c-stroke, #c2c7ce);
     /* Match the Resource Status search bar radius (20px) — a rounded pill. */
-    border-radius: 20px;
+    border-radius: 4px;
     font-family: Roboto, sans-serif;
     font-size: 14px;
     outline: none;
@@ -967,7 +967,7 @@
     height: 38px;
     padding: 0 14px;
     border: 1px solid var(--c-divider-strong, #b5b5b5);
-    border-radius: 9999px;
+    border-radius: 4px;
     background: #fff;
     color: var(--c-primary-main, #131D5A);
     font-family: Roboto, sans-serif;
@@ -1251,7 +1251,7 @@
     height: 36px;
     padding: 0 18px;
     border: 0;
-    border-radius: 18px;
+    border-radius: 4px;
     background: var(--c-primary-main, #131D5A);
     color: #fff;
     font-family: Roboto, sans-serif;
@@ -1276,7 +1276,7 @@
 .cl-tag {
     display: inline-block;
     padding: 2px 10px;
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
     line-height: 18px;
@@ -1549,7 +1549,7 @@
     height: 36px;
     padding: 0 16px;
     box-sizing: border-box;
-    border-radius: 18px;
+    border-radius: 4px;
     background: transparent;
     border: 1px solid var(--c-divider-strong, #b5b5b5);
     color: var(--color-primary-light, #131D5A);
@@ -2073,7 +2073,7 @@
     box-sizing: border-box;
     font-size: 14px;
     font-weight: 500;
-    border-radius: 18px;
+    border-radius: 4px;
     cursor: pointer;
     border: none;
     transition: background 0.15s, color 0.15s;

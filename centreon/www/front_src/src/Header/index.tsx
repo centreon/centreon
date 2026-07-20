@@ -51,6 +51,10 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     display: 'flex'
   },
+  breadcrumbItem: {
+    flex: 'initial',
+    marginRight: 0
+  },
   divider: {
     backgroundColor: theme.palette.divider,
     height: theme.spacing(3),
@@ -82,7 +86,7 @@ const Header = (): JSX.Element => {
       ref={headerRef}
     >
       <div className={classes.leftContainer}>
-        <div className={classes.item}>
+        <div className={classes.breadcrumbItem}>
           <Breadcrumbs />
         </div>
 
