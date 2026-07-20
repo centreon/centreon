@@ -801,6 +801,11 @@
     width: 210px;
 }
 
+/* Wide variant for a centered search field with no advanced-filters icon */
+.cl-search--wide .cl-search-simple {
+    width: 640px;
+}
+
 /* Modifier: the advanced-filters toggle lives inside the search field itself
    (right edge) instead of a separate button + separator next to it. */
 .cl-search--with-adv .cl-search-simple {
