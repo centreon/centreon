@@ -1083,20 +1083,20 @@
 .cl-adv-panel--popover {
     position: absolute;
     top: calc(100% + 8px);
-    left: 50%;
+    right: 0;
     width: 380px;
     max-height: none;
     overflow: visible;
     background: #fff;
     border: 1px solid var(--c-divider, #e3e3e3);
-    border-radius: 8px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     padding: 20px;
     z-index: 60;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateX(-50%) translateY(-6px);
+    transform: translateY(-6px);
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
     text-align: left;
 }
@@ -1105,7 +1105,7 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
