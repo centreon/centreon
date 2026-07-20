@@ -21,10 +21,16 @@
 
 namespace CentreonRemote\Application\Webservice;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Service\ConfigurationWizard\{
+    PollerConnectionConfigurationService,
+    RemoteConnectionConfigurationService
+};
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * @OA\Tag(name="centreon_configuration_remote", description="")
@@ -320,6 +326,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              description="database password"
      *          ),
      *          @OA\Property(
+     *               property="db_host",
+     *               type="string",
+     *               description="database host"
+     *           ),
+     *          @OA\Property(
      *              property="server_type",
      *              type="string",
      *              description="type of server - remote or poller"
@@ -382,6 +393,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $noProxy = isset($this->arguments['no_proxy']) && $this->arguments['no_proxy'] === true;
         $serverWizardIdentity = new ServerWizardIdentity();
         $isRemoteConnection = $serverWizardIdentity->requestConfigurationIsRemote();
+
         $configurationServiceName = $isRemoteConnection
             ? 'centreon_remote.remote_connection_service'
             : 'centreon_remote.poller_connection_service';
@@ -390,6 +402,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         WizardConfigurationRequestValidator::validate();
 
         $pollerConfigurationService = $this->getDi()['centreon_remote.poller_config_service'];
+        /**
+         * @var RemoteConnectionConfigurationService|PollerConnectionConfigurationService $serverConfigurationService
+         */
         $serverConfigurationService = $this->getDi()[$configurationServiceName];
         $pollerConfigurationBridge = $this->getDi()['centreon_remote.poller_config_bridge'];
 
@@ -397,11 +412,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverIP = parse_url($this->arguments['server_ip'], PHP_URL_HOST) ?: $this->arguments['server_ip'];
         $serverName = substr($this->arguments['server_name'], 0, 40);
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            ! filter_var($serverIP, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($serverIP, FILTER_VALIDATE_IP)
-        ) {
+        try {
+            CentreonAssert::ipOrHostname($serverIP);
+        } catch (InvalidArgumentException) {
             return ['error' => true, 'message' => 'Invalid IP address'];
         }
         $dbAdapter = $this->getDi()['centreon.db-manager']->getAdapter('configuration_db');
@@ -447,6 +460,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         if ($isRemoteConnection) {
             $serverConfigurationService->setDbUser($this->arguments['db_user']);
             $serverConfigurationService->setDbPassword($this->arguments['db_password']);
+            $serverConfigurationService->setDbHost($this->arguments['db_host'] ?? 'localhost');
             if (
                 $serverWizardIdentity->checkBamOnRemoteServer(
                     $httpMethod . '://' . $serverIP . ':' . $httpPort . '/' . trim($centreonPath, '/'),

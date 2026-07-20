@@ -30,10 +30,7 @@ export const useActions = ({ submit, clear }: Props): UseActionsState => {
   const save = (): void => {
     submit(
       values.filter(({ isRemoved }) => !isRemoved).map(formatValueForSubmition)
-    )?.then((isError) => {
-      if (isError) {
-        return;
-      }
+    )?.then(() => {
       clear();
     });
   };

@@ -1,0 +1,35 @@
+meta {
+  name: POST /commands - Create command forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{CommandName}}",
+    "type": "{{CommandType}}",
+    "command_line": "{{CommandLine}}",
+    "is_shell_enabled": true
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("unprivileged cannot create a command.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

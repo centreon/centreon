@@ -34,12 +34,13 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -157,7 +158,7 @@ function hasHostNameNeverUsed($name = null)
         'SELECT host_name, host_id FROM host '
         . "WHERE host_name = :host_name AND host_register = '1'"
     );
-    $hostName = CentreonDB::escape($centreon->checkIllegalChar($name));
+    $hostName = $centreon->checkIllegalChar($name);
 
     $prepare->bindValue(':host_name', $hostName, PDO::PARAM_STR);
     $prepare->execute();
@@ -400,25 +401,33 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
+    $selectHostStatement = $pearDB->prepare('SELECT * FROM host WHERE host_id = :hostId LIMIT 1');
     foreach ($hosts as $key => $value) {
-        $dbResult = $pearDB->query("SELECT * FROM host WHERE host_id = '" . (int) $key . "' LIMIT 1");
-        $row = $dbResult->fetch();
+        if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
+            continue;
+        }
+        $selectHostStatement->bindValue(':hostId', $key, PDO::PARAM_INT);
+        $selectHostStatement->execute();
+        $row = $selectHostStatement->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
         $row['host_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
+            continue;
+        }
+        $originalHostName = $row['host_name'];
+        for ($i = 1; $i <= $dupCount; $i++) {
+            $hostName = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == 'host_name') {
-                    $hostName = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
+                    $hostName = $originalHostName . '_' . $i;
+                    $row['host_name'] = $hostName;
                 }
-                $val
-                    ? $val .= ($value2 != null ? (", '" . CentreonDB::escape($value2) . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . CentreonDB::escape($value2) . "'") : 'NULL');
                 if ($key2 != 'host_id') {
                     $fields[$key2] = $value2;
                 }
@@ -427,16 +436,27 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                 }
             }
             if (hasHostNameNeverUsed($hostName)) {
-                $rq = $val ? 'INSERT INTO host VALUES (' . $val . ')' : null;
-                $dbResult = $pearDB->query($rq);
-                $dbResult = $pearDB->query('SELECT MAX(host_id) FROM host');
-                $maxId = $dbResult->fetch();
-                if (isset($maxId['MAX(host_id)'])) {
-                    $hostAcl[$maxId['MAX(host_id)']] = $key;
+                $columns = array_keys($row);
+                $placeholders = array_map(fn ($col) => ':' . $col, $columns);
+                $insertHostQuery = 'INSERT INTO host (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+                $insertHostStmt = $pearDB->prepare($insertHostQuery);
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertHostStmt->bindValue(
+                        ':' . $col,
+                        $value,
+                        $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+                    );
+                }
+                $insertHostStmt->execute();
+                $maxId = (int) $pearDB->lastInsertId();
+                if ($maxId !== 0) {
+                    $hostAcl[$maxId] = $key;
 
-                    $dbResult = $pearDB->query("SELECT DISTINCT host_parent_hp_id
-                                                FROM host_hostparent_relation
-                                                WHERE host_host_id = '" . (int) $key . "'");
+                    $parentStatement = $pearDB->prepare('SELECT DISTINCT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId');
+                    $parentStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $parentStatement->execute();
+                    $dbResult = $parentStatement;
                     $fields['host_parents'] = '';
                     $statement = $pearDB->prepare(
                         'INSERT INTO host_hostparent_relation
@@ -444,22 +464,23 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                     while ($host = $dbResult->fetch()) {
                         $statement->bindValue(':host_parent_hp_id', (int) $host['host_parent_hp_id'], PDO::PARAM_INT);
-                        $statement->bindValue(':host_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_parents'] .= $host['host_parent_hp_id'] . ',';
                     }
                     $fields['host_parents'] = trim($fields['host_parents'], ',');
 
-                    $res = $pearDB->query("SELECT DISTINCT host_host_id
-                                          FROM host_hostparent_relation
-                                          WHERE host_parent_hp_id = '" . (int) $key . "'");
+                    $childStatement = $pearDB->prepare('SELECT DISTINCT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = :hostId');
+                    $childStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $childStatement->execute();
+                    $res = $childStatement;
                     $fields['host_childs'] = '';
                     $statement = $pearDB->prepare(
                         'INSERT INTO host_hostparent_relation (host_parent_hp_id, host_host_id)
                          VALUES (:host_parent_hp_id, :host_host_id)'
                     );
                     while ($host = $res->fetch()) {
-                        $statement->bindValue(':host_parent_hp_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_parent_hp_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':host_host_id', (int) $host['host_host_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_childs'] .= $host['host_host_id'] . ',';
@@ -473,13 +494,14 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     } elseif (file_exists($path . '../service/DB-Func.php')) {
                         require_once $path . '../configObject/service/DB-Func.php';
                     }
-                    $hostInf = $maxId['MAX(host_id)'];
+                    $hostInf = $maxId;
                     $serviceArr = [];
                     $serviceNbr = [];
                     // Get all Services link to the Host
-                    $dbResult = $pearDB->query("SELECT DISTINCT service_service_id
-                                              FROM host_service_relation
-                                              WHERE host_host_id = '" . (int) $key . "'");
+                    $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
+                    $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $svcRelStatement->execute();
+                    $dbResult = $svcRelStatement;
                     $countStatement = $pearDB->prepare(
                         'SELECT COUNT(*)
                         FROM host_service_relation
@@ -500,7 +522,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         $countStatement->execute();
                         $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
                         if ($mulHostSv['COUNT(*)'] > 1) {
-                            $insertStatement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                            $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                             $insertStatement->bindValue(
                                 ':service_service_id',
                                 (int) $service['service_service_id'],
@@ -517,15 +539,16 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         multipleServiceInDB($serviceArr, $serviceNbr, $hostInf, 0);
                     } else {
                         // Host Template -> Link to the existing Service Template List
-                        $dbResult = $pearDB->query("SELECT DISTINCT service_service_id
-                                                    FROM host_service_relation
-                                                    WHERE host_host_id = '" . (int) $key . "'");
+                        $svcTplStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
+                        $svcTplStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                        $svcTplStatement->execute();
+                        $dbResult = $svcTplStatement;
                         $statement = $pearDB->prepare(
                             'INSERT INTO host_service_relation
                              VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
                         );
                         while ($svs = $dbResult->fetch()) {
-                            $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                            $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                             $statement->bindValue(
                                 ':service_service_id',
                                 (int) $svs['service_service_id'],
@@ -536,16 +559,17 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     }
 
                     // ContactGroup duplication
-                    $dbResult = $pearDB->query("SELECT DISTINCT contactgroup_cg_id
-                                                FROM contactgroup_host_relation
-                                                WHERE host_host_id = '" . (int) $key . "'");
+                    $cgStatement = $pearDB->prepare('SELECT DISTINCT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = :hostId');
+                    $cgStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $cgStatement->execute();
+                    $dbResult = $cgStatement;
                     $fields['host_cgs'] = '';
                     $statement = $pearDB->prepare(
                         'INSERT INTO contactgroup_host_relation
                          VALUES (:host_id, :contactgroup_cg_id)'
                     );
                     while ($cg = $dbResult->fetch()) {
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':contactgroup_cg_id', (int) $cg['contactgroup_cg_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_cgs'] .= $cg['contactgroup_cg_id'] . ',';
@@ -553,16 +577,17 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['host_cgs'] = trim($fields['host_cgs'], ',');
 
                     // Contact duplication
-                    $dbResult = $pearDB->query("SELECT DISTINCT contact_id
-                                                FROM contact_host_relation
-                                                WHERE host_host_id = '" . (int) $key . "'");
+                    $contactStatement = $pearDB->prepare('SELECT DISTINCT contact_id FROM contact_host_relation WHERE host_host_id = :hostId');
+                    $contactStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $contactStatement->execute();
+                    $dbResult = $contactStatement;
                     $fields['host_cs'] = '';
                     $statement = $pearDB->prepare(
                         'INSERT INTO contact_host_relation
                          VALUES (:host_id, :contact_id)'
                     );
                     while ($c = $dbResult->fetch()) {
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':contact_id', (int) $c['contact_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_cs'] .= $c['contact_id'] . ',';
@@ -570,46 +595,51 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['host_cs'] = trim($fields['host_cs'], ',');
 
                     // Hostgroup duplication
-                    $dbResult = $pearDB->query("SELECT DISTINCT hostgroup_hg_id
-                                                FROM hostgroup_relation
-                                                WHERE host_host_id = '" . (int) $key . "'");
+                    $hgStatement = $pearDB->prepare('SELECT DISTINCT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostId');
+                    $hgStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $hgStatement->execute();
+                    $dbResult = $hgStatement;
                     $statement = $pearDB->prepare(
                         'INSERT INTO hostgroup_relation
                          VALUES (NULL, :hostgroup_hg_id, :host_id)'
                     );
                     while ($hg = $dbResult->fetch()) {
                         $statement->bindValue(':hostgroup_hg_id', (int) $hg['hostgroup_hg_id'], PDO::PARAM_INT);
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->execute();
                     }
 
                     // Host Extended Informations
-                    $dbResult = $pearDB->query("SELECT *
-                                                FROM extended_host_information
-                                                WHERE host_host_id = '" . (int) $key . "'");
-                    while ($ehi = $dbResult->fetch()) {
-                        $val = null;
-                        $ehi['host_host_id'] = $maxId['MAX(host_id)'];
+                    $ehiSelectStatement = $pearDB->prepare('SELECT * FROM extended_host_information WHERE host_host_id = :hostId');
+                    $ehiSelectStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $ehiSelectStatement->execute();
+                    while ($ehi = $ehiSelectStatement->fetch(PDO::FETCH_ASSOC)) {
+                        $ehi['host_host_id'] = $maxId;
                         $ehi['ehi_id'] = null;
+                        $ehiColumns = array_keys($ehi);
+                        $ehiPlaceholders = array_map(fn ($col) => ':' . $col, $ehiColumns);
+                        $ehiInsertStmt = $pearDB->prepare('INSERT INTO extended_host_information (' . implode(', ', $ehiColumns) . ') VALUES (' . implode(', ', $ehiPlaceholders) . ')');
+                        foreach ($ehiColumns as $col) {
+                            $val = $ehi[$col];
+                            $ehiInsertStmt->bindValue(
+                                ':' . $col,
+                                $val,
+                                $val === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+                            );
+                        }
+                        $ehiInsertStmt->execute();
                         foreach ($ehi as $key2 => $value2) {
-                            $value2 = is_int($value2) ? (string) $value2 : $value2;
-                            $val
-                                ? $val .= ($value2 != null ? (", '" . CentreonDB::escape($value2) . "'") : ', NULL')
-                                : $val .= ($value2 != null ? ("'" . CentreonDB::escape($value2) . "'") : 'NULL');
                             if ($key2 != 'ehi_id') {
                                 $fields[$key2] = $value2;
                             }
                         }
-                        $rq = $val
-                            ? 'INSERT INTO extended_host_information VALUES (' . $val . ')'
-                            : null;
-                        $dbResult2 = $pearDB->query($rq);
                     }
 
                     // Poller link ducplication
-                    $dbResult = $pearDB->query("SELECT DISTINCT nagios_server_id
-                                                FROM ns_host_relation
-                                                WHERE host_host_id = '" . (int) $key . "'");
+                    $nsStatement = $pearDB->prepare('SELECT DISTINCT nagios_server_id FROM ns_host_relation WHERE host_host_id = :hostId');
+                    $nsStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $nsStatement->execute();
+                    $dbResult = $nsStatement;
                     $fields['nagios_server_id'] = '';
                     $statement = $pearDB->prepare(
                         'INSERT INTO ns_host_relation
@@ -617,25 +647,24 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                     while ($hg = $dbResult->fetch()) {
                         $statement->bindValue(':nagios_server_id', (int) $hg['nagios_server_id'], PDO::PARAM_INT);
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->execute();
                         $fields['nagios_server_id'] .= $hg['nagios_server_id'] . ',';
                     }
                     $fields['nagios_server_id'] = trim($fields['nagios_server_id'], ',');
 
                     // multiple templates & on demand macros
-                    $mTpRq1 = "SELECT *
-                              FROM `host_template_relation`
-                              WHERE `host_host_id` ='" . (int) $key . "'
-                              ORDER BY `order`";
-                    $dbResult3 = $pearDB->query($mTpRq1);
+                    $tplRelSelectStatement = $pearDB->prepare('SELECT * FROM `host_template_relation` WHERE `host_host_id` = :hostId ORDER BY `order`');
+                    $tplRelSelectStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $tplRelSelectStatement->execute();
+                    $dbResult3 = $tplRelSelectStatement;
                     $multiTP_logStr = '';
                     $mTpRq2 = 'INSERT INTO `host_template_relation` (`host_host_id`, `host_tpl_id`, `order`)
                                VALUES (:host_host_id, :host_tpl_id, :order)';
                     $statement = $pearDB->prepare($mTpRq2);
                     while ($hst = $dbResult3->fetch()) {
-                        if ($hst['host_tpl_id'] != $maxId['MAX(host_id)']) {
-                            $statement->bindValue(':host_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        if ($hst['host_tpl_id'] != $maxId) {
+                            $statement->bindValue(':host_host_id', (int) $maxId, PDO::PARAM_INT);
                             $statement->bindValue(':host_tpl_id', (int) $hst['host_tpl_id'], PDO::PARAM_INT);
                             $statement->bindValue(':order', (int) $hst['order'], PDO::PARAM_INT);
                             $statement->execute();
@@ -646,8 +675,10 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['templates'] = $multiTP_logStr;
 
                     // on demand macros
-                    $mTpRq1 = "SELECT * FROM `on_demand_macro_host` WHERE `host_host_id` ='" . (int) $key . "'";
-                    $dbResult3 = $pearDB->query($mTpRq1);
+                    $macroSelectStatement = $pearDB->prepare('SELECT * FROM `on_demand_macro_host` WHERE `host_host_id` = :hostId');
+                    $macroSelectStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                    $macroSelectStatement->execute();
+                    $dbResult3 = $macroSelectStatement;
                     $mTpRq2 = 'INSERT INTO `on_demand_macro_host`
                                   (`host_host_id`, `host_macro_name`, `host_macro_value`,
                                    `is_password`)
@@ -661,7 +692,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         if (! isset($hst['is_password'])) {
                             $hst['is_password'] = '0';
                         }
-                        $statement->bindValue(':host_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':host_macro_name', '$' . $macName . '$', PDO::PARAM_STR);
                         $statement->bindValue(':host_macro_value', $macVal, PDO::PARAM_STR);
                         $statement->bindValue(':is_password', (int) $hst['is_password'], PDO::PARAM_INT);
@@ -685,7 +716,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                                 FROM hostcategories_relation
                                 WHERE host_host_id = :host_id';
                     $statement = $pearDB->prepare($request);
-                    $statement->bindValue(':max_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                    $statement->bindValue(':max_host_id', (int) $maxId, PDO::PARAM_INT);
                     $statement->bindValue(':host_id', (int) $key, PDO::PARAM_INT);
                     $statement->execute();
 
@@ -698,7 +729,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
                         || $macroPasswords !== []
                     ) {
-                        if ($vaultConfiguration !== null) {
+                        if ($vaultEligibilityService->shouldUseVault()) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -716,7 +747,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                                     $row['host_snmp_community'],
                                     $macroPasswords,
                                     $key,
-                                    (int) $maxId['MAX(host_id)']
+                                    (int) $maxId
                                 );
                             } catch (Throwable $ex) {
                                 error_log((string) $ex);
@@ -724,20 +755,20 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         }
                     }
 
-                    signalConfigurationChange('host', (int) $maxId['MAX(host_id)']);
+                    signalConfigurationChange('host', (int) $maxId);
                     $centreon->CentreonLogAction->insertLog(
                         object_type: ActionLog::OBJECT_TYPE_HOST,
-                        object_id: $maxId['MAX(host_id)'],
+                        object_id: $maxId,
                         object_name: $hostName,
                         action_type: ActionLog::ACTION_TYPE_ADD
                     );
                 }
             }
             // if all duplication names are already used, next value is never set
-            if (isset($maxId['MAX(host_id)'])) {
+            if (isset($maxId)) {
                 $centreon->user->access->updateACL([
                     'type' => 'HOST',
-                    'id' => $maxId['MAX(host_id)'],
+                    'id' => $maxId,
                     'action' => 'DUP',
                     'duplicate_host' => (int) $key,
                 ]);
@@ -810,8 +841,8 @@ function updateHostInDB_MC($hostId = null)
     updateHost_MC($hostId);
 
     if ($isCloudPlatform) {
-        resetHostHostParent($hostId);
-        resetHostHostChild($hostId);
+        // Parent/child host relations are managed on the add/modify form only (not massive change),
+        // so they must be left untouched here to avoid wiping existing relationships.
         resetHostContactGroup($hostId);
         resetHostContact($hostId);
     }
@@ -1081,11 +1112,15 @@ function deleteHostServiceMultiTemplate($hID, $scndHID, $host_list, $antiLoop = 
     if (isset($antiLoop[$scndHID]) && $antiLoop[$scndHID]) {
         return 0;
     }
-    $dbResult = $pearDB->query('SELECT service_service_id '
-        . 'FROM `service` svc, `host_service_relation` hsr '
+    $svcStatement = $pearDB->prepare(
+        'SELECT service_service_id FROM `service` svc, `host_service_relation` hsr '
         . 'WHERE svc.service_id = hsr.service_service_id '
         . "AND svc.service_register = '0' "
-        . "AND hsr.host_host_id = '" . $scndHID . "'");
+        . 'AND hsr.host_host_id = :hostId'
+    );
+    $svcStatement->bindValue(':hostId', (int) $scndHID, PDO::PARAM_INT);
+    $svcStatement->execute();
+    $dbResult = $svcStatement;
     $rq2 = 'DELETE hsr, svc FROM `host_service_relation` hsr, `service` svc '
         . 'WHERE hsr.service_service_id = svc.service_id '
         . 'AND svc.service_template_model_stm_id = :service_template_model_stm_id '
@@ -1109,12 +1144,10 @@ function deleteHostServiceMultiTemplate($hID, $scndHID, $host_list, $antiLoop = 
     }
     $dbResult->closeCursor();
 
-    $rq = 'SELECT host_tpl_id '
-        . 'FROM host_template_relation '
-        . "WHERE host_host_id = '" . $scndHID . "' "
-        . 'ORDER BY `order`';
-
-    $dbResult = $pearDB->query($rq);
+    $tplStatement = $pearDB->prepare('SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :hostId ORDER BY `order`');
+    $tplStatement->bindValue(':hostId', (int) $scndHID, PDO::PARAM_INT);
+    $tplStatement->execute();
+    $dbResult = $tplStatement;
     $selectStatement = $pearDB->prepare(
         'SELECT service_service_id '
         . 'FROM `service` svc, `host_service_relation` hsr '
@@ -1169,14 +1202,12 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1245,10 +1276,10 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
             $newTp[$tmpl] = $tmpl;
         }
 
-        $dbResult = $pearDB->query("SELECT `host_tpl_id`
-                                    FROM `host_template_relation`
-                                    WHERE `host_host_id` = '" . $hostId . "'");
-        while ($hst = $dbResult->fetch()) {
+        $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
+        $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $tplStatement->execute();
+        while ($hst = $tplStatement->fetch()) {
             if (! isset($newTp[$hst['host_tpl_id']])) {
                 deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
             }
@@ -1260,13 +1291,17 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         $already_stored = [];
         $tplTab = preg_split("/\,/", $ret['use']);
         $j = 0;
-        $DBRES = $pearDB->query("DELETE FROM `host_template_relation` WHERE `host_host_id` = '" . $hostId . "'");
+        $deleteTplStatement = $pearDB->prepare('DELETE FROM `host_template_relation` WHERE `host_host_id` = :hostId');
+        $deleteTplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $deleteTplStatement->execute();
+        $insertTplStatement = $pearDB->prepare('INSERT INTO host_template_relation (`host_host_id`, `host_tpl_id`, `order`) VALUES (:hostId, :tplId, :tplOrder)');
         foreach ($tplTab as $val) {
             $tplId = getMyHostID($val);
             if (! isset($already_stored[$tplId]) && $tplId) {
-                $rq = 'INSERT INTO host_template_relation (`host_host_id`, `host_tpl_id`, `order`)
-                        VALUES (' . $hostId . ', ' . $tplId . ', ' . $j . ')';
-                $dbResult = $pearDB->query($rq);
+                $insertTplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+                $insertTplStatement->bindValue(':tplId', (int) $tplId, PDO::PARAM_INT);
+                $insertTplStatement->bindValue(':tplOrder', $j, PDO::PARAM_INT);
+                $insertTplStatement->execute();
                 $j++;
                 $already_stored[$tplId] = 1;
             }
@@ -1275,10 +1310,10 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
         // Cleanup host service link to host template to be removed
         $newTp = [];
 
-        $dbResult = $pearDB->query("SELECT `host_tpl_id`
-                                    FROM `host_template_relation`
-                                    WHERE `host_host_id` = '" . $hostId . "'");
-        while ($hst = $dbResult->fetch()) {
+        $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
+        $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $tplStatement->execute();
+        while ($hst = $tplStatement->fetch()) {
             if (! isset($newTp[$hst['host_tpl_id']])) {
                 deleteHostServiceMultiTemplate($hostId, $hst['host_tpl_id'], $newTp);
             }
@@ -1310,7 +1345,9 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
             $ret['command_command_id'] ?? false
         );
     } else {
-        $pearDB->query("DELETE FROM on_demand_macro_host WHERE host_host_id = '" . CentreonDB::escape($hostId) . "'");
+        $deleteMacroStatement = $pearDB->prepare('DELETE FROM on_demand_macro_host WHERE host_host_id = :hostId');
+        $deleteMacroStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $deleteMacroStatement->execute();
     }
 
     if (isset($ret['criticality_id'])) {
@@ -1318,7 +1355,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -1366,14 +1403,12 @@ function updateHost_MC($hostId = null)
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1448,10 +1483,10 @@ function updateHost_MC($hostId = null)
     if (isset($_REQUEST['tpSelect'])) {
         $oldTp = [];
         if (isset($_POST['mc_mod_tplp']['mc_mod_tplp']) && $_POST['mc_mod_tplp']['mc_mod_tplp'] == 0) {
-            $dbResult = $pearDB->query("SELECT `host_tpl_id`
-                                        FROM `host_template_relation`
-                                        WHERE `host_host_id`='" . $hostId . "'");
-            while ($hst = $dbResult->fetch()) {
+            $tplStatement = $pearDB->prepare('SELECT `host_tpl_id` FROM `host_template_relation` WHERE `host_host_id` = :hostId');
+            $tplStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+            $tplStatement->execute();
+            while ($hst = $tplStatement->fetch()) {
                 $oldTp[$hst['host_tpl_id']] = $hst['host_tpl_id'];
             }
         }
@@ -1484,7 +1519,7 @@ function updateHost_MC($hostId = null)
     }
 
     // If there is a vault configuration write into vault.
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -1511,8 +1546,10 @@ function updateHost_MC($hostId = null)
         }
     }
 
-    $dbResultX = $pearDB->query("SELECT host_name FROM `host` WHERE host_id='" . $hostId . "' LIMIT 1");
-    $row = $dbResultX->fetch();
+    $nameStatement = $pearDB->prepare('SELECT host_name FROM `host` WHERE host_id = :hostId LIMIT 1');
+    $nameStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+    $nameStatement->execute();
+    $row = $nameStatement->fetch();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($submittedValues);
@@ -1533,24 +1570,23 @@ function updateHostHostParent($host_id = null, $ret = [])
         return;
     }
 
-    $rq = 'DELETE FROM host_hostparent_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $deleteStatement = $pearDB->prepare('DELETE FROM host_hostparent_relation WHERE host_host_id = :hostId');
+    $deleteStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $deleteStatement->execute();
 
     if (isset($ret['host_parents'])) {
         $ret = $ret['host_parents'];
     } else {
         $ret = CentreonUtils::mergeWithInitialValues($form, 'host_parents');
     }
+    $insertStatement = $pearDB->prepare('INSERT INTO host_hostparent_relation (host_parent_hp_id, host_host_id) VALUES (:parentId, :hostId)');
     $counter = count($ret);
 
     for ($i = 0; $i < $counter; $i++) {
         if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != '') {
-            $rq = 'INSERT INTO host_hostparent_relation ';
-            $rq .= '(host_parent_hp_id, host_host_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $ret[$i] . "', '" . $host_id . "')";
-            $dbResult = $pearDB->query($rq);
+            $insertStatement->bindValue(':parentId', (int) $ret[$i], PDO::PARAM_INT);
+            $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+            $insertStatement->execute();
         }
     }
 }
@@ -1565,25 +1601,24 @@ function updateHostHostParent_MC($host_id = null, $ret = [])
         return;
     }
 
-    $rq = 'SELECT * FROM host_hostparent_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectStatement = $pearDB->prepare('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
     $hpars = [];
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $selectStatement->fetch()) {
         $hpars[$arr['host_parent_hp_id']] = $arr['host_parent_hp_id'];
     }
 
     $ret = $form->getSubmitValue('host_parents');
     if (is_array($ret)) {
+        $insertStatement = $pearDB->prepare('INSERT INTO host_hostparent_relation (host_parent_hp_id, host_host_id) VALUES (:parentId, :hostId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
             if (! isset($hpars[$ret[$i]]) && isset($ret[$i])) {
                 if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != '') {
-                    $rq = 'INSERT INTO host_hostparent_relation ';
-                    $rq .= '(host_parent_hp_id, host_host_id) ';
-                    $rq .= 'VALUES ';
-                    $rq .= "('" . $ret[$i] . "', '" . $host_id . "')";
-                    $dbResult = $pearDB->query($rq);
+                    $insertStatement->bindValue(':parentId', (int) $ret[$i], PDO::PARAM_INT);
+                    $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                    $insertStatement->execute();
                 }
             }
         }
@@ -1598,20 +1633,19 @@ function updateHostHostChild($host_id = null)
         return;
     }
 
-    $rq = 'DELETE FROM host_hostparent_relation ';
-    $rq .= "WHERE host_parent_hp_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $deleteStatement = $pearDB->prepare('DELETE FROM host_hostparent_relation WHERE host_parent_hp_id = :hostId');
+    $deleteStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $deleteStatement->execute();
 
     $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'host_childs');
+    $insertStatement = $pearDB->prepare('INSERT INTO host_hostparent_relation (host_parent_hp_id, host_host_id) VALUES (:parentId, :childId)');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
         if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != '') {
-            $rq = 'INSERT INTO host_hostparent_relation ';
-            $rq .= '(host_parent_hp_id, host_host_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $host_id . "', '" . $ret[$i] . "')";
-            $dbResult = $pearDB->query($rq);
+            $insertStatement->bindValue(':parentId', (int) $host_id, PDO::PARAM_INT);
+            $insertStatement->bindValue(':childId', (int) $ret[$i], PDO::PARAM_INT);
+            $insertStatement->execute();
         }
     }
 }
@@ -1628,25 +1662,24 @@ function updateHostHostChild_MC($host_id = null)
         return;
     }
 
-    $rq = 'SELECT * FROM host_hostparent_relation ';
-    $rq .= "WHERE host_parent_hp_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectStatement = $pearDB->prepare('SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
     $hchs = [];
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $selectStatement->fetch()) {
         $hchs[$arr['host_host_id']] = $arr['host_host_id'];
     }
 
     $ret = $form->getSubmitValue('host_childs');
     if (is_array($ret)) {
+        $insertStatement = $pearDB->prepare('INSERT INTO host_hostparent_relation (host_parent_hp_id, host_host_id) VALUES (:parentId, :childId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
             if (! isset($hchs[$ret[$i]]) && isset($ret[$i])) {
                 if (isset($ret[$i]) && $ret[$i] != $host_id && $ret[$i] != '') {
-                    $rq = 'INSERT INTO host_hostparent_relation ';
-                    $rq .= '(host_parent_hp_id, host_host_id) ';
-                    $rq .= 'VALUES ';
-                    $rq .= "('" . $host_id . "', '" . $ret[$i] . "')";
-                    $dbResult = $pearDB->query($rq);
+                    $insertStatement->bindValue(':parentId', (int) $host_id, PDO::PARAM_INT);
+                    $insertStatement->bindValue(':childId', (int) $ret[$i], PDO::PARAM_INT);
+                    $insertStatement->execute();
                 }
             }
         }
@@ -1677,41 +1710,28 @@ function updateHostExtInfos($host_id = null, $ret = [])
         $ret['ehi_statusmap_image'] = null;
     }
 
-    $rq = 'UPDATE extended_host_information ';
-    $rq .= 'SET ehi_notes = ';
-    isset($ret['ehi_notes']) && $ret['ehi_notes'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_notes']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_notes_url = ';
-    isset($ret['ehi_notes_url']) && $ret['ehi_notes_url'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_notes_url']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_action_url = ';
-    isset($ret['ehi_action_url']) && $ret['ehi_action_url'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_action_url']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_icon_image = ';
-    isset($ret['ehi_icon_image']) && $ret['ehi_icon_image'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_icon_image']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_icon_image_alt = ';
-    isset($ret['ehi_icon_image_alt']) && $ret['ehi_icon_image_alt'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_icon_image_alt']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_statusmap_image = ';
-    isset($ret['ehi_statusmap_image']) && $ret['ehi_statusmap_image'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_statusmap_image']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_2d_coords = ';
-    isset($ret['ehi_2d_coords']) && $ret['ehi_2d_coords'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_2d_coords']) . "', "
-        : $rq .= 'NULL, ';
-    $rq .= 'ehi_3d_coords = ';
-    isset($ret['ehi_3d_coords']) && $ret['ehi_3d_coords'] != null
-        ? $rq .= "'" . CentreonDB::escape($ret['ehi_3d_coords']) . "' "
-        : $rq .= 'NULL ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare(
+        'UPDATE extended_host_information SET
+         ehi_notes = :ehiNotes,
+         ehi_notes_url = :ehiNotesUrl,
+         ehi_action_url = :ehiActionUrl,
+         ehi_icon_image = :ehiIconImage,
+         ehi_icon_image_alt = :ehiIconImageAlt,
+         ehi_statusmap_image = :ehiStatusmapImage,
+         ehi_2d_coords = :ehi2dCoords,
+         ehi_3d_coords = :ehi3dCoords
+         WHERE host_host_id = :hostId'
+    );
+    $statement->bindValue(':ehiNotes', isset($ret['ehi_notes']) && $ret['ehi_notes'] != null ? $ret['ehi_notes'] : null);
+    $statement->bindValue(':ehiNotesUrl', isset($ret['ehi_notes_url']) && $ret['ehi_notes_url'] != null ? $ret['ehi_notes_url'] : null);
+    $statement->bindValue(':ehiActionUrl', isset($ret['ehi_action_url']) && $ret['ehi_action_url'] != null ? $ret['ehi_action_url'] : null);
+    $statement->bindValue(':ehiIconImage', isset($ret['ehi_icon_image']) && $ret['ehi_icon_image'] != null ? $ret['ehi_icon_image'] : null);
+    $statement->bindValue(':ehiIconImageAlt', isset($ret['ehi_icon_image_alt']) && $ret['ehi_icon_image_alt'] != null ? $ret['ehi_icon_image_alt'] : null);
+    $statement->bindValue(':ehiStatusmapImage', isset($ret['ehi_statusmap_image']) && $ret['ehi_statusmap_image'] != null ? $ret['ehi_statusmap_image'] : null);
+    $statement->bindValue(':ehi2dCoords', isset($ret['ehi_2d_coords']) && $ret['ehi_2d_coords'] != null ? $ret['ehi_2d_coords'] : null);
+    $statement->bindValue(':ehi3dCoords', isset($ret['ehi_3d_coords']) && $ret['ehi_3d_coords'] != null ? $ret['ehi_3d_coords'] : null);
+    $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 /**
@@ -1726,36 +1746,21 @@ function updateHostExtInfos_MC($host_id = null)
     }
 
     $ret = $form->getSubmitValues();
-    $rq = 'UPDATE extended_host_information SET ';
-    if (isset($ret['ehi_notes']) && $ret['ehi_notes'] != null) {
-        $rq .= "ehi_notes = '" . CentreonDB::escape($ret['ehi_notes']) . "', ";
+    $fields = [];
+    $bindParams = [];
+    foreach (['ehi_notes', 'ehi_notes_url', 'ehi_action_url', 'ehi_icon_image', 'ehi_icon_image_alt', 'ehi_statusmap_image', 'ehi_2d_coords', 'ehi_3d_coords'] as $field) {
+        if (isset($ret[$field]) && $ret[$field] != null) {
+            $fields[] = $field . ' = :' . $field;
+            $bindParams[':' . $field] = $ret[$field];
+        }
     }
-    if (isset($ret['ehi_notes_url']) && $ret['ehi_notes_url'] != null) {
-        $rq .= "ehi_notes_url = '" . CentreonDB::escape($ret['ehi_notes_url']) . "', ";
-    }
-    if (isset($ret['ehi_action_url']) && $ret['ehi_action_url'] != null) {
-        $rq .= "ehi_action_url = '" . CentreonDB::escape($ret['ehi_action_url']) . "', ";
-    }
-    if (isset($ret['ehi_icon_image']) && $ret['ehi_icon_image'] != null) {
-        $rq .= "ehi_icon_image = '" . CentreonDB::escape($ret['ehi_icon_image']) . "', ";
-    }
-    if (isset($ret['ehi_icon_image_alt']) && $ret['ehi_icon_image_alt'] != null) {
-        $rq .= "ehi_icon_image_alt = '" . CentreonDB::escape($ret['ehi_icon_image_alt']) . "', ";
-    }
-    if (isset($ret['ehi_statusmap_image']) && $ret['ehi_statusmap_image'] != null) {
-        $rq .= "ehi_statusmap_image = '" . CentreonDB::escape($ret['ehi_statusmap_image']) . "', ";
-    }
-    if (isset($ret['ehi_2d_coords']) && $ret['ehi_2d_coords'] != null) {
-        $rq .= "ehi_2d_coords = '" . CentreonDB::escape($ret['ehi_2d_coords']) . "', ";
-    }
-    if (isset($ret['ehi_3d_coords']) && $ret['ehi_3d_coords'] != null) {
-        $rq .= "ehi_3d_coords = '" . CentreonDB::escape($ret['ehi_3d_coords']) . "', ";
-    }
-    if (strcmp('UPDATE extended_host_information SET ', $rq)) {
-        // Delete last ',' in request
-        $rq[strlen($rq) - 2] = ' ';
-        $rq .= "WHERE host_host_id = '" . $host_id . "'";
-        $dbResult = $pearDB->query($rq);
+    if ($fields !== []) {
+        $statement = $pearDB->prepare('UPDATE extended_host_information SET ' . implode(', ', $fields) . ' WHERE host_host_id = :hostId');
+        foreach ($bindParams as $param => $value) {
+            $statement->bindValue($param, $value);
+        }
+        $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -1771,12 +1776,13 @@ function updateHostContactGroup($host_id, $ret = [])
         return;
     }
 
-    $rq = 'DELETE FROM contactgroup_host_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $deleteStatement = $pearDB->prepare('DELETE FROM contactgroup_host_relation WHERE host_host_id = :hostId');
+    $deleteStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $deleteStatement->execute();
 
     $ret = $ret['host_cgs'] ?? CentreonUtils::mergeWithInitialValues($form, 'host_cgs');
     $cg = new CentreonContactgroup($pearDB);
+    $insertStatement = $pearDB->prepare('INSERT INTO contactgroup_host_relation (host_host_id, contactgroup_cg_id) VALUES (:hostId, :cgId)');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
         if (! is_numeric($ret[$i])) {
@@ -1788,11 +1794,9 @@ function updateHostContactGroup($host_id, $ret = [])
             }
         }
         if (isset($ret[$i]) && $ret[$i] && $ret[$i] != '') {
-            $rq = 'INSERT INTO contactgroup_host_relation ';
-            $rq .= '(host_host_id, contactgroup_cg_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $host_id . "', '" . $ret[$i] . "')";
-            $dbResult = $pearDB->query($rq);
+            $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+            $insertStatement->bindValue(':cgId', (int) $ret[$i], PDO::PARAM_INT);
+            $insertStatement->execute();
         }
     }
 }
@@ -1806,18 +1810,17 @@ function updateHostContact($host_id, $ret = [])
     if (! $host_id) {
         return;
     }
-    $rq = 'DELETE FROM contact_host_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $deleteStatement = $pearDB->prepare('DELETE FROM contact_host_relation WHERE host_host_id = :hostId');
+    $deleteStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $deleteStatement->execute();
 
     $ret = $ret['host_cs'] ?? CentreonUtils::mergeWithInitialValues($form, 'host_cs');
+    $insertStatement = $pearDB->prepare('INSERT INTO contact_host_relation (host_host_id, contact_id) VALUES (:hostId, :contactId)');
     $counter = count($ret);
     for ($i = 0; $i < $counter; $i++) {
-        $rq = 'INSERT INTO contact_host_relation ';
-        $rq .= '(host_host_id, contact_id) ';
-        $rq .= 'VALUES ';
-        $rq .= "('" . $host_id . "', '" . $ret[$i] . "')";
-        $dbResult = $pearDB->query($rq);
+        $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $insertStatement->bindValue(':contactId', (int) $ret[$i], PDO::PARAM_INT);
+        $insertStatement->execute();
     }
 }
 
@@ -1834,16 +1837,17 @@ function updateHostContactGroup_MC($host_id, $ret = [])
         return;
     }
 
-    $rq = 'SELECT * FROM contactgroup_host_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectStatement = $pearDB->prepare('SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
     $cgs = [];
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $selectStatement->fetch()) {
         $cgs[$arr['contactgroup_cg_id']] = $arr['contactgroup_cg_id'];
     }
     $ret = $form->getSubmitValue('host_cgs');
     if (is_array($ret)) {
         $cg = new CentreonContactgroup($pearDB);
+        $insertStatement = $pearDB->prepare('INSERT INTO contactgroup_host_relation (host_host_id, contactgroup_cg_id) VALUES (:hostId, :cgId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
             if (! isset($cgs[$ret[$i]])) {
@@ -1856,11 +1860,9 @@ function updateHostContactGroup_MC($host_id, $ret = [])
                     }
                 }
                 if (isset($ret[$i]) && $ret[$i] && $ret[$i] != '') {
-                    $rq = 'INSERT INTO contactgroup_host_relation ';
-                    $rq .= '(host_host_id, contactgroup_cg_id) ';
-                    $rq .= 'VALUES ';
-                    $rq .= "('" . $host_id . "', '" . $ret[$i] . "')";
-                    $dbResult = $pearDB->query($rq);
+                    $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                    $insertStatement->bindValue(':cgId', (int) $ret[$i], PDO::PARAM_INT);
+                    $insertStatement->execute();
                 }
             }
         }
@@ -1880,23 +1882,22 @@ function updateHostContact_MC($host_id, $ret = [])
         return;
     }
 
-    $rq = 'SELECT * FROM contact_host_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectStatement = $pearDB->prepare('SELECT contact_id FROM contact_host_relation WHERE host_host_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
     $cs = [];
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $selectStatement->fetch()) {
         $cs[$arr['contact_id']] = $arr['contact_id'];
     }
     $ret = $form->getSubmitValue('host_cs');
     if (is_array($ret)) {
+        $insertStatement = $pearDB->prepare('INSERT INTO contact_host_relation (host_host_id, contact_id) VALUES (:hostId, :contactId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
             if (! isset($cs[$ret[$i]])) {
-                $rq = 'INSERT INTO contact_host_relation ';
-                $rq .= '(host_host_id, contact_id) ';
-                $rq .= 'VALUES ';
-                $rq .= "('" . $host_id . "', '" . $ret[$i] . "')";
-                $dbResult = $pearDB->query($rq);
+                $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                $insertStatement->bindValue(':contactId', (int) $ret[$i], PDO::PARAM_INT);
+                $insertStatement->execute();
             }
         }
     }
@@ -1916,11 +1917,10 @@ function updateHostNotifs($host_id = null, $ret = [])
 
     $ret = $ret['host_notifOpts'] ?? $form->getSubmitValue('host_notifOpts');
 
-    $rq = 'UPDATE host SET ';
-    $rq .= 'host_notification_options  = ';
-    isset($ret) && $ret != null ? $rq .= "'" . implode(',', array_keys($ret)) . "' " : $rq .= 'NULL ';
-    $rq .= "WHERE host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('UPDATE host SET host_notification_options = :notifOpts WHERE host_id = :hostId');
+    $statement->bindValue(':notifOpts', isset($ret) && $ret != null ? implode(',', array_keys($ret)) : null);
+    $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 // For massive change. incremental mode
@@ -1933,10 +1933,10 @@ function updateHostNotifs_MC($host_id = null)
     global $form;
     global $pearDB;
 
-    $rq = 'SELECT host_notification_options FROM host ';
-    $rq .= "WHERE host_id = '" . $host_id . "' LIMIT 1";
-    $dbResult = $pearDB->query($rq);
-    $host = array_map('myDecode', $dbResult->fetch());
+    $selectStatement = $pearDB->prepare('SELECT host_notification_options FROM host WHERE host_id = :hostId LIMIT 1');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
+    $host = array_map('myDecode', $selectStatement->fetch());
 
     $ret = $form->getSubmitValue('host_notifOpts');
     if (! isset($ret) || ! $ret) {
@@ -1947,10 +1947,10 @@ function updateHostNotifs_MC($host_id = null)
         ? $host['host_notification_options'] . ',' . implode(',', array_keys($ret))
         : implode(',', array_keys($ret));
 
-    $rq = 'UPDATE host SET ';
-    $rq .= "host_notification_options = '" . trim($temp, ',') . "' ";
-    $rq .= "WHERE host_id = '" . $host_id . "'";
-    $pearDB->query($rq);
+    $updateStatement = $pearDB->prepare('UPDATE host SET host_notification_options = :notifOpts WHERE host_id = :hostId');
+    $updateStatement->bindValue(':notifOpts', trim($temp, ','));
+    $updateStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $updateStatement->execute();
 }
 
 function updateHostNotifOptionInterval($host_id = null, $ret = [])
@@ -1967,11 +1967,10 @@ function updateHostNotifOptionInterval($host_id = null, $ret = [])
         $ret = $form->getSubmitValue('host_notification_interval');
     }
 
-    $rq = 'UPDATE host SET ';
-    $rq .= 'host_notification_interval = ';
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
-    $rq .= "WHERE host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('UPDATE host SET host_notification_interval = :notifInterval WHERE host_id = :hostId');
+    $statement->bindValue(':notifInterval', isset($ret) && $ret != null ? $ret : null);
+    $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 /**
@@ -1989,10 +1988,10 @@ function updateHostNotifOptionInterval_MC($host_id = null)
     $ret = $form->getSubmitValue('host_notification_interval');
 
     if (isset($ret) && $ret != null) {
-        $rq = 'UPDATE host SET ';
-        $rq .= "host_notification_interval = '" . $ret . "' ";
-        $rq .= "WHERE host_id = '" . $host_id . "'";
-        $dbResult = $pearDB->query($rq);
+        $statement = $pearDB->prepare('UPDATE host SET host_notification_interval = :notifInterval WHERE host_id = :hostId');
+        $statement->bindValue(':notifInterval', $ret);
+        $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -2006,11 +2005,10 @@ function updateHostNotifOptionTimeperiod($host_id = null, $ret = [])
 
     $ret = $ret['timeperiod_tp_id2'] ?? $form->getSubmitValue('timeperiod_tp_id2');
 
-    $rq = 'UPDATE host SET ';
-    $rq .= 'timeperiod_tp_id2 = ';
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
-    $rq .= "WHERE host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('UPDATE host SET timeperiod_tp_id2 = :timeperiodId WHERE host_id = :hostId');
+    $statement->bindValue(':timeperiodId', isset($ret) && $ret != null ? (int) $ret : null);
+    $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 /**
@@ -2028,10 +2026,10 @@ function updateHostNotifOptionTimeperiod_MC($host_id = null)
     $ret = $form->getSubmitValue('timeperiod_tp_id2');
 
     if (isset($ret) && $ret != null) {
-        $rq = 'UPDATE host SET ';
-        $rq .= "timeperiod_tp_id2 = '" . $ret . "' ";
-        $rq .= "WHERE host_id = '" . $host_id . "'";
-        $dbResult = $pearDB->query($rq);
+        $statement = $pearDB->prepare('UPDATE host SET timeperiod_tp_id2 = :timeperiodId WHERE host_id = :hostId');
+        $statement->bindValue(':timeperiodId', (int) $ret, PDO::PARAM_INT);
+        $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -2049,11 +2047,10 @@ function updateHostNotifOptionFirstNotificationDelay($host_id = null, $ret = [])
         $ret = $form->getSubmitValue('host_first_notification_delay');
     }
 
-    $rq = 'UPDATE host SET ';
-    $rq .= 'host_first_notification_delay = ';
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
-    $rq .= "WHERE host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('UPDATE host SET host_first_notification_delay = :firstNotifDelay WHERE host_id = :hostId');
+    $statement->bindValue(':firstNotifDelay', isset($ret) && $ret != null ? $ret : null);
+    $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 /**
@@ -2072,10 +2069,10 @@ function updateHostNotifOptionFirstNotificationDelay_MC($host_id = null)
     $ret = $form->getSubmitValue('host_first_notification_delay');
 
     if (isset($ret) && $ret != null) {
-        $rq = 'UPDATE host SET ';
-        $rq .= "host_first_notification_delay = '" . $ret . "' ";
-        $rq .= "WHERE host_id = '" . $host_id . "'";
-        $dbResult = $pearDB->query($rq);
+        $statement = $pearDB->prepare('UPDATE host SET host_first_notification_delay = :firstNotifDelay WHERE host_id = :hostId');
+        $statement->bindValue(':firstNotifDelay', $ret);
+        $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -2096,11 +2093,10 @@ function updateHostNotifOptionRecoveryNotificationDelay($host_id = null, $ret = 
     if ($ret == '') {
         return;
     }
-    $rq = 'UPDATE host SET ';
-    $rq .= 'host_recovery_notification_delay = ';
-    isset($ret) && $ret != null ? $rq .= "'" . $ret . "' " : $rq .= 'NULL ';
-    $rq .= "WHERE host_id = '" . $host_id . "'";
-    $pearDB->query($rq);
+    $statement = $pearDB->prepare('UPDATE host SET host_recovery_notification_delay = :recoveryDelay WHERE host_id = :hostId');
+    $statement->bindValue(':recoveryDelay', isset($ret) && $ret != null ? $ret : null);
+    $statement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
 }
 
 function updateHostHostGroup($host_id, $ret = [])
@@ -2115,39 +2111,38 @@ function updateHostHostGroup($host_id, $ret = [])
      * to hostgroup in escalation, dependencies.
      * Get initial Hostgroup list to make a diff after deletion
      */
-    $rq = 'SELECT hostgroup_hg_id FROM hostgroup_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectHgStatement = $pearDB->prepare('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostId');
+    $selectHgStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectHgStatement->execute();
     $hgsOLD = [];
-    while ($hg = $dbResult->fetch()) {
+    while ($hg = $selectHgStatement->fetch()) {
         $hgsOLD[$hg['hostgroup_hg_id']] = $hg['hostgroup_hg_id'];
     }
 
     // Get service lists linked to hostgroup
     $hgSVS = [];
+    $selectSvcStatement = $pearDB->prepare('SELECT service_service_id FROM host_service_relation WHERE hostgroup_hg_id = :hgId AND host_host_id IS NULL');
     foreach ($hgsOLD as $hg) {
-        $rq = 'SELECT service_service_id FROM host_service_relation ';
-        $rq .= "WHERE hostgroup_hg_id = '" . $hg . "' AND host_host_id IS NULL";
-        $dbResult = $pearDB->query($rq);
-        while ($sv = $dbResult->fetch()) {
+        $selectSvcStatement->bindValue(':hgId', (int) $hg, PDO::PARAM_INT);
+        $selectSvcStatement->execute();
+        while ($sv = $selectSvcStatement->fetch()) {
             $hgSVS[$hg][$sv['service_service_id']] = $sv['service_service_id'];
         }
     }
 
-    $rq = 'DELETE FROM hostgroup_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $deleteHgStatement = $pearDB->prepare('DELETE FROM hostgroup_relation WHERE host_host_id = :hostId');
+    $deleteHgStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $deleteHgStatement->execute();
     $ret = $ret['host_hgs'] ?? $form->getSubmitValue('host_hgs');
     $hgsNEW = [];
 
     if ($ret) {
+        $insertHgStatement = $pearDB->prepare('INSERT INTO hostgroup_relation (hostgroup_hg_id, host_host_id) VALUES (:hgId, :hostId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
-            $rq = 'INSERT INTO hostgroup_relation ';
-            $rq .= '(hostgroup_hg_id, host_host_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $ret[$i] . "', '" . $host_id . "')";
-            $dbResult = $pearDB->query($rq);
+            $insertHgStatement->bindValue(':hgId', (int) $ret[$i], PDO::PARAM_INT);
+            $insertHgStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+            $insertHgStatement->execute();
             $hgsNEW[$ret[$i]] = $ret[$i];
         }
     }
@@ -2155,21 +2150,24 @@ function updateHostHostGroup($host_id, $ret = [])
     // Special Case, delete relation between host/service,
     // when service is linked to hostgroup in escalation, dependencies
     if ($hgSVS !== []) {
+        $deleteEscalation = $pearDB->prepare('DELETE FROM escalation_service_relation WHERE host_host_id = :hostId AND service_service_id = :svcId');
+        $deleteDepChild = $pearDB->prepare('DELETE FROM dependency_serviceChild_relation WHERE host_host_id = :hostId AND service_service_id = :svcId');
+        $deleteDepParent = $pearDB->prepare('DELETE FROM dependency_serviceParent_relation WHERE host_host_id = :hostId AND service_service_id = :svcId');
         foreach ($hgsOLD as $hg) {
             if (! isset($hgsNEW[$hg])) {
                 if (isset($hgSVS[$hg])) {
                     foreach ($hgSVS[$hg] as $sv) {
                         // Delete in escalation
-                        $rq = 'DELETE FROM escalation_service_relation ';
-                        $rq .= "WHERE host_host_id = '" . $host_id . "' AND service_service_id = '" . $sv . "'";
-                        $dbResult = $pearDB->query($rq);
+                        $deleteEscalation->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                        $deleteEscalation->bindValue(':svcId', (int) $sv, PDO::PARAM_INT);
+                        $deleteEscalation->execute();
                         // Delete in dependencies
-                        $rq = 'DELETE FROM dependency_serviceChild_relation ';
-                        $rq .= "WHERE host_host_id = '" . $host_id . "' AND service_service_id = '" . $sv . "'";
-                        $dbResult = $pearDB->query($rq);
-                        $rq = 'DELETE FROM dependency_serviceParent_relation ';
-                        $rq .= "WHERE host_host_id = '" . $host_id . "' AND service_service_id = '" . $sv . "'";
-                        $dbResult = $pearDB->query($rq);
+                        $deleteDepChild->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                        $deleteDepChild->bindValue(':svcId', (int) $sv, PDO::PARAM_INT);
+                        $deleteDepChild->execute();
+                        $deleteDepParent->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                        $deleteDepParent->bindValue(':svcId', (int) $sv, PDO::PARAM_INT);
+                        $deleteDepParent->execute();
                     }
                 }
             }
@@ -2191,24 +2189,23 @@ function updateHostHostGroup_MC($host_id, $ret = [])
         return;
     }
 
-    $rq = 'SELECT * FROM hostgroup_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectStatement = $pearDB->prepare('SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
     $hgs = [];
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $selectStatement->fetch()) {
         $hgs[$arr['hostgroup_hg_id']] = $arr['hostgroup_hg_id'];
     }
 
     $ret = $form->getSubmitValue('host_hgs');
     if (is_array($ret)) {
+        $insertStatement = $pearDB->prepare('INSERT INTO hostgroup_relation (hostgroup_hg_id, host_host_id) VALUES (:hgId, :hostId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
             if (! isset($hgs[$ret[$i]])) {
-                $rq = 'INSERT INTO hostgroup_relation ';
-                $rq .= '(hostgroup_hg_id, host_host_id) ';
-                $rq .= 'VALUES ';
-                $rq .= "('" . $ret[$i] . "', '" . $host_id . "')";
-                $dbResult = $pearDB->query($rq);
+                $insertStatement->bindValue(':hgId', (int) $ret[$i], PDO::PARAM_INT);
+                $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                $insertStatement->execute();
             }
         }
     }
@@ -2222,14 +2219,17 @@ function updateHostHostCategory($host_id, $ret = [])
         return;
     }
 
-    $rq = 'DELETE FROM hostcategories_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "' ";
-    $rq .= 'AND NOT EXISTS(
-                            SELECT hc_id
-                            FROM hostcategories hc
-                            WHERE hc.hc_id = hostcategories_relation.hostcategories_hc_id
-                            AND hc.level IS NOT NULL) ';
-    $pearDB->query($rq);
+    $deleteStatement = $pearDB->prepare(
+        'DELETE FROM hostcategories_relation
+         WHERE host_host_id = :hostId
+         AND NOT EXISTS(
+             SELECT hc_id
+             FROM hostcategories hc
+             WHERE hc.hc_id = hostcategories_relation.hostcategories_hc_id
+             AND hc.level IS NOT NULL)'
+    );
+    $deleteStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $deleteStatement->execute();
 
     $ret = $ret['host_hcs'] ?? ($ret = $form->getSubmitValue('host_hcs'));
     $hcsNEW = [];
@@ -2237,14 +2237,13 @@ function updateHostHostCategory($host_id, $ret = [])
     if (! $ret) {
         return;
     }
+    $insertStatement = $pearDB->prepare('INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES (:hcId, :hostId)');
     $counter = count($ret);
 
     for ($i = 0; $i < $counter; $i++) {
-        $rq = 'INSERT INTO hostcategories_relation ';
-        $rq .= '(hostcategories_hc_id, host_host_id) ';
-        $rq .= 'VALUES ';
-        $rq .= "('" . $ret[$i] . "', '" . $host_id . "')";
-        $pearDB->query($rq);
+        $insertStatement->bindValue(':hcId', (int) $ret[$i], PDO::PARAM_INT);
+        $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $insertStatement->execute();
         $hcsNEW[$ret[$i]] = $ret[$i];
     }
 }
@@ -2262,23 +2261,22 @@ function updateHostHostCategory_MC($host_id, $ret = [])
         return;
     }
 
-    $rq = 'SELECT * FROM hostcategories_relation ';
-    $rq .= "WHERE host_host_id = '" . $host_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $selectStatement = $pearDB->prepare('SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectStatement->execute();
     $hcs = [];
-    while ($arr = $dbResult->fetch()) {
+    while ($arr = $selectStatement->fetch()) {
         $hcs[$arr['hostcategories_hc_id']] = $arr['hostcategories_hc_id'];
     }
     $ret = $form->getSubmitValue('host_hcs');
     if (is_array($ret)) {
+        $insertStatement = $pearDB->prepare('INSERT INTO hostcategories_relation (hostcategories_hc_id, host_host_id) VALUES (:hcId, :hostId)');
         $counter = count($ret);
         for ($i = 0; $i < $counter; $i++) {
             if (! isset($hcs[$ret[$i]])) {
-                $rq = 'INSERT INTO hostcategories_relation ';
-                $rq .= '(hostcategories_hc_id, host_host_id) ';
-                $rq .= 'VALUES ';
-                $rq .= "('" . $ret[$i] . "', '" . $host_id . "')";
-                $dbResult = $pearDB->query($rq);
+                $insertStatement->bindValue(':hcId', (int) $ret[$i], PDO::PARAM_INT);
+                $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                $insertStatement->execute();
             }
         }
     }
@@ -2294,10 +2292,10 @@ function generateHostServiceMultiTemplate($hID, $hID2 = null, $antiLoop = null)
 
     require_once $path . '../service/DB-Func.php';
 
-    $dbResult = $pearDB->query('SELECT host_tpl_id
-                                FROM `host_template_relation`
-                                WHERE host_host_id = ' . $hID2 . '
-                                ORDER BY `order`');
+    $tplRelStatement = $pearDB->prepare('SELECT host_tpl_id FROM `host_template_relation` WHERE host_host_id = :hostId ORDER BY `order`');
+    $tplRelStatement->bindValue(':hostId', (int) $hID2, PDO::PARAM_INT);
+    $tplRelStatement->execute();
+    $dbResult = $tplRelStatement;
     $rq2 = 'SELECT service_service_id, service_register
                 FROM `host_service_relation`, service
                 WHERE service_service_id = service_id
@@ -2362,28 +2360,30 @@ function updateHostTemplateService($hostId = null)
         return;
     }
 
-    $statement = $pearDB->query("SELECT host_register FROM host WHERE host_id = '" . $hostId . "'");
-    $result = $statement->fetch();
+    $selectStatement = $pearDB->prepare('SELECT host_register FROM host WHERE host_id = :hostId');
+    $selectStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+    $selectStatement->execute();
+    $result = $selectStatement->fetch();
     $ret = [];
     if ($result['host_register'] == 0) {
-        $request = 'DELETE FROM host_service_relation ';
-        $request .= "WHERE host_host_id = '" . $hostId . "'";
-        $pearDB->query($request);
+        $deleteStatement = $pearDB->prepare('DELETE FROM host_service_relation WHERE host_host_id = :hostId');
+        $deleteStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $deleteStatement->execute();
         $ret = $form->getSubmitValue('host_svTpls');
         if ($ret) {
+            $insertStatement = $pearDB->prepare('INSERT INTO host_service_relation (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) VALUES (NULL, :hostId, NULL, :svcId)');
             $counter = count($ret);
             for ($i = 0; $i < $counter; $i++) {
                 if (isset($ret[$i]) && $ret[$i] != '') {
-                    $request = 'INSERT INTO host_service_relation ';
-                    $request .= '(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ';
-                    $request .= 'VALUES ';
-                    $request .= "(NULL, '" . $hostId . "', NULL, '" . $ret[$i] . "')";
-                    $pearDB->query($request);
+                    $insertStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+                    $insertStatement->bindValue(':svcId', (int) $ret[$i], PDO::PARAM_INT);
+                    $insertStatement->execute();
                 }
             }
         }
     } elseif ($centreon->user->get_version() >= 3) {
-        if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
+        $submittedValues = $form->getSubmitValues();
+        if (! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])) {
             generateHostServiceMultiTemplate($hostId, $hostId);
         }
     }
@@ -2396,32 +2396,34 @@ function updateHostTemplateService_MC($host_id = null)
     if (! $host_id) {
         return;
     }
-    $dbResult = $pearDB->query("SELECT host_register FROM host WHERE host_id = '" . (int) $host_id . "'");
-    $row = $dbResult->fetch();
+    $selectRegStatement = $pearDB->prepare('SELECT host_register FROM host WHERE host_id = :hostId');
+    $selectRegStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+    $selectRegStatement->execute();
+    $row = $selectRegStatement->fetch();
     if ($row['host_register'] == 0) {
-        $dbResult2 = $pearDB->query("SELECT *
-                                      FROM host_service_relation
-                                      WHERE host_host_id = '" . (int) $host_id . "'");
+        $selectRelStatement = $pearDB->prepare('SELECT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
+        $selectRelStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+        $selectRelStatement->execute();
         $svtpls = [];
-        while ($arr = $dbResult2->fetch()) {
+        while ($arr = $selectRelStatement->fetch()) {
             $svtpls[$arr['service_service_id']] = $arr['service_service_id'];
         }
 
         $ret = $form->getSubmitValue('host_svTpls');
         if (! empty($ret)) {
+            $insertStatement = $pearDB->prepare('INSERT INTO host_service_relation (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) VALUES (NULL, :hostId, NULL, :svcId)');
             $counter = count($ret);
             for ($i = 0; $i < $counter; $i++) {
                 if (! isset($svtpls[$ret[$i]])) {
-                    $rq = 'INSERT INTO host_service_relation ';
-                    $rq .= '(hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id) ';
-                    $rq .= 'VALUES ';
-                    $rq .= "(NULL, '" . (int) $host_id . "', NULL, '" . $ret[$i] . "')";
-                    $dbResult2 = $pearDB->query($rq);
+                    $insertStatement->bindValue(':hostId', (int) $host_id, PDO::PARAM_INT);
+                    $insertStatement->bindValue(':svcId', (int) $ret[$i], PDO::PARAM_INT);
+                    $insertStatement->execute();
                 }
             }
         }
     } elseif ($centreon->user->get_version() >= 3) {
-        if (isset($ret['dupSvTplAssoc']['dupSvTplAssoc']) && $ret['dupSvTplAssoc']['dupSvTplAssoc']) {
+        $submittedValues = $form->getSubmitValues();
+        if (! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])) {
             generateHostServiceMultiTemplate($host_id, $host_id);
         }
     }
@@ -2437,12 +2439,14 @@ function updateHostTemplateUsed($useTpls = [])
 
     require_once './include/common/common-Func.php';
 
+    $statement = $pearDB->prepare('UPDATE host SET host_template_model_htm_id = :templateId WHERE host_id = :hostId');
     foreach ($useTpls as $key => $value) {
-        $pearDB->query(
-            "UPDATE host
-            SET host_template_model_htm_id = '" . getMyHostID($value) . "'
-            WHERE host_id = '" . $key . "'"
-        );
+        if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
+            continue;
+        }
+        $statement->bindValue(':templateId', getMyHostID($value));
+        $statement->bindValue(':hostId', $key, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -2461,14 +2465,14 @@ function updateNagiosServerRelation($hostId, $ret = [])
     $ret = $ret['nagios_server_id'] ?? $form->getSubmitValue('nagios_server_id');
 
     if (isset($ret) && $ret != '' && $ret != 0) {
-        $pearDB->query("DELETE FROM `ns_host_relation` WHERE `host_host_id` = '" . (int) $hostId . "'");
+        $deleteStatement = $pearDB->prepare('DELETE FROM `ns_host_relation` WHERE `host_host_id` = :hostId');
+        $deleteStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $deleteStatement->execute();
 
-        $request = 'INSERT INTO `ns_host_relation` ';
-        $request .= '(`host_host_id`, `nagios_server_id`) ';
-        $request .= 'VALUES ';
-        $request .= "('" . (int) $hostId . "', '" . $ret . "')";
-
-        $pearDB->query($request);
+        $insertStatement = $pearDB->prepare('INSERT INTO `ns_host_relation` (`host_host_id`, `nagios_server_id`) VALUES (:hostId, :serverId)');
+        $insertStatement->bindValue(':hostId', (int) $hostId, PDO::PARAM_INT);
+        $insertStatement->bindValue(':serverId', (int) $ret, PDO::PARAM_INT);
+        $insertStatement->execute();
     }
 }
 
@@ -2747,11 +2751,12 @@ function insertHostInAPI(array $formData): int|false
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2856,11 +2861,12 @@ function updateHostInAPI(int $hostId, array $formData): bool
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2966,30 +2972,31 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  */
 function callHostApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
-        ],
-    );
+    $kernel = Kernel::createForWeb();
 
-    $status = $response->getStatusCode();
+    /** @var ServiceLocator $serviceLocator */
+    $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+    if (! $serviceLocator->has('internal_api_client')) {
+        throw new RuntimeException('internal_api_client service is not registered in the service locator');
+    }
+
+    /** @var InternalApiClient $client */
+    $client = $serviceLocator->get('internal_api_client');
+
+    $response = $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
+
+    $status = $response['status_code'];
     if (
         ($httpMethod === 'POST' && $status !== 201)
         || ($httpMethod === 'PATCH' && $status !== 204)
     ) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+        throw new Exception($message);
     }
 
-    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
+    return $response;
 }
 
 /**

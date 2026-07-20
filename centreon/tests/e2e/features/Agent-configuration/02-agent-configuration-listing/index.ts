@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -17,32 +18,35 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-3.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-4.json'
+  );
 });
 
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations?*'
+    url: `${INTERCEPTORS.api.agent_configurations}?*`
   }).as('getAgentsPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/agent-configurations'
+    url: INTERCEPTORS.api.agent_configurations
   }).as('addAgents');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations/**'
+    url: `${INTERCEPTORS.api.agent_configurations}/**`
   }).as('getAgentsDetails');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/administration/tokens'
+    url: INTERCEPTORS.api.administration_tokens
   }).as('addToken');
 });
 
@@ -61,9 +65,9 @@ When('the user clicks on the Agents Configuration page', () => {
   cy.visit(PAGES.configuration.agentConfigurations);
 });
 
-Then('the user sees the Agents Configuration page', () => {
+Then('A CMA agent configuration is present by default', () => {
   cy.wait('@getAgentsPage');
-  cy.contains('Welcome to the agent configuration page').should('be.visible');
+  cy.contains('AC-Central').should('be.visible');
 });
 
 Given('a CMA Token is configured', () => {
@@ -80,7 +84,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add agent configuration').click();
+  cy.getByTestId({ tag: 'button', testId: 'add-agent-configuration' }).click();
   cy.get('*[role="dialog"]').should('be.visible');
   cy.get('*[role="dialog"]').contains('Add agent configuration');
   cy.getByLabel({ label: 'Agent type', tag: 'input' }).click();
@@ -89,7 +93,7 @@ Given('an already existing agent configuration', () => {
     agentsConfiguration.telegraf1.name
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.contains('Poller-4').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
   cy.getByLabel({
@@ -121,7 +125,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user clicks on the line of the agent configuration', () => {
-  cy.get('*[role="row"]').eq(1).click({ force: true });
+  cy.get('*[role="row"]').eq(2).click({ force: true });
   cy.wait('@getAgentsDetails');
 });
 
@@ -137,7 +141,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
-    'Central'
+    'Poller-4'
   );
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',

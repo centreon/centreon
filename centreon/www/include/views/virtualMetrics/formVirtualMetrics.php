@@ -154,6 +154,7 @@ $form->addRule(
             : '') . "' In This RPN Function"),
     'RPNInfinityLoop'
 );
+$form->addFormRule('testRpnSyntaxWithRrdtool');
 
 $form->setRequiredNote("<font style='color: red;'>*</font>" . _(' Required fields'));
 

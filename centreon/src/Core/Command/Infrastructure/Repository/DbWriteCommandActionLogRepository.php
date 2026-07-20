@@ -38,6 +38,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\CommandMacro\Domain\Model\NewCommandMacro;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements WriteCommandRepositoryInterface
 {
@@ -57,7 +58,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
     public function __construct(
         private readonly WriteCommandRepositoryInterface $writeCommandRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         DatabaseConnection $db,
     ) {
         $this->db = $db;
@@ -76,7 +77,7 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
                 objectId: $commandId,
                 objectName: $command->getName(),
                 actionType: ActionLog::ACTION_TYPE_ADD,
-                contactId: $this->contact->getId()
+                contactId: $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -96,6 +97,13 @@ class DbWriteCommandActionLogRepository extends AbstractRepositoryRDB implements
 
             throw $ex;
         }
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**

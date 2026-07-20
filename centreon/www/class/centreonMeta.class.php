@@ -91,18 +91,15 @@ class CentreonMeta
             return $services[$metaId];
         }
 
-        $sql = 'SELECT s.service_id '
-            . 'FROM service s '
-            . 'WHERE s.service_description = "meta_' . $metaId . '" ';
+        $stmt = $this->db->prepare(
+            'SELECT s.service_id FROM service s WHERE s.service_description = :desc ORDER BY s.service_id DESC LIMIT 1'
+        );
+        $stmt->bindValue(':desc', 'meta_' . $metaId, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $services[$metaId] = $row !== false ? (int) $row['service_id'] : 0;
 
-        $res = $this->db->query($sql);
-        if ($res->rowCount()) {
-            while ($row = $res->fetchRow()) {
-                $services[$metaId] = $row['service_id'];
-            }
-        }
-
-        return $services[$metaId] ?? 0;
+        return $services[$metaId];
     }
 
     /**
@@ -116,15 +113,14 @@ class CentreonMeta
     public function getMetaIdFromServiceDisplayName($serviceDisplayName)
     {
         $metaId = null;
-        $query = 'SELECT service_description '
-            . 'FROM service '
-            . 'WHERE display_name = "' . $serviceDisplayName . '" ';
-        $res = $this->db->query($query);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
-            if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
-                $metaId = $matches[1];
-            }
+        $stmt = $this->db->prepare(
+            'SELECT service_description FROM service WHERE display_name = :displayName LIMIT 1'
+        );
+        $stmt->bindValue(':displayName', $serviceDisplayName, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        if ($row !== false && preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
+            $metaId = (int) $matches[1];
         }
 
         return $metaId;
@@ -258,18 +254,20 @@ class CentreonMeta
             return [];
         }
 
-        if (count($parameters) > 0) {
-            $sElement = implode(',', $parameters);
+        $sanitized = array_filter($parameters, fn ($col) => preg_match('/^[a-zA-Z0-9_]+$/', $col));
+        if ($sanitized === []) {
+            return [];
         }
+        $sElement = implode(',', $sanitized);
 
-        $query = 'SELECT ' . $sElement . ' '
-            . 'FROM meta_service '
-            . 'WHERE meta_id = ' . $this->db->escape($id) . ' ';
-
-        $res = $this->db->query($query);
-
-        if ($res->rowCount()) {
-            $values = $res->fetchRow();
+        $stmt = $this->db->prepare(
+            'SELECT ' . $sElement . ' FROM meta_service WHERE meta_id = :id LIMIT 1'
+        );
+        $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        if ($row !== false) {
+            $values = $row;
         }
 
         return $values;
@@ -291,39 +289,40 @@ class CentreonMeta
 
         $composedName = 'meta_' . $metaId;
 
-        $queryService = 'SELECT service_id, display_name FROM service '
-            . 'WHERE service_register = "2" AND service_description = "' . $composedName . '" ';
-        $res = $this->db->query($queryService);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
+        $selectStmt = $this->db->prepare(
+            'SELECT service_id, display_name FROM service
+            WHERE service_register = "2" AND service_description = :description'
+        );
+        $selectStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch();
+        if ($row !== false) {
             $serviceId = $row['service_id'];
             if ($row['display_name'] !== $metaName) {
-                $query = 'UPDATE service SET display_name = :display_name WHERE service_id = :service_id';
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':display_name', $metaName, PDO::PARAM_STR);
-                $statement->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
-                $statement->execute();
+                $updateStmt = $this->db->prepare(
+                    'UPDATE service SET display_name = :display_name WHERE service_id = :service_id'
+                );
+                $updateStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+                $updateStmt->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
+                $updateStmt->execute();
             }
         } else {
-            $query = 'INSERT INTO service (service_description, display_name, service_register) '
-                . 'VALUES '
-                . '("' . $composedName . '", "' . $metaName . '", "2")';
-            $this->db->query($query);
-            $query = 'INSERT INTO host_service_relation(host_host_id, service_service_id) '
-                . 'VALUES (:host_id,'
-                . '(SELECT service_id 
-                    FROM service 
-                    WHERE service_description = :service_description AND service_register = "2" LIMIT 1)'
-                . ')';
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
-            $statement->bindValue(':service_description', $composedName, PDO::PARAM_STR);
-            $statement->execute();
-            $res = $this->db->query($queryService);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
-                $serviceId = $row['service_id'];
-            }
+            $insertStmt = $this->db->prepare(
+                'INSERT INTO service (service_description, display_name, service_register)
+                VALUES (:description, :display_name, "2")'
+            );
+            $insertStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+            $insertStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+            $insertStmt->execute();
+            $serviceId = (int) $this->db->lastInsertId();
+
+            $relStmt = $this->db->prepare(
+                'INSERT INTO host_service_relation (host_host_id, service_service_id)
+                VALUES (:host_id, :service_id)'
+            );
+            $relStmt->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
+            $relStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+            $relStmt->execute();
         }
 
         return $serviceId;

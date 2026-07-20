@@ -40,9 +40,12 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
@@ -66,6 +69,7 @@ use Core\Macro\Application\Repository\WriteHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Tests\Core\Host\Infrastructure\API\AddHost\AddHostPresenterStub;
 
 beforeEach(function (): void {
@@ -78,6 +82,7 @@ beforeEach(function (): void {
         readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
         readHostTemplateRepository: $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        inheritanceManager: $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         readHostCategoryRepository: $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         readHostGroupRepository: $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         writeHostCategoryRepository: $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),
@@ -92,8 +97,11 @@ beforeEach(function (): void {
         validation: $this->validation = $this->createMock(AddHostValidation::class),
         writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        vaultEligibilityService: $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
         writeRealTimeHostRepository: $this->writeRealTimeHostRepository = $this->createMock(WriteRealTimeHostRepositoryInterface::class),
         readCommandRepository: $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -230,7 +238,7 @@ beforeEach(function (): void {
     $this->macroA->setOrder(0);
     $this->macroB = new Macro(2, $this->host->getId(), 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
-    $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
+    $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'COMMANDMACRONAME');
     $this->commandMacros = [
         $this->commandMacro->getName() => $this->commandMacro,
     ];
@@ -680,10 +688,15 @@ it('should return created object on success (with admin user)', function (): voi
         ->expects($this->once())
         ->method('notifyConfigurationChange');
 
-    $this->user
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(true);
+
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
+
     $this->readHostRepository
         ->expects($this->once())
         ->method('findById')
@@ -827,6 +840,128 @@ it('should return created object on success (with admin user)', function (): voi
         ->toBe($this->host->isActivated());
 });
 
+it('should not save a command macro inherited from a parent template when its value is left empty', function (): void {
+    // Host has no own check command — it inherits one from a parent template.
+    // The user submits the command macro with an empty value (step 4).
+    // The macro must NOT be written to the host at all.
+    $this->request->checkCommandId = null;
+    $inheritedCommandId = 42;
+
+    $this->request->macros = [
+        ['name' => 'commandMacroName', 'value' => '', 'is_password' => false, 'description' => null],
+    ];
+
+    $this->user->expects($this->once())->method('hasTopologyRole')->willReturn(true);
+    $this->adminResolver->expects($this->any())->method('isAdmin')->willReturn(true);
+
+    $this->validation->expects($this->once())->method('assertIsValidMonitoringServer');
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->optionService->expects($this->once())->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+    $this->writeHostRepository->expects($this->once())->method('add')->willReturn($this->host->getId());
+
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->writeHostCategoryRepository->expects($this->once())->method('linkToHost');
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->writeHostGroupRepository->expects($this->once())->method('linkToHost');
+    $this->validation->expects($this->once())->method('assertAreValidTemplates');
+    $this->writeHostRepository->expects($this->exactly(2))->method('addParent');
+
+    // Inherited command macro resolution; submitting empty value must not create a macro
+    $this->readHostRepository->expects($this->once())->method('findParents')->willReturn($this->inheritanceInfos);
+    $this->readHostMacroRepository->expects($this->once())->method('findByHostIds')->willReturn([]);
+    $this->inheritanceManager->expects($this->once())->method('findInheritedCheckCommandId')->willReturn($inheritedCommandId);
+    $this->readCommandMacroRepository->expects($this->once())->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Host)->willReturn($this->commandMacros);
+
+    $this->writeHostMacroRepository->expects($this->never())->method('add');
+    $this->writeHostMacroRepository->expects($this->never())->method('update');
+    $this->writeHostMacroRepository->expects($this->never())->method('delete');
+
+    $this->writeAccessGroupRepository->expects($this->once())->method('updateAclResourcesFlag');
+
+    $this->readHostRepository->expects($this->once())->method('findById')->willReturn($this->host);
+    $this->readHostCategoryRepository->expects($this->once())->method('findByHost')->willReturn([]);
+    $this->readHostGroupRepository->expects($this->once())->method('findByHost')->willReturn([]);
+    $this->readHostTemplateRepository->expects($this->once())->method('findNamesByIds')
+        ->willReturn(array_combine(
+            array_map(fn ($template) => $template['id'], $this->parentTemplates),
+            array_map(fn ($template) => $template['name'], $this->parentTemplates)
+        ));
+    $this->readHostMacroRepository->expects($this->once())->method('findByHostId')->willReturn([]);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)->toBeInstanceOf(AddHostResponse::class);
+});
+
+it('should add a command macro inherited from a parent template when its value is filled', function (): void {
+    // Host has no own check command — it inherits one from a parent template.
+    // The user fills in a value for the command macro (step 6).
+    // The macro must be added to the host.
+    $this->request->checkCommandId = null;
+    $inheritedCommandId = 42;
+
+    $this->request->macros = [
+        ['name' => 'commandMacroName', 'value' => 'somevalue', 'is_password' => false, 'description' => null],
+    ];
+
+    $this->user->expects($this->once())->method('hasTopologyRole')->willReturn(true);
+    $this->adminResolver->expects($this->any())->method('isAdmin')->willReturn(true);
+
+    $this->validation->expects($this->once())->method('assertIsValidMonitoringServer');
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->optionService->expects($this->once())->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+    $this->writeHostRepository->expects($this->once())->method('add')->willReturn($this->host->getId());
+
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->writeHostCategoryRepository->expects($this->once())->method('linkToHost');
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->writeHostGroupRepository->expects($this->once())->method('linkToHost');
+    $this->validation->expects($this->once())->method('assertAreValidTemplates');
+    $this->writeHostRepository->expects($this->exactly(2))->method('addParent');
+
+    // Inherited command macro resolution; filling in a value must add the macro to the host
+    $this->readHostRepository->expects($this->once())->method('findParents')->willReturn($this->inheritanceInfos);
+    $this->readHostMacroRepository->expects($this->once())->method('findByHostIds')->willReturn([]);
+    $this->inheritanceManager->expects($this->once())->method('findInheritedCheckCommandId')->willReturn($inheritedCommandId);
+    $this->readCommandMacroRepository->expects($this->once())->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Host)->willReturn($this->commandMacros);
+
+    $this->writeHostMacroRepository->expects($this->once())->method('add');
+    $this->writeHostMacroRepository->expects($this->never())->method('update');
+    $this->writeHostMacroRepository->expects($this->never())->method('delete');
+
+    $this->writeAccessGroupRepository->expects($this->once())->method('updateAclResourcesFlag');
+
+    $this->readHostRepository->expects($this->once())->method('findById')->willReturn($this->host);
+    $this->readHostCategoryRepository->expects($this->once())->method('findByHost')->willReturn([]);
+    $this->readHostGroupRepository->expects($this->once())->method('findByHost')->willReturn([]);
+    $this->readHostTemplateRepository->expects($this->once())->method('findNamesByIds')
+        ->willReturn(array_combine(
+            array_map(fn ($template) => $template['id'], $this->parentTemplates),
+            array_map(fn ($template) => $template['name'], $this->parentTemplates)
+        ));
+    $this->readHostMacroRepository->expects($this->once())->method('findByHostId')->willReturn([]);
+
+    ($this->useCase)($this->request, $this->presenter);
+
+    expect($this->presenter->response)->toBeInstanceOf(AddHostResponse::class);
+});
+
 it('should return created object on success (with non-admin user)', function (): void {
     $this->user
         ->expects($this->once())
@@ -896,10 +1031,15 @@ it('should return created object on success (with non-admin user)', function ():
         ->expects($this->once())
         ->method('notifyConfigurationChange');
 
-    $this->user
+    $this->adminResolver
         ->expects($this->any())
         ->method('isAdmin')
         ->willReturn(false);
+
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclGroupsFlag');
+
     $this->readHostRepository
         ->expects($this->once())
         ->method('findById')

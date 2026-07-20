@@ -1,6 +1,7 @@
 import {
   Autocomplete,
   type AutocompleteProps,
+  type AutocompleteRenderInputParams,
   CircularProgress,
   InputAdornment,
   type InputProps,
@@ -41,7 +42,7 @@ export type Props = {
   displayPopupIcon?: boolean;
   endAdornment?: ReactElement;
   error?: string;
-  getOptionItemLabel?: (option) => string;
+  getOptionItemLabel?: (option: SelectEntry | undefined) => string | undefined;
   hideInput?: boolean;
   renderOption?: (
     renderProps: HTMLAttributes<HTMLLIElement>,
@@ -50,7 +51,7 @@ export type Props = {
   ) => ReactElement;
   label: string;
   loading?: boolean;
-  onTextChange?;
+  onTextChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string | undefined;
   required?: boolean;
   forceInputRenderValue?: boolean;
@@ -115,8 +116,11 @@ const AutocompleteField = forwardRef(
     const { t } = useTranslation();
     const theme = useTheme();
 
-    const areSelectEntriesEqual = (option, value): boolean => {
-      const identifyingProps = ['id', 'name'];
+    const areSelectEntriesEqual = (
+      option: SelectEntry,
+      value: SelectEntry
+    ): boolean => {
+      const identifyingProps: Array<keyof SelectEntry> = ['id', 'name'];
 
       return equals(
         pick(identifyingProps, option),
@@ -126,7 +130,10 @@ const AutocompleteField = forwardRef(
 
     const renderOptions = renderOption
       ? renderOption
-      : (props, option): ReactElement => {
+      : (
+          props: HTMLAttributes<HTMLLIElement>,
+          option: SelectEntry
+        ): ReactElement => {
           return (
             <li
               className={classes.options}
@@ -135,13 +142,15 @@ const AutocompleteField = forwardRef(
               <Option
                 thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
               >
-                {getOptionItemLabel(option)}
+                {getOptionItemLabel(option) || ''}
               </Option>
             </li>
           );
         };
 
-    const renderInput = (params): ReactElement => {
+    const renderInput = (
+      params: AutocompleteRenderInputParams
+    ): ReactElement => {
       return (
         <TextField
           {...params}
@@ -153,7 +162,13 @@ const AutocompleteField = forwardRef(
             root: classes.textfield
           }}
           error={error}
-          externalValueForAutoSize={autocompleteProps?.value?.name}
+          externalValueForAutoSize={
+            typeof autocompleteProps?.value === 'object' &&
+            autocompleteProps?.value !== null &&
+            !Array.isArray(autocompleteProps.value)
+              ? (autocompleteProps.value as SelectEntry).name
+              : undefined
+          }
           helperText={helperText}
           label={label}
           onChange={onTextChange}
@@ -168,7 +183,8 @@ const AutocompleteField = forwardRef(
               ...(forceInputRenderValue
                 ? {
                     value: getOptionItemLabel(
-                      autocompleteProps?.value || undefined
+                      (autocompleteProps?.value as SelectEntry | undefined) ||
+                        undefined
                     )
                   }
                 : {}),
@@ -201,13 +217,16 @@ const AutocompleteField = forwardRef(
               classes: {
                 marginDense: classes.inputLabel,
                 shrink: classes.inputLabelShrink
-              }
+              } as unknown as Record<string, string>
             }
           }}
           value={
             inputValue ||
             (forceInputRenderValue
-              ? getOptionItemLabel(autocompleteProps?.value || undefined)
+              ? getOptionItemLabel(
+                  (autocompleteProps?.value as SelectEntry | undefined) ||
+                    undefined
+                )
               : undefined) ||
             undefined
           }

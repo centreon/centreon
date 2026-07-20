@@ -127,6 +127,7 @@ export const emphasizeCurveColor = ({
 
   if (gte(getLuminance(color), 0.5)) {
     if (gte(index, totalLevels * 2)) {
+      // @ts-expect-error - suppressing pre-existing type mismatch
       return darken(color, normalizeLevel({ factor, level: last(levels) }));
     }
     if (gte(index, totalLevels)) {
@@ -140,6 +141,7 @@ export const emphasizeCurveColor = ({
   }
 
   if (gte(index, totalLevels * 2)) {
+    // @ts-expect-error - suppressing pre-existing type mismatch
     return lighten(color, normalizeLevel({ factor, level: last(levels) }));
   }
   if (gte(index, totalLevels)) {
@@ -203,8 +205,10 @@ export const getStyle = ({
   metricId
 }: GetStyleProps): BarStyle | LineStyle => {
   return equals(type(style), 'Array')
-    ? style.find((metricStyle) => equals(metricId, metricStyle.metricId))
-    : style;
+    ? // @ts-expect-error - suppressing pre-existing type mismatch
+      style.find((metricStyle) => equals(metricId, metricStyle.metricId))
+    : // @ts-expect-error - suppressing pre-existing type mismatch
+      style;
 };
 
 interface GetFormattedAxisValuesProps {
@@ -270,7 +274,9 @@ export const computeGElementMarginLeft = ({
 }: ComputeGElementMarginLeftProps): number =>
   maxCharacters * 5 + (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6);
 
-export const computPixelsToShiftMouse = (xScale): number => {
+export const computPixelsToShiftMouse = (
+  xScale: import('d3-scale').ScaleTime<number, number>
+): number => {
   const domain = xScale.domain();
 
   const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');

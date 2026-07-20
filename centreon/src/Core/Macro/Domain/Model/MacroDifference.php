@@ -183,7 +183,12 @@ final class MacroDifference
         }
 
         // Macro doesn't match any previously known macros
-        $this->addedMacros[$macroName] = $computedMacro;
+        // Only save if it has a value or is a password — an empty unmatched macro has no override purpose
+        if ($computedMacro->getValue() !== '' || $computedMacro->isPassword()) {
+            $this->addedMacros[$macroName] = $computedMacro;
+        } else {
+            $this->unchangedMacros[$macroName] = $computedMacro;
+        }
     }
 
     private function isIdenticalToInheritedMacro(Macro $macro, Macro $existingMacro): bool

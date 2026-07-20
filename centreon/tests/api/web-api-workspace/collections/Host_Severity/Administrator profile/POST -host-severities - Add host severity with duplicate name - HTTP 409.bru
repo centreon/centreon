@@ -1,0 +1,36 @@
+meta {
+  name: POST /host-severities - Add host severity with duplicate name - HTTP 409
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/severities
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity1Name}}",
+    "alias": "Duplicate alias",
+    "level": 3,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 409
+}
+
+tests {
+  test("The host severity has not been created, because the name already exists.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(409);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

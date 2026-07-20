@@ -5,6 +5,7 @@ export { DowntimeIcon } from './DowntimeIcon';
 export { FlappingIcon } from './FlappingIcon';
 export { HostGroupIcon } from './HostGroupIcon';
 export { HostIcon } from './HostIcon';
+export { InstallCommandIcon } from './InstallCommandIcon';
 export { MetaServiceIcon } from './MetaServiceIcon';
 export { RegexIcon } from './RegexIcon';
 export { ServiceGroupIcon } from './ServiceGroupIcon';

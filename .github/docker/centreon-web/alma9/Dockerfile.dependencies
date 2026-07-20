@@ -1,20 +1,18 @@
-ARG MAJOR_VERSION
-
 FROM almalinux:9 AS web_dependencies
 
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.4
 ARG IS_CLOUD
 ARG STABILITY
 
-RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
-    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
-    bash -e <<EOF
+RUN bash -e <<EOF
 
 ######################################
 # install and configure repositories #
 ######################################
 
 echo 'install_weak_deps=False' >> /etc/dnf/dnf.conf
+echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
 
 dnf install -y dnf-plugins-core
 
@@ -23,8 +21,7 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${MAJOR_VERSION}-internal.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
 fi
@@ -89,7 +86,12 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf module enable -y php:8.2
+if [[ "${PHP_VERSION}" == "8.2" ]]; then
+  dnf module enable -y php:8.2
+else
+  dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+  dnf module -y switch-to php:remi-${PHP_VERSION}/common
+fi
 dnf install -y \
   php-common \
   php-cli \
@@ -124,7 +126,10 @@ dnf clean all --enablerepo=*
 
 EOF
 
-COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /bin/systemctl
+ENV PHP_VERSION=${PHP_VERSION}
+
+COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/bin/systemctl
+COPY --chmod=755 ./.github/docker/centreon-web/init/journalctl /usr/bin/journalctl
 
 COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
@@ -144,6 +149,8 @@ if [[ "$STABILITY" == "stable" ]]; then
     centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
     centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-graphite-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-influxdb-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
 else
   dnf install -y \
@@ -151,6 +158,8 @@ else
     centreon-gorgone \
     centreon-engine \
     centreon-broker-cbd \
+    centreon-broker-graphite \
+    centreon-broker-influxdb \
     centreon-connector
 fi
 

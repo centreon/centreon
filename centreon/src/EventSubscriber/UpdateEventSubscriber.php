@@ -19,16 +19,18 @@
  *
  */
 
+declare(strict_types=1);
+
 namespace EventSubscriber;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class UpdateEventSubscriber implements EventSubscriberInterface
+class UpdateEventSubscriber
 {
     use LoggerTrait;
     private const MINIMAL_INSTALLED_VERSION = '22.04.0';
@@ -42,30 +44,19 @@ class UpdateEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public static function getSubscribedEvents(): array
-    {
-        if (! file_exists(_CENTREON_ETC_ . DIRECTORY_SEPARATOR . 'centreon.conf.php')) {
-            return [];
-        }
-
-        return [
-            KernelEvents::REQUEST => [
-                ['validateCentreonWebVersionOrFail', 35],
-            ],
-        ];
-    }
-
-    /**
      * validate centreon web installed version when update endpoint is called.
      *
      * @param RequestEvent $event
      *
      * @throws \Exception
      */
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 35)]
     public function validateCentreonWebVersionOrFail(RequestEvent $event): void
     {
+        if (! file_exists(_CENTREON_ETC_ . DIRECTORY_SEPARATOR . 'centreon.conf.php')) {
+            return;
+        }
+
         $this->debug('Checking if route matches updates endpoint');
         if (
             $event->getRequest()->getMethod() === Request::METHOD_PATCH

@@ -88,7 +88,13 @@ const Row = ({
     setFieldValue(tableFieldName, remove(index, 1, tableValues));
   };
 
-  const changeRow = ({ property, value }): void => {
+  const changeRow = ({
+    property,
+    value
+  }: {
+    property: string;
+    value: unknown;
+  }): void => {
     const currentRowValue = rowValues || defaultRowValue;
 
     setFieldValue(

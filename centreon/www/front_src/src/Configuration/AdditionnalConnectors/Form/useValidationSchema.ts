@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { array, number, object, string } from 'yup';
+import { array, number, ObjectSchema, object, string } from 'yup';
 
 import {
   labelAteastOnePollerIsRequired,
@@ -15,7 +15,7 @@ import {
   labelVcenterNameMustBeUnique
 } from '../translatedLabels';
 
-const useValidationSchema = (): { validationSchema } => {
+const useValidationSchema = (): { validationSchema: ObjectSchema<object> } => {
   const { t } = useTranslation();
 
   const urlValidationSchema = string()
@@ -47,8 +47,10 @@ const useValidationSchema = (): { validationSchema } => {
           const vcenters = options.context?.parameters.vcenters || [];
 
           const duplicate =
-            vcenters.filter((vcenter) => vcenter['vCenter name'] === value)
-              .length > 1;
+            vcenters.filter(
+              (vcenter: Record<string, unknown>) =>
+                vcenter['vCenter name'] === value
+            ).length > 1;
 
           return !duplicate;
         }

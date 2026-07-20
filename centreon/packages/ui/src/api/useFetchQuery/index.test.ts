@@ -37,6 +37,8 @@ const renderFetchQuery = <T extends object>(
     wrapper: TestQueryProvider
   }) as RenderHookResult<UseFetchQueryState<T>, unknown>;
 
+const mockParams = { headers: { 'Content-Type': 'application/json' } };
+
 describe('useFetchQuery', () => {
   beforeEach(() => {
     mockedShowErrorMessage.mockReset();
@@ -57,7 +59,7 @@ describe('useFetchQuery', () => {
   });
 
   it('retrieves data from an endpoint', async () => {
-    fetchMock.once(JSON.stringify(user));
+    fetchMock.once(JSON.stringify(user), mockParams);
     const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey']
@@ -70,6 +72,7 @@ describe('useFetchQuery', () => {
 
   it("shows an error from the API via the Snackbar and inside the browser's console", async () => {
     fetchMock.once(JSON.stringify({ code: 2, message: 'custom message' }), {
+      ...mockParams,
       status: 400
     });
 
@@ -109,6 +112,7 @@ describe('useFetchQuery', () => {
 
   it('shows a default failure message via the Snackbar as fallback', async () => {
     fetchMock.once(JSON.stringify({}), {
+      ...mockParams,
       status: 400
     });
 
@@ -134,6 +138,7 @@ describe('useFetchQuery', () => {
 
   it('does not show any message via the Snackbar when the httpCodesBypassErrorSnackbar is passed', async () => {
     fetchMock.once(JSON.stringify({}), {
+      ...mockParams,
       status: 400
     });
 

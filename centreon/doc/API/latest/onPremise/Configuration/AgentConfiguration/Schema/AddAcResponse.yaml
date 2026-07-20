@@ -43,7 +43,10 @@ properties:
     description: |
       Configuration parameters, varies depending on the configuration type.
     example:
-      is_reverse: true
+      poller_initiated: true
+      agent_initiated: true
+      port: 1234
+      create_host_auto: false
       otel_public_certificate: "otel-reverse.crt"
       otel_ca_certificate: "ca-certif.crt"
       otel_private_key: "otel.key"

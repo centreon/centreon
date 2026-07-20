@@ -30,7 +30,9 @@ const Subtitle = ({ children, secondaryLabel }: Props): JSX.Element => {
           followCursor={false}
           label={
             containsSeveralSecondaryLabels
-              ? secondaryLabel.map((label) => <p key={label}>{t(label)}</p>)
+              ? (secondaryLabel as Array<string>).map((label) => (
+                  <p key={label}>{t(label)}</p>
+                ))
               : t(secondaryLabel)
           }
           placement="right"

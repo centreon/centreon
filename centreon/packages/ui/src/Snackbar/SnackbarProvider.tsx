@@ -21,7 +21,7 @@ const SnackbarProvider = ({
       TransitionComponent={
         Transition as JSXElementConstructor<
           TransitionProps & {
-            children;
+            children: ReactElement;
           }
         >
       }

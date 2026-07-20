@@ -47,7 +47,7 @@ const StatusColumnOnHover = ({
   const forcedCheckEndpoint = path(['links', 'endpoints', 'forced_check'], row);
 
   const { mutateAsync: checkResource } = useMutationQuery({
-    getEndpoint: () => forcedCheckEndpoint,
+    getEndpoint: () => forcedCheckEndpoint as string,
     method: Method.POST
   });
 
@@ -62,11 +62,13 @@ const StatusColumnOnHover = ({
   };
 
   const acknowledge = (): void => {
-    setResourcesToAcknowledge([row]);
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+    setResourcesToAcknowledge([row as any]);
   };
 
   const setDowntime = (): void => {
-    setResourcesToSetDowntime([row]);
+    // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+    setResourcesToSetDowntime([row as any]);
   };
 
   const { canAcknowledge, canDowntime } = useAclQuery();
@@ -77,8 +79,10 @@ const StatusColumnOnHover = ({
     row
   );
 
-  const isAcknowledePermitted = canAcknowledge([row]);
-  const isDowntimePermitted = canDowntime([row]);
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  const isAcknowledePermitted = canAcknowledge([row as any]);
+  // biome-ignore lint/suspicious/noExplicitAny: typing fallback
+  const isDowntimePermitted = canDowntime([row as any]);
 
   const isForcedCheckPermitted = !isNil(
     path(['links', 'endpoints', 'forced_check'], row)
@@ -88,7 +92,13 @@ const StatusColumnOnHover = ({
   const disableDowntime = !isDowntimePermitted;
   const disableForcedCheck = !isForcedCheckPermitted;
 
-  const getActionTitle = ({ labelAction, isActionPermitted }): string => {
+  const getActionTitle = ({
+    labelAction,
+    isActionPermitted
+  }: {
+    labelAction: string;
+    isActionPermitted: boolean;
+  }): string => {
     const translatedLabelAction = t(labelAction);
 
     return isActionPermitted
@@ -143,12 +153,28 @@ const StatusColumnOnHover = ({
   );
 };
 
-const StatusColumn = ({ displayType, classes, t, isOnPublicPage }) => {
+interface StatusColumnFactoryProps {
+  displayType: DisplayType;
+  classes: { statusColumn: string; statusColumnChip: string };
+  t: (key: string) => string;
+  isOnPublicPage?: boolean;
+}
+
+const StatusColumn = ({
+  displayType,
+  classes,
+  t,
+  isOnPublicPage
+}: StatusColumnFactoryProps) => {
   return ({ row, isHovered }: ComponentColumnProps): ReactElement => {
-    const statusName = row.status.name;
+    const typedRow = row as {
+      status: { name: string; severity_code: number };
+      isHeadRow?: boolean;
+    };
+    const statusName = typedRow.status.name;
 
     const isNestedRow =
-      equals(displayType, DisplayType.Host) && isNil(row?.isHeadRow);
+      equals(displayType, DisplayType.Host) && isNil(typedRow?.isHeadRow);
 
     if (isNestedRow) {
       return <div />;
@@ -166,7 +192,7 @@ const StatusColumn = ({ displayType, classes, t, isOnPublicPage }) => {
           <StatusChip
             className={classes.statusColumnChip}
             label={label}
-            severityCode={row.status.severity_code}
+            severityCode={typedRow.status.severity_code}
           />
         )}
       </div>

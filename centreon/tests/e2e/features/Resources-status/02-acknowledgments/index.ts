@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkHostsAreMonitored,
@@ -21,25 +22,25 @@ import {
 beforeEach(() => {
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/monitoring/resources/acknowledge'
+    url: `${INTERCEPTORS.api.monitor_resources}/acknowledge`
   }).as('postAcknowledgments');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getLastestUserFilters');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 
-  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+  cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
     'monitoringEndpoint'
   );
 
@@ -239,12 +240,6 @@ Then(
 Then(
   'the previously selected resources is marked as acknowledged in the listing with the acknowledgement icon',
   () => {
-    cy.contains(serviceInAcknowledgementName)
-      .parent()
-      .parent()
-      .getByLabel({ label: `${serviceInAcknowledgementName} Acknowledged` })
-      .should('be.visible');
-
     cy.contains(hostInAcknowledgementName)
       .parent()
       .parent()

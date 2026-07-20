@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/additional-configurations/acc.json';
@@ -22,27 +23,27 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations?*'
+    url: `${INTERCEPTORS.api.connector_configurations}?*`
   }).as('getConnectorPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations'
+    url: INTERCEPTORS.api.connector_configurations
   }).as('addAdditionalConnector');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations/*'
+    url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('getConnectorDetail');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations/*'
+    url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('updateConnectorDetail');
   cy.intercept({
     method: 'DELETE',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations/*'
+    url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('deleteConnector');
 });
 

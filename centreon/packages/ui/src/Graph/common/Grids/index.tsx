@@ -1,5 +1,5 @@
 import { Grid } from '@visx/visx';
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { includes } from 'ramda';
 import { useMemo } from 'react';
 
@@ -7,9 +7,15 @@ import type { ChartAxis } from '../../Chart/models';
 
 interface Props extends Pick<ChartAxis, 'gridLinesType'> {
   height: number;
-  leftScale?: ScaleLinear<number, number>;
+  leftScale?:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
   width: number;
-  xScale?: ScaleLinear<number, number>;
+  xScale?:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
 }
 
 const Grids = ({

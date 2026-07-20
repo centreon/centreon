@@ -1,0 +1,31 @@
+meta {
+  name: POST /commands - Empty required field name - HTTP 400
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/commands
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"name": "", "type": "{{CommandType}}", "command_line": "{{CommandLine}}", "is_shell_enabled": true}
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("Command creation refused: empty name.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(400);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

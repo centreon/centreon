@@ -29,8 +29,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\CommandNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
 use App\Shared\Domain\Collection;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalCommandRepositoryTest extends KernelTestCase
@@ -43,6 +45,18 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         $repository = self::getContainer()->get(DbalCommandRepository::class);
 
         $this->repository = $repository;
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'check_disk_smb',
+            'command_line' => '$USER1$/check_disk_smb -H $HOSTADDRESS$',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
     }
 
     public function testGetById(): void
@@ -120,5 +134,40 @@ final class DbalCommandRepositoryTest extends KernelTestCase
         self::assertInstanceOf(Collection::class, $commands);
         self::assertNotEmpty($commands);
         self::assertContainsOnlyInstancesOf(Command::class, $commands);
+    }
+
+    public function testFindAllWithNameLikeCriteria(): void
+    {
+        $criteria = (new CommandCriteria())->withName('disk_smb', CommandCriteria::OPERATOR_LIKE);
+
+        $commands = $this->repository->findAll($criteria);
+
+        self::assertCount(1, $commands);
+        self::assertSame('check_disk_smb', iterator_to_array($commands)[0]->name->value);
+    }
+
+    public function testFindAllWithNameEqualCriteria(): void
+    {
+        $criteria = (new CommandCriteria())->withName('check_disk_smb', CommandCriteria::OPERATOR_EQUAL);
+
+        $commands = $this->repository->findAll($criteria);
+
+        self::assertCount(1, $commands);
+        self::assertSame('check_disk_smb', iterator_to_array($commands)[0]->name->value);
+    }
+
+    /**
+     * Make sure a double quote in the filter value is bound as a parameter
+     * instead of being concatenated into the SQL string.
+     */
+    public function testFilterByCriteriaIsSafeAgainstQuoteInjection(): void
+    {
+        $payload = 'x" UNION SELECT * FROM command --';
+
+        $likeCriteria = (new CommandCriteria())->withName($payload, CommandCriteria::OPERATOR_LIKE);
+        $equalCriteria = (new CommandCriteria())->withName($payload, CommandCriteria::OPERATOR_EQUAL);
+
+        self::assertCount(0, $this->repository->findAll($likeCriteria));
+        self::assertCount(0, $this->repository->findAll($equalCriteria));
     }
 }

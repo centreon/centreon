@@ -228,9 +228,11 @@ if ($prepareSelect->execute()) {
                 CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
             );
 
-            $author = empty($contactList[$res['log_contact_id']])
-                ? _('unknown')
-                : $contactList[$res['log_contact_id']];
+            $author = $res['log_contact_id'] === null
+                ? 'system'
+                : (empty($contactList[$res['log_contact_id']])
+                    ? _('unknown')
+                    : $contactList[$res['log_contact_id']]);
 
             $element = [
                 'date' => $res['action_log_date'] ?? null,

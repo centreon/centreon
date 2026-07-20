@@ -1,7 +1,10 @@
 import { Column, Group, InputProps, Method } from '@centreon/ui';
 
 import type { PrimitiveAtom } from 'jotai';
+import type { JsonDecoder } from 'ts.data.json';
 import { ObjectSchema } from 'yup';
+
+export type ResourceRow = Record<string, unknown> & { id?: number | string };
 
 export type NamedEntity = {
   id: number;
@@ -31,9 +34,9 @@ export type Filters = {
 } & Record<string, string | boolean>;
 
 export interface Actions {
-  delete?: (row?) => boolean;
-  duplicate?: (row?) => boolean;
-  enableDisable?: (row?) => boolean;
+  delete?: (row?: ResourceRow) => boolean;
+  duplicate?: (row?: ResourceRow) => boolean;
+  enableDisable?: (row?: ResourceRow) => boolean;
   massive?:
     | boolean
     | {
@@ -87,23 +90,23 @@ export enum FieldType {
 
 export interface Endpoints {
   getAll: string;
-  getOne?: ({ id }) => string;
-  deleteOne?: ({ id }) => string;
+  getOne?: ({ id }: { id: number | string }) => string;
+  deleteOne?: ({ id }: { id: number | string }) => string;
   delete?: string;
   duplicate?: string;
-  enable?: ({ id }?) => string;
-  disable?: ({ id }?) => string;
+  enable?: (params?: { id: number | string }) => string;
+  disable?: (params?: { id: number | string }) => string;
   create?: string;
-  update?: ({ id }) => string;
+  update?: ({ id }: { id: number | string }) => string;
 }
 
 export interface APIType {
   endpoints: Endpoints | null;
   decoders?: {
-    getOne?;
-    getAll?;
+    getOne?: JsonDecoder.Decoder<unknown>;
+    getAll?: JsonDecoder.Decoder<unknown>;
   };
-  adapter?;
+  adapter?: (data: unknown) => unknown;
   apiFormat?: 'Standard' | 'JSON-LD';
   methods?: {
     update?: Method;
@@ -118,7 +121,7 @@ export interface FilterConfiguration {
   fieldName?: string;
   fieldType: FieldType;
   options?: Array<{ id: number | string; name: string }>;
-  getEndpoint?: (parametes) => string;
+  getEndpoint?: (parameters: Record<string, unknown>) => string;
 }
 
 export interface Configuration {

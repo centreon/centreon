@@ -129,7 +129,7 @@ const useMutationQuery = <T extends object, TMeta>({
         const listingQueryKey = getListingQueryKey();
         queryClient.setQueriesData(
           { queryKey: listingQueryKey },
-          context.previousListing
+          (context as { previousListing: unknown })?.previousListing
         );
       }
 
@@ -150,7 +150,11 @@ const useMutationQuery = <T extends object, TMeta>({
           return { previousListing };
         }
       : onMutate,
-    onSettled,
+    onSettled: onSettled as UseMutationOptions<
+      T | ResponseError,
+      ResponseError,
+      Variables<TMeta, T>
+    >['onSettled'],
     onSuccess: (data, variables, context) => {
       if (optimisticListing?.enabled) {
         const isQueryKeyArray = equals(
@@ -162,20 +166,20 @@ const useMutationQuery = <T extends object, TMeta>({
           : [optimisticListing?.queryKey];
 
         queryClient.invalidateQueries({
-          queryKey: listingQueryKey
+          queryKey: listingQueryKey as Array<string>
         });
       }
 
-      if (data?.isError) {
+      if ((data as ResponseError)?.isError) {
         if (optimisticListing?.enabled) {
           const listingQueryKey = getListingQueryKey();
           queryClient.setQueriesData(
             { queryKey: listingQueryKey },
-            context.previousListing
+            (context as { previousListing: unknown })?.previousListing
           );
         }
 
-        onError?.(data, variables, context);
+        onError?.(data as ResponseError, variables, context);
 
         return;
       }
@@ -209,7 +213,7 @@ const useMutationQuery = <T extends object, TMeta>({
     ...omit(['isError'], queryData),
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
     isMutating: queryData.isPending
-  };
+  } as unknown as UseMutationQueryState<T, TMeta>;
 };
 
 export default useMutationQuery;

@@ -1,0 +1,13 @@
+meta {
+  name: Export_Conf_Monitoring_Servers
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}

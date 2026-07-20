@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Adaptation\Log;
 
 use Adaptation\Log\Adapter\MonologAdapter;
-use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Channel\LogChannelInterface;
 use Adaptation\Log\Exception\LoggerException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -38,7 +38,7 @@ final readonly class Logger implements LoggerInterface
     {
     }
 
-    public static function create(LogChannelEnum $channel): LoggerInterface
+    public static function create(LogChannelInterface $channel): LoggerInterface
     {
         try {
             return new self(MonologAdapter::create($channel));

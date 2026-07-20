@@ -1,7 +1,7 @@
 import type { ListingParameters } from '@centreon/ui';
 import { buildListingEndpoint } from '@centreon/ui';
 
-import { resourcesEndpoint } from '../../api/endpoint';
+import { countResourcesEndpoint, resourcesEndpoint } from '../../api/endpoint';
 
 export type ListResourcesProps = {
   endpoint?: string;
@@ -53,4 +53,39 @@ const buildResourcesEndpoint = (parameters: ListResourcesProps): string => {
   });
 };
 
-export { buildResourcesEndpoint };
+export type CountResourcesProps = Omit<
+  ListResourcesProps,
+  'limit' | 'page' | 'sort'
+>;
+
+const buildCountEndpoint = (parameters: CountResourcesProps): string => {
+  return buildListingEndpoint({
+    baseEndpoint: countResourcesEndpoint,
+    customQueryParameters: [
+      { name: 'all_pages', value: true },
+      { name: 'states', value: parameters.states },
+      { name: 'status_types', value: parameters.statusTypes },
+      { name: 'types', value: parameters.resourceTypes },
+      { name: 'statuses', value: parameters.statuses },
+      { name: 'host_category_names', value: parameters.hostCategories },
+      { name: 'service_category_names', value: parameters.serviceCategories },
+      { name: 'hostgroup_names', value: parameters.hostGroups },
+      { name: 'servicegroup_names', value: parameters.serviceGroups },
+      { name: 'monitoring_server_names', value: parameters.monitoringServers },
+      {
+        name: 'only_with_performance_data',
+        value: parameters.onlyWithPerformanceData
+      },
+      { name: 'service_severity_names', value: parameters.serviceSeverities },
+      {
+        name: 'service_severity_levels',
+        value: parameters.serviceSeverityLevels
+      },
+      { name: 'host_severity_names', value: parameters.hostSeverities },
+      { name: 'host_severity_levels', value: parameters.hostSeverityLevels }
+    ],
+    parameters
+  });
+};
+
+export { buildCountEndpoint, buildResourcesEndpoint };

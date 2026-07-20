@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -11,28 +12,31 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-1.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
+  );
 });
 
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations?*'
+    url: `${INTERCEPTORS.api.agent_configurations}?*`
   }).as('getAgentsPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/agent-configurations'
+    url: INTERCEPTORS.api.agent_configurations
   }).as('addAgents');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations/**'
+    url: `${INTERCEPTORS.api.agent_configurations}/**`
   }).as('getAgentsDetails');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/configuration/agent-configurations/*'
+    url: `${INTERCEPTORS.api.agent_configurations}/*`
   }).as('updateAgents');
 });
 
@@ -63,7 +67,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user clicks on the line of the agent configuration', () => {
-  cy.get('*[role="row"]').eq(1).click({ force: true });
+  cy.get('*[role="row"]').eq(2).click({ force: true });
   cy.wait('@getAgentsDetails');
 });
 
@@ -80,7 +84,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
-    'Central'
+    'Poller-5'
   );
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',

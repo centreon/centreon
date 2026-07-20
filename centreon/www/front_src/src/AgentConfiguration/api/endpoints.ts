@@ -1,4 +1,4 @@
-import { buildListingEndpoint } from '@centreon/ui';
+import { buildListingEndpoint, type ListingParameters } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 
@@ -8,13 +8,13 @@ export const getAgentConfigurationsEndpoint =
 export const pollersEndpoint = '/configuration/monitoring-servers';
 export const agentConfigurationPollersEndpoint = `${getAgentConfigurationsEndpoint}/pollers`;
 
-export const getPollersEndpoint = (parameters): string =>
+export const getPollersEndpoint = (parameters: ListingParameters): string =>
   buildListingEndpoint({
     baseEndpoint: pollersEndpoint,
     parameters
   });
 
-interface GetPollerAgentEndpointProps {
+export interface GetPollerAgentEndpointProps {
   agentId: number;
   pollerId?: number;
 }
@@ -27,6 +27,9 @@ export const getPollerAgentEndpoint = ({
 
 export const getAgentConfigurationEndpoint = (id: number) =>
   `${getAgentConfigurationsEndpoint}/${id}`;
+
+export const getInstallationCommandEndpoint = (id: number) =>
+  `/configuration/agent-configurations/installation-command/${id}`;
 
 export const hostsConfigurationEndpoint = '/configuration/hosts';
 
@@ -54,7 +57,7 @@ export const tokensSearchConditions = [
   }
 ];
 
-export const getTokensEndpoint = (parameters): string => {
+export const getTokensEndpoint = (parameters: ListingParameters): string => {
   return buildListingEndpoint({
     baseEndpoint: listTokensEndpoint,
     parameters: {
@@ -62,20 +65,26 @@ export const getTokensEndpoint = (parameters): string => {
       search: {
         conditions: [
           ...(parameters?.search?.conditions || []),
-          ...tokensSearchConditions
+          ...(tokensSearchConditions as NonNullable<
+            NonNullable<
+              Parameters<typeof buildListingEndpoint>[0]['parameters']['search']
+            >['conditions']
+          >)
         ]
       }
     }
   });
 };
 
-export const getHostsEndpoint = (parameters): string => {
+export const getHostsEndpoint = (parameters: ListingParameters): string => {
+  const condition = parameters?.search?.conditions?.[1];
+
   return buildListingEndpoint({
     baseEndpoint: hostsConfigurationEndpoint,
     parameters: {
       ...parameters,
       search: {
-        conditions: [parameters?.search?.conditions?.[1] || []]
+        conditions: condition ? [condition] : []
       }
     }
   });

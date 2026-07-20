@@ -28,7 +28,9 @@ session_start();
 $db = new CentreonDB();
 $sid = session_id();
 if (isset($sid)) {
-    $res = $db->query('SELECT * FROM session WHERE session_id = \'' . CentreonDB::escape($sid) . '\'');
+    $res = $db->prepare('SELECT * FROM session WHERE session_id = :sid');
+    $res->bindValue(':sid', $sid, PDO::PARAM_STR);
+    $res->execute();
     if (! $res->fetchRow()) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 401 Unauthorized', true, 401);
 

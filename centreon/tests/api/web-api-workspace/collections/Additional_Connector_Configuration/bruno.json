@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Additional_Connector_Configuration",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

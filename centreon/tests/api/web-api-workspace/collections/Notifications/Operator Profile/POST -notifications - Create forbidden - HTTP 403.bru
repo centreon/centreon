@@ -1,0 +1,44 @@
+meta {
+  name: POST /notifications - Create forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/notifications
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "OperatorForbiddenNotification",
+    "timeperiod_id": 1,
+    "users": [],
+    "contactgroups": [],
+    "messages": [
+      {
+        "channel": "Email",
+        "subject": "should not pass",
+        "message": "should not pass",
+        "formatted_message": "<p>should not pass</p>"
+      }
+    ],
+    "resources": [
+      {
+        "type": "hostgroup",
+        "ids": [{{NotificationHostGroupId}}],
+        "events": 5
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

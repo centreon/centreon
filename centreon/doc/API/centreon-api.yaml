@@ -51,7 +51,7 @@ tags:
     description: 'Login and logout endpoints to retrieve authentication token'
   -
     name: Command
-    description: 'Endpoints to manage commands'
+    description: "Resource 'Command' operations."
   -
     name: 'Contact group'
     description: 'Endpoints to manage contact groups'
@@ -111,8 +111,31 @@ tags:
     name: ConnectorResource
   -
     name: Connector
+    description: "Resource 'Connector' operations."
   -
     name: Plugin
+    description: "Resource 'Plugin' operations."
+  -
+    name: 'Agent Configuration'
+    description: "Resource 'Agent Configuration' operations."
+  -
+    name: 'Global Macro'
+    description: "Resource 'Global Macro' operations."
+  -
+    name: Plugins
+    description: "Resource 'Plugins' operations."
+  -
+    name: 'Service Category'
+    description: "Resource 'Service Category' operations."
+  -
+    name: 'Standard Macro'
+    description: "Resource 'Standard Macro' operations."
+  -
+    name: Poller
+    description: "Resource 'Poller' operations."
+  -
+    name: Upgrade
+    description: "Resource 'Upgrade' operations."
 security:
   -
     Token: []
@@ -250,7 +273,7 @@ paths:
         '302':
           description: Found
   /authentication/logout:
-    post:
+    get:
       tags:
         - Authentication
       summary: 'Logout Session'
@@ -285,57 +308,27 @@ paths:
     $ref: ./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml
   /configuration/commands:
     get:
+      operationId: api_configurationcommands_get_collection
       tags:
         - Command
       responses:
         '403':
-          description: 'You are not allowed to list commands'
+          description: 'You are not allowed to access commands'
         '200':
           description: 'Command collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                properties:
-                  member: { type: array, items: { $ref: '#/components/schemas/Command.jsonld' } }
-                  totalItems: { type: integer, minimum: 0 }
-                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
-                required:
-                  - member
-              example:
-                "@context": "/centreon/api/latest/contexts/ListCommandResource"
-                "@id": "/centreon/api/latest/configuration/commands"
-                "@type": "Collection"
-                totalItems: 52
-                member:
-                  - "@id": "/centreon/api/latest/list_command_resources/1"
-                    "@type": "ListCommandResource"
-                    used_hosts_count: 0
-                    used_host_templates_count: 1
-                    used_services_count: 0
-                    used_service_templates_count: 0
-                    id: 1
-                    name: "check_host_alive"
-                    type: "Check"
-                    command_line: "$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1"
-                    is_activated: true
-                  - "@id": "/centreon/api/latest/list_command_resources/2"
-                    "@type": "ListCommandResource"
-                    used_hosts_count: 0
-                    used_host_templates_count: 0
-                    used_services_count: 0
-                    used_service_templates_count: 0
-                    id: 2
-                    name: "check_disk_smb"
-                    type: "Check"
-                    command_line: "$USER1$/check_disk_smb -H $HOSTADDRESS$ -s $ARG1$ -u $ARG2$ -p $ARG3$ -w $ARG4$ -c $ARG5$"
-                    is_activated: true
+                description: 'ListCommandResource.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/ListCommandResource.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Command'
+                  $ref: '#/components/schemas/ListCommandResource'
       summary: 'Retrieves the collection of Command resources.'
       description: 'Retrieves the collection of Command resources.'
       parameters:
@@ -350,8 +343,7 @@ paths:
             items:
               type: string
           style: form
-          explode: false
-          example: 'check_centreon_cpu'
+          explode: true
         -
           name: type
           in: query
@@ -369,7 +361,6 @@ paths:
                 - Discovery
           style: form
           explode: true
-          example: 'Check'
         -
           name: is_activated
           in: query
@@ -379,8 +370,7 @@ paths:
           schema:
             type: boolean
           style: form
-          explode: false
-          example: true
+          explode: true
         -
           name: is_from_monitoring_connector
           in: query
@@ -390,8 +380,7 @@ paths:
           schema:
             type: boolean
           style: form
-          explode: false
-          example: true
+          explode: true
         -
           name: page
           in: query
@@ -402,8 +391,7 @@ paths:
             type: integer
             default: 1
           style: form
-          explode: false
-          example: 2
+          explode: true
         -
           name: itemsPerPage
           in: query
@@ -414,11 +402,11 @@ paths:
             type: integer
             default: 30
             minimum: 0
+            maximum: 30
           style: form
-          explode: false
-          example: 10
+          explode: true
     post:
-      operationId: _api_/configuration/commands_post
+      operationId: api_configurationcommands_post
       tags:
         - Command
       responses:
@@ -431,37 +419,11 @@ paths:
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/Command.jsonld'
-              example:
-                "@context": "/centreon/api/latest/contexts/Command"
-                "@id": "/centreon/api/latest/configuration/commands/1"
-                "@type": "Command"
-                id: 1
-                name: "check_http"
-                type: "Check"
-                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-                is_shell_enabled: false
-                is_activated: true
-                is_from_monitoring_connector: false
-                connector:
-                  id: 1
-                  name: "SSH Connector"
-                comment: "Check HTTP service"
+                $ref: '#/components/schemas/CreateCommandResource.jsonld'
             application/json:
               schema:
-                $ref: '#/components/schemas/Command'
-              example:
-                id: 1
-                name: "check_http"
-                type: "Check"
-                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-                is_shell_enabled: false
-                is_activated: true
-                is_from_monitoring_connector: false
-                connector:
-                  id: 1
-                  name: "SSH Connector"
-                comment: "Check HTTP service"
+                $ref: '#/components/schemas/CreateCommandResource'
+          links: {  }
         '400':
           description: 'Invalid input'
           content:
@@ -474,18 +436,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
         '422':
           description: 'An error occurred'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
+                $ref: '#/components/schemas/ConstraintViolation'
             application/json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
       summary: 'Creates a Command resource.'
       description: 'Creates a Command resource.'
       parameters: []
@@ -494,53 +458,36 @@ paths:
         content:
           application/ld+json:
             schema:
-              $ref: '#/components/schemas/Command.jsonld'
-            example:
-              name: "check_http"
-              type: "Check"
-              command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-              is_shell_enabled: false
-              connector: "/api/latest/configuration/connectors/1"
-              comment: "Check HTTP service"
+              $ref: '#/components/schemas/CreateCommandResource'
           application/json:
             schema:
-              $ref: '#/components/schemas/Command'
-            example:
-              name: "check_http"
-              type: "Check"
-              command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-              is_shell_enabled: false
-              connector: "/api/latest/configuration/connectors/1"
-              comment: "Check HTTP service"
+              $ref: '#/components/schemas/CreateCommandResource'
         required: true
   /configuration/graphs/templates:
     $ref: ./latest/onPremise/Configuration/GraphTemplate/FindGraphTemplates.yaml
   /configuration/connectors:
-    summary: 'Connectors'
+    summary: Connectors
     description: 'Endpoints to manage connectors'
     get:
-      operationId: _api_/configuration/connectors_get_collection
+      operationId: api_configurationconnectors_get_collection
       tags:
-        - ConnectorResource
+        - Connector
       responses:
         '200':
-          description: 'ConnectorResource collection'
+          description: 'Connector collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                properties:
-                  member: { type: array, items: { $ref: '#/components/schemas/ConnectorResource.jsonld' } }
-                  totalItems: { type: integer, minimum: 0 }
-                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
-                required:
-                  - member
+                description: 'Connector.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Connector.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ConnectorResource'
+                  $ref: '#/components/schemas/Connector'
         '403':
           description: Forbidden
           content:
@@ -553,8 +500,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      summary: 'Retrieves the collection of ConnectorResource resources.'
-      description: 'Retrieves the collection of ConnectorResource resources.'
+          links: {  }
+      summary: 'Retrieves the collection of Connector resources.'
+      description: 'Retrieves the collection of Connector resources.'
       parameters:
         -
           name: 'id[lk]'
@@ -567,7 +515,7 @@ paths:
             items:
               type: integer
           style: form
-          explode: false
+          explode: true
         -
           name: 'id[eq]'
           in: query
@@ -579,7 +527,7 @@ paths:
             items:
               type: integer
           style: form
-          explode: false
+          explode: true
         -
           name: 'name[lk]'
           in: query
@@ -591,6 +539,7 @@ paths:
             items:
               type: string
           style: form
+          explode: true
         -
           name: 'name[eq]'
           in: query
@@ -602,8 +551,7 @@ paths:
             items:
               type: string
           style: form
-          explode: false
-          example: ['Perl Connector']
+          explode: true
         -
           name: page
           in: query
@@ -614,8 +562,7 @@ paths:
             type: integer
             default: 1
           style: form
-          explode: false
-          example: 1
+          explode: true
         -
           name: itemsPerPage
           in: query
@@ -626,11 +573,11 @@ paths:
             type: integer
             default: 30
             minimum: 0
+            maximum: 30
           style: form
-          explode: false
-          example: 10
+          explode: true
   '/configuration/hosts/{host_id}':
-    $ref: ./latest/onPremise/Configuration/Host/DeleteAndPartialUpdateHost.yaml
+    $ref: ./latest/onPremise/Configuration/Host/GetAndDeleteAndPartialUpdateHost.yaml
   /configuration/hosts/templates:
     $ref: ./latest/onPremise/Configuration/HostTemplate/AddAndFindHostTemplates.yaml
   '/configuration/hosts/templates/{host_template_id}':
@@ -770,12 +717,52 @@ paths:
   '/configuration/hosts/{host_id}/services/deploy':
     $ref: ./latest/onPremise/Configuration/Service/DeployServices.yaml
   /configuration/services/categories:
-    summary: "Service categories"
-    description: 'Endpoints to manage service categories'
-    post:
-      operationId: _api_/configuration/services/categories_post
+    get:
       tags:
-        - ServiceCategory
+        - 'Service category'
+      summary: 'List all service categories'
+      description: |
+        Return all service category configurations.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result: { type: array, items: { $ref: '#/components/schemas/ServiceCategory' } }
+                  meta: { $ref: '#/components/schemas/Meta' }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      operationId: api_configurationservicescategories_post
+      tags:
+        - 'Service Category'
       responses:
         '409':
           description: 'ServiceCategory resource already exists'
@@ -788,6 +775,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceCategory'
+          links: {  }
         '400':
           description: 'Invalid input'
           content:
@@ -800,18 +788,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
         '422':
           description: 'An error occurred'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
+                $ref: '#/components/schemas/ConstraintViolation'
             application/json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
         '403':
           description: Forbidden
           content:
@@ -824,6 +814,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
       summary: 'Creates a ServiceCategory resource.'
       description: 'Creates a ServiceCategory resource.'
       parameters: []
@@ -832,15 +823,16 @@ paths:
         content:
           application/ld+json:
             schema:
-              $ref: '#/components/schemas/ServiceCategory.jsonld'
+              $ref: '#/components/schemas/ServiceCategory'
           application/json:
             schema:
               $ref: '#/components/schemas/ServiceCategory'
+        required: true
   '/configuration/services/categories/{service_category_id}':
     delete:
       operationId: DeleteServiceCategory
       tags:
-        - 'Host category'
+        - 'Service category'
       summary: 'Delete a service category'
       description: |
         Delete a service category configuration
@@ -874,6 +866,7 @@ paths:
       summary: 'List all real-time service categories'
       description: |
         List of all service categories in real-time context
+
         The available parameters to **search** / **sort_by** are:
 
         * id
@@ -886,6 +879,15 @@ paths:
         * host_category.name
         * service_group.id
         * service_group.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1046,7 +1048,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups:
     $ref: ./latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml
-  /configuration/hosts/groups/{hostgroup_id}:
+  '/configuration/hosts/groups/{hostgroup_id}':
     $ref: ./latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml
   /configuration/hosts/groups/_delete:
     $ref: ./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml
@@ -1079,6 +1081,15 @@ paths:
         * hostcategory.name
         * servicecategory.id
         * servicecategory.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1133,7 +1144,7 @@ paths:
       operationId: DeleteServiceGroup
       tags:
         - 'Service group'
-      summary: 'Delete a host group'
+      summary: 'Delete a service group'
       description: |
         `internal`
 
@@ -1528,7 +1539,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/metaservices/{meta_id}/notification-policy:
+  '/configuration/metaservices/{meta_id}/notification-policy':
     get:
       operationId: configuration.metaservice.notification-policy
       tags:
@@ -1968,6 +1979,12 @@ paths:
       tags:
         - Resource
       summary: 'List all resources including hosts and services'
+      x-remarks: |
+        The `meta.total` field may be approximate when the number of matching resources exceeds 1,000.
+        This is most common when a free-text search spans multiple columns (alias, address, information)
+        because no covering index is available for those columns. In that case `meta.is_approximate` is
+        `true` and `meta.total` is capped at 1,000. To retrieve the exact count, call
+        `GET /monitoring/resources/count` with `all_pages=true` and the same query parameters.
       description: |
         List all the resources in real-time monitoring : hosts and services.
 
@@ -2047,7 +2064,14 @@ paths:
                 type: object
                 properties:
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
-                  meta: { $ref: '#/components/schemas/Meta' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/Meta'
+                      - type: object
+                        properties:
+                          is_approximate:
+                            type: boolean
+                            description: 'True when the result set exceeds 1,000 matching resources and the full count was not computed to avoid a costly full-table scan. meta.total is capped at 1,000. Call GET /monitoring/resources/count with all_pages=true and the same filters to retrieve the exact count.'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -2373,10 +2397,27 @@ paths:
         - 'Host group'
       summary: 'List all host groups by host id'
       description: |
-        List all the host groups in real-time monitoring by host id
+        List all the host groups in real-time monitoring for a specific host.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * service.display_name
+        * host_category.id
+        * host_category.name
       parameters:
         -
           $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
         -
           $ref: '#/components/parameters/Limit'
         -
@@ -2411,6 +2452,15 @@ paths:
         * name
         * host_group.id
         * host_group.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2445,7 +2495,6 @@ paths:
         * host.state
         * poller.id
         * service.display_name
-        * host_group.id
         * host_category.id
         * host_category.name
       parameters:
@@ -2499,8 +2548,8 @@ paths:
         * service.display_name
         * host_group.id
         * host_group.name
-        * host_categories.id
-        * host_categories.name
+        * host_category.id
+        * host_category.name
       parameters:
         -
           $ref: '#/components/parameters/ShowService'
@@ -2603,6 +2652,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements'
+      description: |
+        List all acknowledgements (host and service).
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2631,6 +2700,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Massively disacknowledge resources'
+      description: |
+        Remove/cancel acknowledgements on multiple resources (hosts and/or services) at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2651,7 +2724,12 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Display one acknowledgement'
-      description: 'Display one acknowledgement.'
+      description: |
+        Display one acknowledgement by its ID.
+
+        **Minimum API version:** 21.10
+
+        Returns either a host or service acknowledgement depending on the resource type.
       parameters:
         -
           $ref: '#/components/parameters/AcknowledgementId'
@@ -2673,6 +2751,24 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all hosts acknowledgements'
+      description: |
+        List all host acknowledgements.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2700,6 +2796,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on multiple hosts'
+      description: |
+        Add an acknowledgement on multiple hosts at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2720,6 +2820,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all services acknowledgements'
+      description: |
+        List all service acknowledgements.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2747,6 +2867,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on multiple services'
+      description: |
+        Add an acknowledgement on multiple services at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2767,6 +2891,24 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements of a host'
+      description: |
+        List all acknowledgements for a specific host.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2796,6 +2938,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on chosen host'
+      description: |
+        Add an acknowledgement on a specific host.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2818,6 +2964,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Cancel an acknowledgement on a host'
+      description: |
+        Remove/cancel the current acknowledgement on a host.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2835,6 +2985,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements of a service'
+      description: |
+        List all acknowledgements for a specific service.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2866,6 +3036,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on chosen service'
+      description: |
+        Add an acknowledgement on a specific service.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2890,6 +3064,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Cancel an acknowledgement on a service'
+      description: |
+        Remove/cancel the current acknowledgement on a service.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2910,6 +3088,26 @@ paths:
         - Acknowledgement
         - 'Meta service'
       summary: 'List all acknowledgements of a metaservice'
+      description: |
+        List all acknowledgements for a specific metaservice.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2938,7 +3136,12 @@ paths:
     post:
       tags:
         - Acknowledgement
+        - 'Meta service'
       summary: 'Add an acknowledgement on chosen metaservice'
+      description: |
+        Add an acknowledgement on a specific metaservice.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/MetaId'
@@ -2960,7 +3163,12 @@ paths:
     delete:
       tags:
         - Acknowledgement
+        - 'Meta service'
       summary: 'Cancel an acknowledgement on a metaservice'
+      description: |
+        Remove/cancel the current acknowledgement on a metaservice.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/MetaId'
@@ -3010,6 +3218,8 @@ paths:
           * poller.id
           * contact.id
           * contact.name
+          * service.id
+          * service.display_name
       responses:
         '200':
           description: OK
@@ -3075,24 +3285,17 @@ paths:
 
         The available parameters to **search** / **sort_by** are:
 
-          * id
-          * entry_time
-          * is_cancelled
-          * comment
-          * deletion_time
-          * duration
-          * end_time
-          * is_fixed
-          * start_time
-          * host.id
-          * host.name
-          * host.alias
-          * host.address
-          * host.display_name
-          * host.state
-          * poller.id
-          * contact.id
-          * contact.name
+        * id
+        * entry_time
+        * is_cancelled
+        * comment
+        * deletion_time
+        * duration
+        * end_time
+        * is_fixed
+        * start_time
+        * contact.id
+        * contact.name
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -3119,7 +3322,7 @@ paths:
     post:
       tags:
         - Downtime
-      summary: 'Add an downtime on multiple hosts'
+      summary: 'Add a downtime on multiple hosts'
       requestBody:
         required: true
         content:
@@ -3140,6 +3343,29 @@ paths:
       tags:
         - Downtime
       summary: 'List all services downtimes'
+      description: |
+        List all downtimes of services
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * entry_time
+        * is_cancelled
+        * comment
+        * deletion_time
+        * duration
+        * end_time
+        * is_fixed
+        * start_time
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * contact.id
+        * contact.name
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -3149,29 +3375,6 @@ paths:
           $ref: '#/components/parameters/Page'
         -
           $ref: '#/components/parameters/SortBy'
-      description: |
-        List all downtimes of services
-
-        The available parameters to **search** / **sort_by** are:
-
-          * id
-          * entry_time
-          * is_cancelled
-          * comment
-          * deletion_time
-          * duration
-          * end_time
-          * is_fixed
-          * start_time
-          * host.id
-          * host.name
-          * host.alias
-          * host.address
-          * host.display_name
-          * host.state
-          * poller.id
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3189,7 +3392,7 @@ paths:
     post:
       tags:
         - Downtime
-      summary: 'Add an downtime on multiple services'
+      summary: 'Add a downtime on multiple services'
       requestBody:
         required: true
         content:
@@ -3308,8 +3511,6 @@ paths:
           * end_time
           * is_fixed
           * start_time
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3367,7 +3568,7 @@ paths:
         -
           $ref: '#/components/parameters/MetaId'
       description: |
-        List all downtimes of a service.
+        List all downtimes of a metaservice.
 
         The available parameters to **search** / **sort_by** are:
 
@@ -3380,8 +3581,6 @@ paths:
           * end_time
           * is_fixed
           * start_time
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3399,6 +3598,7 @@ paths:
     post:
       tags:
         - Downtime
+        - 'Meta service'
       summary: 'Add a downtime on a metaservice'
       description: 'Add a downtime on a metaservice.'
       parameters:
@@ -3981,6 +4181,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Acknowledge multiple resources'
+      description: |
+        Add acknowledgements on multiple resources (hosts and/or services) at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -4042,6 +4246,73 @@ paths:
     $ref: ./latest/onPremise/Platform/Versions.yaml
   /platform/updates:
     $ref: ./latest/onPremise/Administration/Update/updates.yaml
+    post:
+      operationId: api_platformupdates_post
+      tags:
+        - Upgrade
+      responses:
+        '204':
+          description: 'Upgrade resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Upgrade.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Upgrade'
+          links: {  }
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+      summary: 'Creates a Upgrade resource.'
+      description: 'Creates a Upgrade resource.'
+      parameters: []
+      requestBody:
+        description: 'The new Upgrade resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Upgrade'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Upgrade'
+        required: true
   /platform/installation/status:
     get:
       tags:
@@ -4319,29 +4590,25 @@ paths:
     summary: 'global macros'
     description: 'global macros configuration'
     get:
-      operationId: _api_/configuration/global-macros_get_collection
+      operationId: api_configurationglobal-macros_get_collection
       tags:
-        - GlobalMacroResource
+        - 'Global Macro'
       responses:
         '200':
-          description: 'GlobalMacroResource collection'
+          description: 'GlobalMacro collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                properties:
-                  member: { type: array, items: { $ref: '#/components/schemas/GlobalMacroResource.jsonld' } }
-                  totalItems: { type: integer, minimum: 0 }
-                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
-                required:
-                  - member
-
+                description: 'GlobalMacro.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/GlobalMacro.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GlobalMacroResource'
+                  $ref: '#/components/schemas/GlobalMacro'
         '403':
           description: Forbidden
           content:
@@ -4354,8 +4621,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      summary: 'Retrieves the collection of GlobalMacroResource resources.'
-      description: 'Retrieves the collection of GlobalMacroResource resources.'
+          links: {  }
+      summary: 'Retrieves the collection of GlobalMacro resources.'
+      description: 'Retrieves the collection of GlobalMacro resources.'
       parameters:
         -
           name: 'name[lk]'
@@ -4368,7 +4636,7 @@ paths:
             items:
               type: string
           style: form
-          explode: false
+          explode: true
         -
           name: 'name[eq]'
           in: query
@@ -4380,7 +4648,7 @@ paths:
             items:
               type: string
           style: form
-          explode: false
+          explode: true
         -
           name: page
           in: query
@@ -4391,8 +4659,7 @@ paths:
             type: integer
             default: 1
           style: form
-          explode: false
-          example: 2
+          explode: true
         -
           name: itemsPerPage
           in: query
@@ -4403,37 +4670,34 @@ paths:
             type: integer
             default: 30
             minimum: 0
+            maximum: 30
           style: form
-          explode: false
-          example: 20
+          explode: true
   /configuration/plugins:
-    summary: 'plugins'
+    summary: plugins
     description: 'plugins configuration'
     get:
-      operationId: _api_/configuration/plugins_get_collection
+      operationId: api_configurationplugins_get_collection
       tags:
-        - ListPlugins
+        - Plugins
       responses:
         '200':
-          description: 'ListPlugins collection'
+          description: 'Plugins collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                properties:
-                  member: { type: array, items: { $ref: '#/components/schemas/ListPlugins.jsonld' } }
-                  totalItems: { type: integer, minimum: 0 }
-                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
-                required:
-                  - member
+                description: 'Plugins.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ListPlugins'
-      summary: 'Retrieves the collection of ListPlugins resources.'
-      description: 'Retrieves the collection of ListPlugins resources.'
+                  $ref: '#/components/schemas/Plugins'
+      summary: 'Retrieves the collection of Plugins resources.'
+      description: 'Retrieves the collection of Plugins resources.'
       parameters:
         -
           name: page
@@ -4445,8 +4709,7 @@ paths:
             type: integer
             default: 1
           style: form
-          explode: false
-          example: null
+          explode: true
         -
           name: itemsPerPage
           in: query
@@ -4457,35 +4720,34 @@ paths:
             type: integer
             default: 30
             minimum: 0
+            maximum: 30
           style: form
+          explode: true
   /configuration/standard-macros:
     summary: 'standard macros'
     description: 'standard macros configuration'
     get:
-      operationId: _api_/configuration/standard-macros_get_collection
+      operationId: api_configurationstandard-macros_get_collection
       tags:
-        - StandardMacroResource
+        - 'Standard Macro'
       responses:
         '200':
-          description: 'StandardMacroResource collection'
+          description: 'StandardMacro collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                properties:
-                  member: { type: array, items: { $ref: '#/components/schemas/StandardMacroResource.jsonld' } }
-                  totalItems: { type: integer, minimum: 0 }
-                  view: { type: object, properties: { '@id': { type: 'string', format: iri-reference }, '@type': { type: 'string' }, first: { type: 'string', format: iri-reference }, last: { type: 'string', format: iri-reference }, previous: { type: 'string', format: iri-reference }, next: { type: 'string', format: iri-reference } }, example: { '@id': 'string', type: 'string', first: 'string', last: 'string', previous: 'string', next: 'string' } }
-                  search: { type: object, properties: { '@type': { type: 'string' }, template: { type: 'string' }, variableRepresentation: { type: 'string' }, mapping: { type: array, items: { type: object, properties: { '@type': { type: 'string' }, variable: { type: 'string' }, property: { type: 'string' }, required: { type: 'boolean' } } } } } }
-                required:
-                  - member
+                description: 'StandardMacro.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/StandardMacro.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StandardMacroResource'
-      summary: 'Retrieves the collection of StandardMacroResource resources.'
-      description: 'Retrieves the collection of StandardMacroResource resources.'
+                  $ref: '#/components/schemas/StandardMacro'
+      summary: 'Retrieves the collection of StandardMacro resources.'
+      description: 'Retrieves the collection of StandardMacro resources.'
       parameters:
         -
           name: 'name[lk]'
@@ -4498,7 +4760,7 @@ paths:
             items:
               type: string
           style: form
-          explode: false
+          explode: true
         -
           name: 'name[eq]'
           in: query
@@ -4510,7 +4772,7 @@ paths:
             items:
               type: string
           style: form
-          explode: false
+          explode: true
         -
           name: page
           in: query
@@ -4521,8 +4783,7 @@ paths:
             type: integer
             default: 1
           style: form
-          explode: false
-          example: 2
+          explode: true
         -
           name: itemsPerPage
           in: query
@@ -4533,13 +4794,14 @@ paths:
             type: integer
             default: 30
             minimum: 0
+            maximum: 30
           style: form
-          explode: false
-          example: 10
-  /configuration/commands/{id}:
+          explode: true
+  '/configuration/commands/{id}':
     summary: 'operations on a specific command resource'
     description: 'operations on a specific command resource'
     get:
+      operationId: api_configurationcommands_id_get
       tags:
         - Command
       responses:
@@ -4553,36 +4815,9 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
-              example:
-                "@context": "/centreon/api/latest/contexts/Command"
-                "@id": "/centreon/api/latest/configuration/commands/1"
-                "@type": "Command"
-                id: 1
-                name: "check_http"
-                type: "Check"
-                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-                is_shell_enabled: false
-                is_activated: true
-                is_from_monitoring_connector: false
-                connector:
-                  id: 1
-                  name: "SSH Connector"
-                comment: "Check HTTP service"
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-              example:
-                id: 1
-                name: "check_http"
-                type: "Check"
-                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-                is_shell_enabled: false
-                is_activated: true
-                is_from_monitoring_connector: false
-                connector:
-                  id: 1
-                  name: "SSH Connector"
-                comment: "Check HTTP service"
       summary: 'Retrieves a Command resource.'
       description: 'Retrieves a Command resource.'
       parameters:
@@ -4595,7 +4830,9 @@ paths:
           schema:
             type: string
           style: simple
+          explode: false
     delete:
+      operationId: api_configurationcommands_id_delete
       tags:
         - Command
       responses:
@@ -4619,6 +4856,7 @@ paths:
           style: simple
           explode: false
     patch:
+      operationId: api_configurationcommands_id_patch
       tags:
         - Command
       responses:
@@ -4632,36 +4870,10 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
-              example:
-                "@context": "/centreon/api/latest/contexts/Command"
-                "@id": "/centreon/api/latest/configuration/commands/1"
-                "@type": "Command"
-                id: 1
-                name: "check_http"
-                type: "Check"
-                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-                is_shell_enabled: false
-                is_activated: false
-                is_from_monitoring_connector: false
-                connector:
-                  id: 2
-                  name: "Perl Connector"
-                comment: "Updated HTTP check"
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-              example:
-                id: 1
-                name: "check_http"
-                type: "Check"
-                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
-                is_shell_enabled: false
-                is_activated: false
-                is_from_monitoring_connector: false
-                connector:
-                  id: 2
-                  name: "Perl Connector"
-                comment: "Updated HTTP check"
+          links: {  }
         '400':
           description: 'Invalid input'
           content:
@@ -4674,18 +4886,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
         '422':
           description: 'An error occurred'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
+                $ref: '#/components/schemas/ConstraintViolation'
             application/json:
               schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
       summary: 'Updates the Command resource.'
       description: 'Updates the Command resource.'
       parameters:
@@ -4699,52 +4913,84 @@ paths:
             type: string
           style: simple
           explode: false
-          example: 1
       requestBody:
         description: 'The updated Command resource'
         content:
           application/merge-patch+json:
             schema:
-              $ref: '#/components/schemas/Command'
-            example:
-              is_activated: false
-              connector: "/api/latest/configuration/connectors/2"
-              comment: "Updated HTTP check"
+              $ref: '#/components/schemas/Command.jsonMergePatch'
+        required: true
   /configuration/commands/_duplicate:
     summary: 'duplicate a Command resource'
     description: 'duplicate a Command resource'
     post:
-      operationId: _api_/configuration/commands/_duplicate_post
+      operationId: api_configurationcommands_duplicate_post
       tags:
         - Command
       responses:
-        '403':
-          description: 'You are not allowed to duplicate commands'
         '200':
-          description: 'Command resource created'
+          description: 'A collection holding the duplication outcome for each requested command'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/Command.jsonld'
+                type: object
+                properties:
+                  '@context': { type: string }
+                  '@id': { type: string }
+                  '@type': { type: string, example: Collection }
+                  totalItems: { type: integer }
+                  member: { type: array, items: { type: object, properties: { '@id': { type: string }, '@type': { type: string, example: DuplicateCommandResource }, command: { type: string, description: 'IRI of the duplicated command (absent when the duplication failed)' }, status: { type: integer }, message: { type: string } }, required: ['@id', '@type', status, message] } }
+              example:
+                '@context': /centreon/api/latest/contexts/Command
+                '@id': /centreon/api/latest/.well-known/genid/b69ebebaa3bb3de34dd8
+                '@type': Collection
+                totalItems: 2
+                member:
+                  - { '@id': /centreon/api/latest/.well-known/genid/c2afa2366f6f99491863, '@type': DuplicateCommandResource, command: /centreon/api/latest/configuration/commands/98, status: 204, message: 'Command duplicated successfully' }
+                  - { '@id': /centreon/api/latest/.well-known/genid/3fa305a034165257c384, '@type': DuplicateCommandResource, status: 404, message: 'Command with ID 99999 not found' }
+          links: {  }
+        '400':
+          description: 'Invalid input — the request body failed validation'
+          content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Command'
-      summary: 'Creates a Command resource copying an existing one'
-      description: 'Creates a Command resource'
+                type: object
+                properties:
+                  code: { type: integer, example: 400 }
+                  message: { type: string, description: 'One line per violation, formatted as "[propertyPath] message"', example: "[ids] IDs array cannot be empty\n" }
+                required:
+                  - code
+                  - message
+        '403':
+          description: 'You are not allowed to duplicate commands'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: integer, example: 0 }
+                  message: { type: string, example: 'You are not allowed to duplicate commands' }
+                required:
+                  - code
+                  - message
+      summary: 'Duplicate a Command resource'
+      description: 'Duplicate a Command resource'
       parameters: []
       requestBody:
         description: 'The new Command resource'
         content:
           application/ld+json:
             schema:
-              $ref: '#/components/schemas/Command.DuplicateCommandInput.jsonld'
+              $ref: '#/components/schemas/DuplicateCommandResource.DuplicateCommandInput'
           application/json:
             schema:
-              $ref: '#/components/schemas/Command.DuplicateCommandInput'
+              $ref: '#/components/schemas/DuplicateCommandResource.DuplicateCommandInput'
+        required: true
   '/configuration/connectors/{id}':
     summary: 'operations on a specific connector resource'
     description: 'operations on a specific Connector resource'
     get:
+      operationId: api_configurationconnectors_id_get
       tags:
         - Connector
       responses:
@@ -4769,6 +5015,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
         '404':
           description: 'Not found'
           content:
@@ -4781,6 +5028,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
       summary: 'Retrieves a Connector resource.'
       description: 'Retrieves a Connector resource.'
       parameters:
@@ -4794,11 +5042,11 @@ paths:
             type: string
           style: simple
           explode: false
-          example: 2
   '/configuration/plugins/{plugin_name}':
     summary: 'operations on a specific plugin resource'
     description: 'operations on a specific plugin resource'
     get:
+      operationId: api_configurationplugins_plugin_name_get
       tags:
         - Plugin
       responses:
@@ -4823,6 +5071,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          links: {  }
       summary: 'Retrieves a Plugin resource.'
       description: 'Retrieves a Plugin resource.'
       parameters:
@@ -4836,7 +5085,150 @@ paths:
             type: string
           style: simple
           explode: false
-          example: 'centreon-plugin-1'
+  '/configuration/agent-configurations/installation-command/{pollerId}':
+    get:
+      operationId: api_configurationagent-configurationsinstallation-command_pollerId_get
+      tags:
+        - 'Agent Configuration'
+      responses:
+        '404':
+          description: 'Poller not found'
+        '403':
+          description: 'You are not allowed to access this resource'
+        '200':
+          description: 'InstallationCommandResource resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/InstallationCommandResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationCommandResource'
+      summary: 'Retrieves a InstallationCommandResource resource.'
+      description: 'Retrieves a InstallationCommandResource resource.'
+      parameters:
+        -
+          name: pollerId
+          in: path
+          description: 'InstallationCommandResource identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+  /configuration/pollers:
+    post:
+      operationId: api_configurationpollers_post
+      tags:
+        - Poller
+      responses:
+        '409':
+          description: 'Poller resource already exists'
+        '201':
+          description: 'Poller resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Poller.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poller'
+          links: {  }
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {  }
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+      summary: 'Creates a Poller resource.'
+      description: 'Creates a Poller resource.'
+      parameters: []
+      requestBody:
+        description: 'The new Poller resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Poller.CreatePollerInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poller.CreatePollerInput'
+        required: true
+  '/configuration/pollers/installation-command/{id}':
+    get:
+      operationId: api_configurationpollersinstallation-command_id_get
+      tags:
+        - Poller
+      responses:
+        '404':
+          description: 'Poller not found'
+        '403':
+          description: 'You are not allowed to access this resource'
+        '200':
+          description: 'InstallationCommandResource resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Poller.InstallationCommandResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poller.InstallationCommandResource'
+      summary: 'Retrieves a poller installation command'
+      description: 'Retrieves a poller installation command'
+      parameters:
+        -
+          name: token-name
+          in: query
+          description: 'Name of the poller token to embed in the installation command. When omitted, the first valid poller token is used.'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: id
+          in: path
+          description: 'Id of the poller for which to generate the installation command.'
+          required: true
+          deprecated: false
+          schema:
+            type: integer
+          style: simple
+          explode: false
 components:
   securitySchemes:
     Token:
@@ -6609,11 +7001,6 @@ components:
           description: 'IP address of the server'
           example: 127.0.0.1
           nullable: true
-        description:
-          type: string
-          description: 'Description of the server'
-          example: 'Central server'
-          nullable: true
         isRunning:
           type: boolean
           description: 'Indicates if the server is running or not'
@@ -8299,11 +8686,11 @@ components:
         title:
           readOnly: true
           type: string
-          nullable : true
+          nullable: true
         instance:
           readOnly: true
           type: string
-          nullable : true
+          nullable: true
     ConstraintViolation.jsonld-jsonld:
       type: object
       description: 'Unprocessable entity'
@@ -8359,95 +8746,76 @@ components:
         title:
           readOnly: true
           type: string
-          nullable : true
+          nullable: true
         instance:
           readOnly: true
           type: string
-          nullable : true
+          nullable: true
     Error:
       type: object
       description: 'A representation of common errors.'
-      deprecated: false
       properties:
         title:
+          type: string
           readOnly: true
           description: 'A short, human-readable summary of the problem.'
-          type: string
-          nullable : true
+          nullable: true
         detail:
+          type: string
           readOnly: true
           description: 'A human-readable explanation specific to this occurrence of the problem.'
-          type: string
-          nullable : true
+          nullable: true
         status:
           type: number
-          example: 404
           default: 400
+          example:
+            - 404
+          nullable: true
         instance:
+          type: string
           readOnly: true
           description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-          type: string
-          nullable : true
+          nullable: true
         type:
           readOnly: true
           description: 'A URI reference that identifies the problem type'
           type: string
     Error.jsonld:
-      type: object
-      description: 'A representation of common errors.'
-      deprecated: false
-      properties:
-        '@context':
-          readOnly: true
-          oneOf:
-            -
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            title:
+              readOnly: true
+              description: 'A short, human-readable summary of the problem.'
               type: string
-            -
-              type: object
-              properties:
-                '@vocab':
-                  type: string
-                hydra:
-                  type: string
-                  enum: ['http://www.w3.org/ns/hydra/core#']
-              required:
-                - '@vocab'
-                - hydra
-              additionalProperties: true
-        '@id':
-          readOnly: true
-          type: string
-        '@type':
-          readOnly: true
-          type: string
-        title:
-          readOnly: true
-          description: 'A short, human-readable summary of the problem.'
-          type: string
-          nullable : true
-        detail:
-          readOnly: true
-          description: 'A human-readable explanation specific to this occurrence of the problem.'
-          type: string
-          nullable : true
-        status:
-          type: number
-          example:
-            - 404
-          default: 400
-        instance:
-          readOnly: true
-          description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-          type: string
-          nullable : true
-        type:
-          readOnly: true
-          description: 'A URI reference that identifies the problem type'
-          type: string
-        description:
-          readOnly: true
-          type: string
-          nullable : true
+              nullable: true
+            detail:
+              readOnly: true
+              description: 'A human-readable explanation specific to this occurrence of the problem.'
+              type: string
+              nullable: true
+            status:
+              type: number
+              example: 404
+              default: 400
+              nullable: true
+            instance:
+              readOnly: true
+              description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
+              type: string
+              nullable: true
+            type:
+              readOnly: true
+              description: 'A URI reference that identifies the problem type'
+              type: string
+            description:
+              readOnly: true
+              type: string
+              nullable: true
+      description: 'A representation of common errors.'
     GlobalMacroResource:
       type: object
       description: ''
@@ -8455,27 +8823,27 @@ components:
       properties:
         id:
           type: integer
-          nullable : true
+          nullable: true
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
           type: string
-          nullable : true
+          nullable: true
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
           type: string
-          nullable : true
+          nullable: true
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
           type: string
-          nullable : true
+          nullable: true
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -8497,27 +8865,27 @@ components:
           type: string
         id:
           type: integer
-          nullable : true
+          nullable: true
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
           type: string
-          nullable : true
+          nullable: true
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
           type: string
-          nullable : true
+          nullable: true
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
           type: string
-          nullable : true
+          nullable: true
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -8537,7 +8905,7 @@ components:
           maxLength: 255
           description: 'Name of plugin'
           type: string
-          nullable : true
+          nullable: true
           example: negate
     ListPlugins.jsonld:
       type: object
@@ -8556,77 +8924,44 @@ components:
           maxLength: 255
           description: 'Name of plugin'
           type: string
-          nullable : true
+          nullable: true
           example: negate
     ServiceCategory:
       type: object
-      description: ''
-      deprecated: false
       properties:
-        id:
-          type: integer
-          nullable : true
         name:
           minLength: 1
           maxLength: 255
           type: string
-          nullable : true
         alias:
           minLength: 1
           maxLength: 255
           type: string
-          nullable : true
+        id:
+          type: integer
+          nullable: true
         is_activated:
           type: boolean
-      required:
-        - name
-        - alias
     ServiceCategory.jsonld:
-      type: object
-      description: ''
-      deprecated: false
-      properties:
-        '@context':
-          readOnly: true
-          oneOf:
-            -
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 255
               type: string
-            -
-              type: object
-              properties:
-                '@vocab':
-                  type: string
-                hydra:
-                  type: string
-                  enum: ['http://www.w3.org/ns/hydra/core#']
-              required:
-                - '@vocab'
-                - hydra
-              additionalProperties: true
-        '@id':
-          readOnly: true
-          type: string
-        '@type':
-          readOnly: true
-          type: string
-        id:
-          type: integer
-          nullable : true
-        name:
-          minLength: 1
-          maxLength: 255
-          type: string
-          nullable : true
-        alias:
-          minLength: 1
-          maxLength: 255
-          type: string
-          nullable : true
-        is_activated:
-          type: boolean
-      required:
-        - name
-        - alias
+            alias:
+              minLength: 1
+              maxLength: 255
+              type: string
+            id:
+              type: integer
+              nullable: true
+            is_activated:
+              type: boolean
     StandardMacroResource:
       type: object
       description: ''
@@ -8634,10 +8969,10 @@ components:
       properties:
         id:
           type: integer
-          nullable : true
+          nullable: true
         name:
           type: string
-          nullable : true
+          nullable: true
     StandardMacroResource.jsonld:
       type: object
       description: ''
@@ -8651,14 +8986,12 @@ components:
           type: string
         id:
           type: integer
-          nullable : true
+          nullable: true
         name:
           type: string
-          nullable : true
+          nullable: true
     Command:
       type: object
-      description: ''
-      deprecated: false
       properties:
         id:
           type: integer
@@ -8691,29 +9024,24 @@ components:
           description: 'Indicates whether the command is activated or not'
           type: boolean
         is_from_monitoring_connector:
-          readOnly: true
           description: 'Indicates whether the command comes from a monitoring connector'
           type: boolean
         connector:
-          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance. For write operations (POST/PATCH), provide an IRI like "/api/latest/configuration/connectors/1". Read operations (GET) return the full connector object'
-          oneOf:
-            - type: string
-              format: iri-reference
-              example: '/api/latest/configuration/connectors/1'
-            - type: object
-              properties:
-                id:
-                  type: integer
-                name:
-                  type: string
-              example:
-                id: 1
-                name: 'SSH Connector'
+          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          example:
+            id: 1
+            name: 'SSH Connector'
         comment:
-          description: 'Additional information about the command'
           type: string
-          nullable : true
+          description: 'Additional information about the command'
           example: 'This command is used to check the HTTP service'
+          nullable: true
     Command.DuplicateCommandInput:
       type: object
       description: ''
@@ -8737,75 +9065,48 @@ components:
           items:
             type: integer
     Command.jsonld:
-      type: object
-      description: ''
-      deprecated: false
-      properties:
-        '@id':
-          readOnly: true
-          type: string
-        '@type':
-          readOnly: true
-          type: string
-        '@context':
-          readOnly: true
-          oneOf:
-            -
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              minLength: 1
+              maxLength: 255
+              pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
+              description: 'The command name'
               type: string
-            -
+              example: check_http
+            type:
+              enum:
+                - Check
+                - Notification
+                - Miscellaneous
+                - Discovery
+              description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+              type: string
+              example: Check
+            command_line:
+              minLength: 1
+              maxLength: 65535
+              description: 'The command line used to execute the command'
+              type: string
+              example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+            is_shell_enabled:
+              description: 'Indicates whether the command can be executed through a shell'
+              type: boolean
+            is_activated:
+              description: 'Indicates whether the command is activated or not'
+              type: boolean
+            is_from_monitoring_connector:
+              description: 'Indicates whether the command comes from a monitoring connector'
+              type: boolean
+            connector:
+              description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
               type: object
-              properties:
-                '@vocab':
-                  type: string
-                hydra:
-                  type: string
-                  enum: ['http://www.w3.org/ns/hydra/core#']
-              required:
-                - '@vocab'
-                - hydra
-              additionalProperties: true
-        id:
-          type: integer
-        name:
-          minLength: 1
-          maxLength: 255
-          pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
-          description: 'The command name'
-          type: string
-          example: check_http
-        type:
-          enum:
-            - Check
-            - Notification
-            - Miscellaneous
-            - Discovery
-          description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
-          type: string
-          example: Check
-        command_line:
-          minLength: 1
-          maxLength: 65535
-          description: 'The command line used to execute the command'
-          type: string
-          example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
-        is_shell_enabled:
-          description: 'Indicates whether the command can be executed through a shell'
-          type: boolean
-        is_activated:
-          description: 'Indicates whether the command is activated or not'
-          type: boolean
-        is_from_monitoring_connector:
-          readOnly: true
-          description: 'Indicates whether the command comes from a monitoring connector'
-          type: boolean
-        connector:
-          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance. For write operations, provide an IRI like "/api/latest/configuration/connectors/1". Returns full object in responses'
-          oneOf:
-            - type: string
-              format: iri-reference
-              example: '/api/latest/configuration/connectors/1'
-            - type: object
-              readOnly: true
               properties:
                 id:
                   type: integer
@@ -8814,15 +9115,13 @@ components:
               example:
                 id: 1
                 name: 'SSH Connector'
-        comment:
-          description: 'Additional information about the command'
-          type: string
-          nullable : true
-          example: 'This command is used to check the HTTP service'
+            comment:
+              description: 'Additional information about the command'
+              type: string
+              example: 'This command is used to check the HTTP service'
+              nullable: true
     Connector:
       type: object
-      description: ''
-      deprecated: false
       properties:
         id:
           type: integer
@@ -8835,61 +9134,40 @@ components:
           type: string
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
-          description: 'The connector description'
           type: string
-          nullable : true
+          description: 'The connector description'
           example: 'Connector using SSH to connect to remote hosts'
+          nullable: true
         is_activated:
           description: 'Indicates whether the connector is activated'
           type: boolean
           example: true
     Connector.jsonld:
-      type: object
-      description: ''
-      deprecated: false
-      properties:
-        '@context':
-          readOnly: true
-          oneOf:
-            -
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              description: 'The connector name'
               type: string
-            -
-              type: object
-              properties:
-                '@vocab':
-                  type: string
-                hydra:
-                  type: string
-                  enum: ['http://www.w3.org/ns/hydra/core#']
-              required:
-                - '@vocab'
-                - hydra
-              additionalProperties: true
-        '@id':
-          readOnly: true
-          type: string
-        '@type':
-          readOnly: true
-          type: string
-        id:
-          type: integer
-        name:
-          description: 'The connector name'
-          type: string
-          example: 'Perl Connector'
-        command_line:
-          description: 'The command line used to execute the connector'
-          type: string
-          example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
-        description:
-          description: 'The connector description'
-          type: string
-          nullable : true
-          example: 'Connector using SSH to connect to remote hosts'
-        is_activated:
-          description: 'Indicates whether the connector is activated'
-          type: boolean
-          example: true
+              example: 'Perl Connector'
+            command_line:
+              description: 'The command line used to execute the connector'
+              type: string
+              example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
+            description:
+              description: 'The connector description'
+              type: string
+              example: 'Connector using SSH to connect to remote hosts'
+              nullable: true
+            is_activated:
+              description: 'Indicates whether the connector is activated'
+              type: boolean
+              example: true
     ConnectorResource:
       type: object
       description: ''
@@ -8908,7 +9186,7 @@ components:
         description:
           description: 'The connector description'
           type: string
-          nullable : true
+          nullable: true
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -8938,7 +9216,7 @@ components:
         description:
           description: 'The connector description'
           type: string
-          nullable : true
+          nullable: true
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -8946,8 +9224,6 @@ components:
           example: true
     Plugin:
       type: object
-      description: ''
-      deprecated: false
       properties:
         name:
           description: 'Name of plugin'
@@ -8958,17 +9234,427 @@ components:
           type: string
           example: /usr/lib64/nagios/plugins/negate
         description:
-          description: 'description of plugin'
           type: string
-          nullable : true
+          description: 'description of plugin'
           example: 'This is the help description of the plugin.'
+          nullable: true
     Plugin.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              description: 'Name of plugin'
+              type: string
+              example: negate
+            command_line:
+              description: 'command line of plugin'
+              type: string
+              example: /usr/lib64/nagios/plugins/negate
+            description:
+              description: 'description of plugin'
+              type: string
+              example: 'This is the help description of the plugin.'
+              nullable: true
+    Command.jsonMergePatch:
       type: object
-      description: ''
-      deprecated: false
+      properties:
+        id:
+          type: integer
+        name:
+          minLength: 1
+          maxLength: 255
+          pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
+          description: 'The command name'
+          type: string
+          example: check_http
+        type:
+          enum:
+            - Check
+            - Notification
+            - Miscellaneous
+            - Discovery
+          description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+          type: string
+          example: Check
+        command_line:
+          minLength: 1
+          maxLength: 65535
+          description: 'The command line used to execute the command'
+          type: string
+          example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+        is_shell_enabled:
+          description: 'Indicates whether the command can be executed through a shell'
+          type: boolean
+        is_activated:
+          description: 'Indicates whether the command is activated or not'
+          type: boolean
+        is_from_monitoring_connector:
+          description: 'Indicates whether the command comes from a monitoring connector'
+          type: boolean
+        connector:
+          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          example:
+            id: 1
+            name: 'SSH Connector'
+        comment:
+          type: string
+          description: 'Additional information about the command'
+          example: 'This command is used to check the HTTP service'
+          nullable: true
+    ConstraintViolation:
+      type: object
+      description: 'Unprocessable entity'
+      properties:
+        status:
+          default: 422
+          type: integer
+        violations:
+          type: array
+          items:
+            type: object
+            properties:
+              propertyPath:
+                type: string
+                description: 'The property path of the violation'
+              message:
+                type: string
+                description: 'The message associated with the violation'
+              code:
+                type: string
+                description: 'The code of the violation'
+              hint:
+                type: string
+                description: 'An extra hint to understand the violation'
+              payload:
+                type: object
+                additionalProperties: true
+                description: 'The serialized payload of the violation'
+            required:
+              - propertyPath
+              - message
+        detail:
+          readOnly: true
+          type: string
+        type:
+          readOnly: true
+          type: string
+        title:
+          type: string
+          readOnly: true
+          nullable: true
+        instance:
+          type: string
+          readOnly: true
+          nullable: true
+    ConstraintViolation.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            status:
+              default: 422
+              type: integer
+            violations:
+              type: array
+              items:
+                type: object
+                properties:
+                  propertyPath: { type: string, description: 'The property path of the violation' }
+                  message: { type: string, description: 'The message associated with the violation' }
+                  code: { type: string, description: 'The code of the violation' }
+                  hint: { type: string, description: 'An extra hint to understand the violation' }
+                  payload: { type: object, additionalProperties: true, description: 'The serialized payload of the violation' }
+                required:
+                  - propertyPath
+                  - message
+            detail:
+              readOnly: true
+              type: string
+            description:
+              readOnly: true
+              type: string
+            type:
+              readOnly: true
+              type: string
+            title:
+              readOnly: true
+              type: string
+              nullable: true
+            instance:
+              readOnly: true
+              type: string
+              nullable: true
+      description: 'Unprocessable entity'
+    CreateCommandResource:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
+          description: 'The command name'
+          type: string
+          example: check_http
+        type:
+          enum:
+            - Check
+            - Notification
+            - Miscellaneous
+            - Discovery
+          description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+          type: string
+          example: Check
+        command_line:
+          minLength: 1
+          maxLength: 65535
+          description: 'The command line used to execute the command'
+          type: string
+          example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+        is_shell_enabled:
+          description: 'Indicates whether the command can be executed through a shell'
+          type: boolean
+        connector:
+          type: string
+          format: iri-reference
+          example: 'https://example.com/'
+          nullable: true
+        comment:
+          type: string
+          description: 'Additional information about the command'
+          example: 'This command is used to check the HTTP service'
+          nullable: true
+    CreateCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 255
+              pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
+              description: 'The command name'
+              type: string
+              example: check_http
+            type:
+              enum:
+                - Check
+                - Notification
+                - Miscellaneous
+                - Discovery
+              description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+              type: string
+              example: Check
+            command_line:
+              minLength: 1
+              maxLength: 65535
+              description: 'The command line used to execute the command'
+              type: string
+              example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+            is_shell_enabled:
+              description: 'Indicates whether the command can be executed through a shell'
+              type: boolean
+            connector:
+              type: string
+              format: iri-reference
+              example: 'https://example.com/'
+              nullable: true
+            comment:
+              description: 'Additional information about the command'
+              type: string
+              example: 'This command is used to check the HTTP service'
+              nullable: true
+    DuplicateCommandResource:
+      type: object
+      properties:
+        command:
+          type: string
+          format: iri-reference
+          example: 'https://example.com/'
+          nullable: true
+        status:
+          description: 'The status of the duplication operation'
+          type: integer
+          example: 204
+        message:
+          description: 'Descriptive message about the duplication result'
+          type: string
+          example: 'Command duplicated successfully'
+    DuplicateCommandResource.DuplicateCommandInput:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+    DuplicateCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            command:
+              type: string
+              format: iri-reference
+              example: 'https://example.com/'
+              nullable: true
+            status:
+              description: 'The status of the duplication operation'
+              type: integer
+              example: 204
+            message:
+              description: 'Descriptive message about the duplication result'
+              type: string
+              example: 'Command duplicated successfully'
+    Global.Macro:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          minLength: 1
+          maxLength: 255
+          pattern: '^(\$.*\$)$'
+          description: 'Name of the global macro'
+          type: string
+          example: $USER1$
+          nullable: true
+        expression:
+          minLength: 1
+          maxLength: 255
+          description: 'Expression (value) of the global macro'
+          type: string
+          example: /usr/lib64/nagios/plugins
+          nullable: true
+        comment:
+          maxLength: 255
+          description: 'Additional information about the macro'
+          type: string
+          example: 'This macro is used to define the path of plugins'
+          nullable: true
+        is_password:
+          type: boolean
+        is_activated:
+          type: boolean
+      required:
+        - name
+        - expression
+    Global.Macro.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+              nullable: true
+            name:
+              minLength: 1
+              maxLength: 255
+              pattern: '^(\$.*\$)$'
+              description: 'Name of the global macro'
+              type: string
+              example: $USER1$
+              nullable: true
+            expression:
+              minLength: 1
+              maxLength: 255
+              description: 'Expression (value) of the global macro'
+              type: string
+              example: /usr/lib64/nagios/plugins
+              nullable: true
+            comment:
+              maxLength: 255
+              description: 'Additional information about the macro'
+              type: string
+              example: 'This macro is used to define the path of plugins'
+              nullable: true
+            is_password:
+              type: boolean
+            is_activated:
+              type: boolean
+          required:
+            - name
+            - expression
+    HydraCollectionBaseSchema:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination'
+        -
+          type: object
+          properties:
+            view:
+              type: object
+              properties:
+                '@id':
+                  type: string
+                  format: iri-reference
+                '@type':
+                  type: string
+                first:
+                  type: string
+                  format: iri-reference
+                last:
+                  type: string
+                  format: iri-reference
+                previous:
+                  type: string
+                  format: iri-reference
+                next:
+                  type: string
+                  format: iri-reference
+              example:
+                '@id': string
+                '@type': string
+                first: string
+                last: string
+                previous: string
+                next: string
+    HydraCollectionBaseSchemaNoPagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          minimum: 0
+        search:
+          type: object
+          properties:
+            '@type':
+              type: string
+            template:
+              type: string
+            variableRepresentation:
+              type: string
+            mapping:
+              type: array
+              items:
+                type: object
+                properties:
+                  '@type': { type: string }
+                  variable: { type: string }
+                  property: { type: string, nullable: true }
+                  required: { type: boolean }
+    HydraItemBaseSchema:
+      type: object
       properties:
         '@context':
-          readOnly: true
           oneOf:
             -
               type: string
@@ -8985,21 +9671,459 @@ components:
                 - hydra
               additionalProperties: true
         '@id':
-          readOnly: true
           type: string
         '@type':
-          readOnly: true
           type: string
+      required:
+        - '@id'
+        - '@type'
+    InstallationCommandResource:
+      type: object
+      properties:
+        windows_installation_command:
+          description: 'Windows Installation Command'
+          type: string
+          example: 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "[DNS]:[PORT]" -fingerprint "[certificate_sha]" -commonname "[certificate_cn]"'
+        linux_installation_command:
+          description: 'Linux Installation Command'
+          type: string
+          example: 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "[poller IP/DNS]:[PORT]" -f "[centreon_storage.instances.cma_certificate_sha]" -N "[centreon_storage.cma_certificate_cn]"'
+    InstallationCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            windows_installation_command:
+              description: 'Windows Installation Command'
+              type: string
+              example: 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "[DNS]:[PORT]" -fingerprint "[certificate_sha]" -commonname "[certificate_cn]"'
+            linux_installation_command:
+              description: 'Linux Installation Command'
+              type: string
+              example: 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "[poller IP/DNS]:[PORT]" -f "[centreon_storage.instances.cma_certificate_sha]" -N "[centreon_storage.cma_certificate_cn]"'
+    ListCommandResource:
+      type: object
+      properties:
+        used_hosts_count:
+          description: 'Number of hosts using this command'
+          type: integer
+          example: 10
+        used_host_templates_count:
+          description: 'Number of host templates using this command'
+          type: integer
+          example: 100
+        used_services_count:
+          description: 'Number of services using this command'
+          type: integer
+          example: 5
+        used_service_templates_count:
+          description: 'Number of service templates using this command'
+          type: integer
+          example: 50
+        id:
+          type: integer
         name:
-          description: 'Name of plugin'
+          description: 'The command name'
           type: string
-          example: negate
+          example: check_http
+        type:
+          description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+          type: string
+          example: Check
+          enum:
+            - Check
+            - Notification
+            - Miscellaneous
+            - Discovery
         command_line:
-          description: 'command line of plugin'
+          description: 'The command line used to execute the command'
           type: string
-          example: /usr/lib64/nagios/plugins/negate
-        description:
-          description: 'description of plugin'
+          example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+        is_activated:
+          description: 'Indicates whether the command is activated or not'
+          type: boolean
+        is_from_monitoring_connector:
+          description: 'Indicates whether the command comes from a monitoring connector'
+          type: boolean
+    ListCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            used_hosts_count:
+              description: 'Number of hosts using this command'
+              type: integer
+              example: 10
+            used_host_templates_count:
+              description: 'Number of host templates using this command'
+              type: integer
+              example: 100
+            used_services_count:
+              description: 'Number of services using this command'
+              type: integer
+              example: 5
+            used_service_templates_count:
+              description: 'Number of service templates using this command'
+              type: integer
+              example: 50
+            id:
+              type: integer
+            name:
+              description: 'The command name'
+              type: string
+              example: check_http
+            type:
+              description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+              type: string
+              example: Check
+              enum:
+                - Check
+                - Notification
+                - Miscellaneous
+                - Discovery
+            command_line:
+              description: 'The command line used to execute the command'
+              type: string
+              example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+            is_activated:
+              description: 'Indicates whether the command is activated or not'
+              type: boolean
+            is_from_monitoring_connector:
+              description: 'Indicates whether the command comes from a monitoring connector'
+              type: boolean
+    Plugins:
+      type: object
+      required:
+        - name
+      properties:
+        name:
           type: string
-          nullable : true
-          example: 'This is the help description of the plugin.'
+          maxLength: 255
+          description: 'Name of plugin'
+          example: negate
+          nullable: true
+    Plugins.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              maxLength: 255
+              description: 'Name of plugin'
+              type: string
+              example: negate
+              nullable: true
+    Service.Category:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 255
+          type: string
+        alias:
+          minLength: 1
+          maxLength: 255
+          type: string
+        id:
+          type: integer
+          nullable: true
+        is_activated:
+          type: boolean
+    Service.Category.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 255
+              type: string
+            alias:
+              minLength: 1
+              maxLength: 255
+              type: string
+            id:
+              type: integer
+              nullable: true
+            is_activated:
+              type: boolean
+    Standard.Macro:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          nullable: true
+    Standard.Macro.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+              nullable: true
+            name:
+              type: string
+              nullable: true
+    GlobalMacro:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^(\$.*\$)$'
+          description: 'Name of the global macro'
+          example: $USER1$
+          nullable: true
+        expression:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: 'Expression (value) of the global macro'
+          example: /usr/lib64/nagios/plugins
+          nullable: true
+        comment:
+          type: string
+          maxLength: 255
+          description: 'Additional information about the macro'
+          example: 'This macro is used to define the path of plugins'
+          nullable: true
+        is_password:
+          type: boolean
+        is_activated:
+          type: boolean
+      required:
+        - name
+        - expression
+    GlobalMacro.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+              nullable: true
+            name:
+              minLength: 1
+              maxLength: 255
+              pattern: '^(\$.*\$)$'
+              description: 'Name of the global macro'
+              type: string
+              example: $USER1$
+              nullable: true
+            expression:
+              minLength: 1
+              maxLength: 255
+              description: 'Expression (value) of the global macro'
+              type: string
+              example: /usr/lib64/nagios/plugins
+              nullable: true
+            comment:
+              maxLength: 255
+              description: 'Additional information about the macro'
+              type: string
+              example: 'This macro is used to define the path of plugins'
+              nullable: true
+            is_password:
+              type: boolean
+            is_activated:
+              type: boolean
+          required:
+            - name
+            - expression
+    Poller-poller.read:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        id:
+          type: integer
+          nullable: true
+        uid:
+          type: string
+          nullable: true
+    Poller-poller.write:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+    Poller.jsonld-poller.read:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              minLength: 1
+              maxLength: 40
+              type: string
+            poller_type:
+              enum:
+                - vm
+                - docker
+              type: string
+            address:
+              minLength: 1
+              maxLength: 255
+              type: string
+            id:
+              type: integer
+              nullable: true
+            uid:
+              type: string
+              nullable: true
+    StandardMacro:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: true
+        name:
+          type: string
+          nullable: true
+    StandardMacro.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+              nullable: true
+            name:
+              type: string
+              nullable: true
+    Upgrade:
+      type: object
+    Upgrade.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+    Poller:
+      type: object
+      properties:
+        name:
+          type: string
+        poller_type:
+          type: string
+        address:
+          type: string
+        id:
+          type: integer
+          nullable: true
+        uid:
+          type: string
+          nullable: true
+        installation_command:
+          type: string
+          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+          nullable: true
+    Poller.CreatePollerInput:
+      type: object
+      properties:
+        name:
+          minLength: 1
+          maxLength: 40
+          type: string
+        poller_type:
+          enum:
+            - vm
+            - docker
+          type: string
+        address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        poller_token_name:
+          minLength: 1
+          maxLength: 255
+          type: string
+      required:
+        - poller_token_name
+    Poller.InstallationCommandResource:
+      type: object
+      properties:
+        installation_command:
+          description: 'Poller Installation Command'
+          type: string
+          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    Poller.InstallationCommandResource.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            installation_command:
+              description: 'Poller Installation Command'
+              type: string
+              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    Poller.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            name:
+              type: string
+            poller_type:
+              type: string
+            address:
+              type: string
+            id:
+              type: integer
+              nullable: true
+            uid:
+              type: string
+              nullable: true
+            installation_command:
+              type: string
+              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+              nullable: true

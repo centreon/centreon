@@ -9,7 +9,10 @@ import { useHoverChiptStyles } from './Columns.styles';
 
 interface Props {
   Chip: () => JSX.Element;
-  children: (props?) => JSX.Element;
+  children: (props?: {
+    close: () => void;
+    isChipHovered: boolean;
+  }) => JSX.Element;
   isHovered?: boolean;
   label: string;
   onClick?: () => void;

@@ -24,7 +24,11 @@ Cypress.Commands.add('fillCmaMandatoryFields', (body: Cma) => {
 Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains(body.pollerName).click();
+  cy.wait('@getPollers');
+  cy.get('li[role="option"]')
+    .filter((_, el) => el.innerText.trim() === body.pollerName)
+    .click();
+  // cy.contains('p', body.pollerName).click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
   cy.getByLabel({
@@ -88,7 +92,7 @@ Cypress.Commands.add('addTelegrafAgent', (body: Telegraf) => {
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.contains('Poller-5').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
   cy.getByLabel({

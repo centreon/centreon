@@ -46,12 +46,28 @@ $buildHostUri = function (array $states, array $statuses) use ($resourceControll
             'filter' => json_encode(
                 [
                     'criterias' => [
-                        'resourceTypes' => [$buildParameter('host', 'Host')],
-                        'states' => $states,
-                        'statuses' => $statuses,
+                        [
+                            'name' => 'resource_types',
+                            'object_type' => null,
+                            'type' => 'multi_select',
+                            'value' => [$buildParameter('host', 'Host')],
+                        ],
+                        [
+                            'name' => 'states',
+                            'object_type' => null,
+                            'type' => 'multi_select',
+                            'value' => $states,
+                        ],
+                        [
+                            'name' => 'statuses',
+                            'object_type' => null,
+                            'type' => 'multi_select',
+                            'value' => $statuses,
+                        ],
                     ],
                 ]
             ),
+            'fromTopCounter' => 'true',
         ]
     );
 };

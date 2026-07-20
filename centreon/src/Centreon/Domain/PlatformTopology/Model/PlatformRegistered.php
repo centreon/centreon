@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformTopology\Model;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\PlatformTopology\Interfaces\PlatformInterface;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * Class designed to retrieve servers to be added using the wizard
@@ -314,17 +316,21 @@ class PlatformRegistered implements PlatformInterface
      */
     private function checkIpAddress(?string $address): ?string
     {
-        if (
-            $address !== null
-            && ! filter_var($address, FILTER_VALIDATE_IP)
-            && ! filter_var($address, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-        ) {
+        if ($address === null) {
+            return null;
+        }
+
+        try {
+            CentreonAssert::ipOrHostname($address);
+        } catch (InvalidArgumentException $e) {
             throw new \InvalidArgumentException(
                 sprintf(
                     _("The address '%s' of '%s' is not valid or not resolvable"),
                     $address,
                     $this->getName()
-                )
+                ),
+                0,
+                $e
             );
         }
 

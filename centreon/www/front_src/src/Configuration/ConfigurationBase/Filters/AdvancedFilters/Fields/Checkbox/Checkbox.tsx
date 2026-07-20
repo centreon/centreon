@@ -20,7 +20,7 @@ const Checkbox = <TFilters,>({
 }: Props<TFilters>): JSX.Element => {
   const { t } = useTranslation();
 
-  const change = (_, checked): void => {
+  const change = (_: React.SyntheticEvent, checked: boolean): void => {
     setFilters({ ...filters, [name]: checked });
   };
 
@@ -29,7 +29,7 @@ const Checkbox = <TFilters,>({
       <FormControlLabel
         control={
           <CheckboxComponent
-            checked={filters[name]}
+            checked={Boolean((filters as Record<string, unknown>)[name])}
             data-testid={label}
             name={'id'}
             onChange={change}

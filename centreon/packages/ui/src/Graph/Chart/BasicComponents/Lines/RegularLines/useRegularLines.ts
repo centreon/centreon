@@ -6,7 +6,7 @@ import type { Line } from '../../../../common/timeSeries/models';
 interface RegularLines {
   regularLines: Array<Line>;
 }
-const useRegularLines = ({ lines }): RegularLines => {
+const useRegularLines = ({ lines }: { lines: Array<Line> }): RegularLines => {
   const stackedLines = getSortedStackedLines(lines);
 
   return { regularLines: difference(lines, stackedLines) };

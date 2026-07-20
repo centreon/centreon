@@ -3,19 +3,21 @@ import { Chip, Typography, useTheme } from '@mui/material';
 import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 import clsx from 'clsx';
 import { findIndex, not, propEq } from 'ramda';
-import { type RefObject, useRef } from 'react';
+import type React from 'react';
+import { type CSSProperties, type RefObject, useRef } from 'react';
 
 import type { DraggableSelectEntry, SortableListProps } from './SortableList';
 
 interface ContentProps
   extends Pick<DraggableSelectEntry, 'name' | 'createOption' | 'id'> {
-  attributes;
+  // biome-ignore lint/suspicious/noExplicitAny: dnd-kit forwards arbitrary HTML attributes
+  attributes: Record<string, any>;
   id: string;
   index: number;
   isDragging: boolean;
   itemRef: RefObject<HTMLDivElement>;
   listeners: DraggableSyntheticListeners;
-  style;
+  style: CSSProperties;
 }
 
 interface Props extends Omit<SortableListProps, 'changeItemsOrder'> {
@@ -43,7 +45,7 @@ const SortableListContent = ({
     const theme = useTheme();
     const labelItemRef = useRef<HTMLElement | null>(null);
 
-    const mouseUp = (event: MouseEvent): void => {
+    const mouseUp = (event: React.MouseEvent<HTMLElement>): void => {
       if (not(event.shiftKey)) {
         return;
       }

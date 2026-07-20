@@ -1,0 +1,48 @@
+meta {
+  name: POST /monitoring/resources/check - Schedule check forbidden - HTTP 403
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/check
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "check": {
+      "is_forced": true
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      },
+      {
+        "type": "service",
+        "id": {{Service1Id}},
+        "parent": {
+          "id": {{Host1Id}}
+        }
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Unprivileged user cannot schedule a check on resources.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

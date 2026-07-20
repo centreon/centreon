@@ -41,21 +41,18 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
 
     public function testDuplicateCommandSuccessfully(): void
     {
-        /** @var CommandRepository $repository */
-        $repository = self::getContainer()->get(CommandRepository::class);
-
-        $originalCommand = new Command(
-            id: new CommandId(999),
-            name: new CommandName('original_command'),
-            type: CommandTypeEnum::Check,
-            commandLine: new CommandLine('/usr/lib/nagios/plugins/check_ping -H $HOSTADDRESS$'),
-            isShellEnabled: false,
-            isActivated: true,
-            isFromMonitoringConnector: false,
-            connector: null,
-            comment: new CommandComment('come comment'),
-        );
-        $repository->add($originalCommand);
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('command', [
+            'command_id' => 1,
+            'command_name' => 'original_command',
+            'command_line' => '/usr/lib/nagios/plugins/check_ping -H $HOSTADDRESS$',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+            'command_comment' => 'come comment',
+        ]);
 
         $this->login();
 
@@ -149,34 +146,28 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
 
     public function testDuplicateMultipleCommands(): void
     {
-        /** @var CommandRepository $repository */
-        $repository = self::getContainer()->get(CommandRepository::class);
-
-        $command1 = new Command(
-            id: new CommandId(997),
-            name: new CommandName('command_one'),
-            type: CommandTypeEnum::Check,
-            commandLine: new CommandLine('/usr/lib/nagios/plugins/check_ping'),
-            isShellEnabled: false,
-            isActivated: true,
-            isFromMonitoringConnector: false,
-            connector: null,
-            comment: new CommandComment('First command'),
-        );
-        $repository->add($command1);
-
-        $command2 = new Command(
-            id: new CommandId(996),
-            name: new CommandName('command_two'),
-            type: CommandTypeEnum::Notification,
-            commandLine: new CommandLine('/usr/bin/mail'),
-            isShellEnabled: false,
-            isActivated: true,
-            isFromMonitoringConnector: false,
-            connector: null,
-            comment: new CommandComment('Second command'),
-        );
-        $repository->add($command2);
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('command', [
+            'command_id' => 1,
+            'command_name' => 'command_one',
+            'command_line' => '/usr/lib/nagios/plugins/check_ping',
+            'command_type' => 2,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+            'command_comment' => 'First command',
+        ]);
+        $connection->insert('command', [
+            'command_id' => 2,
+            'command_name' => 'command_two',
+            'command_line' => '/usr/bin/mail',
+            'command_type' => 1,
+            'enable_shell' => '0',
+            'command_activate' => '1',
+            'command_locked' => '0',
+            'command_comment' => 'Second command',
+        ]);
 
         $this->login();
 

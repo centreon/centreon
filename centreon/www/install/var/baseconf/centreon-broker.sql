@@ -57,6 +57,15 @@ INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1,'type','ipv4','output',1);
 INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`) VALUES (1,'blockId','1_3','output',1);
 
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'name', 'central-broker-master-event-script', 'output', 2, 0, NULL, NULL);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'script_path', '/usr/share/centreon/bin/console agent-configuration:host:create', 'output', 2, 0, NULL, NULL);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'timeout', '15', 'output', 2, 0, NULL, NULL);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'managed_event_ttl', '3600', 'output', 2, 0, NULL, NULL);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'filters', '', 'output', 2, 0, 1, NULL);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'event', 'neb:UnknownHost', 'output', 2, 1, NULL, 1);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'type', 'event_script', 'output', 2, 0, NULL, NULL);
+INSERT INTO `cfg_centreonbroker_info` (`config_id`, `config_key`, `config_value`, `config_group`, `config_group_id`, `grp_level`, `subgrp_id`, `parent_grp_id`) VALUES (1, 'blockId', '1_37', 'output', 2, 0, NULL, NULL);
+
 -- log
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,1,5);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,2,3);
@@ -75,6 +84,8 @@ INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,15,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,16,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,17,3);
+INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (1,18,3);
+
 --
 --  Creation and config of central rrd
 --
@@ -127,6 +138,7 @@ INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,15,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,16,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,17,3);
+INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (2,18,3);
 --
 --  Creation and config of central module
 --
@@ -166,6 +178,7 @@ INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`)
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,15,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,16,3);
 INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,17,3);
+INSERT INTO `cfg_centreonbroker_log` (`id_centreonbroker`, `id_log`, `id_level`) VALUES (3,18,3);
 
 UPDATE `nagios_server` SET `centreonbroker_cfg_path` = '@broker_etc@' WHERE `id` = 1;
 UPDATE `nagios_server` SET `centreonbroker_module_path` = '@centreonbroker_lib@' WHERE `id` = 1;

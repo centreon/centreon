@@ -1,0 +1,37 @@
+meta {
+  name: POST /configuration/services - Create service - HTTP 201
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Service1Name}}",
+    "host_id": {{Host1Id}},
+    "service_template_id": {{ServiceTemplate1Id}},
+    "max_check_attempts": 1
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service created successfully.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("id").that.is.a("number");
+    bru.setEnvVar("Service1Id", body.id);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -19,7 +19,7 @@ const Filters: React.FC<Props> = ({ label, filters }: Props): JSX.Element => {
       title={label}
       tooltipClassName={classes.tooltipFilters}
     >
-      {isValidElement(filters) ? filters : <div />}
+      {isValidElement(filters) ? () => filters : () => <div />}
     </PopoverMenu>
   );
 };

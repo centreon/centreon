@@ -1,0 +1,18 @@
+meta {
+  name: UserFilter
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  UserFilter1Id:
+  UserFilter2Id:
+}

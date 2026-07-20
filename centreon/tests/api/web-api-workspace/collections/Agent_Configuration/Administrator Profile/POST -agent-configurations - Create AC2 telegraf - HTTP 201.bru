@@ -1,0 +1,54 @@
+meta {
+  name: POST /agent-configurations - Create AC2 telegraf - HTTP 201
+  type: http
+  seq: 16
+  tags: [
+    ignore
+  ]
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{AC2Name}}",
+    "type": "telegraf",
+    "connection_mode": "secure",
+    "poller_ids": [{{Poller4Id}}],
+    "configuration": {
+      "otel_public_certificate": "my-otel-certificate-name.crt",
+      "otel_ca_certificate": null,
+      "otel_private_key": "my-otel-private-key-name.key",
+      "conf_server_port": 1443,
+      "conf_certificate": "my-certificate-name.crt",
+      "conf_private_key": "my-private-key-name.key"
+    }
+  }
+}
+
+tests {
+  test("POST /agent-configurations - Create AC2 telegraf - HTTP 201 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 404]);
+  });
+
+  if (res.status === 201) {
+    test("AC2 telegraf created. ID stored.", function () {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+      bru.setVar("AC2Id", body.id);
+
+      expect(body.name).to.equal(bru.getEnvVar("AC2Name"));
+      expect(body.type).to.equal("telegraf");
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

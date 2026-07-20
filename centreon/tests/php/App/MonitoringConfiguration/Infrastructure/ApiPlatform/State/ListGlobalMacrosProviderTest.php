@@ -32,6 +32,19 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/latest/configuration/global-macros';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('nagios_server', ['id' => 1, 'name' => 'Central', 'localhost' => '1', 'ns_activate' => '1', 'ns_ip_address' => '127.0.0.1', 'uid' => 100000000000001]);
+        $connection->insert('cfg_resource', ['resource_id' => 1, 'resource_name' => '$USER1$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'path to plugins', 'resource_activate' => '1', 'is_password' => 0]);
+        $connection->insert('cfg_resource', ['resource_id' => 2, 'resource_name' => '$CENTREONPLUGINS$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'Centreon Plugin Path', 'resource_activate' => '1', 'is_password' => 0]);
+        $connection->insert('cfg_resource_instance_relations', ['resource_id' => 1, 'instance_id' => 1]);
+        $connection->insert('cfg_resource_instance_relations', ['resource_id' => 2, 'instance_id' => 1]);
+    }
+
     public function testItFindAllGlobalMacrosWithoutParameter(): void
     {
         $this->login();

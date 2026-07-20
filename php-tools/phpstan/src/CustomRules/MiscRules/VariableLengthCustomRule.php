@@ -39,7 +39,7 @@ class VariableLengthCustomRule implements Rule
     /**
      * This constant contains an array of variable names to whitelist by custom rule.
      */
-    private const EXEMPTION_LIST = [
+    private const array EXEMPTION_LIST = [
         'db', // Database
         'ex', // Exception
         'id', // Identifier

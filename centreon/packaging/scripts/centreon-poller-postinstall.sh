@@ -2,20 +2,18 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for centreon ..."
-  if [ "$1" = "rpm" ]; then
-    usermod centreon-engine -a -G centreon,nagios,centreon-broker
-    usermod centreon-broker -a -G centreon,nagios
-    usermod nagios -a -G centreon-engine
-    usermod centreon -a -G centreon-engine,centreon-broker
-    usermod centreon-gorgone -a -G centreon-engine
-    usermod centreon-gorgone -a -G centreon-broker
-  else
-    usermod centreon-engine -a -G centreon,centreon-broker
-    usermod centreon-broker -a -G centreon
-    usermod centreon -a -G centreon-engine,centreon-broker
-    usermod centreon-gorgone -a -G centreon-engine
-    usermod centreon-gorgone -a -G centreon-broker
+  if ! getent group nagios &>/dev/null; then
+    groupadd -r nagios
   fi
+  if ! id nagios &>/dev/null; then
+    useradd -r -g nagios -s /sbin/nologin nagios
+  fi
+  usermod centreon-engine -a -G centreon,nagios,centreon-broker
+  usermod centreon-broker -a -G centreon,nagios
+  usermod nagios -a -G centreon-engine
+  usermod centreon -a -G centreon-engine,centreon-broker
+  usermod centreon-gorgone -a -G centreon-engine
+  usermod centreon-gorgone -a -G centreon-broker
 }
 
 updateEngineBrokerConfigurationRights() {
@@ -38,6 +36,16 @@ access notConfigGroup \"\" any noauth exact centreon none none" \
     /etc/snmp/snmpd.conf
 }
 
+fixPluginsPermissions() {
+  echo "Updating nagios plugins permissions ..."
+  for plugin in /usr/lib64/nagios/plugins/check_icmp /usr/lib64/nagios/plugins/check_dhcp; do
+    if [ -f "$plugin" ]; then
+      chgrp nagios "$plugin"
+      chmod u+s "$plugin"
+    fi
+  done
+}
+
 package_type="rpm"
 if  [ "$1" = "configure" ]; then
   package_type="deb"
@@ -57,6 +65,7 @@ case "$action" in
     manageUsersAndGroups $package_type
     updateEngineBrokerConfigurationRights
     updateSnmpConfiguration
+    fixPluginsPermissions
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type

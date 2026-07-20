@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -20,32 +21,38 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-3.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-4.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
+  );
 });
 
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations?*'
+    url: `${INTERCEPTORS.api.agent_configurations}?*`
   }).as('getAgentsPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/agent-configurations'
+    url: INTERCEPTORS.api.agent_configurations
   }).as('addAgents');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations/**'
+    url: `${INTERCEPTORS.api.agent_configurations}/**`
   }).as('getAgentsDetails');
   cy.intercept({
     method: 'PUT',
-    url: '/centreon/api/latest/configuration/agent-configurations/*'
+    url: `${INTERCEPTORS.api.agent_configurations}/*`
   }).as('updateAgents');
   cy.intercept({
     method: 'DELETE',
-    url: '/centreon/api/latest/configuration/agent-configurations/*'
+    url: `${INTERCEPTORS.api.agent_configurations}/*`
   }).as('deleteAgents');
 });
 
@@ -63,7 +70,7 @@ Given('an admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.contains('button', 'Add agent configuration').click();
+  cy.contains('button', 'Add').click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
@@ -103,6 +110,11 @@ Given('an agent configuration is already created', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
 
+When('the user clicks on the already created agent', () => {
+  cy.contains('telegraf-001').click();
+  cy.wait('@getAgentsDetails');
+});
+
 When('the user clicks on the line of the Agents Configuration', () => {
   cy.get('*[role="row"]').eq(1).click({ force: true });
   cy.wait('@getAgentsDetails');
@@ -121,7 +133,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
-    'Central'
+    'Poller-5'
   );
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',
@@ -189,15 +201,17 @@ Then(
 );
 
 When('the user deletes the Agents Configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).eq(0).click();
+  cy.contains('[role="row"]', agentsConfiguration.telegraf2.name).within(() => {
+    cy.getByTestId({ testId: 'Delete' }).click();
+  });
   cy.contains('button', 'Delete').click();
-  cy.wait('@deleteAgents');
+  cy.wait('@deleteAgents').its('response.statusCode').should('eq', 204);
 });
 
 Then(
   'the Agents Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('telegraf-001-updated').should('not.exist');
+    cy.contains(agentsConfiguration.telegraf2.name).should('not.exist');
   }
 );
 
@@ -237,7 +251,7 @@ Given('an agent configuration already created linked with two pollers', () => {
     agentsConfiguration.telegraf1.name
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.contains('Poller-4').click();
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
@@ -304,7 +318,14 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: 'All Resources;Central'
+        values: 'All Resources;Poller-4'
+      }
+    });
+    cy.setUserTokenApiV1().executeActionViaClapi({
+      bodyContent: {
+        action: 'addfilter_instance',
+        object: 'ACLRESOURCE',
+        values: 'All Resources;Poller-5'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({
@@ -323,6 +344,7 @@ Then('the user can view the agent configuration linked to the pollers', () => {
     'contain',
     agentsConfiguration.telegraf1.name
   );
+  cy.wait('@getAgentsPage');
   cy.get('*[role="rowgroup"]').should('contain', '2 pollers');
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
@@ -342,10 +364,10 @@ Then(
     );
     cy.get('[class^="MuiChip-label MuiChip-labelMedium"]')
       .eq(0)
-      .should('have.text', 'Central');
+      .should('have.text', 'Poller-1');
     cy.get('[class^="MuiChip-label MuiChip-labelMedium"]')
       .eq(1)
-      .should('have.text', 'Poller-1');
+      .should('have.text', 'Poller-4');
     cy.getByLabel({
       label: 'Public certificate (.crt, .cert, .cer)',
       tag: 'input'
@@ -407,7 +429,8 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     loginViaApi: false
   });
   cy.visit(PAGES.configuration.agentConfigurations);
-  cy.wait('@getAgentsPage');
+  cy.wait('@getNavigationList');
+  cy.wait('@getAgentsPage').its('response.statusCode').should('eq', 200);
 });
 
 Given('an already existing agent configuration is displayed', () => {
@@ -427,7 +450,10 @@ When('the user adds a second agent configuration', () => {
 Then('only the filtered pollers are listed in the Pollers field', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
-    'Central'
+    'Poller-5'
+  );
+  cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
+    'Poller-4'
   );
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
     'Poller-1'
@@ -457,14 +483,17 @@ Then(
   }
 );
 
+When('the non-admin user deletes an Agent Configuration', () => {
+  cy.contains('[role="row"]', agentsConfiguration.telegraf2.name).within(() => {
+    cy.getByTestId({ testId: 'Delete' }).click();
+  });
+  cy.contains('button', 'Delete').click();
+  cy.wait('@deleteAgents').its('response.statusCode').should('eq', 204);
+});
+
 Then(
-  'the first Agents Configuration is no longer displayed in the listing page',
+  'the deleted agent Configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('telegraf-001-updated').should('not.exist');
-    cy.get('*[role="rowgroup"]').should(
-      'contain',
-      agentsConfiguration.telegraf2.name
-    );
-    cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
+    cy.contains(agentsConfiguration.telegraf2.name).should('not.exist');
   }
 );

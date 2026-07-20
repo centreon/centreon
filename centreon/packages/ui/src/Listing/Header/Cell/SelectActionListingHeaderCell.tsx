@@ -10,8 +10,10 @@ import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 
 export interface SelectActionListingHeaderCellProps {
-  onSelectAllClick: (event) => void;
-  onSelectRowsWithCondition: (condition) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectRowsWithCondition: (
+    condition: (row: Record<string, unknown>) => boolean
+  ) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
@@ -46,9 +48,9 @@ const SelectActionListingHeaderCell = ({
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
-          {({ close }): JSX.Element => (
+          {(props: { close?: () => void } | undefined): JSX.Element => (
             <PredefinedSelectionList
-              close={close}
+              close={props?.close ?? ((): void => undefined)}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
               predefinedRowsSelection={predefinedRowsSelection}
             />

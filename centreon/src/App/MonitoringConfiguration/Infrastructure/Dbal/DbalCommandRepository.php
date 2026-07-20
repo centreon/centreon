@@ -36,6 +36,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -165,48 +166,56 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             return;
         }
 
-        $columns = [
-            'command_name',
-            'command_line',
-            'command_type',
-            'enable_shell',
-            'command_activate',
-            'command_locked',
-            'command_comment',
-            'connector_id',
-        ];
-
-        $placeholders = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
-        $values = [];
-        $params = [];
-        foreach ($commands as $command) {
-            $values[] = $placeholders;
-            $params = [
-                ...$params,
-                $command->name->value,
-                $command->commandLine->value,
-                $command->type->value,
-                $command->isShellEnabled ? '1' : '0',
-                $command->isActivated ? '1' : '0',
-                $command->isFromMonitoringConnector ? '1' : '0',
-                $command->comment?->value,
-                $command->connector()?->id()->value,
+        $this->connection->transactional(function () use ($commands): void {
+            $columns = [
+                'command_name',
+                'command_line',
+                'command_type',
+                'enable_shell',
+                'command_activate',
+                'command_locked',
+                'command_comment',
+                'connector_id',
             ];
-        }
 
-        $sql = sprintf(
-            'INSERT INTO %s (%s) VALUES %s',
-            self::TABLE_NAME,
-            implode(',', $columns),
-            implode(',', $values)
-        );
+            $placeholders = '(' . implode(',', array_fill(0, count($columns), '?')) . ')';
+            $values = [];
+            $params = [];
+            foreach ($commands as $command) {
+                $values[] = $placeholders;
+                $params = [
+                    ...$params,
+                    $command->name->value,
+                    $command->commandLine->value,
+                    $command->type->value,
+                    $command->isShellEnabled ? '1' : '0',
+                    $command->isActivated ? '1' : '0',
+                    $command->isFromMonitoringConnector ? '1' : '0',
+                    $command->comment?->value,
+                    $command->connector()?->id()->value,
+                ];
+            }
 
-        $this->connection->executeStatement($sql, $params);
-        $newIds = $this->findIdsByCommandNames(array_map(fn (Command $command): CommandName => $command->name, $commands));
+            $sql = sprintf(
+                'INSERT INTO %s (%s) VALUES %s',
+                self::TABLE_NAME,
+                implode(',', $columns),
+                implode(',', $values)
+            );
 
-        foreach ($commands as $command) {
-            $this->setId($command, new CommandId($newIds[$command->name->value]));
-        }
+            $this->connection->executeStatement($sql, $params);
+            $newIds = $this->findIdsByCommandNames(array_map(fn (Command $command): CommandName => $command->name, $commands));
+
+            foreach ($commands as $command) {
+                $this->setId($command, new CommandId($newIds[$command->name->value]));
+                $this->saveCommandArguments($command->id(), $command->commandLine->extractArguments());
+                $this->saveCommandMacros(
+                    $command->id(),
+                    $command->commandLine->extractHostMacros(),
+                    $command->commandLine->extractServiceMacros()
+                );
+            }
+        });
     }
 
     public function countLinkedResources(array $commandIds): array
@@ -266,27 +275,36 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         $commandId = $command->id();
         Assert::isInstanceOf($commandId, CommandId::class);
 
-        $qb = $this->connection->createQueryBuilder();
+        $this->connection->transactional(function () use ($command): void {
+            $qb = $this->connection->createQueryBuilder();
 
-        $qb->update(self::TABLE_NAME)
-            ->set('command_name', ':name')
-            ->set('command_line', ':line')
-            ->set('command_type', ':type')
-            ->set('enable_shell', ':enable_shell')
-            ->set('command_activate', ':activate')
-            ->set('command_comment', ':comment')
-            ->set('connector_id', ':connector_id')
-            ->where('command_id = :id')
-            ->setParameter('id', $command->id()->value)
-            ->setParameter('name', $command->name->value)
-            ->setParameter('line', $command->commandLine->value)
-            ->setParameter('type', $command->type->value)
-            ->setParameter('enable_shell', $command->isShellEnabled ? 1 : 0)
-            ->setParameter('activate', $command->isActivated ? 1 : 0)
-            ->setParameter('comment', $command->comment->value ?? null)
-            ->setParameter('connector_id', $command->connector() instanceof Connector ? $command->connector()->id()->value : null);
+            $qb->update(self::TABLE_NAME)
+                ->set('command_name', ':name')
+                ->set('command_line', ':line')
+                ->set('command_type', ':type')
+                ->set('enable_shell', ':enable_shell')
+                ->set('command_activate', ':activate')
+                ->set('command_comment', ':comment')
+                ->set('connector_id', ':connector_id')
+                ->where('command_id = :id')
+                ->setParameter('id', $command->id()->value)
+                ->setParameter('name', $command->name->value)
+                ->setParameter('line', $command->commandLine->value)
+                ->setParameter('type', $command->type->value)
+                ->setParameter('enable_shell', $command->isShellEnabled ? 1 : 0)
+                ->setParameter('activate', $command->isActivated ? 1 : 0)
+                ->setParameter('comment', $command->comment->value ?? null)
+                ->setParameter('connector_id', $command->connector() instanceof Connector ? $command->connector()->id()->value : null);
 
-        $qb->executeStatement();
+            $qb->executeStatement();
+
+            $this->saveCommandArguments($command->id(), $command->commandLine->extractArguments());
+            $this->saveCommandMacros(
+                $command->id(),
+                $command->commandLine->extractHostMacros(),
+                $command->commandLine->extractServiceMacros()
+            );
+        });
     }
 
     public function delete(Command $command): void
@@ -309,7 +327,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             foreach ($nameCriteria as $operator => $names) {
                 if ($operator === CommandCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (string $name): string => $qb->expr()->like('cm.command_name', '"%' . $name . '%"'),
+                        static fn (string $name): string => $qb->expr()->like(
+                            'cm.command_name',
+                            $qb->createNamedParameter('%' . $name . '%')
+                        ),
                         $names
                     )));
 
@@ -317,7 +338,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                 }
                 $qb->andWhere($qb->expr()->in(
                     'cm.command_name',
-                    array_map(static fn (string $name): string => '"' . $name . '"', $names)
+                    $qb->createNamedParameter($names, ArrayParameterType::STRING)
                 ));
             }
         }
@@ -325,7 +346,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         if ($criteria->getTypes() !== []) {
             $qb->andWhere($qb->expr()->in(
                 'cm.command_type',
-                array_map(static fn (CommandTypeEnum $type): string => '"' . $type->value . '"', $criteria->getTypes())
+                $qb->createNamedParameter(
+                    array_map(static fn (CommandTypeEnum $type): int => $type->value, $criteria->getTypes()),
+                    ArrayParameterType::INTEGER
+                )
             ));
         }
 
@@ -337,7 +361,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         if ($criteria->getIds() !== []) {
             $qb->andWhere($qb->expr()->in(
                 'cm.command_id',
-                array_map(static fn (int $id): string => '"' . $id . '"', $criteria->getIds())
+                $qb->createNamedParameter($criteria->getIds(), ArrayParameterType::INTEGER)
             ));
         }
 
@@ -369,6 +393,64 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         }
 
         return $results;
+    }
+
+    /**
+     * @param array<string> $hostMacros
+     * @param array<string> $serviceMacros
+     */
+    private function saveCommandMacros(CommandId $commandId, array $hostMacros, array $serviceMacros): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM on_demand_macro_command WHERE command_command_id = :cmd_id',
+            ['cmd_id' => $commandId->value]
+        );
+
+        foreach ($hostMacros as $macroName) {
+            $this->connection->executeStatement(
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $macroName,
+                    'macro_description' => '',
+                    'macro_type' => '1',
+                ]
+            );
+        }
+
+        foreach ($serviceMacros as $macroName) {
+            $this->connection->executeStatement(
+                'INSERT INTO on_demand_macro_command (command_command_id, command_macro_name, command_macro_desciption, command_macro_type) VALUES (:cmd_id, :macro_name, :macro_description, :macro_type)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $macroName,
+                    'macro_description' => '',
+                    'macro_type' => '2',
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param array<string> $arguments
+     */
+    private function saveCommandArguments(CommandId $commandId, array $arguments): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM command_arg_description WHERE cmd_id = :cmd_id',
+            ['cmd_id' => $commandId->value]
+        );
+
+        foreach ($arguments as $argName) {
+            $this->connection->executeStatement(
+                'INSERT INTO command_arg_description (cmd_id, macro_name, macro_description) VALUES (:cmd_id, :macro_name, :macro_description)',
+                [
+                    'cmd_id' => $commandId->value,
+                    'macro_name' => $argName,
+                    'macro_description' => '',
+                ]
+            );
+        }
     }
 
     /**

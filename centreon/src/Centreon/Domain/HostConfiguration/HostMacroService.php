@@ -28,6 +28,8 @@ use Centreon\Domain\HostConfiguration\Exception\HostMacroServiceException;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroServiceInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroWriteRepositoryInterface;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
 
 /**
  * This class is designed to manage all host macros.
@@ -36,6 +38,8 @@ use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroWriteReposit
  */
 class HostMacroService implements HostMacroServiceInterface
 {
+    use VaultTrait;
+
     /**
      * HostMacroService constructor.
      *
@@ -45,6 +49,7 @@ class HostMacroService implements HostMacroServiceInterface
     public function __construct(
         private HostMacroWriteRepositoryInterface $writeRepository,
         private HostMacroReadRepositoryInterface $readRepository,
+        private ReadVaultRepositoryInterface $readVaultRepository,
     ) {
     }
 
@@ -54,6 +59,11 @@ class HostMacroService implements HostMacroServiceInterface
     public function addMacroToHost(Host $host, HostMacro $hostMacro): void
     {
         try {
+            $rawValue = $this->retrieveSourceValueIfVaulted($hostMacro);
+            if ($rawValue !== null) {
+                $hostMacro->setValue($rawValue);
+            }
+
             $this->writeRepository->addMacroToHost($host, $hostMacro);
         } catch (\Throwable $ex) {
             throw HostMacroServiceException::addMacroException($ex);
@@ -82,9 +92,31 @@ class HostMacroService implements HostMacroServiceInterface
         try {
             Assertion::notNull($macro->getId(), 'HostMacro::id');
             Assertion::notNull($macro->getHostId(), 'HostMacro::host_id');
+
+            $rawValue = $this->retrieveSourceValueIfVaulted($macro);
+            if ($rawValue !== null) {
+                $macro->setValue($rawValue);
+            }
+
             $this->writeRepository->updateMacro($macro);
         } catch (\Throwable $ex) {
             throw HostMacroServiceException::errorOnUpdatingMacro($ex);
         }
+    }
+
+    private function retrieveSourceValueIfVaulted(HostMacro $hostMacro): string|null
+    {
+        if (
+            $this->readVaultRepository->isVaultConfigured()
+            && $this->isAVaultPath($hostMacro->getValue() ?? '')
+        ) {
+            $vaultData = $this->readVaultRepository->findFromPath($hostMacro->getValue());
+            $customPathElements = explode('::', $hostMacro->getValue());
+            $vaultKey = array_pop($customPathElements);
+
+            return $vaultData[$vaultKey] ?? null;
+        }
+
+        return null;
     }
 }

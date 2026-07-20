@@ -20,7 +20,7 @@ const CheckboxGroup = ({
 
   const fieldNamePath = split('.', fieldName);
 
-  const value = path(fieldNamePath, values);
+  const value = path(fieldNamePath, values) as Array<string> | undefined;
 
   const disabled = getDisabled?.(values) || false;
   const hideCheckbox = hideInput?.(values) || false;
@@ -29,24 +29,24 @@ const CheckboxGroup = ({
     if (!disabled && !hideCheckbox) {
       return;
     }
-    const resetedValue = value?.map((element) => ({
-      ...element,
+    const resetedValue = (value ?? []).map((element) => ({
+      ...(element as unknown as Record<string, unknown>),
       checked: false
     }));
     setFieldValue(fieldName, resetedValue);
-  }, [disabled, hideCheckbox, fieldName, setFieldValue, value?.map]);
+  }, [disabled, hideCheckbox, fieldName, setFieldValue]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const label = event.target.id;
-    if (!includes(label, value)) {
-      setFieldValue(fieldName, [...value, label]);
+    if (!includes(label, value ?? [])) {
+      setFieldValue(fieldName, [...(value ?? []), label]);
 
       return;
     }
 
     setFieldValue(
       fieldName,
-      value?.filter((elm) => !equals(elm, label))
+      (value ?? []).filter((elm) => !equals(elm, label))
     );
   };
 
@@ -63,7 +63,7 @@ const CheckboxGroup = ({
           labelPlacement={checkbox?.labelPlacement || 'end'}
           onChange={handleChange}
           options={checkbox?.options as Array<string>}
-          values={value}
+          values={value ?? []}
         />
       </Box>
     ),

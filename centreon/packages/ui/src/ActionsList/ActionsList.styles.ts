@@ -11,7 +11,8 @@ interface GetBackgroundAndColorProps {
 const getColor = ({ theme, status }: GetBackgroundAndColorProps): string =>
   equals(theme.palette.mode, 'dark')
     ? theme.palette.common.white
-    : theme.palette[status].main;
+    : (theme.palette[status as keyof Theme['palette']] as { main: string })
+        .main;
 
 export const useStyles = makeStyles()((theme) => ({
   item: {

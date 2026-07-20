@@ -23,24 +23,31 @@ declare(strict_types=1);
 
 namespace Adaptation\Log\Adapter;
 
-use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Channel\LogChannelInterface;
 use Adaptation\Log\Exception\LoggerException;
 use Adaptation\Log\Logger;
+use App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor;
+use App\Shared\Infrastructure\Logging\PayloadSanitizer;
+use App\Shared\Infrastructure\Logging\SanitizingProcessor;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger as MonologLogger;
+use Monolog\Processor\UidProcessor;
+use Monolog\Processor\WebProcessor;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-final readonly class MonologAdapter implements LoggerInterface
+final class MonologAdapter implements LoggerInterface
 {
+    private static ?UidProcessor $uidProcessor = null;
+
     /**
      * @throws LoggerException
      */
     private function __construct(
-        private MonologLogger $logger,
-        private LogChannelEnum $channel,
+        private readonly MonologLogger $logger,
+        private readonly LogChannelInterface $channel,
     ) {
         $this->createLoggerFromChannel();
     }
@@ -48,11 +55,25 @@ final readonly class MonologAdapter implements LoggerInterface
     /**
      * @throws LoggerException
      */
-    public static function create(LogChannelEnum $channel): LoggerInterface
+    public static function create(LogChannelInterface $channel): LoggerInterface
     {
-        $logger = new MonologLogger($channel->value);
+        $logger = new MonologLogger($channel->getChannelName());
 
         return new self($logger, $channel);
+    }
+
+    /**
+     * Regenerates the shared UidProcessor uid.
+     *
+     * {@see self::$uidProcessor} is a process-lived static, which is correct under
+     * php-fpm and CLI (one process == one request/command). It would become wrong
+     * with a long-running consumer (e.g. an async Messenger transport), where the
+     * uid must be reset between messages. Wire this through a `kernel.reset` tagged
+     * service so the framework resets it on each work unit.
+     */
+    public static function reset(): void
+    {
+        self::$uidProcessor?->reset();
     }
 
     public function emergency(\Stringable|string $message, array $context = []): void
@@ -118,44 +139,37 @@ final readonly class MonologAdapter implements LoggerInterface
     private function createLoggerFromChannel(): void
     {
         try {
-            $handler = match ($this->channel) {
-                LogChannelEnum::PASSWORD => new StreamHandler(
-                    $this->getLogFileFromChannel(LogChannelEnum::PASSWORD),
-                    LogLevel::INFO
-                ),
-                LogChannelEnum::TOKEN => new StreamHandler(
-                    $this->getLogFileFromChannel(LogChannelEnum::TOKEN),
-                    LogLevel::INFO
-                ),
-                // TODO if another channel is needed, uncomment the following line
-                // default => throw LoggerException::channelNotConfigured($this->channel->value),
-            };
+            $handler = new StreamHandler(
+                $this->getLogFileFromChannel($this->channel),
+                LogLevel::INFO
+            );
 
             $handler->setFormatter(new LineFormatter(null, Logger::DATE_FORMAT));
 
             $this->logger->pushHandler($handler);
+
+            $this->pushPlatformProcessors();
         } catch (\InvalidArgumentException $e) {
-            throw LoggerException::loggerCreationFailed($this->channel->value, $e);
+            throw LoggerException::loggerCreationFailed($this->channel->getChannelName(), $e);
         }
     }
 
-    /**
-     * Pattern: _CENTREON_LOG_/<APP_ENV>.<channel>.log
-     *  - _CENTREON_LOG_ is defined in the main Centreon configuration file (centreon.conf.php)
-     *  - <APP_ENV> is defined by the current Symfony mode (prod, dev, test)
-     *  - <channel> is the channel name defined in LogChannelEnum
-     * Example: /var/log/centreon/prod.password.log
-     */
-    private function getLogFileFromChannel(LogChannelEnum $channelEnum): string
+    private function pushPlatformProcessors(): void
+    {
+        // pushProcessor is LIFO: the first one pushed runs LAST. The sanitiser
+        // must run after WebProcessor (which fills `extra.url`, query string
+        // included), so it is pushed first to redact as the final step.
+        $this->logger->pushProcessor(new SanitizingProcessor(new PayloadSanitizer()));
+        $this->logger->pushProcessor(new ExceptionFormatterProcessor());
+        $this->logger->pushProcessor(new WebProcessor());
+        $this->logger->pushProcessor(self::$uidProcessor ??= new UidProcessor());
+    }
+
+    private function getLogFileFromChannel(LogChannelInterface $channel): string
     {
         $appEnv = (isset($_SERVER['APP_ENV']) && is_scalar($_SERVER['APP_ENV']))
             ? (string) $_SERVER['APP_ENV'] : 'prod';
 
-        return sprintf(
-            '%s/%s.%s.log',
-            _CENTREON_LOG_,
-            $appEnv,
-            (string) $channelEnum->value
-        );
+        return sprintf('%s/%s', _CENTREON_LOG_, $channel->getLogFileName($appEnv));
     }
 }

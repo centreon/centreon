@@ -83,9 +83,8 @@ const DateTimePickerInput = ({
         }
         desktopModeMediaQuery={desktopMediaQuery ?? desktopPickerMediaQuery}
         disabled={disabled}
-        maxDate={maxDate && formatDate(maxDate)}
-        minDate={minDate && formatDate(minDate)}
-        minDateTime={minDateTime && formatDate(minDateTime)}
+        maxDateTime={maxDate && formatDate(maxDate)}
+        minDateTime={minDate && formatDate(minDate)}
         onChange={changeTime}
         value={formatDate(date)}
         {...rest}

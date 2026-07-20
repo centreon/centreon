@@ -12,7 +12,7 @@ const useSortTimePeriods = (
 
     const numberOfDays = dayjs.duration(dayjs(end).diff(dayjs(start))).asDays();
 
-    const timelineEventsLimit = cond<number, number>([
+    const timelineEventsLimit = cond<[number], number>([
       [gte(1), always(20)],
       [gte(7), always(100)],
       [T, always(500)]

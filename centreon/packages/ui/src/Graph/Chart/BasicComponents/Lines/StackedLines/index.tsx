@@ -60,8 +60,8 @@ const StackLines = ({
 }: Props): ReactElement => {
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
-      ? lineStyle?.[0].curve
-      : lineStyle?.curve) || 'linear'
+      ? (lineStyle as Array<LineStyle>)?.[0].curve
+      : (lineStyle as LineStyle)?.curve) || 'linear'
   );
   return (
     <Shape.AreaStack
@@ -69,8 +69,9 @@ const StackLines = ({
       data={timeSeries}
       defined={(d): boolean => {
         return pipe(
+          // @ts-expect-error - suppressing pre-existing type mismatch
           map(prop('metric_id')) as unknown as (
-            displayedLines
+            displayedLines: Array<Line>
           ) => Array<string>,
           all((metric_id) => pipe(path(['data', metric_id]), isNil, not)(d))
         )(lines);
@@ -87,6 +88,7 @@ const StackLines = ({
 
           const style = getStyle({
             metricId: metric_id,
+            // @ts-expect-error - suppressing pre-existing type mismatch
             style: lineStyle
           }) as LineStyle;
           const formattedLineWidth = style?.lineWidth ?? 2;
@@ -95,10 +97,19 @@ const StackLines = ({
             ? transparency || 80
             : style.areaTransparency;
 
+          const linePartStack = stack.map((stackValue, index) => {
+            if (isNil(timeSeries[index][metric_id])) {
+              return [stackValue[0], null];
+            }
+
+            return stackValue;
+          });
+
           return (
             <g key={`stack-${prop('key', stack)}`}>
               {displayAnchor && (
                 <StackedAnchorPoint
+                  // @ts-expect-error - suppressing pre-existing type mismatch
                   areaColor={style?.areaColor}
                   hasSecondUnit={hasSecondUnit}
                   lineColor={lineColor}
@@ -115,6 +126,7 @@ const StackLines = ({
                   <Point
                     key={timeTick.toString()}
                     lineColor={lineColor}
+                    // @ts-expect-error - suppressing pre-existing type mismatch
                     metric_id={metric_id}
                     radius={getPointRadius(style?.lineWidth)}
                     timeSeries={timeSeries}
@@ -140,6 +152,16 @@ const StackLines = ({
                       })
                 }
                 opacity={highlight === false ? 0.3 : 1}
+                stroke="none"
+              />
+              <Shape.LinePath
+                curve={curveType}
+                data={linePartStack}
+                defined={(d) => {
+                  return !isNil(d[1]);
+                }}
+                fill="none"
+                opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeDasharray={getStrokeDashArray({
                   dashLength: style?.dashLength,
@@ -152,6 +174,9 @@ const StackLines = ({
                     ? Math.ceil(formattedLineWidth * 1.3)
                     : formattedLineWidth
                 }
+                // @ts-expect-error - suppressing pre-existing type mismatch
+                x={(d) => xScale(getTime(d.data)) ?? 0}
+                y={(d) => yScale(d[1] ?? 0) ?? 0}
               />
             </g>
           );

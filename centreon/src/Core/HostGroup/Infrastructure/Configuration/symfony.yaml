@@ -23,7 +23,7 @@ services:
     decorates: Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface
     arguments:
       - '@.inner'
-      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@security.token_storage'
       - '@Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface'
       - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
       - '@Centreon\Infrastructure\DatabaseConnection'

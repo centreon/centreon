@@ -24,7 +24,7 @@ if (! isset($centreon)) {
 }
 
 $downtime_id = filter_var(
-    $_GET['hg_id'] ?? $_POST['hg_id'] ?? null,
+    $_GET['dt_id'] ?? $_POST['dt_id'] ?? null,
     FILTER_VALIDATE_INT
 );
 

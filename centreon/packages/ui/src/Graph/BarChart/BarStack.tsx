@@ -22,7 +22,17 @@ interface Props extends Omit<UseBarStackProps, 'xScale'> {
   isStacked?: boolean;
 }
 
-const getPadding = ({ padding, size, isNegativeValue }): number => {
+interface GetPaddingProps {
+  padding: number;
+  size: number;
+  isNegativeValue: boolean;
+}
+
+const getPadding = ({
+  padding,
+  size,
+  isNegativeValue
+}: GetPaddingProps): number => {
   if (!isNegativeValue) {
     return padding;
   }
@@ -59,9 +69,12 @@ const BarStack = ({
       keys={lineKeys}
       {...commonBarStackProps}
     >
-      {(barStacks) => {
-        return barStacks.map((barStack, index) =>
-          barStack.bars.map((bar) => {
+      {/* biome-ignore lint/suspicious/noExplicitAny: visx BarStack union */}
+      {(barStacks: Array<any>) => {
+        // biome-ignore lint/suspicious/noExplicitAny: visx BarStack union
+        return barStacks.map((barStack: any, index: number) =>
+          // biome-ignore lint/suspicious/noExplicitAny: visx BarStack union
+          barStack.bars.map((bar: any) => {
             const shouldApplyRadiusOnBottom = equals(index, 0);
             const shouldApplyRadiusOnTop = equals(index, dec(barStacks.length));
             const isNegativeValue = gt(0, bar.bar[1]);
@@ -131,6 +144,7 @@ export default memo(BarStack, (prevProps, nextProps) => {
       [...prevYScaleDomain, ...prevYScaleRange],
       [...nextYScaleDomain, ...nextYScaleRange]
     ) &&
+    // @ts-expect-error - suppressing pre-existing type mismatch
     equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps))
   );
 });

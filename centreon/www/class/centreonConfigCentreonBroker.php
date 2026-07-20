@@ -24,11 +24,13 @@ use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\Routing\Exception\InvalidParameterException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
@@ -432,20 +434,23 @@ class CentreonConfigCentreonBroker
             }
 
             // If get information for read-only in database
+            $roValue = false;
             if (! is_null($field['value']) && $field['value'] !== false) {
-                $elementType = null;
                 $roValue = $this->getInfoDb($field['value']);
-                $field['value'] = $roValue;
-                if (is_array($roValue)) {
-                    $qf->addElement('select', $elementName, $displayName, $roValue);
-                } else {
-                    $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                if ($elementType !== 'advmultiselect') {
+                    $elementType = null;
+                    $field['value'] = $roValue;
+                    if (is_array($roValue)) {
+                        $qf->addElement('select', $elementName, $displayName, $roValue);
+                    } else {
+                        $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                    }
+                    $qf->freeze($elementName);
                 }
-                $qf->freeze($elementName);
             }
 
             // Add required informations
-            if ($field['required'] && is_null($field['value']) && $elementType != 'select') {
+            if ($field['required'] && is_null($field['value']) && ! in_array($elementType, ['select', 'advmultiselect'])) {
                 $elementAttr = array_merge($elementAttr, ['id' => $elementName, 'class' => 'v_required']);
             }
 
@@ -478,6 +483,10 @@ class CentreonConfigCentreonBroker
                     $el->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
                     $el->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
                     $el->setElementTemplate($this->advMultiTemplate);
+                    if ($roValue !== false) {
+                        $field['value'] = $roValue;
+                        $qf->freeze($elementName);
+                    }
                 } else {
                     $el = $qf->addElement($elementType, $elementName, $displayName, $elementAttr, $elementAttrSelect);
                 }
@@ -514,6 +523,7 @@ class CentreonConfigCentreonBroker
         if (isset($this->arrayMultiple)) {
             foreach ($this->arrayMultiple as $key => $multipleGroup) {
                 ksort($multipleGroup);
+                $multipleGroup = array_values($multipleGroup);
                 $cdata->addJsData('clone-values-' . $key, htmlspecialchars(
                     json_encode($multipleGroup),
                     ENT_QUOTES
@@ -755,9 +765,14 @@ class CentreonConfigCentreonBroker
      */
     public function updateConfig(int $id, array $values)
     {
-        // Insert the Centreon Broker configuration
-        $query = '';
+        $ownTransaction = ! $this->db->isTransactionActive();
+
         try {
+            if ($ownTransaction) {
+                $this->db->startTransaction();
+            }
+
+            // Update the Centreon Broker configuration
             $stmt = $this->db->prepare(
                 <<<'SQL'
                     UPDATE cfg_centreonbroker SET
@@ -810,26 +825,23 @@ class CentreonConfigCentreonBroker
                 ? $stmt->bindValue(':pool_size', null, PDO::PARAM_NULL)
                 : $stmt->bindValue(':pool_size', (int) $values['pool_size'], PDO::PARAM_INT);
             $stmt->execute();
-        } catch (PDOException $e) {
-            return false;
-        }
 
-        // Log
-        $logs = $this->getLogsOption();
-        $deleteStmt = $this->db->prepare(
-            <<<'SQL'
-                DELETE FROM cfg_centreonbroker_log WHERE id_centreonbroker = :config_id
-                SQL
-        );
-        $deleteStmt->bindValue(':config_id', $id, PDO::PARAM_INT);
-        $deleteStmt->execute();
+            // Log
+            $logs = $this->getLogsOption();
+            $deleteStmt = $this->db->prepare(
+                <<<'SQL'
+                    DELETE FROM cfg_centreonbroker_log WHERE id_centreonbroker = :config_id
+                    SQL
+            );
+            $deleteStmt->bindValue(':config_id', $id, PDO::PARAM_INT);
+            $deleteStmt->execute();
 
-        $queryLog = 'INSERT INTO cfg_centreonbroker_log (id_centreonbroker, id_log, id_level) VALUES ';
-        foreach (array_keys($logs) as $logId) {
-            $queryLog .= '(:id_centreonbroker, :log_' . $logId . ', :level_' . $logId . '), ';
-        }
-        $queryLog = rtrim($queryLog, ', ');
-        try {
+            $queryLog = 'INSERT INTO cfg_centreonbroker_log (id_centreonbroker, id_log, id_level) VALUES ';
+            foreach (array_keys($logs) as $logId) {
+                $queryLog .= '(:id_centreonbroker, :log_' . $logId . ', :level_' . $logId . '), ';
+            }
+            $queryLog = rtrim($queryLog, ', ');
+
             $stmt = $this->db->prepare($queryLog);
             $stmt->bindValue(':id_centreonbroker', (int) $id, PDO::PARAM_INT);
             foreach ($logs as $logId => $logName) {
@@ -837,7 +849,19 @@ class CentreonConfigCentreonBroker
                 $stmt->bindValue(':level_' . $logId, (int) $values['log_' . $logName], PDO::PARAM_INT);
             }
             $stmt->execute();
-        } catch (PDOException $e) {
+
+            if ($ownTransaction) {
+                $this->db->commitTransaction();
+            }
+        } catch (Throwable $e) {
+            if (! $ownTransaction) {
+                throw $e;
+            }
+
+            if ($this->db->isTransactionActive()) {
+                $this->db->rollBackTransaction();
+            }
+
             return false;
         }
 
@@ -865,13 +889,16 @@ class CentreonConfigCentreonBroker
      */
     public function getForms($config_id, $tag, $page, $tpl)
     {
-        $query = "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
-            FROM cfg_centreonbroker_info WHERE config_id = %d
-            AND config_group = '%s'
+        $query = 'SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id, fieldIndex
+            FROM cfg_centreonbroker_info WHERE config_id = :configId
+            AND config_group = :configGroup
             AND subgrp_id IS NULL
-            ORDER BY config_group_id";
+            ORDER BY config_group_id';
         try {
-            $res = $this->db->query(sprintf($query, $config_id, $tag));
+            $res = $this->db->prepare($query);
+            $res->bindValue(':configId', (int) $config_id, PDO::PARAM_INT);
+            $res->bindValue(':configGroup', $tag, PDO::PARAM_STR);
+            $res->execute();
         } catch (PDOException $e) {
             return [];
         }
@@ -993,11 +1020,14 @@ class CentreonConfigCentreonBroker
         $this->nbSubGroup = 1;
         $query = "SELECT config_value, config_group_id
             FROM cfg_centreonbroker_info
-            WHERE config_id = %d AND config_group = '%s'
+            WHERE config_id = :configId AND config_group = :configGroup
             AND config_key = 'blockId'
             ORDER BY config_group_id";
         try {
-            $res = $this->db->query(sprintf($query, $config_id, $tag));
+            $res = $this->db->prepare($query);
+            $res->bindValue(':configId', (int) $config_id, PDO::PARAM_INT);
+            $res->bindValue(':configGroup', $tag, PDO::PARAM_STR);
+            $res->execute();
         } catch (PDOException $e) {
             return [];
         }
@@ -1119,21 +1149,38 @@ class CentreonConfigCentreonBroker
         if (! isset($s_table) || ! isset($s_column)) {
             return false;
         }
+        // Table and column names cannot be bound as query parameters, so they are
+        // validated against a strict identifier allowlist to prevent SQL injection.
+        $isValidIdentifier = static fn (string $identifier): bool => preg_match('/^[a-zA-Z0-9_]+$/', $identifier) === 1;
+        if (! $isValidIdentifier($s_table) || ! $isValidIdentifier($s_column)) {
+            return false;
+        }
+        $hasKeyFilter = isset($s_column_key, $s_key);
+        if ($hasKeyFilter && ! $isValidIdentifier($s_column_key)) {
+            return false;
+        }
         $query = 'SELECT `' . $s_column . '` FROM `' . $s_table . '`';
-        if (isset($s_column_key, $s_key)) {
-            $query .= ' WHERE `' . $s_column_key . "` = '" . $s_key . "'";
+        if ($hasKeyFilter) {
+            $query .= ' WHERE `' . $s_column_key . '` = :key';
         }
 
         // Execute the query
         try {
             switch ($s_db) {
                 case 'centreon':
-                    $res = $this->db->query($query);
+                    $res = $this->db->prepare($query);
                     break;
                 case 'centreon_storage':
-                    $res = $monitoringDb->query($query);
+                    $res = $monitoringDb->prepare($query);
                     break;
             }
+            if (! isset($res)) {
+                return false;
+            }
+            if ($hasKeyFilter) {
+                $res->bindValue(':key', $s_key, PDO::PARAM_STR);
+            }
+            $res->execute();
         } catch (PDOException $e) {
             return false;
         }
@@ -1282,6 +1329,8 @@ class CentreonConfigCentreonBroker
         $featureFlagManager = $kernel->getContainer()->get(FeatureFlags::class);
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
+        $writeVaultRepository = null;
+        $oldVaultUuids = [];
         if ($featureFlagManager->isEnabled('vault_broker') && $vaultConfiguration !== null) {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -1289,53 +1338,85 @@ class CentreonConfigCentreonBroker
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::BROKER_VAULT_PATH);
             $this->retrievePasswordsFromVault($values, $readVaultRepository);
-            deleteBrokerConfigsFromVault($writeVaultRepository, [$configId]);
+
+            // Capture UUIDs now; deletion is deferred to after the API loop succeeds.
+            $oldVaultUuids = retrieveMultipleBrokerConfigUuidsFromDatabase([$configId]);
         }
 
-        $query = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
+        $deleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = '
             . $configId
             . ($keepLuaParameters ? ' AND config_key NOT LIKE "lua\_parameter\_%"' : '');
-        $this->db->query($query);
+        $rollbackDeleteQuery = 'DELETE FROM cfg_centreonbroker_info WHERE config_id = ' . $configId;
+
+        // The API re-inserts run on a separate DB connection, so we cannot use a transaction.
+        // Backup all rows and restore them on failure; rollback wipes the lua scope too in case
+        // partial lua rows were committed by the API.
+        $backup = $this->backupBrokerInfos($configId);
+        $this->db->query($deleteQuery);
 
         [$groups_infos] = $this->getGroupsInfos($values);
 
         /** @var Core\Infrastructure\Common\Api\Router $router */
         $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
         ?? throw new LogicException('Router not found in container');
-        $client = new Symfony\Component\HttpClient\CurlHttpClient();
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Cookie' => CentreonSession::resolveSessionCookie(),
-        ];
+
+        /** @var ServiceLocator $serviceLocator */
+        $serviceLocator = $kernel->getContainer()->get('legacy.service_locator');
+
+        if (! $serviceLocator->has('internal_api_client')) {
+            throw new RuntimeException('internal_api_client service is not registered in the service locator');
+        }
+
+        /** @var InternalApiClient $client */
+        $client = $serviceLocator->get('internal_api_client');
+
+        $sessionCookie = CentreonSession::resolveSessionCookie();
         $parameters = ['brokerId' => $configId];
         if ($basePath) {
             $parameters['base_uri'] = $basePath;
         }
 
-        foreach ($groups_infos as $tag => $groups) {
-            $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
-            $url = $router->generate(
-                'AddBrokerInputOutput',
-                $parameters,
-                Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
-            );
-
-            foreach ($groups as $group) {
-                $payload = $this->buildPayload($group);
-                $response = $client->request(
-                    'POST',
-                    $url,
-                    [
-                        'headers' => $headers,
-                        'body' => json_encode($payload),
-                    ],
+        try {
+            foreach ($groups_infos as $tag => $groups) {
+                $parameters['tag'] = $tag === 'input' ? 'inputs' : 'outputs';
+                $url = $router->generate(
+                    'AddBrokerInputOutput',
+                    $parameters,
+                    Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
                 );
-                if ($response->getStatusCode() !== 201) {
-                    $content = json_decode($response->getContent(false));
 
-                    throw new Exception($content->message ?? 'Unexpected return status');
+                foreach ($groups as $group) {
+                    $payload = $this->buildPayload($group);
+                    $response = $client->request($url, 'POST', $sessionCookie, $payload);
+
+                    if ($response['status_code'] !== 201) {
+                        $message = $response['content']['message'] ?? 'Unexpected return status';
+
+                        throw new Exception($message);
+                    }
                 }
             }
+        } catch (Throwable $th) {
+            // Capture new vault UUIDs before wiping the partial rows (the lookup reads from DB).
+            $partialVaultUuids = $writeVaultRepository !== null
+                ? retrieveMultipleBrokerConfigUuidsFromDatabase([$configId])
+                : [];
+
+            $this->db->query($rollbackDeleteQuery);
+            $this->restoreBrokerInfos($backup);
+
+            // Drop only the new UUIDs — $oldVaultUuids are still referenced by the restored rows.
+            foreach ($partialVaultUuids as $uuid) {
+                if (! in_array($uuid, $oldVaultUuids, true)) {
+                    $writeVaultRepository->delete($uuid);
+                }
+            }
+
+            throw $th;
+        }
+
+        foreach ($oldVaultUuids as $uuid) {
+            $writeVaultRepository->delete($uuid);
         }
     }
 
@@ -1609,8 +1690,14 @@ class CentreonConfigCentreonBroker
     private function getExternalDefaultValue($fieldId)
     {
         $externalValue = null;
-        $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = ' . $fieldId;
-        $res = $this->db->query($query);
+        try {
+            $query = 'SELECT `external` FROM cb_field WHERE cb_field_id = :fieldId';
+            $res = $this->db->prepare($query);
+            $res->bindValue(':fieldId', (int) $fieldId, PDO::PARAM_INT);
+            $res->execute();
+        } catch (PDOException) {
+            return null;
+        }
 
         if (! $res) {
             $externalValue = null;
@@ -1733,20 +1820,21 @@ class CentreonConfigCentreonBroker
         if ($info['grp_level'] != 0) {
             $error = false;
             try {
-                $res = $this->db->query(sprintf(
-                    "SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id
-               FROM cfg_centreonbroker_info
-               WHERE config_id = %d
-                   AND config_group = '%s'
-           AND subgrp_id = %d
-           AND grp_level = %d
-           AND config_group_id = %d",
-                    $configId,
-                    $configGroup,
-                    $info['parent_grp_id'],
-                    $info['grp_level'] - 1,
-                    $info['config_group_id']
-                ));
+                $res = $this->db->prepare(
+                    'SELECT config_key, config_value, config_group_id, grp_level, parent_grp_id
+                    FROM cfg_centreonbroker_info
+                    WHERE config_id = :configId
+                        AND config_group = :configGroup
+                        AND subgrp_id = :subgrpId
+                        AND grp_level = :grpLevel
+                        AND config_group_id = :configGroupId'
+                );
+                $res->bindValue(':configId', (int) $configId, PDO::PARAM_INT);
+                $res->bindValue(':configGroup', $configGroup, PDO::PARAM_STR);
+                $res->bindValue(':subgrpId', (int) $info['parent_grp_id'], PDO::PARAM_INT);
+                $res->bindValue(':grpLevel', (int) $info['grp_level'] - 1, PDO::PARAM_INT);
+                $res->bindValue(':configGroupId', (int) $info['config_group_id'], PDO::PARAM_INT);
+                $res->execute();
             } catch (PDOException $e) {
                 $error = true;
             }
@@ -1914,10 +2002,77 @@ class CentreonConfigCentreonBroker
             foreach ($output as &$value) {
                 if (is_string($value) && $this->isAVaultPath($value)) {
                     $vaultValue = $readVaultRepository->findFromPath($value);
-                    $parameterKey = end(explode('::', $value));
+                    $vaultParts = explode('::', $value);
+                    $parameterKey = end($vaultParts);
                     $value = $vaultValue[$parameterKey] ?? $value;
                 }
             }
+        }
+    }
+
+    /**
+     * Fetch broker info records that are about to be deleted, so they can be restored
+     * if the subsequent re-insert API calls fail.
+     *
+     * @param int $configId
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function backupBrokerInfos(int $configId): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT config_id, config_key, config_value, config_group, config_group_id,'
+            . ' grp_level, subgrp_id, parent_grp_id, fieldIndex'
+            . ' FROM cfg_centreonbroker_info WHERE config_id = :configId'
+        );
+        $stmt->bindValue(':configId', $configId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Re-insert broker info records previously captured by {@see backupBrokerInfos}.
+     *
+     * @param array<int,array<string,mixed>> $backup
+     */
+    private function restoreBrokerInfos(array $backup): void
+    {
+        if ($backup === []) {
+            return;
+        }
+
+        $stmt = $this->db->prepare(
+            'INSERT INTO cfg_centreonbroker_info'
+            . ' (config_id, config_key, config_value, config_group, config_group_id,'
+            . ' grp_level, subgrp_id, parent_grp_id, fieldIndex)'
+            . ' VALUES (:config_id, :config_key, :config_value, :config_group, :config_group_id,'
+            . ' :grp_level, :subgrp_id, :parent_grp_id, :fieldIndex)'
+        );
+
+        foreach ($backup as $record) {
+            $stmt->bindValue(':config_id', (int) $record['config_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':config_key', $record['config_key'], PDO::PARAM_STR);
+            $stmt->bindValue(':config_value', $record['config_value'], PDO::PARAM_STR);
+            $stmt->bindValue(':config_group', $record['config_group'], PDO::PARAM_STR);
+            $stmt->bindValue(':config_group_id', (int) $record['config_group_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':grp_level', (int) $record['grp_level'], PDO::PARAM_INT);
+            $stmt->bindValue(
+                ':subgrp_id',
+                $record['subgrp_id'] !== null ? (int) $record['subgrp_id'] : null,
+                $record['subgrp_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+            );
+            $stmt->bindValue(
+                ':parent_grp_id',
+                $record['parent_grp_id'] !== null ? (int) $record['parent_grp_id'] : null,
+                $record['parent_grp_id'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+            );
+            $stmt->bindValue(
+                ':fieldIndex',
+                $record['fieldIndex'] !== null ? (int) $record['fieldIndex'] : null,
+                $record['fieldIndex'] !== null ? PDO::PARAM_INT : PDO::PARAM_NULL
+            );
+            $stmt->execute();
         }
     }
 }

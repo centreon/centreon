@@ -1,0 +1,43 @@
+meta {
+  name: POST clapi export configuration - HTTP 200
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "export"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("CLAPI export returns the configuration", function () {
+    const body = res.getBody();
+    expect(body).to.not.be.undefined;
+    expect(JSON.stringify(body).length).to.be.greaterThan(0);
+  });
+
+  test("CLAPI export contains the previously ingested data (round-trip integrity)", function () {
+    const exported = JSON.stringify(res.getBody());
+    expect(exported).to.include("BrunoClapiTimeperiod");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

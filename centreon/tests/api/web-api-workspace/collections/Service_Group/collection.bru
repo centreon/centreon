@@ -1,0 +1,20 @@
+meta {
+  name: Service_Group
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  ServiceGroup1Id:
+  ServiceGroup2Id:
+  ServiceGroup3Id:
+  ServiceGroup4Id:
+}

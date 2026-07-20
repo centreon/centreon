@@ -170,7 +170,7 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
             }
         );
 
-        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS * FROM `:dbstg`.instances JOIN `:db`.nagios_server ON instances.instance_id = nagios_server.id');
+        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS * FROM `:dbstg`.instances JOIN `:db`.nagios_server ON instances.instance_id = nagios_server.uid');
         $whereCondition = false;
 
         // Search
@@ -190,7 +190,7 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
                 $instanceIds[] = $key;
                 $collector->addValue($key, $instanceId, \PDO::PARAM_INT);
             }
-            $request .= 'instances.instance_id IN (' . implode(', ', $instanceIds) . ')';
+            $request .= 'nagios_server.id IN (' . implode(', ', $instanceIds) . ')';
         }
 
         $request .= ($whereCondition ? ' AND ' : ' WHERE ') . 'instances.deleted = 0 AND nagios_server.ns_activate = 1';

@@ -13,6 +13,8 @@ import {
   labelCaCertificate,
   labelCancel,
   labelClear,
+  labelCommand,
+  labelCommandWarning,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelDelete,
@@ -20,6 +22,8 @@ import {
   labelDeletePoller,
   labelDNSIP,
   labelEncryptionLevel,
+  labelExecuteTheScript,
+  labelGenerateInstallationCommand,
   labelInsecure,
   labelInvalidExtension,
   labelInvalidPath,
@@ -39,12 +43,14 @@ import {
   labelSelectExistingCMAToken,
   labelSelectExistingCMATokens,
   labelSelectHost,
+  labelSelectOperatingSystem,
+  labelSelectPollerThatWillMonitor,
   labelTLS,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
 } from '../translatedLabels';
-import initialize from './initialize';
+import initialize, { linuxCommandLine, windowsCommandLine } from './initialize';
 
 describe('Agent configurations', () => {
   it('displays a welcome label when the listing is empty', () => {
@@ -193,15 +199,13 @@ describe('Agent configurations', () => {
     cy.findByTestId('CancelIcon').click();
     cy.findByLabelText('Filters').click();
 
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
-
     cy.makeSnapshot();
   });
 
   it('clears filters when filters are populated and the corresponding button is clicked', () => {
     initialize({});
 
-    // cy.waitForRequest('@getAgentConfigurations');
+    cy.waitForRequest('@getAgentConfigurations');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -222,7 +226,6 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId(labelName).eq(1).should('have.value', '');
     cy.contains('poller6').should('not.exist');
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -441,8 +444,7 @@ describe('Agent configurations modal', () => {
         },
         connection_mode: 'secure',
         name: 'agent updated',
-        poller_ids: [1, 2],
-        type: 'telegraf'
+        poller_ids: [1, 2]
       });
     });
 
@@ -472,12 +474,23 @@ describe('Agent configurations modal', () => {
         },
         connection_mode: 'secure',
         name: 'agent updated',
-        poller_ids: [1, 2],
-        type: 'telegraf'
+        poller_ids: [1, 2]
       });
     });
 
     cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('disables the agent type field when editing an existing configuration', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelAgentType).should('be.disabled');
 
     cy.makeSnapshot();
   });
@@ -491,6 +504,9 @@ describe('Agent configurations modal', () => {
 
     cy.findByTestId('By agent selected').should('be.visible');
     cy.findByTestId('By poller selected').should('not.exist');
+
+    cy.findByTestId('modal-body').scrollTo('bottom');
+
     cy.contains(labelConnectionInitiated);
     cy.contains(labelOTLPReceiver).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');
@@ -584,6 +600,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [],
           otel_ca_certificate: 'test.crt',
           otel_private_key: 'privateKey.key',
@@ -721,6 +738,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [
             {
               address: '127.0.0.2',
@@ -866,6 +884,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [
             {
               address: '127.0.0.2',
@@ -971,8 +990,7 @@ describe('Agent configurations modal', () => {
         },
         connection_mode: 'insecure',
         name: 'Insecure Agent',
-        poller_ids: [1, 2],
-        type: 'telegraf'
+        poller_ids: [1, 2]
       });
     });
 
@@ -1017,6 +1035,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [
             {
               address: '127.0.0.2',
@@ -1044,5 +1063,85 @@ describe('Agent configurations modal', () => {
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
 
     cy.makeSnapshot();
+  });
+
+  it('opens modal from global command button and shows values for central poller', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.get('button').contains(labelCommand).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+    cy.contains(labelCommandWarning);
+    cy.contains(labelSelectPollerThatWillMonitor);
+
+    cy.findByTestId('Select poller').should('have.value', 'Central');
+
+    cy.contains(labelSelectOperatingSystem);
+
+    cy.findByTestId('Windows').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId('Linux').should('be.visible');
+
+    cy.contains(labelExecuteTheScript);
+
+    cy.findByTestId(labelCommand).should('have.text', windowsCommandLine);
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('CloseIcon');
+  });
+
+  it('opens modal from row command icon and display the values for the selected poller', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.findAllByTestId('ExpandMoreIcon').eq(2).click();
+
+    cy.findAllByTestId(labelCommand).should('have.length', 2);
+    cy.findAllByTestId(labelCommand).eq(0).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+
+    cy.findByTestId('Select poller').should('have.value', 'Central');
+
+    cy.findByTestId('CloseIcon');
+  });
+
+  it('updates displayed command when changing operating system', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.get('button').contains(labelCommand).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+
+    cy.contains(labelSelectOperatingSystem);
+
+    cy.findByTestId('Windows').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId('Linux').should('have.attr', 'data-selected', 'false');
+    cy.findByTestId(labelCommand).should('have.text', windowsCommandLine);
+
+    cy.findByTestId('Linux').click();
+    cy.findByTestId('Linux').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId(labelCommand).should('have.text', linuxCommandLine);
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('CloseIcon');
   });
 });

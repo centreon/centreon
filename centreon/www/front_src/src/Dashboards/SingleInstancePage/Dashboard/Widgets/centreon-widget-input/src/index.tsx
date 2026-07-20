@@ -9,7 +9,7 @@ interface Props {
 }
 
 const Input = ({ panelOptions, setPanelOptions }: Props): JSX.Element => {
-  const changeInput = (event): void => {
+  const changeInput = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setPanelOptions({ text: event.target.value });
   };
 

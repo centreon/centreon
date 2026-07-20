@@ -1,0 +1,43 @@
+meta {
+  name: POST /hosts/categories - Create first host category - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostCategory1Name}}",
+    "alias": "{{HostCategory1Alias}}",
+    "is_activated": false,
+    "comment": "Created by Admin"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host category has been successfully created, with name '{{HostCategory1Name}}' and alias '{{HostCategory1Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostCategory1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostCategory1Name"),
+      "alias": bru.getEnvVar("HostCategory1Alias"),
+      "is_activated": false,
+      "comment": "Created by Admin"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

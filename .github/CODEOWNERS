@@ -1,8 +1,6 @@
 *.sh                                    @centreon/owners-bash
 
 *.po                                    @centreon/owners-doc
-*.md                                    @centreon/owners-doc
-*.mdx                                   @centreon/owners-doc
 
 **/www/widgets/                         @centreon/owners-react
 
@@ -18,6 +16,9 @@
 **/phpstan.neon                         @centreon/owners-php
 *.php                                   @centreon/owners-php
 *.xsl                                   @centreon/owners-php
+*.md                                    @centreon/owners-php
+*.mdx                                   @centreon/owners-php
+**/doc/                                 @centreon/owners-php
 
 **/www/front_src/                       @centreon/owners-react
 **/cypress/**                           @centreon/owners-react
@@ -33,15 +34,13 @@ tsconfig.json                           @centreon/owners-react
 *.ts                                    @centreon/owners-react
 *.tsx                                   @centreon/owners-react
 *.jsx                                   @centreon/owners-react
-**/cypress/**                           @centreon/owners-react
 
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
 
 **/tests/e2e/**                         @centreon/owners-cypress-e2e
 **/cypress/e2e/**                       @centreon/owners-cypress-e2e
-
-*.feature                               @centreon/owners-gherkin
+**/tests/api/**                         @centreon/owners-api-testing
 
 *.py                                    @centreon/owners-python
 
@@ -56,8 +55,8 @@ dependencies/**                         @centreon/owners-pipelines
 
 **/config/features.json                 @centreon/release-management
 
-**/tests/rest_api/**                    @centreon/owners-api-testing
-
-.gitleaks.toml                          @centreon/owners-security
-.gitleaksignore                         @centreon/owners-security
-**/secu-*.yml                           @centreon/owners-security
+# Security Codeowners rules
+.gitleaks.toml                @centreon/owners-security
+.gitleaksignore               @centreon/owners-security
+.githooks/pre-commit          @centreon/owners-security
+**/secu-*.yml                 @centreon/owners-security

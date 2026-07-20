@@ -19,10 +19,9 @@
  *
  */
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerUpgrade;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -34,253 +33,22 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-
-// TODO add your functions here
-
-/** -------------------------------------- Command redesign updates-------------------------------------- */
-$addNewCommandPage = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add new command page topology';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Adding new command page to topology",
-    );
-    $alreadyExist = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT 1 FROM topology WHERE topology_page = 60808
-            SQL
-    );
-    if ($alreadyExist) {
-        return;
-    }
+$removeDebugLevelFromOptions = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = "Unable to remove 'debug_level' from options table";
+    LoggerUpgrade::create()->info($version, "Removing 'debug_level' from options table");
 
     $pearDB->executeStatement(
         <<<'SQL'
-            INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url_substitute`)
-            VALUES ( 'Commands', '/configuration/commands', '1', '1', 608, 60808, 1, 1, './include/configuration/configObject/command/command.php')
-            SQL
-    );
-};
-
-$updateCommandsParentTopology = function () use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to update parent commands topology';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            UPDATE `topology`
-            SET `topology_url` = '/configuration/commands', `is_react` = '1'
-            WHERE `topology_page` = 608
-            SQL
-    );
-};
-
-$deleteCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to delete from table acl_topology_relations';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            DELETE acl_topology_relations
-            FROM acl_topology_relations
-            WHERE acl_topology_relations.acl_topo_id = :acl_topo_id
-            AND acl_topology_relations.topology_topology_id IN (
-                SELECT topology_id FROM topology WHERE topology_page IN (60801, 60802, 60803, 60807)
-            )
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('acl_topo_id', $aclTopologyId),
-        ])
-    );
-};
-
-$insertNewCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
-    $errorMessage = 'Unable to insert into table acl_topology_relations';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right)
-            VALUES (:acl_topo_id, (SELECT topology_id from topology where topology_page = 60808), :access_right)
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('acl_topo_id', $aclTopologyId),
-            QueryParameter::int('access_right', 1),
-        ])
-    );
-};
-
-$getOrCreateActionGroup = function (int $aclGroupId, array &$actionGroupRelations) use ($pearDB, &$errorMessage): array {
-    $actionGroup = null;
-    foreach ($actionGroupRelations as $relation) {
-        if ($relation['acl_group_id'] === $aclGroupId) {
-            $actionGroup = $relation;
-            break;
-        }
-    }
-
-    if ($actionGroup !== null) {
-
-        return $actionGroup;
-    }
-
-    $errorMessage = 'Unable to create a new acl_action';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            INSERT INTO acl_actions (acl_action_name, acl_action_activate)
-            VALUES (CONCAT((SELECT acl_group_name FROM acl_groups WHERE acl_group_id = :acl_group_id), '_actions'), '1')
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('acl_group_id', $aclGroupId),
-        ])
-    );
-    $actionId = (int) $pearDB->lastInsertId();
-
-    $errorMessage = 'Unable to link a new acl_action to an acl_group';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            INSERT INTO acl_group_actions_relations (acl_group_id, acl_action_id)
-            VALUES (:acl_group_id, :acl_action_id)
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('acl_group_id', $aclGroupId),
-            QueryParameter::int('acl_action_id', $actionId),
-        ])
-    );
-    $actionGroup = [
-        'acl_group_id' => $aclGroupId,
-        'acl_action_id' => $actionId,
-    ];
-    $actionGroupRelations[] = $actionGroup;
-
-    return $actionGroup;
-};
-
-$addCommandRightIntoAction = function (string $commandType, int $accessRight, int $aclActionId) use ($pearDB, &$errorMessage): void {
-    if ($accessRight === 0) {
-        return;
-    }
-    $actionName = match($accessRight) {
-        1 => "manage_{$commandType}_commands",
-        2 => "see_{$commandType}_commands",
-        default => null,
-    };
-
-    if ($actionName === null) {
-        // Should never occur
-        return;
-    }
-
-    $errorMessage = 'Unable to read into table acl_actions_rules';
-    $alreadyExist = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT 1 FROM acl_actions_rules
-            WHERE acl_action_rule_id = :acl_action_id
-            AND acl_action_name = :action_name
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('acl_action_id', $aclActionId),
-            QueryParameter::string('action_name', $actionName),
-        ])
-    );
-
-    if ($alreadyExist) {
-        return;
-    }
-
-    $errorMessage = 'Unable to insert into table acl_actions_rules';
-    $pearDB->executeStatement(
-        <<<'SQL'
-            INSERT INTO acl_actions_rules (acl_action_rule_id, acl_action_name)
-            VALUES (:acl_action_id, :action_name)
-            SQL,
-        QueryParameters::create([
-            QueryParameter::int('acl_action_id', $aclActionId),
-            QueryParameter::string('action_name', $actionName),
-        ])
-    );
-};
-
-$moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage, $deleteCommandsTopologyRights, $getOrCreateActionGroup, $addCommandRightIntoAction, $insertNewCommandsTopologyRights, $version): void {
-    $errorMessage = 'Unable to read acl topology';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Moving command ACL topology into ACL actions",
-    );
-    $topologyGroupRelations = $pearDB->fetchAllAssociative(
-        <<<'SQL'
-            SELECT acl_topology.acl_topo_id, group_topo_rel.acl_group_id FROM acl_topology
-            LEFT JOIN acl_group_topology_relations as group_topo_rel
-                ON acl_topology.acl_topo_id = group_topo_rel.acl_topology_id
+            DELETE FROM `options` WHERE `key` = 'debug_level'
             SQL
     );
 
-    $errorMessage = 'Unable to read acl actions';
-    $actionGroupRelations = $pearDB->fetchAllAssociative(
-        <<<'SQL'
-            SELECT action.acl_action_id, group_action_rel.acl_group_id FROM acl_actions as action
-            LEFT JOIN acl_group_actions_relations as group_action_rel
-                ON action.acl_action_id = group_action_rel.acl_action_id
-            SQL
-    );
-
-    foreach ($topologyGroupRelations as $topoGroup) {
-        $aclGroupId = $topoGroup['acl_group_id'];
-        $aclTopologyId = $topoGroup['acl_topo_id'];
-        $commandAccessRights = $pearDB->fetchAllAssociative(
-            <<<'SQL'
-                SELECT
-                    topology.topology_name,
-                    acl_topo_rel.topology_topology_id as topology_id,
-                    acl_topo_rel.access_right
-                FROM topology
-                INNER JOIN acl_topology_relations as acl_topo_rel
-                    ON topology.topology_id = acl_topo_rel.topology_topology_id
-                    AND acl_topo_rel.acl_topo_id = :acl_topo_id
-                WHERE topology.topology_page IN (60801, 60802, 60803, 60807)
-                SQL,
-            QueryParameters::create([
-                QueryParameter::int('acl_topo_id', $aclTopologyId),
-            ])
-        );
-        if ($commandAccessRights === []) {
-            continue;
-        }
-        if ($topoGroup['acl_group_id'] === null) {
-            $deleteCommandsTopologyRights($aclTopologyId);
-            continue;
-        }
-
-        $actionGroup = $getOrCreateActionGroup($aclGroupId, $actionGroupRelations);
-
-        foreach ($commandAccessRights as $commandRights) {
-            $commandType = match($commandRights['topology_name']) {
-                'Checks' => 'check',
-                'Notifications' => 'notification',
-                'Discovery' => 'discovery',
-                'Miscellaneous' => 'miscellaneous',
-            };
-
-            $addCommandRightIntoAction($commandType, $commandRights['access_right'], $actionGroup['acl_action_id']);
-        }
-        $topologyToClean[] = $aclTopologyId;
-    }
-
-    $topologyToClean = array_unique($topologyToClean ?? []);
-    foreach ($topologyToClean ?? [] as $aclTopologyId) {
-        $insertNewCommandsTopologyRights($aclTopologyId);
-        $deleteCommandsTopologyRights($aclTopologyId);
-    }
-};
-
-$deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to remove old command pages from topology';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: Removing old command pages from topology",
-    );
-    $pearDB->delete(
-        <<<'SQL'
-            DELETE FROM `topology`
-            WHERE `topology_page` IN (60801, 60802, 60803, 60807)
-            SQL
-    );
+    LoggerUpgrade::create()->info($version, "Successfully removed 'debug_level' from options table");
 };
 
 try {
+    LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
+
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
@@ -288,41 +56,35 @@ try {
     // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
+    $errorMessage = 'Unable to start the configuration database transaction';
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
-    // Command redesign updates
-    $addNewCommandPage();
-    $updateCommandsParentTopology();
-    $moveCommandACLTopologyIntoACLActions();
-    $deleteOldCommandsTopologies();
+    $removeDebugLevelFromOptions();
 
-    if ($pearDB->isTransactionActive()) {
-        $pearDB->commitTransaction();
-    }
+    $errorMessage = 'Unable to commit the configuration database transaction';
+    $pearDB->commitTransaction();
+
+    LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
 } catch (Throwable $throwable) {
-    CentreonLog::create()->error(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $throwable
-    );
-
     try {
         if ($pearDB->isTransactionActive()) {
+            LoggerUpgrade::create()->info($version, "Rolling back transaction after error: {$errorMessage}");
             $pearDB->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            exception: $rollbackException
+        LoggerUpgrade::create()->stepFailure(
+            $version,
+            'php_script_rollback',
+            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            $rollbackException
         );
 
         throw new RuntimeException(
-            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            previous: $rollbackException
+            message: "UPGRADE - {$version}: " . $errorMessage,
+            previous: $throwable
         );
     }
 

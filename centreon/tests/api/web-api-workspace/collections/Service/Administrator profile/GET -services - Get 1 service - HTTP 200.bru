@@ -1,0 +1,45 @@
+meta {
+  name: GET /services - Get 1 service - HTTP 200
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/{{Service1Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Service 1 is returned with all its properties.", function () {
+    const body = res.getBody();
+    expect(body).to.include({
+      "name": bru.getEnvVar("Service1Name"),
+      "host_id": parseInt(bru.getEnvVar("Host1Id")),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "check_timeperiod_id": 1,
+      "normal_check_interval": 2,
+      "retry_check_interval": 1,
+      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id"))
+    });
+    expect(body.categories).to.have.lengthOf(1);
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    expect(body.groups).to.have.lengthOf(1);
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,30 @@
+meta {
+  name: GET /configuration/metaservices - List meta services - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/metaservices
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Administrator can list meta services configuration.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result");
+    expect(body.result).to.be.an("array");
+    expect(body).to.have.property("meta");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

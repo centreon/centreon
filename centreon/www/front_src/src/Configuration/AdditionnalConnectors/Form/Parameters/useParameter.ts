@@ -4,9 +4,9 @@ import { path, split } from 'ramda';
 import { AdditionalConnectorConfiguration } from '../../models';
 
 interface UseParameterState {
-  changeParameterValue: (event) => void;
+  changeParameterValue: (event: React.ChangeEvent<HTMLInputElement>) => void;
   getError: (name: string) => string | undefined;
-  handleBlur;
+  handleBlur: (eventOrString: unknown) => void;
 }
 
 const useParameter = ({ index }: { index: number }): UseParameterState => {
@@ -23,7 +23,9 @@ const useParameter = ({ index }: { index: number }): UseParameterState => {
     return error;
   };
 
-  const changeParameterValue = (event): void => {
+  const changeParameterValue = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setFieldValue(
       `parameters.vcenters.${index}.${event.target.name}`,
       event.target.value

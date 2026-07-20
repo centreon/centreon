@@ -26,7 +26,9 @@ const useCreate = (): UseCreateProps => {
       queryClient.resetQueries({ queryKey: ['getDetails'] });
     }
   });
-  const createMutation = (payload) => {
+  const createMutation = (
+    payload: Record<string, string | Array<number> | object | null>
+  ) => {
     return mutateAsync({
       payload
     });

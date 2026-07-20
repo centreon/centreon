@@ -49,4 +49,9 @@ final readonly class InstallationHelper
 
         $this->engineRepository->writeEngineSecrets($engineSecrets);
     }
+
+    public function engineContextHasContent(): bool
+    {
+        return $this->engineRepository->engineSecretsHasContent();
+    }
 }

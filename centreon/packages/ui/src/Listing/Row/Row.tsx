@@ -6,22 +6,21 @@ import { equals, lt, not, pluck } from 'ramda';
 import { memo, useCallback, useEffect, useRef } from 'react';
 
 import { useViewportIntersection } from '../../utils/useViewportIntersection';
-
 import type { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 type Props = {
   checkable: boolean;
-  children;
+  children: React.ReactNode;
   columnConfiguration?: ColumnConfiguration;
   columnIds: Array<string>;
-  disableRowCondition: (row) => boolean;
+  disableRowCondition: (row: Record<string, unknown>) => boolean;
   isHovered?: boolean;
   isSelected?: boolean;
   isShiftKeyDown: boolean;
   lastSelectionIndex: number | null;
   limit: number;
   listingVariant?: ListingVariant;
-  row;
+  row: Record<string, unknown>;
   rowColorConditions: Array<RowColorCondition>;
   shiftKeyDownRowPivot: number | null;
   subItemsPivots: Array<number | string>;
@@ -146,7 +145,7 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
 
   useEffect(() => {
     setElement(getFirstCellElement() as HTMLDivElement);
-  }, [getFirstCellElement, setElement]);
+  }, [getFirstCellElement()]);
 
   return (
     <div className="contents w-full" data-is-hovered={isHovered} ref={rowRef}>

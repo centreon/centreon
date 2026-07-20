@@ -1,0 +1,58 @@
+meta {
+  name: GET /hosts - Get available hosts and expected 2 - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  const body = res.getBody();
+  
+  test("Response schema is valid", function () {
+      expect(body).to.be.an("object");
+      expect(body).to.have.property("result").that.is.an("array");
+      expect(body).to.have.property("meta").that.is.an("object");
+  
+      const meta = body.meta;
+      expect(meta).to.have.property("page").that.is.a("number");
+      expect(meta).to.have.property("limit").that.is.a("number");
+      expect(meta).to.have.property("total").that.is.a("number");
+      expect(meta).to.have.property("search").that.is.an("object");
+      expect(meta).to.have.property("sort_by").that.is.an("object");
+  
+      expect(body.result).to.have.length.of.at.least(1);
+      const host = body.result[0];
+      expect(host).to.have.property("id").that.is.a("number");
+      expect(host).to.have.property("name").that.is.a("string");
+      expect(host).to.have.property("alias").that.is.a("string");
+      expect(host).to.have.property("address").that.is.a("string");
+      expect(host).to.have.property("monitoring_server").that.is.an("object");
+      expect(host).to.have.property("templates").that.is.an("array");
+      expect(host).to.have.property("categories").that.is.an("array");
+      expect(host).to.have.property("groups").that.is.an("array");
+      expect(host).to.have.property("is_activated").that.is.a("boolean");
+      expect(host).to.have.property("normal_check_interval").that.satisfy(v => v === null || typeof v === "number");
+      expect(host).to.have.property("retry_check_interval").that.satisfy(v => v === null || typeof v === "number");
+      expect(host).to.have.property("check_timeperiod").that.satisfy(v => v === null || typeof v === "object");
+      expect(host).to.have.property("severity").that.satisfy(v => v === null || typeof v === "object");
+  });
+  
+  test("Result contains exactly 2 items", function() {
+      expect(body.meta.total).to.equal(2);
+    
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

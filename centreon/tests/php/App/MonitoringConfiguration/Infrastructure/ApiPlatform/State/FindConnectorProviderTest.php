@@ -23,10 +23,22 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class FindConnectorProviderTest extends ApiTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement(
+            "UPDATE connector SET command_line = 'centreon_connector_perl --log-file=/var/log/centreon-engine/connector-perl.log' WHERE id = 1"
+        );
+    }
+
     public function testGetConnector(): void
     {
         $this->login();
@@ -44,14 +56,15 @@ final class FindConnectorProviderTest extends ApiTestCase
 
     public function testGetConnectorIsUnauthorizedForUserWithoutSufficientACL(): void
     {
-        $this->login('user');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
+
         $this->request('GET', '/api/latest/configuration/connectors/1');
 
         $this->assertResponseStatusCodeSame(403);
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
     }
 }

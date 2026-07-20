@@ -34,7 +34,7 @@ const MenuButton = ({
   const { isMenuOpen, setIsMenuOpen, setAnchorEl, onOpen } = useMenu();
 
   const onToggle = useCallback(
-    (e): void => {
+    (e: React.MouseEvent<HTMLButtonElement>): void => {
       setAnchorEl(e.currentTarget);
 
       setIsMenuOpen(!isMenuOpen);

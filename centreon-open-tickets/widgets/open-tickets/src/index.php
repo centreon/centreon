@@ -159,7 +159,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         h.host_id = cv5.host_id AND (cv5.service_id IS NULL OR cv5.service_id = 0) AND cv5.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop1 ON (
-        cv5.value = mop1.ticket_value AND (
+        (cv5.value = mop1.ticket_value OR cv5.value = CONCAT('raw::', mop1.ticket_value)) AND (
             mop1.timestamp > h.last_time_up OR h.last_time_up IS NULL
         )
     )
@@ -174,7 +174,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop2 ON (
-        cv3.value = mop2.ticket_value AND (
+        (cv3.value = mop2.ticket_value OR cv3.value = CONCAT('raw::', mop2.ticket_value)) AND (
             mop2.timestamp > s.last_time_ok OR s.last_time_ok IS NULL
         )
     )
@@ -572,11 +572,11 @@ while ($row = $res->fetch()) {
     );
 
     $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=0202&o=hd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20202&o=hd&host_name=' . $row['hostname']
         : $resourceController->buildHostDetailsUri($row['host_id']);
 
     $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=0202&o=hd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20201&o=svcd&host_name=' . $row['hostname']
             . '&service_description=' . $row['description']
         : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
 }

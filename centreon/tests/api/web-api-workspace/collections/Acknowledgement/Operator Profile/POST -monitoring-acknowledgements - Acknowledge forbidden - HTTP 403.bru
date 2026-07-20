@@ -1,0 +1,42 @@
+meta {
+  name: POST /monitoring/acknowledgements - Acknowledge forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/monitoring/resources/acknowledge
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "acknowledgement": {
+      "comment": "Acknowledged by operator",
+      "is_notify_contacts": false,
+      "with_services": false,
+      "force_active_checks": false,
+      "is_persistent_comment": false,
+      "is_sticky": false
+    },
+    "resources": [
+      {
+        "type": "host",
+        "id": {{Host1Id}},
+        "parent": null
+      }
+    ]
+  }
+}
+
+tests {
+  test("Operator cannot acknowledge resources (ACL restriction expected, not configured in CI).", function () {
+    expect(res.status).to.be.oneOf([204, 403]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

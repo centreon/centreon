@@ -95,7 +95,7 @@
         this.settings.period.startTime = start;
       }
       if (end !== null && end !== undefined ) {
-        this.settings.period.startTime = end;
+        this.settings.period.endTime = end;
       }
       if (interval !== null && interval !== undefined) {
         this.setInterval(interval, false);
@@ -531,8 +531,13 @@
         }
 
 
-        start = moment.tz(myStart, "YYYY-MM-DD HH:mm", this.timezone);
-        end = moment.tz(myEnd, "YYYY-MM-DD HH:mm", this.timezone);
+        if (typeof myStart === "number" && typeof myEnd === "number") {
+          start = moment.tz(myStart, this.timezone);
+          end = moment.tz(myEnd, this.timezone);
+        } else {
+          start = moment.tz(myStart, "YYYY-MM-DD HH:mm", this.timezone);
+          end = moment.tz(myEnd, "YYYY-MM-DD HH:mm", this.timezone);
+        }
       }
 
       return {

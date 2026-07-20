@@ -389,6 +389,7 @@ sub gzippedSqlDump {
     my $mysqldump_pid = eval {
         open3('<&INPUT', \*FROM_MYSQLDUMP, '>&STDERR',
             mysqldump => (
+                '--single-transaction',
                 '-u', $mysql_user,
                 '-p'.$mysql_passwd,
                 '-h', $mysql_host,

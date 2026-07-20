@@ -14,10 +14,10 @@ export const useIntersectionObserver = ({
   loading,
   action,
   intersectionObserverOptions
-}: HookParam): ((node) => void) => {
+}: HookParam): ((node: Element | null) => void) => {
   const observer = useRef<IntersectionObserver | null>(null);
   const lastElementRef = useCallback(
-    (node) => {
+    (node: Element | null) => {
       if (observer.current) {
         observer.current.disconnect();
       }

@@ -1,3 +1,5 @@
+import { ReactElement } from 'react';
+
 import { CommonWidgetProps, Data, FormThreshold } from '../../models';
 import { TopBottomSettings, ValueFormat } from './models';
 import TopBottom from './TopBottom';
@@ -22,13 +24,15 @@ const Widget = ({
   panelOptions,
   playlistHash,
   refreshCount,
-  widgetPrefixQuery
-}: Props): JSX.Element => (
+  widgetPrefixQuery,
+  isInViewport
+}: Props): ReactElement => (
   <TopBottom
     dashboardId={dashboardId}
     globalRefreshInterval={globalRefreshInterval}
     id={id}
     isFromPreview={isFromPreview}
+    isInViewport={isInViewport}
     metrics={panelData.metrics}
     playlistHash={playlistHash}
     refreshCount={refreshCount}

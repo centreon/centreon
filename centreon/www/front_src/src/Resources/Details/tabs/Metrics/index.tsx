@@ -16,7 +16,9 @@ const limit = 30;
 const MetricsTab = (): JSX.Element => {
   const { sendRequest, sending } = useRequest<MetaServiceMetricListing>({
     decoder: metaServiceMetricListingDecoder,
-    request: listMetaServiceMetrics
+    request: listMetaServiceMetrics as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<MetaServiceMetricListing>
   });
 
   const details = useAtomValue(detailsAtom);

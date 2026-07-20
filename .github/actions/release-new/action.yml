@@ -48,22 +48,26 @@ runs:
 
     - name: Get previous release bundle tag
       id: get_previous_release_bundle_tag
+      env:
+        RELEASE_SCOPE: ${{ inputs.release_scope }}
+        RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
+        MAJOR_VERSION: ${{ inputs.major_version }}
       run: |
         set -eu
 
         # Check and set release scope
-        if [[ ${{ inputs.release_scope }} == "cloud" ]]; then
+        if [[ "$RELEASE_SCOPE" == "cloud" ]]; then
           RELEASE_CLOUD=1
         else
           RELEASE_CLOUD=0
         fi
 
         # Define new stable bundle tag
-        NEW_STABLE_BUNDLE_TAG="${{ inputs.release_bundle_tag }}"
+        NEW_STABLE_BUNDLE_TAG="$RELEASE_BUNDLE_TAG"
 
         # Define major_version for tag pattern
         # We need it to be the same as the previous stable bundle tag
-        RELEASE_BRANCH_MAJOR_VERSION="${{ inputs.major_version }}"
+        RELEASE_BRANCH_MAJOR_VERSION="$MAJOR_VERSION"
 
         # Get previous and new release bundle tags
         PREVIOUS_STABLE_BUNDLE_TAG=""
@@ -83,6 +87,10 @@ runs:
       shell: bash
 
     - name: Get released versions for components
+      env:
+        RELEASE_SCOPE: ${{ inputs.release_scope }}
+        RELEASE_BRANCH: ${{ inputs.release_branch }}
+        PREVIOUS_STABLE_BUNDLE_TAG_OUTPUT: ${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}
       run: |
         set -eu
 
@@ -100,11 +108,11 @@ runs:
         NEW_MAJOR_VERSION=""
         NEW_MINOR_VERSION=""
         COMPONENT_DIR=""
-        PREVIOUS_STABLE_BUNDLE_TAG="${{ steps.get_previous_release_bundle_tag.outputs.previous_stable_bundle_tag }}"
+        PREVIOUS_STABLE_BUNDLE_TAG="$PREVIOUS_STABLE_BUNDLE_TAG_OUTPUT"
         PREVIOUS_STABLE_COMPONENT_TAG=""
 
         # Check and set release scope
-        if [[ ${{ inputs.release_scope }} == "cloud" ]]; then
+        if [[ "$RELEASE_SCOPE" == "cloud" ]]; then
           RELEASE_CLOUD=1
         else
           RELEASE_CLOUD=0
@@ -128,8 +136,8 @@ runs:
           PREVIOUS_MINOR_VERSION=$(git show $PREVIOUS_STABLE_BUNDLE_TAG:.version.$component |grep MINOR | cut -d '=' -f2)
 
           # Get NEW MAJOR_VERSION and NEW_MINOR_VERSION
-          NEW_MAJOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version |grep MAJOR | cut -d '=' -f2)
-          NEW_MINOR_VERSION=$(git show origin/${{ inputs.release_branch }}:.version.$component |grep MINOR | cut -d '=' -f2)
+          NEW_MAJOR_VERSION=$(git show "origin/$RELEASE_BRANCH:.version" |grep MAJOR | cut -d '=' -f2)
+          NEW_MINOR_VERSION=$(git show "origin/$RELEASE_BRANCH:.version.$component" |grep MINOR | cut -d '=' -f2)
 
           # Previous stable tags array
           # If previous tag is found in previous release bundle for component, add to array
@@ -180,12 +188,17 @@ runs:
       shell: bash
 
     - name: Add new stable tags to release branch
+      env:
+        RELEASE_BRANCH: ${{ inputs.release_branch }}
+        RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
+        CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
       run: |
         set -eu
 
         # Checkout to release branch
         git fetch -a -p
-        git checkout ${{ inputs.release_branch }}
+        git checkout "$RELEASE_BRANCH"
 
         # Set git local configuration
         echo "Configuring git."
@@ -193,37 +206,37 @@ runs:
         git config --global user.name "Centreon"
 
         # Set remote
-        git remote set-url origin "https://x-access-token:${{ inputs.centreon_technique_pat }}@github.com/${{ github.repository }}"
+        git remote set-url origin "https://x-access-token:$CENTREON_TECHNIQUE_PAT@github.com/$GITHUB_REPOSITORY"
 
         # Add new stable release bundle tag to release branch
         # If HOTFIX => set tag description as hotfix
         # If RELEASE => set tag description as release
-        echo "::notice::Tagging branch ${{ inputs.release_branch }} with ${{ inputs.release_bundle_tag }}."
+        echo "::notice::Tagging branch $RELEASE_BRANCH with $RELEASE_BUNDLE_TAG."
 
         # Setup remove
 
         # Push local release bundle tag as centreon_technique to generate a tag event
-        git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}"
-        git push origin "${{ inputs.release_bundle_tag }}"
+        git tag -a "$RELEASE_BUNDLE_TAG" -m "$RELEASE_BUNDLE_TAG"
+        git push origin "$RELEASE_BUNDLE_TAG"
 
         # Update old special tag "latest" to target the new release bundle tag
         # Will create it if not existing, will update it if existing
-        echo "::notice::Updating special latest tag to target ${{ inputs.release_bundle_tag }}."
-        git tag -f "$NEW_MAJOR_VERSION-latest" ${{ inputs.release_bundle_tag }}^{}
+        echo "::notice::Updating special latest tag to target $RELEASE_BUNDLE_TAG."
+        git tag -f "$NEW_MAJOR_VERSION-latest" "$RELEASE_BUNDLE_TAG^{}"
         git push origin "$NEW_MAJOR_VERSION-latest" -f
 
         # Add new component release tags on release branch for each release component
         # Abort if no tags or existing tag
-        echo "Creating component release tags on branch ${{ inputs.release_branch }}."
+        echo "Creating component release tags on branch $RELEASE_BRANCH."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [[ -z "$(git tag --list "$TAG" | head -n 1)" && -n "$TAG" ]]; then
 
             # Push local component tags as centreon_technique to generate a tag event
-            git tag -a "$TAG" -m "${{ inputs.release_type }} $TAG"
+            git tag -a "$TAG" -m "$RELEASE_TYPE $TAG"
             git push origin "$TAG" --quiet
 
             git status
-            echo "::notice::Tagging branch ${{ inputs.release_branch }} with $TAG."
+            echo "::notice::Tagging branch $RELEASE_BRANCH with $TAG."
           else
             echo "::error::Release tag $TAG already exists, exiting."
             exit 1
@@ -254,8 +267,8 @@ runs:
         echo "Creating GITHUB releases."
         for TAG in ${NEW_STABLE_TAGS[@]}; do
           if [ -n "$TAG" ]; then
-            echo "Creating GITHUB release with title $TAG for tag $TAG targeting branch ${{ inputs.release_branch }}."
-            gh release create $TAG --target "${{ inputs.release_branch }}" --title "$TAG" --verify-tag
+            echo "Creating GITHUB release with title $TAG for tag $TAG targeting branch $RELEASE_BRANCH."
+            gh release create "$TAG" --target "$RELEASE_BRANCH" --title "$TAG" --verify-tag
           else
             echo "::error::Release tag $TAG was empty, could not create github release for $TAG, exiting."
             exit 1
@@ -264,13 +277,14 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        RELEASE_BRANCH: ${{ inputs.release_branch }}
 
     - name: Clean release / hotfix branch
       run: |
         set -eu
 
         REPO="centreon/centreon"
-        TAG="${{ inputs.release_bundle_tag }}"
+        TAG="$RELEASE_BUNDLE_TAG"
 
         # Check if release bundle tag was set. It MUST exist before removing any release branch.
         echo "Checking if github tag exists before removing release / hotfix branch."
@@ -279,8 +293,8 @@ runs:
           "https://api.github.com/repos/$REPO/git/ref/tags/$TAG")
 
         if [[ "$status_code" == "200" ]]; then
-          echo "::notice::Release bundle tag $TAG exists, removing branch ${{ inputs.release_branch }}."
-          git push origin --delete "${{ inputs.release_branch }}" --quiet
+          echo "::notice::Release bundle tag $TAG exists, removing branch $RELEASE_BRANCH."
+          git push origin --delete "$RELEASE_BRANCH" --quiet
         else
           echo "::error::Release bundle tag $TAG does not exist, aborting."
           exit 1
@@ -289,8 +303,16 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        RELEASE_BUNDLE_TAG: ${{ inputs.release_bundle_tag }}
+        RELEASE_BRANCH: ${{ inputs.release_branch }}
 
     - name: Create stable JIRA versions from new release tags
+      env:
+        JIRA_PROJECT_ID_INPUT: ${{ inputs.jira_project_id }}
+        JIRA_BASE_URL: ${{ inputs.jira_base_url }}
+        JIRA_USER_EMAIL: ${{ inputs.jira_user_email }}
+        JIRA_API_TOKEN: ${{ inputs.jira_api_token }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
       run: |
         set -eu
 
@@ -301,16 +323,17 @@ runs:
           NEW_RELEASE_TAGS+=("$i")
         done
 
-        # Create new JIRA versions (old way of doing it)
-        # TODO: add a future capacity to determine whether the release is hotfix or standard (using TYPE)
-        # OR: rely on jira automation to do it (less hassle on github side, and jira knows jira best)
+        # Create new JIRA versions.
+        # The version description is prefixed with the release type (hotfix or release) so the
+        # JIRA automations can tell hotfix component versions apart from regular release ones and
+        # query the matching parent .next fix version (the hotfix vs regular fixVersion variant).
 
         # Build JSON vars for JIRA_RELEASE_DATA
         JIRA_RELEASE_ARCHIVED="false"
         JIRA_RELEASE_DESCRIPTION=""
         JIRA_RELEASE_DATE="$(date +%Y-%m-%d)"
         JIRA_RELEASE_NAME=""
-        JIRA_PROJECT_ID="${{ inputs.jira_project_id }}"
+        JIRA_PROJECT_ID="$JIRA_PROJECT_ID_INPUT"
         JIRA_RELEASE_RELEASED="false"
         JIRA_RELEASE_ID="$(git log |grep -E "Centreon\ next.*\#[0-9]{5,}\#\)" |grep -o -P "(?<=#)[0-9]{5,}(?=#)" |head -n 1)"
 
@@ -322,7 +345,7 @@ runs:
             # Build JSON with release information for JIRA API
             JIRA_RELEASE_DATA=$(jq -nc \
               --arg archived "$JIRA_RELEASE_ARCHIVED" \
-              --arg description "$JIRA_RELEASE_ID $TAG" \
+              --arg description "$RELEASE_TYPE $JIRA_RELEASE_ID $TAG" \
               --arg releaseDate "$JIRA_RELEASE_DATE" \
               --arg name "$TAG" \
               --arg projectId "$JIRA_PROJECT_ID" \
@@ -331,8 +354,8 @@ runs:
             # Send to JIRA API release
             echo "Sending to JIRA API release: $JIRA_RELEASE_DATA"
             curl --fail --request POST \
-              --url "${{ inputs.jira_base_url }}/rest/api/3/version" \
-              --user '${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}' \
+              --url "$JIRA_BASE_URL/rest/api/3/version" \
+              --user "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
               --header 'Accept: application/json' \
               --header 'Content-Type: application/json' \
               --data "$JIRA_RELEASE_DATA"

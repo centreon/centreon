@@ -90,7 +90,7 @@ const CriteriasContent = ({
     });
 
     const criterias = sortBy(
-      ({ name }) => criteriaNameSortOrder[name],
+      ({ name }) => (criteriaNameSortOrder as Record<string, number>)[name],
       criteriasValue.criterias
     );
 
@@ -146,10 +146,10 @@ const CriteriasContent = ({
         popperPlacement="bottom-end"
         title={t(labelSearchOptions) as string}
       >
-        {({ close }): JSX.Element => {
+        {({ close }: { close?: () => void } = {}): JSX.Element => {
           const closePopover = (): void => {
             setDisplayActions(false);
-            close();
+            close?.();
           };
 
           return (
