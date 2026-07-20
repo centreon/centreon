@@ -473,6 +473,27 @@
     font-size: 14px;
     color: var(--c-text-secondary, #6b7280);
 }
+
+/* Modifier: title, a vertical separator and the description sit on one row
+   instead of the title stacked above the description. */
+.cl-page-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 8px 0 14px;
+}
+.cl-page-header .cl-page-title {
+    margin: 0;
+}
+.cl-page-header .cl-page-title-sep {
+    align-self: center;
+    width: 1px;
+    height: 16px;
+    background: var(--c-divider, #e3e3e3);
+}
+.cl-page-header .cl-page-desc {
+    margin: 0;
+}
 .cl-title-sep {
     border: none;
     border-top: 1px solid rgba(0,0,0,0.045);
