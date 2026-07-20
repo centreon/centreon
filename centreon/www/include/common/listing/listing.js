@@ -12,6 +12,38 @@
  * Licensed under the Apache License, Version 2.0
  */
 
+// Registered first, before anything else in this file — a later, unrelated
+// script-level statement further down (see the tooltip IIFE) can throw at
+// load time and abort the rest of this file's top-level execution; a
+// registration placed after that point would then silently never happen.
+// The callbacks below only run later (on DOMContentLoaded / keydown), by
+// which time every function in this file is defined regardless (function
+// declarations are hoisted before any code runs), so calling
+// clUpdateAdvBadge / clStopAdvPoll here — defined further down — is safe.
+document.addEventListener('DOMContentLoaded', function () {
+    // Popover variant advanced-filters panel: Escape closes it too (outside
+    // click is handled by the backdrop created in clSetAdvBackdrop).
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('.cl-adv-panel--popover.open').forEach(function (panel) {
+            panel.classList.remove('open');
+            var toggleBtn = document.querySelector('[data-cl-adv-panel="' + panel.id + '"]');
+            if (toggleBtn) toggleBtn.classList.remove('active');
+            var backdrop = document.getElementById('clAdvBackdrop_' + panel.id);
+            if (backdrop) backdrop.remove();
+            clStopAdvPoll(panel);
+        });
+    });
+
+    document.querySelectorAll('.cl-adv-panel--popover').forEach(function (panel) {
+        panel.addEventListener('change', function () { clUpdateAdvBadge(panel); });
+        panel.addEventListener('input', function () { clUpdateAdvBadge(panel); });
+        // Deferred: select2 fields can populate default values asynchronously
+        // (defaultDatasetRoute) shortly after the page loads.
+        setTimeout(function () { clUpdateAdvBadge(panel); }, 500);
+    });
+});
+
 function CentreonListing(config) {
 
     // =====================================================================
@@ -710,6 +742,94 @@ function clToggleAdvancedFilters(btn) {
     if (labelEl && show && hide) {
         labelEl.textContent = open ? hide : show;
     }
+    if (panel.classList.contains('cl-adv-panel--popover')) {
+        clSetAdvBackdrop(panel, btn, open);
+    }
+}
+
+// Popover variant: close on outside click via a dedicated full-page backdrop
+// rather than a document click listener — a listener depending on event
+// bubbling/capturing can be swallowed by unrelated handlers elsewhere on the
+// page; a backdrop is a direct click target and can't be intercepted that way.
+function clSetAdvBackdrop(panel, btn, open) {
+    var backdropId = 'clAdvBackdrop_' + panel.id;
+    var backdrop = document.getElementById(backdropId);
+    if (open) {
+        clStartAdvPoll(panel);
+        if (backdrop) return;
+        backdrop = document.createElement('div');
+        backdrop.id = backdropId;
+        backdrop.className = 'cl-adv-backdrop';
+        backdrop.addEventListener('click', function () {
+            panel.classList.remove('open');
+            btn.classList.remove('active');
+            backdrop.remove();
+            clStopAdvPoll(panel);
+        });
+        document.body.appendChild(backdrop);
+    } else {
+        clStopAdvPoll(panel);
+        if (backdrop) backdrop.remove();
+    }
+}
+
+// Active-filter badge: poll while the popover is open instead of relying on
+// change/input bubbling — select2 fields update their backing <select> and
+// dispatch through jQuery's own event path, which isn't guaranteed to reach a
+// plain addEventListener delegate the same way on every field/version, so
+// polling for the 300ms the panel is open is the only fully reliable option.
+// Lazily initialized on window (not a top-level `var` here) — an unrelated
+// earlier script on this page can throw before a top-level statement in this
+// file gets a chance to run, which would leave a plain top-level `var` stuck
+// at undefined forever. Reading/creating it inside the functions that use it
+// makes this immune to that.
+function clStartAdvPoll(panel) {
+    window.clAdvPollTimers = window.clAdvPollTimers || {};
+    if (window.clAdvPollTimers[panel.id]) return;
+    window.clAdvPollTimers[panel.id] = setInterval(function () { clUpdateAdvBadge(panel); }, 300);
+}
+
+function clStopAdvPoll(panel) {
+    window.clAdvPollTimers = window.clAdvPollTimers || {};
+    if (window.clAdvPollTimers[panel.id]) {
+        clearInterval(window.clAdvPollTimers[panel.id]);
+        delete window.clAdvPollTimers[panel.id];
+    }
+    clUpdateAdvBadge(panel);
+}
+
+// Active-filter count badge on the toggle button (top-right corner), so users
+// can tell filters are applied even when the popover is closed. Counts one
+// per .cl-adv-field that currently holds a value (select/select2, checkbox,
+// or text input), delegated so it also reacts to select2 selections.
+function clCountActiveFilters(panel) {
+    var count = 0;
+    panel.querySelectorAll('.cl-adv-field').forEach(function (field) {
+        var active = false;
+        field.querySelectorAll('select').forEach(function (sel) {
+            if (sel.multiple) {
+                if (Array.prototype.some.call(sel.selectedOptions, function (o) { return o.value !== ''; })) active = true;
+            } else if (sel.value !== '') {
+                active = true;
+            }
+        });
+        if (field.querySelector('input[type="checkbox"]:checked')) active = true;
+        field.querySelectorAll('input[type="text"], input[type="search"]').forEach(function (inp) {
+            if (inp.value.trim() !== '') active = true;
+        });
+        if (active) count++;
+    });
+    return count;
+}
+
+function clUpdateAdvBadge(panel) {
+    var toggleBtn = document.querySelector('[data-cl-adv-panel="' + panel.id + '"]');
+    if (!toggleBtn) return;
+    var badge = toggleBtn.querySelector('.cl-adv-badge');
+    if (!badge) return;
+    var count = clCountActiveFilters(panel);
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
 }
 
 // ==========================================================================

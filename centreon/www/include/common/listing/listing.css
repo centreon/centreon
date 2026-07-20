@@ -801,6 +801,81 @@
     width: 210px;
 }
 
+/* Modifier: the advanced-filters toggle lives inside the search field itself
+   (right edge) instead of a separate button + separator next to it. */
+.cl-search--with-adv .cl-search-simple {
+    width: 640px;
+    padding-right: 36px;
+}
+
+.cl-search--with-adv .cl-adv-icon-btn {
+    position: absolute;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--c-primary-main, #2E68AA);
+    cursor: pointer;
+}
+
+.cl-search--with-adv .cl-adv-icon-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none !important;
+    stroke: currentColor;
+}
+
+.cl-search--with-adv .cl-adv-icon-btn:hover {
+    background: rgba(46, 104, 170, 0.08);
+}
+
+.cl-search--with-adv .cl-adv-icon-btn.active {
+    background: rgba(46, 104, 170, 0.14);
+}
+
+/* Active-filter count badge, top-right corner of the icon (hidden until a
+   filter has a value — see clUpdateAdvBadge in listing.js) */
+.cl-search--with-adv .cl-adv-badge {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #1B2550;
+    color: #fff;
+    font-family: Roboto, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Modifier: centers the search field between the left actions and the
+   right-aligned pagination, used once the advanced-filters button and the
+   toolbar separator have been folded into the search field (see
+   .cl-search--with-adv above). */
+.cl-actions-bar--centered {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+
+.cl-toolbar-center {
+    display: flex;
+    justify-content: center;
+}
+
 /* Advanced filters toggle button (outline, primary color, sliders icon) */
 .cl-adv-btn {
     display: inline-flex;
@@ -957,6 +1032,99 @@
     font-family: Roboto, sans-serif;
     font-size: 14px;
     cursor: pointer;
+}
+
+/* ==========================================================================
+   Modifier: advanced filters as a floating popover card anchored below the
+   search field, instead of an inline accordion that pushes the table down.
+   Nested inside .cl-search (position:relative already set on that element),
+   so `top: 100%` sits right under the search input regardless of page width.
+   ========================================================================== */
+
+/* Invisible full-page click target behind the popover (created/removed by
+   clSetAdvBackdrop in listing.js) — closing on outside click this way means
+   it can't be swallowed by some other handler's stopPropagation(). */
+.cl-adv-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
+    background: transparent;
+}
+
+.cl-adv-panel--popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    width: 380px;
+    max-height: none;
+    overflow: visible;
+    background: #fff;
+    border: 1px solid var(--c-divider, #e3e3e3);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+    padding: 20px;
+    z-index: 60;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-6px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+    text-align: left;
+}
+
+.cl-adv-panel--popover.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.cl-adv-panel--popover .cl-adv-inner {
+    margin-top: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: block;
+}
+
+.cl-adv-panel--popover .cl-adv-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.cl-adv-panel--popover .cl-adv-field {
+    width: 100%;
+}
+
+.cl-adv-panel--popover .cl-adv-actions {
+    margin-left: 0;
+    justify-content: space-between;
+}
+
+.cl-adv-panel--popover .cl-adv-clear {
+    height: 38px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(46, 104, 170, 0.10);
+    color: var(--c-primary-main, #2E68AA);
+    font-weight: 600;
+}
+
+.cl-adv-panel--popover .cl-adv-clear:hover {
+    background: rgba(46, 104, 170, 0.18);
+}
+
+.cl-adv-panel--popover .cl-adv-search {
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0 24px;
 }
 
 /* ==========================================================================
