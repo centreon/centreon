@@ -1,0 +1,35 @@
+meta {
+  name: POST /clapi - Delete created VM poller - HTTP 200
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUriCentreonCLAPI}}
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{cleanupToken}}
+}
+
+body:json {
+  {
+    "action": "del",
+    "object": "INSTANCE",
+    "values": "{{PollerName}}"
+  }
+}
+
+tests {
+  test("Created VM poller is cleaned up (avoids breaking export conf)", function () {
+    expect(res.status).to.be.oneOf([200, 404]);
+    bru.deleteEnvVar("CreatedPollerId");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
