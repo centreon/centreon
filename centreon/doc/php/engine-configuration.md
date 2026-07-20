@@ -42,11 +42,12 @@ The legacy UI has two creation paths with different defaults:
 - **Add (Advanced)** — almost everything `NULL` or `0`, requires manual configuration.
 - **Wizard** — functional defaults, poller is immediately usable.
 
-The API uses the **Wizard** defaults with three adjustments:
+The API uses the **Wizard** defaults with four adjustments:
 
 | Adjustment | Value | Reason |
 |---|---|---|
 | `check_service_freshness` | `1` | Engine default is `true`; Wizard set it to `0` by mistake. |
+| `enable_flap_detection` | `1` | Engine default is `true`; Wizard set it to `0`. |
 | Logger levels | Engine-native (`info` / `err`) | Wizard used legacy Centreon defaults (`warning` everywhere). Engine-native levels are more appropriate. |
 | Deprecated fields | omitted (remain `NULL`) | `auto_rescheduling_interval`, `auto_rescheduling_window`, `log_initial_states`, `passive_host_checks_are_soft` — no longer used by Engine. |
 
@@ -60,7 +61,7 @@ The API uses the **Wizard** defaults with three adjustments:
 | `check_service_freshness` | `1` | **API override** |
 | `check_host_freshness` | `0` | Wizard |
 | `enable_notifications` | `1` | Wizard |
-| `enable_flap_detection` | `0` | Wizard |
+| `enable_flap_detection` | `1` | **API override** |
 
 All other boolean fields follow the Wizard defaults. Non-boolean defaults (thresholds, intervals, paths) are defined as constants on their respective VOs.
 

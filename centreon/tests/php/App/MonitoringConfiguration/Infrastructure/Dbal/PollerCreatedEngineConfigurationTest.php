@@ -68,6 +68,7 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
             'localhost' => '0',
             'ns_activate' => '1',
             'ns_ip_address' => '192.168.1.100',
+            'uid' => 100000000000001,
         ]);
     }
 
@@ -113,7 +114,7 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
     {
         self::getContainer()->set(
             EngineConfigurationRepository::class,
-            new class implements EngineConfigurationRepository {
+            new class () implements EngineConfigurationRepository {
                 public function add(EngineConfiguration $engineConfiguration): void
                 {
                     throw new \RuntimeException('Simulated engine configuration failure');
@@ -130,6 +131,7 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
                 'localhost' => '0',
                 'ns_activate' => '1',
                 'ns_ip_address' => '192.168.1.200',
+                'uid' => 100000000000002,
             ]);
 
             $poller = $this->createPoller(2, 'Rollback Test Poller');

@@ -52,6 +52,7 @@ final class DbalEngineConfigurationRepositoryTest extends KernelTestCase
             'localhost' => '0',
             'ns_activate' => '1',
             'ns_ip_address' => '192.168.1.100',
+            'uid' => 100000000000001,
         ]);
     }
 
