@@ -176,11 +176,14 @@ fixSymfonyCacheRights() {
 }
 
 fixWwwDirRights() {
-  # If a module package (e.g. centreon-pp-manager, centreon-license-manager-common,
-  # centreon-auto-discovery-server, centreon-it-edition-extensions) drops files into
-  # /usr/share/centreon/www/modules before this package installs, dpkg creates that shared
-  # directory with default root:root ownership and never corrects it afterwards, even though
-  # this package's own nfpm declaration says otherwise.
+  # Every module package that drops files into /usr/share/centreon/www/modules (e.g.
+  # centreon-pp-manager, centreon-license-manager, centreon-auto-discovery-server,
+  # centreon-it-edition-extensions) now depends on centreon-web, so this dir should already
+  # be unpacked with the right ownership by the time they install. Kept as a defensive
+  # backstop for install paths that bypass dependency resolution (dpkg -i, --force-depends):
+  # in that case dpkg would create this shared directory with default root:root ownership
+  # and never correct it afterwards, even though this package's own nfpm declaration says
+  # otherwise.
   chown centreon:centreon /usr/share/centreon/www
   chmod 0775 /usr/share/centreon/www
 }
