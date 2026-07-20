@@ -85,9 +85,8 @@ $centcorePipe = is_dir($centcoreDirectory . '/centcore')
     ? $centcoreDirectory . '/centcore/' . microtime(true) . '-externalcommand.cmd'
     : $centcoreDirectory . '/centcore.cmd';
 
-if ($fh = @fopen($centcorePipe, 'a+')) {
-    fwrite($fh, $signal . ':' . $pollerId . "\n");
-    fclose($fh);
+$written = file_put_contents($centcorePipe, $signal . ':' . $pollerId . "\n", FILE_APPEND | LOCK_EX);
+if ($written !== false) {
     $xml->writeElement('status', _('OK'));
     $xml->writeElement('statuscode', 0);
 } else {
