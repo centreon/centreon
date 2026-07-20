@@ -7,8 +7,11 @@ CentreonForm.detectSidePanelClose();
 {/literal}
 
 <form name='form' method='POST'>
-    <h1 class="cl-page-title">{t}Host categories{/t}</h1>
-    <p class="cl-page-desc">{t}Group hosts into categories to organize and filter your configuration.{/t}</p>
+    <div class="cl-page-header">
+        <h1 class="cl-page-title">{t}Host categories{/t}</h1>
+        <span class="cl-page-title-sep"></span>
+        <p class="cl-page-desc">{t}Group hosts into categories to organize and filter your configuration.{/t}</p>
+    </div>
     <div class="cl-listing-container">
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
