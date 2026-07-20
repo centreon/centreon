@@ -9,10 +9,13 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 {/literal}
 
 <form name='form' method='POST'>
-    <h1 class="cl-page-title">{t}Services{/t}</h1>
-    <p class="cl-page-desc">{t}Configure the services monitored on your hosts.{/t}</p>
+    <div class="cl-page-header">
+        <h1 class="cl-page-title">{t}Services{/t}</h1>
+        <span class="cl-page-title-sep"></span>
+        <p class="cl-page-desc">{t}Configure the services monitored on your hosts.{/t}</p>
+    </div>
     <div class="cl-listing-container">
-        <div class="cl-actions-bar">
+        <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$svcPage}&o=a', '{t}Add a Service{/t}'); return false;">{$msg.addT}</a>
@@ -21,53 +24,54 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             { else }
             <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="cl-toolbar-right">
+            <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--sm">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                     <input type="text" id="clSearchH" name="searchH" value="{$searchH}" class="cl-search-simple" placeholder="{t}Search host{/t}" autocomplete="off">
                 </div>
-                <div class="cl-search cl-search--sm">
+                <div class="cl-search cl-search--sm cl-search--with-adv">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                     <input type="text" id="clSearchS" name="searchS" value="{$searchS}" class="cl-search-simple" placeholder="{t}Search service{/t}" autocomplete="off">
-                </div>
-                <button type="button" class="cl-adv-btn" data-cl-adv-panel="clAdvPanel" data-cl-label-show="{t}Advanced filters{/t}" data-cl-label-hide="{t}Hide filters{/t}" onclick="clToggleAdvancedFilters(this)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                    <span class="cl-adv-label">{t}Advanced filters{/t}</span>
-                </button>
-                <span class="cl-toolbar-sep"></span>
-                <div class="cl-pagination" id="clPaginationTop"></div>
-            </div>
-        </div>
+                    <button type="button" class="cl-adv-icon-btn" data-cl-adv-panel="clAdvPanel" onclick="clToggleAdvancedFilters(this)" title="{t}Advanced filters{/t}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                        <span class="cl-adv-badge"></span>
+                    </button>
 
-        <div class="cl-adv-panel" id="clAdvPanel">
-            <div class="cl-adv-inner">
-                <div class="cl-adv-fields">
-                    <div class="cl-adv-field">
-                        <label>{t}Template{/t}</label>
-                        <div class="cl-adv-control">
-                            {$form.template.html}
-                            <button type="button" class="cl-adv-clear-field" onclick="jQuery('#template').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                    <div class="cl-adv-panel cl-adv-panel--popover" id="clAdvPanel">
+                        <div class="cl-adv-inner">
+                            <div class="cl-adv-fields">
+                                <div class="cl-adv-field">
+                                    <label>{t}Template{/t}</label>
+                                    <div class="cl-adv-control">
+                                        {$form.template.html}
+                                        <button type="button" class="cl-adv-clear-field" onclick="jQuery('#template').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                                    </div>
+                                </div>
+                                <div class="cl-adv-field">
+                                    <label>{t}Status{/t}</label>
+                                    <div class="cl-adv-control">
+                                        {$form.status.html}
+                                        <button type="button" class="cl-adv-clear-field" onclick="jQuery('#status').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                                    </div>
+                                </div>
+                                <div class="cl-filter-toggle">
+                                    <label class="cl-toggle">
+                                        <input type="checkbox" id="hostStatusCb" name="hostStatus" {if $hostStatusChecked}checked{/if} />
+                                        <span class="cl-toggle-slider"></span>
+                                    </label>
+                                    <span>{t}Disabled hosts{/t}</span>
+                                </div>
+                            </div>
+                            <div class="cl-adv-actions">
+                                <button type="button" class="cl-adv-clear" onclick="jQuery('#template,#status').val('').trigger('change'); jQuery('#hostStatusCb').prop('checked', false); document.getElementById('clSearchBtn').click();">{t}Clear{/t}</button>
+                                <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="cl-adv-field">
-                        <label>{t}Status{/t}</label>
-                        <div class="cl-adv-control">
-                            {$form.status.html}
-                            <button type="button" class="cl-adv-clear-field" onclick="jQuery('#status').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-                        </div>
-                    </div>
-                    <div class="cl-filter-toggle">
-                        <label class="cl-toggle">
-                            <input type="checkbox" id="hostStatusCb" name="hostStatus" {if $hostStatusChecked}checked{/if} />
-                            <span class="cl-toggle-slider"></span>
-                        </label>
-                        <span>{t}Disabled hosts{/t}</span>
-                    </div>
                 </div>
-                <div class="cl-adv-actions">
-                    <button type="button" class="cl-adv-clear" onclick="jQuery('#template,#status').val('').trigger('change'); jQuery('#hostStatusCb').prop('checked', false); document.getElementById('clSearchBtn').click();">{t}Clear{/t}</button>
-                    <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
-                </div>
+            </div>
+            <div class="cl-toolbar-right">
+                <div class="cl-pagination" id="clPaginationTop"></div>
             </div>
         </div>
 
