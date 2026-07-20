@@ -56,7 +56,7 @@ $form->addElement(
     [1 => _('Reload'), 2 => _('Restart')],
     ['id' => 'nsignal_mode', 'style' => 'width: 220px;']
 );
-$form->setDefaults(['generate' => '1', 'apply' => '1', 'signal_mode' => '1']);
+$form->setDefaults(['generate' => '1', 'apply' => '1', 'signal' => '1', 'signal_mode' => '1']);
 
 // Add select2 multiselect for pollers
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list';
