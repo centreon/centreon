@@ -819,6 +819,11 @@ function clCountActiveFilters(panel) {
         });
         if (active) count++;
     });
+    // Standalone toggle filters (e.g. "Locked", "Disabled hosts") aren't
+    // wrapped in .cl-adv-field, so count them separately.
+    panel.querySelectorAll('.cl-filter-toggle').forEach(function (toggle) {
+        if (toggle.querySelector('input[type="checkbox"]:checked')) count++;
+    });
     return count;
 }
 
