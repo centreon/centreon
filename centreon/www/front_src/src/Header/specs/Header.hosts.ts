@@ -1,25 +1,14 @@
 import {
-  labelAll,
-  labelDown,
   labelDownStatusHosts,
   labelHosts,
-  labelPending,
-  labelUnreachable,
+  labelPendingStatusHosts,
   labelUnreachableStatusHosts,
-  labelUp,
   labelUpStatusHosts
 } from '../Resources/Host/translatedLabels';
-import {
-  initialize,
-  openSubMenu,
-  submenuShouldBeClosed,
-  submenuShouldBeOpened
-} from './Header.utils';
+import { initialize } from './Header.utils';
 
 const getElements = (): void => {
-  cy.findByRole('button', { name: labelHosts, timeout: 5000 }).as(
-    'serviceButton'
-  );
+  cy.findByRole('link', { name: labelHosts, timeout: 5000 }).as('hostIcon');
 
   cy.findByRole('link', { name: labelDownStatusHosts }).as('downCounter');
 
@@ -28,27 +17,28 @@ const getElements = (): void => {
   );
 
   cy.findByRole('link', { name: labelUpStatusHosts }).as('upCounter');
+
+  cy.findByRole('link', { name: labelPendingStatusHosts }).as('pendingCounter');
 };
 
 export default (): void =>
   describe(labelHosts, () => {
     describe('responsive behaviors', () => {
-      it('hides the button text when the screen is under 1024px width', () => {
+      it('displays the icon without an expand chevron', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
-        cy.get('@serviceButton').within(() => {
-          cy.findByText(labelHosts).should('not.be.visible');
-          cy.findByTestId('ExpandMoreIcon').should('be.visible');
-          cy.findByTestId('DnsIcon').should('be.visible');
+        cy.get('@hostIcon').within(() => {
+          cy.findByTestId('HostIcon').should('be.visible');
         });
+        cy.findByTestId('ExpandMoreIcon').should('not.exist');
       });
 
       it('hides top counters when the screen is is under 600px width', () => {
         initialize();
         cy.viewport(599, 300);
 
-        cy.findByRole('button', { name: labelHosts, timeout: 5000 }).should(
+        cy.findByRole('link', { name: labelHosts, timeout: 5000 }).should(
           'be.visible'
         );
 
@@ -59,38 +49,9 @@ export default (): void =>
           'not.exist'
         );
         cy.findByRole('link', { name: labelUpStatusHosts }).should('not.exist');
-      });
-    });
-
-    describe('pending indicator', () => {
-      it('displays a pending indicator when the pending count is greater than 0', () => {
-        const hoststubs = {
-          pending: '1'
-        };
-
-        initialize({ hosts_status: hoststubs });
-        getElements();
-
-        cy.get('@serviceButton').within(() => {
-          cy.get('.MuiBadge-badge.MuiBadge-colorPending')
-            .should('exist')
-            .should('be.visible');
-        });
-      });
-
-      it('hides the pending indicator when there is no pending resource', () => {
-        const hoststubs = {
-          pending: '0'
-        };
-
-        initialize({ hosts_status: hoststubs });
-        getElements();
-
-        cy.get('@serviceButton').within(() => {
-          cy.get('.MuiBadge-badge.MuiBadge-colorPending')
-            .should('exist')
-            .should('not.be.visible');
-        });
+        cy.findByRole('link', { name: labelPendingStatusHosts }).should(
+          'not.exist'
+        );
       });
     });
 
@@ -99,6 +60,7 @@ export default (): void =>
         const hoststubs = {
           down: { unhandled: '12' },
           ok: '12134',
+          pending: '7',
           unreachable: { unhandled: '126' }
         };
 
@@ -108,17 +70,17 @@ export default (): void =>
         cy.get('@downCounter').should('be.visible').contains('12');
         cy.get('@unreachableCounter').should('be.visible').contains('126');
         cy.get('@upCounter').should('be.visible').contains('12.1k');
+        cy.get('@pendingCounter').should('be.visible').contains('7');
 
         cy.makeSnapshot();
       });
 
       it('redirect to Resources Status with the correct filter when a counter is clicked', () => {
-        // given
         const hoststubs = {
-          critical: { unhandled: '12' },
+          down: { unhandled: '12' },
           ok: '12134',
-          unknown: { unhandled: '125' },
-          warning: { unhandled: '14688222' }
+          pending: '7',
+          unreachable: { unhandled: '125' }
         };
 
         initialize({ hosts_status: hoststubs });
@@ -144,105 +106,13 @@ export default (): void =>
           'include',
           'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22host%22,%22name%22:%22Host%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22UP%22,%22name%22:%22Up%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
-      });
-    });
 
-    describe('Submenu', () => {
-      it('opens the submenu when clicking on the button', () => {
-        initialize();
-        getElements();
-        submenuShouldBeClosed(labelHosts);
-        cy.get('@serviceButton').should('be.visible');
-        cy.get('@serviceButton').click();
-        submenuShouldBeOpened(labelHosts);
-        cy.makeSnapshot();
-      });
+        cy.get('@pendingCounter').click();
 
-      it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {
-        initialize();
-        getElements();
-
-        openSubMenu(labelHosts);
-
-        cy.get('body').type('{esc}');
-        submenuShouldBeClosed(labelHosts);
-
-        openSubMenu(labelHosts);
-
-        cy.get('body').click();
-        submenuShouldBeClosed(labelHosts);
-
-        openSubMenu(labelHosts);
-
-        cy.get('@serviceButton').click();
-        submenuShouldBeClosed(labelHosts);
-      });
-
-      it('closes the submenu when clicking on an item', () => {
-        initialize();
-        openSubMenu(labelHosts);
-
-        cy.findAllByRole('menuitem').as('items');
-
-        cy.get('@items').each((item: string) => {
-          cy.get(item).click();
-          submenuShouldBeClosed(labelHosts);
-          openSubMenu(labelHosts);
-        });
-      });
-
-      it('links to the expected urls', () => {
-        const hoststubs = {
-          down: { total: '2', unhandled: '1' },
-          ok: '1',
-          pending: '1',
-          total: 8,
-          unreachable: { total: '2', unhandled: '1' }
-        };
-
-        initialize({ hosts_status: hoststubs });
-        openSubMenu(labelHosts);
-
-        cy.get('#Hosts-menu').within(() => {
-          const expectedOrderAndContent = [
-            {
-              count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"DOWN","name":"Down"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelDown
-            },
-            {
-              count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"UNREACHABLE","name":"Unreachable"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelUnreachable
-            },
-            {
-              count: '1',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"UP","name":"Up"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelUp
-            },
-            {
-              count: '1',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[{"id":"PENDING","name":"Pending"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelPending
-            },
-            {
-              count: '8',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[{"id":"host","name":"Host"}]},{"name":"statuses","value":[]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelAll
-            }
-          ];
-
-          cy.findAllByRole('menuitem')
-            .as('items')
-            .should('have.length', expectedOrderAndContent.length);
-
-          cy.get('@items').each((el, index) => {
-            cy.wrap(el)
-              .should('contain.text', expectedOrderAndContent[index].label)
-              .should('contain.text', expectedOrderAndContent[index].count)
-              .should('have.attr', 'href', expectedOrderAndContent[index].href);
-          });
-        });
+        cy.url().should(
+          'include',
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[{%22id%22:%22host%22,%22name%22:%22Host%22}]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22PENDING%22,%22name%22:%22Pending%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+        );
       });
     });
   });

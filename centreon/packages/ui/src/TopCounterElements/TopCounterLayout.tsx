@@ -1,33 +1,31 @@
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { SvgIcon } from '@mui/material';
-import { Badge, ClickAwayListener, Tooltip } from '@mui/material';
+import { ClickAwayListener, Tooltip } from '@mui/material';
 
+import type { MouseEvent } from 'react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import useCloseOnLegacyPage from './useCloseOnLegacyPage';
 
 const useStyles = makeStyles()((theme) => ({
-  button: {
-    '& > svg': {
-      height: '1.15em'
-    },
-    alignItems: 'center',
-    appearance: 'none',
-    background: 'none',
-    border: 0,
-    color: theme.palette.common.white,
-    cursor: 'pointer',
-    display: 'inline-flex',
-    flexFlow: 'row nowrap',
-    gap: theme.spacing(1),
-    padding: 0
-  },
   container: {
     alignItems: 'center',
     display: 'flex',
     position: 'relative'
+  },
+  icon: {
+    '& > svg': {
+      display: 'block',
+      height: '16px',
+      width: '16px'
+    },
+    alignItems: 'center',
+    color: 'inherit',
+    display: 'inline-flex',
+    textDecoration: 'none'
   },
   indicators: {
     alignItems: 'center',
@@ -53,14 +51,37 @@ const useStyles = makeStyles()((theme) => ({
   },
   subMenuOpen: {
     visibility: 'visible'
+  },
+  tile: {
+    '& > svg': {
+      height: '16px',
+      width: '16px'
+    },
+    '&:hover': {
+      borderColor: theme.palette.tile.borderHover
+    },
+    alignItems: 'center',
+    appearance: 'none',
+    background: theme.palette.tile.background,
+    border: `1px solid ${theme.palette.tile.border}`,
+    borderRadius: theme.spacing(1),
+    color: theme.palette.text.primary,
+    display: 'inline-flex',
+    flexFlow: 'row nowrap',
+    gap: theme.spacing(1),
+    padding: '5px 9px'
+  },
+  tileButton: {
+    cursor: 'pointer'
   }
 }));
 
 interface TopCounterLayoutProps {
   Icon: typeof SvgIcon;
+  iconLink?: string;
+  iconOnClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
   renderIndicators: () => JSX.Element;
-  renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
-  showPendingBadge?: boolean;
+  renderSubMenu?: (params: { closeSubMenu: () => void }) => JSX.Element;
   title: string;
   tooltipDescription?: string;
 }
@@ -68,14 +89,16 @@ interface TopCounterLayoutProps {
 const TopCounterLayout = ({
   Icon,
   title,
+  iconLink,
+  iconOnClick,
   renderIndicators,
   renderSubMenu,
-  showPendingBadge,
   tooltipDescription
 }: TopCounterLayoutProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const [toggled, setToggled] = useState(false);
   const subMenuId = title.replace(/[^A-Za-z]/, '-');
+  const isExpandable = Boolean(renderSubMenu);
   useCloseOnLegacyPage({ setToggled });
 
   useEffect(() => {
@@ -98,6 +121,38 @@ const TopCounterLayout = ({
     };
   }, [toggled]);
 
+  const iconWithTooltip = (
+    <Tooltip
+      disableInteractive
+      enterDelay={500}
+      enterNextDelay={500}
+      placement="bottom"
+      title={tooltipDescription ?? title}
+    >
+      <Icon />
+    </Tooltip>
+  );
+
+  if (!isExpandable) {
+    return (
+      <div className={classes.tile}>
+        {iconLink ? (
+          <Link
+            aria-label={title}
+            className={classes.icon}
+            to={iconLink}
+            onClick={iconOnClick}
+          >
+            {iconWithTooltip}
+          </Link>
+        ) : (
+          <span className={classes.icon}>{iconWithTooltip}</span>
+        )}
+        <span className={classes.indicators}>{renderIndicators()}</span>
+      </div>
+    );
+  }
+
   return (
     <ClickAwayListener
       onClickAway={(): void => {
@@ -113,28 +168,12 @@ const TopCounterLayout = ({
           aria-expanded={toggled}
           aria-haspopup="true"
           aria-label={title}
-          className={classes.button}
+          className={cx(classes.tile, classes.tileButton)}
           id={`${subMenuId}-button`}
           onClick={(): void => setToggled(!toggled)}
           type="button"
         >
-          <Tooltip
-            disableInteractive
-            enterDelay={500}
-            enterNextDelay={500}
-            placement="bottom"
-            title={tooltipDescription ?? title}
-          >
-            <Badge
-              anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-              color="pending"
-              invisible={!showPendingBadge}
-              overlap="circular"
-              variant="dot"
-            >
-              <Icon />
-            </Badge>
-          </Tooltip>
+          <span className={classes.icon}>{iconWithTooltip}</span>
           <span className={classes.indicators}>{renderIndicators()}</span>
           {toggled ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         </button>
@@ -144,7 +183,7 @@ const TopCounterLayout = ({
           id={`${subMenuId}-menu`}
           role="menu"
         >
-          {renderSubMenu({ closeSubMenu: () => setToggled(false) })}
+          {renderSubMenu?.({ closeSubMenu: () => setToggled(false) })}
         </div>
       </div>
     </ClickAwayListener>

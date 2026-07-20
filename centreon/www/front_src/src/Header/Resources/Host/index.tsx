@@ -1,10 +1,7 @@
-import HostIcon from './HostIcon';
-
 import {
   MenuSkeleton,
   TopCounterLayout,
-  TopCounterResourceCounters,
-  TopCounterResourceSubMenu
+  TopCounterResourceCounters
 } from '@centreon/ui';
 
 import { useTranslation } from 'react-i18next';
@@ -15,6 +12,7 @@ import { hostStatusEndpoint } from '../../api/endpoints';
 import useResourceCounters from '../useResourceCounters';
 import type { HostPropsAdapterOutput } from './getHostPropsAdapter';
 import getHostPropsAdapter from './getHostPropsAdapter';
+import HostIcon from './HostIcon';
 import { labelHostsOverview } from './translatedLabels';
 
 const HostStatusCounter = (): JSX.Element | null => {
@@ -40,13 +38,11 @@ const HostStatusCounter = (): JSX.Element | null => {
   return (
     <TopCounterLayout
       Icon={HostIcon}
+      iconLink={data.allLink}
+      iconOnClick={data.allOnClick}
       renderIndicators={(): JSX.Element => (
         <TopCounterResourceCounters counters={data.counters} />
       )}
-      renderSubMenu={({ closeSubMenu }): JSX.Element => (
-        <TopCounterResourceSubMenu items={data.items} onClose={closeSubMenu} />
-      )}
-      showPendingBadge={data.hasPending}
       title={data.buttonLabel}
       tooltipDescription={t(labelHostsOverview)}
     />

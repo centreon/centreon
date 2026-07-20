@@ -10,6 +10,7 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 <form name='form' method='POST'>
     <h1 class="cl-page-title">{t}Resource access{/t}</h1>
+    <hr class="cl-title-sep">
     <div class="cl-listing-container">
         <div class="cl-actions-bar">
             { if $mode_access == 'w' }

@@ -9,6 +9,7 @@ import { equals } from 'ramda';
 import { useRef } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
+import Breadcrumbs from '../BreadcrumbTrail';
 import FederatedComponent from '../components/FederatedComponents';
 import Poller from './Poller';
 import HostStatusCounter from './Resources/Host';
@@ -28,7 +29,7 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     backgroundColor: isDarkMode(theme)
       ? theme.palette.common.black
-      : theme.palette.primary.main,
+      : theme.palette.background.paper,
     display: 'flex',
     maxHeight: theme.spacing(headerHeight),
     minHeight: theme.spacing(headerHeight),
@@ -39,26 +40,25 @@ const useStyles = makeStyles()((theme) => ({
     '&:empty, &:last-of-type': {
       marginRight: 0
     },
-    '&:first-of-type': {
-      borderRight: `solid 1px ${theme.palette.common.white}`,
-      marginRight: theme.spacing(3.5),
-      paddingRight: theme.spacing(3.5),
-
-      [theme.breakpoints.down(960)]: {
-        marginRight: theme.spacing(2.5),
-        paddingRight: theme.spacing(2.5)
-      }
-    },
     flex: 'initial',
-    marginRight: theme.spacing(6),
+    marginRight: theme.spacing(2),
 
     [theme.breakpoints.down(960)]: {
-      marginRight: theme.spacing(3.5)
+      marginRight: theme.spacing(1.5)
     }
   },
   leftContainer: {
     alignItems: 'center',
     display: 'flex'
+  },
+  divider: {
+    backgroundColor: theme.palette.divider,
+    height: theme.spacing(3),
+    marginRight: theme.spacing(2),
+    width: '1px',
+    [theme.breakpoints.down(960)]: {
+      marginRight: theme.spacing(1.5)
+    }
   },
   rigthContainer: {
     alignItems: 'center',
@@ -82,6 +82,12 @@ const Header = (): JSX.Element => {
       ref={headerRef}
     >
       <div className={classes.leftContainer}>
+        <div className={classes.item}>
+          <Breadcrumbs />
+        </div>
+
+        <div className={classes.divider} />
+
         <div className={classes.item}>
           <Poller />
         </div>

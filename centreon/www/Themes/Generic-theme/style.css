@@ -299,7 +299,7 @@ label {
     padding: 0px 15px;
 }
 .pathway {
-    padding: 10px 0;
+    display: none;
 }
 pre.wrap {
     white-space: -moz-pre-wrap;

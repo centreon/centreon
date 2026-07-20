@@ -116,6 +116,11 @@
   --color-success-light: #9fc74e;
   --color-success-dark: #5f8117;
 
+  /* Tile container colors */
+  --color-tile-background: #f8f8f8;
+  --color-tile-border: #e3e3e3;
+  --color-tile-border-hover: #cccccc;
+
   /* Text colors */
   --color-text-disabled: #999999;
   --color-text-primary: #000000;
@@ -203,6 +208,9 @@
     --color-success-main: #88b922;
     --color-success-light: #9fc74e;
     --color-success-dark: #5f8117;
+    --color-tile-background: #2e2e2e;
+    --color-tile-border: #4a4a4a;
+    --color-tile-border-hover: #6d6d6d;
     --color-text-disabled: #666666;
     --color-text-primary: #ffffff;
     --color-text-secondary: #cccccc;

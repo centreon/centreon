@@ -42,8 +42,8 @@ const useStatusStyles = makeStyles<StyleProps>()(
     return {
       avatar: {
         fontSize: theme.typography.body1.fontSize,
-        height: theme.spacing(2.5),
-        width: theme.spacing(2.5)
+        height: theme.spacing(2),
+        width: theme.spacing(2)
       },
       container: {
         alignItems: 'center',
@@ -58,8 +58,8 @@ const useStatusStyles = makeStyles<StyleProps>()(
       },
       database: getSeverityColor(databaseSeverity),
       icon: {
-        height: theme.spacing(2),
-        width: theme.spacing(2)
+        height: theme.spacing(1.5),
+        width: theme.spacing(1.5)
       },
       latency: getSeverityColor(latencySeverity),
       visuallyHiddenText: {

@@ -1,4 +1,4 @@
-import { Badge, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 import { getStatusColors, type SeverityCode } from '@centreon/ui';
 
@@ -15,26 +15,25 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
     : null;
 
   return {
-    badge: {
-      // Keep the badge in normal flow and vertically centered: override MUI's
-      // anchorOrigin transform (translate(50%, -50%)) which otherwise pushes the
-      // chip up and right. The triple `&` outweighs MUI's compound selector.
-      '&&&': {
-        position: 'relative',
-        right: 0,
-        top: 0,
-        transform: 'none'
-      },
-      background: statusColors?.backgroundColor ?? 'transparent',
-      borderRadius: theme.spacing(1.5),
-      color: statusColors?.color ?? theme.palette.text.primary,
+    container: {
+      alignItems: 'center',
+      color: theme.palette.mode === 'dark' ? '#EAEEF7' : '#1B2233',
       cursor: 'pointer',
-      fontSize: theme.typography.body1.fontSize,
-      fontWeight: theme.typography.fontWeightBold,
-      height: theme.spacing(2.5),
-      lineHeight: theme.spacing(2.5),
-      minWidth: theme.spacing(2.5),
-      padding: theme.spacing(0, 0.75)
+      display: 'inline-flex',
+      gap: '3px'
+    },
+    count: {
+      fontFamily: 'ui-monospace, "Roboto Mono", Menlo, monospace',
+      fontSize: '12px',
+      fontWeight: theme.typography.fontWeightMedium,
+      lineHeight: 1
+    },
+    dot: {
+      backgroundColor: statusColors?.backgroundColor ?? theme.palette.divider,
+      borderRadius: '50%',
+      flexShrink: 0,
+      height: '9px',
+      width: '9px'
     }
   };
 });
@@ -60,14 +59,10 @@ const StatusCounter = ({
       followCursor
       title={count}
     >
-      <Badge
-        badgeContent={formattedCount}
-        classes={{
-          badge: cx(classes.badge, className)
-        }}
-        max={Number.POSITIVE_INFINITY}
-        overlap="circular"
-      />
+      <span className={cx(classes.container, className)}>
+        <span className={classes.dot} />
+        <span className={classes.count}>{formattedCount}</span>
+      </span>
     </Tooltip>
   );
 };
