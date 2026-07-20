@@ -283,7 +283,7 @@ class CentreonContact extends CentreonObject
                     $params[2] = $completeLanguage;
                 } elseif ($params[1] === 'password') {
                     $params[1] = 'passwd';
-                    if (password_needs_rehash($params[2], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+                    if (! $this->isPasswordAlreadyHashed((string) $params[2])) {
                         $contact = new \CentreonContact($this->db);
                         try {
                             $contact->respectPasswordPolicyOrFail($params[2], $objectId);
@@ -485,7 +485,7 @@ class CentreonContact extends CentreonObject
      */
     protected function initPassword(array $params): void
     {
-        if (password_needs_rehash($params[static::ORDER_PASS], CentreonAuth::PASSWORD_HASH_ALGORITHM)) {
+        if (! $this->isPasswordAlreadyHashed((string) $params[static::ORDER_PASS])) {
             $contact = new \CentreonContact($this->db);
             try {
                 $contact->respectPasswordPolicyOrFail($params[static::ORDER_PASS], null);
@@ -594,6 +594,24 @@ class CentreonContact extends CentreonObject
         foreach ($cmdIds as $cmdId) {
             $relObj->insert($contactId, $cmdId);
         }
+    }
+
+    /**
+     * Whether the value is already a hash (e.g. from a CLAPI export) rather than plaintext.
+     *
+     * Not password_needs_rehash(): it also flags a valid hash whose cost differs from the
+     * current default, which would hash the value twice and break authentication.
+     *
+     * @param string $password
+     *
+     * @return bool
+     */
+    private function isPasswordAlreadyHashed(string $password): bool
+    {
+        // password_get_info() returns a null algorithm for plaintext.
+        $algorithm = password_get_info($password)['algo'];
+
+        return $algorithm !== null && $algorithm !== 0;
     }
 
     /**
