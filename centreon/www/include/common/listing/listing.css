@@ -834,6 +834,13 @@
     padding-right: 36px;
 }
 
+/* Compact + advanced-filters combo (two-search-box toolbars, e.g. host +
+   service): keep the narrow width, just reserve room for the icon button */
+.cl-search--sm.cl-search--with-adv .cl-search-simple {
+    width: 210px;
+    padding-right: 36px;
+}
+
 .cl-search--with-adv .cl-adv-icon-btn {
     position: absolute;
     right: 6px;
