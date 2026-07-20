@@ -9,10 +9,13 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 {/literal}
 
 <form name='form' method='POST'>
-    <h1 class="cl-page-title">{t}Host dependencies{/t}</h1>
-    <p class="cl-page-desc">{t}Suppress host notifications based on the state of other hosts.{/t}</p>
+    <div class="cl-page-header">
+        <h1 class="cl-page-title">{t}Host dependencies{/t}</h1>
+        <span class="cl-page-title-sep"></span>
+        <p class="cl-page-desc">{t}Suppress host notifications based on the state of other hosts.{/t}</p>
+    </div>
     <div class="cl-listing-container">
-        <div class="cl-actions-bar">
+        <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$depHDPage}&o=a', '{$msg.addT}'); return false;">{$msg.addT}</a>
@@ -21,12 +24,13 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
             { else }
             <div class="cl-actions-left">&nbsp;</div>
             { /if }
-            <div class="cl-toolbar-right">
-                <div class="cl-search">
+            <div class="cl-toolbar-center">
+                <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                     <input type="text" id="clSearchInput" name="searchHD" value="{$searchHD}" class="cl-search-simple" placeholder="{t}Search host dependencies{/t}" autocomplete="off">
                 </div>
-                <span class="cl-toolbar-sep"></span>
+            </div>
+            <div class="cl-toolbar-right">
                 <div class="cl-pagination" id="clPaginationTop"></div>
             </div>
         </div>
