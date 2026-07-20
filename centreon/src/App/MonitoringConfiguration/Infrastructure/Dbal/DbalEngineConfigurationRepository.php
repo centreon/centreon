@@ -225,7 +225,7 @@ final readonly class DbalEngineConfigurationRepository extends DbalRepository im
         $cfgNagiosId = (int) $this->connection->lastInsertId();
 
         if ($cfgNagiosId === 0) {
-            throw new \RuntimeException('Unable to retrieve last insert ID for "cfg_nagios".');
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "cfg_nagios" (poller_id=%d).', $cfg->pollerId->value));
         }
 
         $this->setId($cfg, new EngineConfigurationId($cfgNagiosId));
