@@ -752,7 +752,7 @@ class OpenIdProvider implements OpenIdProviderInterface
         $groupsMapping = $customConfiguration->getGroupsMapping();
 
         foreach ($authenticationConditions->getBlacklistClientAddresses() as $blackListedAddress) {
-            if ($blackListedAddress !== '' && preg_match('/' . $blackListedAddress . '/', $clientIp)) {
+            if ($blackListedAddress !== '' && preg_match('/' . $blackListedAddress . '/', $clientIp) === 1) {
                 LoggerAuthentication::create()->loginFailure(
                     'Client IP is blacklisted',
                     null,
@@ -763,11 +763,19 @@ class OpenIdProvider implements OpenIdProviderInterface
             }
         }
 
-        foreach ($authenticationConditions->getTrustedClientAddresses() as $trustedClientAddress) {
-            if (
-                $trustedClientAddress !== ''
-                && preg_match('/' . $trustedClientAddress . '/', $clientIp)
-            ) {
+        $trustedClientAddresses = array_filter(
+            $authenticationConditions->getTrustedClientAddresses(),
+            static fn (string $trustedClientAddress): bool => $trustedClientAddress !== ''
+        );
+        if ($trustedClientAddresses !== []) {
+            $isTrusted = false;
+            foreach ($trustedClientAddresses as $trustedClientAddress) {
+                if (preg_match('/' . $trustedClientAddress . '/', $clientIp) === 1) {
+                    $isTrusted = true;
+                    break;
+                }
+            }
+            if (! $isTrusted) {
                 LoggerAuthentication::create()->loginFailure(
                     'Client IP is not whitelisted',
                     null,
