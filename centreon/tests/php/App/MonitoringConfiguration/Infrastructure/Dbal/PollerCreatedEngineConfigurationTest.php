@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\BrokerOptions;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
@@ -38,6 +39,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\MonitoringConfiguration\Domain\Repository\EngineConfigurationRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Event\EventBus;
@@ -105,6 +107,52 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
 
         self::assertIsArray($cfgBrokerModule);
         self::assertSame(BrokerOptions::MODULE_PATH, $cfgBrokerModule['broker_module']);
+    }
+
+    public function testPollerIsRolledBackWhenEngineConfigurationCreationFails(): void
+    {
+        self::getContainer()->set(
+            EngineConfigurationRepository::class,
+            new class implements EngineConfigurationRepository {
+                public function add(EngineConfiguration $engineConfiguration): void
+                {
+                    throw new \RuntimeException('Simulated engine configuration failure');
+                }
+            },
+        );
+
+        $this->connection->beginTransaction();
+
+        try {
+            $this->connection->insert('nagios_server', [
+                'id' => 2,
+                'name' => 'Rollback Test Poller',
+                'localhost' => '0',
+                'ns_activate' => '1',
+                'ns_ip_address' => '192.168.1.200',
+            ]);
+
+            $poller = $this->createPoller(2, 'Rollback Test Poller');
+
+            $this->eventBus->fire(new PollerCreated($poller, 1));
+
+            $this->connection->commit();
+            self::fail('Expected engine configuration creation to throw');
+        } catch (\RuntimeException) {
+            $this->connection->rollBack();
+        }
+
+        $pollerRow = $this->connection->fetchAssociative(
+            'SELECT * FROM nagios_server WHERE id = :id',
+            ['id' => 2],
+        );
+        self::assertFalse($pollerRow);
+
+        $cfgNagiosRow = $this->connection->fetchAssociative(
+            'SELECT * FROM cfg_nagios WHERE nagios_server_id = :id',
+            ['id' => 2],
+        );
+        self::assertFalse($cfgNagiosRow);
     }
 
     private function createPoller(int $pollerId, string $pollerName): Poller
