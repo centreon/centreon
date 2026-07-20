@@ -1,0 +1,60 @@
+#!/bin/bash
+# Copyright 2025 - present Centreon Team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Centreon poller installer - <VERSION>
+
+# Fail on use of unset variables to catch typos and missing args early.
+set -u
+
+# Centreon major version
+major=""
+
+## Configuration variable
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_FILE="${SCRIPT_DIR}/log/install-poller.log"
+
+# Deployment type: docker | vm (required, no default)
+POLLER_TYPE=""
+
+# Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
+CLOUD_MODE="false"
+
+# Common install args
+GORGONE_TOKEN=""
+GORGONE_UID=""
+POLLER_NAME=""
+CENTRAL_URL=""
+CENTRAL_HOST=""
+CENTRAL_PORT=""
+# ssl inferred from the http(s):// scheme in --central_url, if any (empty = not specified)
+CENTRAL_URL_SSL=""
+APP_SECRET=""
+SALT=""
+
+# Gorgone connection (derived from the args above)
+GORGONE_ADDRESS=""
+GORGONE_SSL=""
+
+# Engine broker connection port for the healthcheck (cloud: 443, on-prem: 5669)
+ENGINE_PORT=""
+
+# Optional / runtime
+TZ=""
+DEBUG=""
+
+# Optional services (Docker mode)
+WITH_VMWARE=0
+WITH_SNMPTRAP=0
+WITH_CMA=0
+START_STACK=1

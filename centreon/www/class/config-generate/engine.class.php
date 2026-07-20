@@ -179,6 +179,7 @@ class Engine extends AbstractObject
         'macros_filter',
         'enable_macros_filter',
         'grpc_port',
+        'rpc_listen_address',
         'log_v2_enabled',
         'log_legacy_enabled',
         'log_v2_logger',
@@ -430,6 +431,22 @@ class Engine extends AbstractObject
     }
 
     /**
+     * @param int $poller_id
+     *
+     * @return string 'vm'|'docker'
+     */
+    private function getPollerType(int $poller_id): string
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            'SELECT poller_type FROM nagios_server WHERE id = :poller_id'
+        );
+        $stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchColumn() ?: 'vm';
+    }
+
+    /**
      * @param $poller_id
      *
      * @throws LogicException
@@ -479,7 +496,9 @@ class Engine extends AbstractObject
         $object['global_service_event_handler']
             = $command_instance->generateFromCommandId($object['global_service_event_handler_id']);
 
-        $object['grpc_port'] = 50000 + $poller_id;
+        $pollerType = $this->getPollerType($poller_id);
+        $object['grpc_port'] = 50155;
+        $object['rpc_listen_address'] = $pollerType === 'docker' ? '0.0.0.0' : '127.0.0.1';
         $this->generate_filename = 'centengine.DEBUG';
         $object['cfg_file'] = $this->cfg_file['debug']['cfg_file'];
         $object['resource_file'] = $this->cfg_file['debug']['resource_file'];

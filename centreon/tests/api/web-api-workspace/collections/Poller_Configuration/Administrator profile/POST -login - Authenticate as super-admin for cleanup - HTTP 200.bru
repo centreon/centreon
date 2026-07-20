@@ -1,0 +1,39 @@
+meta {
+  name: POST /login - Authenticate as super-admin for cleanup - HTTP 200
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrlWeb}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "security": {
+      "credentials": {
+        "login": "{{api_login}}",
+        "password": "{{api_password}}"
+      }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Super-admin token is stored for poller cleanup (CLAPI INSTANCE requires super-admin)", function () {
+    const body = res.getBody();
+    expect(body.security.token).to.be.a("string");
+    bru.setEnvVar("cleanupToken", body.security.token);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
