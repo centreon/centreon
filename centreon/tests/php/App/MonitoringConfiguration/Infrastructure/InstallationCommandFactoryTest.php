@@ -431,7 +431,7 @@ final class InstallationCommandFactoryTest extends TestCase
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
-            engineConfiguration: new EngineInformation(),
+            engineInformation: new EngineInformation(),
             gorgoneConfiguration: new GorgoneConfiguration(),
             cmaCertificates: $cmaCertificates,
         );

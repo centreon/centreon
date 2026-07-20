@@ -65,7 +65,7 @@ final readonly class CreatePollerCommandHandler
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: $command->gorgoneCommunicationType,
             ),
-            engineConfiguration: new EngineInformation(),
+            engineInformation: new EngineInformation(),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),

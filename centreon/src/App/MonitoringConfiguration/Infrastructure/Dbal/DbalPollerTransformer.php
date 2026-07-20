@@ -66,7 +66,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 modulesPath: $from['centreonbroker_module_path'],
                 logsPath: $from['centreonbroker_logs_path'],
             ),
-            engineConfiguration: new EngineInformation(
+            engineInformation: new EngineInformation(
                 startCommand: $from['engine_start_command'],
                 stopCommand: $from['engine_stop_command'],
                 restartCommand: $from['engine_restart_command'],

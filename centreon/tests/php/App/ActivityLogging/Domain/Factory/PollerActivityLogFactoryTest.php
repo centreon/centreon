@@ -62,7 +62,7 @@ final class PollerActivityLogFactoryTest extends TestCase
             uid: new PollerUid(123456789012345),
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
-            engineConfiguration: new EngineInformation(),
+            engineInformation: new EngineInformation(),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
