@@ -154,6 +154,7 @@ apt-get update
 if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
     centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*+deb13u1 \
+    centreon-gorgone-centreon-config-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*+deb13u1 \
     centreon-gorgone=${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*+deb13u1 \
     centreon-clib=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
     centreon-engine=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb13u1 \
@@ -170,6 +171,7 @@ if [[ "$STABILITY" == "stable" ]]; then
 else
   apt-get install -y \
     centreon-common \
+    centreon-gorgone-centreon-config \
     centreon-gorgone \
     centreon-engine \
     centreon-broker-cbd \
