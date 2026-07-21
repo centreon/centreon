@@ -35,41 +35,27 @@ final class EngineConfiguration extends AggregateRoot
         ?EngineConfigurationId $engineConfigurationId,
         public readonly PollerId $pollerId,
         public readonly string $name,
-        public readonly bool $isActivated,
-        public readonly CheckExecutionOptions $checkExecution,
-        public readonly FreshnessAndFlapOptions $freshnessAndFlap,
-        public readonly LoggingOptions $logging,
-        public readonly RetentionOptions $retention,
-        public readonly SchedulingOptions $scheduling,
         public readonly BrokerOptions $broker,
-        public readonly MiscOptions $misc,
+        public readonly bool $isActivated = true,
+        public readonly CheckExecutionOptions $checkExecution = new CheckExecutionOptions(),
+        public readonly FreshnessAndFlapOptions $freshnessAndFlap = new FreshnessAndFlapOptions(),
+        public readonly LoggingOptions $logging = new LoggingOptions(),
+        public readonly RetentionOptions $retention = new RetentionOptions(),
+        public readonly SchedulingOptions $scheduling = new SchedulingOptions(),
+        public readonly MiscOptions $misc = new MiscOptions(),
     ) {
         parent::__construct($engineConfigurationId);
     }
 
     public static function createDefault(PollerId $pollerId, string $pollerName): self
     {
-        $slug = self::slugify($pollerName);
-
         return new self(
             engineConfigurationId: null,
             pollerId: $pollerId,
             name: $pollerName,
-            isActivated: true,
-            checkExecution: new CheckExecutionOptions(),
-            freshnessAndFlap: new FreshnessAndFlapOptions(),
-            logging: new LoggingOptions(),
-            retention: new RetentionOptions(),
-            scheduling: new SchedulingOptions(),
             broker: new BrokerOptions(
-                brokerModuleCfgFile: sprintf('/etc/centreon-broker/%s-module.json', $slug),
+                brokerModuleCfgFile: sprintf('/etc/centreon-broker/%s-module.json', $pollerName),
             ),
-            misc: new MiscOptions(),
         );
-    }
-
-    private static function slugify(string $name): string
-    {
-        return mb_strtolower(str_replace(' ', '-', $name));
     }
 }

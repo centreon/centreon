@@ -28,10 +28,18 @@ final readonly class BrokerOptions
     public const MODULE_PATH = '/usr/lib64/centreon-engine/externalcmd.so';
     public const DEFAULT_EVENT_BROKER_OPTIONS = '-1';
 
+    public string $brokerModuleCfgFile;
+
     public function __construct(
+        string $brokerModuleCfgFile,
         public string $eventBrokerOptions = self::DEFAULT_EVENT_BROKER_OPTIONS,
-        public ?string $brokerModuleCfgFile = null,
         public string $brokerModule = self::MODULE_PATH,
     ) {
+        $this->brokerModuleCfgFile = $this->slugify($brokerModuleCfgFile);
+    }
+
+    private function slugify(string $name): string
+    {
+        return mb_strtolower(str_replace(' ', '-', $name));
     }
 }
