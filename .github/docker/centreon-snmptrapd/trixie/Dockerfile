@@ -3,8 +3,36 @@
 ARG USE_SOURCE_TRAPD=false
 
 #############################################
-# Stage 1: Centreon Perl libs selector
-# USE_SOURCE_TRAPD=false → installed from .deb directly in the runtime stage (production default)
+# Stage 1: Extract files from .deb packages
+#############################################
+FROM debian:13-slim AS extractor
+
+RUN --mount=type=bind,source=packages-centreon,target=/packages \
+    bash -e <<EOF
+mkdir -p /extracted
+cd /packages
+for deb in centreon-trap*.deb centreon-perl-libs*.deb; do
+    echo "Extracting \$deb..."
+    dpkg-deb -x "\$deb" /extracted/
+done
+# This image only runs centreontrapdforward — trim the sibling centreontrapd binary and the
+# systemd/sysconfig/logrotate files (inert here: no systemd, logs go to stdout) so the runtime
+# stage only ever copies a directory containing what it actually needs, rather than us having
+# to name individual files to include.
+rm -f /extracted/usr/share/centreon/bin/centreontrapd \
+      /extracted/lib/systemd/system/centreontrapd.service \
+      /extracted/etc/default/centreontrapd \
+      /extracted/etc/logrotate.d/centreontrapd
+echo "=== Extracted binaries (trimmed) ==="
+ls -lah /extracted/usr/share/centreon/bin/ || true
+echo "=== Extracted Perl modules ==="
+ls -lah /extracted/usr/share/perl5/ || true
+EOF
+
+#############################################
+# Stage 1b/1c: Centreon Perl libs selector
+# USE_SOURCE_TRAPD=false → perl modules already come from the broad COPY --from=extractor below
+#                          (this branch is an empty no-op merge)
 # USE_SOURCE_TRAPD=true  → copy from local repo source (dev/testing), overriding the .deb install
 #############################################
 FROM debian:13-slim AS centreon-perl-false
@@ -54,29 +82,6 @@ groupadd -g 900 centreon
 useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
 EOF
 
-# Install centreon-trap and centreon-perl-libs .deb packages directly: dpkg places every file
-# at the path the package declares, so we don't hand-maintain COPY paths that mirror the
-# package's internal layout. --force-depends skips the package's own Depends (snmpd,
-# snmptrapd, librrds-perl, libgd-perl, ...) which are unused here — real runtime deps are the
-# explicit apt-get install list above/below, same as before.
-RUN --mount=type=bind,source=packages-centreon,target=/packages \
-    bash -e <<EOF
-cd /packages
-dpkg -i --force-depends centreon-trap*.deb centreon-perl-libs*.deb
-# centreon-trap.deb also ships centreontrapd (this image only runs centreontrapdforward) and
-# systemd/logrotate/sysconfig files that are inert here (no systemd, logs go to stdout) —
-# drop them in this same layer so they never end up in the image.
-rm -f /usr/share/centreon/bin/centreontrapd \
-      /lib/systemd/system/centreontrapd.service \
-      /etc/default/centreontrapd \
-      /etc/logrotate.d/centreontrapd
-# dpkg backs up the pre-transaction /var/lib/dpkg/status to status-old before writing the new
-# one — a rollback safety net that's dead weight in an immutable image (never read unless
-# recovering a broken dpkg transaction, which won't happen here). Safe to drop: dpkg -l/-s
-# only read /var/lib/dpkg/status, not status-old.
-rm -f /var/lib/dpkg/status-old
-EOF
-
 # Create directory structure
 RUN bash -e <<EOF
 mkdir -p /var/spool/centreontrapd \
@@ -91,7 +96,13 @@ chown -R centreon:centreon /etc/snmp
 chmod 0755 /var/spool/centreon
 EOF
 
-# Copy Perl modules from selected source
+# Copy everything the extractor kept (already trimmed to just what this image needs) in one
+# shot, instead of naming individual destination paths — a file added anywhere under /extracted
+# by a future packaging change lands here automatically, no Dockerfile update required.
+COPY --from=extractor --link /extracted/ /
+
+# Override with local dev source when USE_SOURCE_TRAPD=true; a no-op empty merge otherwise
+# (perl modules already arrived via the COPY above).
 COPY --from=centreon-perl-selected --link /centreon-modules/ /usr/share/perl5/centreon/
 
 # Copy entrypoint scripts
