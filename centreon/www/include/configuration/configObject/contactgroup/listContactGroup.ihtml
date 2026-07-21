@@ -79,42 +79,6 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 
 {literal}
 <script type="text/javascript">
-function cfOpenPanel(url, title) {
-    document.getElementById('cfSidePanelTitle').textContent = title || '';
-    document.getElementById('cfSidePanelFrame').src = url;
-    document.getElementById('cfSideOverlay').classList.add('open');
-    document.getElementById('cfSidePanel').classList.add('open');
-}
-function cfClosePanel() {
-    document.getElementById('cfSideOverlay').classList.remove('open');
-    document.getElementById('cfSidePanel').classList.remove('open');
-    setTimeout(function() { document.getElementById('cfSidePanelFrame').src = 'about:blank'; }, 300);
-    cgListing.fetch(cgListing.getState().num, cgListing.getState().limit, cgListing.getState().search, true);
-}
-(function() {
-    var handle = document.getElementById('cfSidePanelResize');
-    var panel = document.getElementById('cfSidePanel');
-    var dragging = false;
-    handle.addEventListener('mousedown', function(e) {
-        e.preventDefault(); dragging = true; handle.classList.add('active');
-        document.body.style.cursor = 'col-resize';
-        var iframe = document.getElementById('cfSidePanelFrame');
-        if (iframe) iframe.style.pointerEvents = 'none';
-    });
-    document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        var w = window.innerWidth - e.clientX;
-        if (w < 400) w = 400; if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
-        panel.style.width = w + 'px';
-    });
-    document.addEventListener('mouseup', function() {
-        if (!dragging) return; dragging = false; handle.classList.remove('active');
-        document.body.style.cursor = '';
-        var iframe = document.getElementById('cfSidePanelFrame');
-        if (iframe) iframe.style.pointerEvents = '';
-    });
-})();
-document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cfClosePanel(); });
 
 // Escape a value for safe embedding inside an HTML attribute (l.escape covers
 // text nodes only and leaves quotes intact)
@@ -160,5 +124,6 @@ var cgListing = new CentreonListing({
     }
 });
 cgListing.init();
+CentreonForm.initSidePanel(cgListing);
 </script>
 {/literal}
