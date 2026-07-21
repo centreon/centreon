@@ -50,6 +50,7 @@ import {
   labelUpdate
 } from '../../translatedLabels';
 import Dashboard from './Dashboard';
+import { labelViewByHost } from './Widgets/centreon-widget-resourcestable/src/Listing/translatedLabels';
 import { internalWidgetComponents } from './Widgets/widgets';
 import {
   dashboardAtom,
@@ -79,7 +80,6 @@ import {
   labelYourDashboardHasBeenSaved,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
-import { labelViewByHost } from './Widgets/centreon-widget-resourcestable/src/Listing/translatedLabels';
 
 const widgetProperties = [
   widgetTextProperties,
