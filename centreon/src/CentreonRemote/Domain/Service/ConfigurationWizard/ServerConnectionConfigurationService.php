@@ -61,6 +61,10 @@ abstract class ServerConnectionConfigurationService
 
     protected int|null $brokerID = null;
 
+    protected string|null $gorgoneCommunicationType = null;
+
+    protected int|null $gorgonePort = null;
+
     public function __construct(
         protected CentreonDBAdapter $dbAdapter,
     ) {
@@ -119,6 +123,24 @@ abstract class ServerConnectionConfigurationService
     public function setOnePeerRetention(bool $onePeerRetention): void
     {
         $this->onePeerRetention = $onePeerRetention;
+    }
+
+    /**
+     * Override the gorgone communication type stored on the nagios_server row.
+     *
+     * @param string $gorgoneCommunicationType value matching NagiosServer::ZMQ|SSH|PULL|PULLWSS
+     */
+    public function setGorgoneCommunicationType(string $gorgoneCommunicationType): void
+    {
+        $this->gorgoneCommunicationType = $gorgoneCommunicationType;
+    }
+
+    /**
+     * Override the gorgone port stored on the nagios_server row.
+     */
+    public function setGorgonePort(int $gorgonePort): void
+    {
+        $this->gorgonePort = $gorgonePort;
     }
 
     /**
@@ -189,7 +211,15 @@ abstract class ServerConnectionConfigurationService
 
     protected function insertNagiosServer(): int
     {
-        return $this->insertWithAdapter('nagios_server', NagiosServer::getConfiguration($this->name, $this->serverIp));
+        return $this->insertWithAdapter(
+            'nagios_server',
+            NagiosServer::getConfiguration(
+                $this->name,
+                $this->serverIp,
+                $this->gorgoneCommunicationType,
+                $this->gorgonePort,
+            ),
+        );
     }
 
     /**
