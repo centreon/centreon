@@ -39,7 +39,7 @@
     position: sticky;
     top: 0;
     z-index: 65;
-    background: #fff;
+    background: var(--body-background, #fff);
 }
 
 .cl-actions-left {
@@ -52,7 +52,7 @@
 .cl-actions-left select {
     padding: 8px 12px;
     font-size: 14px;
-    border: 1px solid var(--color-divider, #E3E3E3);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
     border-radius: 4px;
     background: var(--select-background, #fff);
     cursor: pointer;
@@ -71,8 +71,11 @@
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    /* Same tokens as the legacy .btc buttons (Monitoring's Set downtime /
+       Forced check): background lightens and text switches to black in
+       dark mode instead of staying a dark blue with white text. */
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
     border: none;
     border-radius: 4px;
     text-decoration: none;
@@ -83,8 +86,8 @@
 }
 
 .cl-btn-add:hover {
-    background-color: var(--color-primary-hover, #255891);
-    color: #fff;
+    background-color: var(--bt-info-hover-background-color, #255891);
+    color: var(--btc-hover-color, #fff);
     text-decoration: none;
 }
 
@@ -104,9 +107,9 @@
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--list-color, #333);
+    color: var(--body-color, #333);
     background-color: transparent;
-    border: 1px solid var(--c-stroke, #b0b7c3);
+    border: 1px solid var(--select-border-color, #b0b7c3);
     border-radius: 4px;
     text-decoration: none;
     cursor: pointer;
@@ -116,8 +119,8 @@
 }
 
 .cl-btn-secondary:hover {
-    background-color: var(--color-divider, #e8e8e8);
-    color: var(--list-color, #333);
+    background-color: var(--listing-border-botom-color, #e8e8e8);
+    color: var(--body-color, #333);
     text-decoration: none;
 }
 
@@ -146,7 +149,7 @@
     max-width: 400px;
     padding: 8px 12px;
     font-size: 14px;
-    border: 1px solid var(--color-divider, #E3E3E3);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
     border-radius: 4px;
     outline: none;
     transition: border-color 0.15s ease;
@@ -187,7 +190,7 @@
 }
 
 .cl-pagination a {
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--cl-link-color, #2E68AA);
 }
 
 .cl-pagination a:hover {
@@ -199,7 +202,7 @@
 .cl-pagination a.cl-page-nav {
     min-width: 16px;
     padding: 0;
-    color: var(--c-text-secondary, #8a8a8a);
+    color: var(--body-color, #8a8a8a);
 }
 
 .cl-pagination a.cl-page-nav svg {
@@ -214,7 +217,7 @@
 }
 
 .cl-pagination a.cl-page-nav:hover svg {
-    stroke: var(--color-primary-light, #2E68AA);
+    stroke: var(--cl-link-color, #2E68AA);
 }
 
 /* Current page indicator */
@@ -225,8 +228,8 @@
     min-width: 28px;
     height: 28px;
     border-radius: 4px;
-    background-color: var(--color-primary-light, #2E68AA);
-    color: #fff;
+    background-color: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
     font-size: 13px;
     font-weight: 600;
 }
@@ -242,7 +245,7 @@
 .cl-pagination .cl-limit-select {
     padding: 4px 8px;
     font-size: 13px;
-    border: 1px solid var(--color-divider, #E3E3E3);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
     border-radius: 4px;
     background: var(--select-background, #fff);
     cursor: pointer;
@@ -288,9 +291,9 @@
 }
 
 .cl-listing-table thead th.cl-col-picker {
-    width: 40px;
+    width: 16px;
     text-align: center;
-    padding: 6px 8px;
+    padding: 6px 6px;
     vertical-align: middle;
 }
 
@@ -310,7 +313,7 @@
     padding: 4px 16px;
     font-size: 13px;
     color: var(--body-color, #555);
-    border-bottom: 1px solid var(--color-divider, #E3E3E3);
+    border-bottom: 1px solid var(--listing-border-botom-color, #E3E3E3);
     vertical-align: middle;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -327,15 +330,15 @@
 }
 
 .cl-listing-table tbody td.cl-col-picker {
-    width: 40px;
+    width: 16px;
     text-align: center;
-    padding: 4px 8px;
+    padding: 4px 6px;
 }
 
 /* -- Links inside rows ---------------------------------------------------- */
 
 .cl-listing-table tbody td a {
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--cl-link-color, #2E68AA);
     text-decoration: none;
 }
 
@@ -344,7 +347,7 @@
 }
 
 .cl-listing-table tbody tr:hover td {
-    color: var(--color-charcoal, #444);
+    color: var(--body-color, #444);
 }
 
 .cl-listing-table tbody tr:hover td a {
@@ -366,7 +369,7 @@
     width: 36px;
     height: 22px;
     text-align: center;
-    border: 1px solid var(--color-divider, #E3E3E3);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
     border-radius: 4px;
     font-size: 11px;
     margin: 0;
@@ -481,12 +484,12 @@
     font-size: 22px;
     font-weight: 700;
     margin: 8px 0 4px;
-    color: var(--list-color, #333);
+    color: var(--body-color, #333);
 }
 .cl-page-desc {
     margin: 0 0 14px;
     font-size: 14px;
-    color: var(--c-text-secondary, #6b7280);
+    color: var(--body-color, #6b7280);
 }
 
 /* Modifier: title, a vertical separator and the description sit on one row
@@ -504,7 +507,7 @@
     align-self: center;
     width: 1px;
     height: 16px;
-    background: var(--c-divider, #e3e3e3);
+    background: var(--listing-border-botom-color, #e3e3e3);
 }
 .cl-page-header .cl-page-desc {
     margin: 0;
@@ -790,21 +793,26 @@
     width: 1px;
     height: 26px;
     margin: 0 2px;
-    background: var(--c-divider, #e3e3e3);
+    background: var(--listing-border-botom-color, #e3e3e3);
 }
 
-/* Single live-search field with a leading magnifier icon */
+/* Single live-search field with a leading magnifier icon.
+   flex/min-width/max-width let it shrink fluidly with the window instead of
+   overflowing at a fixed size (the input itself just follows at width:100%). */
 .cl-search {
     position: relative;
     display: inline-flex;
     align-items: center;
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 320px;
 }
 
 .cl-search .cl-search-icon {
     position: absolute;
     left: 12px;
     display: flex;
-    color: var(--c-text-secondary, #6b7280);
+    color: var(--body-color, #6b7280);
     pointer-events: none;
 }
 
@@ -817,10 +825,10 @@
 }
 
 .cl-search .cl-search-simple {
-    width: 320px;
+    width: 100%;
     height: 38px;
     padding: 0 12px 0 36px;
-    border: 1px solid var(--c-stroke, #c2c7ce);
+    border: 1px solid var(--select-border-color, #c2c7ce);
     border-radius: 4px;
     font-family: Roboto, sans-serif;
     font-size: 14px;
@@ -829,31 +837,35 @@
 }
 
 .cl-search .cl-search-simple:focus {
-    border-color: var(--c-primary-main, #2E68AA);
+    border-color: var(--color-primary-light, #2E68AA);
 }
 
-/* Compact variant for multi-field toolbars (e.g. host + service) */
-.cl-search--sm .cl-search-simple {
-    width: 210px;
+/* Compact variant for multi-field toolbars (e.g. host + service).
+   Width caps live on .cl-search itself (not the input) so the field still
+   shrinks fluidly with the window instead of jumping straight to 0. */
+.cl-search--sm {
+    max-width: 210px;
 }
 
 /* Wide variant for a centered search field with no advanced-filters icon */
-.cl-search--wide .cl-search-simple {
-    width: 640px;
+.cl-search--wide {
+    max-width: 640px;
 }
 
 /* Modifier: the advanced-filters toggle lives inside the search field itself
    (right edge) instead of a separate button + separator next to it. */
+.cl-search--with-adv {
+    max-width: 640px;
+}
+
 .cl-search--with-adv .cl-search-simple {
-    width: 640px;
     padding-right: 36px;
 }
 
 /* Compact + advanced-filters combo (two-search-box toolbars, e.g. host +
    service): keep the narrow width, just reserve room for the icon button */
-.cl-search--sm.cl-search--with-adv .cl-search-simple {
-    width: 210px;
-    padding-right: 36px;
+.cl-search--sm.cl-search--with-adv {
+    max-width: 210px;
 }
 
 .cl-search--with-adv .cl-adv-icon-btn {
@@ -868,7 +880,7 @@
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: var(--c-primary-main, #2E68AA);
+    color: var(--cl-link-color, #2E68AA);
     cursor: pointer;
 }
 
@@ -916,12 +928,21 @@
    .cl-search--with-adv above). */
 .cl-actions-bar--centered {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    /* A bare "auto" (or minmax(0, auto)) track sizes off the content's
+       intrinsic/max-content width — which collapses to ~0 now that the
+       search field is width:100% (a percentage has no intrinsic size to
+       report), so the column shrank to its floor instead of the ~640px it
+       used to occupy. A fixed cap sidesteps intrinsic sizing entirely: the
+       column is exactly min(640px, available space), matching the widest
+       search variant (.cl-search--with-adv) and still shrinking below that
+       when the window is narrow. */
+    grid-template-columns: 1fr minmax(0, 640px) 1fr;
 }
 
 .cl-toolbar-center {
     display: flex;
     justify-content: center;
+    min-width: 0;
 }
 
 /* Advanced filters toggle button (outline, primary color, sliders icon) */
@@ -931,10 +952,10 @@
     gap: 6px;
     height: 38px;
     padding: 0 14px;
-    border: 1px solid var(--c-divider-strong, #b5b5b5);
+    border: 1px solid var(--listing-border-botom-color, #b5b5b5);
     border-radius: 4px;
-    background: #fff;
-    color: var(--c-primary-main, #2E68AA);
+    background: var(--body-background, #fff);
+    color: var(--cl-link-color, #2E68AA);
     font-family: Roboto, sans-serif;
     font-size: 14px;
     cursor: pointer;
@@ -953,7 +974,7 @@
 }
 
 .cl-adv-btn.active {
-    border-color: var(--c-primary-main, #2E68AA);
+    border-color: var(--color-primary-light, #2E68AA);
     background: rgba(46, 104, 170, 0.10);
 }
 
@@ -975,8 +996,8 @@
 .cl-adv-inner {
     margin-top: 8px;
     padding: 16px;
-    background: var(--c-bg-panel-groups, #f8f9fa);
-    border: 1px solid var(--c-divider, #e3e3e3);
+    background: var(--body-background, #f8f9fa);
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
     border-radius: 6px;
     display: flex;
     align-items: flex-end;
@@ -1046,7 +1067,7 @@
 .cl-adv-caption {
     font-family: Roboto, sans-serif;
     font-size: 12px;
-    color: var(--c-text-secondary, #6b7280);
+    color: var(--body-color, #6b7280);
 }
 
 .cl-adv-actions {
@@ -1061,10 +1082,10 @@
 .cl-adv-clear {
     height: 38px;
     padding: 0 16px;
-    border: 1px solid var(--c-divider-strong, #b5b5b5);
+    border: 1px solid var(--listing-border-botom-color, #b5b5b5);
     border-radius: 4px;
-    background: #fff;
-    color: var(--list-color, #333);
+    background: var(--body-background, #fff);
+    color: var(--body-color, #333);
     font-family: Roboto, sans-serif;
     font-size: 14px;
     cursor: pointer;
@@ -1075,7 +1096,7 @@
     padding: 0 18px;
     border: 0;
     border-radius: 4px;
-    background: var(--c-primary-main, #2E68AA);
+    background: var(--color-primary-light, #2E68AA);
     color: #fff;
     font-family: Roboto, sans-serif;
     font-size: 14px;
@@ -1109,8 +1130,8 @@
     width: 380px;
     max-height: none;
     overflow: visible;
-    background: #fff;
-    border: 1px solid var(--c-divider, #e3e3e3);
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
     border-radius: 6px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
     padding: 20px;
@@ -1161,7 +1182,7 @@
     border: none;
     border-radius: 6px;
     background: rgba(46, 104, 170, 0.10);
-    color: var(--c-primary-main, #2E68AA);
+    color: var(--cl-link-color, #2E68AA);
     font-weight: 600;
 }
 
@@ -1255,6 +1276,16 @@
 .cl-status-pending { color: var(--color-pending, #1EBEB3); }
 
 /* ==========================================================================
+   Object icons (host.svg, service.svg, ...): loaded via <img>, so they carry
+   their own flat-black fill that color/currentColor can't override — a
+   filter is the only theme-aware lever available.
+   ========================================================================== */
+
+.ico-14, .ico-16, .ico-18, .ico-20 {
+    filter: var(--cl-icon-filter, none);
+}
+
+/* ==========================================================================
    Infinite scroll wrapper (full-height flex layout)
    ========================================================================== */
 
@@ -1297,8 +1328,8 @@
     height: 22px;
     border-radius: 4px;
     font-size: 14px;
-    color: var(--list-color, #555);
-    background: var(--color-divider, #e8e8e8);
+    color: var(--body-color, #555);
+    background: var(--listing-border-botom-color, #e8e8e8);
     transition: background 0.15s, color 0.15s;
     line-height: 1;
 }
@@ -1326,7 +1357,7 @@
 }
 .cl-diff-container {
     margin: 6px 16px 10px 36px;
-    border: 1px solid var(--color-divider, #ddd);
+    border: 1px solid var(--listing-border-botom-color, #ddd);
     border-radius: 6px;
     overflow: hidden;
     font-size: 12px;
@@ -1348,7 +1379,7 @@
 }
 .cl-diff-row {
     display: flex;
-    border-bottom: 1px solid var(--color-divider, #eee);
+    border-bottom: 1px solid var(--listing-border-botom-color, #eee);
 }
 .cl-diff-row:last-child {
     border-bottom: none;
@@ -1360,9 +1391,9 @@
     flex: 0 0 200px;
     padding: 5px 10px;
     font-weight: 500;
-    color: var(--list-color, #555);
+    color: var(--body-color, #555);
     word-break: break-all;
-    border-right: 1px solid var(--color-divider, #eee);
+    border-right: 1px solid var(--listing-border-botom-color, #eee);
 }
 .cl-diff-before, .cl-diff-after {
     flex: 1;
@@ -1374,7 +1405,7 @@
 .cl-diff-before {
     background: rgba(255, 74, 74, 0.06);
     color: #c0392b;
-    border-right: 1px solid var(--color-divider, #eee);
+    border-right: 1px solid var(--listing-border-botom-color, #eee);
 }
 .cl-diff-after {
     background: rgba(39, 174, 96, 0.06);
@@ -1411,7 +1442,7 @@
     align-items: center;
     justify-content: space-between;
     background: var(--body-background, #fff);
-    border: 1px solid var(--color-divider, #ddd);
+    border: 1px solid var(--listing-border-botom-color, #ddd);
     border-radius: 8px;
     padding: 16px 24px;
     margin-bottom: 24px;
@@ -1437,7 +1468,7 @@
     margin: 0;
     font-size: 18px;
     font-weight: 600;
-    color: var(--list-color, #333);
+    color: var(--body-color, #333);
 }
 .cld-header-text .cld-subtitle {
     margin: 2px 0 0;
@@ -1451,8 +1482,8 @@
     gap: 6px;
     padding: 8px 16px;
     border-radius: 6px;
-    background: var(--color-divider, #e8e8e8);
-    color: var(--list-color, #555);
+    background: var(--listing-border-botom-color, #e8e8e8);
+    color: var(--body-color, #555);
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -1476,7 +1507,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: var(--color-divider, #ddd);
+    background: var(--listing-border-botom-color, #ddd);
     border-radius: 1px;
 }
 .cld-entry {
@@ -1496,7 +1527,7 @@
     height: 12px;
     border-radius: 50%;
     border: 2px solid #fff;
-    box-shadow: 0 0 0 2px var(--color-divider, #ddd);
+    box-shadow: 0 0 0 2px var(--listing-border-botom-color, #ddd);
 }
 .cld-dot.dot-create  { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
 .cld-dot.dot-change  { background: #e67e22; box-shadow: 0 0 0 2px #e67e22; }
@@ -1507,7 +1538,7 @@
 /* Entry card */
 .cld-card {
     background: var(--body-background, #fff);
-    border: 1px solid var(--color-divider, #ddd);
+    border: 1px solid var(--listing-border-botom-color, #ddd);
     border-radius: 8px;
     overflow: hidden;
     transition: box-shadow 0.15s;
@@ -1534,8 +1565,8 @@
     height: 22px;
     border-radius: 4px;
     font-size: 14px;
-    color: var(--list-color, #555);
-    background: var(--color-divider, #e8e8e8);
+    color: var(--body-color, #555);
+    background: var(--listing-border-botom-color, #e8e8e8);
     flex-shrink: 0;
     transition: background 0.15s, color 0.15s;
 }
@@ -1578,7 +1609,7 @@
 /* Diff panel (inside timeline cards) */
 .cld-diff-panel {
     display: none;
-    border-top: 1px solid var(--color-divider, #eee);
+    border-top: 1px solid var(--listing-border-botom-color, #eee);
 }
 .cld-diff-panel.open {
     display: block;
@@ -1599,7 +1630,7 @@
 }
 .cld-diff-table td {
     padding: 6px 12px;
-    border-bottom: 1px solid var(--color-divider, #eee);
+    border-bottom: 1px solid var(--listing-border-botom-color, #eee);
     vertical-align: top;
     word-break: break-all;
 }
@@ -1609,7 +1640,7 @@
 .cld-diff-table .cld-fname {
     width: 220px;
     font-weight: 500;
-    color: var(--list-color, #555);
+    color: var(--body-color, #555);
 }
 .cld-diff-table .cld-fbefore {
     background: rgba(255, 74, 74, 0.05);
@@ -1662,4 +1693,10 @@
 }
 .cl-toast.success { background: var(--color-success, #88B922); }
 .cl-toast.error { background: #FF4A4A; }
-.cl-toast.info { background: var(--color-primary-light, #2E68AA); }
+/* Unlike success/error (status colors, stay vivid enough for white text in
+   both themes), info reuses the swappable button blue, so its text needs to
+   follow the same swap (white in light mode, black in dark mode). */
+.cl-toast.info {
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
+}
