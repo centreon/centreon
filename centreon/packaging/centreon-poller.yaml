@@ -90,7 +90,7 @@ overrides:
       - centreon-connector < ${NEXT_MAJOR_VERSION}
       - centreon-gorgone-centreon-config >= ${MAJOR_VERSION}
       - centreon-gorgone-centreon-config < ${NEXT_MAJOR_VERSION}
-      - perl-DBD-MySQL
+      - (perl-DBD-MySQL or perl-DBD-MariaDB)
       - perl-DBD-SQLite
       - nagios-plugins-dhcp >= 2.0.0
       - nagios-plugins-icmp >= 2.0.0
@@ -129,7 +129,7 @@ overrides:
       - "centreon-connector (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-gorgone-centreon-config (>= ${MAJOR_VERSION}~)"
       - "centreon-gorgone-centreon-config (<< ${NEXT_MAJOR_VERSION}~)"
-      - libdbd-mysql-perl
+      - (libdbd-mysql-perl | libdbd-mariadb-perl)
       - libdbd-sqlite3-perl
       - monitoring-plugins-basic
     recommends:
