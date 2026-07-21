@@ -51,7 +51,11 @@ import {
 } from '../../translatedLabels';
 import Dashboard from './Dashboard';
 import { internalWidgetComponents } from './Widgets/widgets';
-import { dashboardAtom, isRedirectionBlockedAtom } from './atoms';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  isRedirectionBlockedAtom
+} from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
@@ -75,6 +79,7 @@ import {
   labelYourDashboardHasBeenSaved,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
+import { labelViewByHost } from './Widgets/centreon-widget-resourcestable/src/Listing/translatedLabels';
 
 const widgetProperties = [
   widgetTextProperties,
@@ -497,6 +502,102 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
   });
 };
 
+const initializeMultiWidgetDashboard = (): {
+  store: ReturnType<typeof createStore>;
+} => {
+  const store = createStore();
+  store.set(federatedWidgetsAtom, federatedWidgets);
+  store.set(federatedWidgetsPropertiesAtom, federatedWidgetsProperties);
+  store.set(platformVersionsAtom, version);
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'centreon-widget-graph',
+      method: Method.GET,
+      path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
+      response: data
+    });
+  });
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/topbottom.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'centreon-widget-topbottom',
+        method: Method.GET,
+        path: './api/latest/monitoring/dashboard/metrics/top?**',
+        response: data
+      });
+    }
+  );
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'centreon-widget-resourcestable',
+        method: Method.GET,
+        path: './api/latest/monitoring/resources?**',
+        response: data
+      });
+    }
+  );
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/statuschartServices.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'centreon-widget-statuschartServices',
+        method: Method.GET,
+        path: './api/latest/monitoring/services/status?**',
+        response: data
+      });
+    }
+  );
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/statuschartHosts.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'centreon-widget-statuschartHosts',
+        method: Method.GET,
+        path: './api/latest/monitoring/hosts/status?**',
+        response: data
+      });
+    }
+  );
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'centreon-widget-statusgrid',
+        method: Method.GET,
+        path: './api/latest/monitoring/resources?**',
+        response: data
+      });
+    }
+  );
+
+  cy.fixture('Dashboards/Dashboard/ExpandReduce/groupmonitoring.json').then(
+    (data) => {
+      cy.interceptAPIRequest({
+        alias: 'centreon-widget-groupmonitoring',
+        method: Method.GET,
+        path: './api/latest/monitoring/hostgroups?**',
+        response: data
+      });
+    }
+  );
+
+  cy.viewport(1280, 590);
+
+  initializeAndMount({
+    ...editorRoles,
+    customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
+    store
+  });
+
+  cy.waitForRequest('@getDashboardDetails');
+
+  return { store };
+};
+
 describe('Dashboard', () => {
   describe('Roles', () => {
     it('has access to the dashboard edition features when the user has the editor role', () => {
@@ -537,101 +638,7 @@ describe('Dashboard', () => {
 
   describe('Expand-Reduce', () => {
     beforeEach(() => {
-      const initializeWidgets = (): ReturnType<typeof createStore> => {
-        const store = createStore();
-        store.set(federatedWidgetsAtom, federatedWidgets);
-        store.set(federatedWidgetsPropertiesAtom, federatedWidgetsProperties);
-        store.set(platformVersionsAtom, version);
-
-        return store;
-      };
-
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
-            response: data,
-            method: Method.GET,
-            alias: 'centreon-widget-graph'
-          });
-        }
-      );
-
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/topbottom.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            path: './api/latest/monitoring/dashboard/metrics/top?**',
-            response: data,
-            method: Method.GET,
-            alias: 'centreon-widget-topbottom'
-          });
-        }
-      );
-
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            path: './api/latest/monitoring/resources?**',
-            response: data,
-            method: Method.GET,
-            alias: 'centreon-widget-resourcestable'
-          });
-        }
-      );
-
-      cy.fixture(
-        'Dashboards/Dashboard/ExpandReduce/statuschartServices.json'
-      ).then((data) => {
-        cy.interceptAPIRequest({
-          path: './api/latest/monitoring/services/status?**',
-          response: data,
-          method: Method.GET,
-          alias: 'centreon-widget-statuschartServices'
-        });
-      });
-
-      cy.fixture(
-        'Dashboards/Dashboard/ExpandReduce/statuschartHosts.json'
-      ).then((data) => {
-        cy.interceptAPIRequest({
-          path: './api/latest/monitoring/hosts/status?**',
-          response: data,
-          method: Method.GET,
-          alias: 'centreon-widget-statuschartHosts'
-        });
-      });
-
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            path: './api/latest/monitoring/resources?**',
-            response: data,
-            method: Method.GET,
-            alias: 'centreon-widget-statusgrid'
-          });
-        }
-      );
-
-      cy.fixture('Dashboards/Dashboard/ExpandReduce/groupmonitoring.json').then(
-        (data) => {
-          cy.interceptAPIRequest({
-            path: './api/latest/monitoring/hostgroups?**',
-            response: data,
-            method: Method.GET,
-            alias: 'centreon-widget-groupmonitoring'
-          });
-        }
-      );
-
-      cy.viewport(1280, 590);
-
-      initializeAndMount({
-        ...editorRoles,
-        customDetailsPath: 'Dashboards/Dashboard/ExpandReduce/details.json',
-        store: initializeWidgets()
-      });
-
-      cy.waitForRequest('@getDashboardDetails');
+      initializeMultiWidgetDashboard();
     });
     it('expands-reduces the widget when the corresponding button is clicked', () => {
       federatedWidgets.forEach((widget) => {
@@ -663,6 +670,56 @@ describe('Dashboard', () => {
         cy.get('@modal').findByLabelText(labelReduce).click();
         waitWidgetData({ widgetName, isExpanded: false });
       });
+    });
+  });
+
+  describe('Widget interactions in view mode', () => {
+    it('keeps the dashboard in view mode when a widget selector is used', () => {
+      const { store } = initializeMultiWidgetDashboard();
+
+      cy.findByLabelText(labelViewByHost).click();
+
+      cy.contains(labelEditDashboard).should('be.visible');
+      cy.findByLabelText(labelSave).should('not.exist');
+      cy.url().should('not.include', 'edit=true');
+
+      cy.wrap(null).then(() => {
+        expect(store.get(isEditingAtom)).to.equal(false);
+
+        const resourcesTablePanel = store
+          .get(dashboardAtom)
+          .layout.find(({ name }) =>
+            equals(name, 'centreon-widget-resourcestable')
+          );
+
+        expect(resourcesTablePanel?.options?.displayType).to.equal('host');
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('discards widget interactions made in view mode when the edition mode is activated', () => {
+      const { store } = initializeMultiWidgetDashboard();
+
+      cy.findByLabelText(labelViewByHost).click();
+
+      cy.findByLabelText(labelEditDashboard).click();
+
+      cy.wrap(null).then(() => {
+        expect(store.get(isEditingAtom)).to.equal(true);
+
+        const resourcesTablePanel = store
+          .get(dashboardAtom)
+          .layout.find(({ name }) =>
+            equals(name, 'centreon-widget-resourcestable')
+          );
+
+        expect(resourcesTablePanel?.options?.displayType).to.equal(undefined);
+      });
+
+      cy.findByLabelText(labelCancel).click();
+
+      cy.contains(labelEditDashboard).should('be.visible');
     });
   });
 
