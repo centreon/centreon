@@ -254,9 +254,12 @@ while ($topology_js = $DBRESULT->fetch()) {
                 $obis .= '_pb';
             }
             if (isset($_GET['acknowledge'])) {
-                $obis .= '_ack_' . htmlspecialchars($_GET['acknowledge'], ENT_QUOTES, 'UTF-8');
+                $obis .= '_ack_' . $_GET['acknowledge'];
             }
-            echo "\tsetTimeout('initM({$tM}, \"{$obis}\")', 0);";
+            echo "\tsetTimeout(function () { initM("
+                . (int) $tM . ", "
+                . json_encode($obis, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)
+                . "); }, 0);";
         }
     } elseif ($topology_js['init']) {
         echo 'if (typeof ' . $topology_js['init'] . " == 'function') {";
