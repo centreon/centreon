@@ -53,7 +53,7 @@ $datasetRoutes = [
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $host_id,
     'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
-    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
+    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
@@ -811,6 +811,11 @@ if ($o === HOST_MASSIVE_CHANGE) {
 }
 
 $form->addElement('select2', 'host_hcs', _('Host Categories'), [], $attributes['host_categories']);
+
+if ($isCloudPlatform && $o !== HOST_MASSIVE_CHANGE) {
+    $form->addElement('select2', 'host_parents', _('Parent Hosts'), [], $attributes['host_parents']);
+    $form->addElement('select2', 'host_childs', _('Child Hosts'), [], $attributes['host_child']);
+}
 
 if ($o === HOST_MASSIVE_CHANGE) {
     $mc_mod_nsid = [];

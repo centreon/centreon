@@ -9,11 +9,13 @@ Feature: Migration of commands from a source platform to a target platform
     And another non-admin user has the necessary rights to manage commands
     And the non-admin user has access to both the source and target platforms
 
+  @MON-205069
   Scenario: Command creation on the source platform
     Given a non-admin user logged in on the source platform
     When the user creates a new command
     Then the command is created and listed on the source platform
 
+  @MON-205068
   Scenario: Execution of the migration script with the complete command
     Given an admin user logged in on the source platform on the terminal
     When the user runs the following command in the terminal:
@@ -22,6 +24,7 @@ Feature: Migration of commands from a source platform to a target platform
     """
     Then a command line is displayed asking for the API token of the target platform
 
+  @MON-205067
   Scenario: Successful execution of the migration script
     Given an admin user who has entered the correct command line
     And the command line asking for the API token of the target platform is displayed
@@ -29,6 +32,7 @@ Feature: Migration of commands from a source platform to a target platform
     Then the migration script is executed without errors
     And the same command as in the source platform is created and displayed in the command listing
 
+  @MON-205066
   Scenario: Wrong token entered
     Given an admin user who has entered the correct command line
     And the command line asking for the API token of the target platform is displayed
@@ -36,6 +40,7 @@ Feature: Migration of commands from a source platform to a target platform
     Then the migration script is not executed
     And an error is displayed
 
+  @MON-205065
   Scenario: Execution of the migration script without the target platform IP
     Given an admin user logged in the terminal of the source platform
     When the user runs the following command in the terminal :
@@ -45,18 +50,21 @@ Feature: Migration of commands from a source platform to a target platform
     Then the migration script is not executed
     And a "missing URL" error is displayed
 
+  @MON-205064
   Scenario: Comparing command details between platforms
     Given a non-admin user logged in on the source and target platforms
     And the original and migrated commands are displayed
     When the user compares the commands parameters
     Then the parameters are identical on both platforms
 
+  @MON-205063
   Scenario: Editing the command on the target platform
     Given a non-admin user logged in on the target platform
     And the migrated command is displayed
     When the user updates the command
     Then the command is successfully updated
 
+  @MON-205062
   Scenario: Comparing monitoring information of services based on the command
     Given a non-admin user logged in on the source and target platforms
     When the user creates a service based on the command of each platform
@@ -64,6 +72,7 @@ Feature: Migration of commands from a source platform to a target platform
     And runs a check on each platform
     Then the services must have the same output on both platforms
 
+  @MON-205061
   Scenario: Validating monitoring graph on the target platform
     Given a non-admin user logged in on the target platform
     And a monitored service based on the command
@@ -71,11 +80,13 @@ Feature: Migration of commands from a source platform to a target platform
     Then a graph is created with the service data
     And its information is correct
 
+  @MON-205060
   Scenario: Deleting the command on the target platform
     Given a non-admin user logged in on the target platform
     When the user deletes the command
     Then the command is deleted and no longer displayed
 
+  @MON-205059
   Scenario: Re-execution of the migration script
     Given an admin user who successfully executed the migration script once
     When the user executes the migration script a second time

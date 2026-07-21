@@ -20,6 +20,12 @@ tests {
     expect(body).to.have.property("result").that.is.an("array");
     expect(body).to.have.property("meta").that.is.an("object");
   });
+
+  test("Realtime poller matched on nagios_server.uid is returned.", function () {
+    const body = res.getBody();
+    const seededPoller = body.result.find((server) => server.name === "QA-realtime-poller");
+    expect(seededPoller, "seeded realtime poller must be listed").to.not.be.undefined;
+  });
 }
 
 settings {

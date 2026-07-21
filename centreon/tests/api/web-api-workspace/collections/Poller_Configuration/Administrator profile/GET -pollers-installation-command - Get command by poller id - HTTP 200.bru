@@ -1,0 +1,29 @@
+meta {
+  name: GET /pollers/installation-command - Get command by poller id - HTTP 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/pollers/installation-command/{{CreatedPollerId}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("A curl installation command is returned", function () {
+    const body = res.getBody();
+    expect(body.installation_command).to.be.a("string");
+    expect(body.installation_command).to.include("curl -fsSL");
+    expect(body.installation_command).to.include("/poller/install.sh");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
