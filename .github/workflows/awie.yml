@@ -471,6 +471,7 @@ jobs:
       jira_component_name: centreon-awie
       image_name: centreon-awie
       database_image: bitnamilegacy/${{ matrix.database }}
+      database_name: ${{ matrix.database }}
       os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-environment.outputs.major_version }}
