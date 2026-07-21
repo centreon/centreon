@@ -83,6 +83,11 @@ rm -f /usr/share/centreon/bin/centreontrapdforward \
       /lib/systemd/system/centreontrapd.service \
       /etc/default/centreontrapd \
       /etc/logrotate.d/centreontrapd
+# dpkg backs up the pre-transaction /var/lib/dpkg/status to status-old before writing the new
+# one — a rollback safety net that's dead weight in an immutable image (never read unless
+# recovering a broken dpkg transaction, which won't happen here). Safe to drop: dpkg -l/-s
+# only read /var/lib/dpkg/status, not status-old.
+rm -f /var/lib/dpkg/status-old
 EOF
 
 # Create directory structure
