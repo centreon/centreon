@@ -99,7 +99,16 @@ apt-get clean
 rm -rf /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF
 
-# Create directory structure
+# Copy everything the extractor kept (already trimmed to just what this image needs) in one
+# shot, instead of naming individual destination paths — a file added anywhere under /extracted
+# by a future packaging change lands here automatically, no Dockerfile update required.
+COPY --from=extractor --link /extracted/ /
+
+# Create directory structure. Must run AFTER the COPY above: centreon-trap.deb also declares
+# /var/spool/centreontrapd and /etc/snmp/centreon_traps, and COPY of a directory that already
+# exists at the destination overwrites that destination directory's own ownership/mode with
+# whatever the source has (verified: this is not just a merge of contents) — so doing this
+# chown/chmod before the COPY would get silently clobbered back to the .deb's root-owned dirs.
 RUN bash -e <<EOF
 mkdir -p /var/spool/centreontrapd \
          /etc/snmp/centreon_traps \
@@ -120,11 +129,6 @@ chmod 0755 /var/lib/centreon-engine
 chown centreon-engine:centreon-engine /var/lib/centreon-engine/rw
 chmod 0775 /var/lib/centreon-engine/rw
 EOF
-
-# Copy everything the extractor kept (already trimmed to just what this image needs) in one
-# shot, instead of naming individual destination paths — a file added anywhere under /extracted
-# by a future packaging change lands here automatically, no Dockerfile update required.
-COPY --from=extractor --link /extracted/ /
 
 # Override with local dev source when USE_SOURCE_TRAPD=true; a no-op empty merge otherwise
 # (perl modules already arrived via the COPY above).

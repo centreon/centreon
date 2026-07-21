@@ -86,7 +86,16 @@ groupadd -g 900 centreon
 useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
 EOF
 
-# Create directory structure
+# Copy everything the extractor kept (already trimmed to just what this image needs) in one
+# shot, instead of naming individual destination paths — a file added anywhere under /extracted
+# by a future packaging change lands here automatically, no Dockerfile update required.
+COPY --from=extractor --link /extracted/ /
+
+# Create directory structure. Must run AFTER the COPY above: centreon-trap.deb also declares
+# /var/spool/centreontrapd and /etc/snmp/centreon_traps, and COPY of a directory that already
+# exists at the destination overwrites that destination directory's own ownership/mode with
+# whatever the source has (verified: this is not just a merge of contents) — so doing this
+# chown/chmod before the COPY would get silently clobbered back to the .deb's root-owned dirs.
 RUN bash -e <<EOF
 mkdir -p /var/spool/centreontrapd \
          /etc/snmp \
@@ -99,11 +108,6 @@ chown centreon:centreon /var/spool/centreontrapd /etc/centreon /var/log/centreon
 chown -R centreon:centreon /etc/snmp
 chmod 0755 /var/spool/centreon
 EOF
-
-# Copy everything the extractor kept (already trimmed to just what this image needs) in one
-# shot, instead of naming individual destination paths — a file added anywhere under /extracted
-# by a future packaging change lands here automatically, no Dockerfile update required.
-COPY --from=extractor --link /extracted/ /
 
 # Override with local dev source when USE_SOURCE_TRAPD=true; a no-op empty merge otherwise
 # (perl modules already arrived via the COPY above).
