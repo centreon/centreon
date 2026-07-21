@@ -29,6 +29,12 @@
     justify-content: space-between;
     padding: 8px 0;
     gap: 12px;
+    /* Keep the search/toolbar visible while the table body scrolls
+       underneath, same pattern as the Monitoring listings. */
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #fff;
 }
 
 .cl-actions-left {
@@ -262,6 +268,10 @@
     background: #8C8C8C;
     white-space: nowrap;
     user-select: none;
+    /* Stick right under the actions bar so only the rows scroll. */
+    position: sticky;
+    top: 54px;
+    z-index: 15;
 }
 
 .cl-listing-table thead th.cl-col-center {
