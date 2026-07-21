@@ -1325,7 +1325,7 @@ jobs:
           module_name: centreon-web
 
   publish-openapi-documentation:
-    if: false # TEMP(test-pulp-only)
+    # TEMP(test-pulp-only): skipped through its disabled build-openapi-documentation dependency
     runs-on: documentation
     needs: [get-environment, build-openapi-documentation]
     steps:
