@@ -426,9 +426,29 @@ jobs:
           push: true
           tags: ${{ steps.docker_tags.outputs.tags }}
 
+  xray-prepare-test-plan:
+    name: xray-prepare-test-plan
+    needs: [get-environment, changes]
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
+      github.event.pull_request.head.repo.fork != true
+    uses: ./.github/workflows/xray-prepare-test-plan.yml
+    with:
+      major_version: ${{ needs.get-environment.outputs.major_version }}
+      minor_version: ${{ needs.get-environment.outputs.minor_version }}
+      module_name: centreon-awie
+    secrets:
+      XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
+      XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
+
   e2e-test:
     needs:
-      [get-environment, changes, dockerize]
+      [get-environment, changes, dockerize, xray-prepare-test-plan]
     if: |
       needs.changes.outputs.trigger_e2e_testing == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -449,8 +469,10 @@ jobs:
     with:
       name: e2e
       module_name: centreon-awie
+      jira_component_name: centreon-awie
       image_name: centreon-awie
       database_image: bitnamilegacy/${{ matrix.database }}
+      database_name: ${{ matrix.database }}
       os: ${{ matrix.operating_system }}
       features_path: tests/e2e/features
       major_version: ${{ needs.get-environment.outputs.major_version }}
@@ -463,6 +485,8 @@ jobs:
       dependencies_lock_file: centreon-awie/tests/e2e/pnpm-lock.yaml
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      jira_test_plan_key: ${{ needs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
+      xray_test_plan_issue_id: ${{ needs.xray-prepare-test-plan.outputs.xray_test_plan_issue_id }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
