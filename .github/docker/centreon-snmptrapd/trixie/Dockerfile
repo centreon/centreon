@@ -3,45 +3,12 @@
 ARG USE_SOURCE_TRAPD=false
 
 #############################################
-# Stage 1: Extract files from .deb packages
+# Stage 1: Centreon Perl libs selector
+# USE_SOURCE_TRAPD=false → installed from .deb directly in the runtime stage (production default)
+# USE_SOURCE_TRAPD=true  → copy from local repo source (dev/testing), overriding the .deb install
 #############################################
-FROM debian:13-slim AS extractor
-
-# Configure APT for optimal container usage
-COPY <<EOF /etc/apt/apt.conf.d/99custom
-Acquire::Retries "10";
-Acquire::https::Timeout "300";
-Acquire::http::Timeout "300";
-APT::Install-Recommends "false";
-APT::Install-Suggests "false";
-EOF
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    bash -e <<EOF
-apt-get update
-apt-get install -y --no-install-recommends dpkg
-EOF
-
-RUN --mount=type=bind,source=packages-centreon,target=/packages \
-    mkdir -p /extracted && \
-    cd /packages && \
-    for deb in centreon-trap*.deb centreon-perl-libs*.deb; do \
-        echo "Extracting $deb..."; \
-        dpkg-deb -x "$deb" /extracted/; \
-    done && \
-    echo "=== Extracted binaries ===" && \
-    ls -lah /extracted/usr/share/centreon/bin/ || true && \
-    echo "=== Extracted Perl modules ===" && \
-    ls -lah /extracted/usr/share/perl5/ || true
-
-#############################################
-# Stage 1b/1c: Centreon Perl libs selector
-# USE_SOURCE_TRAPD=false → extract from .deb (production default)
-# USE_SOURCE_TRAPD=true  → copy from local repo source (dev/testing)
-#############################################
-FROM scratch AS centreon-perl-false
-COPY --from=extractor --link /extracted/usr/share/perl5/centreon /centreon-modules/
+FROM debian:13-slim AS centreon-perl-false
+RUN mkdir -p /centreon-modules
 
 FROM scratch AS centreon-perl-true
 COPY centreon-collect/perl-libs/lib/centreon/ /centreon-modules/
@@ -87,6 +54,17 @@ groupadd -g 900 centreon
 useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
 EOF
 
+# Install centreon-trap and centreon-perl-libs .deb packages directly: dpkg places every file
+# at the path the package declares, so we don't hand-maintain COPY paths that mirror the
+# package's internal layout. --force-depends skips the package's own Depends (snmpd,
+# snmptrapd, librrds-perl, libgd-perl, ...) which are unused here — real runtime deps are the
+# explicit apt-get install list above/below, same as before.
+RUN --mount=type=bind,source=packages-centreon,target=/packages \
+    bash -e <<EOF
+cd /packages
+dpkg -i --force-depends centreon-trap*.deb centreon-perl-libs*.deb
+EOF
+
 # Create directory structure
 RUN bash -e <<EOF
 mkdir -p /var/spool/centreontrapd \
@@ -103,9 +81,6 @@ EOF
 
 # Copy Perl modules from selected source
 COPY --from=centreon-perl-selected --link /centreon-modules/ /usr/share/perl5/centreon/
-
-# Copy centreontrapdforward binary from extractor
-COPY --from=extractor --link --chmod=755 /extracted/usr/share/centreon/bin/centreontrapdforward /usr/share/centreon/bin/centreontrapdforward
 
 # Copy entrypoint scripts
 COPY --link --chmod=755 .github/docker/centreon-snmptrapd/trixie/entrypoint /usr/local/lib/centreon-snmptrapd/
