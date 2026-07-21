@@ -19,10 +19,14 @@ done
 # systemd/sysconfig/logrotate files (inert here: no systemd, logs go to stdout) so the runtime
 # stage only ever copies a directory containing what it actually needs, rather than us having
 # to name individual files to include.
+# /extracted/lib is dropped entirely (not just the .service file inside it): on trixie /lib is
+# a symlink to /usr/lib (merged-usr), but dpkg-deb -x recreates the .deb's declared /lib/...
+# path as a REAL directory — broad-copying that below would replace the /lib symlink with a
+# real (near-empty) dir and break dynamic linking for anything resolved through /lib/*.
 rm -f /extracted/usr/share/centreon/bin/centreontrapdforward \
-      /extracted/lib/systemd/system/centreontrapd.service \
       /extracted/etc/default/centreontrapd \
       /extracted/etc/logrotate.d/centreontrapd
+rm -rf /extracted/lib
 echo "=== Extracted binaries (trimmed) ==="
 ls -lah /extracted/usr/share/centreon/bin/ || true
 echo "=== Extracted Perl modules ==="
