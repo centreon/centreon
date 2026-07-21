@@ -15,7 +15,7 @@
 .cf-form-wrapper {
     max-width: 900px;
     margin: 0 auto;
-    padding: 16px 20px 80px;
+    padding: 16px 20px 0;
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--list-color, #333);
 }
@@ -946,6 +946,13 @@
     gap: 12px;
     padding: 16px 0;
     margin-top: 16px;
+    /* Keep Reset/Save reachable while the form scrolls, same white banner
+       treatment as .cf-tab-nav at the top. */
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: var(--body-background, #fff);
+    border-top: 1px solid var(--color-divider, #e3e3e3);
 }
 
 .cf-btn {
