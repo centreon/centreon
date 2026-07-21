@@ -248,7 +248,6 @@ jobs:
     needs: [get-environment, changes]
     if: |
       (
-        needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
       (
@@ -276,7 +275,6 @@ jobs:
     needs: [get-environment, changes]
     if: |
       (
-        needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
       (
@@ -316,7 +314,6 @@ jobs:
     needs: [get-environment, changes]
     if: |
       (
-        needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
       (
@@ -1523,7 +1520,7 @@ jobs:
           version: ${{ needs.get-environment.outputs.major_version }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           stability: testing # TEMP(test-pulp-only): force testing so the promotion has a source
-          release_type: ${{ needs.get-environment.outputs.release_type }}
+          release_type: release # TEMP(test-pulp-only): versioned repos use the testing-release segment
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           pulp_url: ${{ vars.PULP_API_URL }}
