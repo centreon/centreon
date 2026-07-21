@@ -17,6 +17,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
+    padding-bottom: 16px;
 }
 
 /* ==========================================================================
@@ -30,10 +31,14 @@
     padding: 8px 0;
     gap: 12px;
     /* Keep the search/toolbar visible while the table body scrolls
-       underneath, same pattern as the Monitoring listings. */
+       underneath, same pattern as the Monitoring listings. Being sticky
+       makes this the containing stacking context for its children, so its
+       own z-index must clear the advanced-filters click-outside backdrop
+       (.cl-adv-backdrop, z-index 55) or the popover nested inside it gets
+       trapped underneath and becomes unclickable. */
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: 65;
     background: #fff;
 }
 
