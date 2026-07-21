@@ -63,6 +63,13 @@ RUN --mount=type=bind,source=packages-centreon,target=/packages \
     bash -e <<EOF
 cd /packages
 dpkg -i --force-depends centreon-trap*.deb centreon-perl-libs*.deb
+# centreon-trap.deb also ships centreontrapd (this image only runs centreontrapdforward) and
+# systemd/logrotate/sysconfig files that are inert here (no systemd, logs go to stdout) —
+# drop them in this same layer so they never end up in the image.
+rm -f /usr/share/centreon/bin/centreontrapd \
+      /lib/systemd/system/centreontrapd.service \
+      /etc/default/centreontrapd \
+      /etc/logrotate.d/centreontrapd
 EOF
 
 # Create directory structure
