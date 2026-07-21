@@ -1,14 +1,12 @@
-import { ChangeEvent, useEffect } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, includes, split } from 'ramda';
-
 import { Box, Typography } from '@mui/material';
+
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, includes, path, split } from 'ramda';
+import { type ChangeEvent, useEffect } from 'react';
 
 import { useMemoComponent } from '../..';
 import { CheckboxGroup as CheckboxGroupComponent } from '../../Checkbox';
-
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const CheckboxGroup = ({
   checkbox,
@@ -22,7 +20,7 @@ const CheckboxGroup = ({
 
   const fieldNamePath = split('.', fieldName);
 
-  const value = path(fieldNamePath, values);
+  const value = path(fieldNamePath, values) as Array<string> | undefined;
 
   const disabled = getDisabled?.(values) || false;
   const hideCheckbox = hideInput?.(values) || false;
@@ -31,24 +29,24 @@ const CheckboxGroup = ({
     if (!disabled && !hideCheckbox) {
       return;
     }
-    const resetedValue = value?.map((element) => ({
-      ...element,
+    const resetedValue = (value ?? []).map((element) => ({
+      ...(element as unknown as Record<string, unknown>),
       checked: false
     }));
     setFieldValue(fieldName, resetedValue);
-  }, [disabled, hideCheckbox]);
+  }, [disabled, hideCheckbox, fieldName, setFieldValue]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const label = event.target.id;
-    if (!includes(label, value)) {
-      setFieldValue(fieldName, [...value, label]);
+    if (!includes(label, value ?? [])) {
+      setFieldValue(fieldName, [...(value ?? []), label]);
 
       return;
     }
 
     setFieldValue(
       fieldName,
-      value?.filter((elm) => !equals(elm, label))
+      (value ?? []).filter((elm) => !equals(elm, label))
     );
   };
 
@@ -63,9 +61,9 @@ const CheckboxGroup = ({
           direction={checkbox?.direction}
           disabled={disabled}
           labelPlacement={checkbox?.labelPlacement || 'end'}
-          options={checkbox?.options as Array<string>}
-          values={value}
           onChange={handleChange}
+          options={checkbox?.options as Array<string>}
+          values={value ?? []}
         />
       </Box>
     ),

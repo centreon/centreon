@@ -1,9 +1,8 @@
 import { faker } from '@faker-js/faker';
 
-import { SelectEntry } from '../../..';
-import { Listing } from '../../../api/models';
-
-import { AccessRightInitialValues, Labels } from './models';
+import type { SelectEntry } from '../../..';
+import type { Listing } from '../../../api/models';
+import type { AccessRightInitialValues, Labels } from './models';
 
 faker.seed(42);
 
@@ -82,7 +81,7 @@ export const accessRightsWithStates = [
 
 export const emptyAccessRights = [];
 
-const buildEntities = (from, isGroup): Array<SelectEntry> => {
+const buildEntities = (from: number, isGroup: boolean): Array<SelectEntry> => {
   return Array(10)
     .fill(0)
     .map((_, index) => ({
@@ -93,7 +92,7 @@ const buildEntities = (from, isGroup): Array<SelectEntry> => {
     }));
 };
 
-export const buildResult = (isGroup): Listing<SelectEntry> => ({
+export const buildResult = (isGroup: boolean): Listing<SelectEntry> => ({
   meta: {
     limit: 10,
     page: 1,

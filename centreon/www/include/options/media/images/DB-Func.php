@@ -49,6 +49,19 @@ function sanitizePath($path)
     );
 }
 
+function assertValidDirectoryAlias(string $alias): string
+{
+    $alias = trim($alias);
+
+    if ($alias === '' || ! preg_match('/^[a-zA-Z0-9_-]+$/', $alias)) {
+        throw new InvalidArgumentException(
+            'Invalid directory alias. Only alphanumeric characters, hyphens and underscores are allowed.'
+        );
+    }
+
+    return $alias;
+}
+
 function extractDir($zipfile, $path)
 {
     if (file_exists($zipfile)) {
@@ -225,7 +238,7 @@ function moveImg($img_id, $dir_alias)
     $img_info = $prepare->fetch(PDO::FETCH_ASSOC);
     $image_info_path = basename($img_info['img_path']);
     $image_info_dir_alias = basename($img_info['dir_alias']);
-    $dir_alias = $dir_alias ? sanitizePath($dir_alias) : $image_info_dir_alias;
+    $dir_alias = $dir_alias ? assertValidDirectoryAlias(sanitizePath($dir_alias)) : $image_info_dir_alias;
     if ($dir_alias != $img_info['dir_alias']) {
         $oldpath = $mediadir . $image_info_dir_alias . '/' . $image_info_path;
         $newpath = $mediadir . $dir_alias . '/' . $image_info_path;
@@ -304,6 +317,7 @@ function insertDirectory($dir_alias, $dir_comment = '')
 {
     global $pearDB;
     $mediadir = './img/media/';
+    $dir_alias = assertValidDirectoryAlias($dir_alias);
     $dir_alias_safe = basename($dir_alias);
     @mkdir($mediadir . $dir_alias_safe);
     if (is_dir($mediadir . $dir_alias_safe)) {
@@ -384,7 +398,7 @@ function updateDirectory($dir_id, $dir_alias, $dir_comment = '')
     $prepare->bindValue(':dir_id', $dir_id, PDO::PARAM_INT);
     $prepare->execute();
     $old_dir = $prepare->fetch(PDO::FETCH_ASSOC);
-    $dir_alias = sanitizePath($dir_alias);
+    $dir_alias = assertValidDirectoryAlias(sanitizePath($dir_alias));
     if (! is_dir($mediadir . $old_dir['dir_alias'])) {
         mkdir($mediadir . $dir_alias);
     } else {
@@ -546,7 +560,7 @@ function isCorrectMIMEType(array $file): bool
             break;
         case 'image/jpeg':
             /**
-             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
              */
             $image = @imagecreatefromjpeg($file['tmp_name']);
             if (! $image) {
@@ -567,7 +581,7 @@ function isCorrectMIMEType(array $file): bool
             break;
         case 'image/png':
             /**
-             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
              */
             $image = @imagecreatefrompng($file['tmp_name']);
             if (! $image) {
@@ -588,7 +602,7 @@ function isCorrectMIMEType(array $file): bool
             break;
         case 'image/gif':
             /**
-             * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+             * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
              */
             $image = @imagecreatefromgif($file['tmp_name']);
             if (! $image) {
@@ -706,7 +720,7 @@ function isValidMIMETypeFromArchive(
                 break;
             case 'image/jpeg':
                 /**
-                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                  */
                 $image = @imagecreatefromjpeg($file['tmp_name']);
                 if (! $image) {
@@ -724,7 +738,7 @@ function isValidMIMETypeFromArchive(
                 break;
             case 'image/png':
                 /**
-                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                  */
                 $image = @imagecreatefrompng($file['tmp_name']);
                 if (! $image) {
@@ -742,7 +756,7 @@ function isValidMIMETypeFromArchive(
                 break;
             case 'image/gif':
                 /**
-                 * use @ to avoid PHP Warning log and instead log a more suitable error in centreon-web.log
+                 * use @ to avoid PHP Warning log and instead log a more suitable error in prod.web.log
                  */
                 $image = @imagecreatefromgif($file['tmp_name']);
                 if (! $image) {

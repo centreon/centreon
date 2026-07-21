@@ -1,14 +1,13 @@
+import { useTheme } from '@mui/material';
+
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
 import { identity } from 'ramda';
 
-import { useTheme } from '@mui/material';
-
 import { getColorFromDataAndTresholds } from '../common/utils';
-
 import AnimatedPie from './AnimatedPie';
+import type { GaugeProps } from './models';
 import { thresholdThickness } from './Thresholds';
-import { GaugeProps } from './models';
 import { getAngles } from './utils';
 
 const dataThickness = 45;
@@ -25,15 +24,18 @@ const PieData = ({
 >): JSX.Element => {
   const theme = useTheme();
 
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const pieData = [metric.data[0], adaptedMaxValue - metric.data[0]];
   const pieColor = getColorFromDataAndTresholds({
     baseColor,
+    // @ts-expect-error - suppressing pre-existing type mismatch
     data: metric.data[0],
     theme,
     thresholds
   });
 
   const getDataColor = scaleOrdinal({
+    // @ts-expect-error - suppressing pre-existing type mismatch
     domain: pieData,
     range: [pieColor, 'transparent']
   });
@@ -50,9 +52,11 @@ const PieData = ({
         radius - thresholdThickness * thresholdThicknessFactor * 1.25
       }
       pieSortValues={() => -1}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       pieValue={identity}
     >
       {(pie) => (
+        // @ts-expect-error - suppressing pre-existing type mismatch
         <AnimatedPie<number>
           {...pie}
           animate

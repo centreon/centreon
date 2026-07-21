@@ -1,0 +1,33 @@
+meta {
+  name: POST /services/templates - Create ST with empty alias - HTTP 400
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "st-no-alias-test",
+    "alias": ""
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service template has not been created, because the alias is empty.", function () {
+    expect(res.getBody().message).to.eql("[NewServiceTemplate::alias] The string is empty, but non empty string was expected");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

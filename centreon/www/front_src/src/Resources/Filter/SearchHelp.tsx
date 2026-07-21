@@ -1,16 +1,15 @@
-import { useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box, Link, Typography } from '@mui/material';
 
-import { PersistentTooltip, getDocsURL } from '@centreon/ui';
+import { getDocsURL, PersistentTooltip } from '@centreon/ui';
 import {
   platformFeaturesAtom,
   platformVersionsAtom
 } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelFindExplanationsAndExamples,
@@ -59,14 +58,14 @@ const SearchHelp = (): JSX.Element => {
         <Typography className={classes.title} variant="body2">
           {t(labelNeedHelpWithSearchBarUsage)}
         </Typography>
-        <Typography variant="body2" className={classes.title}>
+        <Typography className={classes.title} variant="body2">
           {t(labelFindExplanationsAndExamples)}&nbsp;
           <Link
             className={classes.link}
             href={docsURL}
+            onClick={() => setOpenTooltip(false)}
             rel="noreferrer"
             target="_blank"
-            onClick={() => setOpenTooltip(false)}
           >
             {t(labelHere)}
           </Link>

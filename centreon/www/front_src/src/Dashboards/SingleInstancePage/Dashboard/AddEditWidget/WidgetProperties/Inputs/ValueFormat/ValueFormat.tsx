@@ -1,7 +1,3 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import {
   Box,
   FormControlLabel,
@@ -9,6 +5,9 @@ import {
   RadioGroup,
   Typography
 } from '@mui/material';
+
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
@@ -18,7 +17,6 @@ import {
   labelValueFormat
 } from '../../../../translatedLabels';
 import { WidgetPropertyProps } from '../../../models';
-
 import useValueFormat from './useValueFormat';
 
 const WidgetValueFormat = ({
@@ -47,7 +45,7 @@ const WidgetValueFormat = ({
   return (
     <Box>
       <Label>{t(labelValueFormat)}</Label>
-      <RadioGroup value={value} onChange={changeType}>
+      <RadioGroup onChange={changeType} value={value}>
         {options.map(({ optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={optionValue} />}

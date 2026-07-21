@@ -1,18 +1,31 @@
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { IconButton, ListingProps } from '../..';
-import { useMemoComponent } from '../../utils';
-import { labelOf, labelRowsPerPage } from '../translatedLabels';
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, not, pick } from 'ramda';
+import {
+  type ChangeEvent,
+  type MouseEvent,
+  type ReactNode,
+  useCallback
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
+import { IconButton, type ListingProps } from '../..';
+import { useMemoComponent } from '../../utils';
+import {
+  labelApproximateCount,
+  labelApproximateCountTooltip,
+  labelComputingExactCount,
+  labelOf,
+  labelRowsPerPage
+} from '../translatedLabels';
 import ColumnMultiSelect from './ColumnMultiSelect';
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
@@ -24,9 +37,6 @@ interface StyleProps {
 
 const useStyles = makeStyles<StyleProps>()(
   (theme, { width, marginWidthTableListing }) => ({
-    ModeViewer: {
-      paddingLeft: theme.spacing(1)
-    },
     actions: {
       flex: 1,
       padding: theme.spacing(1, 1, 1, 0)
@@ -44,6 +54,9 @@ const useStyles = makeStyles<StyleProps>()(
       },
       display: 'flex',
       flexDirection: 'column'
+    },
+    ModeViewer: {
+      paddingLeft: theme.spacing(1)
     },
     mode: {
       flexDirection: 'column-reverse'
@@ -88,6 +101,9 @@ type Props = Pick<
   | 'customPaginationClassName'
   | 'listingVariant'
   | 'viewerModeConfiguration'
+  | 'approximateTotalRows'
+  | 'onApproximateCountClick'
+  | 'isApproximateCountLoading'
 >;
 
 const MemoListingActionBar = ({
@@ -107,7 +123,10 @@ const MemoListingActionBar = ({
   widthToMoveTablePagination = 550,
   actionsBarMemoProps = [],
   viewerModeConfiguration,
-  listingVariant
+  listingVariant,
+  approximateTotalRows = false,
+  onApproximateCountClick,
+  isApproximateCountLoading = false
 }: Props): JSX.Element => {
   const marginWidthTableListing = 30;
   const { classes, cx } = useStyles({
@@ -118,17 +137,89 @@ const MemoListingActionBar = ({
 
   const { themeMode } = useAtomValue(userAtom);
 
-  const changeRowPerPage = (event): void => {
+  const changeRowPerPage = (
+    event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ): void => {
     onLimitChange?.(event.target.value);
     onPaginate?.(0);
   };
 
-  const changePage = (_, value: number): void => {
+  const changePage = (
+    _: MouseEvent<HTMLButtonElement> | null,
+    value: number
+  ): void => {
     onPaginate?.(value);
   };
 
-  const labelDisplayedRows = ({ from, to, count }): string =>
-    `${from}-${to} ${t(labelOf)} ${count}`;
+  const labelDisplayedRows = useCallback(
+    ({
+      from,
+      to,
+      count
+    }: {
+      count: number;
+      from: number;
+      to: number;
+    }): ReactNode => {
+      const range = `${from}-${to} ${t(labelOf)} `;
+
+      if (!approximateTotalRows) {
+        return `${range}${count}`;
+      }
+
+      if (isApproximateCountLoading) {
+        return (
+          <span
+            style={{ alignItems: 'center', display: 'inline-flex', gap: 4 }}
+          >
+            {range}
+            <CircularProgress size={10} />
+            <span>{t(labelComputingExactCount)}</span>
+          </span>
+        );
+      }
+
+      const approximateLabel = (
+        <button
+          onClick={onApproximateCountClick}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            cursor: onApproximateCountClick ? 'pointer' : 'default',
+            font: 'inherit',
+            fontWeight: 600,
+            padding: 0,
+            textDecoration: onApproximateCountClick
+              ? 'underline dotted'
+              : 'none'
+          }}
+          type="button"
+        >
+          {t(labelApproximateCount)}
+        </button>
+      );
+
+      return (
+        <span>
+          {range}
+          {onApproximateCountClick ? (
+            <Tooltip title={t(labelApproximateCountTooltip)}>
+              {approximateLabel}
+            </Tooltip>
+          ) : (
+            approximateLabel
+          )}
+        </span>
+      );
+    },
+    [
+      approximateTotalRows,
+      isApproximateCountLoading,
+      onApproximateCountClick,
+      t
+    ]
+  );
 
   return useMemoComponent({
     Component: (
@@ -149,9 +240,9 @@ const MemoListingActionBar = ({
                 }
                 data-testid={viewerModeConfiguration?.testId}
                 disabled={viewerModeConfiguration?.disabled}
+                onClick={viewerModeConfiguration?.onClick}
                 size="large"
                 title={viewerModeConfiguration?.title}
-                onClick={viewerModeConfiguration?.onClick}
               >
                 <div
                   className={cx(
@@ -185,24 +276,24 @@ const MemoListingActionBar = ({
           {paginated && (
             <StyledPagination
               ActionsComponent={PaginationActions}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.selectMenu
-                },
-                id: labelRowsPerPage
-              }}
               className={cx(classes.pagination, customPaginationClassName, {
                 [classes.moving]: moveTablePagination
               })}
               colSpan={3}
-              count={totalRows}
+              count={totalRows ?? 0}
               labelDisplayedRows={labelDisplayedRows}
               labelRowsPerPage={null}
-              page={currentPage}
-              rowsPerPage={limit}
-              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
               onPageChange={changePage}
               onRowsPerPageChange={changeRowPerPage}
+              page={currentPage ?? 0}
+              rowsPerPage={limit ?? 10}
+              rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
+              SelectProps={{
+                id: labelRowsPerPage,
+                MenuProps: {
+                  className: classes.selectMenu
+                }
+              }}
             />
           )}
         </div>
@@ -217,12 +308,13 @@ const MemoListingActionBar = ({
       listingVariant,
       themeMode,
       limit,
-      pick(
-        ['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'],
-        columns
+      columns.map(
+        pick(['id', 'label', 'disabled', 'width', 'shortLabel', 'sortField'])
       ),
       columnConfiguration,
       customPaginationClassName,
+      approximateTotalRows,
+      isApproximateCountLoading,
       ...actionsBarMemoProps
     ]
   });
@@ -245,7 +337,10 @@ const ListingActionBar = ({
   widthToMoveTablePagination,
   customPaginationClassName,
   listingVariant,
-  viewerModeConfiguration
+  viewerModeConfiguration,
+  approximateTotalRows,
+  onApproximateCountClick,
+  isApproximateCountLoading
 }: Props): JSX.Element | null => {
   if (
     not(paginated) &&
@@ -259,21 +354,24 @@ const ListingActionBar = ({
     <MemoListingActionBar
       actions={actions}
       actionsBarMemoProps={actionsBarMemoProps}
+      approximateTotalRows={approximateTotalRows}
       columnConfiguration={columnConfiguration}
       columns={columns}
       currentPage={currentPage}
       customPaginationClassName={customPaginationClassName}
+      isApproximateCountLoading={isApproximateCountLoading}
       limit={limit}
       listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}
-      paginated={paginated}
-      totalRows={totalRows}
-      viewerModeConfiguration={viewerModeConfiguration}
-      widthToMoveTablePagination={widthToMoveTablePagination}
+      onApproximateCountClick={onApproximateCountClick}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}
       onResetColumns={onResetColumns}
       onSelectColumns={onSelectColumns}
+      paginated={paginated}
+      totalRows={totalRows}
+      viewerModeConfiguration={viewerModeConfiguration}
+      widthToMoveTablePagination={widthToMoveTablePagination}
     />
   );
 };

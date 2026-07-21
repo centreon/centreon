@@ -19,8 +19,11 @@
  *
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class OtrsProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const OTRS_QUEUE_TYPE = 10;
     public const OTRS_PRIORITY_TYPE = 11;
     public const OTRS_STATE_TYPE = 12;
@@ -867,17 +870,42 @@ class OtrsProvider extends AbstractProvider
             return 1;
         }
 
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $argument_json);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
             ['Content-Type: application/json', 'Accept: application/json', 'Content-Length: ' . strlen($argument_json)]
         );
+
+        $optionsToLog = [
+            'apiAddress' => $base_url,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        // log the curl options
+        $this->debug('Otrs API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         if ($result == false) {
             $this->setWsError(curl_error($ch));

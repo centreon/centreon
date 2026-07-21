@@ -11,8 +11,8 @@ Feature: Generate poller configuration
     And some pollers are created
     And some post-generation commands are configured for each poller
 
-  @TEST_MON-22135
-  Scenario: Generate the configuration on multiple pollers
+  @MON-22135
+  Scenario Outline: Generate the configuration on multiple pollers
     When I visit the export configuration page
     Then there is an indication that the configuration have changed on the listed pollers
     When I select some pollers
@@ -30,7 +30,7 @@ Feature: Generate poller configuration
       | Reload    | reloaded      |
       | Restart   | restarted     |
 
-  @TEST_MON-22136
+  @MON-22136
   Scenario: Generate the configuration with no poller selected
     When I visit the export configuration page
     And I click on the Export configuration button
@@ -39,13 +39,13 @@ Feature: Generate poller configuration
     When I click on the export button
     Then an error message is displayed to inform that no poller is selected
 
-  @TEST_MON-22138
+  @MON-22138
   Scenario: Generate the configuration to all pollers quickly
     When I click on the export configuration action and confirm
     Then a success message is displayed
     And the configuration is generated on all pollers
 
-  @TEST_MON-22137
+  @MON-22137
   Scenario: Generate the configuration with broken pollers
     Given broken pollers
     When I visit the export configuration page
@@ -54,3 +54,12 @@ Feature: Generate poller configuration
     Then I am redirected to generate page
     When I click on the export button
     Then the configuration is not generated on selected pollers
+
+  @MON-198192
+  Scenario: Duplicate an existing remote poller
+    Given an admin user is logged in a Centreon server
+    And a remote poller is configured
+    When the user duplicates the configured poller
+    Then a new disabled poller is created with identical properties
+    When the user exports the configuration
+    Then a success message is displayed

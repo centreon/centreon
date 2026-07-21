@@ -34,6 +34,8 @@ use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * Trait.
@@ -156,8 +158,18 @@ trait ConnectionTrait
             if (empty($tableName)) {
                 throw ConnectionException::batchInsertQueryBadUsage('Table name must not be empty');
             }
+            $bareTableName = str_replace('`', '', $tableName);
+            if (preg_match('/^[\w$][\w$-]*(\.[\w$][\w$-]*)?$/', $bareTableName) !== 1) {
+                throw ConnectionException::batchInsertQueryBadUsage("Invalid table name: {$tableName}");
+            }
             if ($columns === []) {
                 throw ConnectionException::batchInsertQueryBadUsage('Columns must not be empty');
+            }
+            foreach ($columns as $column) {
+                $bareColumn = str_replace('`', '', $column);
+                if (preg_match('/^[\w$][\w$-]*$/', $bareColumn) !== 1) {
+                    throw ConnectionException::batchInsertQueryBadUsage("Invalid column name: {$column}");
+                }
             }
             if ($batchInsertParameters->isEmpty()) {
                 throw ConnectionException::batchInsertQueryBadUsage('Batch insert parameters must not be empty');
@@ -442,7 +454,56 @@ trait ConnectionTrait
         }
     }
 
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    /**
+     * Check if a column exists in a table.
+     *
+     * @throws ConnectionException
+     */
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool
+    {
+        if (empty($dbName)) {
+            throw ConnectionException::columnExistsFailed('Database name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($tableName)) {
+            throw ConnectionException::columnExistsFailed('Table name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($columnName)) {
+            throw ConnectionException::columnExistsFailed('Column name must not be empty', $tableName, $columnName);
+        }
+
+        $query = <<<'SQL'
+            SELECT COUNT(*) FROM information_schema.COLUMNS
+            WHERE TABLE_NAME = :tableName
+              AND COLUMN_NAME = :columnName
+              AND TABLE_SCHEMA = :dbName
+            SQL;
+
+        try {
+            $queryParameters = QueryParameters::create([
+                QueryParameter::string('tableName', $tableName),
+                QueryParameter::string('columnName', $columnName),
+                QueryParameter::string('dbName', $dbName),
+            ]);
+
+            $entry = $this->fetchOne($query, $queryParameters);
+
+            return is_numeric($entry) && (int) $entry > 0;
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw ConnectionException::columnExistsFailed(
+                message: 'Failed to query column existence',
+                tableName: $tableName,
+                columnName: $columnName,
+                previous: $exception
+            );
+        }
+    }
+
     // ----------------------------------------- PROTECTED METHODS -----------------------------------------
+
     abstract protected function writeDbLog(
         string $message,
         array $customContext = [],
@@ -451,6 +512,7 @@ trait ConnectionTrait
     ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
+
     /**
      * @throws ConnectionException
      */

@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
-
+import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -98,12 +98,9 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
-        `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
-EOF`,
+        'dnf module enable -y mariadb:11.8',
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
@@ -118,7 +115,7 @@ EOF`,
     cy.execInContainer({
       command: [
         `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-11.8"
 EOF`,
         'apt-get update',
         'apt-get install -y mariadb-server mariadb-client'
@@ -159,7 +156,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `dnf install -y centreon-web-${version}`,
         'dnf install -y centreon-broker-cbd',
         "echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini",
-        '/etc/init.d/mysql start',
+        'systemctl start mariadb',
         'mkdir -p /run/php-fpm',
         'systemctl restart php-fpm',
         'systemctl restart httpd',
@@ -201,9 +198,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (
-      Number(versionMatches[1]) < 24
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+      Number(versionMatches[1]) < 24 ||
+      (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) ||
+      (Number(versionMatches[1]) === 24 &&
+        Number(versionMatches[2]) === 10 &&
+        Number(versionMatches[3]) < 7)
     ) {
       packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
     }
@@ -252,9 +251,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   }).as('cacheGeneration');
 
   // Step 1
-  cy.visit('/centreon/install/install.php')
-    .get('th.step-wrapper span')
-    .contains(1);
+  cy.visit(PAGES.configuration.install).get('th.step-wrapper span').contains(1);
   cy.get('#next').click();
 
   // Step 2
@@ -382,6 +379,14 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;
+        case 'alma10':
+          // el10 ships php 8.4 in the official repositories (no dnf module)
+          installCommands = [
+            ...installCommands,
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
         default:
           installCommands = [
             ...installCommands,
@@ -450,7 +455,7 @@ const insertResources = (): Cypress.Chainable => {
 
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
-    const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
+    let targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
 
     // Check if the version-specific file already exists
     return cy
@@ -459,13 +464,18 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         name: 'web'
       })
       .then((fileCheckResult) => {
-        // If version-specific file already exists, no action needed
+        let targetMinor = minor_version;
+        // If version-specific file already exists, increment minor version for testing purposes (to make sure Update-next.php content is tested)
         if (!fileCheckResult.output.includes('File not found')) {
           cy.log(
             `Version-specific update file already exists in container: ${targetUpdateFile}`
           );
-          return cy.wrap(null);
+          cy.log('Incrementing minor version to test Update-next.php content');
+
+          targetMinor = (Number.parseInt(minor_version, 10) + 1).toString();
+          targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
+        Cypress.env('upgrade_target_minor_version', targetMinor);
 
         // If version-specific file does not exist => copy content from Update-next.php
         return cy
@@ -480,8 +490,8 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
             // Copy the Update-next.php content to container with proper name
             return cy
               .copyToContainer({
-                source: updateNextFile,
                 destination: targetUpdateFile,
+                source: updateNextFile,
                 type: CopyToContainerContentType.File
               })
               .then(() => {
@@ -501,7 +511,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
 
                     // Change version in the file
                     return cy.execInContainer({
-                      command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+                      command: `sed -i "s/version = '';/version = '${major_version}.${targetMinor}';/g" ${targetUpdateFile}`,
                       name: 'web'
                     });
                   });
@@ -524,8 +534,8 @@ When('administrator runs the update procedure', () => {
     });
 
     cy.wait('@getStep2').then(() => {
-      cy.get('span[style]').each(($span) => {
-        cy.wrap($span).should('have.text', 'Loaded');
+      cy.get('span[style]').each((span) => {
+        cy.wrap(span).should('have.text', 'Loaded');
       });
       cy.get('.btc.bt_info').should('be.visible').click();
     });
@@ -538,8 +548,10 @@ When('administrator runs the update procedure', () => {
 
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
         cy.contains(
-          `upgraded from version ${installedVersion} to ${major_version}.${minor_version}`
+          `upgraded from version ${installedVersion} to ${major_version}.${targetMinorVersion}`
         ).should('be.visible');
       });
     }
@@ -549,8 +561,8 @@ When('administrator runs the update procedure', () => {
 
     cy.wait('@generatingCache')
       .get('span[style]', { timeout: 15000 })
-      .each(($span) => {
-        cy.wrap($span).should('have.text', 'OK');
+      .each((span) => {
+        cy.wrap(span).should('have.text', 'OK');
       });
     cy.get('.btc.bt_info', { timeout: 15000 }).should('be.visible').click();
 
@@ -558,8 +570,8 @@ When('administrator runs the update procedure', () => {
     cy.contains('Congratulations');
 
     // disable statistics if checkbox is available (only on upgrade to new major version)
-    cy.get('body').then(($body) => {
-      if ($body.find('#send_statistics').length) {
+    cy.get('body').then((body) => {
+      if (body.find('#send_statistics').length) {
         cy.get('#send_statistics').uncheck({ force: true });
       }
     });
@@ -598,7 +610,11 @@ Then(
     cy.visit('/');
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
-        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
+        cy.contains(`${major_version}.${targetMinorVersion}`).should(
+          'be.visible'
+        );
       });
     }
     cy.loginByTypeOfUser({
@@ -614,8 +630,8 @@ Then(
       () => {
         cy.get('[aria-label="Refresh"]').click({ force: true });
 
-        return cy.get('#content').then(($el) => {
-          return $el.find(':contains("service1")').length > 0;
+        return cy.get('#content').then((el) => {
+          return el.find(':contains("service1")').length > 0;
         });
       },
       {
@@ -626,7 +642,7 @@ Then(
 );
 
 Then('legacy services grid page should still work', () => {
-  cy.visit('/centreon/main.php?p=20204&o=svcOV_pb').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.servicesGridLegacy).wait('@getTimeZone');
 
   cy.waitUntil(() => {
     cy.get('iframe#main-content')
@@ -639,8 +655,8 @@ Then('legacy services grid page should still work', () => {
     return cy
       .getIframeBody()
       .find('.ListTable tr:not(.ListHeader)')
-      .then(($el) => {
-        return $el.find(':contains("host1")').length > 0;
+      .then((el) => {
+        return el.find(':contains("host1")').length > 0;
       });
   });
 });

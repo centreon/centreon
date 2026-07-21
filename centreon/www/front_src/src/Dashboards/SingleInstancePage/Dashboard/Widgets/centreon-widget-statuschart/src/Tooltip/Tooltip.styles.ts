@@ -11,12 +11,12 @@ export const useTooltipStyles = makeStyles()((theme) => ({
   header: {
     alignItems: 'center',
     backgroundColor: theme.palette.common.black,
+    borderRadius: `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px 0px`,
     color: theme.palette.common.white,
     display: 'flex',
     flexDirection: 'column',
     padding: theme.spacing(1),
-    width: '100%',
-    borderRadius: `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0px 0px`
+    width: '100%'
   },
   listContainer: {
     maxHeight: theme.spacing(20),

@@ -61,12 +61,13 @@ interface ReadServiceRepositoryInterface
      *
      * @param int $serviceId
      * @param AccessGroup[] $accessGroups
+     * @param int|null $hostId
      *
      * @throws \Throwable
      *
      * @return bool
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool;
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool;
 
     /**
      * Retrieve the monitoring server id related to the service.
@@ -89,6 +90,30 @@ interface ReadServiceRepositoryInterface
      * @return list<int>
      */
     public function findServiceIdsLinkedToHostId(int $hostId): array;
+
+    /**
+     * Find all service IDs link to the host through host groups.
+     *
+     * @param int $hostId Host ID for which the services are linked
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsLinkedToHostThroughHostGroups(int $hostId): array;
+
+    /**
+     * Find service IDs that are exclusively linked to the host.
+     * These are services that should be deleted when the host is deleted
+     * because they are not used by any other host.
+     *
+     * @param int $hostId Host ID for which to find exclusively linked services
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsExclusivelyLinkedToHostId(int $hostId): array;
 
     /**
      * Indicates whether the service name already exists.
@@ -192,4 +217,66 @@ interface ReadServiceRepositoryInterface
      * @return string|null
      */
     public function findNameById(int $serviceId): ?string;
+
+    /**
+     * Find service IDs by command names.
+     *
+     * @param string[] $commandNames
+     * @param int[] $pollerIds
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByCommandNames(
+        array $commandNames,
+        array $pollerIds = [],
+        array $hostIds = [],
+    ): array;
+
+    /**
+     * Find deployed services on a host that are based on a given service template.
+     *
+     * @param int $hostId
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public function findByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): array;
+
+    /**
+     * Find all service IDs linked to the given hosts directly (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, list<int>> Map of hostId => [serviceId, ...]
+     */
+    public function findServiceIdsLinkedToHostIds(array $hostIds): array;
+
+    /**
+     * Find all service IDs linked to the given hosts through host groups (batch version).
+     *
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, list<int>> Map of hostId => [serviceId, ...]
+     */
+    public function findServiceIdsLinkedToHostsThroughHostGroups(array $hostIds): array;
+
+    /**
+     * Retrieve all parent template inheritances for multiple services (batch version).
+     *
+     * @param int[] $serviceIds
+     *
+     * @throws \Throwable
+     *
+     * @return array<int, ServiceInheritance[]> Map of serviceId => ServiceInheritance[]
+     */
+    public function findParentsByServiceIds(array $serviceIds): array;
 }

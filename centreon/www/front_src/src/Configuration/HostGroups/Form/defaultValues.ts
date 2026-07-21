@@ -1,9 +1,9 @@
 export const defaultValues = {
-  name: '',
   alias: '',
   comment: '',
   geoCoords: '',
   hosts: [],
-  resourceAccessRules: [],
-  icon: null
+  icon: null,
+  name: '',
+  resourceAccessRules: []
 };

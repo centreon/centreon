@@ -91,6 +91,7 @@ export const labelTicketWillBeClosedInTheProvider =
 
 export const labelTicketCreated = 'Ticket created';
 export const labelTicketClosed = 'Ticket closed';
+export const labelFailedToCloseTicket = 'Failed to close the ticket';
 
 export const labelResourceFlapping = 'This resource is flapping';
 export const labelFqdn = 'FQDN / Address';

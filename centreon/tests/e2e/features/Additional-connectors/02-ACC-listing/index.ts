@@ -1,4 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
+
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -16,19 +20,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations?*'
+    url: `${INTERCEPTORS.api.connector_configurations}?*`
   }).as('getConnectorPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations'
+    url: INTERCEPTORS.api.connector_configurations
   }).as('addAdditionalConnector');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/additional-connector-configurations/*'
+    url: `${INTERCEPTORS.api.connector_configurations}/*`
   }).as('getConnectorDetail');
 });
 
@@ -44,11 +48,7 @@ Given('a non-admin user is logged in', () => {
 });
 
 When('the user clicks on the Additional Connector Configuration page', () => {
-  cy.navigateTo({
-    page: 'Additional Configuration',
-    rootItemNumber: 0,
-    subMenu: 'Connectors'
-  });
+  cy.visit(PAGES.configuration.additionalConfigurations);
 });
 
 Then('the user sees the Additional Connector Configuration page', () => {
@@ -68,14 +68,16 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );
 
 Given('an already existing additional connector configuration', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.createAccWithMandatoryFields(data.default);
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
 

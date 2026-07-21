@@ -1,12 +1,11 @@
+import { Paper, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Paper, Typography } from '@mui/material';
 
 import { Status } from '../../../models';
 import CompactStatusChip from '../CompactStatusChip';
 import OutputInformation from '../OutputInformation';
-
 import SelectableResourceName from './SelectableResourceName';
 
 interface Props {

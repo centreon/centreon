@@ -1,11 +1,12 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
 import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import FormButtons from '../../FormButtons';
+import { useQueryClient } from '@tanstack/react-query';
+import type { FormikHelpers } from 'formik';
+import { useTranslation } from 'react-i18next';
+
 import { adaptWebSSOConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import FormButtons from '../../FormButtons';
 import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { WebSSOConfiguration, WebSSOConfigurationToAPI } from '../models';
@@ -14,7 +15,6 @@ import {
   labelWebSSOConfigurationSaved
 } from '../translatedLabels';
 import useValidationSchema from '../useValidationSchema';
-
 import { inputs } from './inputs';
 
 interface Props {
@@ -46,7 +46,7 @@ const WebSSOForm = ({
 
   const submit = (
     values: WebSSOConfiguration,
-    { setSubmitting }
+    { setSubmitting }: FormikHelpers<WebSSOConfiguration>
   ): Promise<void> => {
     return mutateAsync({ payload: adaptWebSSOConfigurationToAPI(values) })
       .then(() => {

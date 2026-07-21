@@ -31,11 +31,15 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -44,6 +48,7 @@ use Core\Macro\Domain\Model\Macro;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
@@ -59,6 +64,9 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Exception;
 
 beforeEach(closure: function (): void {
@@ -86,6 +94,11 @@ beforeEach(closure: function (): void {
         $this->isCloudPlatform = false,
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
+        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
+        $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
     );
 
     $this->service = new Service(id: 1, name: 'service-name', hostId: 2);
@@ -115,11 +128,11 @@ beforeEach(closure: function (): void {
     $this->request->groups = [$this->groupB->getId()];
 
     // Settup macros
-    $this->macroA = new Macro($this->service->getId(), 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->service->getId(), 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->service->getId(), 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->service->getId(), 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
-    $this->commandMacro = new CommandMacro(1, CommandMacroType::Service, 'commandMacroName');
+    $this->commandMacro = new CommandMacro(1, CommandMacroType::Service, 'COMMANDMACRONAME');
     $this->commandMacros = [
         $this->commandMacro->getName() => $this->commandMacro,
     ];
@@ -169,7 +182,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -191,7 +204,7 @@ it('should present a NotFoundResponse when the service does not exist', function
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -214,7 +227,7 @@ it('should present a ConflictResponse when the host ID does not exist', function
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -239,11 +252,12 @@ it('should present a ConflictResponse when the host ID does not exist', function
 });
 
 it('should present a ConflictResponse when a category does not exist', function (): void {
+    $this->request->commandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
@@ -275,11 +289,12 @@ it('should present a ConflictResponse when a category does not exist', function 
 });
 
 it('should present a ConflictResponse when a group does not exist', function (): void {
+    $this->request->commandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->exactly(3))
         ->method('isAdmin')
         ->willReturn(true);
@@ -327,8 +342,8 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
-        ->expects($this->exactly(4))
+    $this->adminResolver
+        ->expects($this->exactly(5))
         ->method('isAdmin')
         ->willReturn(true);
     $this->readServiceRepository
@@ -337,6 +352,14 @@ it('should present a NoContentResponse on success', function (): void {
         ->willReturn($this->service);
 
     // Service
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->commandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->optionService
         ->expects($this->once())
         ->method('findSelectedOptions');
@@ -372,7 +395,16 @@ it('should present a NoContentResponse on success', function (): void {
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByService')
-        ->willReturn([$this->groupA]);
+        ->willReturn([
+            [
+                'relation' => new ServiceGroupRelation(
+                    $this->groupA->getId(),
+                    $this->service->getId(),
+                    $this->service->getHostId()
+                ),
+                'serviceGroup' => $this->groupA,
+            ],
+        ]);
     $this->writeServiceGroupRepository
         ->expects($this->once())
         ->method('unlink');
@@ -403,8 +435,216 @@ it('should present a NoContentResponse on success', function (): void {
         ->expects($this->once())
         ->method('update');
 
-    ($this->useCase)($this->request, $this->presenter, $this->service->getId());
+    $this->writeAccessGroupRepository
+        ->expects($this->once())
+        ->method('updateAclResourcesFlag');
 
+    ($this->useCase)($this->request, $this->presenter, $this->service->getId());
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should load command macros from an inherited template command when the service defines none', function (): void {
+    $this->request->commandId = null;
+    $inheritedCommandId = 42;
+    $templateWithCommand = new ServiceTemplate(
+        $this->parentTemplates[0],
+        'parent-tpl',
+        'parent-tpl-alias',
+        commandId: $inheritedCommandId
+    );
+    $commandMacro = new CommandMacro(1, CommandMacroType::Service, 'MACRO_FROM_TPL');
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->adminResolver
+        ->expects($this->exactly(5))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readServiceRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->service);
+
+    $this->readCommandRepository
+        ->expects($this->never())
+        ->method('findById');
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions');
+
+    $this->validation->expects($this->once())->method('assertIsValidHost');
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidGraphTemplate');
+    $this->validation->expects($this->once())->method('assertIsValidEventHandler');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+
+    $this->writeServiceRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Categories
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->readServiceCategoryRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([$this->categoryA]);
+    $this->writeServiceCategoryRepository->expects($this->once())->method('linkToService');
+    $this->writeServiceCategoryRepository->expects($this->once())->method('unlinkFromService');
+
+    // Groups
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([
+            [
+                'relation' => new ServiceGroupRelation(
+                    $this->groupA->getId(),
+                    $this->service->getId(),
+                    $this->service->getHostId()
+                ),
+                'serviceGroup' => $this->groupA,
+            ],
+        ]);
+    $this->writeServiceGroupRepository->expects($this->once())->method('unlink');
+    $this->writeServiceGroupRepository->expects($this->once())->method('link');
+
+    // Macros: service has no commandId; parent template has commandId=42
+    $this->readServiceRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($this->inheritance);
+    $this->readServiceMacroRepository
+        ->expects($this->once())
+        ->method('findByServiceIds')
+        ->willReturn($this->macros);
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->willReturn([$templateWithCommand]);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Service)
+        ->willReturn([$commandMacro->getName() => $commandMacro]);
+    $this->writeServiceMacroRepository->expects($this->once())->method('delete');
+    $this->writeServiceMacroRepository->expects($this->once())->method('add');
+    $this->writeServiceMacroRepository->expects($this->once())->method('update');
+
+    ($this->useCase)($this->request, $this->presenter, $this->service->getId());
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should delete a command macro from an inherited template command when its value is cleared', function (): void {
+    // Service has no own command — it inherits one from a parent template.
+    // A macro from that command was previously saved on the service with a value.
+    // When the user clears the value, the macro must be deleted from the service (step 8).
+    $this->request->commandId = null;
+    $inheritedCommandId = 42;
+    $templateWithCommand = new ServiceTemplate(
+        $this->parentTemplates[0],
+        'parent-tpl',
+        'parent-tpl-alias',
+        commandId: $inheritedCommandId
+    );
+
+    $savedCommandMacro = new Macro(
+        null,
+        $this->service->getId(),
+        $this->commandMacro->getName(),
+        'somevalue'
+    );
+
+    $this->request->macros = [
+        new MacroDto(name: $this->commandMacro->getName(), value: '', isPassword: false, description: null),
+    ];
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->adminResolver
+        ->expects($this->exactly(5))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readServiceRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->service);
+
+    $this->readCommandRepository->expects($this->never())->method('findById');
+    $this->optionService->expects($this->once())->method('findSelectedOptions');
+
+    $this->validation->expects($this->once())->method('assertIsValidHost');
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidGraphTemplate');
+    $this->validation->expects($this->once())->method('assertIsValidEventHandler');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+
+    $this->writeServiceRepository->expects($this->once())->method('update');
+
+    // Categories
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->readServiceCategoryRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([$this->categoryA]);
+    $this->writeServiceCategoryRepository->expects($this->once())->method('linkToService');
+    $this->writeServiceCategoryRepository->expects($this->once())->method('unlinkFromService');
+
+    // Groups
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([
+            [
+                'relation' => new ServiceGroupRelation(
+                    $this->groupA->getId(),
+                    $this->service->getId(),
+                    $this->service->getHostId()
+                ),
+                'serviceGroup' => $this->groupA,
+            ],
+        ]);
+    $this->writeServiceGroupRepository->expects($this->once())->method('unlink');
+    $this->writeServiceGroupRepository->expects($this->once())->method('link');
+
+    // Macros: service has no commandId; commandMacroName was previously saved with a value
+    $this->readServiceRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($this->inheritance);
+    $this->readServiceMacroRepository
+        ->expects($this->once())
+        ->method('findByServiceIds')
+        ->willReturn([$savedCommandMacro]);
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->willReturn([$templateWithCommand]);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Service)
+        ->willReturn($this->commandMacros);
+
+    // Clearing the value must delete the macro, not update it
+    $this->writeServiceMacroRepository->expects($this->once())->method('delete');
+    $this->writeServiceMacroRepository->expects($this->never())->method('add');
+    $this->writeServiceMacroRepository->expects($this->never())->method('update');
+
+    ($this->useCase)($this->request, $this->presenter, $this->service->getId());
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NoContentResponse::class);
 });

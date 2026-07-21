@@ -1,7 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box } from '@mui/material';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { List } from '.';
 
@@ -15,8 +15,8 @@ type Story = StoryObj<typeof List>;
 const sampleData = Array(50)
   .fill(0)
   .map((_, index) => ({
-    index,
     icon: <DeleteIcon />,
+    index,
     primary: 'Primary text',
     secondary: 'Secondary text'
   }));

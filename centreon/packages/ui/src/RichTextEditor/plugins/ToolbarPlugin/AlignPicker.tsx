@@ -1,25 +1,23 @@
-import { useCallback, useEffect, useState } from 'react';
+import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
+import type { SvgIconTypeMap } from '@mui/material';
+import type { OverridableComponent } from '@mui/material/OverridableComponent';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
   $isElementNode,
   $isRangeSelection,
-  ElementFormatType,
+  type ElementFormatType,
   FORMAT_ELEMENT_COMMAND
 } from 'lexical';
 import { equals } from 'ramda';
-
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import { SvgIconTypeMap } from '@mui/material';
-import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Menu } from '../../../components';
 import { labelAlignPicker } from '../../translatedLabels';
 import { getSelectedNode } from '../../utils/getSelectedNode';
-
 import { useStyles } from './ToolbarPlugin.styles';
 
 const formatOptions: Array<{
@@ -73,7 +71,7 @@ const AlignPicker = ({ disabled }: Props): JSX.Element => {
       ($isElementNode(node) ? node.getFormatType() : parent?.getFormatType()) ||
         'left'
     );
-  }, [editor]);
+  }, []);
 
   const selectedFormat = formatOptions.find(({ value }) =>
     equals(value, elementFormat)

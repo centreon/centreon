@@ -1,15 +1,7 @@
-import { Fragment, useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { makeStyles } from 'tss-react/mui';
-
 import { Divider, Typography } from '@mui/material';
 
-import { GroupDirection } from '..';
-import CollapsibleGroup from '../CollapsibleGroup';
-
+import { type FormikValues, useFormikContext } from 'formik';
 import {
-  T,
   always,
   any,
   ascend,
@@ -30,8 +22,14 @@ import {
   propEq,
   reduce,
   sort,
+  T,
   toPairs
 } from 'ramda';
+import { Fragment, useMemo } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import { GroupDirection } from '..';
+import CollapsibleGroup from '../CollapsibleGroup';
 import Autocomplete from './Autocomplete';
 import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
@@ -42,11 +40,16 @@ import File from './File';
 import Grid from './Grid';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
+import {
+  type Group,
+  type InputProps,
+  type InputPropsWithoutGroup,
+  InputType
+} from './models';
 import RadioInput from './Radio';
 import { SubgroupDivider } from './SubGroupDivider';
 import SwitchInput from './Switch';
 import TextInput from './Text';
-import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
 
 export const getInput = cond<
   Array<InputType>,
@@ -116,14 +119,14 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
       ? 'row'
       : 'column'
   },
-  inputWrapper: {
-    width: '100%'
-  },
   inputs: {
     display: 'flex',
     flexDirection: 'column',
     margin: theme.spacing(2, 0),
     rowGap: theme.spacing(2)
+  },
+  inputWrapper: {
+    width: '100%'
   }
 }));
 
@@ -132,6 +135,7 @@ interface Props {
   groupDirection?: GroupDirection;
   groups?: Array<Group>;
   groupsClassName?: string;
+  inputsClassName?: string;
   inputs: Array<InputProps>;
   isCollapsible: boolean;
   isLoading?: boolean;
@@ -144,7 +148,8 @@ const Inputs = ({
   isCollapsible,
   groupDirection,
   groupsClassName,
-  areGroupsOpen
+  areGroupsOpen,
+  inputsClassName
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ groupDirection });
   const formikContext = useFormikContext<FormikValues>();
@@ -163,7 +168,7 @@ const Inputs = ({
         ({ group }) => find(equals(group), groupsName) as string,
         visibleInputs
       ),
-    [visibleInputs]
+    [visibleInputs, groupsName]
   ) as Record<string, Array<InputProps>>;
 
   const sortedGroupNames = useMemo(() => {
@@ -190,10 +195,10 @@ const Inputs = ({
         {},
         sortedGroupNames
       ),
-    [visibleInputs]
+    [inputsByGroup, sortedGroupNames]
   );
 
-  const lastGroup = useMemo(() => last(sortedGroupNames), []);
+  const lastGroup = useMemo(() => last(sortedGroupNames), [sortedGroupNames]);
 
   const normalizedInputsByGroup = (
     isEmpty(sortedInputsByGroup)
@@ -223,7 +228,7 @@ const Inputs = ({
                 hasGroupTitle={hasGroupTitle}
                 isCollapsible={isCollapsible}
               >
-                <div className={classes.inputs}>
+                <div className={cx(classes.inputs, inputsClassName)}>
                   {groupedInputs.map((inputProps) => {
                     const key =
                       isNotNil(inputProps.label) || isNotEmpty(inputProps.label)
@@ -231,13 +236,18 @@ const Inputs = ({
                         : inputProps.additionalLabel;
 
                     if (isLoading) {
-                      return <LoadingSkeleton input={inputProps} key={key} />;
+                      return (
+                        <LoadingSkeleton
+                          input={inputProps}
+                          key={key as string}
+                        />
+                      );
                     }
 
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div className={classes.inputWrapper} key={key}>
+                      <div className={classes.inputWrapper} key={key as string}>
                         {inputProps.additionalLabel && (
                           <Typography
                             className={cx(
@@ -262,8 +272,8 @@ const Inputs = ({
               hasGroupTitle &&
               not(equals(lastGroup, groupName as string)) && (
                 <Divider
-                  flexItem
                   className={classes.divider}
+                  flexItem
                   orientation={
                     equals(groupDirection, GroupDirection.Horizontal)
                       ? 'vertical'

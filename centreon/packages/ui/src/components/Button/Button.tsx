@@ -1,13 +1,12 @@
-import { ReactElement, ReactNode, useMemo } from 'react';
-
 import {
   Button as MuiButton,
-  ButtonProps as MuiButtonProps
+  type ButtonProps as MuiButtonProps
 } from '@mui/material';
 
-import { AriaLabelingAttributes } from '../../@types/aria-attributes';
-import { DataTestAttributes } from '../../@types/data-attributes';
-import { button } from './Button.module.css';
+import { type ReactElement, type ReactNode, useMemo } from 'react';
+
+import type { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import type { DataTestAttributes } from '../../@types/data-attributes';
 
 const muiVariantMap: Record<
   Required<ButtonProps>['variant'],
@@ -27,7 +26,7 @@ export type ButtonProps = AriaLabelingAttributes &
     icon?: string | ReactNode;
     iconVariant?: 'none' | 'start' | 'end';
     isDanger?: boolean;
-    onClick?: (e) => void;
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
     ref?: React.Ref<HTMLButtonElement>;
     size?: 'small' | 'medium' | 'large';
     type?: 'button' | 'submit' | 'reset';
@@ -58,16 +57,26 @@ const Button = ({
 
   return (
     <MuiButton
-      className={`${button} ${className}`}
+      className={`
+    text-nowrap
+    data-[size=medium]:text-base data-[size=medium]:leading-6 data-[size=medium]:h-auto
+    data-[size=small]:text-sm data-[size=small]:leading-[22px] data-[size=small]:h-auto
+    data-[size=small]:data-[variant=primary]:px-[var(--spacing-4)]
+    [&:not(:disabled)]:data-[variant=primary]:bg-[var(--color-primary-main)]
+    [&:not(:disabled)]:data-[variant=primary]:data-[is-danger=true]:bg-[var(--color-error-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:border-[var(--color-primary-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:text-[var(--color-primary-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:data-[is-danger=true]:border-[var(--color-error-main)]
+    [&:not(:disabled)]:data-[variant=secondary]:data-[is-danger=true]:text-[var(--color-error-main)] ${className}`}
       data-icon-variant={iconVariant}
       data-is-danger={isDanger}
       data-size={size}
       data-variant={variant}
       disabled={disabled}
+      onClick={(e) => onClick?.(e)}
       size={size}
       type={type}
       variant={muiVariantMap[variant]}
-      onClick={(e) => onClick?.(e)}
       {...MuiOverrideProps}
       {...attr}
     >

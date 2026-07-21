@@ -1,17 +1,17 @@
 import { equals, pluck, reject } from 'ramda';
+import type { RefObject } from 'react';
 
-import { LegendScale } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
-
-import { ArcType } from './models';
+import type { LegendScale } from '../Legend/models';
+import type { ArcType } from './models';
 
 interface ResponsivePieProps {
   data: Array<ArcType>;
   defaultInnerRadius: number;
   height: number;
   innerRadiusNoLimit: boolean;
-  legendRef;
-  titleRef;
+  legendRef: RefObject<HTMLElement | null>;
+  titleRef: RefObject<HTMLElement | null>;
   unit: 'percentage' | 'number';
   width: number;
 }

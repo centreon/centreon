@@ -112,6 +112,7 @@ final class AddHostFactory
 
         $dto->macros = array_map(
             static fn (Macro $macro): array => [
+                'id' => $macro->getId(),
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),

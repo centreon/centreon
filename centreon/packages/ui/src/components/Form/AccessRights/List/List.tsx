@@ -1,14 +1,13 @@
+import { Typography } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Typography } from '@mui/material';
-
-import { SelectEntry, Subtitle } from '../../../..';
+import { type SelectEntry, Subtitle } from '../../../..';
 import { List as UIList } from '../../../List';
 import { valuesAtom } from '../atoms';
-import { Labels } from '../models';
-
+import type { Labels } from '../models';
 import Item from './Item';
 import { useListStyles } from './List.styles';
 

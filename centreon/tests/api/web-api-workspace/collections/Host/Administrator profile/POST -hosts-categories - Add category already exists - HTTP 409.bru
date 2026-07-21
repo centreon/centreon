@@ -1,0 +1,41 @@
+meta {
+  name: POST /hosts/categories - Add category already exists - HTTP 409
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "name": "{{HostCategory2Name}}",
+      "alias": "{{HostCategory2Alias}}",
+      "is_activated": true,
+      "comment": "Created by Admin"
+  }
+}
+
+assert {
+  res.status: eq 409
+}
+
+tests {
+  test("Ressource already exists", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("code").that.is.a("number");
+    expect(body).to.have.property("message").that.is.an("string");
+    
+    expect(body.message).to.contain("already exists");
+  });
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

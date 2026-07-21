@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { TextField, useDebounce, useMemoComponent } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
-
-import { TextField, useDebounce, useMemoComponent } from '@centreon/ui';
+import React, { useState } from 'react';
 
 import { SearchableFields } from '../../../Criterias/searchQueryLanguage/models';
 import { searchAtom } from '../../../filterAtoms';
@@ -10,7 +9,6 @@ import { useStyles } from '../../criterias.style';
 import { informationLabel } from '../../translatedLabels';
 import useSearchInputDataByField from '../../useSearchInputDataByField';
 import { replaceValueFromSearchInput } from '../../utils';
-
 import useFilterSearchValue from './useFilterSearch';
 
 interface Props {
@@ -56,7 +54,7 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
     wait: 300
   });
 
-  const onChange = (e): void => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(e.target.value.replace(/\s/g, ''));
     setIsDirty(true);
 
@@ -68,10 +66,10 @@ const FilterSearch = ({ field, placeholder }: Props): JSX.Element => {
       <TextField
         className={classes.inputInformation}
         dataTestId={informationLabel}
-        placeholder={placeholder}
-        value={value}
         onChange={onChange}
         onFocus={() => setIsDirty(true)}
+        placeholder={placeholder}
+        value={value}
       />
     ),
     memoProps: [search, value]

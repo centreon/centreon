@@ -196,7 +196,7 @@ const CheckVendorFieldsValues = (
 
 interface TrapGroup {
   name: string;
-  traps: string[];
+  traps: Array<string>;
 }
 
 interface Vendor {

@@ -29,7 +29,9 @@ use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Resources\Application\Exception\ResourceException;
+use Core\Resources\Application\Repository\FindResourcesResult;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesFactory;
 use Core\Resources\Application\UseCase\FindResources\FindResourcesResponse;
@@ -61,6 +63,7 @@ final class FindResourcesByParent
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly \Traversable $extraDataProviders,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -86,13 +89,13 @@ final class FindResourcesByParent
 
             $parents = new FindResourcesResponse([]);
 
-            $this->requestParameters->setSort(json_encode($servicesSort) ?: '');
+            $this->requestParameters->setSort(json_encode(value: $servicesSort, flags: JSON_THROW_ON_ERROR) ?: '');
 
             $resources = [];
             $parentResources = [];
 
-            if ($this->contact->isAdmin()) {
-                $resources = $this->findResourcesAsAdmin($filter);
+            if ($this->adminResolver->isAdmin($this->contact)) {
+                $resources = $this->findResourcesAsAdmin($filter)->resources;
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
 
@@ -105,7 +108,7 @@ final class FindResourcesByParent
                     $parentResources = $this->findParentResources($parentFilter);
                 }
             } else {
-                $resources = $this->findResourcesAsUser($filter);
+                $resources = $this->findResourcesAsUser($filter)->resources;
 
                 // Save total children found
                 $totalChildrenFound = $this->requestParameters->getTotal();
@@ -138,9 +141,14 @@ final class FindResourcesByParent
             $presenter->presentResponse(
                 FindResourcesByParentFactory::createResponse($parents->resources, $children->resources, $extraData)
             );
-        } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: ResourceException::errorWhileSearching(),
+                    context: ['filter' => $filter],
+                    exception: $e,
+                )
+            );
         }
     }
 
@@ -176,9 +184,9 @@ final class FindResourcesByParent
      * @param ResourceFilter $filter
      *
      * @throws \Throwable
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    private function findResourcesAsAdmin(ResourceFilter $filter): array
+    private function findResourcesAsAdmin(ResourceFilter $filter): FindResourcesResult
     {
         return $this->repository->findResources($filter);
     }
@@ -199,9 +207,9 @@ final class FindResourcesByParent
      *
      * @throws \Throwable
      *
-     * @return ResourceEntity[]
+     * @return FindResourcesResult
      */
-    private function findResourcesAsUser(ResourceFilter $filter): array
+    private function findResourcesAsUser(ResourceFilter $filter): FindResourcesResult
     {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup) => $accessGroup->getId(),

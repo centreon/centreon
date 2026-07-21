@@ -21,5 +21,5 @@ services:
       - '@.inner'
       - '@Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface'
       - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
-      - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
+      - '@security.token_storage'
       - '@Centreon\Infrastructure\DatabaseConnection'

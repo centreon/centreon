@@ -1,8 +1,8 @@
-import { ScaleTime } from 'd3-scale';
+import { alpha } from '@mui/material';
+
+import type { ScaleTime } from 'd3-scale';
 import { atom } from 'jotai';
 import {
-  Pred,
-  T,
   __,
   always,
   both,
@@ -17,12 +17,13 @@ import {
   lte,
   not,
   or,
-  pipe
+  // @ts-expect-error - suppressing pre-existing type mismatch
+  type Pred,
+  pipe,
+  T
 } from 'ramda';
 
-import { alpha } from '@mui/material';
-
-import { TimelineEvent } from './models';
+import type { TimelineEvent } from './models';
 
 interface ChangeAnnotationHoveredProps {
   annotationHoveredId: number;
@@ -123,6 +124,7 @@ const getIsNotHoveredOrNil = ({
 export const getStrokeWidthDerivedAtom = atom(
   (get) =>
     (annotation: AnnotationAtom | undefined): number =>
+      // @ts-expect-error - suppressing pre-existing type mismatch
       cond<AnnotationAtom | undefined, number>([
         [
           (hoveredAnnotation): boolean =>
@@ -137,6 +139,7 @@ export const getStrokeWidthDerivedAtom = atom(
 export const getStrokeOpacityDerivedAtom = atom(
   (get) =>
     (annotation: AnnotationAtom | undefined): number =>
+      // @ts-expect-error - suppressing pre-existing type mismatch
       cond<AnnotationAtom | undefined, number>([
         [
           (hoveredAnnotation): boolean =>
@@ -151,6 +154,7 @@ export const getStrokeOpacityDerivedAtom = atom(
 export const getFillColorDerivedAtom = atom(
   (get) =>
     ({ color, annotation }: AnnotationColor): string =>
+      // @ts-expect-error - suppressing pre-existing type mismatch
       cond<AnnotationAtom | undefined, string>([
         [
           (hoveredAnnotation): boolean =>
@@ -168,6 +172,7 @@ export const getFillColorDerivedAtom = atom(
 export const getIconColorDerivedAtom = atom(
   (get) =>
     ({ color, annotation }: AnnotationColor): string =>
+      // @ts-expect-error - suppressing pre-existing type mismatch
       cond<AnnotationAtom | undefined, string>([
         [
           (hoveredAnnotation): boolean =>

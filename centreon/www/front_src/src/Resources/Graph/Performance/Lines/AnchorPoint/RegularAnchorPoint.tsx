@@ -1,12 +1,10 @@
-import { memo } from 'react';
-
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, not, prop } from 'ramda';
+import { memo } from 'react';
 
 import { bisectDate } from '../../Graph';
 import { TimeValue } from '../../models';
 import { getDates } from '../../timeSeries';
-
 import AnchorPoint from '.';
 
 interface Props {

@@ -1,13 +1,11 @@
-import { useEffect, useRef } from 'react';
-
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, or } from 'ramda';
+import { useEffect, useRef } from 'react';
 
 import { selectedVisualizationAtom } from '../Actions/actionsAtoms';
 import { defaultSelectedColumnIds } from '../Listing/columns';
 import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import { Visualization } from '../models';
-
 import { applyCurrentFilterDerivedAtom, searchAtom } from './filterAtoms';
 
 const useBackToVisualizationByAll = (): void => {

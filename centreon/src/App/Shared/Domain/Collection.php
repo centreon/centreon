@@ -38,14 +38,21 @@ final class Collection implements \IteratorAggregate, \Countable
     /** @var (\Closure(): array<T>)|null */
     private ?\Closure $initializer = null;
 
+    /** @var \Closure(T, T): bool */
+    private readonly \Closure $compare;
+
     /**
      * @param array<T>|\Closure(): array<T> $elements
      * @param class-string<T> $className
+     * @param null|\Closure(T, T): bool $compare
      */
     public function __construct(
         array|\Closure $elements,
         private readonly string $className,
+        ?\Closure $compare = null,
     ) {
+        $this->compare = $compare ?? static fn (object $self, object $other): bool => $self === $other;
+
         if (\is_array($elements)) {
             foreach ($elements as $element) {
                 Assert::isInstanceOf($element, $this->className);
@@ -95,7 +102,13 @@ final class Collection implements \IteratorAggregate, \Countable
         $this->initialize();
         Assert::notNull($this->elements);
 
-        return in_array($element, $this->elements, true);
+        foreach ($this->elements as $e) {
+            if (($this->compare)($e, $element)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -131,14 +144,13 @@ final class Collection implements \IteratorAggregate, \Countable
         $this->initialize();
         Assert::notNull($this->elements);
 
-        /** @var int|string|false $key */
-        $key = array_search($element, $this->elements, true);
+        foreach ($this->elements as $key => $e) {
+            if (($this->compare)($e, $element)) {
+                $this->remove($key);
 
-        if ($key === false) {
-            return;
+                return;
+            }
         }
-
-        $this->remove($key);
     }
 
     private function initialize(): void

@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const wrongProxyAdress = 'squad';
 const wrongProxyPort = '9999';
@@ -10,15 +12,15 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/include/common/webServices/rest/internal.php?object=centreon_proxy&action=checkConfiguration'
+    url: `${INTERCEPTORS.pages.centreon_proxy}&action=checkConfiguration`
   }).as('testProxy');
 });
 
@@ -34,7 +36,7 @@ Given('a user is logged in a Centreon server with a configured proxy', () => {
 });
 
 When('the user tests the proxy configuration in the interface', () => {
-  cy.visit('/centreon/main.php?p=50110&o=general');
+  cy.visit(PAGES.configuration.centreonUiLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="test_proxy"]');
   cy.getIframeBody().find('input[name="test_proxy"]').click();
@@ -55,11 +57,7 @@ Given(
       jsonName: 'admin',
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Centreon UI',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.centreonUiLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="test_proxy"]');
     cy.getIframeBody()

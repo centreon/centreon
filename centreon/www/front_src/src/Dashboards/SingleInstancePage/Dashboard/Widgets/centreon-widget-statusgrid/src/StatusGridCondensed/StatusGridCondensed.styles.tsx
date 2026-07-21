@@ -5,23 +5,23 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(1),
+    height: '100%',
     justifyContent: 'center',
-    width: '100%',
-    height: '100%'
+    width: '100%'
   },
   count: {
     height: '35%',
     width: '100%'
   },
   countParentSize: {
-    display: 'flex',
     alignItems: 'flex-end',
+    display: 'flex',
     justifyContent: 'center'
   },
   countText: {
     fontWeight: theme.typography.fontWeightBold,
-    textAlign: 'center',
-    lineHeight: 1
+    lineHeight: 1,
+    textAlign: 'center'
   },
   countTextContainer: {
     alignItems: 'flex-end',
@@ -58,10 +58,10 @@ export const useStatusGridCondensedStyles = makeStyles()((theme) => ({
   statuses: {
     display: 'grid',
     gap: theme.spacing(0.5),
+    gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))',
     height: '100%',
-    width: '100%',
     overflow: 'hidden',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(50px, 1fr))'
+    width: '100%'
   },
   tooltip: {
     backgroundColor: theme.palette.background.paper,

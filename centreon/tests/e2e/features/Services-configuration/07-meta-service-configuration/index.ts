@@ -1,16 +1,70 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/services/meta_service.json';
+
+// Selection filters of the legacy service-configuration list endpoint:
+// 'all' -> services and meta services, 's' -> services only, 'm' -> meta services only.
+const serviceSelectionFilters = ['all', 's', 'm'];
+
+const configurationServicesListUrl = (selection: string): string =>
+  `/centreon/include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list&page_limit=60&page=1&s=${selection}`;
+
+const metaServiceLabel = `Meta - ${data.default.name}`;
+
+const serviceListByFilter: Record<
+  string,
+  Array<{ id: string; text: string }>
+> = {};
+
+const isMetaServiceItem = (item: { text: string }): boolean =>
+  item.text.startsWith('Meta - ');
+
+// Asserts the items returned for a given selection filter contain the expected
+// mix of regular services and meta services. The meta service created in the
+// Background (metaServiceLabel) is the deterministic anchor of these checks.
+const assertServiceListForFilter = (
+  items: Array<{ id: string; text: string }>,
+  selection: string
+): void => {
+  expect(items, `items returned for s=${selection}`).to.be.an('array');
+
+  const containsMetaService = items.some(
+    (item) => item.text === metaServiceLabel
+  );
+
+  if (selection === 'all') {
+    expect(
+      containsMetaService,
+      `meta service "${metaServiceLabel}" should be listed when s=all`
+    ).to.be.true;
+  } else if (selection === 'm') {
+    expect(
+      containsMetaService,
+      `meta service "${metaServiceLabel}" should be listed when s=m`
+    ).to.be.true;
+    expect(
+      items.every(isMetaServiceItem),
+      'only meta services should be listed when s=m'
+    ).to.be.true;
+  } else {
+    expect(
+      containsMetaService,
+      `meta service "${metaServiceLabel}" should not be listed when s=s`
+    ).to.be.false;
+  }
+};
 
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getUserTimezone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 });
 
@@ -19,11 +73,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 Then('a meta service is configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchMS"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="meta_name"]');
@@ -359,6 +409,31 @@ Then('the deleted meta service is not displayed in the list', () => {
     .contains(data.default.name)
     .should('not.exist');
 });
+
+When(
+  'the configuration services list is requested for each selection filter',
+  () => {
+    serviceSelectionFilters.forEach((selection) => {
+      cy.request(configurationServicesListUrl(selection)).then((response) => {
+        expect(response.status).to.eq(200);
+        const body =
+          typeof response.body === 'string'
+            ? JSON.parse(response.body)
+            : response.body;
+        serviceListByFilter[selection] = body.items;
+      });
+    });
+  }
+);
+
+Then(
+  'services and meta services are returned according to the selected filter',
+  () => {
+    serviceSelectionFilters.forEach((selection) => {
+      assertServiceListForFilter(serviceListByFilter[selection], selection);
+    });
+  }
+);
 
 afterEach(() => {
   cy.stopContainers();

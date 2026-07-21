@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import Icon from '.';
 
@@ -21,8 +21,8 @@ export const normal = (): JSX.Element => (
   <Icon
     defaultImage=""
     imgSource=""
+    onClick={(): void => undefined}
     title="Attach"
     uploadedImage=""
-    onClick={(): void => undefined}
   />
 );

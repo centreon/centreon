@@ -19,8 +19,11 @@
  *
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class ItopProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const ITOP_ORGANIZATION_TYPE = 10;
     public const ITOP_CALLER_TYPE = 11;
     public const ITOP_SERVICE_TYPE = 12;
@@ -100,13 +103,22 @@ class ItopProvider extends AbstractProvider
 
         $query = ['auth_user' => $info['username'], 'auth_pwd' => $info['password'], 'json_data' => json_encode($data)];
 
+        // ssl peer verify
+        $peerVerify = (bool) ($info['peer_verify'] ?? true);
+        $caCertPath = $info['ca_cert_path'] ?? '';
+
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $peerVerify ? 2 : 0);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query));
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+        }
         // execute curl and get status information
         $curlResult = json_decode(curl_exec($curl), true);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -138,14 +150,15 @@ class ItopProvider extends AbstractProvider
         $key = "SELECT Person WHERE status='active'";
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " AND org_id='" . $matches[1] . "'";
+            $key .= ' AND org_id=' . (int) $matches[1];
         } else {
             throw new Exception('No organization found', 1);
         }
 
         $filter = $data['groups']['itop_caller']['filter'];
         if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+            $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
+            $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
         $data = ['operation' => 'core/get', 'class' => 'Person', 'key' => $key, 'output_fields' => 'friendlyname'];
@@ -178,14 +191,15 @@ class ItopProvider extends AbstractProvider
         $key = 'SELECT Service';
 
         if (preg_match('/(.*?)___(.*)/', $data['organization_value'], $matches)) {
-            $key .= " WHERE org_id='" . $matches[1] . "'";
+            $key .= ' WHERE org_id=' . (int) $matches[1];
         } else {
             throw new Exception('No organization found', 1);
         }
 
         $filter = $data['groups']['itop_service']['filter'];
         if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+            $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
+            $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
         $data = ['operation' => 'core/get', 'class' => 'Service', 'key' => $key, 'output_fields' => 'friendlyname'];
@@ -218,14 +232,15 @@ class ItopProvider extends AbstractProvider
         $key = 'SELECT ServiceSubcategory';
 
         if (preg_match('/(.*?)___(.*)/', $data['service_value'], $matches)) {
-            $key .= " WHERE service_id='" . $matches[1] . "'";
+            $key .= ' WHERE service_id=' . (int) $matches[1];
         } else {
             throw new Exception('No service found', 1);
         }
 
         $filter = $data['groups']['itop_service_subcategory']['filter'];
         if (isset($filter) && $filter != '') {
-            $key .= " AND friendlyname LIKE '%" . $filter . "%'";
+            $escapedFilter = preg_replace('/[^a-zA-Z0-9\s\-_.]/', '', $filter);
+            $key .= " AND friendlyname LIKE '%" . $escapedFilter . "%'";
         }
 
         $data = ['operation' => 'core/get', 'class' => 'ServiceSubcategory', 'key' => $key, 'output_fields' => 'friendlyname'];
@@ -586,13 +601,32 @@ class ItopProvider extends AbstractProvider
         $curl = curl_init();
         $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
         . '/webservices/rest.php?version=' . $this->getFormValue('api_version');
+
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query));
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
 
         // if proxy is set, we add it to curl
         if (
@@ -604,6 +638,7 @@ class ItopProvider extends AbstractProvider
                 CURLOPT_PROXY,
                 $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
             );
+
             // if proxy authentication configuration is set, we add it to curl
             if (
                 $this->getFormValue('proxy_username') != ''
@@ -616,6 +651,12 @@ class ItopProvider extends AbstractProvider
                 );
             }
         }
+
+        // log the curl options
+        $this->debug('Itop API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         // execute curl and get status information
         $curlResult = json_decode(curl_exec($curl), true);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);

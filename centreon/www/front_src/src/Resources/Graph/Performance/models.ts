@@ -1,8 +1,7 @@
-import { ReactNode } from 'react';
+import { LineChartData } from '@centreon/ui';
 
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-
-import { LineChartData } from '@centreon/ui';
+import { ReactNode } from 'react';
 
 import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
@@ -30,7 +29,7 @@ export interface Metric {
 }
 
 export interface GraphData {
-  global;
+  global: Record<string, unknown>;
   metrics: Array<Metric>;
   times: Array<string>;
 }
@@ -75,7 +74,7 @@ export interface AdditionalDataProps<T> {
 
 export interface GetDisplayAdditionalLinesConditionProps {
   condition: (resource: Resource | ResourceDetails) => boolean;
-  displayAdditionalLines: (args) => ReactNode;
+  displayAdditionalLines: (args: Record<string, unknown>) => ReactNode;
 }
 
 export interface Xscale {

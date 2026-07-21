@@ -3,13 +3,14 @@ import {
   DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { Box } from '@mui/material';
+
+import { ComponentColumnProps, IconButton } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
-
-import { userAtom } from '@centreon/ui-context';
 import { tokensToDeleteAtom } from '../../../atoms';
 import { TokenType } from '../../../models';
 import { labelCopy, labelDelete } from '../../../translatedLabels';
@@ -23,16 +24,25 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   const { id, canManageApiTokens } = useAtomValue(userAtom);
   const setTokensToDelete = useSetAtom(tokensToDeleteAtom);
 
-  const openDeleteModal = (): void => setTokensToDelete([row]);
+  const typedRow = row as {
+    id: number;
+    name: string;
+    type: TokenType;
+    creator: { id: number };
+  };
+
+  const openDeleteModal = (): void =>
+    setTokensToDelete([typedRow as unknown as string]);
 
   const { copyToken, isLoading } = useCopyToken({
-    tokenName: row.name,
-    userId: row.creator.id
+    tokenName: typedRow.name,
+    userId: typedRow.creator.id
   });
 
   const isCopyButtonVisible =
-    equals(row.type, TokenType.CMA) &&
-    (canManageApiTokens || equals(id, row.creator.id));
+    (equals(typedRow.type, TokenType.CMA) ||
+      equals(typedRow.type, TokenType.Poller)) &&
+    (canManageApiTokens || equals(id, typedRow.creator.id));
 
   return (
     <Box className={classes.actions}>
@@ -41,9 +51,9 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
           <IconButton
             ariaLabel={t(labelCopy)}
             dataTestid={`${labelCopy}_${row.id}`}
-            title={t(labelCopy)}
-            onClick={copyToken}
             disabled={isLoading}
+            onClick={copyToken}
+            title={t(labelCopy)}
           >
             <ContentCopyIcon className={classes.copyIcon} />
           </IconButton>
@@ -51,10 +61,10 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       </div>
       <IconButton
         ariaLabel={t(labelDelete)}
-        dataTestid={`${labelDelete}_${row.id}`}
-        title={t(labelDelete)}
-        onClick={openDeleteModal}
         className={classes.removeButton}
+        dataTestid={`${labelDelete}_${row.id}`}
+        onClick={openDeleteModal}
+        title={t(labelDelete)}
       >
         <DeleteIcon className={classes.removeIcon} />
       </IconButton>

@@ -172,4 +172,9 @@ class AgentConfigurationException extends \Exception
     {
         return new self('At least one connection mode (agent initiated or poller initiated) must be set to true', self::CODE_CONFLICT);
     }
+
+    public static function portIsMandatory(): self
+    {
+        return new self('Port is mandatory', self::CODE_CONFLICT);
+    }
 }

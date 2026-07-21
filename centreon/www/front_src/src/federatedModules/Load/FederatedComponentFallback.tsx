@@ -1,10 +1,9 @@
-import { useTranslation } from 'react-i18next';
-
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Paper, Typography } from '@mui/material';
 
-import { labelCannotLoadModule } from '../translatedLabels';
+import { useTranslation } from 'react-i18next';
 
+import { labelCannotLoadModule } from '../translatedLabels';
 import useStyles from './useStyles';
 
 const FederatedComponentFallback = (): JSX.Element => {

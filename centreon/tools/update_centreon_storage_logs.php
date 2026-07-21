@@ -23,6 +23,9 @@
  * The goal of this script is to manage the removal of the log_id column from
  * the centreon_storage.logs table
  */
+
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
+
 ini_set('max_execution_time', 0);
 
 require_once realpath(__DIR__ . '/../config/centreon.config.php');
@@ -243,10 +246,10 @@ function isInCompatibleMode(PDO $db)
 
 $loadDataInfileQuery = <<<'QUERY'
     LOAD DATA INFILE '{{DATA_FILE}}'
-    INTO TABLE logs 
+    INTO TABLE logs
     FIELDS TERMINATED BY ',' ENCLOSED BY '"' ESCAPED BY '\\'
     LINES TERMINATED BY '\n'
-    (log_id, ctime, @host_id, host_name, instance_name, @issue_id, msg_type, notification_cmd, 
+    (log_id, ctime, @host_id, host_name, instance_name, @issue_id, msg_type, notification_cmd,
     notification_contact, output, retry, @service_description, @service_id, status, type)
     set host_id = if(@host_id = '', NULL, @host_id),
         issue_id = if(@issue_id = '', NULL, @issue_id),
@@ -358,7 +361,7 @@ try {
         $dbHost,
         $dbPort
     );
-    $db = new PDO($dsn, $dbUser, $dbPassword);
+    $db = new PDO($dsn, $dbUser, $dbPassword, DatabaseTLSResolver::getTLSOptions());
     $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
     $db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -473,7 +476,7 @@ try {
 
         $nbrRecords = 0;
         while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            fputcsv($fp, $row);
+            fputcsv($fp, $row, ',', '"', '\\');
             $nbrRecords++;
         }
         fclose($fp);

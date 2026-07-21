@@ -1,6 +1,5 @@
-import { ReactElement } from 'react';
-
 import { Responsive } from '@visx/visx';
+import type { CSSProperties, ReactElement } from 'react';
 
 type ParentSizeState = {
   height: number;
@@ -11,6 +10,7 @@ type ParentSizeState = {
 
 type Props = {
   children: (args: ParentSizeState) => ReactElement;
+  parentSizeStyles?: CSSProperties;
 };
 
 const ParentSize = ({ children, ...props }: Props): JSX.Element => {

@@ -1,0 +1,36 @@
+meta {
+  name: PUT /services/severities - Update SS by editor - HTTP 204
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/services/severities/{{ServiceSeverity4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceSeverity4Name}}",
+    "alias": "{{ServiceSeverity4Alias}}",
+    "level": 8,
+    "icon_id": 1,
+    "is_activated": false
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The service severity has been successfully updated by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

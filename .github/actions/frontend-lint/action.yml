@@ -26,37 +26,44 @@ runs:
   using: "composite"
 
   steps:
-    - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+    - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       with:
         version: 10
         run_install: false
 
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
-        node-version: 20
+        node-version: 24
         cache: pnpm
         cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-      working-directory: ${{ inputs.frontend_directory }}
+      run: |
+        pnpm install \
+          --frozen-lockfile \
+          --config.trustPolicy=no-downgrade \
+          --config.minimumReleaseAge=2880 \
+          --config.blockExoticSubdeps=true
+      working-directory: ${{ env.FRONTEND_DIRECTORY }}
       shell: bash
       env:
+        FRONTEND_DIRECTORY: ${{ inputs.frontend_directory }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Setup Biome CLI
-      uses: biomejs/setup-biome@c016c38f26f2c4a6eb3662679143614a254263fd # v2.3.0
+      uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
       with:
         working-dir: ${{ inputs.frontend_directory }}
         token: ${{ inputs.pat }}
+        version: 2.3.11
 
-    - uses: mongolyy/reviewdog-action-biome@8fa6a2cd987b0c08cb1a860df2df931f6cb9a822 # v1.9.0
+    - uses: mongolyy/reviewdog-action-biome@58f27dce74f1f648943d3a88de554385727ce11b # v2.11.1
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
         reporter: github-pr-check
-        fail_on_error: true
-        level: 'error'
+        filter_mode: nofilter
+        fail_level: error
         biome_flags: ${{ inputs.lint_path }}

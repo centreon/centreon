@@ -1,0 +1,29 @@
+meta {
+  name: DELETE /dashboards - Delete dashboard - HTTP 204
+  type: http
+  seq: 23
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+
+tests {
+  test("Dashboard successfully deleted.", function () {
+    bru.setEnvVar("dashboardID", "");
+    expect(res.status).to.equal(204);
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

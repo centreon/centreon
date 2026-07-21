@@ -23,36 +23,26 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Infrastructure\Provider;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
+use Core\Security\Authentication\Domain\Exception\ProviderException;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
-use Security\Domain\Authentication\Exceptions\ProviderException;
 
-class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInterface
+readonly class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInterface
 {
-    /**
-     * @param Local $local
-     * @param OpenId $openId
-     * @param WebSSO $webSSO
-     * @param SAML $saml
-     * @param ReadConfigurationRepositoryInterface $readConfigurationRepository
-     */
     public function __construct(
-        private readonly Local $local,
-        private readonly OpenId $openId,
-        private readonly WebSSO $webSSO,
-        private readonly SAML $saml,
+        private Local $local,
+        private OpenId $openId,
+        private WebSSO $webSSO,
+        private SAML $saml,
         private ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
     /**
-     * @param string $providerType
-     *
-     * @throws ProviderException
-     *
-     * @return ProviderAuthenticationInterface
+     * @inheritDoc
      */
     public function create(string $providerType): ProviderAuthenticationInterface
     {
@@ -61,10 +51,14 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
             Provider::OPENID => $this->openId,
             Provider::WEB_SSO => $this->webSSO,
             Provider::SAML => $this->saml,
-            default => throw ProviderException::providerConfigurationNotFound($providerType),
+            default => throw ProviderException::unexpectedProvider($providerType),
         };
 
-        $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
+        try {
+            $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));
+        } catch (RepositoryException $e) {
+            throw ProviderException::errorWhileSearchingConfiguration($providerType, $e);
+        }
 
         return $provider;
     }

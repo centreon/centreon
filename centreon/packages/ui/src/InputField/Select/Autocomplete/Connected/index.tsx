@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { CircularProgress, useTheme } from '@mui/material';
+import type { AutocompleteRenderOptionState } from '@mui/material/Autocomplete';
 
 import {
   equals,
@@ -13,12 +14,17 @@ import {
   prop,
   uniqBy
 } from 'ramda';
-
-import { CircularProgress, useTheme } from '@mui/material';
-
-import { Props as AutocompleteFieldProps } from '..';
-import { ListingMapModel, ListingModel, SelectEntry } from '../../../..';
 import {
+  type HTMLAttributes,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useState
+} from 'react';
+import type { JsonDecoder } from 'ts.data.json';
+
+import type { ListingMapModel, ListingModel, SelectEntry } from '../../../..';
+import type {
   ConditionsSearchParameter,
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
@@ -29,6 +35,7 @@ import {
   useIntersectionObserver
 } from '../../../../utils';
 import Option from '../../Option';
+import type { Props as AutocompleteFieldProps } from '..';
 
 interface OptionResult<T> {
   result: Array<T>;
@@ -36,26 +43,37 @@ interface OptionResult<T> {
   total: number;
 }
 
+export interface GetEndpointParams {
+  page: number;
+  search?: SearchParameter;
+}
+
 export interface ConnectedAutoCompleteFieldProps<TData> {
   allowUniqOption?: boolean;
   baseEndpoint?: string;
-  changeIdValue: (item: TData) => number | string;
+  changeIdValue?: (item: TData) => number | string;
   exclusionOptionProperty?: keyof SelectEntry;
   field: string;
-  getEndpoint: ({ search, page }) => string;
-  decoder?;
-  getRenderedOptionText: (option: TData) => string;
+  getEndpoint: (params: GetEndpointParams) => string;
+  decoder?: JsonDecoder.Decoder<ListingModel<TData> | ListingMapModel<TData>>;
+  getRenderedOptionText?: (option: TData) => ReactElement | string;
   getRequestHeaders?: HeadersInit;
-  initialPage: number;
+  initialPage?: number;
   labelKey?: string;
   queryKey?: string;
   searchConditions?: Array<ConditionsSearchParameter>;
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: HOC accepts varied AutocompleteField shapes
+type AutocompleteLikeComponent = (props: any) => ReactElement;
+
 const ConnectedAutocompleteField = (
-  AutocompleteField: (props) => JSX.Element,
+  AutocompleteField: AutocompleteLikeComponent,
   multiple: boolean
-): ((props) => JSX.Element) => {
+): (<TData extends { name: string }>(
+  props: ConnectedAutoCompleteFieldProps<TData> &
+    Omit<AutocompleteFieldProps, 'options'>
+) => ReactElement) => {
   const InnerConnectedAutocompleteField = <TData extends { name: string }>({
     initialPage = 1,
     getEndpoint,
@@ -65,7 +83,7 @@ const ConnectedAutocompleteField = (
     open,
     exclusionOptionProperty = 'id',
     searchConditions = [],
-    getRenderedOptionText = (option): string => option.name?.toString(),
+    getRenderedOptionText = (option): string => option?.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
     queryKey,
@@ -74,7 +92,7 @@ const ConnectedAutocompleteField = (
     changeIdValue,
     ...props
   }: ConnectedAutoCompleteFieldProps<TData> &
-    Omit<AutocompleteFieldProps, 'options'>): JSX.Element => {
+    Omit<AutocompleteFieldProps, 'options'>): ReactElement => {
     const [options, setOptions] = useState<Array<TData>>([]);
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(initialPage);
@@ -86,8 +104,8 @@ const ConnectedAutocompleteField = (
     const [autocompleteChangedValue, setAutocompleteChangedValue] =
       useState<Array<SelectEntry>>();
     const debounce = useDebounce({
-      functionToDebounce: (value): void => {
-        setSearchParameter(getSearchParameter(value));
+      functionToDebounce: (value: unknown): void => {
+        setSearchParameter(getSearchParameter(value as string));
         setPage(1);
       },
       memoProps: [page, searchConditions],
@@ -99,8 +117,8 @@ const ConnectedAutocompleteField = (
     const { fetchQuery, isFetching, prefetchNextPage, data } = useFetchQuery<
       ListingModel<TData> | ListingMapModel<TData>
     >({
-      decoder,
       baseEndpoint,
+      decoder,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
         return getEndpoint({
@@ -115,8 +133,8 @@ const ConnectedAutocompleteField = (
       ],
       isPaginated: true,
       queryOptions: {
-        gcTime: 0,
         enabled: false,
+        gcTime: 0,
         staleTime: 0,
         suspense: false
       }
@@ -128,21 +146,21 @@ const ConnectedAutocompleteField = (
       ): OptionResult<TData> => {
         if ('result' in newOptions)
           return {
+            limit: newOptions.meta.limit || 1,
             result: newOptions.result || [],
-            total: newOptions.meta.total || 1,
-            limit: newOptions.meta.limit || 1
+            total: newOptions.meta.total || 1
           };
         if ('content' in newOptions)
           return {
+            limit: newOptions.size || 1,
             result: newOptions.content || [],
-            total: newOptions.totalElements || 1,
-            limit: newOptions.size || 1
+            total: newOptions.totalElements || 1
           };
 
         return {
+          limit: 1,
           result: [],
-          total: 1,
-          limit: 1
+          total: 1
         };
       },
       []
@@ -169,8 +187,8 @@ const ConnectedAutocompleteField = (
         : [selectedValue];
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $ni: map(
             prop(exclusionOptionProperty),
@@ -190,8 +208,8 @@ const ConnectedAutocompleteField = (
       }
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $lk: `%${searchedValue}%`
         }
@@ -217,26 +235,30 @@ const ConnectedAutocompleteField = (
       };
     };
 
-    const changeText = (event): void => {
+    const changeText = (event: React.ChangeEvent<HTMLInputElement>): void => {
       debounce(event.target.value);
     };
 
-    const renderOptions = (renderProps, option, { selected }): JSX.Element => {
+    const renderOptions = (
+      renderProps: HTMLAttributes<HTMLLIElement>,
+      option: SelectEntry,
+      { selected }: AutocompleteRenderOptionState
+    ): ReactElement => {
       const { value } = props;
 
       const lastValue = Array.isArray(value) ? last(value) : value;
 
       const isLastValueWithoutOptions =
-        equals(option)(lastValue) && isEmpty(options);
+        equals(option as unknown)(lastValue as unknown) && isEmpty(options);
       const lastOption = last(options);
 
-      const isLastOption = equals(lastOption)(option);
+      const isLastOption = equals(lastOption as unknown)(option as unknown);
 
       const canTriggerInfiniteScroll = isLastOption && page <= maxPage;
 
       const ref = canTriggerInfiniteScroll ? { ref: lastOptionRef } : {};
 
-      const optionText = getRenderedOptionText(option);
+      const optionText = getRenderedOptionText(option as unknown as TData);
 
       const optionProps = {
         checkboxSelected: multiple ? selected : undefined,
@@ -260,14 +282,28 @@ const ConnectedAutocompleteField = (
       );
     };
 
-    const renameKey = ({ object, key, newKey }): Partial<TData> => {
-      const oldKeyValue = object[key];
-      const newObject = { ...object, [newKey]: oldKeyValue };
+    const renameKey = useCallback(
+      ({
+        object,
+        key,
+        newKey
+      }: {
+        object: TData;
+        key: string;
+        newKey: string;
+      }): Partial<TData> => {
+        const oldKeyValue = (object as Record<string, unknown>)[key];
+        const newObject = {
+          ...object,
+          [newKey]: oldKeyValue
+        } as Record<string, unknown>;
 
-      return omit([key], newObject);
-    };
+        return omit([key], newObject) as Partial<TData>;
+      },
+      []
+    );
 
-    const fetchOptionsAndPrefetchNextOptions = (): void => {
+    const fetchOptionsAndPrefetchNextOptions = useCallback((): void => {
       fetchQuery().then((newOptions) => {
         const isError = has('isError', newOptions);
 
@@ -306,7 +342,7 @@ const ConnectedAutocompleteField = (
         }
 
         prefetchNextPage({
-          getPrefetchQueryKey: (newPage) => [
+          getPrefetchQueryKey: (newPage: number) => [
             `autocomplete-${props.label}`,
             newPage,
             searchParameter
@@ -314,7 +350,18 @@ const ConnectedAutocompleteField = (
           page
         });
       });
-    };
+    }, [
+      changeIdValue,
+      fetchQuery,
+      getOptionResult,
+      labelKey,
+      options,
+      page,
+      prefetchNextPage,
+      props.label,
+      renameKey,
+      searchParameter
+    ]);
 
     useEffect(() => {
       if (!optionsOpen) {
@@ -326,25 +373,22 @@ const ConnectedAutocompleteField = (
             : undefined
         );
       }
-    }, [optionsOpen]);
-
-    useEffect(
-      () => {
-        setSearchParameter(
-          !isEmpty(searchConditions)
-            ? { conditions: searchConditions }
-            : undefined
-        );
-      },
-      useDeepCompare([searchConditions])
-    );
+    }, [optionsOpen, initialPage, JSON.stringify(searchConditions)]);
 
     useEffect(() => {
-      if (!autocompleteChangedValue && !props?.value) {
+      setSearchParameter(
+        !isEmpty(searchConditions)
+          ? { conditions: searchConditions }
+          : undefined
+      );
+    }, [...useDeepCompare([searchConditions])]);
+
+    useEffect(() => {
+      if (!autocompleteChangedValue) {
         return;
       }
       setSearchParameter(undefined);
-    }, [autocompleteChangedValue, props?.value]);
+    }, [autocompleteChangedValue]);
 
     useEffect(() => {
       if (!optionsOpen) {
@@ -354,21 +398,32 @@ const ConnectedAutocompleteField = (
       fetchOptionsAndPrefetchNextOptions();
     }, [optionsOpen, page, searchParameter]);
 
+    const handleChange = (
+      _: React.SyntheticEvent,
+      value: SelectEntry | Array<SelectEntry> | null
+    ): void => {
+      setAutocompleteChangedValue(value as Array<SelectEntry> | undefined);
+    };
+
     return (
       <AutocompleteField
-        total={data?.meta?.total || data?.totalElements || 1}
-        filterOptions={(opt): SelectEntry => opt}
+        filterOptions={(opt: Array<SelectEntry>): Array<SelectEntry> => opt}
         loading={isFetching}
-        options={
-          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
-        }
-        renderOption={renderOptions}
-        onChange={(_, value) => {
-          setAutocompleteChangedValue(value);
-        }}
+        onChange={handleChange as unknown as AutocompleteFieldProps['onChange']}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}
+        options={
+          (allowUniqOption
+            ? uniqBy(getRenderedOptionText, options)
+            : options) as unknown as Array<SelectEntry>
+        }
+        renderOption={renderOptions}
+        total={
+          (data && 'meta' in data ? data.meta.total : undefined) ||
+          (data && 'totalElements' in data ? data.totalElements : undefined) ||
+          1
+        }
         {...props}
       />
     );

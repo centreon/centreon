@@ -1,10 +1,12 @@
 import { Add as AddIcon } from '@mui/icons-material';
+import { Box, Link } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
-import { Box, Link } from '@mui/material';
+
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router';
+
 import { labelCreateNewCMAToken } from '../../translatedLabels';
 
 const tokensPageURL = '/administration/authentication-token?mode=edit&type=cma';
@@ -15,19 +17,19 @@ const RedirectToTokensPage = (): JSX.Element => {
   return (
     <Box>
       <Button
+        aria-label={t(labelCreateNewCMAToken)}
         icon={<AddIcon />}
         iconVariant="start"
-        aria-label={t(labelCreateNewCMAToken)}
-        variant="ghost"
         size="small"
+        variant="ghost"
       >
         <Link
+          component={RouterLink}
           sx={{
             all: 'unset'
           }}
-          component={RouterLink}
-          to={tokensPageURL}
           target="_blank"
+          to={tokensPageURL}
         >
           {t(labelCreateNewCMAToken)}
         </Link>

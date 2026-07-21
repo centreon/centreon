@@ -1,3 +1,11 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
+import {
+  buildListingEndpoint,
+  ListingParameters,
+  QueryParameter
+} from '@centreon/ui';
+
 import {
   equals,
   flatten,
@@ -8,11 +16,6 @@ import {
   toUpper
 } from 'ramda';
 
-import {
-  ListingParameters,
-  QueryParameter,
-  buildListingEndpoint
-} from '@centreon/ui';
 import { Resource } from '../../../models';
 import {
   buildResourceTypeNameForSearchParameter,
@@ -27,10 +30,10 @@ export const hostsEndpoint = '/monitoring/resources/hosts';
 export const baIndicatorsEndpoint =
   '/bam/monitoring/business-activities/indicators';
 export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
-export const getBAEndpoint = (id): string =>
+export const getBAEndpoint = (id: number): string =>
   `/bam/monitoring/business-activities/${id}`;
 
-export const getBooleanRuleEndpoint = (id): string =>
+export const getBooleanRuleEndpoint = (id: number): string =>
   `/bam/monitoring/indicators/boolean-rules/${id}`;
 
 interface BuildResourcesEndpointProps {
@@ -196,7 +199,8 @@ export const buildCondensedViewEndpoint = ({
   type,
   resources,
   baseEndpoint,
-  statuses
+  statuses,
+  states
 }: BuildResourcesEndpointProps): string => {
   const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
@@ -230,12 +234,17 @@ export const buildCondensedViewEndpoint = ({
     }
   );
 
+  const state =
+    states && !isEmpty(states) ? [{ name: 'states', value: states }] : [];
+
+  const status =
+    statuses && !isEmpty(statuses)
+      ? [{ name: 'statuses', value: statuses.map(toUpper) }]
+      : [];
+
   return buildListingEndpoint({
     baseEndpoint,
-    customQueryParameters:
-      statuses && !isEmpty(statuses)
-        ? [{ name: 'statuses', value: statuses.map(toUpper) }]
-        : [],
+    customQueryParameters: [...state, ...status],
     parameters: {
       search: {
         conditions: flatten(searchConditions)

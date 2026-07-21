@@ -1,41 +1,48 @@
-import { useCallback, useMemo, useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isNil, map, not, prop, type } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { FormHelperText, Stack } from '@mui/material';
 
-import { SelectEntry } from '../../InputField/Select';
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import type { SelectEntry } from '../../InputField/Select';
 import SingleAutocompleteField from '../../InputField/Select/Autocomplete';
 import MultiAutocompleteField from '../../InputField/Select/Autocomplete/Multi';
 import { useMemoComponent } from '../../utils';
 import { labelPressEnterToAccept } from '../translatedLabels';
+import { type InputPropsWithoutGroup, InputType } from './models';
 
-import { InputPropsWithoutGroup, InputType } from './models';
+interface NormalizeNewValuesProps {
+  isCreatable?: boolean;
+  isMultiple: boolean;
+  newValues: SelectEntry | Array<SelectEntry | string> | null;
+}
 
 const normalizeNewValues = ({
   newValues,
   isMultiple,
   isCreatable
-}): SelectEntry | Array<string | SelectEntry> => {
+}: NormalizeNewValuesProps): SelectEntry | Array<string | SelectEntry> => {
   const isSingle = not(isMultiple);
   if (isSingle) {
-    return newValues;
+    return newValues as SelectEntry;
   }
 
-  return map((newValue: SelectEntry | string) => {
-    const isManualValue = equals(type(newValue), 'String');
-    if (isCreatable && isManualValue) {
+  return map(
+    (newValue: SelectEntry | string) => {
+      const isManualValue = equals(type(newValue), 'String');
+      if (isCreatable && isManualValue) {
+        return newValue;
+      }
+
+      if (isCreatable) {
+        return prop('name', newValue as SelectEntry);
+      }
+
       return newValue;
-    }
-
-    if (isCreatable) {
-      return prop('name', newValue as SelectEntry);
-    }
-
-    return newValue;
-  }, newValues);
+    },
+    newValues as Array<SelectEntry | string>
+  );
 };
 
 const Autocomplete = ({
@@ -65,7 +72,10 @@ const Autocomplete = ({
 
   const isMultiple = equals(inputType, InputType.MultiAutocomplete);
 
-  const changeValues = (_, newValues): void => {
+  const changeValues = (
+    _: React.SyntheticEvent,
+    newValues: SelectEntry | Array<SelectEntry | string> | null
+  ): void => {
     const normalizedNewValues = normalizeNewValues({
       isCreatable,
       isMultiple,
@@ -77,12 +87,12 @@ const Autocomplete = ({
     if (change) {
       setFieldTouched(fieldName, true, false);
       change({
-        setFieldValue,
-        value: normalizedNewValues,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        values,
-        setTouched
+        value: normalizedNewValues,
+        values
       });
 
       return;
@@ -118,7 +128,7 @@ const Autocomplete = ({
             return undefined;
           }
 
-          return `${selectedValues?.[index]}: ${errorText}`;
+          return `${(selectedValues as Array<SelectEntry> | undefined)?.[index]}: ${errorText}`;
         }
       );
 
@@ -135,7 +145,8 @@ const Autocomplete = ({
   }, [errors, fieldName, isMultiple, selectedValues, touched]);
 
   const textChange = useCallback(
-    (event): void => setInputText(event.target.value),
+    (event: React.ChangeEvent<HTMLInputElement>): void =>
+      setInputText(event.target.value),
     []
   );
 
@@ -145,9 +156,7 @@ const Autocomplete = ({
     | undefined => {
     if (isMultiple && isCreatable) {
       return equals(type(selectedValues), 'Array')
-        ? (
-            selectedValues as Array<SelectEntry> | Array<string> | undefined
-          )?.map((value) => ({
+        ? (selectedValues as Array<string> | undefined)?.map((value) => ({
             id: value,
             name: value
           }))
@@ -181,16 +190,16 @@ const Autocomplete = ({
             equals(option, selectedValue)
           }
           label={`${t(label)}${additionalLabel}`}
+          onChange={changeValues as never}
+          onTextChange={textChange}
           open={isCreatable ? false : undefined}
           options={autocomplete?.options || []}
           popupIcon={isCreatable ? null : undefined}
           required={isRequired}
-          value={getValues() ?? null}
-          onChange={changeValues}
-          onTextChange={textChange}
           style={{
             width: (autocomplete?.fullWidth ?? true) ? 'auto' : '180px'
           }}
+          value={getValues() ?? null}
         />
         {inputErrors && (
           <Stack>

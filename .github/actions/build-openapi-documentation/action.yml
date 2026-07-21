@@ -1,0 +1,93 @@
+name: "build-openapi-documentation"
+description: "Build OpenAPI documentation"
+
+inputs:
+  module_name:
+    description: "The package module name"
+    required: true
+  openapi_file_reference:
+    description: "Reference (tag or branch) on which the files are fetched"
+    required: false
+outputs:
+  doc_version:
+    description: Version of the documentation
+    value: ${{ steps.build_documentation.outputs.doc_version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout sources
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+    - if: inputs.openapi_file_reference != ''
+      name: Checkout OpenAPI file on tag ${{ inputs.openapi_file_reference }}
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        ref: ${{ inputs.openapi_file_reference }}
+        path: ./${{ inputs.openapi_file_reference }}/
+        sparse-checkout: |
+          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/
+
+    - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      with:
+        node-version: 24
+
+    - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+      with:
+        version: 10
+        run_install: false
+
+    - name: Run pnpm install
+      shell: bash
+      env:
+        MODULE_PATH: ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}
+      run: |
+        cd "$MODULE_PATH/doc/API"
+        pnpm install \
+          --frozen-lockfile \
+          --config.trustPolicy=no-downgrade \
+          --config.minimumReleaseAge=2880 \
+          --config.blockExoticSubdeps=true
+
+    - name: Build OpenAPI documentation
+      shell: bash
+      id: build_documentation
+      env:
+        MODULE_PATH: ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}
+        OPENAPI_FILE_REF: ${{ inputs.openapi_file_reference }}
+      run: |
+        source .version
+        major_version=${MAJOR}
+        OPENAPI_FILE_PATH="$MODULE_PATH/doc/API"
+
+        if [[ -n $OPENAPI_FILE_REF ]]; then
+          mv -f ./$OPENAPI_FILE_REF/$OPENAPI_FILE_PATH/$MODULE_PATH*-api.yaml \
+            ./$OPENAPI_FILE_PATH
+        fi
+
+        cd ./$OPENAPI_FILE_PATH
+
+        if ! [[ $major_version =~ ^2[0-9]\.10$ ]] && [[ -f "$MODULE_PATH-cloud-api.yaml" ]]; then
+          doc_version="cloud"
+          export OPENAPI_FILE="$MODULE_PATH-cloud-api.yaml"
+          sed -i "s#version: 'latest'#version: 'Cloud'#" $OPENAPI_FILE
+        elif [[ -f "$MODULE_PATH-api.yaml" ]]; then
+          doc_version=$major_version
+          export OPENAPI_FILE="$MODULE_PATH-api.yaml"
+          sed -i "s#version: 'latest'#version: '$doc_version'#" $OPENAPI_FILE
+        else
+          echo "::error::OpenAPI file not found"
+          exit 1
+        fi
+        echo "doc_version=$doc_version" >> $GITHUB_OUTPUT
+
+        echo "Building API doc from $OPENAPI_FILE"
+        pnpm run redoc-latest
+
+    - name: Upload built artifacts
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: openapi-doc-${{ inputs.module_name }}-${{ inputs.openapi_file_reference || github.ref_name }}
+        path: |
+          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/index.html
+          ${{ inputs.module_name == 'centreon-web' && 'centreon' || inputs.module_name }}/doc/API/centreon-logo.png
+        retention-days: 1

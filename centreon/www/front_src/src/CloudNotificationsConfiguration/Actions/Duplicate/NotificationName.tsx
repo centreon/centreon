@@ -1,8 +1,8 @@
+import { TextField } from '@centreon/ui';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { TextField } from '@centreon/ui';
 
 import { labelName, labelNotificationName } from '../../translatedLabels';
 
@@ -26,15 +26,15 @@ const NotificationName = (): JSX.Element => {
 
   return (
     <TextField
-      required
       ariaLabel={labelNotificationName}
       dataTestId="New notification name"
       error={error as string | undefined}
       label={t(labelName) as string}
       name="name"
-      value={notificationName}
       onBlur={handleBlur('name')}
       onChange={handleChange}
+      required
+      value={notificationName}
     />
   );
 };

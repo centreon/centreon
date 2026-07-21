@@ -56,6 +56,6 @@ class HostPollerRelation extends AbstractObject
             'nagios_server_id' => $pollerId,
             'host_host_id' => $hostId,
         ];
-        $this->generateObjectInFile($relation, $hostId . '.' . $serviceId);
+        $this->generateObjectInFile($relation, $pollerId . '.' . $hostId);
     }
 }

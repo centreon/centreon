@@ -11,9 +11,9 @@ interface ExceptionDays {
 interface TimePeriod {
   name: string;
   alias: string;
-  days: Days[];
-  templates: number[];
-  exceptions: ExceptionDays[];
+  days: Array<Days>;
+  templates: Array<number>;
+  exceptions: Array<ExceptionDays>;
 }
 
 Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
@@ -21,7 +21,6 @@ Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
     ...payload,
     days: payload.days.map((day) => ({
       day: day.day,
-      // biome-ignore lint/style/useNamingConvention: API requires snake_case
       time_range: day.timeRange
     }))
   };
@@ -66,7 +65,6 @@ Cypress.Commands.add(
         ...payload,
         days: payload.days.map((day) => ({
           day: day.day,
-          // biome-ignore lint/style/useNamingConvention: API requires snake_case
           time_range: day.timeRange
         }))
       };
@@ -161,7 +159,7 @@ Cypress.Commands.add(
 );
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addTimePeriodViaApi: (body: TimePeriod) => Cypress.Chainable;

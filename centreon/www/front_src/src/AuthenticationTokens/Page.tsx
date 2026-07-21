@@ -1,22 +1,19 @@
+import { LoadingSkeleton } from '@centreon/ui';
 import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-import { useTranslation } from 'react-i18next';
-import { DeleteDialog, DisableDialog, EnableDialog } from './Dialogs';
-
-import { Listing } from './Listing';
-import Modal from './Modal';
-
-import useLoadData from './Listing/useLoadData';
 
 import { useAtom, useSetAtom } from 'jotai';
-import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
-import { TokenType } from './models';
-
-import { useSearchParams } from 'react-router';
-
-import { LoadingSkeleton } from '@centreon/ui';
 import { isNil, isNotEmpty } from 'ramda';
 import { useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
+
+import { isWelcomePageDisplayedAtom, modalStateAtom } from './atoms';
+import { DeleteDialog, DisableDialog, EnableDialog } from './Dialogs';
 import useCountChangedFilters from './Filters/useCountChangedFilters';
+import { Listing } from './Listing';
+import useLoadData from './Listing/useLoadData';
+import Modal from './Modal';
+import { TokenType } from './models';
 import {
   labelAddToken,
   labelAuthenticationTokens,
@@ -24,7 +21,17 @@ import {
   labelWelcomePageTitle
 } from './translatedLabels';
 
-const WelcomePage = ({ labels, dataTestId, onCreate }) => {
+interface WelcomePageProps {
+  labels: {
+    actions: { create: string };
+    description: string;
+    title: string;
+  };
+  dataTestId: string;
+  onCreate: () => void;
+}
+
+const WelcomePage = ({ labels, dataTestId, onCreate }: WelcomePageProps) => {
   const { isLoading, data } = useLoadData();
 
   const setIsWelcomePageDisplayed = useSetAtom(isWelcomePageDisplayedAtom);
@@ -87,16 +94,16 @@ const Page = (): JSX.Element => {
             <WelcomePage
               dataTestId="create-token"
               labels={{
-                title: t(labelWelcomePageTitle),
-                description: t(labelWelcomeDescription),
                 actions: {
                   create: t(labelAddToken)
-                }
+                },
+                description: t(labelWelcomeDescription),
+                title: t(labelWelcomePageTitle)
               }}
               onCreate={openCreatetModal}
             />
           ) : (
-            <Listing isLoading={isLoading} data={data} />
+            <Listing data={data} isLoading={isLoading} />
           )}
         </DataTable>
       </PageLayout.Body>

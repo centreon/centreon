@@ -406,8 +406,8 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $form->setDefaults($defaultFeatures);
 
 // remove illegal chars in data sent by the user
-$cct['contact_name'] = CentreonUtils::escapeSecure($cct['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-$cct['contact_alias'] = CentreonUtils::escapeSecure($cct['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+$cct['contact_name'] = CentreonUtils::escapeSecure($cct['contact_name'] ?? null, CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+$cct['contact_alias'] = CentreonUtils::escapeSecure($cct['contact_alias'] ?? null, CentreonUtils::ESCAPE_ILLEGAL_CHARS);
 
 // Modify a contact information
 if ($o == 'c') {
@@ -427,9 +427,9 @@ $sessionKeyFreeze = 'administration-form-my-account-freeze';
 
 if ($form->validate()) {
     if ($cct['contact_auth_type'] === 'local') {
-        updateContactInDB($centreon->user->get_id());
+        updateContactByMyAccountInDB($centreon->user->get_id());
     } else {
-        updateNonLocalContactInDB($centreon->user->get_id());
+        updateNonLocalContactByMyAccountInDB($centreon->user->get_id());
     }
     $o = null;
     $features = $form->getSubmitValue('features');

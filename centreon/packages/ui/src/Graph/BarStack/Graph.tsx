@@ -4,12 +4,14 @@ import {
   BarStack as BarStackVertical
 } from '@visx/shape';
 import { Text } from '@visx/text';
+import type { ScaleOrdinal } from 'd3-scale';
 import { equals, props } from 'ramda';
 import { memo, useMemo } from 'react';
+
 import { Tooltip } from '../../components';
 import { getValueByUnit } from '../common/utils';
 import { useGraphStyles } from './BarStack.styles';
-import { BarStackProps } from './models';
+import type { BarStackProps, BarType } from './models';
 import { useGraphAndLegend } from './useGraphAndLegend';
 
 interface Props
@@ -25,9 +27,51 @@ interface Props
   width: number;
   height: number;
   isVerticalBar: boolean;
-  colorScale;
+  colorScale: ScaleOrdinal<string, string>;
   total: number;
 }
+
+interface GetFitsInBarProps {
+  isVerticalBar: boolean;
+  bar: { width: number; height: number };
+  unit?: 'percentage' | 'number';
+}
+
+const getFitsInBar = ({
+  isVerticalBar,
+  bar,
+  unit
+}: GetFitsInBarProps): boolean => {
+  if (isVerticalBar) {
+    return bar.height >= 18;
+  }
+
+  return (
+    (equals(unit, 'number') && bar.width > 15) ||
+    (equals(unit, 'percentage') && bar.width > 35)
+  );
+};
+
+interface GetClickProps {
+  onSingleBarClick?: (barData: BarType) => void;
+  bar: BarType | unknown;
+}
+
+const getClick = ({
+  onSingleBarClick,
+  bar
+}: GetClickProps): ((e: MouseEvent) => void) | undefined => {
+  if (onSingleBarClick) {
+    return (e: MouseEvent): void => {
+      if (!equals(e.button, 0)) {
+        return;
+      }
+      onSingleBarClick(bar as BarType);
+    };
+  }
+
+  return undefined;
+};
 
 const Graph = ({
   width,
@@ -53,14 +97,15 @@ const Graph = ({
 
   const { barStackData, xScale, yScale, keys } = useGraphAndLegend({
     data,
-    width,
     height: normalizedHeight,
     isVerticalBar,
-    total
+    total,
+    width
   });
 
   return (
-    <svg width="100%" height={normalizedHeight}>
+    <svg height={normalizedHeight} width="100%">
+      {/* @ts-expect-error - suppressing pre-existing type mismatch */}
       <BarStackComponent
         color={colorScale}
         data={[barStackData]}
@@ -74,27 +119,17 @@ const Graph = ({
             barStack.bars.map((bar) => {
               const isFirstBar = equals(index, 0);
               const isLastBar = equals(index, barStacks.length - 1);
-              const fitsInBar = isVerticalBar
-                ? bar.height >= 18
-                : (equals(unit, 'number') && bar.width > 15) ||
-                  (equals(unit, 'percentage') && bar.width > 35);
+              const fitsInBar = getFitsInBar({ bar, isVerticalBar, unit });
 
               const textX = bar.x + bar.width / 2;
               const textY = bar.y + bar.height / 2;
 
-              const click = onSingleBarClick
-                ? (e: MouseEvent): void => {
-                    if (!equals(e.button, 0)) {
-                      return;
-                    }
-                    onSingleBarClick(bar);
-                  }
-                : undefined;
+              const click = getClick({ bar, onSingleBarClick });
 
               return (
                 <Tooltip
-                  followCursor={false}
                   classes={classes}
+                  followCursor={false}
                   key={`bar-stack-${barStack.index}-${bar.index}`}
                   label={
                     TooltipContent && (
@@ -111,19 +146,20 @@ const Graph = ({
                 >
                   <g data-testid={bar.key} key={bar.key}>
                     <BarRounded
-                      radius={8}
+                      bottom={isVerticalBar && isFirstBar}
                       cursor={onSingleBarClick ? 'pointer' : 'default'}
                       fill={bar.color}
                       height={bar.height}
                       key={`bar-stack-${barStack.index}-${bar.index}`}
+                      left={!isVerticalBar && isFirstBar}
+                      // @ts-expect-error - suppressing pre-existing type mismatch
+                      onMouseDown={click}
+                      radius={8}
+                      right={!isVerticalBar && isLastBar}
+                      top={isVerticalBar && isLastBar}
                       width={isVerticalBar ? bar.width - 10 : bar.width}
                       x={bar.x}
                       y={bar.y}
-                      left={!isVerticalBar && isFirstBar}
-                      right={!isVerticalBar && isLastBar}
-                      bottom={isVerticalBar && isFirstBar}
-                      top={isVerticalBar && isLastBar}
-                      onMouseDown={click}
                     />
                     {displayValues && fitsInBar && (
                       <Text
@@ -132,11 +168,12 @@ const Graph = ({
                         fill="#000"
                         fontSize={12}
                         fontWeight={600}
+                        // @ts-expect-error - suppressing pre-existing type mismatch
+                        onMouseUp={click}
                         textAnchor="middle"
                         verticalAnchor="middle"
                         x={textX}
                         y={textY}
-                        onMouseUp={click}
                       >
                         {getValueByUnit({
                           total,

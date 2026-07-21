@@ -98,7 +98,7 @@ class SqlRequestParametersTranslator
      * @throws RequestParametersTranslatorException
      * @return string|null SQL request according to the search parameters
      */
-    public function translateSearchParameterToSql(): ?string
+    public function translateSearchParameterToSql(bool $prependWhere = true): ?string
     {
         $whereQuery = '';
         $search = $this->requestParameters->getSearch();
@@ -106,14 +106,19 @@ class SqlRequestParametersTranslator
             $whereQuery .= $this->createDatabaseQuery($search);
         }
 
-        return ! empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
+        if (empty($whereQuery)) {
+            return null;
+        }
+
+        return $prependWhere ? ' WHERE ' . $whereQuery : ' AND ' . $whereQuery;
     }
 
     public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
     {
-        $search = $this->requestParameters->getSearch();
-        if (! empty($search)) {
-            $queryBuilder->where($this->createDatabaseQuery($search));
+        if (! empty($search = $this->requestParameters->getSearch())) {
+            if (! empty($whereQuery = $this->createDatabaseQuery($search))) {
+                $queryBuilder->where($whereQuery);
+            }
         }
     }
 
@@ -130,12 +135,16 @@ class SqlRequestParametersTranslator
                 if (! empty($orderQuery)) {
                     $orderQuery .= ', ';
                 }
-                $orderQuery .= sprintf(
-                    '%s IS NULL, %s %s',
-                    $this->concordanceArray[$name],
-                    $this->concordanceArray[$name],
-                    $order
-                );
+                $col = $this->concordanceArray[$name];
+                if (strtoupper($order) === RequestParameters::ORDER_ASC) {
+                    // NULLs are treated as lowest value in MySQL/MariaDB, so for ASC they appear first.
+                    // The IS NULL trick ensures NULLs sort last for ASC ordering.
+                    $orderQuery .= sprintf('%s IS NULL, %s %s', $col, $col, $order);
+                } else {
+                    // For DESC, NULLs are already last (lowest value → last in descending order).
+                    // Adding IS NULL would create a computed expression that prevents index usage.
+                    $orderQuery .= sprintf('%s %s', $col, $order);
+                }
             }
         }
 
@@ -146,14 +155,12 @@ class SqlRequestParametersTranslator
     {
         foreach ($this->requestParameters->getSort() as $name => $order) {
             if (array_key_exists($name, $this->concordanceArray)) {
-                $queryBuilder->addOrderBy(
-                    sprintf(
-                        '%s IS NULL, %s',
-                        $this->concordanceArray[$name],
-                        $this->concordanceArray[$name],
-                    ),
-                    $order
-                );
+                $col = $this->concordanceArray[$name];
+                if (strtoupper($order) === RequestParameters::ORDER_ASC) {
+                    $queryBuilder->addOrderBy(sprintf('%s IS NULL, %s', $col, $col), $order);
+                } else {
+                    $queryBuilder->addOrderBy($col, $order);
+                }
             }
         }
     }

@@ -32,7 +32,7 @@ final class HostMacroFactory
      * Create macros object from the request data.
      * Use direct and inherited macros to retrieve value of macro with isPassword when not provided in dto.
      *
-     * @param array{name:string,value:string|null,is_password:bool,description:string|null} $data
+     * @param array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null} $data
      * @param int $hostTemplateId
      * @param array<string,Macro> $inheritedMacros
      *
@@ -47,9 +47,8 @@ final class HostMacroFactory
         array $inheritedMacros,
     ): Macro {
         $macroName = mb_strtoupper($data['name']);
-        $macroValue = self::computeValue($data, $inheritedMacros);
+        $macroValue = $data['value'] ?? '';
         $passwordHasNotChanged = ($data['value'] === null) && $data['is_password'];
-        // Note: do not handle vault storage at the moment
         if ($passwordHasNotChanged) {
             $macroValue = match (true) {
                 // retrieve actual password value
@@ -59,6 +58,7 @@ final class HostMacroFactory
         }
 
         $macro = new Macro(
+            $data['id'] ?? null,
             $hostTemplateId,
             $data['name'],
             $macroValue,
@@ -67,22 +67,5 @@ final class HostMacroFactory
         $macro->setDescription($data['description'] ?? '');
 
         return $macro;
-    }
-
-    /**
-     * Compute macro value based on the data and inherited macros.
-     *
-     * @param array{name:string,value:string|null,is_password:bool,description:string|null} $data
-     * @param array<string,Macro> $inheritedMacros
-     *
-     * @return string
-     */
-    private static function computeValue(array $data, array $inheritedMacros): string
-    {
-        if (array_key_exists($data['name'], $inheritedMacros)) {
-            return $inheritedMacros[$data['name']]->getValue();
-        }
-
-        return $data['value'] ?? '';
     }
 }

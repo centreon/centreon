@@ -34,6 +34,8 @@ require_once $centreon_path . 'www/class/centreonHostcategories.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
@@ -157,7 +159,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         h.host_id = cv5.host_id AND (cv5.service_id IS NULL OR cv5.service_id = 0) AND cv5.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop1 ON (
-        cv5.value = mop1.ticket_value AND (
+        (cv5.value = mop1.ticket_value OR cv5.value = CONCAT('raw::', mop1.ticket_value)) AND (
             mop1.timestamp > h.last_time_up OR h.last_time_up IS NULL
         )
     )
@@ -172,7 +174,7 @@ $query = "SELECT SQL_CALC_FOUND_ROWS h.host_id,
         s.service_id = cv3.service_id AND s.host_id = cv3.host_id AND cv3.name = '" . $macro_tickets['ticket_id'] . "'
     )
     LEFT JOIN mod_open_tickets mop2 ON (
-        cv3.value = mop2.ticket_value AND (
+        (cv3.value = mop2.ticket_value OR cv3.value = CONCAT('raw::', mop2.ticket_value)) AND (
             mop2.timestamp > s.last_time_ok OR s.last_time_ok IS NULL
         )
     )
@@ -380,7 +382,7 @@ if (! empty($preferences['hostcategories'])) {
         $queryHC .= ':id_' . $resultHC;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $resultHC,
-            'value' => (int) $resultsHC,
+            'value' => (int) $resultHC,
             'type' => PDO::PARAM_INT,
         ];
     }
@@ -421,9 +423,15 @@ if (isset($preferences['display_severities'])
 
 if (! $centreon->user->admin) {
     $pearDB = $db;
-    $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $groupList = $aclObj->getAccessGroupsString();
-    $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ({$groupList})";
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+
+    if (! $acls->getAccessGroups()->isEmpty()) {
+        $groupList = implode(', ', $acls->getAccessGroups()->getIds());
+        $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ({$groupList})";
+    } else {
+        // make the request return nothing if no ACL groups linked to the user
+        $query .= ' AND 1 = 0';
+    }
 }
 if (isset($preferences['output_search']) && $preferences['output_search'] != '') {
     $tab = explode(' ', $preferences['output_search']);
@@ -564,11 +572,11 @@ while ($row = $res->fetch()) {
     );
 
     $data[$row['host_id'] . '_' . $row['service_id']]['h_details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=0202&o=hd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20202&o=hd&host_name=' . $row['hostname']
         : $resourceController->buildHostDetailsUri($row['host_id']);
 
     $data[$row['host_id'] . '_' . $row['service_id']]['s_details_uri'] = $useDeprecatedPages
-        ? '../../main.php?p=0202&o=hd&host_name=' . $row['hostname']
+        ? '../../main.php?p=20201&o=svcd&host_name=' . $row['hostname']
             . '&service_description=' . $row['description']
         : $resourceController->buildServiceDetailsUri($row['host_id'], $row['service_id']);
 }

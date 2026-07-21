@@ -1,6 +1,6 @@
-import { ReactElement, ReactNode } from 'react';
-
 import { ListItemText as MuiListItemText } from '@mui/material';
+
+import type { ReactElement, ReactNode } from 'react';
 
 import { useStyles } from './ListItem.styles';
 

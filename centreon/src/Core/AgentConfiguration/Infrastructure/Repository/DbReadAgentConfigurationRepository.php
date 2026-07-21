@@ -178,9 +178,10 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT
-                    `cfg_nagios_id`
-                FROM `:db`.`cfg_nagios_broker_module`
-                WHERE `broker_module` = :module
+                    cn.`nagios_server_id`
+                FROM `:db`.`cfg_nagios_broker_module` cnbm
+                INNER JOIN `:db`.`cfg_nagios` cn ON cn.`nagios_id` = cnbm.`cfg_nagios_id`
+                WHERE cnbm.`broker_module` = :module
                 SQL
         ));
         $statement->bindValue(':module', $module, \PDO::PARAM_STR);
@@ -417,7 +418,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             connectionMode: $connectionMode,
             configuration: match ($type->value) {
                 Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
-                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode),
+                Type::CMA->value => new CmaConfigurationParameters($configuration, true),
             }
         );
     }

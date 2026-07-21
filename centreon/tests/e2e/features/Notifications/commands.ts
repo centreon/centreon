@@ -245,7 +245,7 @@ interface Escalation {
 }
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addEscalation: (body: Escalation) => Cypress.Chainable;

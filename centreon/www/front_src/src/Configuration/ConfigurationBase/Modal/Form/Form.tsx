@@ -1,77 +1,78 @@
-import { useFormikContext } from 'formik';
+import { Box } from '@mui/material';
+
+import { Form, Group, InputProps } from '@centreon/ui';
+import { FormActions, FormActionsProps } from '@centreon/ui/components';
+
+import { FormikHelpers, useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { Form, Group, InputProps } from '@centreon/ui';
-import { FormActions, FormActionsProps } from '@centreon/ui/components';
-import { CloseModalConfirmation } from '../../Dialogs';
-
-import { Box } from '@mui/material';
 import { ObjectSchema } from 'yup';
+
 import { isFormDirtyAtom } from '../../atoms';
+import { CloseModalConfirmation } from '../../Dialogs';
 import { labelCancel, labelSave } from '../../translatedLabels';
 import { useFormStyles } from './Form.styles';
 
 export type HostGroupFormProps = {
   id?: number;
   onSubmit?: (
-    values,
-    {
-      setSubmitting
-    }: {
-      setSubmitting;
-    }
+    values: Record<string, unknown>,
+    helpers: FormikHelpers<Record<string, unknown>>
   ) => void;
   mode?: 'add' | 'edit';
   inputs: Array<InputProps>;
   groups: Array<Group>;
   validationSchema: ObjectSchema<object>;
-  initialValues;
+  initialValues: Record<string, unknown>;
   isLoading: boolean;
   hasWriteAccess: boolean;
 } & Pick<FormActionsProps, 'onCancel'>;
 
 export type ConnectorFormLabels = {
   actions: FormActionsProps['labels'];
-  entity;
+  entity: Record<string, unknown>;
 };
 
-const Actions =
-  ({ onCancel, mode }) =>
-  (): JSX.Element => {
-    const { t } = useTranslation();
+const Actions = ({
+  onCancel,
+  mode
+}: {
+  onCancel: FormActionsProps['onCancel'];
+  mode?: 'add' | 'edit';
+}): JSX.Element => {
+  const { t } = useTranslation();
 
-    const setIsDirty = useSetAtom(isFormDirtyAtom);
+  const setIsDirty = useSetAtom(isFormDirtyAtom);
 
-    const { dirty } = useFormikContext();
+  const { dirty } = useFormikContext();
 
-    useEffect(() => {
-      setIsDirty(dirty);
-    }, [dirty]);
+  useEffect(() => {
+    setIsDirty(dirty);
+  }, [dirty]);
 
-    const actionsLabels = {
-      cancel: t(labelCancel),
-      submit: {
-        create: t(labelSave),
-        update: t(labelSave)
-      }
-    };
-
-    const variant = equals(mode, 'add') ? 'create' : 'update';
-
-    return (
-      <>
-        <FormActions
-          labels={actionsLabels}
-          variant={variant}
-          onCancel={onCancel}
-        />
-        <CloseModalConfirmation />
-      </>
-    );
+  const actionsLabels = {
+    cancel: t(labelCancel),
+    submit: {
+      create: t(labelSave),
+      update: t(labelSave)
+    }
   };
+
+  const variant = equals(mode, 'add') ? 'create' : 'update';
+
+  return (
+    <>
+      <FormActions
+        labels={actionsLabels}
+        onCancel={onCancel}
+        variant={variant}
+      />
+      <CloseModalConfirmation />
+    </>
+  );
+};
 
 const HostGroupForm = ({
   mode,
@@ -88,16 +89,18 @@ const HostGroupForm = ({
 
   return (
     <Form
-      Buttons={hasWriteAccess ? Actions({ onCancel, mode }) : Box}
-      isCollapsible
       areGroupsOpen
+      Buttons={
+        hasWriteAccess ? () => <Actions mode={mode} onCancel={onCancel} /> : Box
+      }
+      groups={groups}
+      groupsClassName={classes.groups}
       initialValues={initialValues}
       inputs={inputs}
-      groups={groups}
+      isCollapsible
       isLoading={isLoading}
       submit={(values, bag) => onSubmit?.(values, bag)}
       validationSchema={validationSchema}
-      groupsClassName={classes.groups}
     />
   );
 };

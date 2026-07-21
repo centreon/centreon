@@ -59,8 +59,8 @@ before(() => {
   }).as('resourceRequest');
   cy.startContainers({
     moduleName: 'centreon-open-tickets',
-    useSlim: false,
-    profiles: ['glpi']
+    profiles: ['glpi'],
+    useSlim: false
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-notification-permissions.json'
@@ -269,10 +269,7 @@ Then(
     cy.enterIframe('#open-ticket').within(() => {
       cy.get('td.FormRowField').should('include.text', 'New ticket opened');
     });
-    cy.get('[class$="modalCloseButton"]')
-      .find('[aria-label="close"]')
-      .eq(1)
-      .click();
+    cy.get('[aria-label="close"]').eq(1).click();
     cy.getByLabel({ label: 'Resources linked to a ticket' }).click();
     cy.getByTestId({ testId: 'confirm' }).realClick();
     cy.getByTestId({ testId: 'save_dashboard' }).click();

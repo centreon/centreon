@@ -1,11 +1,10 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
-
+import { SnackbarProvider } from '@centreon/ui';
 import { ListingVariant, ThemeMode, userAtom } from '@centreon/ui-context';
 
-import navigationAtom from '../Navigation/navigationAtoms';
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
-import { SnackbarProvider } from '@centreon/ui';
+import navigationAtom from '../Navigation/navigationAtoms';
 import Breadcrumbs, { router } from '.';
 import { labelBreadcrumbCopied, labelCopyBreadcrumb } from './translatedLabels';
 

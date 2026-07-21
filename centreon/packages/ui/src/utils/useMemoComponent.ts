@@ -1,9 +1,8 @@
-import { DependencyList, ReactElement, useMemo, useRef } from 'react';
-
 import { equals } from 'ramda';
+import { type DependencyList, type ReactElement, useMemo, useRef } from 'react';
 
 export const useDeepCompare = (value: DependencyList): Array<number> => {
-  const ref = useRef<React.DependencyList>();
+  const ref = useRef<React.DependencyList>(undefined);
   const signalRef = useRef<number>(0);
 
   if (!equals(value, ref.current)) {
@@ -22,7 +21,7 @@ interface MemoComponent {
 export const useMemoComponent = ({
   Component,
   memoProps
-}: MemoComponent): JSX.Element =>
+}: MemoComponent): ReactElement =>
   useMemo(() => Component, useDeepCompare(memoProps));
 
 export default useMemoComponent;

@@ -1,8 +1,7 @@
 import { atom } from 'jotai';
 
+import type { User } from '.';
 import { defaultUser } from './defaults';
-
-import { User } from '.';
 
 const userAtom = atom<User>(defaultUser);
 

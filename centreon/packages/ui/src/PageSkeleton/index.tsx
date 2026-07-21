@@ -1,9 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { useTheme } from '@mui/material';
 
-import LoadingSkeleton from '../LoadingSkeleton';
+import { makeStyles } from 'tss-react/mui';
 
+import LoadingSkeleton from '../LoadingSkeleton';
 import BaseRectSkeleton, { useSkeletonStyles } from './BaseSkeleton';
 import ContentSkeleton from './ContentSkeleton';
 

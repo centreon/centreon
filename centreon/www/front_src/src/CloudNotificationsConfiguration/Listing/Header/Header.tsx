@@ -1,14 +1,13 @@
+import { Box } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Box } from '@mui/material';
 
 import { DeleteButton, useDelete } from '../../Actions/Delete';
 import { selectedRowsAtom } from '../../atom';
 import { DeleteType } from '../../models';
 import { labelDeleteMultipleNotifications } from '../../translatedLabels';
-
 import Add from './Add';
 import useStyle from './Header.styles';
 

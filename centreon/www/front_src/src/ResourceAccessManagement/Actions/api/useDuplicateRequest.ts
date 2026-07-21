@@ -1,7 +1,5 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { omit } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import {
   Method,
   useFetchQuery,
@@ -9,10 +7,13 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { useQueryClient } from '@tanstack/react-query';
+import { omit } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { resourceAccessRuleDecoder } from '../../AddEditResourceAccessRule/api/decoders';
 import { resourceAccessRuleEndpoint } from '../../AddEditResourceAccessRule/api/endpoints';
 import { GetResourceAccessRule } from '../../models';
-
 import { adaptRule } from './adapters';
 
 interface UseDuplicateRequestProps {

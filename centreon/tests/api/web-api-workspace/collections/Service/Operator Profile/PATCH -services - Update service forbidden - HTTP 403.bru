@@ -1,0 +1,35 @@
+meta {
+  name: PATCH /services - Update service forbidden - HTTP 403
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/services/{{Service1Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "check_timeperiod_id": 1,
+    "max_check_attempts": 1,
+    "normal_check_interval": 1,
+    "retry_check_interval": 1
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("The service has not been updated because the user does not have the correct rights.", function () {
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

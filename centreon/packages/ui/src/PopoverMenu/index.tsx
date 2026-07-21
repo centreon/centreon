@@ -1,7 +1,3 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import {
   ClickAwayListener,
   Paper,
@@ -10,7 +6,9 @@ import {
 } from '@mui/material';
 import type { PopperProps } from '@mui/material/Popper';
 
-import { equals, type } from 'ramda';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
 import { IconButton } from '..';
 
 const useStyles = makeStyles()((theme) => ({
@@ -30,7 +28,7 @@ interface PopoverData {
 
 interface Props {
   canOpen?: boolean;
-  children: (props?) => JSX.Element | JSX.Element;
+  children: ((props?: { close?: () => void }) => JSX.Element) | JSX.Element;
   className?: string;
   tooltipClassName?: string;
   dataTestId?: string;
@@ -61,7 +59,7 @@ const PopoverMenu = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
   const isOpen = Boolean(anchorEl);
 
-  const close = (reason?): void => {
+  const close = (reason?: { type?: string }): void => {
     const isClosedByInputClick = reason?.type === 'mousedown';
     if (isClosedByInputClick) {
       return;
@@ -71,7 +69,7 @@ const PopoverMenu = ({
     setAnchorEl(undefined);
   };
 
-  const toggle = (event): void => {
+  const toggle = (event: React.MouseEvent<HTMLButtonElement>): void => {
     if (isOpen) {
       close();
 
@@ -86,11 +84,11 @@ const PopoverMenu = ({
     if (!canOpen && isOpen) {
       close();
     }
-  }, [canOpen]);
+  }, [canOpen, close, isOpen]);
 
   useEffect(() => {
     getPopoverData?.({ anchorEl, setAnchorEl });
-  }, [anchorEl]);
+  }, [anchorEl, getPopoverData]);
 
   return (
     <>
@@ -98,28 +96,23 @@ const PopoverMenu = ({
         ariaLabel={title}
         className={cx(classes.popoverIconButton, className)}
         data-testid={dataTestId}
+        onClick={toggle}
         size="large"
         title={title}
-        onClick={toggle}
       >
         {icon}
       </IconButton>
       {isOpen && (
         <ClickAwayListener onClickAway={close}>
           <Popper
-            open
             anchorEl={anchorEl}
             className={classes.popover}
-            nonce={undefined}
+            open
             placement={popperPlacement}
-            onResize={(): undefined => undefined}
-            onResizeCapture={(): undefined => undefined}
             {...popperProps}
           >
             <Paper className={tooltipClassName}>
-              {equals(type(children), 'Function')
-                ? children({ close })
-                : children}
+              {typeof children === 'function' ? children({ close }) : children}
             </Paper>
           </Popper>
         </ClickAwayListener>

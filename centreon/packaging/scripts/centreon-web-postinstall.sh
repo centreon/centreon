@@ -2,14 +2,26 @@
 
 manageUsersAndGroups() {
   echo "Managing users and groups for apache ..."
+
+  # centreon-engine, centreon-broker and centreon-gorgone are no longer guaranteed to be
+  # installed alongside centreon-web (it is now a standalone package), so only add apache
+  # to the groups that actually exist. usermod -a -G fails atomically if any listed group
+  # is missing, which would otherwise leave apache out of the (always present) centreon
+  # group too.
+  local optional_groups=""
+  for grp in centreon-engine centreon-broker centreon-gorgone; do
+    getent group "$grp" >/dev/null 2>&1 && optional_groups="${optional_groups}${grp},"
+  done
+
   if [ "$1" = "rpm" ]; then
-    usermod apache -a -G nagios,centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod nagios -a -G apache
-    usermod centreon-gorgone -a -G apache
+    usermod apache -a -G "${optional_groups}centreon"
+    getent passwd centreon-gorgone >/dev/null 2>&1 && usermod centreon-gorgone -a -G apache
+    getent passwd centreon-broker >/dev/null 2>&1 && usermod centreon-broker -a -G apache
     usermod centreon -a -G apache
   else
-    usermod www-data -a -G centreon-engine,centreon-broker,centreon-gorgone,centreon
-    usermod centreon-gorgone -a -G www-data
+    usermod www-data -a -G "${optional_groups}centreon"
+    getent passwd centreon-gorgone >/dev/null 2>&1 && usermod centreon-gorgone -a -G www-data
+    getent passwd centreon-broker >/dev/null 2>&1 && usermod centreon-broker -a -G www-data
     usermod centreon -a -G www-data
   fi
 }
@@ -35,7 +47,7 @@ setPhpTimezone() {
     PHP_CONFIG_DIR="/etc/php.d"
     PHP_CONFIG_FILE="20-timezone.ini"
   else
-    PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
+    PHP_CONFIG_DIR="/etc/php/@PHP_MIN_VERSION@/mods-available"
     PHP_CONFIG_FILE="timezone.ini"
   fi
 
@@ -66,7 +78,7 @@ setPhpTimezone() {
     echo "Setting php timezone to ${PHP_TIMEZONE} ..."
     echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
     if [ "$1" = "deb" ]; then
-      phpenmod -v 8.2 timezone
+      phpenmod -v @PHP_MIN_VERSION@ timezone
     fi
   fi
 }
@@ -74,14 +86,14 @@ setPhpTimezone() {
 migratePhpTimezone() {
   if [ "$1" = "deb" ]; then
     OLD_PHP_CONFIG_DIR="/etc/php/8.1/mods-available"
-    PHP_CONFIG_DIR="/etc/php/8.2/mods-available"
+    PHP_CONFIG_DIR="/etc/php/@PHP_MIN_VERSION@/mods-available"
     PHP_CONFIG_FILE="timezone.ini"
 
     if ! grep -REq "^date.timezone" $PHP_CONFIG_DIR && test -d $OLD_PHP_CONFIG_DIR && PHP_TIMEZONE=$(grep -RE "^date.timezone\s*=\s*.+" $OLD_PHP_CONFIG_DIR 2>/dev/null | head -n 1 | cut -d "=" -f2 | tr -d '[:space:]'); then
       if [ -n "${PHP_TIMEZONE}" ]; then
         echo "Setting php timezone to ${PHP_TIMEZONE} ..."
         echo "date.timezone = ${PHP_TIMEZONE}" >> $PHP_CONFIG_DIR/$PHP_CONFIG_FILE
-        phpenmod -v 8.2 timezone
+        phpenmod -v @PHP_MIN_VERSION@ timezone
       fi
     fi
   fi
@@ -110,30 +122,43 @@ manageLocales() {
   fi
 }
 
+fixPhpFpmDefaultPoolAclUsers() {
+  # AlmaLinux 10 (and minimal installs): php-fpm's default www.conf lists nginx in
+  # listen.acl_users, but nginx may not be installed. Remove it to prevent FPM init failure.
+  if [ "$1" = "rpm" ] && [ -f /etc/php-fpm.d/www.conf ] && ! id -u nginx &>/dev/null 2>&1; then
+    sed -i -E \
+      -e 's/^(listen\.acl_users\s*=\s*.+),\s*nginx\s*$/\1/' \
+      -e 's/^(listen\.acl_users\s*=\s*)nginx\s*,\s*/\1/' \
+      /etc/php-fpm.d/www.conf
+  fi
+}
+
 manageApacheAndPhpFpm() {
   echo "Managing apache and php fpm configuration and services ..."
   if [ "$1" = "rpm" ]; then
+    fixPhpFpmDefaultPoolAclUsers "$1"
+    systemctl daemon-reload ||:
     systemctl restart php-fpm || :
     systemctl restart httpd || :
   else
-    update-alternatives --set php /usr/bin/php8.2 > /dev/null 2>&1 || :
+    update-alternatives --set php /usr/bin/php@PHP_MIN_VERSION@ > /dev/null 2>&1 || :
     a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
-    a2enconf php8.2-fpm > /dev/null 2>&1 || :
+    a2enconf php@PHP_MIN_VERSION@-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
-    systemctl restart php8.2-fpm || :
+    systemctl daemon-reload ||:
+    systemctl restart php@PHP_MIN_VERSION@-fpm || :
     systemctl restart apache2 || :
   fi
 }
 
 rebuildSymfonyCache() {
-  echo "Rebuilding Centreon application cache ..."
-  rm -rf /var/cache/centreon/symfony
-
-  if [ "$1" = "rpm" ]; then
-    su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
-  else
-    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+  if [ "$1" = "deb" ]; then
+    echo "Rebuilding Centreon application cache ..."
+    rm -rf /var/cache/centreon/symfony
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" || :
+    rm -rf /var/cache/centreon/symfony.new
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console.new cache:clear -q" || :
   fi
 }
 
@@ -158,7 +183,6 @@ fixCentreonCronPermissions() {
 
   # Update log files permissions which have been potentially created by centreon user
   LOG_FILES=(
-    "/var/log/centreon/centreon-web.log"
     "/var/log/centreon/centreon-tokens.log"
   )
   for LOG_FILE in "${LOG_FILES[@]}"; do
@@ -170,6 +194,21 @@ fixCentreonCronPermissions() {
       fi
     fi
   done
+}
+
+archiveLegacyPhpFpmLog() {
+  # php-fpm now writes to /var/log/centreon/prod.web.log. On deb the previous
+  # error log lives at a php-version-dependent path that logrotate does not
+  # cover, so it would linger and keep growing. Archive it as ".old" rather
+  # than deleting it, and let the administrator know.
+  if [ "$1" = "deb" ]; then
+    for old_log in /var/log/php*-fpm-centreon-error.log; do
+      if [ -f "$old_log" ]; then
+        mv "$old_log" "${old_log}.old"
+        echo "NOTICE: php-fpm now writes to /var/log/centreon/prod.web.log. Previous log archived as ${old_log}.old (not covered by logrotate; remove it manually once no longer needed)."
+      fi
+    done
+  fi
 }
 
 package_type="rpm"
@@ -207,6 +246,7 @@ case "$action" in
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
+    archiveLegacyPhpFpmLog $package_type
     ;;
   *)
     # $1 == version being installed

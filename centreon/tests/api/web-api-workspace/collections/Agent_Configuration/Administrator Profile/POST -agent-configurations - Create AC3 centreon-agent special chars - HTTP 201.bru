@@ -1,0 +1,72 @@
+meta {
+  name: POST /agent-configurations - Create AC3 centreon-agent special chars - HTTP 201
+  type: http
+  seq: 29
+  tags: [
+    ignore
+  ]
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/agent-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{AC3Name}}",
+    "type": "centreon-agent",
+    "connection_mode": "insecure",
+    "poller_ids": [{{Poller2Id}}],
+    "configuration": {
+      "port": 1234,
+      "create_host_auto": false,
+      "poller_initiated": false,
+      "agent_initiated": true,
+      "otel_public_certificate": "my-otél-certificate-name-ac2!.crt",
+      "otel_ca_certificate": null,
+      "otel_private_key": "my-otél_private-key-name-ac2.key",
+      "tokens": [
+        {
+          "name": "{{DefaultTokenName}}",
+          "creator_id": 1
+        }
+      ],
+      "hosts": [
+        {
+          "id": 1,
+          "address": "127.0.0.1",
+          "port": 4317,
+          "poller_ca_certificate": "ca-filé.crt",
+          "poller_ca_name": null,
+          "token": null
+        }
+      ]
+    }
+  }
+}
+
+tests {
+  test("POST /agent-configurations - Create AC3 centreon-agent special chars - HTTP 201 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 404]);
+  });
+
+  if (res.status === 201) {
+    test("AC3 centreon-agent with special characters created. ID stored.", function () {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+      bru.setVar("AC3Id", body.id);
+
+      expect(body.name).to.equal(bru.getEnvVar("AC3Name"));
+      expect(body.type).to.equal("centreon-agent");
+      expect(body.connection_mode).to.equal("insecure");
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

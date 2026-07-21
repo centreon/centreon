@@ -1,5 +1,6 @@
 import { Column, ColumnType } from '@centreon/ui';
 
+import { ResourcesType } from '../../models';
 import {
   labelActions,
   labelChannels,
@@ -76,11 +77,11 @@ export const getListingResponse = ({
 export const getListingColumns = (): Array<Column> => [
   {
     disablePadding: false,
-    getFormattedString: ({ name }): string => name,
+    getFormattedString: ({ name }): string => name as string,
     id: 'name',
     label: labelName,
-    sortField: 'name',
     sortable: true,
+    sortField: 'name',
     type: ColumnType.string
   },
   {
@@ -88,23 +89,24 @@ export const getListingColumns = (): Array<Column> => [
     getFormattedString: ({ userCount }): string => `${userCount} users`,
     id: 'userCount',
     label: labelUsers,
-    sortField: 'users',
     sortable: true,
+    sortField: 'users',
     type: ColumnType.string
   },
   {
     disablePadding: false,
     getFormattedString: ({ resources }): string =>
-      formatResourcesForListing(resources),
+      formatResourcesForListing(resources as Array<ResourcesType>),
     id: 'resources',
     label: labelResources,
-    sortField: 'resources',
     sortable: true,
+    sortField: 'resources',
     type: ColumnType.string
   },
   {
     disablePadding: false,
-    getFormattedString: ({ timeperiod }): string => timeperiod?.name,
+    getFormattedString: ({ timeperiod }): string =>
+      (timeperiod as { name: string } | undefined)?.name ?? '',
     id: 'timeperiod',
     label: labelPeriod,
     type: ColumnType.string
@@ -130,8 +132,8 @@ export const getListingColumns = (): Array<Column> => [
     disablePadding: false,
     id: 'isActivated',
     label: labelStatus,
-    sortField: 'is_activated',
     sortable: true,
+    sortField: 'is_activated',
     type: ColumnType.component
   }
 ];

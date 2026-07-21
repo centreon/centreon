@@ -1,7 +1,7 @@
+import { Paper, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { Paper, Typography } from '@mui/material';
 
 import { labelNoResultsFound } from '../translatedLabels';
 

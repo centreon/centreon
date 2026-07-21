@@ -1,23 +1,35 @@
-import { map, pick, propEq, reject } from 'ramda';
-import { useMemo } from 'react';
-
 import { SelectEntry } from '@centreon/ui';
-import { useAtom } from 'jotai';
-import { filtersAtom } from '../../../../atoms';
 
-const useMultiAutocomplete = ({ name }) => {
-  const [filters, setFilters] = useAtom(filtersAtom);
+import { SetStateAction } from 'jotai';
+import { map, pick, propEq, reject } from 'ramda';
+import { Dispatch, useMemo } from 'react';
 
-  const change = (_, items: Array<SelectEntry>): void => {
+interface Props<TFilters> {
+  name: string;
+  filters: TFilters;
+  setFilters: Dispatch<SetStateAction<TFilters>>;
+}
+
+const useMultiAutocomplete = <TFilters>({
+  name,
+  filters,
+  setFilters
+}: Props<TFilters>) => {
+  const filtersRecord = filters as Record<string, unknown>;
+
+  const change = (_: unknown, items: Array<SelectEntry>): void => {
     const selectedItems = map(pick(['id', 'name']), items || []);
 
     setFilters({ ...filters, [name]: selectedItems });
   };
 
   const deleteItem =
-    (name) =>
-    (_, option): void => {
-      const newItems = reject(propEq(option.id, 'id'), filters[name]);
+    (name: string) =>
+    (_: unknown, option: SelectEntry): void => {
+      const newItems = reject(
+        propEq(option.id, 'id'),
+        (filtersRecord[name] as Array<SelectEntry>) || []
+      );
 
       setFilters({
         ...filters,
@@ -26,16 +38,18 @@ const useMultiAutocomplete = ({ name }) => {
     };
 
   const value = useMemo(() => {
-    return filters?.[name]?.map((type) => ({
-      ...type,
-      name: type.name.replace('_', ' ')
-    }));
-  }, [filters?.[name]]);
+    return (filtersRecord?.[name] as Array<SelectEntry> | undefined)?.map(
+      (type) => ({
+        ...type,
+        name: String(type.name).replace('_', ' ')
+      })
+    );
+  }, [filtersRecord?.[name]]);
 
   return {
-    value,
+    change,
     deleteItem,
-    change
+    value
   };
 };
 

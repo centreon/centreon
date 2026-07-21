@@ -1,8 +1,8 @@
-import { equals } from 'ramda';
-
 import { LoadingSkeleton } from '@centreon/ui';
 
-import NoResources from '../../NoResources';
+import { equals } from 'ramda';
+import { ReactElement, useRef } from 'react';
+
 import {
   CommonWidgetProps,
   FormThreshold,
@@ -10,21 +10,20 @@ import {
   Metric,
   Resource
 } from '../../models';
+import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
-import { useRef } from 'react';
 import Label from './Label';
 import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
-import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
+import { useTopBottomStyles } from './TopBottom.styles';
 import useSingleBarCurrentWidth from './useSingleBarCurrentWidth';
 import useTopBottom from './useTopBottom';
 
 interface TopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery' | 'isInViewport'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   isFromPreview?: boolean;
@@ -52,8 +51,9 @@ const TopBottom = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: TopBottomProps): JSX.Element => {
+  widgetPrefixQuery,
+  isInViewport
+}: TopBottomProps): ReactElement => {
   const { classes } = useTopBottomStyles({});
   const containerRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLParagraphElement>(null);
@@ -67,6 +67,7 @@ const TopBottom = ({
     dashboardId,
     globalRefreshInterval,
     id,
+    isInViewport,
     metrics,
     playlistHash,
     refreshCount,
@@ -92,14 +93,14 @@ const TopBottom = ({
   }
 
   return (
-    <div ref={containerRef} className={classes.topBottomContainer}>
+    <div className={classes.topBottomContainer} ref={containerRef}>
       <div className={classes.labelContainer}>
         {(metricsTop?.resources || []).map((metricTop, index) => (
           <Label
-            ref={labelRef}
+            index={index}
             key={`label_${metricTop.name}_${metricTop.id}`}
             metricTop={metricTop}
-            index={index}
+            ref={labelRef}
           />
         ))}
       </div>

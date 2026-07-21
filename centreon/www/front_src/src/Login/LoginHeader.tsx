@@ -1,10 +1,10 @@
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
 import { Image, LoadingSkeleton } from '@centreon/ui';
+
+import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import { LoginPageCustomisation } from './models';
 import { labelCentreonLogo } from './translatedLabels';

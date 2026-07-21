@@ -1,7 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
+import type { ArcType } from './models';
 import ResponsivePie from './ResponsivePie';
-import { ArcType } from './models';
 
 const data = [
   { color: '#88B922', label: 'Ok', value: 148 },
@@ -122,9 +122,9 @@ const TooltipContent = ({ label, color, value }: ArcType): JSX.Element => {
 
 export const PieWithTooltip: Story = {
   args: {
-    TooltipContent,
     data,
     displayValues: true,
+    TooltipContent,
     unit: 'percentage'
   },
   render: Template
@@ -132,9 +132,9 @@ export const PieWithTooltip: Story = {
 
 export const DonutWithTooltip: Story = {
   args: {
-    TooltipContent,
     data,
     displayValues: true,
+    TooltipContent,
     variant: 'donut'
   },
   render: Template

@@ -24,12 +24,26 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
 
 final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/latest/configuration/global-macros';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('nagios_server', ['id' => 1, 'name' => 'Central', 'localhost' => '1', 'ns_activate' => '1', 'ns_ip_address' => '127.0.0.1', 'uid' => 100000000000001]);
+        $connection->insert('cfg_resource', ['resource_id' => 1, 'resource_name' => '$USER1$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'path to plugins', 'resource_activate' => '1', 'is_password' => 0]);
+        $connection->insert('cfg_resource', ['resource_id' => 2, 'resource_name' => '$CENTREONPLUGINS$', 'resource_line' => '/usr/lib64/nagios/plugins/', 'resource_comment' => 'Centreon Plugin Path', 'resource_activate' => '1', 'is_password' => 0]);
+        $connection->insert('cfg_resource_instance_relations', ['resource_id' => 1, 'instance_id' => 1]);
+        $connection->insert('cfg_resource_instance_relations', ['resource_id' => 2, 'instance_id' => 1]);
+    }
 
     public function testItFindAllGlobalMacrosWithoutParameter(): void
     {
@@ -49,7 +63,12 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
 
     public function testItFindAllGlobalMacrosIsUnauthorizedForUserWithoutSufficientACL(): void
     {
-        $this->login('user');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
 
         $this->request('GET', self::BASE_ENDPOINT);
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -154,10 +173,5 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         );
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
     }
 }

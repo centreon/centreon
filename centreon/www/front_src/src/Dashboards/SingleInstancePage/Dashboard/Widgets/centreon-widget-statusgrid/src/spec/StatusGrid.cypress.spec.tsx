@@ -1,28 +1,27 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import Widget from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../../utils';
+import Widget from '..';
+import { resourcesEndpoint } from '../api/endpoints';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { router } from '../StatusGridStandard/Tile';
 import { Data, PanelOptions } from '../StatusGridStandard/models';
+import { router } from '../StatusGridStandard/Tile';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelSeeMore,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { resourcesEndpoint } from '../api/endpoints';
-
 import {
   condensedOptions,
   hostOptions,

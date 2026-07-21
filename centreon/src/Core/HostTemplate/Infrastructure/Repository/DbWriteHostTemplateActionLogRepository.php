@@ -39,6 +39,7 @@ use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface
 use Core\HostTemplate\Application\Repository\WriteHostTemplateRepositoryInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\HostTemplate\Domain\Model\NewHostTemplate;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB implements WriteHostTemplateRepositoryInterface
 {
@@ -46,14 +47,14 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
 
     /**
      * @param WriteHostTemplateRepositoryInterface $writeHostTemplateRepository
-     * @param ContactInterface $contact
+     * @param TokenStorageInterface $tokenStorage
      * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteHostTemplateRepositoryInterface $writeHostTemplateRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db,
@@ -79,7 +80,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -105,7 +106,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
                 $hostTemplateId,
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
 
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
@@ -145,7 +146,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
                 $hostTemplate->getId(),
                 $hostTemplate->getName(),
                 ActionLog::ACTION_TYPE_CHANGE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             if ($actionLogId === 0) {
@@ -174,6 +175,13 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
     public function deleteParents(int $childId): void
     {
         $this->writeHostTemplateRepository->deleteParents($childId);
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 
     /**

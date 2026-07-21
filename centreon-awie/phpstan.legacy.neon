@@ -14,9 +14,10 @@ parameters:
         - rector.legacy.php
 
     paths:
-        - features
         - www
 
     ignoreErrors:
         - # Ignore problem with path of centreon for modules
           message: '#^Path in require_once\(\) "../centreon/www/modules/#'
+        - # Functions from centreon common-Func.php loaded at runtime
+          message: '#^Function (createCSRFToken|isCSRFTokenValid|purgeCSRFToken|isServiceAccount) not found\.$#'

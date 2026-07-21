@@ -1,6 +1,6 @@
-import { type ForwardedRef, forwardRef } from 'react';
-
 import { Box, Typography, type TypographyProps } from '@mui/material';
+
+import { type ForwardedRef, forwardRef } from 'react';
 
 const EllipsisTypography = forwardRef(
   (

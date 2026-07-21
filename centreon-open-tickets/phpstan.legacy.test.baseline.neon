@@ -3,7 +3,7 @@ parameters:
 		-
 			message: '#^Cannot access offset 0 on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 4
+			count: 5
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
@@ -27,38 +27,21 @@ parameters:
 		-
 			message: '#^Cannot access property \$providers on mixed\.$#'
 			identifier: property.nonObject
-			count: 4
+			count: 5
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
-			message: '#^Cannot access property \$repository on mixed\.$#'
-			identifier: property.nonObject
-			count: 3
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
-			message: '#^Cannot access property \$requestParameters on mixed\.$#'
+			message: '#^Cannot access property \$typeId on mixed\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
-			message: '#^Cannot access property \$type on mixed\.$#'
+			message: '#^Cannot access property \$typeName on mixed\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
-		-
-			message: '#^Cannot access property \$useCase on mixed\.$#'
-			identifier: property.nonObject
-			count: 3
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
-			message: '#^Cannot call method createMock\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
 			message: '#^Cannot call method expects\(\) on mixed\.$#'
@@ -79,12 +62,6 @@ parameters:
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
-			message: '#^Cannot call method once\(\) on mixed\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
 			message: '#^Cannot call method willReturn\(\) on mixed\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -97,19 +74,19 @@ parameters:
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
 
 		-
-			message: '#^Parameter \$repository of class CentreonOpenTickets\\Providers\\Application\\UseCase\\FindProviders constructor expects CentreonOpenTickets\\Providers\\Application\\Repository\\ReadProviderRepositoryInterface, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
-			message: '#^Parameter \$requestParameters of class CentreonOpenTickets\\Providers\\Application\\UseCase\\FindProviders constructor expects Centreon\\Domain\\RequestParameters\\Interfaces\\RequestParametersInterface, mixed given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
-
-		-
 			message: '#^Trying to invoke mixed but it''s not a callable\.$#'
 			identifier: callable.nonCallable
+			count: 2
+			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
+
+		-
+			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
+			count: 2
+			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php
+
+		-
+			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
+			identifier: method.protected
 			count: 2
 			path: tests/php/CentreonOpenTickets/Providers/Application/UseCase/FindProviders/FindProvidersTest.php

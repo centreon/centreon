@@ -32,6 +32,7 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -47,13 +48,14 @@ final class DeleteHostGroup
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $contact,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
     public function __invoke(int $hostGroupId, PresenterInterface $presenter): void
     {
         try {
-            if ($this->contact->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->contact)) {
                 $presenter->setResponseStatus($this->deleteHostGroupAsAdmin($hostGroupId));
             } elseif ($this->contactCanExecuteThisUseCase()) {
                 $presenter->setResponseStatus($this->deleteHostGroupAsContact($hostGroupId));

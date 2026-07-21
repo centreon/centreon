@@ -1,9 +1,8 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import { labelBackgroundColor } from '../../../../translatedLabels';
-
 import ColorSelector from './Color';
 import colors from './colors.json';
 

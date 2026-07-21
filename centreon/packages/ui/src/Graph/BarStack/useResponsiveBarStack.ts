@@ -1,9 +1,11 @@
 import { scaleOrdinal } from '@visx/scale';
+import type { ScaleOrdinal } from 'd3-scale';
 import { equals, isNil, pluck } from 'ramda';
 import { useMemo } from 'react';
-import { LegendScale } from '../Legend/models';
+
 import { getValueByUnit } from '../common/utils';
-import { BarType } from './models';
+import type { LegendScale } from '../Legend/models';
+import type { BarType } from './models';
 
 interface UseBarStackProps {
   data: Array<BarType>;
@@ -20,7 +22,7 @@ interface UseBarStackState {
   titleVariant: 'xs' | 'sm' | 'md';
   isVerticalBar: boolean;
   legendScale: LegendScale;
-  colorScale;
+  colorScale: ScaleOrdinal<string, string>;
   formattedLegendDirection: 'column' | 'row';
 }
 
@@ -39,10 +41,7 @@ const useResponsiveBarStack = ({
 
   const isVerticalBar = useMemo(() => equals(variant, 'vertical'), [variant]);
 
-  const isSmall = useMemo(
-    () => Math.floor(height) < 90,
-    [isVerticalBar, height]
-  );
+  const isSmall = useMemo(() => Math.floor(height) < 90, [height]);
 
   const titleVariant = useMemo(() => {
     if (width <= 105) {
@@ -74,7 +73,7 @@ const useResponsiveBarStack = ({
       domain: data.map(({ value }) => getValueByUnit({ total, unit, value })),
       range: colorsRange
     }),
-    [data, colorsRange]
+    [data, colorsRange, total, unit]
   );
 
   const formattedLegendDirection = useMemo(() => {
@@ -90,13 +89,13 @@ const useResponsiveBarStack = ({
   }, [legendDirection, variant]);
 
   return {
-    total,
+    colorScale,
+    formattedLegendDirection,
     isSmall,
     isVerticalBar,
-    titleVariant,
     legendScale,
-    colorScale,
-    formattedLegendDirection
+    titleVariant,
+    total
   };
 };
 

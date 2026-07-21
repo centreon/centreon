@@ -1,18 +1,25 @@
 import debounce from '@mui/utils/debounce';
-import { useAtom, useAtomValue } from 'jotai';
-import { equals, pluck } from 'ramda';
-import { configurationAtom, filtersAtom } from '../atoms';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { PrimitiveAtom, useAtom, useAtomValue } from 'jotai';
+import { equals, pluck } from 'ramda';
 import { useRef } from 'react';
 
-interface UseSearch {
-  onChange: (event) => void;
-  filters;
+import { configurationAtom } from '../atoms';
+
+interface UseSearch<TFilters> {
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  filters: TFilters;
   areAdvancedFiltersVisible: boolean;
 }
 
-const useSearch = (): UseSearch => {
+interface Props<TFilters> {
+  filtersAtom: PrimitiveAtom<TFilters>;
+}
+
+const useSearch = <TFilters>({
+  filtersAtom
+}: Props<TFilters>): UseSearch<TFilters> => {
   const queryClient = useQueryClient();
 
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -30,7 +37,7 @@ const useSearch = (): UseSearch => {
     }, 500)
   );
 
-  const onChange = ({ target }): void => {
+  const onChange = ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
     setFilters({ ...filters, name: target.value });
 
     searchDebounced.current(target.value);
@@ -41,7 +48,7 @@ const useSearch = (): UseSearch => {
     ['name']
   );
 
-  return { onChange, areAdvancedFiltersVisible, filters };
+  return { areAdvancedFiltersVisible, filters, onChange };
 };
 
 export default useSearch;

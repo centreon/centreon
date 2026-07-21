@@ -1,10 +1,3 @@
-import { Suspense } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import { equals, find, isEmpty, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Typography } from '@mui/material';
 
@@ -13,8 +6,16 @@ import {
   RichTextEditor,
   useResizeObserver
 } from '@centreon/ui';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
+
+import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
+import { equals, find, isEmpty, isNil } from 'ramda';
+import { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
+import { FederatedModule } from '../../../../../federatedModules/models';
 import { dashboardRefreshIntervalAtom } from '../../atoms';
 import DescriptionWrapper from '../../components/DescriptionWrapper';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
@@ -25,9 +26,6 @@ import {
 } from '../../translatedLabels';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
 import { Widget } from '../models';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
-import { FederatedModule } from '../../../../../federatedModules/models';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 const Preview = (): JSX.Element | null => {
@@ -87,8 +85,8 @@ const Preview = (): JSX.Element | null => {
         {displayDescription && (
           <DescriptionWrapper>
             <RichTextEditor
-              disabled
               contentClassName={classes.previewHeading}
+              disabled
               editable={false}
               editorState={
                 values.options?.description?.enabled
@@ -107,34 +105,34 @@ const Preview = (): JSX.Element | null => {
         >
           {!isEmpty(remoteEntry) || isNil(Component) ? (
             <FederatedComponent
+              globalRefreshInterval={refreshInterval}
+              hasDescription={displayDescription}
+              id={values.id}
               isFederatedWidget
               isFromPreview
-              globalRefreshInterval={refreshInterval}
-              id={values.id}
               panelData={values.data}
               panelOptions={values.options}
               path={values.panelConfiguration?.path || ''}
               setPanelOptions={changePanelOptions}
-              hasDescription={displayDescription}
             />
           ) : (
             <Suspense
               fallback={
                 <LoadingSkeleton
+                  height="100%"
                   variant="rectangular"
                   width="100%"
-                  height="100%"
                 />
               }
             >
               <Component
-                isFromPreview
                 globalRefreshInterval={refreshInterval}
+                hasDescription={displayDescription}
+                isFromPreview
                 panelData={values.data}
                 panelOptions={values.options}
                 path={values.panelConfiguration?.path || ''}
                 setPanelOptions={changePanelOptions}
-                hasDescription={displayDescription}
               />
             </Suspense>
           )}

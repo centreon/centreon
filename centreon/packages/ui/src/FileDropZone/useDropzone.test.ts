@@ -1,7 +1,8 @@
-import { RenderHookResult, act, renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
+import type React from 'react';
 
 import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
-import useDropzone, { UseDropzoneProps, UseDropzoneState } from './useDropzone';
+import useDropzone, { type UseDropzoneProps } from './useDropzone';
 
 const mockChangeFiles = jest.fn();
 const mockResetFilesStatusAndUploadData = jest.fn();
@@ -10,10 +11,7 @@ const mockClick = jest.fn();
 const renderUseFileDropzone = ({
   allowedFilesExtensions,
   maxFileSize
-}: Pick<
-  UseDropzoneProps,
-  'allowedFilesExtensions' | 'maxFileSize'
->): RenderHookResult<UseDropzoneProps, UseDropzoneState> =>
+}: Pick<UseDropzoneProps, 'allowedFilesExtensions' | 'maxFileSize'>) =>
   renderHook(() =>
     useDropzone({
       allowedFilesExtensions,
@@ -52,7 +50,9 @@ describe('useDropzone', () => {
     const fileList = createFileList([file]);
 
     act(() => {
-      result.current.handleChangeFiles({ target: { files: fileList } });
+      result.current.handleChangeFiles({
+        target: { files: fileList }
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(mockChangeFiles).toHaveBeenCalledWith(fileList);
@@ -69,10 +69,10 @@ describe('useDropzone', () => {
 
     act(() => {
       result.current.dropFiles({
-        dataTransfer: { files: fileList },
+        dataTransfer: { files: fileList } as unknown as DataTransfer,
         preventDefault: jest.fn(),
         stopPropagation: jest.fn()
-      });
+      } as unknown as React.DragEvent<HTMLInputElement>);
     });
 
     expect(mockChangeFiles).toHaveBeenCalledWith(fileList);
@@ -88,7 +88,9 @@ describe('useDropzone', () => {
     const fileList = createFileList([file]);
 
     act(() => {
-      result.current.handleChangeFiles({ target: { files: fileList } });
+      result.current.handleChangeFiles({
+        target: { files: fileList }
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(mockChangeFiles).toHaveBeenCalledWith(null);
@@ -105,7 +107,9 @@ describe('useDropzone', () => {
     const fileList = createFileList([bigFile]);
 
     act(() => {
-      result.current.handleChangeFiles({ target: { files: fileList } });
+      result.current.handleChangeFiles({
+        target: { files: fileList }
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
     });
 
     expect(mockChangeFiles).toHaveBeenCalledWith(null);
@@ -132,7 +136,9 @@ describe('useDropzone', () => {
     });
 
     act(() => {
-      result.current.fileInputRef.current = { click: mockClick };
+      result.current.fileInputRef.current = {
+        click: mockClick
+      } as unknown as HTMLInputElement;
       result.current.openFileExplorer();
     });
 

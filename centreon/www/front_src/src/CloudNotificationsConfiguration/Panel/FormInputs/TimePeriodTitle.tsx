@@ -1,13 +1,12 @@
-import { useTranslation } from 'react-i18next';
-
 import HelpIcon from '@mui/icons-material/HelpOutline';
 import { Box, Tooltip } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelTimePeridoTooltip,
   labelTimePeriod
 } from '../../translatedLabels';
-
 import { useStyles } from './Inputs.styles';
 
 const TimePeriodTitle = (): JSX.Element => {

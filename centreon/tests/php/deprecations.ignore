@@ -1,0 +1,5 @@
+# Transitional baseline for the legacy logging migration.
+# Silences the deprecation emitted when CentreonLog, CentreonUserLog and
+# Centreon\Domain\Log\Logger delegate to Adaptation\Log\Logger.
+# Remove this file once those three classes are deleted.
+%"(CentreonLog|CentreonUserLog|Centreon\\Domain\\Log\\Logger)" that is deprecated.*Adaptation\\Log\\Logger%

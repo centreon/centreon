@@ -1,15 +1,14 @@
+import { LinearProgress } from '@mui/material';
+
 import { isNil, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { LinearProgress } from '@mui/material';
-
-import FormTitle from '../FormTitle';
 import { webSSOConfigurationDecoder } from '../api/decoders';
+import FormTitle from '../FormTitle';
 import { Provider } from '../models';
 import useLoadConfiguration from '../shared/useLoadConfiguration';
 import useTab from '../useTab';
-
 import WebSSOForm from './Form';
 import { WebSSOConfiguration } from './models';
 import { labelDefineWebSSOConfiguration } from './translatedLabels';

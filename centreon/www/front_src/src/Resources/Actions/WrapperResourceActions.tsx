@@ -1,7 +1,7 @@
+import { useSnackbar } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { useSnackbar } from '@centreon/ui';
 
 import {
   labelCheckCommandSent,
@@ -9,8 +9,6 @@ import {
   labelForcedCheckCommandSent,
   labelForcedCheckDescription
 } from '../translatedLabels';
-
-import ResourceActions from './Resource';
 import { selectedResourcesAtom } from './actionsAtoms';
 import {
   Action,
@@ -19,6 +17,7 @@ import {
   MoreSecondaryActions,
   SecondaryActions
 } from './model';
+import ResourceActions from './Resource';
 
 interface Props {
   displayCondensed?: boolean;
@@ -40,10 +39,12 @@ const WrapperResourceActions = ({
 
   const onSuccessCheckAction = (): void => {
     showSuccessMessage(t(labelCheckCommandSent));
+    initialize();
   };
 
   const onSuccessForcedCheckAction = (): void => {
     showSuccessMessage(t(labelForcedCheckCommandSent));
+    initialize();
   };
 
   const checkAction: CheckActionModel = {

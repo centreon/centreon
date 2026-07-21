@@ -17,9 +17,9 @@
  * For more information : contact@centreon.com
  *
  */
-
 if (! $centreon->user->admin
     && isset($resourceId)
+    && $resourceId !== false
     && count($allowedResourceConf)
     && ! isset($allowedResourceConf[$resourceId])
 ) {
@@ -71,11 +71,11 @@ require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
  */
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o == MACRO_ADD) {
-    $form->addElement('header', 'title', _('Add a Resource'));
+    $form->addElement('header', 'title', _('Add a global macro'));
 } elseif ($o == MACRO_MODIFY) {
-    $form->addElement('header', 'title', _('Modify a Resource'));
+    $form->addElement('header', 'title', _('Modify a global macro'));
 } elseif ($o == MACRO_WATCH) {
-    $form->addElement('header', 'title', _('View Resource'));
+    $form->addElement('header', 'title', _('View global macro'));
 }
 
 $isPassword = isset($rs['is_password']) && $rs['is_password'];
@@ -84,8 +84,8 @@ $isPassword = isset($rs['is_password']) && $rs['is_password'];
  * Resources CFG basic information
  */
 $form->addElement('header', 'information', _('General Information'));
-$form->addElement('text', 'resource_name', _('Resource Name'), $attrsText);
-$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _('MACRO Expression'), $attrsText);
+$form->addElement('text', 'resource_name', _('Name'), $attrsText);
+$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _('Value'), $attrsText);
 $form->addElement(
     'checkbox',
     'is_password',
@@ -125,7 +125,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
 
 /**
  * Form definition

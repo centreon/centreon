@@ -47,7 +47,4 @@ class RealTimeMonitoringServer
 
     /** @var string|null */
     public $version;
-
-    /** @var string|null */
-    public $description;
 }

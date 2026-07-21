@@ -1,0 +1,6 @@
+`'http://localhost$rest'` as $match where {
+	register_diagnostic(
+		span = $match,
+		message = `No debug endpoint. Replace $match by a real endpoint.`
+	)
+}

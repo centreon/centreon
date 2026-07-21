@@ -1,11 +1,10 @@
+import { Box } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
-import { Box } from '@mui/material';
-
 import { panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
-
 import {
   ActivateAction,
   ClosePanelAction,

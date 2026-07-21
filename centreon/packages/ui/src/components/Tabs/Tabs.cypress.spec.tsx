@@ -1,8 +1,7 @@
 import { Typography } from '@mui/material';
 
-import { TabPanel } from './TabPanel';
-
 import { Tabs } from '.';
+import { TabPanel } from './TabPanel';
 
 const initialize = (withTabListProps = false): void => {
   cy.mount({

@@ -435,6 +435,7 @@ interface ConnectionInterface
     public function rollBackTransaction(): bool;
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
+
     /**
      * Checks that the connection instance allows the use of unbuffered queries.
      *
@@ -460,4 +461,13 @@ interface ConnectionInterface
      * @throws ConnectionException
      */
     public function stopUnbufferedQuery(): void;
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    /**
+     * Check if a column exists in a table.
+     *
+     * @throws ConnectionException
+     */
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool;
 }

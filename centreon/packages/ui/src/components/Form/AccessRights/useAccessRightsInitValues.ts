@@ -1,10 +1,9 @@
-import { useMemo } from 'react';
-
 import { useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useMemo } from 'react';
 
 import { initialValuesAtom, valuesAtom } from './atoms';
-import { AccessRightInitialValues, ContactType } from './models';
+import { type AccessRightInitialValues, ContactType } from './models';
 
 interface Props {
   initialValues: Array<AccessRightInitialValues>;

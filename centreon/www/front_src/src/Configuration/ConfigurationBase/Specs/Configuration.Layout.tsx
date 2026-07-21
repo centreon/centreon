@@ -1,4 +1,5 @@
 import { capitalize } from '@mui/material';
+
 import pluralize from 'pluralize';
 
 import {
@@ -11,7 +12,6 @@ import {
   labelMoreActions,
   labelName
 } from '../translatedLabels';
-
 import initialize from './initialize';
 
 export default (resourceType: string): void => {

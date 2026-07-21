@@ -1,0 +1,20 @@
+meta {
+  name: Service_Category
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+
+vars:pre-request {
+  ServiceCategory1Id:
+  ServiceCategory2Id:
+  ServiceCategory3Id:
+  ServiceCategory4Id:
+}

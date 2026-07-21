@@ -14,10 +14,10 @@ export const withThreeOptions = (): JSX.Element => {
   return (
     <IconPopoverMultiAutocompleteField
       icon={<EditIcon />}
+      onChange={(): undefined => undefined}
       options={options}
       title="Edit"
       value={[options[1]]}
-      onChange={(): undefined => undefined}
     />
   );
 };

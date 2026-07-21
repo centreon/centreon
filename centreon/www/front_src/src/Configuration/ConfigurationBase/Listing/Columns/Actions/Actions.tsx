@@ -1,18 +1,16 @@
-import { useTranslation } from 'react-i18next';
-
 import {
   ContentCopyOutlined as ContentCopyIcon,
   DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
-
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { labelDelete, labelDuplicate } from '../../../translatedLabels';
 import { useColumnStyles } from '../Columns.styles';
-
-import { JSX } from 'react';
 import useActions from './useActions';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
@@ -28,8 +26,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         <IconButton
           ariaLabel={t(labelDuplicate)}
           dataTestid={`${labelDuplicate}_${row.id}`}
-          title={t(labelDuplicate)}
           onClick={openDuplicateModal}
+          title={t(labelDuplicate)}
         >
           <ContentCopyIcon className={classes.duplicateIcon} />
         </IconButton>
@@ -37,10 +35,10 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       {canDelete && (
         <IconButton
           ariaLabel={t(labelDelete)}
-          dataTestid={`${labelDelete}_${row.id}`}
-          title={t(labelDelete)}
-          onClick={openDeleteModal}
           className={classes.removeButton}
+          dataTestid={`${labelDelete}_${row.id}`}
+          onClick={openDeleteModal}
+          title={t(labelDelete)}
         >
           <DeleteIcon className={classes.removeIcon} />
         </IconButton>

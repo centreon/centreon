@@ -2,7 +2,6 @@ import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 
 import { ShareType } from '../../../api/models';
-
 import { ViewMode } from './models';
 
 type SortOrder = 'asc' | 'desc';

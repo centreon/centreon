@@ -53,7 +53,7 @@ $datasetRoutes = [
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $host_id,
     'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
-    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
+    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
@@ -144,6 +144,7 @@ $attributes = [
         'availableDatasetRoute' => $datasetRoutes['acl_groups'],
         'defaultDatasetRoute' => $datasetRoutes['default_acl_groups'],
         'multiple' => true,
+        'linkedObject' => 'centreonAclGroup',
     ],
 ];
 
@@ -456,6 +457,12 @@ $form->addElement(
 $form->addElement('static', 'tplText', _('Using a Template allows you to have multi-level Template connection'));
 
 $cloneSetMacro = [
+    $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#', 'size' => 25]
+    ),
     $form->addElement(
         'text',
         'macroInput[#index#]',
@@ -805,6 +812,11 @@ if ($o === HOST_MASSIVE_CHANGE) {
 
 $form->addElement('select2', 'host_hcs', _('Host Categories'), [], $attributes['host_categories']);
 
+if ($isCloudPlatform && $o !== HOST_MASSIVE_CHANGE) {
+    $form->addElement('select2', 'host_parents', _('Parent Hosts'), [], $attributes['host_parents']);
+    $form->addElement('select2', 'host_childs', _('Child Hosts'), [], $attributes['host_child']);
+}
+
 if ($o === HOST_MASSIVE_CHANGE) {
     $mc_mod_nsid = [];
     $mc_mod_nsid[] = $form->createElement('radio', 'mc_mod_nsid', null, _('Incremental'), '0');
@@ -935,6 +947,7 @@ foreach ($critList as $critId => $critData) {
 }
 $form->addElement('select', 'criticality_id', _('Host severity'), $criticalityIds);
 
+// MAYBE dead code - to verify
 // Sort 5 - Macros - Nagios 3
 if ($o === HOST_ADD) {
     $form->addElement('header', 'title5', _('Add macros'));
@@ -962,7 +975,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
 
 if (is_array($select)) {
     $select_pear = $form->addElement('hidden', 'select');
@@ -1079,6 +1092,10 @@ if ($o === HOST_WATCH) {
     // Massive Change
     $subMC = $form->addElement('submit', 'submitMC', _('Save'), ['class' => 'btc bt_success']);
     $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
+}
+
+if ($o === HOST_ADD || $o === HOST_MODIFY || $o === HOST_MASSIVE_CHANGE) {
+    $form->addFormRule('validateParentChildAreNotCircular');
 }
 
 if (! $isCloudPlatform) {

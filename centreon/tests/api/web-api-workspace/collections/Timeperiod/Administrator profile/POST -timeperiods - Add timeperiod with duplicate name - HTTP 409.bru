@@ -1,0 +1,39 @@
+meta {
+  name: POST /timeperiods - Add timeperiod with duplicate name - HTTP 409
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Timeperiod1Name}}",
+    "alias": "Duplicate alias",
+    "days": [
+      {"day": 1, "time_range": "00:00-24:00"}
+    ],
+    "templates": [],
+    "exceptions": []
+  }
+}
+
+assert {
+  res.status: eq 409
+}
+
+tests {
+  test("Creating a timeperiod with a duplicate name returns a 409 conflict error.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("code").that.equals(409);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,7 +1,11 @@
 import { ParentSize } from '@centreon/ui';
 
 interface Props {
-  children: (props) => JSX.Element;
+  children: (props: {
+    fontSize: number;
+    height: number;
+    width: number;
+  }) => JSX.Element;
   forceHeight?: number;
   forceWidth?: number;
 }

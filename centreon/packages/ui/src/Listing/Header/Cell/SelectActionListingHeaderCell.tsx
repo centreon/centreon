@@ -1,17 +1,19 @@
-import { equals, isEmpty, not } from 'ramda';
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { TableCell, TableCellBaseProps } from '@mui/material';
+import { TableCell, type TableCellBaseProps } from '@mui/material';
+
+import { equals, isEmpty, not } from 'ramda';
 
 import PopoverMenu from '../../../PopoverMenu';
 import Checkbox from '../../Checkbox';
-import { PredefinedRowSelection } from '../../models';
+import type { PredefinedRowSelection } from '../../models';
 import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 
 export interface SelectActionListingHeaderCellProps {
-  onSelectAllClick: (event) => void;
-  onSelectRowsWithCondition: (condition) => void;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectRowsWithCondition: (
+    condition: (row: Record<string, unknown>) => boolean
+  ) => void;
   predefinedRowsSelection: Array<PredefinedRowSelection>;
   rowCount: number;
   selectedRowCount: number;
@@ -37,8 +39,8 @@ const SelectActionListingHeaderCell = ({
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
-        slotProps={{ input: { 'aria-label': 'Select all' } }}
         onChange={onSelectAllClick}
+        slotProps={{ input: { 'aria-label': 'Select all' } }}
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
@@ -46,11 +48,11 @@ const SelectActionListingHeaderCell = ({
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
-          {({ close }): JSX.Element => (
+          {(props: { close?: () => void } | undefined): JSX.Element => (
             <PredefinedSelectionList
-              close={close}
-              predefinedRowsSelection={predefinedRowsSelection}
+              close={props?.close ?? ((): void => undefined)}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
+              predefinedRowsSelection={predefinedRowsSelection}
             />
           )}
         </PopoverMenu>

@@ -1,12 +1,11 @@
+import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
+
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
-
 import { Subtitle } from '../../../..';
 import { contactTypeAtom } from '../atoms';
-import { ContactType, Labels } from '../models';
-
+import { ContactType, type Labels } from '../models';
 import { useContactSwitchStyles } from './ShareInput.styles';
 
 interface Props {
@@ -27,10 +26,10 @@ const ContactSwitch = ({ labels }: Props): JSX.Element => {
     <>
       <Subtitle>{t(labels.title)}</Subtitle>
       <RadioGroup
-        row
         className={classes.inputs}
-        value={contactType}
         onChange={change}
+        row
+        value={contactType}
       >
         <FormControlLabel
           control={<Radio />}

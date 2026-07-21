@@ -1,0 +1,36 @@
+meta {
+  name: GET /timeperiods - Get 3 timeperiods - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The timeperiods list contains timeperiods 2, 3 and 4 (timeperiod 1 was deleted by the administrator).", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body.result).to.be.an("array");
+
+    const ids = body.result.map(tp => tp.id);
+    expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod2Id")));
+    expect(ids).to.include(parseInt(bru.getEnvVar("Timeperiod3Id")));
+    const tp4Id = parseInt(bru.getEnvVar("Timeperiod4Id"));
+    if (!isNaN(tp4Id)) {
+      expect(ids).to.include(tp4Id);
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

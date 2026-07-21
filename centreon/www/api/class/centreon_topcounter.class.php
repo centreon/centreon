@@ -603,7 +603,7 @@ class CentreonTopCounter extends CentreonWebService
     {
         // Get the list of configured pollers
         $listPoller = [];
-        $query = 'SELECT id, name, last_restart, updated FROM nagios_server WHERE ns_activate = "1"';
+        $query = 'SELECT id, name, uid, last_restart, updated FROM nagios_server WHERE ns_activate = "1"';
 
         // Add ACL
         $aclPoller = $this->centreon->user->access->getPollerString('id');
@@ -624,7 +624,7 @@ class CentreonTopCounter extends CentreonWebService
             return [];
         }
         while ($row = $res->fetch()) {
-            $listPoller[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'lastRestart' => $row['last_restart'], 'updated' => $row['updated']];
+            $listPoller[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'uid' => $row['uid'], 'lastRestart' => $row['last_restart'], 'updated' => $row['updated']];
         }
 
         return $listPoller;
@@ -639,14 +639,21 @@ class CentreonTopCounter extends CentreonWebService
     protected function pollersStatusList()
     {
         $listPoller = [];
+        // Map instances.instance_id (Snowflake UID stored in nagios_server.uid) to the poller config id.
+        $uidToId = [];
         $listConfPoller = $this->pollersList();
         foreach ($listConfPoller as $poller) {
             $listPoller[$poller['id']] = ['id' => $poller['id'], 'name' => $poller['name'], 'stability' => 0, 'database' => ['state' => 0, 'time' => null], 'latency' => ['state' => 0, 'time' => null]];
+            $uidToId[$poller['uid']] = $poller['id'];
+        }
+
+        if ($uidToId === []) {
+            return $listPoller;
         }
 
         // Get status of pollers
         $query = 'SELECT 1 AS REALTIME, instance_id, last_alive, running FROM instances
-            WHERE deleted = 0 AND instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
+            WHERE deleted = 0 AND instance_id IN (' . implode(', ', array_keys($uidToId)) . ')';
 
         try {
             $res = $this->pearDBMonitoring->query($query);
@@ -655,18 +662,19 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         while ($row = $res->fetch()) {
+            $pollerId = $uidToId[$row['instance_id']];
             // Test if poller running and activity
             if (time() - $row['last_alive'] >= $this->timeUnit * 10) {
-                $listPoller[$row['instance_id']]['stability'] = 2;
-                $listPoller[$row['instance_id']]['database']['state'] = 2;
-                $listPoller[$row['instance_id']]['database']['time'] = time() - $row['last_alive'];
+                $listPoller[$pollerId]['stability'] = 2;
+                $listPoller[$pollerId]['database']['state'] = 2;
+                $listPoller[$pollerId]['database']['time'] = time() - $row['last_alive'];
             } elseif (time() - $row['last_alive'] >= $this->timeUnit * 5) {
-                $listPoller[$row['instance_id']]['stability'] = 1;
-                $listPoller[$row['instance_id']]['database']['state'] = 1;
-                $listPoller[$row['instance_id']]['database']['time'] = time() - $row['last_alive'];
+                $listPoller[$pollerId]['stability'] = 1;
+                $listPoller[$pollerId]['database']['state'] = 1;
+                $listPoller[$pollerId]['database']['time'] = time() - $row['last_alive'];
             }
             if ($row['running'] == 0) {
-                $listPoller[$row['instance_id']]['stability'] = 2;
+                $listPoller[$pollerId]['stability'] = 2;
             }
         }
         // Get latency
@@ -676,7 +684,7 @@ class CentreonTopCounter extends CentreonWebService
                 AND n.stat_key = "Average"
                 AND n.instance_id = i.instance_id
                 AND i.deleted = 0
-                AND i.instance_id IN (' . implode(', ', array_keys($listPoller)) . ')';
+                AND i.instance_id IN (' . implode(', ', array_keys($uidToId)) . ')';
 
         try {
             $res = $this->pearDBMonitoring->query($query);
@@ -685,12 +693,13 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         while ($row = $res->fetch()) {
+            $pollerId = $uidToId[$row['instance_id']];
             if ($row['stat_value'] >= 120) {
-                $listPoller[$row['instance_id']]['latency']['state'] = 2;
-                $listPoller[$row['instance_id']]['latency']['time'] = $row['stat_value'];
+                $listPoller[$pollerId]['latency']['state'] = 2;
+                $listPoller[$pollerId]['latency']['time'] = $row['stat_value'];
             } elseif ($row['stat_value'] >= 60) {
-                $listPoller[$row['instance_id']]['latency']['state'] = 1;
-                $listPoller[$row['instance_id']]['latency']['time'] = $row['stat_value'];
+                $listPoller[$pollerId]['latency']['state'] = 1;
+                $listPoller[$pollerId]['latency']['time'] = $row['stat_value'];
             }
         }
 
@@ -755,7 +764,7 @@ class CentreonTopCounter extends CentreonWebService
      */
     private function getPasswordRemainingTime(): ?int
     {
-        if ($this->centreon->user->authType === CentreonAuth::AUTH_TYPE_LDAP) {
+        if ($this->centreon->user->authType !== CentreonAuth::AUTH_TYPE_LOCAL) {
             return null;
         }
         $passwordRemainingTime = null;

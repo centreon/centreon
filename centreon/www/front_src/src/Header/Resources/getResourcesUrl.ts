@@ -14,7 +14,10 @@ interface StatusCriterias {
   value: CriteriaValue;
 }
 
-const getStatusCriterias = (status): StatusCriterias => {
+const getStatusCriterias = (status: {
+  id: string;
+  name: string;
+}): StatusCriterias => {
   return { name: 'statuses', value: [status] };
 };
 
@@ -38,11 +41,17 @@ const unhandledStateCriterias = {
   value: [{ id: 'unhandled_problems', name: 'Unhandled' }]
 };
 
+interface ResourcesUrlProps {
+  resourceTypeCriterias: { name: string; value: unknown };
+  statusCriterias: { name: string; value: unknown };
+  stateCriterias: { name: string; value: unknown };
+}
+
 const getResourcesUrl = ({
   resourceTypeCriterias,
   statusCriterias,
   stateCriterias
-}): string => {
+}: ResourcesUrlProps): string => {
   const filterQueryParameter = {
     criterias: [
       resourceTypeCriterias,
@@ -58,8 +67,8 @@ const getResourcesUrl = ({
 };
 
 interface Criterias {
-  stateCriterias?: { name; value };
-  statusCriterias?: { name; value };
+  stateCriterias?: { name: string; value: unknown };
+  statusCriterias?: { name: string; value: unknown };
 }
 
 const getHostResourcesUrl = ({

@@ -29,6 +29,7 @@ use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
 use CentreonAuth;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
@@ -45,7 +46,6 @@ use Core\Security\User\Domain\Model\User;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
-use Exception;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
 
@@ -131,17 +131,30 @@ class LocalProvider implements LocalProviderInterface
         $doesPasswordMatch = $auth->passwdOk === 1;
 
         if ($auth->userInfos['contact_auth_type'] === CentreonAuth::AUTH_TYPE_LOCAL) {
-            $user = $this->readUserRepository->findUserByAlias($auth->userInfos['contact_alias']);
-            if ($user === null) {
-                throw new Exception('user not found');
+
+            try {
+                $user = $this->readUserRepository->findUserByAlias($auth->userInfos['contact_alias']);
+            } catch (RepositoryException $e) {
+                throw AuthenticationException::notAuthenticated($e);
             }
 
-            $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
+            try {
+                $providerConfiguration = $this->readConfigurationRepository->getConfigurationByType(Provider::LOCAL);
+            } catch (RepositoryException $e) {
+                throw AuthenticationException::notAuthenticated($e);
+            }
+
             /** @var CustomConfiguration $customConfiguration */
             $customConfiguration = $providerConfiguration->getCustomConfiguration();
             $securityPolicy = $customConfiguration->getSecurityPolicy();
 
-            $this->respectLocalSecurityPolicyOrFail($user, $securityPolicy, $doesPasswordMatch);
+            try {
+                $this->respectLocalSecurityPolicyOrFail($user, $securityPolicy, $doesPasswordMatch);
+            } catch (PasswordExpiredException $e) {
+                throw $e;
+            } catch (AuthenticationException $e) {
+                throw AuthenticationException::notAuthenticated($e);
+            }
         }
 
         if (! $doesPasswordMatch) {
@@ -264,6 +277,8 @@ class LocalProvider implements LocalProviderInterface
      * @param User $user
      * @param SecurityPolicy $securityPolicy
      * @param bool $doesPasswordMatch
+     *
+     * @throws AuthenticationException|PasswordExpiredException
      */
     private function respectLocalSecurityPolicyOrFail(
         User $user,

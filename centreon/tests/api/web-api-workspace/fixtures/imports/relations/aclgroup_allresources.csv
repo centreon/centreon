@@ -1,0 +1,4 @@
+ACLGROUP;ADDRESOURCE;ALL;All Resources
+ACLGROUP;ADDRESOURCE;customer_admin_acl;All Resources
+ACLGROUP;ADDRESOURCE;customer_editor_acl;All Resources
+ACLGROUP;ADDRESOURCE;customer_user_acl;All Resources

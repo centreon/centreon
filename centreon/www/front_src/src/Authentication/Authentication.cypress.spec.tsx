@@ -1,10 +1,13 @@
+import { Method, TestQueryProvider } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { replace } from 'ramda';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
-
+import Authentication from '.';
+import { authenticationProvidersEndpoint } from './api/endpoints';
 import { defaultPasswordSecurityPolicyAPI } from './Local/defaults';
+import { Provider } from './models';
 import { retrievedOpenidConfiguration } from './Openid/defaults';
 import {
   labelEnableOpenIDConnectAuthentication,
@@ -12,10 +15,6 @@ import {
 } from './Openid/translatedLabels';
 import { retrievedSAMLConfiguration } from './SAML/defaults';
 import { labelSAMLConfiguration } from './SAML/translatedLabels';
-import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
-import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
-import { authenticationProvidersEndpoint } from './api/endpoints';
-import { Provider } from './models';
 import { labelRolesMapping } from './shared/translatedLabels';
 import {
   labelAuthenticationConditions,
@@ -23,8 +22,8 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from './translatedLabels';
-
-import Authentication from '.';
+import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
+import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
 
 dayjs.extend(duration);
 

@@ -6,6 +6,7 @@ properties:
     example: "my-api-token"
   user:
     type: object
+    nullable: true
     properties:
       id:
         type: integer
@@ -37,7 +38,13 @@ properties:
     description: "Expiration date of the API authentication token"
     format: date-time
     example: '2024-08-31T00:00:00+00:00'
+    nullable: true
   is_revoked:
     type: boolean
     description: "Indicate if the token has been revoked"
     example: false
+  type:
+    type: string
+    enum: ["cma", "api", "poller"]
+    description: "Type of the token"
+    example: "cma"

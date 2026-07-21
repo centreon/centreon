@@ -9,13 +9,13 @@ interface Props {
 }
 
 const Input = ({ panelOptions, setPanelOptions }: Props): JSX.Element => {
-  const changeInput = (event): void => {
+  const changeInput = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setPanelOptions({ text: event.target.value });
   };
 
   return (
     <Box>
-      <TextField value={panelOptions?.text} onChange={changeInput} />
+      <TextField onChange={changeInput} value={panelOptions?.text} />
       <Typography>{panelOptions?.text}</Typography>
     </Box>
   );

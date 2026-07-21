@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-
 import { TableRow } from '@mui/material';
+
+import type { ReactNode } from 'react';
 
 import Cell from '../Cell';
 

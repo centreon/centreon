@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\ResponseCodeEnum;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
@@ -39,6 +40,8 @@ final class EnableDisableHostGroups
 {
     use LoggerTrait;
 
+    private bool $isUserAdmin = false;
+
     public function __construct(
         private readonly ContactInterface $user,
         private readonly DataStorageEngineInterface $storageEngine,
@@ -47,11 +50,14 @@ final class EnableDisableHostGroups
         private readonly WriteHostGroupRepositoryInterface $writeRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
     public function __invoke(EnableDisableHostGroupsRequest $request): EnableDisableHostGroupsResponse
     {
+        $this->isUserAdmin = $this->adminResolver->isAdmin($this->user);
+
         $results = [];
         foreach ($request->hostGroupIds as $hostGroupId) {
             $statusResponse = new EnableDisableHostGroupsStatusResponse();
@@ -108,7 +114,7 @@ final class EnableDisableHostGroups
      */
     private function hostGroupExists(int $hostGroupId): bool
     {
-        return $this->user->isAdmin()
+        return $this->isUserAdmin
             ? $this->readRepository->existsOne($hostGroupId)
             : $this->readRepository->existsOneByAccessGroups(
                 $hostGroupId,

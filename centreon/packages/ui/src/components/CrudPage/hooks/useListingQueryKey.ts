@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai';
+
 import {
   limitAtom,
   pageAtom,
@@ -6,7 +7,7 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from '../atoms';
-import { UseListingQueryKeyProps } from '../models';
+import type { UseListingQueryKeyProps } from '../models';
 
 export const useListingQueryKey = <TFilter>({
   filtersAtom,

@@ -1,0 +1,27 @@
+meta {
+  name: GET /web-sso - Get WebSSO configuration forbidden - HTTP 403
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrlWeb}}/administration/authentication/providers/web-sso
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 403
+}
+
+tests {
+  test("Operator cannot read the WebSSO provider configuration.", function () {
+
+    expect(res.status).to.equal(403);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

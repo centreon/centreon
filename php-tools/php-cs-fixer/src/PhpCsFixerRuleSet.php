@@ -195,7 +195,9 @@ class PhpCsFixerRuleSet
             'get_class_to_class_keyword' => true,
             'implode_call' => true,
             'logical_operators' => true,
-            'mb_str_functions' => true,
+            // Custom replace original mb_str_function rule for backward compatibility with php 8.2
+            'Centreon/mb_str_functions_php82' => true,
+            'mb_str_functions' => false,
             'modernize_strpos' => true,
             'modernize_types_casting' => true,
             'no_alias_functions' => true,

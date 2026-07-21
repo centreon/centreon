@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
-
 import { ListingPage } from '@centreon/ui';
+
+import { ReactElement } from 'react';
 
 import { DeleteConfirmationDialog } from './Actions/Delete';
 import { DuplicationForm } from './Actions/Duplicate';

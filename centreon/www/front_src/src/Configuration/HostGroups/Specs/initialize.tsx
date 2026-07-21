@@ -1,14 +1,14 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-
 import {
   platformFeaturesAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
+
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
+
 import HostGroups from '..';
 import {
   getHostGroupEndpoint,

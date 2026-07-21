@@ -11,12 +11,14 @@
         "port": 443,
         "vcenters": [
         {
+            "id": 1,
             "name": "vCenter1",
             "url": "https://vcenter1.example.com/sdk",
             "username": "user1",
             "password": "password1"
         },
         {
+            "id": 2,
             "name": "vCenter2",
             "url": "192.0.0.1",
             "username": "user2",

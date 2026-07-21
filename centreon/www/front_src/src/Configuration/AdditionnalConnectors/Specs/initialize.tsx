@@ -1,12 +1,10 @@
-import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-import { BrowserRouter as Router } from 'react-router';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import AdditionnalConnectors from '..';
+import i18next from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter as Router } from 'react-router';
 
+import AdditionnalConnectors from '..';
 import {
   additionalConnectorsEndpoint,
   getAdditionalConnectorEndpoint

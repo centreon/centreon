@@ -1,6 +1,6 @@
 /* Caution in the original lib the ".select2-dropdown" z-index was 1051 but as the popup has a z-index of 1053 and
  to avoid impacts in the other pages or popups, we modified this z-index to 1065 */
-@import "www/Themes/Generic-theme/Variables-css/variables.css";
+@import "../../../../../../../Themes/Generic-theme/Variables-css/variables.css";
 
 .select2-container {
   box-sizing: border-box;

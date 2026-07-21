@@ -30,13 +30,13 @@ runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
-      uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ./*.deb
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
+    - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -48,40 +48,49 @@ runs:
         distrib: ${{ inputs.distrib }}
 
     - name: Publish DEBs
+      env:
+        VERSION: ${{ inputs.version }}
+        DISTRIB: ${{ inputs.distrib }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        IS_CLOUD: ${{ inputs.is_cloud }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
+        STABILITY: ${{ inputs.stability }}
+        ARTIFACTORY_TOKEN: ${{ inputs.artifactory_token }}
+        DISTRIB_FAMILY: ${{ steps.parse-distrib.outputs.distrib_family }}
       run: |
         FILES="*.deb"
 
         # DEBUG
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
-        echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
-        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
-        echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
-        echo "[DEBUG] - stability: ${{ inputs.stability }}"
+        echo "[DEBUG] - Version: $VERSION"
+        echo "[DEBUG] - Distrib: $DISTRIB"
+        echo "[DEBUG] - module_name: $MODULE_NAME"
+        echo "[DEBUG] - is_cloud: $IS_CLOUD"
+        echo "[DEBUG] - release_type: $RELEASE_TYPE"
+        echo "[DEBUG] - stability: $STABILITY"
 
         # Make sure all required inputs are NOT empty
-        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
+        if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$STABILITY" || -z "$VERSION" || -z "$IS_CLOUD" ]]; then
           echo "::error::some mandatory inputs are empty, please check the logs."
           exit 1
         fi
 
-        if [[ "${{ inputs.stability }}" != "testing" && "${{ inputs.stability }}" != "unstable" ]]; then
-          echo "::error::stability must be one of: testing, unstable (got '${{ inputs.stability }}')"
+        if [[ "$STABILITY" != "testing" && "$STABILITY" != "unstable" ]]; then
+          echo "::error::stability must be one of: testing, unstable (got '$STABILITY')"
           exit 1
         fi
 
         ROOT_REPO_PATH_PREFIX=""
-        if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
+        if [[ "$DISTRIB_FAMILY" == "debian" ]]; then
           ROOT_REPO_PATH_PREFIX="apt-"
-        elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
+        elif [[ "$DISTRIB_FAMILY" == "ubuntu" ]]; then
           ROOT_REPO_PATH_PREFIX="ubuntu-"
         else
-          echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
+          echo "::error::Unsupported distribution family: $DISTRIB_FAMILY"
           exit 1
         fi
 
         ROOT_REPO_PATH_SUFFIX=""
-        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+        if [[ "$IS_CLOUD" == "true" ]]; then
           ROOT_REPO_PATH_SUFFIX="-internal"
         fi
 
@@ -95,10 +104,17 @@ runs:
         for file in $FILES; do
           # build a search pattern using ARTIFACT_BASENAME+OS_DISTRIB+ARCH
 
-          VERSION=${{ inputs.version }}
           BASENAME=$(echo "$file" | cut -d '_' -f 1)
-          OS_DISTRIB=$(echo "$file" | sed -n 's/.*+\(deb[0-9]\+\).*/\1/p')
-          ARCH=$(echo $file | cut -d '_' -f3 | cut -d '.' -f1)
+          OS_DISTRIB=""
+          ARCH=$(echo "$file" | cut -d '_' -f3 | cut -d '.' -f1)
+
+          if [[ "$DISTRIB_FAMILY" == "ubuntu" ]]; then
+            OS_DISTRIB=$(echo "$file" | sed -nE 's/.*(ubuntu\.[0-9]{2}\.[0-9]{2}).*/\1/p')
+          elif [[ "$DISTRIB_FAMILY" == "debian" ]]; then
+            OS_DISTRIB=$(echo "$file" | sed -nE 's/.*(\+deb[0-9]+).*/\1/p')
+          else
+            echo "Distrib $DISTRIB is not supported as OS_DISTRIB."
+          fi
 
           # debug
           echo "[DEBUG] - Version: $VERSION"
@@ -106,12 +122,12 @@ runs:
           echo "[DEBUG] - OS_distrib: $OS_DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
-            POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.release_type }}/${{ inputs.module_name }}"
-            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}-${{ inputs.release_type }}/main/$ARCH"
+          if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+            POOL_SUBPATH="$VERSION/$STABILITY/$RELEASE_TYPE/$MODULE_NAME"
+            DEB_PROP="$DISTRIB-$VERSION-$STABILITY-$RELEASE_TYPE/main/$ARCH"
           else
-            POOL_SUBPATH="${{ inputs.version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
-            DEB_PROP="${{ inputs.distrib }}-${{ inputs.version }}-${{ inputs.stability }}/main/$ARCH"
+            POOL_SUBPATH="$VERSION/$STABILITY/$MODULE_NAME"
+            DEB_PROP="$DISTRIB-$VERSION-$STABILITY/main/$ARCH"
           fi
 
           SEARCH_PATH="$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/${BASENAME}_*${OS_DISTRIB}*${ARCH}*.deb"
@@ -124,6 +140,4 @@ runs:
           echo "Uploading $file"
           jf rt upload "$file" "$ROOT_REPO_PATH/pool/${POOL_SUBPATH}/" --flat --deb "${DEB_PROP}" --detailed-summary
         done
-
-        curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/deb/reindex/$ROOT_REPO_PATH?async=1"
       shell: bash

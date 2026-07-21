@@ -1,10 +1,13 @@
-import { LoadingSkeleton } from '@centreon/ui';
 import { Typography } from '@mui/material';
+
+import { LoadingSkeleton } from '@centreon/ui';
+
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
-  labelFilterRessources,
   labelFilteredResources,
+  labelFilterRessources,
   labelNumerOfLines
 } from '../../translatedLabels';
 import useExportCsvStyles from './exportCsv.styles';
@@ -38,7 +41,7 @@ const InformationsLine = ({
     <div className={classes.information}>
       <Typography variant="body2">{t(labelFilteredResources)}</Typography>
       {!isLoading ? (
-        <Typography variant="body2" className={classes.lines}>
+        <Typography className={classes.lines} variant="body2">
           {description}
         </Typography>
       ) : (

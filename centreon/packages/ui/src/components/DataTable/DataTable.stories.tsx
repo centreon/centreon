@@ -1,9 +1,8 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Box } from '@mui/material';
 
-import { ColumnType } from '../../Listing/models';
+import type { Meta, StoryObj } from '@storybook/react';
 
+import { ColumnType } from '../../Listing/models';
 import { DataTable } from './index';
 import '../../ThemeProvider/tailwindcss.css';
 
@@ -22,7 +21,7 @@ export const Default: Story = {
           <DataTable.Item
             description={`Item description ${i}`}
             key={`k-${
-              // biome-ignore lint/suspicious/noArrayIndexKey:
+              // biome-ignore lint/suspicious/noArrayIndexKey: need it
               i
             }`}
             title={`Item ${i}`}
@@ -57,8 +56,8 @@ export const AsEmptyStateWithDescription: Story = {
           actions: {
             create: 'Create item'
           },
-          title: 'No items found',
-          description: 'Description'
+          description: 'Description',
+          title: 'No items found'
         }}
       />
     ),

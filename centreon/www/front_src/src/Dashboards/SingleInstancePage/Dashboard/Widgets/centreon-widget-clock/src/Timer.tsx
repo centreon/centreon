@@ -1,11 +1,10 @@
-import { memo } from 'react';
-
-import dayjs from 'dayjs';
-import { equals } from 'ramda';
-
 import { Typography } from '@mui/material';
 
 import { usePluralizedTranslation } from '@centreon/ui';
+
+import dayjs from 'dayjs';
+import { equals } from 'ramda';
+import { memo } from 'react';
 
 import BackgroundColor from './BackgroundColor';
 import { useClockStyles } from './Clock.styles';

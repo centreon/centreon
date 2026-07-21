@@ -4,8 +4,8 @@ import {
   CriteriaById,
   CriteriaNames,
   selectableResourceTypes,
-  selectableStateTypes,
   selectableStates,
+  selectableStateTypes,
   selectableStatuses
 } from '../models';
 
@@ -107,7 +107,12 @@ export const dynamicCriteriaValuesByName = [
 export const getSelectableCriteriasByName = (
   name: string
 ): Array<{ id: string; name: string }> => {
-  return staticCriteriaValuesByName[name];
+  return (
+    staticCriteriaValuesByName as Record<
+      string,
+      Array<{ id: string; name: string }>
+    >
+  )[name];
 };
 
 export const staticCriteriaNames = Object.keys(staticCriteriaValuesByName);

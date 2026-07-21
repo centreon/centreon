@@ -120,9 +120,6 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                     if (array_key_exists($parameters['name'] . '_' . 'password', $vaultData)) {
                         $parameters['password'] = $vaultData[$parameters['name'] . '_' . 'password'];
                     }
-                    if (array_key_exists($parameters['name'] . '_' . 'username', $vaultData)) {
-                        $parameters['username'] = $vaultData[$parameters['name'] . '_' . 'username'];
-                    }
                 }
 
                 return new VSphereServer(
@@ -140,9 +137,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                     fn (VSphereServer $vSphereServer): array => [
                         'name' => $vSphereServer->getName(),
                         'url' => $vSphereServer->getUrl(),
-                        'username' => $shouldBeEncrypted
-                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getUsername())
-                            : $vSphereServer->getUsername(),
+                        'username' => $vSphereServer->getUsername(),
                         'password' => $shouldBeEncrypted
                             ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
                             : $vSphereServer->getPassword(),

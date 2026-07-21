@@ -1,9 +1,8 @@
+import { isNil } from 'ramda';
 import { useEffect } from 'react';
 
-import { isNil } from 'ramda';
-
 import { checkArePointsOnline } from './helpers';
-import { Circle, Point } from './models';
+import type { Circle, Point } from './models';
 
 const useCoordinateCircle = ({
   timeSeries,
@@ -38,7 +37,7 @@ const useCoordinateCircle = ({
       return;
     }
     getCountDisplayedCircles?.(coordinates.length);
-  }, [coordinates.length]);
+  }, [coordinates.length, coordinates, getCountDisplayedCircles]);
 
   return coordinates;
 };

@@ -1,5 +1,7 @@
 import { getFoundFields } from '@centreon/ui';
+
 import { isEmpty } from 'ramda';
+
 import { CriteriaValue } from '../../Filter/Criterias/models';
 import { searchableFieldsForPerformance } from '../../Filter/Criterias/searchQueryLanguage/models';
 import { searchableFields } from '../../testUtils';

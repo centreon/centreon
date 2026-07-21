@@ -1,7 +1,7 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { makeStyles } from 'tss-react/mui';
+import type { Theme } from '@mui/material';
 
-import { Theme } from '@mui/material';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
 
 import LoadingSkeleton from '.';
 

@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { pick } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
@@ -10,7 +7,12 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { pick } from 'ramda';
+
+import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
 import { resourcesEndpoint } from '../api/endpoint';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -19,12 +21,13 @@ import {
   labelAllColumns,
   labelAllPages,
   labelCheck,
+  labelCheckCommandSent,
   labelCheckDescription,
   labelComment,
   labelCurrentPageOnly,
   labelDisacknowledge,
-  labelDisacknowledgeServices,
   labelDisacknowledgementCommandSent,
+  labelDisacknowledgeServices,
   labelDown,
   labelDowntimeCommandSent,
   labelDuration,
@@ -32,8 +35,8 @@ import {
   labelExport,
   labelExportProcessingInProgress,
   labelExportToCSV,
-  labelFilterRessources,
   labelFilteredResources,
+  labelFilterRessources,
   labelFixed,
   labelForcedCheck,
   labelForcedCheckCommandSent,
@@ -50,8 +53,7 @@ import {
   labelVisibleColumnsOnly,
   labelWarningExportToCsv
 } from '../translatedLabels';
-
-import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
+import Actions from '.';
 import { selectedResourcesAtom } from './actionsAtoms';
 import {
   acknowledgeEndpoint,
@@ -59,10 +61,7 @@ import {
   csvExportEndpoint,
   downtimeEndpoint
 } from './api/endpoint';
-
-import Actions from '.';
-import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
-import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
+import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 
 const mockUser = {
   alias: 'admin',
@@ -142,7 +141,6 @@ const visibleColumns = [
   'information',
   'tries'
 ];
-const search = { $and: [] };
 
 const initialize = (
   countResourcesPath = 'resources/listing/count/count.json'
@@ -434,6 +432,10 @@ describe('Actions', () => {
       });
       cy.contains(labelForcedCheckCommandSent).should('be.visible');
 
+      cy.wrap(null).should(() => {
+        expect(store.get(selectedResourcesAtom)).to.deep.equal([]);
+      });
+
       cy.makeSnapshot();
     });
 
@@ -451,6 +453,12 @@ describe('Actions', () => {
           check: { is_forced: false },
           resources: [{ id: 0, parent: null, type: 'host' }]
         });
+      });
+
+      cy.contains(labelCheckCommandSent).should('be.visible');
+
+      cy.wrap(null).should(() => {
+        expect(store.get(selectedResourcesAtom)).to.deep.equal([]);
       });
 
       cy.makeSnapshot();
@@ -561,7 +569,7 @@ describe('CSV export', () => {
     cy.get('@modal').should('not.be.visible');
     cy.contains(labelExportProcessingInProgress);
 
-    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=${encodeURIComponent(JSON.stringify({ status_severity_code: 'desc', last_status_change: 'desc' }))}&search=${encodeURIComponent(JSON.stringify(search))}&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=%7B%22status_severity_code%22%3A%22desc%22%2C%22last_status_change%22%3A%22desc%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D&states=%5B%22unhandled_problems%22%5D&statuses=%5B%22WARNING%22%2C%22DOWN%22%2C%22CRITICAL%22%2C%22UNKNOWN%22%5D&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,
@@ -589,6 +597,7 @@ describe('CSV export', () => {
     cy.get('@modal').contains(labelSelecetPages);
 
     cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.waitForRequest('@countResources');
     cy.get('@modal').findByTestId(labelAllPages).should('not.be.checked');
 
     cy.get('@modal').contains(labelWarningExportToCsv);
@@ -600,7 +609,7 @@ describe('CSV export', () => {
     cy.contains(labelExportProcessingInProgress);
     cy.get('@modal').should('not.be.visible');
 
-    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=${encodeURIComponent(JSON.stringify({ status_severity_code: 'desc', last_status_change: 'desc' }))}&search=${encodeURIComponent(JSON.stringify(search))}&all_pages=false&max_lines=10000&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&format=csv`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=%7B%22status_severity_code%22%3A%22desc%22%2C%22last_status_change%22%3A%22desc%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D&states=%5B%22unhandled_problems%22%5D&statuses=%5B%22WARNING%22%2C%22DOWN%22%2C%22CRITICAL%22%2C%22UNKNOWN%22%5D&all_pages=false&max_lines=10000&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&format=csv`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,

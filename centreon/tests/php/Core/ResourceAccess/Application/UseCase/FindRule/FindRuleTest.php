@@ -199,9 +199,9 @@ it('should present a FindRuleResponse when no error occurs', function (): void {
 
     $this->contactRepository
         ->expects($this->any())
-        ->method('findNamesByIds')
+        ->method('findAliasesByIds')
         ->with(...$this->rule->getLinkedContactIds())
-        ->willReturn(['1' => ['id' => 1, 'name' => 'contact1']]);
+        ->willReturn(['1' => ['id' => 1, 'alias' => 'contact1']]);
 
     $this->contactGroupRepository
         ->expects($this->any())

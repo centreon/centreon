@@ -40,6 +40,9 @@ inputs:
   rpm_gpg_signing_passphrase:
     description: The rpm gpg signing passphrase
     required: true
+  php_version:
+    description: "PHP version to use (e.g. 8.2 or 8.4). Overrides the distrib-based PHP_MIN_VERSION."
+    required: true
   stability:
     description: "branch stability (stable, testing, unstable, canary)"
     required: true
@@ -56,11 +59,13 @@ runs:
 
   steps:
     - name: Remove lockfiles and development files
+      env:
+        MODULE_NAME: ${{ inputs.module_name }}
       run: |
-        find ${{ inputs.module_name }} -type f -name "compose*.*" -not -path "*vendor*" -delete
-        find ${{ inputs.module_name }} -type f -name "package*.*" -not -path "*vendor*" -delete
-        find ${{ inputs.module_name }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
-        find ${{ inputs.module_name }} -type f -name "symfony.lock" -delete
+        find "$MODULE_NAME" -type f -name "compose*.*" -not -path "*vendor*" -delete
+        find "$MODULE_NAME" -type f -name "package*.*" -not -path "*vendor*" -delete
+        find "$MODULE_NAME" -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        find "$MODULE_NAME" -type f -name "symfony.lock" -delete
       shell: bash
 
     - name: Parse distrib name
@@ -79,32 +84,46 @@ runs:
       env:
         RPM_GPG_SIGNING_KEY_ID: ${{ inputs.rpm_gpg_signing_key_id }}
         RPM_GPG_SIGNING_PASSPHRASE: ${{ inputs.rpm_gpg_signing_passphrase }}
+        INPUT_MAJOR_VERSION: ${{ inputs.major_version }}
+        INPUT_MINOR_VERSION: ${{ inputs.minor_version }}
+        INPUT_RELEASE: ${{ inputs.release }}
+        INPUT_ARCH: ${{ inputs.arch }}
+        INPUT_PHP_VERSION: ${{ inputs.php_version }}
+        INPUT_PACKAGE_EXTENSION: ${{ inputs.package_extension }}
+        INPUT_NFPM_FILE_PATTERN: ${{ inputs.nfpm_file_pattern }}
+        INPUT_COMMIT_HASH: ${{ inputs.commit_hash }}
+        INPUT_PACKAGE_DISTRIB_NAME: ${{ steps.parse-distrib.outputs.package_distrib_name }}
+        INPUT_PACKAGE_DISTRIB_SEPARATOR: ${{ steps.parse-distrib.outputs.package_distrib_separator }}
       run: |
-        export MAJOR_VERSION="${{ inputs.major_version }}"
-        export VERSION="${{ inputs.major_version }}.${{ inputs.minor_version }}"
-        export RELEASE="${{ inputs.release }}"
-        export ARCH="${{ inputs.arch }}"
+        export MAJOR_VERSION="$INPUT_MAJOR_VERSION"
+        export VERSION="$INPUT_MAJOR_VERSION.$INPUT_MINOR_VERSION"
+        export RELEASE="$INPUT_RELEASE"
+        export ARCH="$INPUT_ARCH"
 
-        if  [ "${{ inputs.package_extension }}" = "rpm" ]; then
-          export DIST="${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
+        PHP_MINOR=$(echo "$INPUT_PHP_VERSION" | cut -d'.' -f2)
+        PHP_NEXT_MINOR=$((PHP_MINOR + 1))
+        export PHP_MIN_VERSION="$INPUT_PHP_VERSION"
+        export PHP_MAX_VERSION="8.${PHP_NEXT_MINOR}"
+
+        if  [ "$INPUT_PACKAGE_EXTENSION" = "rpm" ]; then
+          export DIST="$INPUT_PACKAGE_DISTRIB_SEPARATOR$INPUT_PACKAGE_DISTRIB_NAME"
           export APACHE_USER="apache"
           export APACHE_GROUP="apache"
         else
           export DIST=""
-          export RELEASE="$RELEASE${{ steps.parse-distrib.outputs.package_distrib_separator }}${{ steps.parse-distrib.outputs.package_distrib_name }}"
+          export RELEASE="$RELEASE$INPUT_PACKAGE_DISTRIB_SEPARATOR$INPUT_PACKAGE_DISTRIB_NAME"
           export APACHE_USER="www-data"
           export APACHE_GROUP="www-data"
         fi
 
         MAJOR_LEFT=$( echo $MAJOR_VERSION | cut -d "." -f1 )
         MAJOR_RIGHT=$( echo $MAJOR_VERSION | cut -d "-" -f1 | cut -d "." -f2 )
-        BUMP_MAJOR_RIGHT=$(( MAJOR_RIGHT_PART + 1 ))
-        if [ "$MAJOR_RIGHT" = "04" ]; then
-          BUMP_MAJOR_LEFT="$MAJOR_LEFT"
-          BUMP_MAJOR_RIGHT="10"
-        else
+        if [ "$MAJOR_RIGHT" = "12" ]; then
           BUMP_MAJOR_LEFT=$(( $MAJOR_LEFT + 1 ))
-          BUMP_MAJOR_RIGHT="04"
+          BUMP_MAJOR_RIGHT="01"
+        else
+          BUMP_MAJOR_LEFT=$MAJOR_LEFT
+          BUMP_MAJOR_RIGHT=$(( 10#$MAJOR_RIGHT + 1 ))
         fi
 
         export NEXT_MAJOR_VERSION="$BUMP_MAJOR_LEFT.$BUMP_MAJOR_RIGHT"
@@ -113,21 +132,46 @@ runs:
         export RPM_SIGNING_KEY_ID="$RPM_GPG_SIGNING_KEY_ID"
         export NFPM_RPM_PASSPHRASE="$RPM_GPG_SIGNING_PASSPHRASE"
 
-        for FILE in ${{ inputs.nfpm_file_pattern }}; do
+        REPO_ROOT=$(pwd)
+        for FILE in $INPUT_NFPM_FILE_PATTERN; do
           DIRNAME=$(dirname $FILE)
           BASENAME=$(basename $FILE)
           cd $DIRNAME
+          if [[ "$RPM_SIGNING_KEY_ID" == "" ]]; then
+            sed -i "/signature:/d" $BASENAME
+            sed -i "/RPM_SIGNING_KEY_FILE/d" $BASENAME
+            sed -i "/RPM_SIGNING_KEY_ID/d" $BASENAME
+          fi
           sed -i "s/@APACHE_USER@/$APACHE_USER/g" $BASENAME
           sed -i "s/@APACHE_GROUP@/$APACHE_GROUP/g" $BASENAME
-          sed -i "s/@COMMIT_HASH@/${{ inputs.commit_hash }}/g" $BASENAME
-          nfpm package --config $BASENAME --packager ${{ inputs.package_extension }}
+          sed -i "s/@COMMIT_HASH@/$INPUT_COMMIT_HASH/g" $BASENAME
+          if [[ -n "$PHP_MIN_VERSION" ]]; then
+            grep -rl "@PHP_MIN_VERSION@" . 2>/dev/null | xargs -r sed -i "s/@PHP_MIN_VERSION@/$PHP_MIN_VERSION/g" || true
+          fi
+          if [[ "$INPUT_PACKAGE_EXTENSION" == "deb" ]]; then
+            PKG_LICENSE=$(grep '^license:' "$BASENAME" | head -1 | sed 's/^license: *//;s/"//g' | xargs)
+            COPYRIGHT_SRC=""
+            if [[ -f "${REPO_ROOT}/copyright.${PKG_LICENSE}" ]]; then
+              COPYRIGHT_SRC="${REPO_ROOT}/copyright.${PKG_LICENSE}"
+            else
+              for candidate in "${REPO_ROOT}/LICENSE.md" "${REPO_ROOT}/LICENSE"; do
+                [[ -f "$candidate" ]] && COPYRIGHT_SRC="$candidate" && break
+              done
+            fi
+            if [[ -n "$COPYRIGHT_SRC" ]]; then
+              cp "$COPYRIGHT_SRC" ./copyright
+              PACKAGE_NAME=$(grep '^name:' "$BASENAME" | head -1 | sed 's/^name: *//;s/"//g' | xargs)
+              awk -v pkg="$PACKAGE_NAME" 'BEGIN{in_contents=0;injected=0} /^contents:/{in_contents=1} in_contents && /^[a-z]/ && !/^contents:/ && !injected{print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"; injected=1; in_contents=0} {print} END{if(!injected){if(!in_contents){print "contents:"} print "  - src: ./copyright"; print "    dst: /usr/share/doc/" pkg "/copyright"; print "    packager: deb"}}' "$BASENAME" > "${BASENAME}.tmp" && mv "${BASENAME}.tmp" "$BASENAME"
+            fi
+          fi
+          nfpm package --config $BASENAME --packager "$INPUT_PACKAGE_EXTENSION"
           cd -
-          mv $DIRNAME/*.${{ inputs.package_extension }} ./
+          mv $DIRNAME/*."$INPUT_PACKAGE_EXTENSION" ./
         done
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
@@ -135,7 +179,7 @@ runs:
     # Add 'upload-artifacts' label to pull request to get packages as artifacts
     - if: inputs.upload_artifacts == 'true'
       name: Upload package artifacts
-      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
         name: ${{ inputs.module_name }}-${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
         path: ./*.${{ inputs.package_extension }}

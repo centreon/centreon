@@ -1,12 +1,12 @@
 import { useFormikContext } from 'formik';
-import { remove } from 'ramda';
+import { dissoc, map, remove } from 'ramda';
 
 import { AdditionalConnectorConfiguration, Parameter } from '../../models';
 import { getDefaultParameters } from '../../utils';
 
 interface UseParameterStates {
   addParameterGroup: (index: number) => () => void;
-  deleteParameterGroup: (index) => void;
+  deleteParameterGroup: (index: number) => void;
   parameters: Array<Parameter>;
 }
 
@@ -21,7 +21,7 @@ const useParameters = (): UseParameterStates => {
     ]);
   };
 
-  const deleteParameterGroup = (index): void => {
+  const deleteParameterGroup = (index: number): void => {
     setFieldValue(
       'parameters.vcenters',
       remove(index, 1, values.parameters.vcenters)
@@ -31,7 +31,7 @@ const useParameters = (): UseParameterStates => {
   return {
     addParameterGroup,
     deleteParameterGroup,
-    parameters: values.parameters.vcenters
+    parameters: map(dissoc('id'), values.parameters.vcenters)
   };
 };
 

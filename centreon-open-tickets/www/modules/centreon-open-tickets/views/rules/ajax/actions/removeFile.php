@@ -21,6 +21,52 @@
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
-$temp_dir = sys_get_temp_dir();
-unlink($temp_dir . '/opentickets/' . $get_information['uniqId'] . '__' . $get_information['filename']);
-unset($_SESSION['ot_upload_files'][$get_information['uniqId']]);
+if (! isset($_SESSION['centreon'])) {
+    $resultat = ['code' => 1, 'msg' => 'Unauthorized.'];
+
+    return;
+}
+
+$uniq_id = $get_information['uniqId'] ?? '';
+$filename = basename($get_information['filename'] ?? '');
+
+if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/D', $uniq_id) || $filename === '') {
+    $resultat = ['code' => 1, 'msg' => 'Invalid parameters.'];
+
+    return;
+}
+
+$target_dir = sys_get_temp_dir() . '/opentickets';
+$file_path = $target_dir . '/' . $uniq_id . '__' . $filename;
+
+$real_target_dir = realpath($target_dir);
+$real_file_path = realpath($file_path);
+if (
+    $real_target_dir === false
+    || $real_file_path === false
+    || ! str_starts_with($real_file_path, $real_target_dir . '/')
+) {
+    $resultat = ['code' => 1, 'msg' => 'File not found.'];
+
+    return;
+}
+
+if (! isset($_SESSION['ot_upload_files'][$uniq_id][$real_file_path])
+    && ! isset($_SESSION['ot_upload_files'][$uniq_id][$file_path])
+) {
+    $resultat = ['code' => 1, 'msg' => 'Unauthorized file access.'];
+
+    return;
+}
+
+if (! unlink($real_file_path)) {
+    $resultat = ['code' => 1, 'msg' => 'Failed to delete file.'];
+
+    return;
+}
+
+unset($_SESSION['ot_upload_files'][$uniq_id][$real_file_path], $_SESSION['ot_upload_files'][$uniq_id][$file_path]);
+
+if (empty($_SESSION['ot_upload_files'][$uniq_id])) {
+    unset($_SESSION['ot_upload_files'][$uniq_id]);
+}

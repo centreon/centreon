@@ -1,10 +1,13 @@
-import { UnsavedChangesDialog } from '@centreon/ui';
 import SaveIcon from '@mui/icons-material/Save';
 import { Box, CircularProgress } from '@mui/material';
+
+import { UnsavedChangesDialog } from '@centreon/ui';
+
 import { useFormikContext } from 'formik';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
+
 import { Button } from '../../Button';
 import {
   askBeforeCloseFormModalAtom,
@@ -39,7 +42,7 @@ const Buttons = (): JSX.Element => {
   const discard = useCallback(() => {
     setAskBeforeCloseFormModal(false);
     setOpenFormModal(null);
-  }, []);
+  }, [setAskBeforeCloseFormModal, setOpenFormModal]);
 
   const close = useCallback(() => {
     if (dirty) {
@@ -48,16 +51,16 @@ const Buttons = (): JSX.Element => {
     }
     setOpenFormModal(null);
     setAskBeforeCloseFormModal(false);
-  }, [dirty]);
+  }, [dirty, setAskBeforeCloseFormModal, setOpenFormModal]);
 
   const submitAndClose = useCallback(() => {
     submitForm();
     setAskBeforeCloseFormModal(false);
-  }, []);
+  }, [setAskBeforeCloseFormModal, submitForm]);
 
   const closeAskBeforeCloseModal = useCallback(() => {
     setAskBeforeCloseFormModal(false);
-  }, []);
+  }, [setAskBeforeCloseFormModal]);
 
   useEffect(() => {
     if (!askBeforeCloseForm || dirty) {
@@ -65,31 +68,31 @@ const Buttons = (): JSX.Element => {
     }
 
     close();
-  }, [askBeforeCloseForm, dirty]);
+  }, [askBeforeCloseForm, dirty, close]);
 
   return (
     <>
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
         {isSubmitting && <CircularProgress size={24} />}
-        <Button variant="ghost" onClick={close}>
+        <Button onClick={close} variant="ghost">
           {cancelLabel}
         </Button>
         <Button
           disabled={isSubmitDisabled}
-          iconVariant="start"
           icon={<SaveIcon />}
+          iconVariant="start"
           onClick={submitForm}
         >
           {confirmLabel}
         </Button>
       </Box>
       <UnsavedChangesDialog
+        closeDialog={closeAskBeforeCloseModal}
+        dialogOpened={askBeforeCloseForm && dirty}
+        discardChanges={discard}
         isSubmitting={isSubmitting}
         isValidForm={isValid}
         saveChanges={submitAndClose}
-        closeDialog={closeAskBeforeCloseModal}
-        discardChanges={discard}
-        dialogOpened={askBeforeCloseForm && dirty}
       />
     </>
   );

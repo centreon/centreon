@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
-
 import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { pluck } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   bulkDeleteHostGroupEndpoint,
   bulkDisableHostGroupEndpoint,
@@ -15,9 +16,6 @@ import {
   hostGroupsListDecoder,
   hostGroupsListEndpoint
 } from './api';
-
-import { APIType, FieldType, FilterConfiguration } from '../models';
-
 import { labelAlias, labelName, labelStatus } from './translatedLabels';
 
 interface UseHostGroupsState {
@@ -26,19 +24,37 @@ interface UseHostGroupsState {
 }
 
 const adaptFormToApiPayload =
-  ({ isCloudPlatform }) =>
-  ({ name, alias, comment, geoCoords, hosts, resourceAccessRules, icon }) => {
+  ({ isCloudPlatform }: { isCloudPlatform?: boolean }) =>
+  (data: unknown) => {
+    const {
+      name,
+      alias,
+      comment,
+      geoCoords,
+      hosts,
+      resourceAccessRules,
+      icon
+    } = data as {
+      name: string;
+      alias: string;
+      comment: string;
+      geoCoords: string;
+      hosts: Array<{ id: number }>;
+      resourceAccessRules: Array<{ id: number }>;
+      icon?: { id: number };
+    };
+
     const cloudProperties = isCloudPlatform
       ? { resource_access_rules: pluck('id', resourceAccessRules) }
       : {};
 
     const payload = {
-      name,
       alias,
       comment,
       geo_coords: geoCoords,
       hosts: pluck('id', hosts),
       icon_id: icon?.id || null,
+      name,
       ...cloudProperties
     };
 
@@ -52,19 +68,19 @@ const useHostGroups = (): UseHostGroupsState => {
 
   const api: APIType = useMemo(
     () => ({
+      adapter: adaptFormToApiPayload({ isCloudPlatform }),
+      decoders: { getAll: hostGroupsListDecoder, getOne: hostGroupDecoder },
       endpoints: {
+        create: hostGroupsListEndpoint,
+        delete: bulkDeleteHostGroupEndpoint,
+        deleteOne: getHostGroupEndpoint,
+        disable: bulkDisableHostGroupEndpoint,
+        duplicate: bulkDuplicateHostGroupEndpoint,
+        enable: bulkEnableHostGroupEndpoint,
         getAll: hostGroupsListEndpoint,
         getOne: getHostGroupEndpoint,
-        deleteOne: getHostGroupEndpoint,
-        delete: bulkDeleteHostGroupEndpoint,
-        duplicate: bulkDuplicateHostGroupEndpoint,
-        disable: bulkDisableHostGroupEndpoint,
-        enable: bulkEnableHostGroupEndpoint,
-        create: hostGroupsListEndpoint,
         update: getHostGroupEndpoint
-      },
-      decoders: { getAll: hostGroupsListDecoder, getOne: hostGroupDecoder },
-      adapter: adaptFormToApiPayload({ isCloudPlatform })
+      }
     }),
     []
   );
@@ -72,18 +88,18 @@ const useHostGroups = (): UseHostGroupsState => {
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
       {
-        name: t(labelName),
         fieldName: 'name',
-        fieldType: FieldType.Text
+        fieldType: FieldType.Text,
+        name: t(labelName)
       },
       {
-        name: t(labelAlias),
         fieldName: 'alias',
-        fieldType: FieldType.Text
+        fieldType: FieldType.Text,
+        name: t(labelAlias)
       },
       {
-        name: t(labelStatus),
-        fieldType: FieldType.Status
+        fieldType: FieldType.Status,
+        name: t(labelStatus)
       }
     ],
     []

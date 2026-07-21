@@ -1,10 +1,9 @@
+import { type Theme, Tooltip } from '@mui/material';
+
 import { makeStyles } from 'tss-react/mui';
 
-import { Theme, Tooltip } from '@mui/material';
-
+import { Button, type ButtonProps } from '../../components';
 import { getNormalizedId } from '../../utils';
-
-import { Button, ButtonProps } from '../../components';
 import { useSave } from './useSave';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -45,8 +44,8 @@ const SaveButton = ({
     labelSave,
     labelSucceeded,
     loading,
-    succeeded,
-    startIcon
+    startIcon,
+    succeeded
   });
 
   return (

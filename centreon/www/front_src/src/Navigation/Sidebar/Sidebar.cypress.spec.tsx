@@ -1,10 +1,9 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter as Router } from 'react-router';
-
 import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter as Router } from 'react-router';
 
+import { labelCentreonLogo, labelMiniCentreonLogo } from '../translatedLabels';
 import SideBar from './index';
 import menuData from './tests/menuData.json';
 import menuDataWithAdditionalLabel from './tests/menuDataWithAdditionalLabel.json';

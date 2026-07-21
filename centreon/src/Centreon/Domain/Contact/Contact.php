@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Contact;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -57,6 +58,47 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_DELETE_POLLER_CFG = 'DELETE_POLLER_CFG';
     public const ROLE_DISPLAY_TOP_COUNTER = 'DISPLAY_TOP_COUNTER';
     public const ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS = 'DISPLAY_TOP_COUNTER_POLLERS_STATISTICS';
+    public const ROLE_SEE_CHECK_COMMANDS = 'SEE_CHECK_COMMANDS';
+    public const ROLE_MANAGE_CHECK_COMMANDS = 'MANAGE_CHECK_COMMANDS';
+    public const ROLE_SEE_NOTIFICATION_COMMANDS = 'SEE_NOTIFICATION_COMMANDS';
+    public const ROLE_MANAGE_NOTIFICATION_COMMANDS = 'MANAGE_NOTIFICATION_COMMANDS';
+    public const ROLE_SEE_DISCOVERY_COMMANDS = 'SEE_DISCOVERY_COMMANDS';
+    public const ROLE_MANAGE_DISCOVERY_COMMANDS = 'MANAGE_DISCOVERY_COMMANDS';
+    public const ROLE_SEE_MISCELLANEOUS_COMMANDS = 'SEE_MISCELLANEOUS_COMMANDS';
+    public const ROLE_MANAGE_MISCELLANEOUS_COMMANDS = 'MANAGE_MISCELLANEOUS_COMMANDS';
+    public const ACTION_ROLES = [
+        self::ROLE_HOST_CHECK,
+        self::ROLE_HOST_FORCED_CHECK,
+        self::ROLE_SERVICE_CHECK,
+        self::ROLE_SERVICE_FORCED_CHECK,
+        self::ROLE_HOST_ACKNOWLEDGEMENT,
+        self::ROLE_HOST_DISACKNOWLEDGEMENT,
+        self::ROLE_SERVICE_ACKNOWLEDGEMENT,
+        self::ROLE_SERVICE_DISACKNOWLEDGEMENT,
+        self::ROLE_CANCEL_HOST_DOWNTIME,
+        self::ROLE_CANCEL_SERVICE_DOWNTIME,
+        self::ROLE_ADD_HOST_DOWNTIME,
+        self::ROLE_ADD_SERVICE_DOWNTIME,
+        self::ROLE_SERVICE_SUBMIT_RESULT,
+        self::ROLE_HOST_SUBMIT_RESULT,
+        self::ROLE_HOST_ADD_COMMENT,
+        self::ROLE_SERVICE_ADD_COMMENT,
+        self::ROLE_DISPLAY_COMMAND,
+        self::ROLE_GENERATE_CONFIGURATION,
+        self::ROLE_MANAGE_TOKENS,
+        self::ROLE_CREATE_EDIT_POLLER_CFG,
+        self::ROLE_DELETE_POLLER_CFG,
+        self::ROLE_DISPLAY_TOP_COUNTER,
+        self::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
+        self::ROLE_SEE_CHECK_COMMANDS,
+        self::ROLE_MANAGE_CHECK_COMMANDS,
+        self::ROLE_SEE_NOTIFICATION_COMMANDS,
+        self::ROLE_MANAGE_NOTIFICATION_COMMANDS,
+        self::ROLE_SEE_DISCOVERY_COMMANDS,
+        self::ROLE_MANAGE_DISCOVERY_COMMANDS,
+        self::ROLE_SEE_MISCELLANEOUS_COMMANDS,
+        self::ROLE_MANAGE_MISCELLANEOUS_COMMANDS,
+    ];
 
     // user pages access
     public const ROLE_HOME_DASHBOARD_VIEWER = 'ROLE_HOME_DASHBOARDS_VIEWER_RW';
@@ -117,7 +159,7 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_MONITORING_RW = 'ROLE_MONITORING_RW';
     public const ROLE_CONFIGURATION_ACC_RW = 'ROLE_CONFIGURATION_CONNECTORS_ADDITIONAL_CONFIGURATIONS_RW';
     public const ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW = 'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW';
-    public const ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW = 'ROLE_CONFIGURATION_POLLERS_RESOURCES_RW';
+    public const ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW = 'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW';
 
     /**
      * @var string
@@ -157,9 +199,11 @@ class Contact implements UserInterface, ContactInterface
     private $isAllowedToReachWeb;
 
     /** @var string|null Authentication Token */
+    #[Sensitive]
     private $token;
 
     /** @var string|null Encoded password */
+    #[Sensitive]
     private $encodedPassword;
 
     /** @var bool Indicates if this user has access to the configuration section of API */
@@ -342,6 +386,9 @@ class Contact implements UserInterface, ContactInterface
         if ($this->isAdmin) {
             $this->addRole(self::ROLE_API_REALTIME);
             $this->addRole(self::ROLE_API_CONFIGURATION);
+            foreach (self::ACTION_ROLES as $role) {
+                $this->addRole($role);
+            }
         }
 
         return $this;
@@ -531,17 +578,6 @@ class Contact implements UserInterface, ContactInterface
     public function getUsername()
     {
         return $this->name;
-    }
-
-    /**
-     * Removes sensitive data from the user.
-     *
-     * This is important if, at any given point, sensitive information like
-     * the plain-text password is stored on this object.
-     */
-    public function eraseCredentials(): void
-    {
-        // Nothing to do. But we must to define this method
     }
 
     /**

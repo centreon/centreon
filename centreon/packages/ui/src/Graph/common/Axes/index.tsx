@@ -1,15 +1,14 @@
-import { Axis } from '@visx/visx';
-import { ScaleLinear } from 'd3-scale';
-import { equals, head, isNil, last } from 'ramda';
-
 import { useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { Axis } from '@visx/visx';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
+import { equals, head, isNil, last } from 'ramda';
 
 import { margin } from '../../Chart/common';
 import { getXAxisTickFormat } from '../../Chart/helpers';
 import { getUnits } from '../timeSeries';
-
+import type { Data } from './models';
 import UnitLabel from './UnitLabel';
-import { Data } from './models';
 import useAxisY from './useAxisY';
 
 interface Props {
@@ -20,7 +19,10 @@ interface Props {
   orientation: 'horizontal' | 'vertical';
   rightScale: ScaleLinear<number, number>;
   width: number;
-  xScale: ScaleLinear<number, number>;
+  xScale:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
 }
 
 const Axes = ({
@@ -48,18 +50,24 @@ const Axes = ({
 
   const xTickCount = Math.floor(Math.min(width / 100, 12));
 
-  const domain = xScale.domain();
+  const domain = xScale.domain() as Array<number | Date>;
 
   const start = head(domain);
   const end = last(domain);
 
+  const toISOString = (v: number | Date | undefined): string | undefined =>
+    v !== undefined
+      ? (v instanceof Date ? v : new Date(v)).toISOString()
+      : undefined;
+
   const tickFormat =
-    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
+    data?.axisX?.xAxisTickFormat ??
+    getXAxisTickFormat({ end: toISOString(end), start: toISOString(start) });
 
-  const formatAxisTick = (tick): string =>
-    format({ date: new Date(tick), formatString: tickFormat });
+  const formatAxisTick = (tick: unknown): string =>
+    format({ date: new Date(tick as number | Date), formatString: tickFormat });
 
-  const displayAxisRight = !isNil(secondUnit);
+  const displayAxisRight = !isNil(secondUnit) && !isNil(rightScale);
 
   const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
@@ -73,19 +81,19 @@ const Axes = ({
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
-          ...axisLeft.tickLabelProps(),
-          dx: isHorizontal ? 16 : -4
+          ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
+          dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
         })}
         top={isHorizontal ? height - margin.bottom : 0}
       />
 
       {axisLeft.displayUnit && (
         <UnitLabel
+          onUnitChange={data.axisYLeft?.onUnitChange}
           unit={axisLeft.unit}
           units={allUnits}
           x={isHorizontal ? -8 : width + 8}
           y={isHorizontal ? 16 : -2}
-          onUnitChange={data.axisYLeft?.onUnitChange}
         />
       )}
 
@@ -95,7 +103,7 @@ const Axes = ({
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={axisLeft.tickFormat}
         tickLabelProps={() => ({
-          ...axisLeft.tickLabelProps(),
+          ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
           angle: yAxisTickLabelRotation,
           dx: isHorizontal ? -4 : 4,
           dy: isHorizontal ? 4 : -6
@@ -111,7 +119,7 @@ const Axes = ({
           strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
           tickFormat={axisRight.tickFormat}
           tickLabelProps={() => ({
-            ...axisRight.tickLabelProps(),
+            ...(axisRight.tickLabelProps as () => Record<string, unknown>)(),
             angle: yAxisTickLabelRotation,
             dx: isHorizontal ? 4 : -4,
             dy: 4
@@ -122,11 +130,11 @@ const Axes = ({
       )}
       {axisRight.displayUnit && (
         <UnitLabel
+          onUnitChange={data.axisYRight?.onUnitChange}
           unit={axisRight.unit}
           units={allUnits}
           x={width}
           y={isHorizontal ? 16 : -(height + 8)}
-          onUnitChange={data.axisYRight?.onUnitChange}
         />
       )}
     </g>

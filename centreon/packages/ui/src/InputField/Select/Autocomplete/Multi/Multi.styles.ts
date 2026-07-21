@@ -11,16 +11,16 @@ export const useStyles = makeStyles()((theme) => ({
 }));
 
 export const useListboxStyles = makeStyles()((theme) => ({
+  dropdown: {
+    background: theme.palette.background.paper,
+    width: '100%'
+  },
   lisSubHeader: {
-    width: '100%',
+    alignItems: 'center',
     background: theme.palette.background.default,
-    padding: theme.spacing(0.5, 1, 0.5, 1.5),
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  dropdown: {
-    width: '100%',
-    background: theme.palette.background.paper
+    padding: theme.spacing(0.5, 1, 0.5, 1.5),
+    width: '100%'
   }
 }));

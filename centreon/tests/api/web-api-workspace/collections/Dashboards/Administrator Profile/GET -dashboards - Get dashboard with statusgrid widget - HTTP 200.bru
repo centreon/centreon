@@ -1,0 +1,34 @@
+meta {
+  name: GET /dashboards - Get dashboard with statusgrid widget - HTTP 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Dashboard successfully retrieved with statusgrid widget.", function () {
+    const body = res.getBody();
+    expect(res.status).to.equal(200);
+    expect(body).to.have.property("id");
+    expect(body).to.have.property("name");
+    expect(body).to.have.property("panels");
+    expect(body).to.have.property("own_role");
+    expect(body.name).to.equal("Dashboard-Test-API-1002");
+    expect(body.own_role).to.equal("editor");
+    expect(body.panels[0].name).to.equal("centreon-widget-statusgrid");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

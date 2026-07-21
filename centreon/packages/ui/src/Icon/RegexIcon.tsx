@@ -1,5 +1,7 @@
-import { SvgIconProps } from '@mui/material';
-import { ReactElement } from 'react';
+import type { SvgIconProps } from '@mui/material';
+
+import type { ReactElement } from 'react';
+
 import BaseIcon from './BaseIcon';
 
 const icon = (
@@ -16,5 +18,5 @@ const icon = (
 );
 
 export const RegexIcon = (props: SvgIconProps): ReactElement => (
-  <BaseIcon {...props} Icon={icon} dataTestId="RegexIcon" />
+  <BaseIcon {...props} dataTestId="RegexIcon" Icon={icon} />
 );

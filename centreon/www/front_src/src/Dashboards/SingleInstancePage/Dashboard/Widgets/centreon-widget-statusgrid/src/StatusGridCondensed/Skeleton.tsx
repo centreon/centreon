@@ -10,7 +10,7 @@ const Skeleton = ({ statuses }: Props): JSX.Element => {
   const { classes } = useStatusGridCondensedStyles();
 
   return (
-    <div data-skeleton className={classes.container}>
+    <div className={classes.container} data-skeleton>
       <LoadingSkeleton variant="text" width="60px" />
       <div className={classes.statuses}>
         {statuses.map((status) => (

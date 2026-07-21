@@ -1,10 +1,10 @@
+import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
+
 import { Shape } from '@visx/visx';
-import { ScaleTime } from 'd3-scale';
+import type { ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 import { pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
 
 import {
   annotationHoveredAtom,
@@ -12,11 +12,22 @@ import {
   getStrokeOpacityDerivedAtom,
   getStrokeWidthDerivedAtom
 } from '../annotationsAtoms';
+import Annotation, {
+  type Props as AnnotationProps,
+  iconSize,
+  yMargin
+} from '.';
 
-import Annotation, { Props as AnnotationProps, yMargin, iconSize } from '.';
+interface IconProps {
+  'aria-label'?: string;
+  className?: string;
+  height?: number | string;
+  width?: number | string;
+  style?: React.CSSProperties;
+}
 
 type Props = {
-  Icon: (props) => JSX.Element | null;
+  Icon: (props: IconProps) => JSX.Element | null;
   ariaLabel: string;
   color: string;
   date: string;

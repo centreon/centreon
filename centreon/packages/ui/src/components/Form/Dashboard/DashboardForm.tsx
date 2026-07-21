@@ -1,15 +1,13 @@
-import { ReactElement, useCallback, useMemo } from 'react';
-
 import { equals } from 'ramda';
+import { type ReactElement, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { number, object, string } from 'yup';
+import { number, object, type Schema, string } from 'yup';
 
-import { Form, FormProps } from '../../../Form';
+import { Form, type FormProps } from '../../../Form';
 import { InputType } from '../../../Form/Inputs/models';
-import { FormVariant } from '../Form.models';
-import { FormActions, FormActionsProps } from '../FormActions';
-
-import { DashboardResource } from './Dashboard.resource';
+import type { FormVariant } from '../Form.models';
+import { FormActions, type FormActionsProps } from '../FormActions';
+import type { DashboardResource } from './Dashboard.resource';
 import { useStyles } from './DashboardForm.styles';
 import GlobalRefreshFieldOption from './GlobalRefreshFieldOption';
 import {
@@ -111,17 +109,17 @@ const DashboardForm = ({
           .min(3, ({ min, label }) => t(labelMustBeAtLeast, { label, min }))
           .max(50, ({ max, label }) => t(labelMustBeMost, { label, max }))
           .required(t(labelRequired) as string)
-      })
+      }) as unknown as Schema<DashboardResource>
     }),
-    [resource, labels, onSubmit]
+    [resource, labels, onSubmit, showRefreshIntervalFields, t]
   );
 
   const Actions = useCallback(
     () => (
       <FormActions<DashboardResource>
         labels={labels?.actions}
-        variant={variant}
         onCancel={onCancel}
+        variant={variant}
       />
     ),
     [labels, onCancel, variant]

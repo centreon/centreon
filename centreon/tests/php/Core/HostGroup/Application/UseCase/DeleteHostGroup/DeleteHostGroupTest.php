@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -42,13 +43,15 @@ beforeEach(function (): void {
     $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
     $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new DeleteHostGroup(
         $this->readHostGroupRepository,
         $this->writeHostGroupRepository,
         $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->contact
+        $this->contact,
+        $this->adminResolver
     );
 
     $this->testedHostGroup = new HostGroup(
@@ -63,7 +66,7 @@ beforeEach(function (): void {
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -81,7 +84,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 });
 
 it('should present a ForbiddenResponse when the user does not have the correct role', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -103,7 +106,7 @@ it('should present a ForbiddenResponse when the user does not have the correct r
 });
 
 it('should present a NoContentResponse as admin', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -119,7 +122,7 @@ it('should present a NoContentResponse as admin', function (): void {
 });
 
 it('should present a ForbiddenResponse as allowed READ user', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -142,7 +145,7 @@ it('should present a ForbiddenResponse as allowed READ user', function (): void 
 });
 
 it('should present a NoContentResponse as allowed READ_WRITE user', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

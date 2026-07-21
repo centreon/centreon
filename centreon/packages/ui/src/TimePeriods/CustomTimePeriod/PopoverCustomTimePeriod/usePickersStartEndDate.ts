@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
-
 import dayjs from 'dayjs';
 import { useSetAtom } from 'jotai';
 import { and, cond, equals, isNil } from 'ramda';
+import { useEffect, useState } from 'react';
 
 import { isInvalidDate } from '../../helpers';
-import { CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
+import { type CustomTimePeriod, CustomTimePeriodProperty } from '../../models';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
-
-import { AcceptDateProps } from './models';
+import type { AcceptDateProps } from './models';
 
 export interface PickersStartEndDateModel {
   changeDate: (props: AcceptDateProps) => void;
@@ -33,12 +31,18 @@ const usePickersStartEndDate = ({
 
   const setError = useSetAtom(errorTimePeriodAtom);
 
-  const changeDate = ({ property, date }): void => {
-    const currentDate = customTimePeriod[property];
+  const changeDate = ({
+    property,
+    date
+  }: {
+    property: CustomTimePeriodProperty | string;
+    date: Date;
+  }): void => {
+    const currentDate = customTimePeriod[property as keyof CustomTimePeriod];
     cond([
       [equals(CustomTimePeriodProperty?.start), (): void => setStart(date)],
       [equals(CustomTimePeriodProperty?.end), (): void => setEnd(date)]
-    ])(property);
+    ])(property as CustomTimePeriodProperty);
 
     if (dayjs(date).isSame(dayjs(currentDate)) || !dayjs(date).isValid()) {
       return;
@@ -61,14 +65,14 @@ const usePickersStartEndDate = ({
     }
     setStart(customTimePeriod.start);
     setEnd(customTimePeriod.end);
-  }, [customTimePeriod.start, customTimePeriod.end]);
+  }, [customTimePeriod.start, customTimePeriod.end, end, start]);
 
   useEffect(() => {
     if (!end || !start) {
       return;
     }
     setError(isInvalidDate({ endDate: end, startDate: start }));
-  }, [end, start]);
+  }, [end, start, setError]);
 
   return {
     changeDate,

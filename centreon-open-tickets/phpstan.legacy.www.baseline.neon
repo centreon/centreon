@@ -32,18 +32,8 @@ parameters:
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) rv must contain 3 or more characters\.$#'
-			count: 33
+			count: 37
 			path: www/modules/centreon-open-tickets/class/automatic.class.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) i must contain 3 or more characters\.$#'
-			count: 3
-			path: www/modules/centreon-open-tickets/class/rule.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) j must contain 3 or more characters\.$#'
-			count: 4
-			path: www/modules/centreon-open-tickets/class/rule.php
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
@@ -74,11 +64,6 @@ parameters:
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
 			count: 2
 			path: www/modules/centreon-open-tickets/providers/BmcItsm/BmcItsmProvider.class.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
-			count: 4
-			path: www/modules/centreon-open-tickets/providers/EasyVistaRest/EasyVistaRestProvider.class.php
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
@@ -148,11 +133,6 @@ parameters:
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
 			count: 2
-			path: www/modules/centreon-open-tickets/providers/RequestTracker2/RequestTracker2Provider.class.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fp must contain 3 or more characters\.$#'
-			count: 3
 			path: www/modules/centreon-open-tickets/providers/RequestTracker2/RequestTracker2Provider.class.php
 
 		-

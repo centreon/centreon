@@ -721,6 +721,12 @@ $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attribu
 
 $cloneSetMacro = [
     $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#']
+    ),
+    $form->addElement(
         'text',
         'macroInput[#index#]',
         _('Name'),
@@ -1007,7 +1013,7 @@ $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 $init = $form->addElement('hidden', 'initialValues');
-$init->setValue(serialize($initialValues));
+$init->setValue(json_encode($initialValues, JSON_THROW_ON_ERROR));
 
 if (is_array($select)) {
     $select_pear = $form->addElement('hidden', 'select');
@@ -1072,6 +1078,9 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
     $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 } elseif ($o === SERVICE_MASSIVE_CHANGE) {
     $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
+    // Prevent a mass change from moving a service onto a host/hostgroup that already
+    // has (or would end up with) another service sharing the same description.
+    $form->addFormRule('checkServiceMassiveChangeExistence');
 }
 
 if (isset($service['service_template_model_stm_id']) && ($service['service_template_model_stm_id'] === '')) {

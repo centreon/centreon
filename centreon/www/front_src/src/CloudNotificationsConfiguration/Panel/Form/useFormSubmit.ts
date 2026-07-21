@@ -1,14 +1,14 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { isPanelOpenAtom } from '../../atom';
 import {
@@ -26,11 +26,11 @@ import { PanelMode } from '../models';
 
 interface UseFormState {
   submit: (
-    values,
+    values: Record<string, unknown>,
     {
       setSubmitting
     }: {
-      setSubmitting;
+      setSubmitting: (isSubmitting: boolean) => void;
     }
   ) => Promise<void>;
 }
@@ -53,15 +53,21 @@ const useForm = (): UseFormState => {
     method: equals(panelMode, PanelMode.Create) ? Method.POST : Method.PUT
   });
 
-  const submit = (values, { setSubmitting }): Promise<void> => {
+  const submit = (
+    values: Record<string, unknown>,
+    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+  ): Promise<void> => {
     const labelMessage = equals(panelMode, PanelMode.Create)
       ? labelSuccessfulNotificationAdded
       : labelSuccessfulEditNotification;
 
     const payload = adaptNotification({
       ...values,
-      messages: { ...values.messages, formattedMessage: htmlEmailBody }
-    });
+      messages: {
+        ...(values.messages as Record<string, unknown>),
+        formattedMessage: htmlEmailBody
+      }
+    } as Parameters<typeof adaptNotification>[0]);
 
     return mutateAsync({ payload })
       .then((response) => {

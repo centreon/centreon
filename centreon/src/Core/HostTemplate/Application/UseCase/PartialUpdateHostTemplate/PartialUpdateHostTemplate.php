@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -45,6 +47,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\InheritanceManager;
@@ -76,6 +79,7 @@ final class PartialUpdateHostTemplate
 
     public function __construct(
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
@@ -89,6 +93,8 @@ final class PartialUpdateHostTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -179,7 +185,7 @@ final class PartialUpdateHostTemplate
         try {
             $this->dataStorageEngine->startTransaction();
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveHostUuidFromVault($hostTemplate);
             }
 
@@ -240,9 +246,27 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setSeverityId($request->severityId);
         }
 
+        if (! $request->freshnessChecked instanceof NoValue) {
+            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
+        }
+
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
         if (! $request->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
             $hostTemplate->setCheckCommandId($request->checkCommandId);
+            if ($request->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($request->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $hostTemplate->setFreshnessThreshold(120);
+                }
+            }
         }
 
         if (! $request->checkCommandArgs instanceof NoValue) {
@@ -317,14 +341,6 @@ final class PartialUpdateHostTemplate
 
         if (! $request->acknowledgementTimeout instanceof NoValue) {
             $hostTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
-        }
-
-        if (! $request->freshnessChecked instanceof NoValue) {
-            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
-        }
-
-        if (! $request->freshnessThreshold instanceof NoValue) {
-            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
         }
 
         if (! $request->flapDetectionEnabled instanceof NoValue) {
@@ -472,9 +488,11 @@ final class PartialUpdateHostTemplate
 
         /** @var array<string,CommandMacro> */
         $commandMacros = [];
-        if ($hostTemplate->getCheckCommandId() !== null) {
+        $effectiveCommandId = $hostTemplate->getCheckCommandId()
+            ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $hostTemplate->getCheckCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
@@ -482,10 +500,10 @@ final class PartialUpdateHostTemplate
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
@@ -601,7 +619,7 @@ final class PartialUpdateHostTemplate
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixedName = '_HOST' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
@@ -617,7 +635,7 @@ final class PartialUpdateHostTemplate
 
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -647,7 +665,7 @@ final class PartialUpdateHostTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
@@ -674,7 +692,7 @@ final class PartialUpdateHostTemplate
         }
 
         // If vault is not configured, just set the value directly
-        if (! $this->writeVaultRepository->isVaultConfigured()) {
+        if (! $this->vaultEligibilityService->shouldUseVault()) {
             $hostTemplate->setSnmpCommunity($snmpCommunity);
 
             return;

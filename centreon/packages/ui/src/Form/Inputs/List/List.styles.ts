@@ -18,7 +18,7 @@ export const useListStyles = makeStyles()((theme) => ({
     flexGrow: 1
   },
   items: {
-    maxHeight: theme.spacing(16),
+    maxHweight: theme.spacing(16),
     overflowY: 'auto'
   },
   list: {

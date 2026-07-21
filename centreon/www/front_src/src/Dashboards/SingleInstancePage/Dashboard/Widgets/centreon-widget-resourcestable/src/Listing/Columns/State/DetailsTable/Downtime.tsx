@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAuthor,
@@ -10,10 +10,8 @@ import {
   labelStartTime
 } from '../../../translatedLabels';
 import useStyles from '../State.styles';
-
-import Comment from './Comment';
-
 import DetailsTable, { getYesNoLabel } from '.';
+import Comment from './Comment';
 
 interface DowntimeDetails {
   author_name: string;
@@ -36,28 +34,31 @@ const DowntimeDetailsTable = ({ endpoint }: Props): JSX.Element => {
 
   const columns = [
     {
-      getContent: ({ author_name }): string => author_name,
+      getContent: ({ author_name }: DowntimeDetails): string => author_name,
       id: 'author',
       label: t(labelAuthor),
       type: ColumnType.string,
       width: 100
     },
     {
-      getContent: ({ is_fixed }): string => t(getYesNoLabel(is_fixed)),
+      getContent: ({ is_fixed }: DowntimeDetails): string =>
+        t(getYesNoLabel(is_fixed)),
       id: 'is_fixed',
       label: t(labelFixed),
       type: ColumnType.string,
       width: 100
     },
     {
-      getContent: ({ start_time }): string => toDateTime(start_time),
+      getContent: ({ start_time }: DowntimeDetails): string =>
+        toDateTime(start_time),
       id: 'start_time',
       label: t(labelStartTime),
       type: ColumnType.string,
       width: 150
     },
     {
-      getContent: ({ end_time }): string => toDateTime(end_time),
+      getContent: ({ end_time }: DowntimeDetails): string =>
+        toDateTime(end_time),
       id: 'end_time',
       label: t(labelEndTime),
       type: ColumnType.string,

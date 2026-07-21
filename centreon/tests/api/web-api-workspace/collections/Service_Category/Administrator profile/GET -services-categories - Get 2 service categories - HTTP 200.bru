@@ -1,0 +1,36 @@
+meta {
+  name: GET /services/categories - Get 2 service categories - HTTP 200
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The service categories are listed with all of their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const sc2 = body.result.find(r => r.id === parseInt(bru.getEnvVar("ServiceCategory2Id")));
+    expect(sc2).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory2Id")),
+      "name": bru.getEnvVar("ServiceCategory2Name"),
+      "alias": bru.getEnvVar("ServiceCategory2Alias"),
+      "is_activated": true
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

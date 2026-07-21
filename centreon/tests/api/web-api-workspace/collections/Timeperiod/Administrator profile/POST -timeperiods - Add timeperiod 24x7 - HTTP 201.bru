@@ -1,0 +1,51 @@
+meta {
+  name: POST /timeperiods - Add timeperiod 24x7 - HTTP 201
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/timeperiods
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Timeperiod1Name}}",
+    "alias": "{{Timeperiod1Alias}}",
+    "days": [
+      {"day": 1, "time_range": "00:00-24:00"},
+      {"day": 2, "time_range": "00:00-24:00"},
+      {"day": 3, "time_range": "00:00-24:00"},
+      {"day": 4, "time_range": "00:00-24:00"},
+      {"day": 5, "time_range": "00:00-24:00"},
+      {"day": 6, "time_range": "00:00-24:00"},
+      {"day": 7, "time_range": "00:00-24:00"}
+    ],
+    "templates": [],
+    "exceptions": []
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Timeperiod 1 (24x7) has been successfully created.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Timeperiod1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("Timeperiod1Name"),
+      "alias": bru.getEnvVar("Timeperiod1Alias")
+    });
+    expect(res.headers["location"]).to.be.a("string");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

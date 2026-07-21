@@ -1,9 +1,8 @@
-import { ComponentStory } from '@storybook/react';
+import type { ComponentStory } from '@storybook/react';
 
 import CentreonLogoLight from '../@assets/brand/centreon-logo-one-line-light.svg';
 import NotAuthorized from '../@assets/images/not-authorized-template-background-light.svg';
 import LoadingSkeleton from '../LoadingSkeleton';
-
 import Image, { ImageVariant } from './Image';
 
 export default {

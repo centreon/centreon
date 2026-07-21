@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Button, CircularProgress, Grid, Typography } from '@mui/material';
 
-import { ActionsBarProps } from './models';
+import { makeStyles } from 'tss-react/mui';
+
+import type { ActionsBarProps } from './models';
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -27,7 +27,7 @@ const ActionsBar = ({
 }: ActionsBarProps): JSX.Element => {
   const { classes } = useStyles();
 
-  const preventEnterKey = (keyEvent): void => {
+  const preventEnterKey = (keyEvent: React.KeyboardEvent): void => {
     if ((keyEvent.charCode || keyEvent.keyCode) === 13) {
       keyEvent.preventDefault();
     }
@@ -39,13 +39,13 @@ const ActionsBar = ({
 
   return (
     <Grid
-      container
       alignItems="center"
       className={classes.container}
+      container
       direction="row"
       justifyContent="flex-end"
     >
-      <Grid item>
+      <Grid>
         {!isFirstStep && (
           <Button
             aria-label={labelPrevious}
@@ -56,7 +56,7 @@ const ActionsBar = ({
           </Button>
         )}
       </Grid>
-      <Grid item>
+      <Grid>
         <Button
           aria-label={labelNextFinish}
           color="primary"

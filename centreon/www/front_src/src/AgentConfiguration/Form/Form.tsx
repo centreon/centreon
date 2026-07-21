@@ -1,5 +1,10 @@
 import { Form } from '@centreon/ui';
+
+import { FormikHelpers } from 'formik';
 import { find, isNil, propEq } from 'ramda';
+import { ReactElement } from 'react';
+import { Schema } from 'yup';
+
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';
@@ -12,18 +17,21 @@ interface Props {
   isLoading?: boolean;
 }
 
-const defaultInitialValues = {
+const defaultInitialValues: AgentConfigurationFormModel = {
+  configuration: { port: 4317 } as AgentConfigurationFormModel['configuration'],
+  connectionMode: find(
+    propEq('secure', 'id'),
+    connectionModes
+  ) as AgentConfigurationFormModel['connectionMode'],
   name: '',
-  type: null,
   pollers: [],
-  configuration: {},
-  connectionMode: find(propEq('secure', 'id'), connectionModes)
+  type: null
 };
 
 const AgentConfigurationForm = ({
   initialValues,
   isLoading
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes } = useFormStyles();
 
   const { groups, inputs } = useInputs();
@@ -35,17 +43,24 @@ const AgentConfigurationForm = ({
 
   return (
     <Form<AgentConfigurationFormModel>
-      enableReinitialize
-      Buttons={Buttons}
-      validationSchema={validationSchema}
-      isLoading={isLoading}
-      groups={groups}
-      isCollapsible
       areGroupsOpen
-      inputs={inputs}
-      initialValues={values}
-      submit={submit}
+      Buttons={Buttons}
+      enableReinitialize
+      groups={groups}
       groupsClassName={classes.groups}
+      initialValues={values}
+      inputs={inputs}
+      isCollapsible
+      isLoading={isLoading}
+      submit={
+        submit as unknown as (
+          values: AgentConfigurationFormModel,
+          bag: FormikHelpers<AgentConfigurationFormModel>
+        ) => void
+      }
+      validationSchema={
+        validationSchema as unknown as Schema<AgentConfigurationFormModel>
+      }
     />
   );
 };

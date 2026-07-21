@@ -351,12 +351,21 @@ for ($i = 0; $service = $statement->fetch(PDO::FETCH_ASSOC); $i++) {
         $retry_units = 'sec';
     }
 
-    $elemArr[$i] = ['MenuClass' => 'list_' . ($service['nbr'] > 1 ? 'three' : $style), 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($service['hg_name']), 'RowMenu_link' => 'main.php?p=60102&o=c&hg_id=' . $service['hg_id'], 'RowMenu_link2' => 'main.php?p=' . $p . '&o=c&service_id=' . $service['service_id'], 'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr), 'RowMenu_sicon' => $svc_icon, 'RowMenu_retry' => CentreonUtils::escapeSecure("{$normal_check_interval} {$normal_units} / {$retry_check_interval} {$retry_units}"), 'RowMenu_attempts' => CentreonUtils::escapeSecure(
-        getMyServiceField(
-            $service['service_id'],
-            'service_max_check_attempts'
-        )
-    ), 'RowMenu_desc' => CentreonUtils::escapeSecure($service['service_description']), 'RowMenu_status' => $service['service_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $service['service_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions, 'isServiceSvgFile' => $isServiceSvgFile];
+    $elemArr[$i] = [
+        'MenuClass' => 'list_' . ($service['nbr'] > 1 ? 'three' : $style),
+        'RowMenu_select' => $selectedElements->toHtml(),
+        'RowMenu_name' => CentreonUtils::escapeSecure($service['hg_name']),
+        'RowMenu_link' => 'configuration/hosts/groups?mode=edit&id=' . $service['hg_id'],
+        'RowMenu_link2' => 'main.php?p=' . $p . '&o=c&service_id=' . $service['service_id'],
+        'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr), 'RowMenu_sicon' => $svc_icon,
+        'RowMenu_retry' => CentreonUtils::escapeSecure("{$normal_check_interval} {$normal_units} / {$retry_check_interval} {$retry_units}"),
+        'RowMenu_attempts' => CentreonUtils::escapeSecure(getMyServiceField($service['service_id'], 'service_max_check_attempts')),
+        'RowMenu_desc' => CentreonUtils::escapeSecure($service['service_description']),
+        'RowMenu_status' => $service['service_activate'] ? _('Enabled') : _('Disabled'),
+        'RowMenu_badge' => $service['service_activate'] ? 'service_ok' : 'service_critical',
+        'RowMenu_options' => $moptions,
+        'isServiceSvgFile' => $isServiceSvgFile,
+    ];
 
     $fgHostgroup['print'] ? null : $elemArr[$i]['RowMenu_name'] = null;
     $style = $style != 'two' ? 'two' : 'one';

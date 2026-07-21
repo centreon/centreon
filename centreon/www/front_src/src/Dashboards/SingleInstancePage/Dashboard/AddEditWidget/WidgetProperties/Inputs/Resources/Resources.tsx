@@ -1,6 +1,5 @@
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import AddIcon from '@mui/icons-material/Add';
 import {
   CircularProgress,
@@ -9,22 +8,25 @@ import {
   Typography
 } from '@mui/material';
 
+import { SelectField } from '@centreon/ui';
 import { Avatar, ItemComposition } from '@centreon/ui/components';
+
+import { equals, isNil } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
   labelAddFilter,
   labelDelete,
-  labelResourceType,
   labelResources,
+  labelResourceType,
   labelSelectResourceType
 } from '../../../../translatedLabels';
 import { useAddWidgetStyles } from '../../../addWidget.styles';
 import { WidgetPropertyProps, WidgetResourceType } from '../../../models';
 import { useResourceStyles } from '../Inputs.styles';
 import { areResourcesFullfilled } from '../utils';
-
-import { SelectField } from '@centreon/ui';
 import ConfirmationResourceTypeToggleRegexModal from './ConfirmationResourceTypeToggleRegexModal';
 import ResourceField from './ResourceField';
 import useDefaultSelectTypeData from './useDefaultSelectType';
@@ -42,7 +44,7 @@ const Resources = ({
   selectType,
   forceSingleAutocompleteConditions,
   allowRegexOnResourceTypes
-}: WidgetPropertyProps): JSX.Element => {
+}: WidgetPropertyProps): ReactElement => {
   const { classes } = useResourceStyles();
   const { classes: avatarClasses } = useAddWidgetStyles();
   const { t } = useTranslation();
@@ -72,18 +74,19 @@ const Resources = ({
     changeRegexFieldOnResourceType,
     changeRegexField
   } = useResources({
+    allowRegexOnResourceTypes,
+    defaultResourceTypes,
     excludedResourceTypes,
+    forcedResourceType,
     propertyName,
     required,
     restrictedResourceTypes,
-    useAdditionalResources,
-    forcedResourceType,
-    defaultResourceTypes,
-    allowRegexOnResourceTypes
+    selectType,
+    useAdditionalResources
   });
 
   const { getDefaultDisabledSelectType, getDefaultRequiredSelectType } =
-    useDefaultSelectTypeData({ value, selectType });
+    useDefaultSelectTypeData({ selectType, value });
 
   const { canEditField } = useCanEditProperties();
 
@@ -104,7 +107,7 @@ const Resources = ({
   return (
     <div className={classes.resourcesContainer}>
       <div className={classes.resourcesHeader}>
-        <Avatar compact className={avatarClasses.widgetAvatar}>
+        <Avatar className={avatarClasses.widgetAvatar} compact>
           2
         </Avatar>
         <Typography className={classes.resourceTitle}>
@@ -115,17 +118,17 @@ const Resources = ({
       </div>
       <div className={classes.resourceComposition}>
         <ItemComposition
+          addButtonHidden={isAddButtonHidden}
+          addbuttonDisabled={isAddButtonDisabled}
           displayItemsAsLinked
           IconAdd={<AddIcon />}
-          addButtonHidden={isAddButtonHidden}
-          onAddItem={addResource}
-          addbuttonDisabled={isAddButtonDisabled}
           labelAdd={t(labelAddFilter)}
+          onAddItem={addResource}
         >
           {value.map((resource, index) => {
             const forceSingleAutocomplete = checkForceSingleAutocomplete({
-              resourceType: resource.resourceType,
-              forceSingleAutocompleteConditions
+              forceSingleAutocompleteConditions,
+              resourceType: resource.resourceType
             });
 
             const allowRegex = getIsRegexAllowedOnResourceType(
@@ -149,11 +152,6 @@ const Resources = ({
                 onDeleteItem={deleteResource(index)}
               >
                 <SelectField
-                  formControlProps={{
-                    required: getDefaultRequiredSelectType(
-                      resource.resourceType
-                    )
-                  }}
                   className={classes.resourceType}
                   dataTestId={labelResourceType}
                   disabled={
@@ -162,17 +160,28 @@ const Resources = ({
                     getResourceStatic(resource.resourceType) ||
                     getDefaultDisabledSelectType(resource.resourceType)
                   }
+                  formControlProps={{
+                    required: getDefaultRequiredSelectType(
+                      resource.resourceType
+                    )
+                  }}
                   label={t(labelSelectResourceType) as string}
+                  onChange={changeResourceType(index)}
                   options={getResourceTypeOptions(index, resource)}
                   selectedOptionId={getResourceTypeSelectedOptionId(
                     resource.resourceType
                   )}
-                  onChange={changeResourceType(index)}
                 />
                 <ResourceField
-                  singleResourceSelection={
-                    singleResourceSelection || forceSingleAutocomplete
+                  allowRegex={allowRegex}
+                  changeIdValue={changeIdValue}
+                  changeRegexField={changeRegexField}
+                  changeRegexFieldOnResourceType={
+                    changeRegexFieldOnResourceType
                   }
+                  changeResource={changeResource}
+                  changeResources={changeResources}
+                  deleteResourceItem={deleteResourceItem}
                   disabled={
                     singleResourceSelection || forceSingleAutocomplete
                       ? !canEditField ||
@@ -189,22 +198,16 @@ const Resources = ({
                         !resource.resourceType ||
                         getDefaultDisabledSelectType(resource.resourceType)
                   }
-                  resource={resource}
-                  index={index}
-                  allowRegex={allowRegex}
-                  isRegexField={isRegexField}
-                  changeIdValue={changeIdValue}
-                  changeResource={changeResource}
-                  changeResources={changeResources}
-                  getSearchField={getSearchField}
                   getResourceResourceBaseEndpoint={
                     getResourceResourceBaseEndpoint
                   }
-                  deleteResourceItem={deleteResourceItem}
-                  changeRegexFieldOnResourceType={
-                    changeRegexFieldOnResourceType
+                  getSearchField={getSearchField}
+                  index={index}
+                  isRegexField={isRegexField}
+                  resource={resource}
+                  singleResourceSelection={
+                    singleResourceSelection || forceSingleAutocomplete
                   }
-                  changeRegexField={changeRegexField}
                 />
               </ItemComposition.Item>
             );

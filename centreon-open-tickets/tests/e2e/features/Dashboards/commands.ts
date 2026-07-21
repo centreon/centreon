@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
@@ -7,11 +7,11 @@ Cypress.Commands.add('visitDashboards', () => {
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
-  const dashboardsUrl = '/centreon/home/dashboards/library';
+  const dashboardsUrl = PAGES.monitoring.dashboardsLibrary;
   cy.url().then((url) =>
     url.includes(dashboardsUrl)
       ? cy.visit(dashboardsUrl)
-      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+      : cy.visit(PAGES.monitoring.dashboards)
   );
 
   cy.wait('@listAllDashboards');
@@ -33,9 +33,9 @@ Cypress.Commands.add(
           const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
             ?.body;
           if (iframeBody) {
-            const $element = Cypress.$(iframeBody).find(elementSelector);
+            const Element = Cypress.$(iframeBody).find(elementSelector);
 
-            return $element.length > 0 && $element.is(':visible');
+            return Element.length > 0 && Element.is(':visible');
           }
 
           return false;
@@ -142,7 +142,7 @@ Cypress.Commands.add('applyAcl', () => {
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       editDashboard: (name: string) => Cypress.Chainable;
@@ -168,5 +168,3 @@ declare global {
     }
   }
 }
-
-export {};

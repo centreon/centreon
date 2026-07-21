@@ -7,16 +7,18 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+    - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
-        node-version: 20
+        node-version: 24
 
-    - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+    - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       with:
-        version: 8
+        version: 10
 
     - name: Publish Cypress report
+      env:
+        REPORT_PATH: ${{ inputs.path }}
       run: |
-        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.mjs ${{ inputs.path }} > cypress-report.md
+        node ./.github/actions/publish-cypress-report/formatCypressReportToMarkdown.mjs "$REPORT_PATH" > cypress-report.md
         cat cypress-report.md >> $GITHUB_STEP_SUMMARY
       shell: bash

@@ -1,0 +1,30 @@
+meta {
+  name: GET /logout - Logout non-admin user - HTTP 200
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/logout
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+
+tests {
+  test("Logout successful. The displayed message is the one that is expected ('Successful logout').", function () {
+    bru.deleteEnvVar("authToken");
+    const body = res.getBody();
+    expect(res.status).to.equal(200);
+    expect(body.message).to.equal("Successful logout");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

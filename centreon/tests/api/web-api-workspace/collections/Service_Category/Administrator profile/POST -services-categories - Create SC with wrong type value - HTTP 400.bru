@@ -1,0 +1,35 @@
+meta {
+  name: POST /services/categories - Create SC with wrong type value - HTTP 400
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": true,
+    "alias": null,
+    "is_activated": "true"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service category has not been created, because there are values of the wrong type.", function () {
+    const body = res.getBody();
+    expect(body.message).to.be.a("string").and.include("[name]");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

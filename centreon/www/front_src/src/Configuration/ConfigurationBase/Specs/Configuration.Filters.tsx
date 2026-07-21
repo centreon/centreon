@@ -1,9 +1,6 @@
 import { filter, propEq } from 'ramda';
+
 import { ResourceType } from '../../models';
-
-import initialize from './initialize';
-import { filtersConfiguration } from './utils';
-
 import {
   labelAlias,
   labelClear,
@@ -12,6 +9,8 @@ import {
   labelName,
   labelSearch
 } from '../translatedLabels';
+import initialize from './initialize';
+import { filtersConfiguration } from './utils';
 
 export default (resourceType: ResourceType) => {
   describe('Filters', () => {
@@ -117,8 +116,8 @@ export default (resourceType: ResourceType) => {
       );
 
       initialize({
-        resourceType,
-        filters: onlyNameFilter
+        filters: onlyNameFilter,
+        resourceType
       });
 
       cy.waitForRequest('@getAll');

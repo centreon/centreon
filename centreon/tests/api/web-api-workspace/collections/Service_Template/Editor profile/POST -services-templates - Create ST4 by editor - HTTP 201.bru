@@ -1,0 +1,90 @@
+meta {
+  name: POST /services/templates - Create ST4 by editor - HTTP 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{ServiceTemplate4Name}}",
+    "alias": "{{ServiceTemplate4Alias}}",
+    "severity_id": {{ServiceSeverity1Id}},
+    "host_templates": [ {{HostTemplate1Id}}, {{HostTemplate2Id}} ],
+    "macros": [
+      {
+        "name": "Coca Cola",
+        "value": "Normal",
+        "is_password": false,
+        "description": "Mieux que Pepsi"
+      },
+      {
+        "name": "Guacamole",
+        "value": "Nachos",
+        "is_password": true,
+        "description": "Miam"
+      }
+    ],
+    "service_categories": [ {{ServiceCategory1Id}} ],
+    "service_groups": [
+      {
+        "service_group_id": {{ServiceGroup1Id}},
+        "host_template_id": {{HostTemplate2Id}}
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The service template ST4 has been successfully created by editor.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("ServiceTemplate4Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("ServiceTemplate4Name"),
+      "alias": bru.getEnvVar("ServiceTemplate4Alias"),
+      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "is_locked": false
+    });
+    expect(body.host_templates).to.include.members([
+      parseInt(bru.getEnvVar("HostTemplate1Id")),
+      parseInt(bru.getEnvVar("HostTemplate2Id"))
+    ]);
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "host_template_id": parseInt(bru.getEnvVar("HostTemplate2Id"))
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    const macroCocaCola = body.macros.find(m => m.name === "COCA COLA");
+    expect(macroCocaCola).to.include({
+      "name": "COCA COLA",
+      "value": "Normal",
+      "is_password": false,
+      "description": "Mieux que Pepsi"
+    });
+    const macroGuacamole = body.macros.find(m => m.name === "GUACAMOLE");
+    expect(macroGuacamole).to.include({
+      "name": "GUACAMOLE",
+      "value": null,
+      "is_password": true,
+      "description": "Miam"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

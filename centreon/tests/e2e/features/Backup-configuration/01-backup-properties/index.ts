@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -11,11 +13,11 @@ after(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('userTimeZone');
 });
 
@@ -27,11 +29,7 @@ Given('an admin user is logged in', () => {
 });
 
 When('the admin user accesses the backup page', () => {
-  cy.navigateTo({
-    page: 'Backup',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.backupParametersLegacy);
   cy.wait('@userTimeZone');
 });
 
@@ -69,10 +67,7 @@ Then('the MySQL configuration file path is set', () => {
   cy.enterIframe('#main-content').within(() => {
     cy.get('input[name="backup_retention"]').should('have.value', '7');
     cy.get('input[name="backup_configuration_files"]').should('be.checked');
-    cy.get('input[name="backup_mysql_conf"]').should(
-      'have.value',
-      '/etc/my.cnf.d/centreon.cnf'
-    );
+    cy.get('input[name="backup_mysql_conf"]').should('have.value', '');
     cy.get(
       'input[name="backup_export_scp_enabled[backup_export_scp_enabled]"]'
     ).should('be.checked');

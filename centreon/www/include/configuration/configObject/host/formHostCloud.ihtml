@@ -129,7 +129,7 @@
 					{$form.command_command_id.html}
 					{if $o == "a" || $o == "c"}
 					<span style="cursor:help; margin-left: 4px;">
-						<img src='./img/icons/info.png' class='ico-14' style='vertical-align:middle;' onclick="window.open('main.php?p=60801&command_id='+ document.Form.elements['command_command_id'].options[document.Form.elements['command_command_id'].selectedIndex].value + '&o=w&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=200');">
+						<img src='./img/icons/info.png' class='ico-14' style='vertical-align:middle;' onclick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id'].options[document.Form.elements['command_command_id'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=200');">
 					</span>
 					{/if}
 				</td>
@@ -196,6 +196,16 @@
 					<td class="FormRowField"><img class="helpTooltip" name="hostcategories"> {$form.host_hcs.label}</td>
 					<td class="FormRowValue">{$form.host_hcs.html} </td>
 				</tr>
+				<!-- PARENT HOSTS RELATIONS -->
+				<tr class="list_one">
+					<td class="FormRowField"><img class="helpTooltip" name="parents"> {$form.host_parents.label}</td>
+					<td class="FormRowValue">{$form.host_parents.html} </td>
+				</tr>
+				<!-- CHILD HOSTS RELATIONS -->
+				<tr class="list_two">
+					<td class="FormRowField"><img class="helpTooltip" name="child_hosts"> {$form.host_childs.label}</td>
+					<td class="FormRowValue">{$form.host_childs.html} </td>
+				</tr>
 			{else}
 				<!-- HOST CATEGORIE RELATIONS -->
 				{if $o == "mc"}
@@ -223,7 +233,7 @@
                 <td class="FormRowValue">
                     {$form.command_command_id2.html}
                     {if $o == "a" || $o == "c"}
-                        &nbsp;<img class="ico-14" src='./img/icons/info.png' style='cursor:help;vertical-align:middle;' onclick="window.open('main.php?p=60801&command_id='+ document.Form.elements['command_command_id2'].options[document.Form.elements['command_command_id2'].selectedIndex].value + '&o=w&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=1000, height=200');">
+                        &nbsp;<img class="ico-14" src='./img/icons/info.png' style='cursor:help;vertical-align:middle;' onclick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id2'].options[document.Form.elements['command_command_id2'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=1000, height=200');">
                     {/if}
                 </td>
             </tr>
@@ -572,6 +582,9 @@ function clonerefreshListener(el){
                         if (jQuery(elem).find("input[id^='macroPassword_']").is(':checked')) {
                         	jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
                             jQuery(elem).find("input[id^='macroPassword_']").closest('span').hide();
+							jQuery(elem).find("input[id^='macroValue_']").val('**********');
+							jQuery(elem).find("input[id^='macroOldValue_']").val('**********');
+							jQuery(elem).find("input[id^='macroTplValue_']").val('**********');
                     	}
                     });
                 },

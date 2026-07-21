@@ -1,5 +1,4 @@
 import { adaptPasswordSecurityPolicyToAPI } from '../api/adapters';
-
 import {
   PasswordSecurityPolicyFromAPI,
   PasswordSecurityPolicyToAPI

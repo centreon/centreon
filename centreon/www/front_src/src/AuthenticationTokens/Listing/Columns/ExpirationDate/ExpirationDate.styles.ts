@@ -8,13 +8,13 @@ interface StyleProps {
 const useStyles = makeStyles<StyleProps>()(
   (theme, { isHovered, isExpired }) => ({
     container: {
-      paddingLeft: theme.spacing(0.5),
       color: isExpired
         ? theme.palette.error.main
         : isHovered
           ? theme.palette.text.primary
           : theme.palette.text.secondary,
-      fontSize: theme.typography.body2.fontSize
+      fontSize: theme.typography.body2.fontSize,
+      paddingLeft: theme.spacing(0.5)
     }
   })
 );

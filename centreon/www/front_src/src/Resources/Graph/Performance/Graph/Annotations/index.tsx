@@ -1,7 +1,6 @@
 import { ScaleTime } from 'd3-scale';
 
 import { TimelineEvent } from '../../../../Details/tabs/Timeline/models';
-
 import DowntimeAnnotations from './Area/Downtime';
 import AcknowledgementAnnotations from './Line/Acknowledgement';
 import CommentAnnotations from './Line/Comments';

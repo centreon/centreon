@@ -46,9 +46,11 @@ function submitForm() {
     jQuery(".loadingWrapper").css('display', 'block');
     var formData = new FormData();
     var importFiles = jQuery('#file')[0].files;
+    var csrfToken = jQuery('#centreon_token').val();
     var messageWrapper = jQuery(".msg-wrapper");
     messageWrapper.hide();
-    formData.append('clapiImport', importFiles[0])
+    formData.append('clapiImport', importFiles[0]);
+    formData.append('centreon_token', csrfToken);
     formData.append('action', 'ajax_file_import');
     jQuery.ajax({
         type: "POST",

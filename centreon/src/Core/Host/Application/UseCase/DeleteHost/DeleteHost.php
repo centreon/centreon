@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -62,6 +63,7 @@ final class DeleteHost
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
@@ -112,11 +114,12 @@ final class DeleteHost
         $this->debug('Start transaction');
 
         $this->storageEngine->startTransaction();
-        $isVaultActive = $this->writeVaultRepository->isVaultConfigured();
+        $isVaultActive = $this->vaultEligibilityService->shouldUseVault();
         try {
-            $serviceIds = $this->readServiceRepository->findServiceIdsLinkedToHostId($host->getId());
+            // Only delete services that are exclusively linked to this host
+            $serviceIds = $this->readServiceRepository->findServiceIdsExclusivelyLinkedToHostId($host->getId());
             if ($serviceIds !== []) {
-                $this->info('Services to delete', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
+                $this->info('Services to delete (exclusively linked to this host)', ['user_id' => $this->contact->getId(), 'services' => $serviceIds]);
                 if ($isVaultActive) {
                     $serviceUuids = $this->retrieveServiceUuidsFromVault($serviceIds);
                     $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);

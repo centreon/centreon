@@ -1,0 +1,98 @@
+meta {
+  name: POST /services - Create service 1 with all properties - HTTP 201
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{Service1Name}}",
+    "host_id": {{Host1Id}},
+    "service_template_id": {{ServiceTemplate1Id}},
+    "check_timeperiod_id": 1,
+    "max_check_attempts": 7,
+    "normal_check_interval": 2,
+    "retry_check_interval": 1,
+    "note": "Bloubloublou",
+    "note_url": "Hakuna Matata",
+    "action_url": "Chachacha",
+    "icon_id": 1,
+    "severity_id": {{ServiceSeverity1Id}},
+    "geo_coords": "12.34,23.5",
+    "service_categories": [ {{ServiceCategory1Id}} ],
+    "macros": [
+      {
+        "name": "MACROA",
+        "value": "A",
+        "is_password": false,
+        "description": null
+      },
+      {
+        "name": "MACROB",
+        "value": "B",
+        "is_password": false,
+        "description": null
+      }
+    ],
+    "service_groups": [ {{ServiceGroup1Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Service 1 has been successfully created with all properties.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("Service1Id", body.id);
+    expect(body).to.include({
+      "name": bru.getEnvVar("Service1Name"),
+      "host_id": parseInt(bru.getEnvVar("Host1Id")),
+      "service_template_id": parseInt(bru.getEnvVar("ServiceTemplate1Id")),
+      "check_timeperiod_id": 1,
+      "max_check_attempts": 7,
+      "normal_check_interval": 2,
+      "retry_check_interval": 1,
+      "note": "Bloubloublou",
+      "note_url": "Hakuna Matata",
+      "action_url": "Chachacha",
+      "icon_id": 1,
+      "severity_id": parseInt(bru.getEnvVar("ServiceSeverity1Id")),
+      "geo_coords": "12.34,23.5"
+    });
+    const macroA = body.macros.find(m => m.name === "MACROA");
+    expect(macroA).to.include({
+      "name": "MACROA",
+      "value": "A",
+      "is_password": false,
+      "description": ""
+    });
+    const macroB = body.macros.find(m => m.name === "MACROB");
+    expect(macroB).to.include({
+      "name": "MACROB",
+      "value": "B",
+      "is_password": false,
+      "description": ""
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceCategory1Id")),
+      "name": bru.getEnvVar("ServiceCategory1Name")
+    });
+    expect(body.groups[0]).to.include({
+      "id": parseInt(bru.getEnvVar("ServiceGroup1Id")),
+      "name": bru.getEnvVar("ServiceGroup1Name")
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

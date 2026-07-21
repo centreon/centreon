@@ -1,0 +1,7 @@
+# Use bash for recipes (and on Windows, where just defaults to sh which may be absent).
+set windows-shell := ["bash", "-c"]
+
+# Assemble install.sh from lib/ and src/. The Centreon major version is read
+# from the repo .version by build.sh itself.
+build:
+    bash build.sh

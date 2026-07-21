@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -7,11 +9,11 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
 });
 
@@ -27,11 +29,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 When('the user visits the database informations page', () => {
-  cy.navigateTo({
-    page: 'Databases',
-    rootItemNumber: 4,
-    subMenu: 'Platform Status'
-  });
+  cy.visit(PAGES.configuration.databasesPlatformStatusLegacy);
   cy.wait('@getTimeZone');
 });
 

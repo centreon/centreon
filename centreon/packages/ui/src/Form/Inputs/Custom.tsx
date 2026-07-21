@@ -1,6 +1,6 @@
 import { isNil } from 'ramda';
 
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const Custom = ({
   custom,

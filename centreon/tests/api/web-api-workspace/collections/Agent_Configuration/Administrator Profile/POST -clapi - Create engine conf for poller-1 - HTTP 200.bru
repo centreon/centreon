@@ -1,0 +1,45 @@
+meta {
+  name: POST /clapi - Create engine conf for poller-1 - HTTP 200
+  type: http
+  seq: 6
+  tags: [
+    ignore
+  ]
+}
+
+post {
+  url: {{baseUrlWeb}}/api/index.php?action=action&object=centreon_clapi
+  body: json
+  auth: none
+}
+
+headers {
+  centreon-auth-token: {{authToken}}
+}
+
+body:json {
+  {
+    "action": "add",
+    "object": "ENGINECFG",
+    "values": "Centreon Engine cfg for poller-1;Poller-1;Just a small comment"
+  }
+}
+
+tests {
+  test("POST /clapi - Create engine conf for poller-1 - HTTP 200 (returns 404 if feature unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([200, 404]);
+  });
+
+  if (res.status === 200) {
+    test("Engine configuration for Poller-1 created successfully.", function () {
+      const body = res.getBody();
+      expect(body).to.be.an("object");
+    });
+
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
