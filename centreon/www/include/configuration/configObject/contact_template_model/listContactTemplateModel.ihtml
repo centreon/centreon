@@ -2,9 +2,7 @@
 
 {literal}
 <script type="text/javascript">
-if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
-    try { window.parent.cfClosePanel(); } catch(e) {}
-}
+CentreonForm.detectSidePanelClose();
 </script>
 {/literal}
 
@@ -79,17 +77,6 @@ if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
 {literal}
 <script type="text/javascript">
 
-// Escape a value for safe embedding inside an HTML attribute (l.escape covers
-// text nodes only and leaves quotes intact)
-function clAttrEscape(value) {
-    return String(value == null ? '' : value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
 var ctListing = new CentreonListing({
     instanceName:  'ctListing',
     ajaxListUrl:   './include/configuration/configObject/contact_template_model/ajaxContactTemplateListing.php',
@@ -106,12 +93,12 @@ var ctListing = new CentreonListing({
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
             var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" data-panel-url="'+clAttrEscape(editUrl)+'" data-panel-title="'+clAttrEscape(title)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(title)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
             var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" data-panel-url="'+clAttrEscape(editUrl)+'" data-panel-title="'+clAttrEscape(title)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(title)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'host_notif_tp', align:'center', render: function(row, l) { return row.host_notif_tp ? l.escape(row.host_notif_tp) : '-'; }},
         { id:'svc_notif_tp', align:'center', render: function(row, l) { return row.svc_notif_tp ? l.escape(row.svc_notif_tp) : '-'; }}
