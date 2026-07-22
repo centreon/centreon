@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <xsl:template match='/'>
-<xsl:for-each select='//root'>          
+<xsl:for-each select='//root'>
+    <xsl:if test='//nbArg != 0'>
     	<xsl:element name='table'>
 	    <xsl:attribute name='class'>ListTableSmallArg</xsl:attribute>
             <xsl:element name='tbody'>
@@ -10,15 +11,8 @@
 	            	<td><xsl:value-of select='//main/argValue'/></td>
 	            	<td><xsl:value-of select='//main/argExample'/></td>
 	            </tr>
-	            <xsl:if test='//nbArg = 0'>
-	            	<tr>
-	            		<td colspan='3'>
-	            			<xsl:value-of select='//main/noArgLabel'/>
-	            		</td>
-	            	</tr>
-	            </xsl:if>
 	            <xsl:for-each select='//arg'>
-	            	<xsl:element name='tr'>                                
+	            	<xsl:element name='tr'>
 	                	<xsl:attribute name='class'><xsl:value-of select='style'/></xsl:attribute>
 	                    <xsl:element name='td'><xsl:value-of select='description'/></xsl:element>
 	                    <xsl:element name='td'>
@@ -35,7 +29,8 @@
 	                </xsl:element>
 	            </xsl:for-each>
 			</xsl:element>
-		</xsl:element>            
+		</xsl:element>
+    </xsl:if>
 </xsl:for-each>
 </xsl:template>
 </xsl:stylesheet>

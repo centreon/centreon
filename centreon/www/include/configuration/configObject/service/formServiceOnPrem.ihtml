@@ -17,15 +17,16 @@
     <h1 class="cf-page-title">{$form.header.title}</h1>
 
     <div class="cf-tab-nav">
-        <a href="#cf-sec-basic" class="active" onclick="cfScrollTo('cf-sec-basic', this); return false;">{t}General Information{/t}</a>
+        <a href="#cf-sec-basic" class="active" onclick="cfScrollTo('cf-sec-basic', this); return false;">{t}General{/t}</a>
+        <a href="#cf-sec-checks" onclick="cfScrollTo('cf-sec-checks', this); return false;">{t}Checks{/t}</a>
         <a href="#cf-sec-notif" onclick="cfScrollTo('cf-sec-notif', this); return false;">{t}Notifications{/t}</a>
         <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{t}Relations{/t}</a>
         <a href="#cf-sec-data" onclick="cfScrollTo('cf-sec-data', this); return false;">{t}Data Processing{/t}</a>
-        <a href="#cf-sec-extended" onclick="cfScrollTo('cf-sec-extended', this); return false;">{t}Extended Info{/t}</a>
+        <a href="#cf-sec-extended" onclick="cfScrollTo('cf-sec-extended', this); return false;">{t}Misc{/t}</a>
     </div>
 
     <!-- ================================================================ -->
-    <!-- Section 1: General Information (was tab1)                         -->
+    <!-- Section 1: General (was tab1)                                     -->
     <!-- ================================================================ -->
     <div class="cf-section" id="cf-sec-basic">
         <div class="cf-section-header" onclick="cfToggleSection(this)">
@@ -42,10 +43,37 @@
                 </div>
                 {/if}
                 {if $o != "mc"}
-                <div class="cf-field">
+                <div class="cf-field" style="flex:0 0 35%;max-width:35%;">
                     {$form.service_description.html}
                     <label class="cf-label-float">{$form.service_description.label}</label>
                     <img class="helpTooltip" name="service_description">
+                </div>
+                {/if}
+                {if !$msg.tpl}
+                    {if $service_type == "BYHOST"}
+                    <div class="cf-field" style="flex:0 0 40%;max-width:40%;">
+                        <p class="oreonbutton">{$form.service_hPars.html}</p>
+                        <label class="cf-label-float">{$form.service_hPars.label}</label>
+                        <img class="helpTooltip" name="host_name">
+                    </div>
+                    {/if}
+                    {if $service_type == "BYHOSTGROUP"}
+                    <div class="cf-field" style="flex:0 0 40%;max-width:40%;">
+                        <p class="oreonbutton">{$form.service_hgPars.html}</p>
+                        <label class="cf-label-float">{$form.service_hgPars.label}</label>
+                        <img class="helpTooltip" name="hostgroup_name">
+                    </div>
+                    {/if}
+                {/if}
+                {if !isset($isServiceTemplate)}
+                <div class="cf-toggle-row" style="flex:0 0 15%;white-space:nowrap;">
+                    <span>{t}Status{/t}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-service-activate-toggle" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.service_activate.html}</span>
+                    <img class="helpTooltip" name="service_activate">
                 </div>
                 {/if}
             </div>
@@ -59,27 +87,21 @@
                     </div>
                 </div>
                 {/if}
-                {if $service_type == "BYHOST"}
-                <div class="cf-row">
-                    <div class="cf-field">
-                        <p class="oreonbutton">{$form.service_hPars.html}</p>
-                        <label class="cf-label-float">{$form.service_hPars.label}</label>
-                        <img class="helpTooltip" name="host_name">
-                    </div>
-                </div>
-                {/if}
-                {if $service_type == "BYHOSTGROUP"}
-                <div class="cf-row">
-                    <div class="cf-field">
-                        <p class="oreonbutton">{$form.service_hgPars.html}</p>
-                        <label class="cf-label-float">{$form.service_hgPars.label}</label>
-                        <img class="helpTooltip" name="hostgroup_name">
-                    </div>
-                </div>
-                {/if}
             {/if}
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 1b: Checks (template, macros, check command, scheduling) -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-checks">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Checks{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
             <div class="cf-row">
-                <div class="cf-field">
+                <div class="cf-field" style="max-width:70%;">
                     {$form.service_template_model_stm_id.html}
                     {if $o == "a" || $o == "c"}
                         &nbsp;<img src='./img/icons/show_template.png' title="Show template" class="ico-16"style='cursor:pointer;vertical-align:middle;' onClick="window.open('main.php?p=60206&service_id='+ document.Form.elements['service_template_model_stm_id'].options[document.Form.elements['service_template_model_stm_id'].selectedIndex].value + '&o=w&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=800, height=600');">
@@ -90,9 +112,14 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Service Check Options{/t}</div>
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Macros{/t}</div>
             <div class="cf-row">
-                <div class="cf-field">
+                {include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
+            </div>
+
+            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Check Command{/t}</div>
+            <div class="cf-row">
+                <div class="cf-field" style="max-width:70%;">
                     {$form.command_command_id.html}
                     {if $o == "a" || $o == "c"}
                     &nbsp;<img class='ico-14' src='./img/icons/info.png' style='cursor:help;vertical-align:middle;' onClick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id'].options[document.Form.elements['command_command_id'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=1000, height=200');">
@@ -100,17 +127,6 @@
                     <label class="cf-label-float">{$form.command_command_id.label}</label>
                     <img class="helpTooltip" name="check_command">
                 </div>
-            </div>
-            <div class="cf-row">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                    <img class="helpTooltip" name="macro">
-                    <span style="font-size:13px;font-weight:600;color:var(--list-color,#333);">{$custom_macro_label}</span>
-                    <div class="macro_legend">
-                        <p><span class="state_badge" style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}</p>
-                        <p><span class="state_badge" style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}</p>
-                    </div>
-                </div>
-                {include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
             </div>
             {if $o == "a" || $o == "c" || $o == "w" || $o == "mc"}
             <div class="cf-row">
@@ -135,16 +151,11 @@
             {/if}
 
             <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Service Scheduling Options{/t}</div>
-            <div class="cf-row-inline">
-                <div class="cf-field">
+            <div class="cf-row">
+                <div class="cf-field" style="max-width:260px;">
                     {$form.timeperiod_tp_id.html}
                     <label class="cf-label-float">{$form.timeperiod_tp_id.label}</label>
                     <img class="helpTooltip" name="check_period">
-                </div>
-                <div class="cf-field" style="max-width:180px;">
-                    {$form.service_max_check_attempts.html}
-                    <label class="cf-label-float">{$form.service_max_check_attempts.label}</label>
-                    <img class="helpTooltip" name="max_check_attempts">
                 </div>
             </div>
             <div class="cf-row-inline">
@@ -158,18 +169,27 @@
                     <label class="cf-label-float">{$form.service_retry_check_interval.label}</label>
                     <img class="helpTooltip" name="retry_interval">
                 </div>
+                <div class="cf-field" style="max-width:180px;">
+                    {$form.service_max_check_attempts.html}
+                    <label class="cf-label-float">{$form.service_max_check_attempts.label}</label>
+                    <img class="helpTooltip" name="max_check_attempts">
+                </div>
             </div>
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_active_checks_enabled.html}
                     <label class="cf-label-float">{$form.service_active_checks_enabled.label}</label>
                     <img class="helpTooltip" name="active_checks_enabled">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_passive_checks_enabled.html}
                     <label class="cf-label-float">{$form.service_passive_checks_enabled.label}</label>
                     <img class="helpTooltip" name="passive_checks_enabled">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_is_volatile.html}
                     <label class="cf-label-float">{$form.service_is_volatile.label}</label>
@@ -188,24 +208,26 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div class="cf-row">
+            <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_notifications_enabled.html}
                     <label class="cf-label-float">{$form.service_notifications_enabled.label}</label>
                     <img class="helpTooltip" name="notifications_enabled">
                 </div>
-            </div>
-
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Notification receivers{/t}</div>
-            {if !isset($isServiceTemplate)}
-            <div class="cf-row">
-                <div class="cf-toggle-row">
+                {if !isset($isServiceTemplate)}
+                <div class="cf-toggle-row" style="flex:0 0 auto;white-space:nowrap;">
                     <span>{$form.service_use_only_contacts_from_host.label}</span>
-                    <span>{$form.service_use_only_contacts_from_host.html}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-use-only-contacts-toggle" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.service_use_only_contacts_from_host.html}</span>
                     <img class="helpTooltip" name="use_only_contacts_from_host">
                 </div>
+                {/if}
             </div>
-            {/if}
+
+            <div id="cf-notif-receivers-sep" style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Notification receivers{/t}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -225,16 +247,16 @@
                     </div>
                 </div>
                 {/if}
-                <div class="cf-row">
-                    <div class="cf-field">
+                <div class="cf-row cf-notif-receiver-row">
+                    <div class="cf-field" style="max-width:50%;">
                         {$form.service_cs.html}
                         <label class="cf-label-float">{$form.service_cs.label}</label>
                         <img class="helpTooltip" name="contact_groups">
                     </div>
                 </div>
             {else}
-                <div class="cf-row">
-                    <div class="cf-field">
+                <div class="cf-row cf-notif-receiver-row">
+                    <div class="cf-field" style="max-width:50%;">
                         {$form.service_cs.html}
                         <label class="cf-label-float">{$form.service_cs.label}</label>
                         <img class="helpTooltip" name="contacts">
@@ -259,16 +281,16 @@
                     </div>
                 </div>
                 {/if}
-                <div class="cf-row">
-                    <div class="cf-field">
+                <div class="cf-row cf-notif-receiver-row">
+                    <div class="cf-field" style="max-width:50%;">
                         {$form.service_cgs.html}
                         <label class="cf-label-float">{$form.service_cgs.label}</label>
                         <img class="helpTooltip" name="contact_groups">
                     </div>
                 </div>
             {else}
-                <div class="cf-row">
-                    <div class="cf-field">
+                <div class="cf-row cf-notif-receiver-row">
+                    <div class="cf-field" style="max-width:50%;">
                         {$form.service_cgs.html}
                         <label class="cf-label-float">{$form.service_cgs.label}</label>
                         <img class="helpTooltip" name="contact_groups">
@@ -294,13 +316,6 @@
                 </div>
             </div>
             {/if}
-            <div class="cf-row">
-                <div class="cf-field" style="max-width:260px;">
-                    {$form.service_notification_interval.html}&nbsp;{$time_unit}
-                    <label class="cf-label-float">{$form.service_notification_interval.label}</label>
-                    <img class="helpTooltip" name="notification_interval">
-                </div>
-            </div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -310,11 +325,16 @@
                 </div>
             </div>
             {/if}
-            <div class="cf-row">
-                <div class="cf-field">
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:60%;">
                     {$form.timeperiod_tp_id2.html}
                     <label class="cf-label-float">{$form.timeperiod_tp_id2.label}</label>
                     <img class="helpTooltip" name="notification_period">
+                </div>
+                <div class="cf-field" style="max-width:40%;">
+                    {$form.service_notification_interval.html}&nbsp;{$time_unit}
+                    <label class="cf-label-float">{$form.service_notification_interval.label}</label>
+                    <img class="helpTooltip" name="notification_interval">
                 </div>
             </div>
             {if $o == "mc"}
@@ -342,15 +362,13 @@
                 </div>
             </div>
             {/if}
-            <div class="cf-row">
-                <div class="cf-field" style="max-width:260px;">
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:40%;">
                     {$form.service_first_notification_delay.html}&nbsp;{$time_unit}
                     <label class="cf-label-float">{$form.service_first_notification_delay.label}</label>
                     <img class="helpTooltip" name="first_notification_delay">
                 </div>
-            </div>
-            <div class="cf-row">
-                <div class="cf-field" style="max-width:260px;">
+                <div class="cf-field" style="max-width:40%;">
                     {$form.service_recovery_notification_delay.html}&nbsp;{$time_unit}
                     <label class="cf-label-float">{$form.service_recovery_notification_delay.label}</label>
                     <img class="helpTooltip" name="recovery_notification_delay">
@@ -420,7 +438,7 @@
             </div>
             {/if}
             <div class="cf-row">
-                <div class="cf-field">
+                <div class="cf-field" style="max-width:50%;">
                     <p class="oreonbutton">
                         {if isset($form.mnftr)}
                             {$form.mnftr.html}
@@ -573,21 +591,21 @@
             </div>
 
             <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.nagios}</div>
-            <div class="cf-row">
-                <div class="cf-field">
+            <div class="cf-row-inline">
+                {if $msg.nagios >= 2}
+                <div class="cf-field" style="max-width:50%;">
+                    {$form.esi_notes.html}
+                    <label class="cf-label-float">{$form.esi_notes.label}</label>
+                    <img class="helpTooltip" name="notes">
+                </div>
+                {/if}
+                <div class="cf-field" style="max-width:50%;">
                     {$form.esi_notes_url.html}
                     <label class="cf-label-float">{$form.esi_notes_url.label}</label>
                     <img class="helpTooltip" name="notes_url">
                 </div>
             </div>
             {if $msg.nagios >= 2}
-            <div class="cf-row">
-                <div class="cf-field">
-                    {$form.esi_notes.html}
-                    <label class="cf-label-float">{$form.esi_notes.label}</label>
-                    <img class="helpTooltip" name="notes">
-                </div>
-            </div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.esi_action_url.html}
@@ -620,23 +638,25 @@
                     <label class="cf-label-float">{$form.geo_coords.label}</label>
                     <img class="helpTooltip" name="geo_coords">
                 </div>
+                <div class="cf-field" style="flex:0 0 auto;">
+                    <span id="svcGeoPickerBtn" class="cf-geo-picker-btn" title="{t}Find coordinates by address{/t}">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-7.6 8-13a8 8 0 1 0-16 0c0 5.4 8 13 8 13z"/><circle cx="12" cy="9" r="3"/></svg>
+                    </span>
+                </div>
+                <div id="geoPickerPopin" style="display:none;">
+                    <div style="padding:20px;min-width:420px;max-width:480px;">
+                        <h3 style="margin:0 0 14px;font-size:15px;font-weight:600;color:var(--list-color,#333);">{t}Find coordinates by address{/t}</h3>
+                        <div class="cf-field" style="position:relative;margin:0;">
+                            <input type="text" id="svcGeoAddress" autocomplete="off" placeholder=" " />
+                            <label>&#128205; {t}Address{/t}</label>
+                            <div id="svcGeoResults" class="cf-geo-dropdown"></div>
+                        </div>
+                    </div>
+                </div>
                 {/if}
             </div>
 
             <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherInfos}</div>
-            <div class="cf-row-inline">
-                {if !isset($isServiceTemplate)}
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
-                    <span>{$form.service_activate.label}</span>
-                    <label class="cl-toggle">
-                        <input type="checkbox" id="cf-service-activate-toggle" />
-                        <span class="cl-toggle-slider"></span>
-                    </label>
-                    <span style="display:none;">{$form.service_activate.html}</span>
-                    <img class="helpTooltip" name="service_activate">
-                </div>
-                {/if}
-            </div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_comment.html}
@@ -758,12 +778,16 @@ jQuery(function() {
                 var tplValue = tplValueField.val();
 
                 // Reset macro value on click on undo button
-                tplValueField.after(jQuery('<img/>',{src : './img/icons/undo.png', class : 'ico-14', style : 'vertical-align : middle;'}).on('click',function() {
-                    jQuery(elem).find("input[name^='macroValue']").val(tplValue);
-                    jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
-                    jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                    jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                }));
+                jQuery(elem).find('.cf-macro-reset-slot')
+                    .removeClass('cf-macro-action-slot')
+                    .attr('title', '{t}Reset to template value{/t}')
+                    .html('<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/></svg>')
+                    .on('click',function() {
+                        jQuery(elem).find("input[name^='macroValue']").val(tplValue);
+                        jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
+                        jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                        jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                    });
             }
         }
         {/literal}{/if}{literal}
@@ -816,7 +840,8 @@ jQuery(function() {
         }
     );
 
-    function bindInhertance() {
+    function bindInhertance(animate) {
+        var duration = animate ? 200 : 0;
         if (jQuery("input[name='service_use_only_contacts_from_host[service_use_only_contacts_from_host]']:checked").val() == "1") {
             jQuery("input[name='contact_additive_inheritance']").attr('disabled', 'disabled');
             jQuery("input[name='cg_additive_inheritance']").attr('disabled', 'disabled');
@@ -825,8 +850,14 @@ jQuery(function() {
             jQuery("#service_cgs").attr('disabled', 'disabled');
             jQuery("#service_cgs").select2("val", "");
 
+            jQuery("#cf-notif-receivers-sep").slideUp(duration);
+            jQuery(".cf-notif-receiver-row").slideUp(duration);
+
             return;
         }
+
+        jQuery("#cf-notif-receivers-sep").slideDown(duration);
+        jQuery(".cf-notif-receiver-row").slideDown(duration);
 
         {/literal}{if $form.frozen == false}{literal}
         jQuery("input[name='contact_additive_inheritance']").removeAttr('disabled');
@@ -836,9 +867,12 @@ jQuery(function() {
         {/literal}{/if}{literal}
     }
 
-    bindInhertance();
+    bindInhertance(false);
     jQuery("input[name='service_use_only_contacts_from_host[service_use_only_contacts_from_host]']").on('click',function() {
-        bindInhertance();
+        bindInhertance(true);
+    });
+    jQuery('#cf-use-only-contacts-toggle').on('change',function() {
+        bindInhertance(true);
     });
 
 
@@ -898,13 +932,17 @@ jQuery(function() {
                         var tplInput = tplInputField.val();
 
                         // Reset macro value on click on undo button
-                        tplValueField.after(jQuery('<img/>',{src : './img/icons/undo.png', class : 'ico-14', style : 'vertical-align : middle;'}).on('click',function() {
-                            jQuery(elem).find("input[name^='macroValue']").val(tplValue);
-                            jQuery(elem).find("input[name^='macroInput']").val(tplInput);
-                            jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
-                            jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                            jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                        }));
+                        jQuery(elem).find('.cf-macro-reset-slot')
+                            .removeClass('cf-macro-action-slot')
+                            .attr('title', '{t}Reset to template value{/t}')
+                            .html('<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/></svg>')
+                            .on('click',function() {
+                                jQuery(elem).find("input[name^='macroValue']").val(tplValue);
+                                jQuery(elem).find("input[name^='macroInput']").val(tplInput);
+                                jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
+                                jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                                jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                            });
                     }
                 }
                 {/literal}{/if}{literal}
@@ -955,7 +993,58 @@ jQuery(function() {
     CentreonForm.initFormPage({ macros: true });
     {/literal}{if !isset($isServiceTemplate)}{literal}
     CentreonForm.syncToggle('cf-service-activate-toggle', 'service_activate', '1', '0');
+    CentreonForm.syncToggle('cf-use-only-contacts-toggle', 'service_use_only_contacts_from_host', '1', '0');
     {/literal}{/if}{literal}
+
+    // Geo coordinates picker — same address autocomplete as the Host form,
+    // but tucked away in a popin so it doesn't clutter the Service form.
+    (function() {
+        var pickerBtn = document.getElementById('svcGeoPickerBtn');
+        var geoInput = document.getElementById('svcGeoAddress');
+        var geoResults = document.getElementById('svcGeoResults');
+        if (!pickerBtn || !geoInput || !geoResults) return;
+
+        pickerBtn.addEventListener('click', function() {
+            jQuery('#geoPickerPopin').centreonPopin('open');
+        });
+
+        var timer = null;
+        geoInput.addEventListener('input', function() {
+            clearTimeout(timer);
+            var q = this.value.trim();
+            if (q.length < 3) { geoResults.style.display = 'none'; return; }
+            timer = setTimeout(function() {
+                fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&q=' + encodeURIComponent(q))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data || data.length === 0) { geoResults.style.display = 'none'; return; }
+                    var html = '';
+                    data.forEach(function(item) {
+                        html += '<div class="cf-geo-item" data-coords="' + item.lat + ',' + item.lon + '">'
+                            + '<span class="cf-geo-item-name">' + item.display_name + '</span>'
+                            + '<span class="cf-geo-item-coords">' + item.lat + ', ' + item.lon + '</span></div>';
+                    });
+                    geoResults.innerHTML = html;
+                    geoResults.style.display = 'block';
+                }).catch(function() { geoResults.style.display = 'none'; });
+            }, 400);
+        });
+        geoResults.addEventListener('click', function(e) {
+            var item = e.target.closest('.cf-geo-item');
+            if (!item) return;
+            var coordInput = document.querySelector('input[name="geo_coords"]');
+            if (coordInput) { coordInput.value = item.dataset.coords; }
+            var label = coordInput ? coordInput.parentElement.querySelector('label') : null;
+            if (label) label.classList.add('cf-label-float');
+            geoInput.value = '';
+            geoResults.style.display = 'none';
+            jQuery('#geoPickerPopin').centreonPopin('close');
+        });
+        document.addEventListener('click', function(e) {
+            if (!geoInput.contains(e.target) && !geoResults.contains(e.target)) geoResults.style.display = 'none';
+        });
+        geoInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') e.preventDefault(); });
+    })();
 });
 
 {/literal}

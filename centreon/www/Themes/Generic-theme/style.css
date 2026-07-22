@@ -1736,7 +1736,7 @@ div.update_readme,div.update_output {background-color:var(--update-read-me-outpu
 }
 .ListTableMedium        {width:60%;}
 .ListTableSmallArg      {
-    width: 100%;
+    width: 60%;
     border-width: 0px;;
 }
 table.ListTableSmallArg td {
