@@ -2,9 +2,7 @@
 
 {literal}
 <script type="text/javascript">
-if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
-    try { window.parent.cfClosePanel(); } catch(e) {}
-}
+CentreonForm.detectSidePanelClose();
 </script>
 {/literal}
 
