@@ -1,6 +1,6 @@
 # Centreon TRAPD - Extracted Package Metadata
 
-This document tracks the composition of extracted .deb packages for security audit and Scout scanning purposes.
+This document tracks the composition of extracted .deb packages for security audit and vulnerability scanning purposes.
 
 ## Extracted Components
 
@@ -17,9 +17,16 @@ This document tracks the composition of extracted .deb packages for security aud
   - Other supporting modules from centreon-collect
 - **Location in image:** `/usr/share/perl5/centreon/`
 - **Selection logic:** `USE_SOURCE_TRAPD=false` (production) extracts from .deb; `USE_SOURCE_TRAPD=true` (dev) copies from source repo
-- **Scout visibility:** Extracted via `dpkg-deb`, not tracked as apt packages; versions documented via labels
+- **Scanner visibility:** Extracted via `dpkg-deb`, not tracked as apt packages; versions documented via labels
 
 ## Security Scanning Strategy
+
+> **Tooling note:** this PoC originally targeted Docker Scout, but CI failed with
+> `could not authenticate: user githubactions not entitled to use Docker Scout` — Scout
+> requires a Docker Hub identity (personal or paid Team/Business org) which Centreon does
+> not currently provision, and none is planned. Switched to **Trivy** (Aqua Security,
+> Apache 2.0), a reputable open-source scanner that needs no external account/entitlement
+> and covers both CVE scanning and SBOM generation in one tool.
 
 ### Local Pre-Push Check
 ```bash
@@ -31,22 +38,22 @@ docker build \
   -t centreon-centreontrapd:test \
   -f .github/docker/centreon-centreontrapd/trixie/Dockerfile .
 
-# Run Scout CVE scan
-docker scout cves centreon-centreontrapd:test --only-severities critical,high
+# Run Trivy CVE scan
+trivy image --severity CRITICAL,HIGH centreon-centreontrapd:test
 
 # Generate SBOM
-docker scout sbom centreon-centreontrapd:test --format cyclonedx > sbom-local.json
+trivy image --format cyclonedx --output sbom-local.json centreon-centreontrapd:test
 ```
 
 ### CI Integration
 - **SBOM formats generated:** CycloneDX (for tooling) + SPDX (for compliance)
 - **Scan results:** Available in GitHub Actions workflow logs
-- **CVE report:** Automatic via `docker/scout-action`, pinned to a SHA per repo convention
+- **CVE report:** Automatic via `aquasecurity/trivy-action`, pinned to a SHA per repo convention
 - **Blocking behavior:** currently non-blocking on all branches (informational only, PoC stage). A stable-only blocking gate is a possible follow-up but is not yet implemented — see "Known Limitations" below.
 
 ### Known Limitations
 
-1. **Extracted Perl modules:** Not tracked as Debian apt packages by Scout
+1. **Extracted Perl modules:** Not tracked as Debian apt packages by the scanner
    - Workaround: Image labels document `.deb` package versions
    - Manual tracking: See `org.centreon.package-sources` label
 
@@ -58,7 +65,7 @@ docker scout sbom centreon-centreontrapd:test --format cyclonedx > sbom-local.js
    - Mitigation: Pin `.deb` package versions; track upstream centreon-collect releases
    - Monitor: centreon-collect repository for security advisories
 
-4. **Stable-branch CVE gate not implemented yet:** `dockerize` (and therefore `docker-scout-cves`, which depends on it) is skipped on stable branches — stable releases are promoted to Pulp by retagging an already-scanned testing-branch image, not by rebuilding. A dedicated strict-check job for that path needs to reference the same `HARBOR_TAG` reconstruction logic used by `promote-docker-to-pulp`, not `dockerize.outputs.image_tag`.
+4. **Stable-branch CVE gate not implemented yet:** `dockerize` (and therefore `docker-trivy-cves`, which depends on it) is skipped on stable branches — stable releases are promoted to Pulp by retagging an already-scanned testing-branch image, not by rebuilding. A dedicated strict-check job for that path needs to reference the same `HARBOR_TAG` reconstruction logic used by `promote-docker-to-pulp`, not `dockerize.outputs.image_tag`.
 
 ## Build Metadata
 
@@ -84,7 +91,7 @@ docker inspect --format='{{json .Config.Labels}}' <image> | jq
 
 ## SBOM Artifact Storage
 
-Scout generates SBOMs in two formats, both uploaded as workflow artifacts with 30-day retention:
+Trivy generates SBOMs in two formats, both uploaded as workflow artifacts with 30-day retention:
 
 1. **CycloneDX** (`sbom-*-cyclonedx.json`) — best for automation/tooling
 2. **SPDX** (`sbom-*-spdx.json`) — best for compliance/audit
@@ -95,7 +102,7 @@ Access from GitHub Actions → workflow run → Artifacts → `sbom-*`.
 
 Before promoting to Pulp (stable releases):
 
-- [ ] **Scout CVE scan** completed (informational at this PoC stage)
+- [ ] **Trivy CVE scan** completed (informational at this PoC stage)
 - [ ] **SBOM artifacts** uploaded and reviewed (check component versions match expected)
 - [ ] **Image labels** present and accurate (`docker inspect`) on both `centreon-centreontrapd` and `centreon-snmptrapd`
 - [ ] **Boot tests** pass on both amd64 and arm64
@@ -105,6 +112,6 @@ Before promoting to Pulp (stable releases):
 
 This is a proof-of-concept/proof-of-value pass (no stable-branch enforcement yet):
 
-1. Evaluate Scout scan output and SBOM quality over a few CI runs
+1. Evaluate Trivy scan output and SBOM quality over a few CI runs
 2. If useful, design the stable-only strict-check job correctly (see Known Limitations #4)
 3. Only then consider making it blocking for stable releases

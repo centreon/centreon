@@ -352,7 +352,7 @@ jobs:
         if: failure()
         run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
 
-  docker-scout-cves:
+  docker-trivy-cves:
     needs: [get-environment, dockerize]
     if: |
       ! cancelled() &&
@@ -364,7 +364,7 @@ jobs:
       matrix:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
-    name: docker scout cves ${{ matrix.component }}-${{ matrix.operating_system }}
+    name: docker trivy cves ${{ matrix.component }}-${{ matrix.operating_system }}
     permissions:
       contents: read
     env:
@@ -383,29 +383,29 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      - name: Run Docker Scout CVE scan (informational)
-        uses: docker/scout-action@2688993af7bafd6ba8c6a74ec652442be91dd82b # v1.23.1
+      - name: Run Trivy CVE scan (informational)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          command: cves
-          image: ${{ env.TRAPD_IMAGE }}
-          only-severities: critical,high
-          exit-code: false
-          record: false
+          scan-type: image
+          image-ref: ${{ env.TRAPD_IMAGE }}
+          severity: CRITICAL,HIGH
+          format: table
+          exit-code: '0'
 
       - name: Generate SBOM (CycloneDX format)
-        uses: docker/scout-action@2688993af7bafd6ba8c6a74ec652442be91dd82b # v1.23.1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          command: sbom
-          image: ${{ env.TRAPD_IMAGE }}
+          scan-type: image
+          image-ref: ${{ env.TRAPD_IMAGE }}
           format: cyclonedx
           output: sbom-${{ matrix.component }}-${{ matrix.operating_system }}-cyclonedx.json
 
       - name: Generate SBOM (SPDX format)
-        uses: docker/scout-action@2688993af7bafd6ba8c6a74ec652442be91dd82b # v1.23.1
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
-          command: sbom
-          image: ${{ env.TRAPD_IMAGE }}
-          format: spdx
+          scan-type: image
+          image-ref: ${{ env.TRAPD_IMAGE }}
+          format: spdx-json
           output: sbom-${{ matrix.component }}-${{ matrix.operating_system }}-spdx.json
 
       - name: Upload SBOM artifacts
@@ -415,19 +415,19 @@ jobs:
           path: sbom-*.json
           retention-days: 30
 
-      - name: Scout info message
+      - name: Trivy info message
         env:
           STABILITY: ${{ needs.get-environment.outputs.stability }}
         run: |
           if [[ "$STABILITY" == "stable" ]]; then
-            echo "::notice::Scout CVE scan complete (stable build). Review critical/high CVEs above; consider resolving before Pulp promotion."
+            echo "::notice::Trivy CVE scan complete (stable build). Review critical/high CVEs above; consider resolving before Pulp promotion."
           else
-            echo "::notice::Scout CVE scan complete (unstable build). SBOMs uploaded as artifacts for audit trail."
+            echo "::notice::Trivy CVE scan complete (unstable build). SBOMs uploaded as artifacts for audit trail."
           fi
         shell: bash
 
   promote-docker-tag:
-    needs: [get-environment, dockerize, docker-boot-test, docker-config-wiring-test, docker-scout-cves]
+    needs: [get-environment, dockerize, docker-boot-test, docker-config-wiring-test, docker-trivy-cves]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
