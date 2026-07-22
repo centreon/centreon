@@ -388,7 +388,8 @@ jobs:
         with:
           scan-type: image
           image-ref: ${{ env.TRAPD_IMAGE }}
-          severity: CRITICAL,HIGH
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          ignore-unfixed: true
           format: json
           output: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
           exit-code: '0'
@@ -396,34 +397,43 @@ jobs:
       - name: Write CVE summary
         env:
           REPORT: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
-          TITLE: Trivy CVE scan — ${{ matrix.component }}-${{ matrix.operating_system }}
+          IMAGE: ${{ env.TRAPD_IMAGE }}
         run: |
           {
-            echo "### ${TITLE}"
+            echo "### Trivy CVE scan (ignore-unfixed: true — only vulnerabilities with a fix available are shown)"
+            echo
+            echo '```'
+            echo "$IMAGE"
+            for sev in UNKNOWN LOW MEDIUM HIGH CRITICAL; do
+              count=$(jq --arg sev "$sev" '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity==$sev)) | length' "$REPORT")
+              printf '%-9s %s\n' "$sev" "$count"
+            done
+            echo '```'
             echo
             total_unique=$(jq '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique | length' "$REPORT")
-            total_findings=$(jq '[.Results[]?.Vulnerabilities[]?] | length' "$REPORT")
             if [ "$total_unique" -eq 0 ]; then
-              echo "No CRITICAL/HIGH vulnerabilities found. ✅"
+              echo "No fixable vulnerability found. ✅"
             else
-              critical=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity=="CRITICAL")) | length' "$REPORT")
-              high=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity=="HIGH")) | length' "$REPORT")
-              fixable=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.FixedVersion != null and .FixedVersion != "")) | length' "$REPORT")
-              echo "**${total_unique} unique CVE(s)** across ${total_findings} affected-package finding(s) — CRITICAL: ${critical}, HIGH: ${high}. **${fixable} unique CVE(s) have a fix available today.**"
-              echo
-              echo "| CVE | Severity | Status | Fixed version | Affected package(s) |"
-              echo "| --- | --- | --- | --- | --- |"
-              jq -r '
-                [.Results[]?.Vulnerabilities[]?] as $vulns |
-                ($vulns | group_by(.VulnerabilityID) | map({
-                  id: .[0].VulnerabilityID,
-                  severity: .[0].Severity,
-                  status: (.[0].Status // "affected"),
-                  fixed: ([.[].FixedVersion] | map(select(. != null and . != "")) | unique | join(", ")),
-                  pkgs: ([.[].PkgName] | unique | join(", "))
-                })) | sort_by(.severity) | .[] |
-                "| [\(.id)](https://avd.aquasec.com/nvd/\(.id | ascii_downcase)) | \(.severity) | \(.status) | \(if .fixed == "" then "—" else .fixed end) | \(.pkgs) |"
-              ' "$REPORT"
+              fixable_high_crit=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity=="CRITICAL" or .Severity=="HIGH")) | length' "$REPORT")
+              if [ "$fixable_high_crit" -eq 0 ]; then
+                echo "No fixable CRITICAL/HIGH CVE — see the ${total_unique} lower-severity fixable finding(s) in the full JSON artifact."
+              else
+                echo "**${fixable_high_crit} fixable CRITICAL/HIGH CVE(s)** — details below."
+                echo
+                echo "| CVE | Severity | Status | Fixed version | Affected package(s) |"
+                echo "| --- | --- | --- | --- | --- |"
+                jq -r '
+                  [.Results[]?.Vulnerabilities[]?] as $vulns |
+                  ($vulns | group_by(.VulnerabilityID) | map({
+                    id: .[0].VulnerabilityID,
+                    severity: .[0].Severity,
+                    status: (.[0].Status // "affected"),
+                    fixed: ([.[].FixedVersion] | map(select(. != null and . != "")) | unique | join(", ")),
+                    pkgs: ([.[].PkgName] | unique | join(", "))
+                  })) | map(select(.severity=="CRITICAL" or .severity=="HIGH")) | sort_by(.severity) | .[] |
+                  "| [\(.id)](https://avd.aquasec.com/nvd/\(.id | ascii_downcase)) | \(.severity) | \(.status) | \(.fixed) | \(.pkgs) |"
+                ' "$REPORT"
+              fi
             fi
             echo
           } >> "$GITHUB_STEP_SUMMARY"
