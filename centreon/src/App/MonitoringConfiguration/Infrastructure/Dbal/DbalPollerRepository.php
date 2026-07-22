@@ -396,7 +396,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     public function getCentralAddress(): PollerAddress
     {
         $address = $this->connection->createQueryBuilder()
-            ->select('address')
+            ->select('COALESCE(hostname, address)')
             ->from('platform_topology')
             ->where("type = 'central'")
             ->executeQuery()

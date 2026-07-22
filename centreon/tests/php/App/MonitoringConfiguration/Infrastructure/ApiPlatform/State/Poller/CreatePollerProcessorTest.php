@@ -56,6 +56,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $connection->insert('platform_topology', [
             'address' => '192.168.1.100',
+            'hostname' => 'central.example.com',
             'name' => 'Central',
             'type' => 'central',
             'parent_id' => null,

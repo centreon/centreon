@@ -43,6 +43,7 @@ use App\Shared\Domain\Repository\EngineSecretsRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Webmozart\Assert\Assert;
 
@@ -62,6 +63,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        private RequestStack $requestStack,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -104,6 +106,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $appSecret,
             $salt,
             $this->pollerRepository->getCentralAddress()->value,
+            $this->requestStack->getMainRequest()?->getScheme() ?? 'https',
             $this->isCloudPlatform,
         );
 

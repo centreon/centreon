@@ -33,6 +33,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
     private const POLLER_NAME = 'test-poller';
     private const POLLER_TYPE = 'vm';
     private const CENTRAL_ADDRESS = '192.168.1.100';
+    private const CENTRAL_HOSTNAME = 'central.example.com';
 
     protected function setUp(): void
     {
@@ -94,13 +95,13 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url %s --appsecret test-app-secret --salt test-salt',
-            self::CENTRAL_ADDRESS,
+            'curl -fsSL http://%s/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url http://%s --appsecret test-app-secret --salt test-salt',
+            self::CENTRAL_HOSTNAME,
             $tokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
-            self::CENTRAL_ADDRESS,
+            self::CENTRAL_HOSTNAME,
         );
         self::assertSame($expected, $data['installation_command']);
     }
@@ -117,13 +118,13 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url %s --appsecret test-app-secret --salt test-salt',
-            self::CENTRAL_ADDRESS,
+            'curl -fsSL http://%s/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url http://%s --appsecret test-app-secret --salt test-salt',
+            self::CENTRAL_HOSTNAME,
             $namedTokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
-            self::CENTRAL_ADDRESS,
+            self::CENTRAL_HOSTNAME,
         );
         self::assertSame($expected, $data['installation_command']);
     }
@@ -143,6 +144,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $connection->insert('platform_topology', [
             'address' => self::CENTRAL_ADDRESS,
+            'hostname' => self::CENTRAL_HOSTNAME,
             'name' => 'Central',
             'type' => 'central',
             'parent_id' => null,

@@ -35,6 +35,7 @@ final readonly class PollerInstallationCommandFactory
         #[Sensitive] private string $appSecret,
         #[Sensitive] private string $salt,
         private string $centralUrl,
+        private string $scheme = 'https',
         private bool $isCloudPlatform = false,
     ) {
     }
@@ -45,15 +46,16 @@ final readonly class PollerInstallationCommandFactory
         // user-provided value. The other parameters are controlled and cannot carry
         // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
         // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl comes from config.
+        $centralUrl = sprintf('%s://%s', $this->scheme, $this->centralUrl);
         $command = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
-            $this->centralUrl,
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
+            $centralUrl,
             $this->pollerToken->name,
             $this->pollerToken->value,
             $this->poller->uid->value,
             escapeshellarg($this->poller->name->value),
             $this->poller->pollerType->value,
-            $this->centralUrl,
+            $centralUrl,
             $this->appSecret,
             $this->salt,
         );

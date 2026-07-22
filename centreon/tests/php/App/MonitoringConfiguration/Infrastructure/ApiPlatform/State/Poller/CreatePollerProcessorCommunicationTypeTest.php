@@ -54,6 +54,8 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 {
@@ -139,6 +141,9 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         $pollerRepository->method('findOneByName')->willReturn(null);
         $pollerRepository->method('getCentralAddress')->willReturn(new PollerAddress('192.168.1.100'));
 
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', Request::METHOD_POST, server: ['HTTPS' => 'on']));
+
         return new CreatePollerProcessor(
             commandBus: $commandBus,
             transformer: new ResourcePollerTransformer(),
@@ -146,6 +151,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
+            requestStack: $requestStack,
             isCloudPlatform: $isCloudPlatform,
         );
     }

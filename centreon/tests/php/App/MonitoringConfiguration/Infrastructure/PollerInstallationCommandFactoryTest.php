@@ -142,7 +142,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             centralUrl: self::CENTRAL_URL,
         );
 
-        self::assertStringContainsString('--central_url ' . self::CENTRAL_URL, $factory->generate());
+        self::assertStringContainsString('--central_url https://' . self::CENTRAL_URL, $factory->generate());
     }
 
     public function testGenerateCommandContainsAppSecret(): void
@@ -182,7 +182,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         );
 
         $expected = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
+            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url https://%s --appsecret %s --salt %s',
             self::CENTRAL_URL,
             self::POLLER_TOKEN,
             self::POLLER_UID,
