@@ -38,7 +38,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->insertCentral();
+        $this->insertCentral(self::CENTRAL_HOSTNAME);
     }
 
     public function testItReturns401WhenNotAuthenticated(): void
@@ -129,7 +129,35 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
         self::assertSame($expected, $data['installation_command']);
     }
 
-    private function insertCentral(): void
+    public function testItFallsBackToAddressWhenHostnameIsNull(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->executeStatement("DELETE FROM platform_topology WHERE type = 'central'");
+        $connection->executeStatement("DELETE FROM nagios_server WHERE localhost = '1'");
+        $this->insertCentral(null);
+
+        $pollerId = $this->insertPoller(self::POLLER_NAME);
+        $tokenValue = $this->insertPollerToken('test-token-fallback');
+        $this->login();
+
+        $response = $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, $pollerId));
+        self::assertResponseIsSuccessful();
+
+        $data = $response->toArray();
+        $expected = sprintf(
+            'curl -fsSL http://%s/poller/install.sh | bash -s -- --poller_token test-token-fallback:%s --uid %s --name %s --type %s --central_url http://%s --appsecret test-app-secret --salt test-salt',
+            self::CENTRAL_ADDRESS,
+            $tokenValue,
+            self::POLLER_UID,
+            escapeshellarg(self::POLLER_NAME),
+            self::POLLER_TYPE,
+            self::CENTRAL_ADDRESS,
+        );
+        self::assertSame($expected, $data['installation_command']);
+    }
+
+    private function insertCentral(?string $hostname): void
     {
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
@@ -144,7 +172,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $connection->insert('platform_topology', [
             'address' => self::CENTRAL_ADDRESS,
-            'hostname' => self::CENTRAL_HOSTNAME,
+            'hostname' => $hostname,
             'name' => 'Central',
             'type' => 'central',
             'parent_id' => null,

@@ -65,13 +65,16 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             ? $this->pollerTokenRepository->getValidPollerTokenByName($tokenName)
             : $this->pollerTokenRepository->getFirstValidPollerToken();
 
+        $request = $this->requestStack->getMainRequest()
+            ?? throw new \RuntimeException('No active HTTP request');
+
         $factory = new PollerInstallationCommandFactory(
             $poller,
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
             $this->pollerRepository->getCentralAddress()->value,
-            $this->requestStack->getMainRequest()?->getScheme() ?? 'https',
+            $request->getScheme(),
             $this->isCloudPlatform,
         );
 

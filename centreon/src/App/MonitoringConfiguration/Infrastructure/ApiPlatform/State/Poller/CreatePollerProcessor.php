@@ -100,13 +100,16 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
+        $request = $this->requestStack->getMainRequest()
+            ?? throw new \RuntimeException('No active HTTP request');
+
         $factory = new PollerInstallationCommandFactory(
             $model,
             $token,
             $appSecret,
             $salt,
             $this->pollerRepository->getCentralAddress()->value,
-            $this->requestStack->getMainRequest()?->getScheme() ?? 'https',
+            $request->getScheme(),
             $this->isCloudPlatform,
         );
 

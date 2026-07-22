@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
+use App\MonitoringConfiguration\Domain\Exception\CentralServerNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
@@ -137,7 +138,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
     public function add(Poller $poller): void
     {
+        $ownTransaction = ! $this->connection->isTransactionActive();
+
         try {
+            if ($ownTransaction) {
+                $this->connection->beginTransaction();
+            }
+
             $qb = $this->connection->createQueryBuilder();
 
             $qb->insert(self::TABLE_NAME)
@@ -200,6 +207,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             if ($pollerId === 0) {
                 throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
             }
+
             $centralTopologyId = $this->connection->createQueryBuilder()
                 ->select('id')
                 ->from('platform_topology')
@@ -208,7 +216,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->fetchOne();
 
             if (! is_int($centralTopologyId) && ! is_string($centralTopologyId)) {
-                throw new \RuntimeException('No central server found in platform_topology');
+                throw new CentralServerNotFoundException(
+                    criteria: ['type' => 'central'],
+                    message: 'No central server found in platform_topology',
+                );
             }
 
             $this->connection->createQueryBuilder()
@@ -228,12 +239,25 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('server_id', $pollerId, ParameterType::INTEGER)
                 ->setParameter('pending', '0')
                 ->executeStatement();
+
+            if ($ownTransaction) {
+                $this->connection->commit();
+            }
         } catch (UniqueConstraintViolationException $exception) {
+            if ($ownTransaction && $this->connection->isTransactionActive()) {
+                $this->connection->rollBack();
+            }
             $field = str_contains($exception->getMessage(), 'uniq_uid')
                 ? 'uid' : 'name';
             $value = $field === 'uid' ? $poller->uid->value : $poller->name->value;
 
             throw new PollerAlreadyExistsException([$field => $value], previous: $exception);
+        } catch (\Throwable $exception) {
+            if ($ownTransaction && $this->connection->isTransactionActive()) {
+                $this->connection->rollBack();
+            }
+
+            throw $exception;
         }
 
         $this->setId($poller, new PollerId($pollerId));
@@ -403,7 +427,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->fetchOne();
 
         if (! is_string($address)) {
-            throw new \RuntimeException('No central server found in platform_topology');
+            throw new CentralServerNotFoundException(
+                criteria: ['type' => 'central'],
+                message: 'No central server found in platform_topology',
+            );
         }
 
         return new PollerAddress($address);

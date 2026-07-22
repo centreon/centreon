@@ -45,7 +45,7 @@ final readonly class PollerInstallationCommandFactory
         // Only `name` is escaped with escapeshellarg(): it is the sole free-form,
         // user-provided value. The other parameters are controlled and cannot carry
         // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
-        // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl comes from config.
+        // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl comes from platform_topology.
         $centralUrl = sprintf('%s://%s', $this->scheme, $this->centralUrl);
         $command = sprintf(
             'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
