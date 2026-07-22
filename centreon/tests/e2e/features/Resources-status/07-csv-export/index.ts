@@ -395,7 +395,10 @@ Then(
               const expectedRow = firstTwoExpected[index];
 
               UpdatedColumns.forEach((key) => {
-                if (key === 'Last Check') return;
+                // Last Check is time-dependent; Host ID / Service ID are
+                // runtime-generated, so their values are not compared against
+                // the static fixture (their presence is asserted via the header).
+                if (['Last Check', 'Host ID', 'Service ID'].includes(key)) return;
                 expect(
                   actualRow[key],
                   `Line ${index + 1} - Key: ${key}`
