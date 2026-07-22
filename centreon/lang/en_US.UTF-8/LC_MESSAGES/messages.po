@@ -12278,6 +12278,18 @@ msgstr "One column"
 msgid "One of the elements provided is not a ResourceGroup type"
 msgstr "One of the elements provided is not a ResourceGroup type"
 
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host group(s)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host(s)."
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "One peer retention"
 msgstr "One peer retention"
