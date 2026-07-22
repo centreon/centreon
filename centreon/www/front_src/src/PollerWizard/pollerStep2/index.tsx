@@ -1,12 +1,7 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
-import {
-  Alert,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Typography
-} from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Checkbox, FormControlLabel, Link, Typography } from '@mui/material';
 
 import type { SelectEntry } from '@centreon/ui';
 import {
@@ -16,6 +11,7 @@ import {
   SelectField,
   useRequest
 } from '@centreon/ui';
+import { Tooltip } from '@centreon/ui/components';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pick } from 'ramda';
@@ -192,29 +188,36 @@ const PollerWizardStepTwo = ({
             }
             label={`${t(labelOpenBrokerFlow)}`}
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={stepTwoFormData.gorgone_pull_wss}
-                name="gorgone_pull_wss"
-                onChange={handleChange}
-              />
-            }
-            label={`${t(labelGorgonePullWss)}`}
-          />
-          {stepTwoFormData.gorgone_pull_wss && (
-            <Alert severity="info">
-              {`${t(labelGorgonePullWssPrerequisite)} `}
-              <Link
-                href={pullWssDocumentationUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-                underline="hover"
-              >
-                {t(labelDocumentation)}
-              </Link>
-            </Alert>
-          )}
+          <div style={{ alignItems: 'center', display: 'flex' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={stepTwoFormData.gorgone_pull_wss}
+                  name="gorgone_pull_wss"
+                  onChange={handleChange}
+                />
+              }
+              label={`${t(labelGorgonePullWss)}`}
+            />
+            <Tooltip
+              label={
+                <>
+                  {`${t(labelGorgonePullWssPrerequisite)} `}
+                  <Link
+                    color="inherit"
+                    href={pullWssDocumentationUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    underline="always"
+                  >
+                    {t(labelDocumentation)}
+                  </Link>
+                </>
+              }
+            >
+              <InfoOutlinedIcon color="primary" fontSize="small" />
+            </Tooltip>
+          </div>
           <WizardButtons
             disabled={loading}
             goToPreviousStep={goToPreviousStep}
