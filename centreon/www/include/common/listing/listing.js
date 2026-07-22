@@ -290,6 +290,16 @@ function CentreonListing(config) {
         });
     }
 
+    // Header "check all" checkbox: nothing to select when the table is
+    // empty, so grey it out instead of leaving it clickable.
+    function updateHeaderCheckboxState() {
+        var table = jQuery('#' + cfg.tableBodyId).closest('table');
+        var hasRows = table.find('tbody .cl-col-picker input[type=checkbox]').length > 0;
+        var headerCheckbox = table.find('thead .cl-col-picker input[type=checkbox]');
+        headerCheckbox.prop('disabled', !hasRows);
+        if (!hasRows) headerCheckbox.prop('checked', false);
+    }
+
     // =====================================================================
     // "More actions" custom dropdown — replaces the plain <select>'s look
     // (native <option> elements can't really be styled) while leaving the
@@ -459,6 +469,7 @@ function CentreonListing(config) {
                 // Reset bulk action dropdowns to default
                 jQuery('select[name="o1"], select[name="o2"]').prop('selectedIndex', 0);
                 updateBulkActionState();
+                updateHeaderCheckboxState();
                 if (cfg.onDataLoaded) cfg.onDataLoaded(data);
             },
             error: function () {
@@ -824,6 +835,7 @@ function CentreonListing(config) {
             enhanceBulkActionSelect(this);
         });
         updateBulkActionState();
+        updateHeaderCheckboxState();
         jQuery(document).on('change', '.cl-col-picker input[type=checkbox]', updateBulkActionState);
 
         // Initial data load (restore page from session)
