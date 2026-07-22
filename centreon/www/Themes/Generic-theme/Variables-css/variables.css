@@ -6,6 +6,7 @@
        theme can point it at a lighter shade for readability on dark
        backgrounds without touching the base brand color. */
     --cl-link-color: var(--color-primary-light);
+    --cl-link-hover-color: var(--color-primary-hover);
 
     /* Object icons (host.svg, service.svg, ...) are flat black raster/SVG
        files loaded via <img>, so CSS color/currentColor can't reach them —

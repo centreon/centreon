@@ -50,14 +50,119 @@
 
 /* "More actions" dropdown in actions bar */
 .cl-actions-left select {
+    padding: 8px 32px 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    border-radius: 4px;
+    background-color: var(--select-background, #fff);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    line-height: 1.4;
+    height: auto;
+}
+
+/* Bulk action selects stay disabled until at least one row is checked
+   (see listing.js updateBulkActionState) */
+.cl-actions-left select:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* "More actions" custom dropdown — replaces the plain <select>'s look,
+   since native <option> elements can't really be styled (see
+   listing.js enhanceBulkActionSelect). The underlying <select> stays in
+   the DOM (hidden) so its existing value/onchange behavior is untouched. */
+.cl-more-actions {
+    position: relative;
+    display: inline-block;
+}
+
+.cl-more-actions-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 12px;
     font-size: 14px;
     border: 1px solid var(--listing-border-botom-color, #E3E3E3);
     border-radius: 4px;
     background: var(--select-background, #fff);
+    color: var(--body-color, #333);
     cursor: pointer;
     line-height: 1.4;
-    height: auto;
+    transition: border-color 0.15s ease;
+    outline: none;
+}
+
+.cl-more-actions-btn:hover {
+    border-color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-more-actions-btn:focus-visible {
+    border-color: var(--color-primary-light, #2E68AA);
+    outline: 2px solid var(--color-primary-light, #2E68AA);
+    outline-offset: 2px;
+}
+
+.cl-more-actions--disabled .cl-more-actions-btn {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.cl-more-actions--disabled .cl-more-actions-btn:hover {
+    border-color: var(--listing-border-botom-color, #E3E3E3);
+}
+
+.cl-more-actions-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 190px;
+    background: var(--body-background, #fff);
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    z-index: 60;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+}
+
+.cl-more-actions.open .cl-more-actions-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cl-more-actions-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--body-color, #333);
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    outline: none;
+}
+
+.cl-more-actions-item:hover,
+.cl-more-actions-item:focus {
+    background: var(--list-hover-background-color, #E6EDF5);
+}
+
+.cl-more-actions-item--danger {
+    color: var(--color-danger, #FF4A4A);
+}
+
+.cl-more-actions-item--danger:hover,
+.cl-more-actions-item--danger:focus {
+    background: rgba(255, 74, 74, 0.1);
 }
 
 /* ==========================================================================
@@ -96,6 +201,52 @@
     font-size: 18px;
     font-weight: 400;
     line-height: 1;
+}
+
+/* Bigger variant used by the "nothing here yet" empty state below. Built
+   with a real inline SVG plus icon (listing.js renderEmptyState) rather
+   than the small ::before character, so it stays crisp at this size —
+   suppress the inherited ::before so the two don't double up. */
+.cl-btn-add--lg {
+    padding: 14px 28px;
+    gap: 10px;
+    font-size: 17px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.cl-btn-add--lg::before {
+    content: none;
+}
+
+/* "Nothing here yet" empty state — a big, centered "Welcome to the X page"
+   prompt shown in place of the table body when the listing has zero rows
+   and no search or advanced filter is currently applied (see listing.js
+   renderEmptyState). Reuses the page's own title/subtitle/"+Add" button
+   verbatim, so there is nothing to configure per listing. */
+.cl-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 80px 24px;
+    text-align: center;
+}
+
+.cl-empty-state-title {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--body-color, #1b1b1b);
+}
+
+.cl-empty-state-text {
+    margin: 0;
+    font-size: 16px;
+    color: var(--body-color, #6b7280);
+    max-width: 520px;
+    line-height: 1.5;
 }
 
 /* Secondary toolbar button — same footprint as .cl-btn-add, neutral/outlined,
@@ -194,7 +345,7 @@
 }
 
 .cl-pagination a:hover {
-    background-color: var(--color-listing-hover, #E6EDF5);
+    background-color: var(--list-hover-background-color, #E6EDF5);
     text-decoration: none;
 }
 
@@ -302,11 +453,10 @@
 .cl-listing-table tbody tr {
     background: var(--select-background, #fff);
     transition: background-color 0.15s ease;
-    cursor: pointer;
 }
 
 .cl-listing-table tbody tr:hover {
-    background-color: var(--color-listing-hover, #E6EDF5);
+    background-color: var(--list-hover-background-color, #E6EDF5);
 }
 
 .cl-listing-table tbody td {
@@ -340,6 +490,7 @@
 .cl-listing-table tbody td a {
     color: var(--cl-link-color, #2E68AA);
     text-decoration: none;
+    cursor: pointer;
 }
 
 .cl-listing-table tbody td a:hover {
@@ -351,7 +502,7 @@
 }
 
 .cl-listing-table tbody tr:hover td a {
-    color: var(--color-primary-hover, #255891);
+    color: var(--cl-link-hover-color, #255891);
 }
 
 /* ==========================================================================
@@ -1125,11 +1276,16 @@
 
 .cl-adv-panel--popover {
     position: absolute;
-    top: calc(100% + 8px);
+    top: 100%;
     right: 0;
-    width: 380px;
+    width: 100%;
+    min-width: 320px;
     max-height: none;
     overflow: visible;
+    /* width:100% must include the padding/border below, or the rendered box
+       ends up wider than the search bar it's meant to match (skewed to the
+       left, since `right: 0` pins the right edge). */
+    box-sizing: border-box;
     background: var(--body-background, #fff);
     border: 1px solid var(--listing-border-botom-color, #e3e3e3);
     border-radius: 6px;

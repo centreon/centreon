@@ -191,6 +191,184 @@ function CentreonListing(config) {
     }
 
     // =====================================================================
+    // Internal: "nothing here yet" empty state — a big, centered "+Add"
+    // prompt shown in place of the table body when the listing has zero
+    // rows AND no search/filter is currently narrowing it down (i.e. the
+    // object type genuinely has nothing configured yet, not just "no match
+    // for this search"). Reuses the page's own "+Add" button and subtitle
+    // verbatim so nothing needs to be configured per listing.
+    // =====================================================================
+
+    function hasActiveFiltersOrSearch() {
+        if (currentSearch && currentSearch.trim() !== '') return true;
+        var panel = document.querySelector('.cl-adv-panel');
+        if (panel && typeof clCountActiveFilters === 'function' && clCountActiveFilters(panel) > 0) return true;
+        return false;
+    }
+
+    function renderEmptyState() {
+        var tbody = jQuery('#' + cfg.tableBodyId);
+        var wrap = document.createElement('div');
+        wrap.className = 'cl-empty-state';
+
+        var title = document.querySelector('.cl-page-title');
+        var titleText = title ? title.textContent.trim() : '';
+        if (title) {
+            var h2 = document.createElement('h2');
+            h2.className = 'cl-empty-state-title';
+            h2.textContent = 'Welcome to the ' + titleText + ' page';
+            wrap.appendChild(h2);
+        }
+
+        var p = document.createElement('p');
+        p.className = 'cl-empty-state-text';
+        p.textContent = titleText
+            ? 'You haven’t configured any ' + titleText.toLowerCase() + ' yet. Add your first one below and Centreon will start monitoring it right away.'
+            : 'Nothing configured yet. Add your first entry below to get started.';
+        wrap.appendChild(p);
+
+        var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
+        if (addBtn) {
+            var btn = document.createElement('a');
+            btn.className = 'cl-btn-add cl-btn-add--lg';
+            btn.href = addBtn.getAttribute('href') || '#';
+            var onclickAttr = addBtn.getAttribute('onclick');
+            if (onclickAttr) btn.setAttribute('onclick', onclickAttr);
+            // Explicit inline styles on top of the CSS classes: the icon/text
+            // were rendering invisible inside the generic <td> (see the
+            // white-space/overflow reset below) — belt-and-suspenders so the
+            // button's own content can never be swallowed by an ancestor rule.
+            btn.setAttribute('style', 'display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:10px;color:#fff !important;text-decoration:none;white-space:nowrap;');
+            var svgNS = 'http://www.w3.org/2000/svg';
+            var svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('width', '18');
+            svg.setAttribute('height', '18');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', '#fff');
+            svg.setAttribute('stroke-width', '2.5');
+            svg.setAttribute('stroke-linecap', 'round');
+            svg.setAttribute('stroke-linejoin', 'round');
+            svg.style.flexShrink = '0';
+            var line1 = document.createElementNS(svgNS, 'line');
+            line1.setAttribute('x1', '12'); line1.setAttribute('y1', '5');
+            line1.setAttribute('x2', '12'); line1.setAttribute('y2', '19');
+            var line2 = document.createElementNS(svgNS, 'line');
+            line2.setAttribute('x1', '5'); line2.setAttribute('y1', '12');
+            line2.setAttribute('x2', '19'); line2.setAttribute('y2', '12');
+            svg.appendChild(line1);
+            svg.appendChild(line2);
+            btn.appendChild(svg);
+            var span = document.createElement('span');
+            span.style.color = '#fff';
+            span.textContent = addBtn.textContent.trim();
+            btn.appendChild(span);
+            wrap.appendChild(btn);
+        }
+
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.colSpan = 99;
+        // The generic row-cell rule (white-space:nowrap, overflow:hidden,
+        // max-width:300px) is meant for single-line data cells and would
+        // otherwise clip/collapse this multi-line empty state.
+        td.setAttribute('style', 'white-space:normal;overflow:visible;max-width:none;');
+        td.appendChild(wrap);
+        tr.appendChild(td);
+        tbody.empty().append(tr);
+    }
+
+    // Bulk action selects ("More actions...") stay disabled until at least
+    // one row is checked.
+    function updateBulkActionState() {
+        var anyChecked = jQuery('#' + cfg.tableBodyId).closest('table')
+            .find('.cl-col-picker input[type=checkbox]:checked').length > 0;
+        jQuery('select[name="o1"], select[name="o2"]').each(function () {
+            jQuery(this).prop('disabled', !anyChecked);
+            var wrapper = jQuery(this).data('clWrapper');
+            if (wrapper) wrapper.toggleClass('cl-more-actions--disabled', !anyChecked);
+        });
+    }
+
+    // =====================================================================
+    // "More actions" custom dropdown — replaces the plain <select>'s look
+    // (native <option> elements can't really be styled) while leaving the
+    // original <select> in the DOM, hidden, so its existing value/onchange
+    // behavior (confirm dialogs, form submit, etc.) keeps working untouched.
+    // =====================================================================
+
+    function enhanceBulkActionSelect(select) {
+        var $select = jQuery(select);
+        if ($select.data('clWrapper')) return;
+
+        var wrapper = jQuery('<div class="cl-more-actions"></div>');
+        var btn = jQuery(
+            '<button type="button" class="cl-more-actions-btn">' +
+                '<span class="cl-more-actions-label"></span>' +
+                '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</button>'
+        );
+        var menu = jQuery('<div class="cl-more-actions-menu" role="menu"></div>');
+
+        $select.find('option').each(function () {
+            var $opt = jQuery(this);
+            var value = $opt.attr('value');
+            if (!value) {
+                btn.find('.cl-more-actions-label').text($opt.text());
+                return;
+            }
+            var item = jQuery('<div class="cl-more-actions-item" role="menuitem" tabindex="0"></div>')
+                .text($opt.text())
+                .attr('data-value', value);
+            if (/delete/i.test($opt.text())) {
+                item.addClass('cl-more-actions-item--danger');
+            }
+            menu.append(item);
+        });
+
+        wrapper.append(btn).append(menu);
+        $select.hide().after(wrapper);
+        $select.data('clWrapper', wrapper);
+
+        function closeMenu() {
+            wrapper.removeClass('open');
+        }
+
+        function selectValue(value) {
+            select.value = value;
+            $select.trigger('change');
+            closeMenu();
+        }
+
+        btn.on('click', function (e) {
+            e.stopPropagation();
+            if ($select.prop('disabled')) return;
+            jQuery('.cl-more-actions.open').not(wrapper).removeClass('open');
+            wrapper.toggleClass('open');
+        });
+
+        menu.on('click', '.cl-more-actions-item', function () {
+            selectValue(jQuery(this).attr('data-value'));
+        });
+
+        menu.on('keydown', '.cl-more-actions-item', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectValue(jQuery(this).attr('data-value'));
+            }
+        });
+
+        jQuery(document).on('click', function (e) {
+            if (!wrapper[0].contains(e.target)) closeMenu();
+        });
+        jQuery(document).on('keydown', function (e) {
+            if (e.key === 'Escape') closeMenu();
+        });
+
+        wrapper.toggleClass('cl-more-actions--disabled', $select.prop('disabled'));
+    }
+
+    // =====================================================================
     // Public: fetch data from the AJAX listing endpoint
     //   silent = true  → no loading indicator, no fade (used by auto-refresh)
     //   silent = false → fade-in animation on success
@@ -259,6 +437,9 @@ function CentreonListing(config) {
                 } else {
                     tbody.removeClass('cl-fade-in');
                     self.renderRows(data.rows);
+                    if (data.total === 0 && !hasActiveFiltersOrSearch()) {
+                        renderEmptyState();
+                    }
                     if (cfg.infiniteScroll) {
                         totalLoaded = data.rows.length;
                         allLoaded = totalLoaded >= data.total;
@@ -277,6 +458,7 @@ function CentreonListing(config) {
                 firstLoad = false;
                 // Reset bulk action dropdowns to default
                 jQuery('select[name="o1"], select[name="o2"]').prop('selectedIndex', 0);
+                updateBulkActionState();
                 if (cfg.onDataLoaded) cfg.onDataLoaded(data);
             },
             error: function () {
@@ -635,6 +817,14 @@ function CentreonListing(config) {
             currentNum = 0;
             if (currentLimit < 50) currentLimit = 50;
         }
+
+        // Bulk action selects ("More actions...") only become usable once a
+        // row is checked — keep them in sync with the master/row checkboxes.
+        jQuery('select[name="o1"], select[name="o2"]').each(function () {
+            enhanceBulkActionSelect(this);
+        });
+        updateBulkActionState();
+        jQuery(document).on('change', '.cl-col-picker input[type=checkbox]', updateBulkActionState);
 
         // Initial data load (restore page from session)
         self.fetch(currentNum, currentLimit, currentSearch);
