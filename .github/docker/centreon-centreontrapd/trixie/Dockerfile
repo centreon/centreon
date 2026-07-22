@@ -23,9 +23,9 @@ apt-get update
 apt-get install -y --no-install-recommends dpkg
 EOF
 
+WORKDIR /packages
 RUN --mount=type=bind,source=packages-centreon,target=/packages \
     mkdir -p /extracted && \
-    cd /packages && \
     for deb in centreon-trap*.deb centreon-perl-libs*.deb; do \
         echo "Extracting $deb..."; \
         dpkg-deb -x "$deb" /extracted/; \
@@ -47,7 +47,6 @@ FROM scratch AS centreon-perl-true
 COPY centreon-collect/perl-libs/lib/centreon/ /centreon-modules/
 
 ARG USE_SOURCE_TRAPD=false
-# hadolint ignore=DL3006
 FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 
 #############################################
@@ -60,11 +59,11 @@ FROM debian:13-slim AS centreontrapd
 RUN bash -e <<EOF
 groupadd -g 33 www-data 2>/dev/null || true
 groupadd -g 900 centreon
-useradd -u 900 -g centreon -m -r -d /var/spool/centreon -s /bin/bash centreon
+useradd -u 900 -g centreon -m -r -l -d /var/spool/centreon -s /bin/bash centreon
 groupadd -g 901 centreon-engine
-useradd -u 901 -g centreon-engine -m -r -d /var/lib/centreon-engine -s /bin/bash centreon-engine
+useradd -u 901 -g centreon-engine -m -r -l -d /var/lib/centreon-engine -s /bin/bash centreon-engine
 groupadd -g 903 centreon-gorgone
-useradd -u 903 -g centreon-gorgone -m -r -d /var/lib/centreon-gorgone -s /bin/bash centreon-gorgone
+useradd -u 903 -g centreon-gorgone -m -r -l -d /var/lib/centreon-gorgone -s /bin/bash centreon-gorgone
 usermod -aG centreon-gorgone centreon
 usermod -aG centreon-engine centreon
 EOF
@@ -86,18 +85,17 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     bash -e <<EOF
 apt-get update
 apt-get install -y --no-install-recommends \
-    perl \
-    libdbi-perl \
-    libdbd-sqlite3-perl \
-    libconfig-inifiles-perl \
-    libsnmp-perl \
-    snmp \
-    tzdata \
-    ca-certificates \
-    inotify-tools \
-    procps
-apt-get clean
-rm -rf /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
+    perl=5.36.0-7 \
+    libdbi-perl=1.645-1 \
+    libdbd-sqlite3-perl=1.72-1 \
+    libconfig-inifiles-perl=3.000003-1 \
+    libsnmp-perl=5.9.4+dfsg-1.1 \
+    snmp=5.9.4+dfsg-1.1 \
+    tzdata=2024a-1 \
+    ca-certificates=20230311 \
+    inotify-tools=3.24.6-1 \
+    procps=2:4.0.4-4.1
+rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF
 
 # Create directory structure
@@ -141,6 +139,19 @@ RUN echo "=== Verification ===" && \
 
 ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5
 ENV DEBUG=false
+
+# Build metadata for Scout/audit trail
+ARG BUILD_DATE
+ARG BUILD_VERSION=unknown
+ARG PACKAGE_SOURCES=unknown
+
+LABEL org.opencontainers.image.title="Centreon TRAPD" \
+      org.opencontainers.image.description="Centreon trap handler and SNMP v1/v2c/v3 receiver" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.vendor="Centreon" \
+      org.centreon.package-sources="${PACKAGE_SOURCES}" \
+      org.centreon.base-image="debian:13-slim"
 
 WORKDIR /etc/centreon
 

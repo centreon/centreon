@@ -119,6 +119,19 @@ RUN echo "=== Verification ===" && \
 ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5
 ENV DEBUG=false
 
+# Build metadata for Scout/audit trail
+ARG BUILD_DATE
+ARG BUILD_VERSION=unknown
+ARG PACKAGE_SOURCES=unknown
+
+LABEL org.opencontainers.image.title="Centreon SNMPTRAPD" \
+      org.opencontainers.image.description="Centreon SNMP trap forwarder" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.vendor="Centreon" \
+      org.centreon.package-sources="${PACKAGE_SOURCES}" \
+      org.centreon.base-image="debian:13-slim"
+
 EXPOSE 162/udp
 
 WORKDIR /etc/snmp

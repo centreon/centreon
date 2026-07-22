@@ -212,6 +212,11 @@ jobs:
           fi
         shell: bash
 
+      - name: Compute build date
+        id: build-date
+        run: echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
+
       - name: Docker build and push
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         env:
@@ -224,6 +229,12 @@ jobs:
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
+          build-args: |
+            BUILD_DATE=${{ steps.build-date.outputs.date }}
+            BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
+            PACKAGE_SOURCES=centreon-trap-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} + centreon-perl-libs-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+          sbom: true
+          provenance: mode=max
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
 
@@ -341,8 +352,82 @@ jobs:
         if: failure()
         run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
 
+  docker-scout-cves:
+    needs: [get-environment, dockerize]
+    if: |
+      ! cancelled() &&
+      needs.dockerize.result == 'success' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: docker scout cves ${{ matrix.component }}-${{ matrix.operating_system }}
+    permissions:
+      contents: read
+    env:
+      TRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Run Docker Scout CVE scan (informational)
+        uses: docker/scout-action@2688993af7bafd6ba8c6a74ec652442be91dd82b # v1.23.1
+        with:
+          command: cves
+          image: ${{ env.TRAPD_IMAGE }}
+          only-severities: critical,high
+          exit-code: false
+          record: false
+
+      - name: Generate SBOM (CycloneDX format)
+        uses: docker/scout-action@2688993af7bafd6ba8c6a74ec652442be91dd82b # v1.23.1
+        with:
+          command: sbom
+          image: ${{ env.TRAPD_IMAGE }}
+          format: cyclonedx
+          output: sbom-${{ matrix.component }}-${{ matrix.operating_system }}-cyclonedx.json
+
+      - name: Generate SBOM (SPDX format)
+        uses: docker/scout-action@2688993af7bafd6ba8c6a74ec652442be91dd82b # v1.23.1
+        with:
+          command: sbom
+          image: ${{ env.TRAPD_IMAGE }}
+          format: spdx
+          output: sbom-${{ matrix.component }}-${{ matrix.operating_system }}-spdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-${{ matrix.component }}-${{ matrix.operating_system }}
+          path: sbom-*.json
+          retention-days: 30
+
+      - name: Scout info message
+        env:
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+        run: |
+          if [[ "$STABILITY" == "stable" ]]; then
+            echo "::notice::Scout CVE scan complete (stable build). Review critical/high CVEs above; consider resolving before Pulp promotion."
+          else
+            echo "::notice::Scout CVE scan complete (unstable build). SBOMs uploaded as artifacts for audit trail."
+          fi
+        shell: bash
+
   promote-docker-tag:
-    needs: [get-environment, dockerize, docker-boot-test, docker-config-wiring-test]
+    needs: [get-environment, dockerize, docker-boot-test, docker-config-wiring-test, docker-scout-cves]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
