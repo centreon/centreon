@@ -47,7 +47,7 @@ final class Poller extends AggregateRoot
         public readonly PollerUid $uid,
         public readonly Collection $globalMacros,
         public readonly GorgoneConfiguration $gorgoneConfiguration,
-        public readonly EngineConfiguration $engineConfiguration,
+        public readonly EngineInformation $engineInformation,
         public readonly BrokerConfiguration $brokerConfiguration,
         public readonly ConnectorConfiguration $connectorConfiguration,
         public readonly TrapConfiguration $trapConfiguration,

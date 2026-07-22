@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
@@ -66,7 +66,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 modulesPath: $from['centreonbroker_module_path'],
                 logsPath: $from['centreonbroker_logs_path'],
             ),
-            engineConfiguration: new EngineConfiguration(
+            engineInformation: new EngineInformation(
                 startCommand: $from['engine_start_command'],
                 stopCommand: $from['engine_stop_command'],
                 restartCommand: $from['engine_restart_command'],
