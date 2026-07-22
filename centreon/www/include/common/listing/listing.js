@@ -126,6 +126,14 @@ function CentreonListing(config) {
     var csrfToken  = '';
     var firstLoad  = true;
 
+    // Registered globally so the shared cfClosePanel() (below) can refresh
+    // whichever listing instance(s) exist on this page — the variable name
+    // each page assigns its instance to (hostListing, htListing,
+    // contactListing, ...) differs per object, so a hardcoded reference
+    // isn't possible here.
+    window.__clInstances = window.__clInstances || [];
+    window.__clInstances.push(self);
+
     // Restore state from sessionStorage (survives navigation, cleared on browser close)
     var stateKey   = 'cl_state_' + cfg.storageKey;
     var savedState = null;
@@ -145,10 +153,7 @@ function CentreonListing(config) {
     // =====================================================================
 
     this.escape = function (str) {
-        if (!str) return '';
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
+        return clEscape(str);
     };
 
     // =====================================================================
@@ -1125,6 +1130,110 @@ function clToast(message, type) {
         toast.classList.remove('show');
         setTimeout(function () { if (toast.parentNode) { toast.parentNode.removeChild(toast); } }, 300);
     }, 4500);
+}
+
+// ==========================================================================
+//  Side panel — open/close/resize, shared across every listing page.
+//  Was previously copy-pasted verbatim as a local <script> block in each
+//  listing's own .ihtml (with only the refresh-the-table line differing,
+//  since it referenced that page's own listing instance variable — see the
+//  window.__clInstances registration in the CentreonListing constructor
+//  above, which replaces that hardcoded reference). Expects this exact
+//  panel markup (also still duplicated per-page, that's just HTML):
+//    #cfSideOverlay, #cfSidePanel > #cfSidePanelResize, #cfSidePanelTitle,
+//    #cfSidePanelFrame (an <iframe>).
+//    <a onclick="cfOpenPanel('main.get.php?p=X&o=a', 'Add X'); return false;">
+// ==========================================================================
+
+function cfOpenPanel(url, title) {
+    var titleEl = document.getElementById('cfSidePanelTitle');
+    if (titleEl) titleEl.textContent = title || '';
+    var frame = document.getElementById('cfSidePanelFrame');
+    if (frame) frame.src = url;
+    var overlay = document.getElementById('cfSideOverlay');
+    if (overlay) overlay.classList.add('open');
+    var panel = document.getElementById('cfSidePanel');
+    if (panel) panel.classList.add('open');
+}
+
+function cfClosePanel() {
+    var overlay = document.getElementById('cfSideOverlay');
+    if (overlay) overlay.classList.remove('open');
+    var panel = document.getElementById('cfSidePanel');
+    if (panel) panel.classList.remove('open');
+    setTimeout(function () {
+        var frame = document.getElementById('cfSidePanelFrame');
+        if (frame) frame.src = 'about:blank';
+    }, 300);
+    (window.__clInstances || []).forEach(function (instance) {
+        var state = instance.getState();
+        instance.fetch(state.num, state.limit, state.search, true);
+    });
+}
+
+(function () {
+    var handle = document.getElementById('cfSidePanelResize');
+    var panel = document.getElementById('cfSidePanel');
+    if (!handle || !panel) return;
+    var dragging = false;
+    handle.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+        dragging = true;
+        handle.classList.add('active');
+        document.body.style.cursor = 'col-resize';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = 'none';
+    });
+    document.addEventListener('mousemove', function (e) {
+        if (!dragging) return;
+        var w = window.innerWidth - e.clientX;
+        if (w < 400) w = 400;
+        if (w > window.innerWidth * 0.95) w = window.innerWidth * 0.95;
+        panel.style.width = w + 'px';
+    });
+    document.addEventListener('mouseup', function () {
+        if (!dragging) return;
+        dragging = false;
+        handle.classList.remove('active');
+        document.body.style.cursor = '';
+        var iframe = document.getElementById('cfSidePanelFrame');
+        if (iframe) iframe.style.pointerEvents = '';
+    });
+})();
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && typeof window.cfClosePanel === 'function') window.cfClosePanel();
+});
+
+// Auto-close the panel if this listing page is ever loaded directly as the
+// top document inside the panel's own iframe (e.g. a bookmarked or
+// refreshed o=a/o=c/o=mc URL) instead of the object's list view.
+if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
+    try { window.parent.cfClosePanel(); } catch (e) { /* not embedded, or parent not ready */ }
+}
+
+// ==========================================================================
+//  Escaping helpers — standalone equivalents of CentreonListing's own
+//  this.escape(), usable on pages that render dynamic strings into HTML
+//  without instantiating a CentreonListing table.
+// ==========================================================================
+
+function clEscape(str) {
+    if (!str) return '';
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+
+// clEscape() alone is unsafe inside an HTML attribute (e.g. onclick="...");
+// this additionally escapes quotes.
+function clEscapeAttr(str) {
+    return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // ==========================================================================
