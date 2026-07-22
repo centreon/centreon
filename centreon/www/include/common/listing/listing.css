@@ -1856,3 +1856,136 @@
     background: var(--bt-info-background-color, #2E68AA);
     color: var(--btc-color, #fff);
 }
+
+/* ==========================================================================
+   Confirmation modal — replaces native confirm()/alert() for the "Delete"
+   and "Disable" bulk actions in the "More actions" menu (see listing.js
+   clConfirmAction / enhanceBulkActionSelect).
+   ========================================================================== */
+
+.cl-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.cl-confirm-overlay.open {
+    opacity: 1;
+}
+
+.cl-confirm-modal {
+    width: 420px;
+    max-width: calc(100vw - 32px);
+    background: var(--body-background, #fff);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    padding: 20px 24px;
+    transform: translateY(-12px);
+    transition: transform 0.15s ease;
+}
+
+.cl-confirm-overlay.open .cl-confirm-modal {
+    transform: translateY(0);
+}
+
+.cl-confirm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cl-confirm-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--body-color, #1b1b1b);
+}
+
+.cl-confirm-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--body-color, #6b7280);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.cl-confirm-close:hover {
+    background: var(--list-hover-background-color, #E6EDF5);
+}
+
+.cl-confirm-body {
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--body-color, #444);
+}
+
+.cl-confirm-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.cl-confirm-cancel {
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--body-color, #333);
+    background: rgba(127, 127, 127, 0.14);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cl-confirm-cancel:hover {
+    background: rgba(127, 127, 127, 0.22);
+}
+
+.cl-confirm-confirm-btn {
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Delete / Disable — destructive */
+.cl-confirm-confirm-btn--danger {
+    background: var(--color-danger, #FF4A4A);
+}
+
+.cl-confirm-confirm-btn--danger:hover {
+    background: #e23e3e;
+}
+
+/* Duplicate and other non-destructive actions */
+.cl-confirm-confirm-btn--primary {
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
+}
+
+.cl-confirm-confirm-btn--primary:hover {
+    background: var(--bt-info-hover-background-color, #255891);
+}

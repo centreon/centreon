@@ -344,10 +344,42 @@ function CentreonListing(config) {
             wrapper.removeClass('open');
         }
 
-        function selectValue(value) {
+        // Actually flip the underlying <select>'s value and invoke its
+        // existing onchange (confirm dialogs, form submit, ...) directly —
+        // a direct function call, not jQuery's trigger('change'), so it's
+        // guaranteed to run synchronously in this exact call stack (needed
+        // below, where a temporary window.confirm override must still be in
+        // place when the handler's own confirm() call executes).
+        function applyValue(value) {
             select.value = value;
-            $select.trigger('change');
+            if (typeof select.onchange === 'function') {
+                select.onchange.call(select, { type: 'change', target: select, currentTarget: select });
+            } else {
+                $select.trigger('change');
+            }
+        }
+
+        function selectValue(value, label) {
             closeMenu();
+            if (/delete|disable|duplicate/i.test(label)) {
+                clConfirmAction(label, function (confirmed) {
+                    if (!confirmed) return;
+                    // The onchange handler still has its own native confirm()
+                    // for this action (e.g. "Do you confirm the deletion?")
+                    // — the user already confirmed via our modal, so make
+                    // that redundant native prompt a no-op instead of asking
+                    // twice.
+                    var originalConfirm = window.confirm;
+                    window.confirm = function () { return true; };
+                    try {
+                        applyValue(value);
+                    } finally {
+                        window.confirm = originalConfirm;
+                    }
+                });
+            } else {
+                applyValue(value);
+            }
         }
 
         btn.on('click', function (e) {
@@ -358,13 +390,13 @@ function CentreonListing(config) {
         });
 
         menu.on('click', '.cl-more-actions-item', function () {
-            selectValue(jQuery(this).attr('data-value'));
+            selectValue(jQuery(this).attr('data-value'), jQuery(this).text());
         });
 
         menu.on('keydown', '.cl-more-actions-item', function (e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                selectValue(jQuery(this).attr('data-value'));
+                selectValue(jQuery(this).attr('data-value'), jQuery(this).text());
             }
         });
 
@@ -1061,4 +1093,74 @@ function clToast(message, type) {
         toast.classList.remove('show');
         setTimeout(function () { if (toast.parentNode) { toast.parentNode.removeChild(toast); } }, 300);
     }, 4500);
+}
+
+// ==========================================================================
+//  Confirmation modal — replaces the native confirm()/alert() for
+//  destructive bulk actions (Delete, Disable) in the "More actions" menu
+//  (see enhanceBulkActionSelect above). Derives the object name from the
+//  page's own title, so nothing needs to be configured per listing.
+//    clConfirmAction('Delete', function (confirmed) { ... })
+// ==========================================================================
+function clConfirmAction(actionLabel, callback) {
+    var label = actionLabel.trim();
+    var key = /delete/i.test(label) ? 'delete' : (/disable/i.test(label) ? 'disable' : 'duplicate');
+    var isDestructive = key === 'delete' || key === 'disable';
+    var titleEl = document.querySelector('.cl-page-title');
+    var object = titleEl ? titleEl.textContent.trim().toLowerCase() : 'item(s)';
+
+    // Translated templates come from htmlHeader.php (window.clI18n) — this
+    // file is a plain static asset and can't use Smarty's {t}...{/t} tags
+    // directly. Falls back to English if that global isn't present.
+    var i18n = window.clI18n && window.clI18n.confirm && window.clI18n.confirm[key];
+    var cancelLabel = (window.clI18n && window.clI18n.cancel) || 'Cancel';
+    var titleTpl = i18n ? i18n.title : (label + ' %s');
+    var messageTpl = i18n ? i18n.message : (
+        'You are about to ' + label.toLowerCase() + ' the selected %s.' +
+        (key === 'delete' ? ' This action cannot be undone.' : '') +
+        ' Do you want to continue?'
+    );
+    var title = titleTpl.replace('%s', object);
+    var message = messageTpl.replace('%s', object);
+
+    var overlay = document.createElement('div');
+    overlay.className = 'cl-confirm-overlay';
+    var modal = document.createElement('div');
+    modal.className = 'cl-confirm-modal';
+    modal.innerHTML =
+        '<div class="cl-confirm-header">' +
+            '<h3 class="cl-confirm-title"></h3>' +
+            '<button type="button" class="cl-confirm-close" aria-label="Close">&times;</button>' +
+        '</div>' +
+        '<div class="cl-confirm-body"></div>' +
+        '<div class="cl-confirm-actions">' +
+            '<button type="button" class="cl-confirm-cancel"></button>' +
+            '<button type="button" class="cl-confirm-confirm-btn"></button>' +
+        '</div>';
+    modal.querySelector('.cl-confirm-title').textContent = title;
+    modal.querySelector('.cl-confirm-body').textContent = message;
+    modal.querySelector('.cl-confirm-cancel').textContent = cancelLabel;
+    var confirmBtn = modal.querySelector('.cl-confirm-confirm-btn');
+    confirmBtn.textContent = label;
+    confirmBtn.classList.add(isDestructive ? 'cl-confirm-confirm-btn--danger' : 'cl-confirm-confirm-btn--primary');
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function () { overlay.classList.add('open'); });
+
+    function close(result) {
+        overlay.classList.remove('open');
+        document.removeEventListener('keydown', onKeydown);
+        setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 150);
+        callback(result);
+    }
+    function onKeydown(e) {
+        if (e.key === 'Escape') close(false);
+    }
+    document.addEventListener('keydown', onKeydown);
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) close(false);
+    });
+    modal.querySelector('.cl-confirm-close').addEventListener('click', function () { close(false); });
+    modal.querySelector('.cl-confirm-cancel').addEventListener('click', function () { close(false); });
+    confirmBtn.addEventListener('click', function () { close(true); });
 }
