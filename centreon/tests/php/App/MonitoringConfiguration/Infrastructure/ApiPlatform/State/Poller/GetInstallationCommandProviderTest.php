@@ -32,6 +32,13 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
     private const POLLER_UID = 123456789012345;
     private const POLLER_NAME = 'test-poller';
     private const POLLER_TYPE = 'vm';
+    private const CENTRAL_ADDRESS = '192.168.1.100';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->insertCentral();
+    }
 
     public function testItReturns401WhenNotAuthenticated(): void
     {
@@ -87,11 +94,13 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url <CENTRAL_URL> --appsecret test-app-secret --salt test-salt',
+            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url %s --appsecret test-app-secret --salt test-salt',
+            self::CENTRAL_ADDRESS,
             $tokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
+            self::CENTRAL_ADDRESS,
         );
         self::assertSame($expected, $data['installation_command']);
     }
@@ -108,13 +117,38 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url <CENTRAL_URL> --appsecret test-app-secret --salt test-salt',
+            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url %s --appsecret test-app-secret --salt test-salt',
+            self::CENTRAL_ADDRESS,
             $namedTokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
+            self::CENTRAL_ADDRESS,
         );
         self::assertSame($expected, $data['installation_command']);
+    }
+
+    private function insertCentral(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('nagios_server', [
+            'name' => 'Central',
+            'localhost' => '1',
+            'ns_ip_address' => '127.0.0.1',
+            'ns_activate' => '1',
+            'uid' => 100000000000001,
+        ]);
+        $centralServerId = (int) $connection->lastInsertId();
+
+        $connection->insert('platform_topology', [
+            'address' => self::CENTRAL_ADDRESS,
+            'name' => 'Central',
+            'type' => 'central',
+            'parent_id' => null,
+            'server_id' => $centralServerId,
+            'pending' => '0',
+        ]);
     }
 
     private function insertPoller(string $name): int

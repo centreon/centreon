@@ -44,6 +44,25 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+
+        $connection->insert('nagios_server', [
+            'name' => 'Central',
+            'localhost' => '1',
+            'ns_ip_address' => '127.0.0.1',
+            'ns_activate' => '1',
+            'uid' => 100000000000001,
+        ]);
+        $centralServerId = (int) $connection->lastInsertId();
+
+        $connection->insert('platform_topology', [
+            'address' => '192.168.1.100',
+            'name' => 'Central',
+            'type' => 'central',
+            'parent_id' => null,
+            'server_id' => $centralServerId,
+            'pending' => '0',
+        ]);
+
         $connection->insert('authentication_tokens', [
             'token_name' => $this->tokenName,
             'token_string' => $this->tokenString,

@@ -68,6 +68,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
+            $this->pollerRepository->getCentralAddress()->value,
             $this->isCloudPlatform,
         );
 

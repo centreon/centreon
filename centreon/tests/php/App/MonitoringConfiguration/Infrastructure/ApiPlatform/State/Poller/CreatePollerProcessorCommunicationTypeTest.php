@@ -137,6 +137,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 
         $pollerRepository = $this->createMock(PollerRepository::class);
         $pollerRepository->method('findOneByName')->willReturn(null);
+        $pollerRepository->method('getCentralAddress')->willReturn(new PollerAddress('192.168.1.100'));
 
         return new CreatePollerProcessor(
             commandBus: $commandBus,

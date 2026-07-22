@@ -34,8 +34,8 @@ final readonly class PollerInstallationCommandFactory
         private PollerToken $pollerToken,
         #[Sensitive] private string $appSecret,
         #[Sensitive] private string $salt,
+        private string $centralUrl,
         private bool $isCloudPlatform = false,
-        private string $centralUrl = '<CENTRAL_URL>',
     ) {
     }
 

@@ -50,4 +50,6 @@ interface PollerRepository
     public function get(PollerId $pollerId): Poller;
 
     public function withCmaCertificates(): self;
+
+    public function getCentralAddress(): PollerAddress;
 }

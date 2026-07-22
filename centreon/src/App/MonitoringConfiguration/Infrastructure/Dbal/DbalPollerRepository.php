@@ -40,6 +40,7 @@ use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\ParameterType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -199,6 +200,34 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             if ($pollerId === 0) {
                 throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
             }
+            $centralTopologyId = $this->connection->createQueryBuilder()
+                ->select('id')
+                ->from('platform_topology')
+                ->where("type = 'central'")
+                ->executeQuery()
+                ->fetchOne();
+
+            if (! is_int($centralTopologyId) && ! is_string($centralTopologyId)) {
+                throw new \RuntimeException('No central server found in platform_topology');
+            }
+
+            $this->connection->createQueryBuilder()
+                ->insert('platform_topology')
+                ->values([
+                    'address' => ':address',
+                    'name' => ':name',
+                    'type' => ':type',
+                    'parent_id' => ':parent_id',
+                    'server_id' => ':server_id',
+                    'pending' => ':pending',
+                ])
+                ->setParameter('address', $poller->address->value)
+                ->setParameter('name', $poller->name->value)
+                ->setParameter('type', 'poller')
+                ->setParameter('parent_id', (int) $centralTopologyId, ParameterType::INTEGER)
+                ->setParameter('server_id', $pollerId, ParameterType::INTEGER)
+                ->setParameter('pending', '0')
+                ->executeStatement();
         } catch (UniqueConstraintViolationException $exception) {
             $field = str_contains($exception->getMessage(), 'uniq_uid')
                 ? 'uid' : 'name';
@@ -362,6 +391,22 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.init_script_centreontrapd AS init_script_centreontrapd",
             "{$alias}.snmp_trapd_path_conf AS snmp_trapd_path_conf",
         ];
+    }
+
+    public function getCentralAddress(): PollerAddress
+    {
+        $address = $this->connection->createQueryBuilder()
+            ->select('address')
+            ->from('platform_topology')
+            ->where("type = 'central'")
+            ->executeQuery()
+            ->fetchOne();
+
+        if (! is_string($address)) {
+            throw new \RuntimeException('No central server found in platform_topology');
+        }
+
+        return new PollerAddress($address);
     }
 
     private function loadCmaCertificates(Poller $poller): void
