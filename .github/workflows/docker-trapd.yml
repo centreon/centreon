@@ -389,6 +389,7 @@ jobs:
           scan-type: image
           image-ref: ${{ env.TRAPD_IMAGE }}
           severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          ignore-unfixed: true
           format: json
           output: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
           exit-code: '0'
@@ -412,6 +413,8 @@ jobs:
           {
             echo "### Trivy CVE scan — ${{ matrix.component }}-${{ matrix.operating_system }}"
             echo
+            echo "_ignore-unfixed: true — counts below are fixable CVEs only (a fix is available upstream)._"
+            echo
             echo "\`${IMAGE}\`"
             echo
             badge CRITICAL "$critical" 8b0000
@@ -427,9 +430,9 @@ jobs:
             echo
             high_crit=$(( high + critical ))
             if [ "$high_crit" -eq 0 ]; then
-              echo "No CRITICAL/HIGH vulnerability found. ✅"
+              echo "No fixable CRITICAL/HIGH vulnerability found. ✅"
             else
-              echo "**${high_crit} CRITICAL/HIGH unique CVE(s)** — detail below."
+              echo "**${high_crit} fixable CRITICAL/HIGH unique CVE(s)** — detail below."
               echo
               echo "| CVE | Severity | Status | Fixed version | Affected package(s) |"
               echo "| --- | --- | --- | --- | --- |"
