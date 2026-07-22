@@ -898,6 +898,10 @@ function CentreonListing(config) {
         updateHeaderCheckboxState();
         jQuery(document).on('change', '.cl-col-picker input[type=checkbox]', updateBulkActionState);
 
+        // Ask for confirmation before discarding an open side panel's
+        // unsaved changes on an outside click.
+        wireSidePanelDirtyGuard();
+
         // Initial data load (restore page from session)
         self.fetch(currentNum, currentLimit, currentSearch);
 
@@ -1124,33 +1128,13 @@ function clToast(message, type) {
 }
 
 // ==========================================================================
-//  Confirmation modal — replaces the native confirm()/alert() for
-//  destructive bulk actions (Delete, Disable) in the "More actions" menu
-//  (see enhanceBulkActionSelect above). Derives the object name from the
-//  page's own title, so nothing needs to be configured per listing.
-//    clConfirmAction('Delete', function (confirmed) { ... })
+//  Confirmation modal — generic building block shared by the bulk-action
+//  confirmation (Delete/Disable/Duplicate) and the "discard unsaved changes"
+//  prompt below.
+//    clShowConfirmModal({title, message, cancelLabel, confirmLabel, danger},
+//                        function (confirmed) { ... })
 // ==========================================================================
-function clConfirmAction(actionLabel, callback) {
-    var label = actionLabel.trim();
-    var key = /delete/i.test(label) ? 'delete' : (/disable/i.test(label) ? 'disable' : 'duplicate');
-    var isDestructive = key === 'delete' || key === 'disable';
-    var titleEl = document.querySelector('.cl-page-title');
-    var object = titleEl ? titleEl.textContent.trim().toLowerCase() : 'item(s)';
-
-    // Translated templates come from htmlHeader.php (window.clI18n) — this
-    // file is a plain static asset and can't use Smarty's {t}...{/t} tags
-    // directly. Falls back to English if that global isn't present.
-    var i18n = window.clI18n && window.clI18n.confirm && window.clI18n.confirm[key];
-    var cancelLabel = (window.clI18n && window.clI18n.cancel) || 'Cancel';
-    var titleTpl = i18n ? i18n.title : (label + ' %s');
-    var messageTpl = i18n ? i18n.message : (
-        'You are about to ' + label.toLowerCase() + ' the selected %s.' +
-        (key === 'delete' ? ' This action cannot be undone.' : '') +
-        ' Do you want to continue?'
-    );
-    var title = titleTpl.replace('%s', object);
-    var message = messageTpl.replace('%s', object);
-
+function clShowConfirmModal(opts, callback) {
     var overlay = document.createElement('div');
     overlay.className = 'cl-confirm-overlay';
     var modal = document.createElement('div');
@@ -1165,12 +1149,12 @@ function clConfirmAction(actionLabel, callback) {
             '<button type="button" class="cl-confirm-cancel"></button>' +
             '<button type="button" class="cl-confirm-confirm-btn"></button>' +
         '</div>';
-    modal.querySelector('.cl-confirm-title').textContent = title;
-    modal.querySelector('.cl-confirm-body').textContent = message;
-    modal.querySelector('.cl-confirm-cancel').textContent = cancelLabel;
+    modal.querySelector('.cl-confirm-title').textContent = opts.title;
+    modal.querySelector('.cl-confirm-body').textContent = opts.message;
+    modal.querySelector('.cl-confirm-cancel').textContent = opts.cancelLabel;
     var confirmBtn = modal.querySelector('.cl-confirm-confirm-btn');
-    confirmBtn.textContent = label;
-    confirmBtn.classList.add(isDestructive ? 'cl-confirm-confirm-btn--danger' : 'cl-confirm-confirm-btn--primary');
+    confirmBtn.textContent = opts.confirmLabel;
+    confirmBtn.classList.add(opts.danger ? 'cl-confirm-confirm-btn--danger' : 'cl-confirm-confirm-btn--primary');
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
     requestAnimationFrame(function () { overlay.classList.add('open'); });
@@ -1191,4 +1175,92 @@ function clConfirmAction(actionLabel, callback) {
     modal.querySelector('.cl-confirm-close').addEventListener('click', function () { close(false); });
     modal.querySelector('.cl-confirm-cancel').addEventListener('click', function () { close(false); });
     confirmBtn.addEventListener('click', function () { close(true); });
+}
+
+// Replaces the native confirm()/alert() for destructive bulk actions
+// (Delete, Disable, Duplicate) in the "More actions" menu (see
+// enhanceBulkActionSelect above). Derives the object name from the page's
+// own title, so nothing needs to be configured per listing.
+//   clConfirmAction('Delete', function (confirmed) { ... })
+function clConfirmAction(actionLabel, callback) {
+    var label = actionLabel.trim();
+    var key = /delete/i.test(label) ? 'delete' : (/disable/i.test(label) ? 'disable' : 'duplicate');
+    var isDestructive = key === 'delete' || key === 'disable';
+    var titleEl = document.querySelector('.cl-page-title');
+    var object = titleEl ? titleEl.textContent.trim().toLowerCase() : 'item(s)';
+
+    // Translated templates come from htmlHeader.php (window.clI18n) — this
+    // file is a plain static asset and can't use Smarty's {t}...{/t} tags
+    // directly. Falls back to English if that global isn't present.
+    var i18n = window.clI18n && window.clI18n.confirm && window.clI18n.confirm[key];
+    var cancelLabel = (window.clI18n && window.clI18n.cancel) || 'Cancel';
+    var titleTpl = i18n ? i18n.title : (label + ' %s');
+    var messageTpl = i18n ? i18n.message : (
+        'You are about to ' + label.toLowerCase() + ' the selected %s.' +
+        (key === 'delete' ? ' This action cannot be undone.' : '') +
+        ' Do you want to continue?'
+    );
+
+    clShowConfirmModal({
+        title: titleTpl.replace('%s', object),
+        message: messageTpl.replace('%s', object),
+        cancelLabel: cancelLabel,
+        confirmLabel: label,
+        danger: isDestructive
+    }, callback);
+}
+
+// "Discard unsaved changes?" prompt shown when the user clicks outside an
+// open side panel (the overlay) while the form inside has been edited (see
+// window.cfFormDirty, set by CentreonForm.initFormPage's dirty tracking) —
+// see wireSidePanelDirtyGuard below.
+//   clConfirmDiscardChanges(function (confirmed) { ... })
+function clConfirmDiscardChanges(callback) {
+    var i18n = window.clI18n && window.clI18n.confirmDiscard;
+    clShowConfirmModal({
+        title: (i18n && i18n.title) || 'Discard changes?',
+        message: (i18n && i18n.message)
+            || 'You have unsaved changes. Are you sure you want to close this panel without saving?',
+        cancelLabel: (window.clI18n && window.clI18n.cancel) || 'Cancel',
+        confirmLabel: (i18n && i18n.confirm) || 'Discard',
+        danger: true
+    }, callback);
+}
+
+// Guards the side panel's close path: there are actually three ways to
+// close it (the overlay backdrop's onclick, the panel's own [x] button, and
+// the Escape key — see cfOpenPanel/cfClosePanel, duplicated as-is across
+// each listing's own .ihtml) and all three just call the shared
+// cfClosePanel() function. Wrapping that one function (instead of any one
+// of its three triggers) catches all of them uniformly: if the form loaded
+// in the panel's iframe has unsaved changes (window.cfFormDirty, set inside
+// the iframe by htmlHeader.php's dirty-tracking script — not every form
+// page calls CentreonForm.initFormPage(), some predate it and still have
+// their own hand-rolled JS, so this has to run unconditionally on every
+// page to be reliable regardless of which pattern a given form uses), ask
+// for confirmation instead of silently discarding them. Wired once per page
+// regardless of how many listing instances call init() (e.g. host+service
+// combo toolbars).
+function wireSidePanelDirtyGuard() {
+    if (typeof window.cfClosePanel !== 'function' || window.cfClosePanel.__clDirtyGuarded) return;
+
+    var originalClosePanel = window.cfClosePanel;
+    function guardedClosePanel() {
+        var frame = document.getElementById('cfSidePanelFrame');
+        var isDirty = false;
+        try {
+            isDirty = !!(frame && frame.contentWindow && frame.contentWindow.cfFormDirty);
+        } catch (err) {
+            isDirty = false;
+        }
+        if (!isDirty) {
+            originalClosePanel();
+            return;
+        }
+        clConfirmDiscardChanges(function (confirmed) {
+            if (confirmed) originalClosePanel();
+        });
+    }
+    guardedClosePanel.__clDirtyGuarded = true;
+    window.cfClosePanel = guardedClosePanel;
 }
