@@ -117,12 +117,35 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/form/form.css<?php echo $versionParam . '&t=' . time(); ?>" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam . '&t=' . time(); ?>"></script>
 
+    <!-- Translated strings for the shared listing lib's JS-built UI (e.g. the
+         "More actions" confirmation modal) — listing.js is a plain static
+         file and can't use Smarty's {t}...{/t} tags directly. -->
+    <script type="text/javascript">
+        window.clI18n = {
+            cancel: <?php echo json_encode(_('Cancel')); ?>,
+            confirm: {
+                delete: {
+                    title: <?php echo json_encode(_('Delete %s')); ?>,
+                    message: <?php echo json_encode(_('You are about to delete the selected %s. This action cannot be undone. Do you want to continue?')); ?>
+                },
+                disable: {
+                    title: <?php echo json_encode(_('Disable %s')); ?>,
+                    message: <?php echo json_encode(_('You are about to disable the selected %s. Do you want to continue?')); ?>
+                },
+                duplicate: {
+                    title: <?php echo json_encode(_('Duplicate %s')); ?>,
+                    message: <?php echo json_encode(_('You are about to duplicate the selected %s. Do you want to continue?')); ?>
+                }
+            }
+        };
+    </script>
+
     <!-- graph css -->
     <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
     <link href="./include/views/graphs/javascript/centreon-status-chart.css" type="text/css" rel="stylesheet" />
     <link
             href="./Themes/<?php echo $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css/'
-                : $variablesThemeCSS . '/'; ?>variables.css<?php echo $versionParam; ?>"
+                : $variablesThemeCSS . '/'; ?>variables.css<?php echo $versionParam . '&t=' . time(); ?>"
             rel="stylesheet"
             type="text/css"
     />
