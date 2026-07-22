@@ -985,7 +985,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
         'host_notification_interval',
@@ -997,7 +996,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_comment',
         'host_checks_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1019,7 +1017,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_passive_checks_enabled',
         'host_notifications_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -3057,6 +3054,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
@@ -3199,6 +3202,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
