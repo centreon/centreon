@@ -47,16 +47,15 @@ trivy image --format cyclonedx --output sbom-local.json centreon-centreontrapd:t
 
 ### CI Integration
 - **SBOM formats generated:** CycloneDX (for tooling) + SPDX (for compliance)
-- **Scan results:** Rendered as a GitHub Actions job summary — a compact per-severity count block
-  (`UNKNOWN`/`LOW`/`MEDIUM`/`HIGH`/`CRITICAL`) at the top, then a detailed CVE table (CRITICAL/HIGH
-  only, dedup'd, with links to the advisory) if any fixable finding remains. Raw JSON also uploaded
-  as a `cve-report-*` artifact.
-- **`ignore-unfixed: true`:** only vulnerabilities with a `FixedVersion` are reported at all — a CVE
-  with no upstream fix yet (Debian `affected`/`fix_deferred`) is filtered out entirely, both from the
-  summary counts and the detailed table. Today (2026-07-22) this means **every count shows 0** for
-  both images: none of the 20 CVEs found in the initial scan had a fix available yet (see PR #11136
-  discussion). This is expected, not a bug — the report becomes useful again the moment Debian ships
-  a fix for any of them.
+- **Scan results:** Rendered as a GitHub Actions job summary — a colored severity badge row
+  (`CRITICAL`/`HIGH`/`MEDIUM`/`LOW`/`UNKNOWN`, unique-CVE counts, via shields.io) at the top, then a
+  detailed CVE table (CRITICAL/HIGH only, dedup'd, with links to the advisory) whenever there's at
+  least one such finding. Raw JSON also uploaded as a `cve-report-*` artifact.
+- **`ignore-unfixed` was tried and reverted:** an earlier iteration scanned with `ignore-unfixed: true`,
+  which drops any CVE without an upstream fix — but as of 2026-07-22 *none* of the 20 CRITICAL/HIGH
+  CVEs found have a fix yet, so every count showed 0 and the report was uninformative. Reverted in
+  favor of showing everything (Debian `affected`/`fix_deferred` included); revisit `ignore-unfixed`
+  once fixes start landing upstream (see PR #11136 discussion).
 - **CVE report:** Automatic via `aquasecurity/trivy-action`, pinned to a SHA per repo convention
 - **Blocking behavior:** currently non-blocking on all branches (informational only, PoC stage). A stable-only blocking gate is a possible follow-up but is not yet implemented — see "Known Limitations" below.
 
