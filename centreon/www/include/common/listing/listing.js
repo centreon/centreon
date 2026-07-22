@@ -359,8 +359,36 @@ function CentreonListing(config) {
             }
         }
 
+        // Mass Change opens as a full page reload by default (the shared
+        // onchange handler's setO(value); submit()) — reuse the page's own
+        // "+Add" button URL (same cfOpenPanel side panel already used for
+        // Add/Edit) to open it there instead, carrying the checked rows'
+        // ids along as a GET param the same way the old full-page submit
+        // carried them via POST.
+        function openMassChangePanel(label) {
+            var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
+            var onclickAttr = (addBtn && addBtn.getAttribute('onclick')) || '';
+            var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec(onclickAttr);
+            if (!urlMatch || typeof window.cfOpenPanel !== 'function') return false;
+
+            var ids = [];
+            jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').each(function () {
+                var name = jQuery(this).attr('name');
+                var idMatch = name && /\[(.+)\]$/.exec(name);
+                if (idMatch) ids.push(idMatch[1]);
+            });
+            if (!ids.length) return false;
+
+            var url = urlMatch[1].replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
+            window.cfOpenPanel(url, label);
+            return true;
+        }
+
         function selectValue(value, label) {
             closeMenu();
+            if (value === 'mc' && openMassChangePanel(label)) {
+                return;
+            }
             if (/delete|disable|duplicate/i.test(label)) {
                 clConfirmAction(label, function (confirmed) {
                     if (!confirmed) return;
