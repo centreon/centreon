@@ -124,6 +124,8 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
     {
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
+                -- Legacy pollers unaware of the Snowflake UID still report nagios_server.id
+                -- as instance_id, so match on either the uid or the config id.
                 UPDATE `:db`.nagios_server ns
                     INNER JOIN `:dbstg`.instances i
                     ON ns.uid = i.instance_id OR ns.id = i.instance_id
