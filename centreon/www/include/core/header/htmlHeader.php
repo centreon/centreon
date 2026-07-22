@@ -253,8 +253,12 @@ while ($topology_js = $DBRESULT->fetch()) {
             if (isset($_GET['problem'])) {
                 $obis .= '_pb';
             }
-            if (isset($_GET['acknowledge'])) {
-                $obis .= '_ack_' . $_GET['acknowledge'];
+            if (
+                isset($_GET['acknowledge'])
+                && is_scalar($_GET['acknowledge'])
+                && in_array((string) $_GET['acknowledge'], ['0', '1'], true)
+            ) {
+                $obis .= '_ack_' . (string) $_GET['acknowledge'];
             }
             echo "\tsetTimeout(function () { initM("
                 . (int) $tM . ', '
