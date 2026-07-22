@@ -8,8 +8,9 @@ inputs:
     description: "The distribution used for packaging"
     required: true
   version:
-    description: "Centreon packaged major version"
-    required: true
+    description: "Centreon packaged major version (not used by the plugins repository family)"
+    required: false
+    default: ""
   cache_key:
     description: "The cached package key"
     required: true
@@ -25,6 +26,10 @@ inputs:
     required: true
   delivery_type:
     description: "Delivery to feature or standard repository"
+    required: false
+    default: "standard"
+  repository_name:
+    description: "Target repository family: standard, standard-internal, business, business-internal or plugins"
     required: false
     default: "standard"
   verify:
@@ -71,6 +76,7 @@ runs:
         release_type: ${{ inputs.release_type }}
         is_cloud: ${{ inputs.is_cloud }}
         delivery_type: ${{ inputs.delivery_type }}
+        repository_name: ${{ inputs.repository_name }}
 
     - name: Restore packages from cache
       if: steps.pulp-properties.outputs.skip_delivery == 'false'
@@ -115,6 +121,7 @@ runs:
         BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
         SUITE: ${{ steps.pulp-properties.outputs.suite }}
         STABLE_SUITE: ${{ steps.pulp-properties.outputs.stable_suite }}
+        STABLE_BASE_PATH: ${{ steps.pulp-properties.outputs.stable_base_path }}
         POOL_PATH: ${{ steps.pulp-properties.outputs.pool_path }}
         PULP_URL: ${{ inputs.pulp_url }}
         PULP_TOKEN: ${{ env.PULP_TOKEN }}
