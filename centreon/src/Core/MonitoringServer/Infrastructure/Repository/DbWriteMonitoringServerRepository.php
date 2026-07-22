@@ -126,7 +126,7 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
             <<<'SQL'
                 UPDATE `:db`.nagios_server ns
                     INNER JOIN `:dbstg`.instances i
-                    ON ns.uid = i.instance_id
+                    ON ns.uid = i.instance_id OR ns.id = i.instance_id
                 SET ns.is_encryption_ready = i.is_encryption_ready
                 SQL
         ));

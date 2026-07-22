@@ -170,7 +170,10 @@ class RealTimeMonitoringServerRepositoryRDB extends AbstractRepositoryDRB implem
             }
         );
 
-        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS * FROM `:dbstg`.instances JOIN `:db`.nagios_server ON instances.instance_id = nagios_server.uid');
+        // instances.instance_id matches nagios_server.uid for up-to-date pollers, but legacy
+        // pollers that do not know the Snowflake UID still report nagios_server.id. Fall back on
+        // the config id so a mixed-version platform keeps showing their running state.
+        $request = $this->translateDbName('SELECT SQL_CALC_FOUND_ROWS * FROM `:dbstg`.instances JOIN `:db`.nagios_server ON instances.instance_id = nagios_server.uid OR instances.instance_id = nagios_server.id');
         $whereCondition = false;
 
         // Search

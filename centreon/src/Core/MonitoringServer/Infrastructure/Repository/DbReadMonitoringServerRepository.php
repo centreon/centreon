@@ -386,7 +386,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             <<<'SQL'
                 SELECT 1
                 FROM `:dbstg`.`instances` i
-                INNER JOIN `:db`.`nagios_server` ns ON ns.uid = i.instance_id
+                INNER JOIN `:db`.`nagios_server` ns ON ns.uid = i.instance_id OR ns.id = i.instance_id
                 WHERE ns.id = :monitoringServerId
                     AND i.is_encryption_ready = 1
                 SQL

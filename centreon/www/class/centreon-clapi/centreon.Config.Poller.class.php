@@ -737,6 +737,8 @@ class CentreonConfigPoller
         $nagiosResult = $this->DB->query('SELECT id, uid FROM nagios_server');
         while ($row = $nagiosResult->fetchRow()) {
             $uidToId[$row['uid']] = $row['id'];
+            // Legacy pollers unaware of the UID still report nagios_server.id as instance_id.
+            $uidToId[$row['id']] = $row['id'];
         }
 
         $pollerState = [];
