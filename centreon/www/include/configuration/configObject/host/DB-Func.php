@@ -1410,9 +1410,11 @@ function updateHost_MC($hostId = null)
         $dbResult->closeCursor();
     }
 
-    // Remove all parameters that have an empty value in order to keep the host properties that have not been modified
+    // Remove all parameters that have an empty value in order to keep the host properties that have not been modified.
+    // Uses a strict empty-string check rather than empty(): empty('0') is true in PHP, which would otherwise also
+    // strip a legitimately submitted "0" (e.g. disabling a threshold, setting an interval to 0).
     foreach ($submittedValues as $name => $value) {
-        if (is_string($value) && empty($value)) {
+        if (is_string($value) && $value === '') {
             unset($submittedValues[$name]);
         }
     }
