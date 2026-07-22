@@ -30,9 +30,7 @@ use Adaptation\Log\Logger;
 use App\Kernel;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Infrastructure\FeatureFlags;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Symfony\Component\Dotenv\Dotenv;
+use Core\Common\Application\VaultEligibilityService;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
@@ -41,12 +39,10 @@ try {
         throw new Exception('This script must be run as root');
     }
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
-    if ($vaultConfiguration === null) {
+    if (! $vaultEligibilityService->shouldUseVault()) {
         throw new Exception('No vault configured');
     }
 
@@ -59,12 +55,18 @@ try {
     revertAndUpdateDatabaseCredentials($readVaultRepository, $writeVaultRepository);
     echo 'Revert of database credentials completed' . PHP_EOL;
 
-    revertGorgoneApiCredentials($readVaultRepository, $writeVaultRepository);
+    revertGorgoneApiCredentials(
+        $readVaultRepository,
+        $writeVaultRepository,
+        $vaultEligibilityService->shouldUseVault('vault_gorgone')
+    );
     revertApplicationCredentials();
 
 } catch (Throwable $ex) {
     Logger::create(LogChannelEnum::WEB)->error($ex->getMessage(), ['exception' => $ex]);
     echo $ex->getMessage() . PHP_EOL;
+
+    exit(1);
 }
 
 /**
@@ -74,23 +76,18 @@ try {
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
+ * @param bool $isGorgoneVaultEnabled whether the `vault_gorgone` feature flag is active for this platform
  *
  * @throws Throwable
  */
 function revertGorgoneApiCredentials(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
+    bool $isGorgoneVaultEnabled,
 ): void {
     echo 'Revert of Gorgone API credentials' . PHP_EOL;
 
-    (new Dotenv())->bootEnv('/usr/share/centreon/.env');
-    $isCloudPlatform = false;
-    if (array_key_exists('IS_CLOUD_PLATFORM', $_ENV) && $_ENV['IS_CLOUD_PLATFORM']) {
-        $isCloudPlatform = true;
-    }
-    $featuresFileContent = file_get_contents(__DIR__ . '/../config/features.json');
-    $featureFlagManager = new FeatureFlags($isCloudPlatform, $featuresFileContent);
-    if ($featureFlagManager->isEnabled('vault_gorgone')) {
+    if ($isGorgoneVaultEnabled) {
         revertGorgoneCredentialsToDb($readVaultRepository, $writeVaultRepository);
     }
 

@@ -20,8 +20,8 @@
  */
 
 use Adaptation\Log\Enum\LogChannelEnum;
-use Adaptation\Log\Logger as AdaptationLogger;
-use Centreon\Domain\Log\Logger;
+use Adaptation\Log\Logger;
+use Centreon\Domain\Log\Logger as DeprecatedLogger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\FeatureFlags;
@@ -35,7 +35,7 @@ const DEFAULT_SCHEME = 'https';
  * Get Client Token for Vault.
  *
  * @param VaultConfiguration $vaultConfiguration
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param CentreonRestHttp $httpClient
  *
  * @throws Exception
@@ -44,7 +44,7 @@ const DEFAULT_SCHEME = 'https';
  */
 function authenticateToVault(
     VaultConfiguration $vaultConfiguration,
-    Logger $logger,
+    DeprecatedLogger $logger,
     CentreonRestHttp $httpClient,
 ): string {
     try {
@@ -77,7 +77,7 @@ function authenticateToVault(
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param int $hostId
  * @param string $vaultPath
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  *
  * @throws Exception
  *
@@ -87,7 +87,7 @@ function getHostSecretsFromVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     int $hostId,
     string $vaultPath,
-    Logger $logger,
+    DeprecatedLogger $logger,
 ): array {
     try {
         return $readVaultRepository->findFromPath($vaultPath);
@@ -124,7 +124,7 @@ function updateHostTableWithVaultPath(CentreonDB $pearDB, string $hostPath, int 
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param ?string $snmpCommunity
  * @param array<int, array<string, string>> $macroPasswords
  * @param int $duplicatedHostId
@@ -135,7 +135,7 @@ function updateHostTableWithVaultPath(CentreonDB $pearDB, string $hostPath, int 
 function duplicateHostSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     ?string $snmpCommunity,
     array $macroPasswords,
     int $duplicatedHostId,
@@ -457,7 +457,7 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param string|null $vaultPath
  * @param int $hostId
  * @param array<int,array<string,string>> $macros
@@ -468,7 +468,7 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
 function updateHostSecretsInVaultFromMC(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     ?string $vaultPath,
     int $hostId,
     array $macros,
@@ -549,7 +549,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param string|null $vaultPath
  * @param int $hostId
  * @param array $macros
@@ -560,7 +560,7 @@ function prepareHostUpdateMCPayload(?string $hostSNMPCommunity, array $macros, a
 function updateHostSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     ?string $vaultPath,
     int $hostId,
     array $macros,
@@ -692,7 +692,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param int $duplicatedServiceId
  * @param array<int, array<string, string> $macroPasswords
  *
@@ -701,7 +701,7 @@ function prepareHostUpdatePayload(?string $hostSNMPCommunity, array $macros, arr
 function duplicateServiceSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     int $duplicatedServiceId,
     array $macroPasswords,
 ): void {
@@ -745,7 +745,7 @@ function duplicateServiceSecretsInVault(
  * @param int $serviceId
  * @param string $uuid
  * @param string $clientToken
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param CentreonRestHttp $httpClient
  *
  * @throws Throwable
@@ -756,7 +756,7 @@ function getServiceSecretsFromVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     int $serviceId,
     string $vaultPath,
-    Logger $logger,
+    DeprecatedLogger $logger,
 ): array {
     try {
         return $readVaultRepository->findFromPath($vaultPath);
@@ -845,7 +845,7 @@ function retrieveServiceSecretUuidFromDatabase(
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param string|null $vaultPath
  * @param int $serviceId
  * @param array<int,array{
@@ -860,7 +860,7 @@ function retrieveServiceSecretUuidFromDatabase(
 function updateServiceSecretsInVaultFromMC(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     ?string $vaultPath,
     int $serviceId,
     array $macros,
@@ -932,7 +932,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
  * @param WriteVaultRepositoryInterface $writeVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param int $serviceId
  * @param array<int,array{
  *       macroName: string,
@@ -947,7 +947,7 @@ function prepareServiceUpdateMCPayload(array $macros, array $serviceSecretsFromV
 function updateServiceSecretsInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     WriteVaultRepositoryInterface $writeVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     ?string $vaultPath,
     int $serviceId,
     array $macros,
@@ -1499,7 +1499,7 @@ function revertAndUpdateDatabaseCredentials(
 ): void {
     $stored = retrieveDatabaseCredentialsFromConfigFile();
     if (! str_starts_with($stored['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
-        AdaptationLogger::create(LogChannelEnum::WEB)->info('Database credentials are not stored in Vault, nothing to revert');
+        Logger::create(LogChannelEnum::WEB)->info('Database credentials are not stored in Vault, nothing to revert');
 
         return;
     }
@@ -1519,9 +1519,18 @@ function revertAndUpdateDatabaseCredentials(
         'password' => $secrets[VaultConfiguration::DATABASE_PASSWORD_KEY],
     ]);
 
+    // Make sure the plaintext was actually written back before deleting the Vault secret: if the
+    // config rewrite silently no-oped (format drift), deleting the secret would lose the credentials.
+    $postCheck = retrieveDatabaseCredentialsFromConfigFile();
+    if (str_starts_with($postCheck['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
+        throw new Exception(
+            'Vault path still present in config after restore, aborting Vault deletion to prevent credential loss'
+        );
+    }
+
     deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::DATABASE_VAULT_PATH, $stored['username']);
 
-    AdaptationLogger::create(LogChannelEnum::WEB)->info('Database credentials reverted from Vault to configuration files');
+    Logger::create(LogChannelEnum::WEB)->info('Database credentials reverted from Vault to configuration files');
 }
 
 /**
@@ -1736,7 +1745,7 @@ function revertGorgoneCredentialsToDb(
 ): void {
     $storedPassword = retrieveGorgoneApiCredentialsFromConfigFile();
     if (! str_starts_with($storedPassword, VaultConfiguration::VAULT_PATH_PATTERN)) {
-        AdaptationLogger::create(LogChannelEnum::WEB)->info('Gorgone API credentials are not stored in Vault, nothing to revert');
+        Logger::create(LogChannelEnum::WEB)->info('Gorgone API credentials are not stored in Vault, nothing to revert');
 
         return;
     }
@@ -1750,9 +1759,18 @@ function revertGorgoneCredentialsToDb(
 
     restoreGorgoneApiFile($secrets[VaultConfiguration::GORGONE_PASSWORD]);
 
+    // Make sure the plaintext was actually written back before deleting the Vault secret: if the
+    // config rewrite silently no-oped (format drift), deleting the secret would lose the credentials.
+    $postCheck = retrieveGorgoneApiCredentialsFromConfigFile();
+    if (str_starts_with($postCheck, VaultConfiguration::VAULT_PATH_PATTERN)) {
+        throw new Exception(
+            'Vault path still present in Gorgone config after restore, aborting Vault deletion to prevent credential loss'
+        );
+    }
+
     deleteVaultSecret($writeVaultRepository, AbstractVaultRepository::GORGONE_VAULT_PATH, $storedPassword);
 
-    AdaptationLogger::create(LogChannelEnum::WEB)->info('Gorgone API credentials reverted from Vault to configuration file');
+    Logger::create(LogChannelEnum::WEB)->info('Gorgone API credentials reverted from Vault to configuration file');
 }
 
 /**
@@ -1795,7 +1813,7 @@ function deleteVaultSecret(
     string $vaultPath,
 ): void {
     if (! preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $vaultPath, $matches)) {
-        AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+        Logger::create(LogChannelEnum::WEB)->warning(
             'Unable to extract UUID from Vault path, skipping Vault deletion',
             ['path' => $customPath]
         );
@@ -1807,12 +1825,12 @@ function deleteVaultSecret(
     try {
         $writeVaultRepository->setCustomPath($customPath);
         $writeVaultRepository->delete($uuid);
-        AdaptationLogger::create(LogChannelEnum::WEB)->info(
+        Logger::create(LogChannelEnum::WEB)->info(
             'Secret deleted from Vault',
             ['uuid' => $uuid, 'path' => $customPath]
         );
     } catch (Throwable $ex) {
-        AdaptationLogger::create(LogChannelEnum::WEB)->error(
+        Logger::create(LogChannelEnum::WEB)->error(
             'Unable to delete secret from Vault, continuing',
             ['uuid' => $uuid, 'path' => $customPath, 'exception' => $ex]
         );
@@ -1884,7 +1902,7 @@ function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds): array
  * Retrieve raw value of broker config parameters from vault.
  *
  * @param ReadVaultRepositoryInterface $readVaultRepository
- * @param Logger $logger
+ * @param DeprecatedLogger $logger
  * @param string $key
  * @param string $vaultPath
  *
@@ -1894,7 +1912,7 @@ function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds): array
  */
 function findBrokerConfigValueFromVault(
     ReadVaultRepositoryInterface $readVaultRepository,
-    Logger $logger,
+    DeprecatedLogger $logger,
     string $key,
     string $vaultPath,
 ): string {
