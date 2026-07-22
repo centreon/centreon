@@ -24,7 +24,7 @@ if (! isset($centreon)) {
 }
 
 $password_to_test = "fezofjeao_1243!dsfKFKZklds!4359";
-
+echo "$password_to_test";
 // Path to the option dir
 $path = './include/configuration/configGenerateTraps/';
 
