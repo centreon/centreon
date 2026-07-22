@@ -40,7 +40,7 @@
             <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="vendor"> {$form.manufacturer_id.label}</td><td class="FormRowValue">{$form.manufacturer_id.html}</td></tr>
             <tr class="list_lvl_1">
                 <td class="ListColLvl1_name" colspan="2">
-                    <h4>{$subtitle0}</h4>
+                    <h4>{$subtitle1}</h4>
                      </td>
                    </tr>
                    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="trap_args"> {$form.traps_args.label}</td><td class="FormRowValue">{$form.traps_args.html}</td></tr>
@@ -56,21 +56,21 @@
                    </tr>
                    <tr class="list_lvl_1">
                      <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle1}</h4>
+                       <h4>{$subtitle2}</h4>
                      </td>
                    </tr>
                    <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="submit_result_enabled"> {$form.traps_submit_result_enable.label}</td><td class="FormRowValue">{$form.traps_submit_result_enable.html}</td></tr>
 
                    <tr class="list_lvl_1">
                      <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle2}</h4>
+                       <h4>{$subtitle3}</h4>
                      </td>
                    </tr>
                    <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="reschedule_enabled"> {$form.traps_reschedule_svc_enable.label}</td><td class="FormRowValue">{$form.traps_reschedule_svc_enable.html}</td></tr>
 
                    <tr class="list_lvl_1">
                      <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle3}</h4>
+                       <h4>{$subtitle4}</h4>
                      </td>
                    </tr>
                    <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="command_enabled"> {$form.traps_execution_command_enable.label}</td><td class="FormRowValue">{$form.traps_execution_command_enable.html}</td></tr>
@@ -78,7 +78,7 @@
 
                    <tr class="list_lvl_1">
                      <td class="ListColLvl1_name" colspan="2">
-                       <h4>{$subtitle4}</h4>
+                       <h4>{$subtitle5}</h4>
                      </td>
                    </tr>
                    <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="comments"> {$form.traps_comments.label}</td><td class="FormRowValue">{$form.traps_comments.html}</td></tr>
