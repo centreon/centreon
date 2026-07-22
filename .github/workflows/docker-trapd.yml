@@ -389,8 +389,52 @@ jobs:
           scan-type: image
           image-ref: ${{ env.TRAPD_IMAGE }}
           severity: CRITICAL,HIGH
-          format: table
+          format: json
+          output: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
           exit-code: '0'
+
+      - name: Write CVE summary
+        env:
+          REPORT: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
+          TITLE: Trivy CVE scan — ${{ matrix.component }}-${{ matrix.operating_system }}
+        run: |
+          {
+            echo "### ${TITLE}"
+            echo
+            total_unique=$(jq '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | unique | length' "$REPORT")
+            total_findings=$(jq '[.Results[]?.Vulnerabilities[]?] | length' "$REPORT")
+            if [ "$total_unique" -eq 0 ]; then
+              echo "No CRITICAL/HIGH vulnerabilities found. ✅"
+            else
+              critical=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity=="CRITICAL")) | length' "$REPORT")
+              high=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity=="HIGH")) | length' "$REPORT")
+              fixable=$(jq '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.FixedVersion != null and .FixedVersion != "")) | length' "$REPORT")
+              echo "**${total_unique} unique CVE(s)** across ${total_findings} affected-package finding(s) — CRITICAL: ${critical}, HIGH: ${high}. **${fixable} unique CVE(s) have a fix available today.**"
+              echo
+              echo "| CVE | Severity | Status | Fixed version | Affected package(s) |"
+              echo "| --- | --- | --- | --- | --- |"
+              jq -r '
+                [.Results[]?.Vulnerabilities[]?] as $vulns |
+                ($vulns | group_by(.VulnerabilityID) | map({
+                  id: .[0].VulnerabilityID,
+                  severity: .[0].Severity,
+                  status: (.[0].Status // "affected"),
+                  fixed: ([.[].FixedVersion] | map(select(. != null and . != "")) | unique | join(", ")),
+                  pkgs: ([.[].PkgName] | unique | join(", "))
+                })) | sort_by(.severity) | .[] |
+                "| [\(.id)](https://avd.aquasec.com/nvd/\(.id | ascii_downcase)) | \(.severity) | \(.status) | \(if .fixed == "" then "—" else .fixed end) | \(.pkgs) |"
+              ' "$REPORT"
+            fi
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+
+      - name: Upload CVE report artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}
+          path: cve-report-*.json
+          retention-days: 30
 
       - name: Generate SBOM (CycloneDX format)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
