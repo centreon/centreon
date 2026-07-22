@@ -36,6 +36,7 @@ export default (): void => {
     it('expands the popper when the user icon is clicked', () => {
       initialize();
       cy.get('[data-cy=userIcon]').as('userIcon');
+      cy.get('@userIcon').contains('AA');
       cy.get('@userIcon').click();
       cy.get('[data-cy=popper]').as('popper');
 
