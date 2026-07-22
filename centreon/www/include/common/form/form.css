@@ -347,97 +347,164 @@
     padding: 4px 0;
 }
 
-/* Macro clone entries — inline floating label layout */
+/* Macro clone entries — column headers + one pill-style row per macro */
+.cf-macro-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.cf-macro-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.cf-macro-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cf-macro-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--body-color, #333);
+}
+
 .cf-form-wrapper .macroclone {
     padding: 0;
     margin: 0;
 }
 
+.cf-macro-columns {
+    display: flex;
+    gap: 10px;
+    padding: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--body-color, #6b7280);
+}
+
+.cf-macro-columns-name { width: 220px; flex-shrink: 0; }
+.cf-macro-columns-value { flex: 1; min-width: 0; }
+
 .cf-form-wrapper .macroclone .onemacro {
-    padding: 4px 0;
     list-style: none;
+    padding: 0;
+    margin-bottom: 8px;
 }
 
-.cf-form-wrapper .macroclone .onemacro hr {
-    display: none;
-}
-
-.cf-form-wrapper .macroclone .onemacro .clone-cell {
+.cf-form-wrapper .macroclone .onemacro.cf-macro-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
 }
 
-/* Name span — fixed width */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(1) {
-    width: 180px;
+/* Name — fixed width pill */
+.cf-macro-name {
+    width: 220px;
     flex-shrink: 0;
     display: flex;
 }
 
-/* Value span — takes remaining space */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(2) {
+/* Value — takes remaining space */
+.cf-macro-value {
     flex: 1;
     min-width: 0;
     display: flex;
 }
 
-/* Password span — just the checkbox, no text */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(3) {
-    font-size: 0;
-    display: flex;
-    align-items: center;
-}
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(3) input {
-    font-size: 12px;
-}
-
-/* Inputs fill their span */
-.cf-form-wrapper .macroclone .onemacro input[name^="macroInput"],
-.cf-form-wrapper .macroclone .onemacro input[name^="macroValue"] {
+.cf-macro-name input,
+.cf-macro-value input {
     width: 100%;
-    flex: 1;
-    padding: 8px 10px;
-    font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
+    height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
     border-radius: 6px;
     background: var(--body-background, #fff);
-    color: var(--list-color, #333);
+    color: var(--body-color, #333);
     box-sizing: border-box;
+    transition: border-color 0.15s;
 }
 
-.cf-form-wrapper .macroclone .onemacro input[name^="macroInput"]:focus,
-.cf-form-wrapper .macroclone .onemacro input[name^="macroValue"]:focus {
+.cf-macro-value input {
+    font-weight: 400;
+}
+
+.cf-macro-name input:focus,
+.cf-macro-value input:focus {
     border-color: var(--color-primary-light, #2E68AA);
     outline: none;
 }
 
-/* Hide br and text labels in spans */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span > br {
-    display: none;
+/* Password — just the checkbox, no label text. Deliberately left with no
+   custom sizing/border/font-size here: the same plain
+   input[type="checkbox"] (no .md-checkbox wrapper) already renders as a
+   clean bordered square elsewhere in the app (e.g. the Escalation form's
+   "Host inheritance to services" checkbox) via the existing global rules
+   in style.css — overriding it here only fought that cascade and made it
+   worse. */
+.cf-macro-password {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.cf-macro-password input {
+    margin: 0;
+    cursor: pointer;
 }
 
-/* Actions wrapper (built by JS) */
-.cf-form-wrapper .cf-macro-actions {
+/* Actions: description / move / delete, as small outlined icon buttons.
+   Fixed min-width so the value field's flex-basis doesn't shrink/grow
+   depending on how many action icons a given row happens to show
+   (frozen/inherited rows only show the description icon). */
+.cf-macro-actions {
     display: flex;
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
+    min-width: 90px;
+    margin-left: 4px;
 }
 
-.cf-form-wrapper .cf-macro-actions img {
-    opacity: 0.4;
-    cursor: pointer;
-    transition: opacity 0.15s;
-}
-
-.cf-form-wrapper .cf-macro-actions img:hover {
-    opacity: 1;
-}
-
-.cf-form-wrapper .cf-macro-actions span {
-    display: flex;
+.cf-macro-action-btn {
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    color: var(--cl-link-color, #2E68AA);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.cf-macro-action-btn:hover {
+    background: rgba(46, 104, 170, 0.1);
+}
+
+.cf-macro-action-btn--danger {
+    color: var(--color-danger, #FF4A4A);
+}
+
+.cf-macro-action-btn--danger:hover {
+    background: rgba(255, 74, 74, 0.1);
+}
+
+/* Invisible placeholder — keeps the icon slot's width reserved so every
+   row's action column (and therefore the value field next to it) stays
+   the same width, whether or not this particular row has that action. */
+.cf-macro-action-slot {
+    visibility: hidden;
+    pointer-events: none;
+    cursor: default;
 }
 
 .cf-form-wrapper .add-new-entry {
@@ -457,6 +524,23 @@
 .cf-form-wrapper .add-new-entry:hover {
     background-color: var(--color-primary-hover, #255891);
     text-decoration: none;
+}
+
+/* Macro legend — small, side-by-side badges below the macro rows */
+.macro_legend.cf-macro-legend {
+    float: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 8px 0 0;
+    padding: 4px 0;
+    font-size: 11px;
+}
+
+.macro_legend.cf-macro-legend p {
+    display: flex;
+    align-items: center;
+    margin: 0;
 }
 
 /* ==========================================================================
@@ -545,6 +629,24 @@
     font-size: 11px;
     color: var(--body-color, #999);
     margin-top: 2px;
+}
+
+/* Trigger button that opens the geo coordinates picker popin */
+.cf-geo-picker-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border-radius: 6px;
+    color: var(--cl-link-color, #2E68AA);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.cf-geo-picker-btn:hover {
+    background: rgba(46, 104, 170, 0.1);
 }
 
 /* ==========================================================================
