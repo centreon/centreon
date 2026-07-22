@@ -41,7 +41,9 @@ const AllColumns = [
   'FQDN / Address',
   'Monitoring server',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const UpdatedColumns = [
@@ -57,7 +59,9 @@ const UpdatedColumns = [
   'Action',
   'FQDN / Address',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const downloadsFolder = Cypress.config('downloadsFolder');
