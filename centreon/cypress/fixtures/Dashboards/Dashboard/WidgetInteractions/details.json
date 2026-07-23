@@ -1,0 +1,96 @@
+{
+    "id": 1,
+    "name": "My Dashboard",
+    "description": "my description",
+    "created_at": "",
+    "updated_at": "",
+    "shares": {
+        "contacts": [
+            {
+                "id": 1,
+                "name": "Arnaud",
+                "email": "arnaud@centreon.com",
+                "role": "editor"
+            }
+        ],
+        "contact_groups": [
+            {
+                "id": 1,
+                "name": "Guest",
+                "email": "",
+                "role": "viewer"
+            }
+        ]
+    },
+    "created_by": {
+        "id": 1,
+        "name": "Arnaud"
+    },
+    "updated_by": {
+        "id": 1,
+        "name": "Arnaud"
+    },
+    "panels": [
+        {
+            "id": 6,
+            "name": "centreon-widget-resourcestable",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 8,
+                "min_width": 6,
+                "min_height": 3
+            },
+            "widget_type": "/widgets/resourcestable",
+            "widget_settings": {
+                "data": {
+                    "resources": [
+                        {
+                            "resourceType": "service",
+                            "resources": [
+                                {
+                                    "id": "Ping",
+                                    "name": "Ping"
+                                },
+                                {
+                                    "id": "Memory",
+                                    "name": "Memory"
+                                },
+                                {
+                                    "id": "Load",
+                                    "name": "Load"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "options": {
+                    "statuses": [
+                        "warning",
+                        "problem"
+                    ],
+                    "states": [
+                        "unhandled_problems"
+                    ],
+                    "statusTypes": [],
+                    "refreshInterval": "manual",
+                    "isOpenTicketEnabled": false,
+                    "displayResources": "withoutTicket",
+                    "isDownHostHidden": false,
+                    "isUnreachableHostHidden": false,
+                    "description": {
+                        "content": "{\"root\":{\"children\":[{\"children\":[],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"paragraph\",\"version\":1,\"textStyle\":\"\"}],\"direction\":null,\"format\":\"\",\"indent\":0,\"type\":\"root\",\"version\":1}}",
+                        "enabled": true
+                    },
+                    "name": "centreon-widget-resourcestable"
+                }
+            }
+        }
+    ],
+    "own_role": "viewer",
+    "refresh": {
+        "type": "global",
+        "interval": null
+    }
+}
