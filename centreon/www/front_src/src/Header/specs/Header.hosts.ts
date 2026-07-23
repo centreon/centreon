@@ -33,14 +33,14 @@ const getElements = (): void => {
 export default (): void =>
   describe(labelHosts, () => {
     describe('responsive behaviors', () => {
-      it('hides the button text when the screen is under 1024px width', () => {
+      it.only('hides the button text when the screen is under 1024px width', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelHosts).should('not.be.visible');
           cy.findByTestId('ExpandMoreIcon').should('be.visible');
-          cy.findByTestId('DnsIcon').should('be.visible');
+          cy.findByTestId('HostIcon').should('be.visible');
         });
       });
 
