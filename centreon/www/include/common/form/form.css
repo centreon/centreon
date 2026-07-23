@@ -822,9 +822,12 @@
 }
 
 /* The dropdown chevron sat at the field's far right, which the clear
-   button now also occupies — shift it 40px left to clear the overlap. */
+   button now also occupies — shift it left to clear the overlap, and
+   nudge it right/down slightly from that first pass to line up with
+   the eraser icon's height. */
 .cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
-    right: 41px;
+    right: 31px;
+    top: 4px;
 }
 
 /* Help tooltip always last, vertically centered */
