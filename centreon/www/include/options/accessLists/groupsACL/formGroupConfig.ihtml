@@ -29,7 +29,7 @@
                     <label class="cf-label-float">{$form.acl_group_alias.label}</label>
                     <img class="helpTooltip" name="tip_alias">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.acl_group_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-acl-group-activate-toggle" />
