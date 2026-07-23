@@ -1,51 +1,83 @@
-<div id="{$cloneId}_controls">
-    <div id="{$cloneId}_add">
-        <p class="add-new-entry">
-            {assign var=isFrozen value=0}
-            {foreach from=$cloneSet item=v}
-                {if $v->isFrozen()}
-                    {assign var=isFrozen value=1}
+<div class="cf-macro-header">
+    <div class="cf-macro-header-left">
+        <span class="cf-macro-title">{$custom_macro_label}</span>
+        <img class="helpTooltip" name="macro">
+    </div>
+    <div class="cf-macro-header-right">
+        <div id="{$cloneId}_controls">
+            <span id="{$cloneId}_add">
+                {assign var=isFrozen value=0}
+                {foreach from=$cloneSet item=v}
+                    {if $v->isFrozen()}
+                        {assign var=isFrozen value=1}
+                    {/if}
+                {/foreach}
+                {if $isFrozen == 0}
+                <span class="add-new-entry">{t} + Add a new entry{/t}</span>
                 {/if}
-            {/foreach}
-            {if $isFrozen == 0}
-                {t} + Add a new entry{/t}
-            {/if}
-        </p>
+            </span>
+        </div>
     </div>
 </div>
+<div class="cf-macro-columns">
+    <span class="cf-macro-columns-name">{t}Macro name{/t}</span>
+    <span class="cf-macro-columns-value">{t}Macro value{/t}</span>
+</div>
 <ul id="{$cloneId}" class="macroclone no-deco-list">
-    <li class="clone_template onemacro" id="{$cloneId}_template">
-        <hr style='margin:2;'/>
-        <div class="clone-cell">
-            {foreach from=$cloneSet item=v}
-                <span>
-                {if $v->isFrozen()}
-                    {$v->getLabel()} : {$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{$v->toHtml()}
-                {else}
-                    {$v->getLabel()}  {$v->toHtml()}
-                {/if}
+    <li class="clone_template onemacro cf-macro-row" id="{$cloneId}_template">
+        {foreach from=$cloneSet item=v key=cf_idx}
+            {if $cf_idx == 1}
+                <span class="cf-macro-name">
+                    {if $v->isFrozen()}{$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{/if}
+                    {$v->toHtml()}
                 </span>
-            {/foreach}
-            <input type='hidden' id='macroTplValue_#index#' name='macroTplValue_#index#' value="" />
-            <input type='hidden' id='macroOriginalName_#index#' name='macroOriginalName_#index#' value="" />
-            <input type='hidden' id='macroTplValToDisplay_#index#' name='macroTplValToDisplay_#index#' value="0" />
-            <input type='hidden' id='macroDescription_#index#' name='macroDescription_#index#' value="" />
-            <input type='hidden' id='macroTpl_#index#' name='macroTpl_#index#' value="" />
-            <input type='hidden' id='macroOldValue_#index#' name='macroOldValue_#index#' value="" />
-            <input type='hidden' id='isFrozen_#index#' name='isFrozen_#index#' value="{$isFrozen}" />
-            <img src="./img/icons/description.png" style='vertical-align: middle;cursor:pointer;' class="ico-14" onclick='javascript:loadDescription(#index#)' />
-            {if $isFrozen == 0}
-            <span style="cursor:pointer;" class="clonehandle">
-                <img src="./img/icons/move.png" class="ico-14" style="vertical-align:middle;">
-            </span>
-            <span id="{$cloneId}_remove_current" style=''>
-                <img src="./img/icons/circle-cross.png" class='ico-14' style="vertical-align:middle;">
-            </span>
+            {elseif $cf_idx == 2}
+                <span class="cf-macro-value">
+                    {if $v->isFrozen()}{$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{/if}
+                    {$v->toHtml()}
+                </span>
+            {elseif $cf_idx == 3}
+                <span class="cf-macro-password" title="{t}Password{/t}">
+                    {$v->toHtml()}
+                </span>
+            {else}
+                {$v->toHtml()}
             {/if}
-        </div>
+        {/foreach}
+        <input type='hidden' id='macroTplValue_#index#' name='macroTplValue_#index#' value="" />
+        <input type='hidden' id='macroOriginalName_#index#' name='macroOriginalName_#index#' value="" />
+        <input type='hidden' id='macroTplValToDisplay_#index#' name='macroTplValToDisplay_#index#' value="0" />
+        <input type='hidden' id='macroDescription_#index#' name='macroDescription_#index#' value="" />
+        <input type='hidden' id='macroTpl_#index#' name='macroTpl_#index#' value="" />
+        <input type='hidden' id='macroOldValue_#index#' name='macroOldValue_#index#' value="" />
+        <input type='hidden' id='isFrozen_#index#' name='isFrozen_#index#' value="{$isFrozen}" />
+        <span class="cf-macro-actions">
+            {if $isFrozen == 0}
+            <span id="{$cloneId}_remove_current" class="cf-macro-action-btn cf-macro-action-btn--danger" title="{t}Delete{/t}">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </span>
+            {else}
+            <span class="cf-macro-action-btn cf-macro-action-slot"></span>
+            {/if}
+            <span class="cf-macro-action-btn" title="{t}Show description{/t}" onclick='javascript:loadDescription(#index#)'>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            </span>
+            {if $isFrozen == 0}
+            <span class="cf-macro-action-btn clonehandle" title="{t}Move{/t}">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            </span>
+            {else}
+            <span class="cf-macro-action-btn cf-macro-action-slot"></span>
+            {/if}
+            <span class="cf-macro-action-btn cf-macro-action-slot cf-macro-reset-slot"></span>
+        </span>
         <input type="hidden" name="clone_order_{$cloneId}_#index#" id="clone_order_#index#" />
     </li>
     <li id="{$cloneId}_noforms_template">
         <p class="muted">{t}Nothing here, use the "Add" button{/t}</p>
     </li>
 </ul>
+<div class="macro_legend cf-macro-legend">
+    <p><span class="state_badge" style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}</p>
+    <p><span class="state_badge" style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}</p>
+</div>

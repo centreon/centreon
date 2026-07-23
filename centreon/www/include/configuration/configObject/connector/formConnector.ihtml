@@ -23,7 +23,7 @@
                     <label class="cf-label-float">{$form.connector_description.label}</label>
                     <img class="helpTooltip" name="connector_description">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.connector_status.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-connector-status-toggle" />
