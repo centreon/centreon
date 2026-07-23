@@ -28,7 +28,7 @@
                     <label class="cf-label-float">{$form.sc_description.label}</label>
                     <img class="helpTooltip" name="description">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.sc_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-sc-activate-toggle" />

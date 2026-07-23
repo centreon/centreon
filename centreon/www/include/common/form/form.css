@@ -15,7 +15,7 @@
 .cf-form-wrapper {
     max-width: 900px;
     margin: 0 auto;
-    padding: 16px 20px 80px;
+    padding: 16px 20px 0;
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--list-color, #333);
 }
@@ -88,8 +88,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 14px;
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
+    background: #ddd;
+    color: var(--list-color, #333);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -99,7 +99,7 @@
 }
 
 .cf-section-header:hover {
-    background: var(--table-header-background, #5a6773);
+    background: #d2d2d2;
 }
 
 .cf-section-chevron {
@@ -347,97 +347,164 @@
     padding: 4px 0;
 }
 
-/* Macro clone entries — inline floating label layout */
+/* Macro clone entries — column headers + one pill-style row per macro */
+.cf-macro-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.cf-macro-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.cf-macro-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cf-macro-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--body-color, #333);
+}
+
 .cf-form-wrapper .macroclone {
     padding: 0;
     margin: 0;
 }
 
+.cf-macro-columns {
+    display: flex;
+    gap: 10px;
+    padding: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--body-color, #6b7280);
+}
+
+.cf-macro-columns-name { width: 220px; flex-shrink: 0; }
+.cf-macro-columns-value { flex: 1; min-width: 0; }
+
 .cf-form-wrapper .macroclone .onemacro {
-    padding: 4px 0;
     list-style: none;
+    padding: 0;
+    margin-bottom: 8px;
 }
 
-.cf-form-wrapper .macroclone .onemacro hr {
-    display: none;
-}
-
-.cf-form-wrapper .macroclone .onemacro .clone-cell {
+.cf-form-wrapper .macroclone .onemacro.cf-macro-row {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
 }
 
-/* Name span — fixed width */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(1) {
-    width: 180px;
+/* Name — fixed width pill */
+.cf-macro-name {
+    width: 220px;
     flex-shrink: 0;
     display: flex;
 }
 
-/* Value span — takes remaining space */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(2) {
+/* Value — takes remaining space */
+.cf-macro-value {
     flex: 1;
     min-width: 0;
     display: flex;
 }
 
-/* Password span — just the checkbox, no text */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(3) {
-    font-size: 0;
-    display: flex;
-    align-items: center;
-}
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span:nth-child(3) input {
-    font-size: 12px;
-}
-
-/* Inputs fill their span */
-.cf-form-wrapper .macroclone .onemacro input[name^="macroInput"],
-.cf-form-wrapper .macroclone .onemacro input[name^="macroValue"] {
+.cf-macro-name input,
+.cf-macro-value input {
     width: 100%;
-    flex: 1;
-    padding: 8px 10px;
-    font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
+    height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
     border-radius: 6px;
     background: var(--body-background, #fff);
-    color: var(--list-color, #333);
+    color: var(--body-color, #333);
     box-sizing: border-box;
+    transition: border-color 0.15s;
 }
 
-.cf-form-wrapper .macroclone .onemacro input[name^="macroInput"]:focus,
-.cf-form-wrapper .macroclone .onemacro input[name^="macroValue"]:focus {
+.cf-macro-value input {
+    font-weight: 400;
+}
+
+.cf-macro-name input:focus,
+.cf-macro-value input:focus {
     border-color: var(--color-primary-light, #2E68AA);
     outline: none;
 }
 
-/* Hide br and text labels in spans */
-.cf-form-wrapper .macroclone .onemacro .clone-cell > span > br {
-    display: none;
+/* Password — just the checkbox, no label text. Deliberately left with no
+   custom sizing/border/font-size here: the same plain
+   input[type="checkbox"] (no .md-checkbox wrapper) already renders as a
+   clean bordered square elsewhere in the app (e.g. the Escalation form's
+   "Host inheritance to services" checkbox) via the existing global rules
+   in style.css — overriding it here only fought that cascade and made it
+   worse. */
+.cf-macro-password {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.cf-macro-password input {
+    margin: 0;
+    cursor: pointer;
 }
 
-/* Actions wrapper (built by JS) */
-.cf-form-wrapper .cf-macro-actions {
+/* Actions: description / move / delete, as small outlined icon buttons.
+   Fixed min-width so the value field's flex-basis doesn't shrink/grow
+   depending on how many action icons a given row happens to show
+   (frozen/inherited rows only show the description icon). */
+.cf-macro-actions {
     display: flex;
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
+    min-width: 90px;
+    margin-left: 4px;
 }
 
-.cf-form-wrapper .cf-macro-actions img {
-    opacity: 0.4;
-    cursor: pointer;
-    transition: opacity 0.15s;
-}
-
-.cf-form-wrapper .cf-macro-actions img:hover {
-    opacity: 1;
-}
-
-.cf-form-wrapper .cf-macro-actions span {
-    display: flex;
+.cf-macro-action-btn {
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    color: var(--cl-link-color, #2E68AA);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.cf-macro-action-btn:hover {
+    background: rgba(46, 104, 170, 0.1);
+}
+
+.cf-macro-action-btn--danger {
+    color: var(--color-danger, #FF4A4A);
+}
+
+.cf-macro-action-btn--danger:hover {
+    background: rgba(255, 74, 74, 0.1);
+}
+
+/* Invisible placeholder — keeps the icon slot's width reserved so every
+   row's action column (and therefore the value field next to it) stays
+   the same width, whether or not this particular row has that action. */
+.cf-macro-action-slot {
+    visibility: hidden;
+    pointer-events: none;
+    cursor: default;
 }
 
 .cf-form-wrapper .add-new-entry {
@@ -457,6 +524,23 @@
 .cf-form-wrapper .add-new-entry:hover {
     background-color: var(--color-primary-hover, #255891);
     text-decoration: none;
+}
+
+/* Macro legend — small, side-by-side badges below the macro rows */
+.macro_legend.cf-macro-legend {
+    float: none;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 8px 0 0;
+    padding: 4px 0;
+    font-size: 11px;
+}
+
+.macro_legend.cf-macro-legend p {
+    display: flex;
+    align-items: center;
+    margin: 0;
 }
 
 /* ==========================================================================
@@ -547,6 +631,24 @@
     margin-top: 2px;
 }
 
+/* Trigger button that opens the geo coordinates picker popin */
+.cf-geo-picker-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border-radius: 6px;
+    color: var(--cl-link-color, #2E68AA);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.cf-geo-picker-btn:hover {
+    background: rgba(46, 104, 170, 0.1);
+}
+
 /* ==========================================================================
    Select / Select2 overrides
    ========================================================================== */
@@ -598,7 +700,7 @@
 .cf-field > .oreonbutton .clearAllSelect2 {
     order: 2;
     flex-shrink: 0;
-    margin: 0;
+    margin-left: -35px;
 }
 
 .cf-field .select2-container .select2-selection {
@@ -606,28 +708,167 @@
     border: 1px solid var(--color-divider, #e3e3e3);
     border-radius: 6px;
     padding: 6px 12px;
+    padding-right: 36px;
+}
+
+/* Themes/Generic-theme/style.css forces multi-select boxes to
+   min-height: auto !important, which the rule above can't override —
+   that's why "Implied Contacts"-style multi-select fields render at a
+   different height than single-select ones on the same form. Force it
+   back to the same 44px. */
+.cf-field .select2-container .select2-selection--multiple {
+    min-height: 44px !important;
 }
 
 .cf-field .select2-container--focus .select2-selection {
     border-color: var(--color-primary-light, #2E68AA);
 }
 
-/* Select2 clear button — order it before help icon */
+/* Dropdown menu — match the closed field's 6px radius (the base select2
+   theme defaults to 4px, slightly out of step with the rest of the form).
+   overflow: hidden is required too — otherwise the scrollable results
+   list (which spans edge-to-edge, e.g. the highlighted-row background)
+   isn't clipped to the rounded shape and the corners look square anyway. */
+.select2-dropdown {
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* The base theme deliberately squares off whichever side touches the
+   field (a "merged" look, no border on that side) when the menu opens
+   --above or --below it. Round that side too instead, so no select2
+   dropdown ever shows a flat/square corner. */
+.select2-container--open .select2-dropdown--below {
+    border-top: 1px solid var(--select2-dropdown-border-color, var(--color-divider, #e3e3e3));
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.select2-container--open .select2-dropdown--above {
+    border-bottom: 1px solid var(--select2-dropdown-border-color, var(--color-divider, #e3e3e3));
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+/* The multi-select "N element(s) found / Select all" header
+   (centreon-select2.js's initSelectAll) is prepended as the dropdown's
+   first child with its own full-width background — round its top
+   corners explicitly rather than relying only on the parent's
+   overflow: hidden to clip it. */
+.select2-dropdown .select2-results-header {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+/* Multi-select "tags" — themed blue chips instead of the base theme's
+   plain grey, matching the soft-blue tint already used for hover/selected
+   states elsewhere (listing.css's rgba(46, 104, 170, ...) rows).
+   Centreon's own Themes/Generic-theme/style.css (loaded before this file)
+   already forces .select2-selection__choice itself fully transparent
+   with !important and instead paints two child pill-halves: .select2-content
+   (the label, left half) and .select2-selection__choice__remove (the "x",
+   right half) — so those two are what need overriding, with !important to
+   beat style.css's own !important on some of these same properties. */
+.select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
+    background-color: rgba(46, 104, 170, 0.10) !important;
+    border-color: rgba(46, 104, 170, 0.3) !important;
+    color: var(--color-primary-light, #2E68AA) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    background-color: rgba(46, 104, 170, 0.10) !important;
+    border-color: rgba(46, 104, 170, 0.3) !important;
+    color: var(--color-primary-light, #2E68AA) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: var(--color-primary-hover, #255891) !important;
+}
+
+/* Select2 clear button — sits inside the field's right edge instead of
+   as a separate icon after it. Stays a normal flex item (order 8, right
+   before the help icon) so it doesn't need to know whether a help icon
+   follows it or not; the negative margin-left just pulls its own box
+   back over the select2 field's right padding (see the matching
+   padding-right added to .select2-selection above) without taking it
+   out of flex flow or touching any markup. */
 .cf-field .clearAllSelect2 {
     order: 8;
     opacity: 0.4;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, background-color 0.15s;
     flex-shrink: 0;
     align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    width: 28px;
+    height: 28px;
+    margin-left: -35px;
+    position: relative;
+    z-index: 2;
+    border-radius: 50%;
+}
+
+/* Hide the red circle-cross.png the JS still inserts and paint a grey
+   eraser icon instead (inline SVG — no new image asset to add/track). */
+.cf-field .clearAllSelect2 img {
+    visibility: hidden;
+    width: 14px;
+    height: 14px;
+}
+
+.cf-field .clearAllSelect2 {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-45 12 12)'%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='%23999'/%3E%3Crect x='4' y='8' width='16' height='4' rx='2' fill='%23bbb'/%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='none' stroke='%23777' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
 }
 
 .cf-field .clearAllSelect2:hover {
     opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Hide the dropdown chevron entirely on every select2 field — it kept
+   fighting with the clear button for the same corner and needing
+   re-tuning; the clear button and the open dropdown are affordance
+   enough without it. */
+.cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+    display: none;
+}
+
+/* Empty-state placeholder — show a plain "-" instead of repeating the
+   field's own label/prompt text back inside the box (each field's JS
+   init sets its own placeholder string, so this can't be fixed at the
+   source without editing every page; hide the real text and paint "-"
+   via ::after instead, applied to every select2 field). */
+.cf-field .select2-selection__placeholder {
+    font-size: 0;
+}
+
+.cf-field .select2-selection__placeholder::after {
+    content: "-";
+    font-size: 14px;
+    color: var(--body-color, #999);
 }
 
 /* Help tooltip always last, vertically centered */
 .cf-field .helpTooltip {
     order: 9;
+    align-self: center;
+}
+
+/* Some fields (e.g. Check Command) have an extra static icon hand-coded
+   right after the field's own markup (view/edit template, view command
+   info — .ico-14/.ico-16, not part of the select2 field or the clear/
+   help icons). Being an unordered flex item, it otherwise lands between
+   the select2 box and the clear button, which breaks the clear button's
+   negative-margin trick (it assumes the select2 box is its immediate
+   flex predecessor). Push any such icon to the end instead. */
+.cf-field > img.ico-14,
+.cf-field > img.ico-16 {
+    order: 10;
     align-self: center;
 }
 
@@ -654,6 +895,48 @@
 }
 
 /* ==========================================================================
+   Sub-section heading / separator
+   Markup: <div class="cf-subsection">Label</div>
+   Modifiers: --flush (first heading under a section header, no top margin)
+              --gap   (extra breathing room below the heading)
+   ========================================================================== */
+
+.cf-subsection {
+    margin: 18px 0 18px;
+    padding-bottom: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--list-color, #555);
+    border-bottom: 1px solid var(--color-divider, #e3e3e3);
+}
+
+.cf-subsection--flush {
+    margin-top: 0;
+}
+
+.cf-subsection--gap {
+    margin-bottom: 22px;
+}
+
+/* ==========================================================================
+   Disabled / greyed state
+   .cf-disabled is applied by CentreonForm toggle dependencies
+   (data-cf-disables / data-cf-enables). A natively disabled radio/checkbox
+   greys its md wrapper automatically.
+   ========================================================================== */
+
+.cf-form-wrapper .cf-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.cf-form-wrapper .md-radio:has(input:disabled),
+.cf-form-wrapper .md-checkbox:has(input:disabled) {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ==========================================================================
    Toggle switch (reuse cl-toggle from listing)
    ========================================================================== */
 
@@ -662,12 +945,175 @@
     align-items: center;
     gap: 12px;
     padding: 8px 0;
+    /* Most pages place this inside a wider flex row and want it sized to
+       its own content rather than stretching — was previously repeated as
+       an inline style on every single usage (53 times across 16 branches).
+       Pages that do want it to grow use .cf-toggle-row--grow instead. */
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.cf-toggle-row--grow {
+    flex: 1 1 auto;
 }
 
 .cf-toggle-row span {
     font-size: 14px;
     font-weight: 500;
     color: var(--list-color, #555);
+}
+
+/* ==========================================================================
+   Insert builder — stacked rows of "insert into field" controls
+   (a small [+] button next to a picker whose selection is pushed into a
+   textarea/input, e.g. command line / RPN builders)
+   ========================================================================== */
+
+.cf-insert-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cf-insert-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cf-insert-row select {
+    flex: 1;
+    min-width: 0;
+}
+
+.cf-insert-btn {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Clone field — a repeatable (sheepIt) list of rows inside a form field.
+   The float-label pattern does not fit a multi-row clone, so use a static
+   title above the list plus an optional hint below.
+   ========================================================================== */
+
+.cf-field-clone {
+    display: block;
+}
+
+.cf-clone-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-text-primary, #255891);
+    margin-bottom: 6px;
+}
+
+.cf-clone-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--c-text-secondary, #6b7280);
+}
+
+/* ==========================================================================
+   Switch / toggle — Centreon design system (34x20)
+   Shared component: markup is
+     <label class="cl-toggle"><input type="checkbox"><span class="cl-toggle-slider"></span></label>
+   ========================================================================== */
+
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 20px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    top: auto;
+    left: auto;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: var(--switch-off-color, #c2c7ce);
+    transition: background 0.2s ease;
+    pointer-events: auto;
+}
+
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: -2px;
+    top: -2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ON */
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:checked + .cl-toggle-slider {
+    background: var(--color-success, #88B922);
+}
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:checked + .cl-toggle-slider::before {
+    transform: translateX(22px);
+}
+
+/* Hover: subtle grey halo around the knob */
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle:hover .cl-toggle-slider::before {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Focus: light-blue halo */
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:focus-visible + .cl-toggle-slider::before {
+    box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Disabled */
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:disabled + .cl-toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:disabled ~ .cl-toggle-slider,
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle:has(input:disabled) {
+    cursor: not-allowed;
+}
+
+/* A field turned into a toggle row: control + label side by side */
+.cf-field-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cf-field-toggle .cf-toggle-label {
+    position: static;
+    pointer-events: auto;
+    font-size: 13px;
+    color: var(--list-color, #333);
+}
+.cf-field-toggle .helpTooltip {
+    position: static;
 }
 
 /* ==========================================================================
@@ -741,6 +1187,13 @@
     gap: 12px;
     padding: 16px 0;
     margin-top: 16px;
+    /* Keep Reset/Save reachable while the form scrolls, same white banner
+       treatment as .cf-tab-nav at the top. */
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: var(--body-background, #fff);
+    border-top: 1px solid var(--color-divider, #e3e3e3);
 }
 
 .cf-btn {
@@ -792,9 +1245,23 @@
 }
 
 .cf-actions input[type="submit"]:hover,
-.cf-actions input[type="reset"]:hover,
 .cf-actions button:hover {
     background-color: var(--color-primary-hover, #255891);
+}
+
+/* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
+   Reviewers reported clicking it expecting to submit the form. */
+.cf-actions input[type="reset"],
+.cf-actions .bt_default {
+    color: var(--c-text-secondary, #555);
+    background-color: transparent;
+    border: 1px solid var(--c-stroke, #b0b7c3);
+}
+
+.cf-actions input[type="reset"]:hover,
+.cf-actions .bt_default:hover {
+    background-color: var(--color-divider, #e8e8e8);
+    color: var(--list-color, #333);
 }
 
 /* ==========================================================================
@@ -927,3 +1394,83 @@
 .cf-side-panel-body {
     overflow: visible;
 }
+
+/* ==========================================================================
+   Deploy-configuration wizard (generate / generate-traps forms)
+   Poller picker + Apply button, step indicator, progress bar, per-poller
+   tabs and consoles. Previously an identical <style> block duplicated in
+   both formGenerateFiles.ihtml and formGenerateTraps.ihtml.
+   ========================================================================== */
+
+.gen-wrap { max-width: 920px; }
+.gen-top { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+.gen-top .cf-field { flex: 1; min-width: 300px; }
+.gen-apply {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; font-size: 14px; font-weight: 600;
+    border: none; border-radius: 6px; cursor: pointer;
+    background: var(--bt-info-background-color, #2E68AA); color: #fff;
+    transition: filter .15s;
+}
+.gen-apply:hover { filter: brightness(0.94); }
+.gen-apply:disabled { opacity: .5; cursor: not-allowed; }
+.gen-nopoller { color: #FF4A4A; font-size: 13px; margin: 4px 0 0; }
+
+/* Advanced (just under the poller field) */
+.gen-adv { margin: 8px 0 4px; }
+.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #2E68AA); font-weight: 500; }
+.gen-adv .gen-adv-body {
+    padding: 12px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px;
+    background: #f7f8fa; border: 1px solid var(--color-divider, #e6e8ec); border-radius: 6px;
+}
+.gen-adv-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333; }
+
+/* Toggle switch: inherits the shared design-system .cl-toggle from form.css */
+
+/* Stepper */
+.gen-stepper { display: flex; align-items: center; margin: 22px 0 14px; }
+.gen-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #9aa3ad; font-weight: 500; }
+.gen-step .dot {
+    width: 24px; height: 24px; border-radius: 50%; background: #cfd6df; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+    transition: background .2s;
+}
+.gen-step.active { color: var(--color-primary-light, #2E68AA); }
+.gen-step.active .dot { background: var(--color-primary-light, #2E68AA); }
+.gen-step.done { color: var(--color-success, #88B922); }
+.gen-step.done .dot { background: var(--color-success, #88B922); }
+.gen-step.err { color: #FF4A4A; }
+.gen-step.err .dot { background: #FF4A4A; }
+.gen-step.skipped { opacity: .4; }
+.gen-connector { flex: 1; height: 2px; background: #dde1e6; margin: 0 10px; min-width: 20px; }
+
+/* Progress */
+.gen-progress { height: 10px; background: #eceef1; border-radius: 6px; overflow: hidden; }
+.gen-progress > span { display: block; height: 100%; width: 0; background: var(--color-success, #88B922); transition: width .3s ease, background .2s; }
+.gen-pct { text-align: right; font-size: 12px; color: #888; margin-top: 4px; }
+
+/* One tab per poller (shown only when several pollers) */
+.gen-tabs { display: flex; flex-wrap: wrap; margin-top: 14px; }
+.gen-tab {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+    color: var(--body-color, #666); border-bottom: 2px solid transparent; margin-bottom: -2px;
+}
+.gen-tab:hover { color: var(--list-color, #333); }
+.gen-tab.active { color: var(--color-primary-light, #2E68AA); border-bottom-color: var(--color-primary-light, #2E68AA); font-weight: 600; }
+.gen-tab .st { width: 9px; height: 9px; border-radius: 50%; background: #cfd6df; flex-shrink: 0; }
+.gen-tab.run .st { background: var(--color-primary-light, #2E68AA); animation: genpulse 1s infinite; }
+.gen-tab.ok  .st { background: var(--color-success, #88B922); }
+.gen-tab.err .st { background: #FF4A4A; }
+@keyframes genpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* Console panels (one per poller) */
+.gen-console {
+    background: #1e222a; color: #d5dae1; font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.6; padding: 14px 16px; border-radius: 8px;
+    margin-top: 10px; max-height: 340px; overflow: auto; white-space: pre-wrap;
+}
+.gen-console.attached { border-top-left-radius: 0; margin-top: 0; }
+.gen-console .ok { color: #8fce46; } .gen-console .err { color: #ff6b6b; }
+.gen-console .warn { color: #f3b34d; } .gen-console .muted { color: #8b95a1; }
+.gen-console b { color: #fff; }
