@@ -32,7 +32,7 @@
                     <label class="cf-label-float">{$form.nagios_server_id.label}</label>
                     <img class="helpTooltip" name="nagios_server_id">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-nagios_activate-toggle" />
                         <span class="cl-toggle-slider"></span>
@@ -86,7 +86,7 @@
 
 			<div class="cf-subsection">{$ExternalCommandes}</div>
             <div class="cf-row">
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-check_external_commands-toggle" />
                         <span class="cl-toggle-slider"></span>
@@ -131,7 +131,7 @@
         <div class="cf-section-body">
             <div class="cf-subsection">{$HostCheckOptions}</div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_predictive_host_dependency_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_predictive_host_dependency_checks.label}</span>
                     <span style="display:none;">{$form.enable_predictive_host_dependency_checks.html}</span>
@@ -140,13 +140,13 @@
             </div>
             <div class="cf-subsection">{$ServiceCheckOptions}</div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-check_for_orphaned_services-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.check_for_orphaned_services.label}</span>
                     <span style="display:none;">{$form.check_for_orphaned_services.html}</span>
                     <img class="helpTooltip" name="check_for_orphaned_services">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-check_for_orphaned_hosts-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.check_for_orphaned_hosts.label}</span>
                     <span style="display:none;">{$form.check_for_orphaned_hosts.html}</span>
@@ -154,13 +154,13 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-soft_state_dependencies-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.soft_state_dependencies.label}</span>
                     <span style="display:none;">{$form.soft_state_dependencies.html}</span>
                     <img class="helpTooltip" name="soft_state_dependencies">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_predictive_service_dependency_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_predictive_service_dependency_checks.label}</span>
                     <span style="display:none;">{$form.enable_predictive_service_dependency_checks.html}</span>
@@ -168,7 +168,7 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-host_down_disable_service_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.host_down_disable_service_checks.label}</span>
                     <span style="display:none;">{$form.host_down_disable_service_checks.html}</span>
@@ -192,7 +192,7 @@
 
             <div class="cf-subsection">{$Freshness}</div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-check_service_freshness-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.check_service_freshness.label}</span>
                     <span style="display:none;">{$form.check_service_freshness.html}</span>
@@ -205,7 +205,7 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-check_host_freshness-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.check_host_freshness.label}</span>
                     <span style="display:none;">{$form.check_host_freshness.html}</span>
@@ -227,7 +227,7 @@
 
 		 	<div class="cf-subsection">{$FlappingOptions}</div>
 			<div class="cf-row">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_flap_detection-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_flap_detection.label}</span>
                     <span style="display:none;">{$form.enable_flap_detection.html}</span>
@@ -261,13 +261,13 @@
 
       <div class="cf-subsection">{$MiscOptions}</div>
 			<div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_notifications-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_notifications.label}</span>
                     <span style="display:none;">{$form.enable_notifications.html}</span>
                     <img class="helpTooltip" name="enable_notifications">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-execute_service_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.execute_service_checks.label}</span>
                     <span style="display:none;">{$form.execute_service_checks.html}</span>
@@ -275,13 +275,13 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-accept_passive_service_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.accept_passive_service_checks.label}</span>
                     <span style="display:none;">{$form.accept_passive_service_checks.html}</span>
                     <img class="helpTooltip" name="accept_passive_service_checks">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_event_handlers-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_event_handlers.label}</span>
                     <span style="display:none;">{$form.enable_event_handlers.html}</span>
@@ -289,13 +289,13 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-execute_host_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.execute_host_checks.label}</span>
                     <span style="display:none;">{$form.execute_host_checks.html}</span>
                     <img class="helpTooltip" name="execute_host_checks">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-accept_passive_host_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.accept_passive_host_checks.label}</span>
                     <span style="display:none;">{$form.accept_passive_host_checks.html}</span>
@@ -318,20 +318,20 @@
         <div class="cf-section-body">
             <div class="cf-subsection">{$LoggingOptions}</div>
       <div class="cf-row">
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.logger_version.label}</span>
                     {$form.logger_version.html}
                     <img class="helpTooltip" name="logger_version">
                 </div>
             </div>
             <div class="cf-row-inline logger_v1_option">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-use_syslog-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.use_syslog.label}</span>
                     <span style="display:none;">{$form.use_syslog.html}</span>
                     <img class="helpTooltip" name="use_syslog">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_notifications-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_notifications.label}</span>
                     <span style="display:none;">{$form.log_notifications.html}</span>
@@ -339,13 +339,13 @@
                 </div>
             </div>
             <div class="cf-row-inline logger_v1_option">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_service_retries-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_service_retries.label}</span>
                     <span style="display:none;">{$form.log_service_retries.html}</span>
                     <img class="helpTooltip" name="log_service_retries">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_host_retries-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_host_retries.label}</span>
                     <span style="display:none;">{$form.log_host_retries.html}</span>
@@ -353,13 +353,13 @@
                 </div>
             </div>
             <div class="cf-row-inline logger_v1_option">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_event_handlers-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_event_handlers.label}</span>
                     <span style="display:none;">{$form.log_event_handlers.html}</span>
                     <img class="helpTooltip" name="log_event_handlers">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_external_commands-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_external_commands.label}</span>
                     <span style="display:none;">{$form.log_external_commands.html}</span>
@@ -367,13 +367,13 @@
                 </div>
             </div>
             <div class="cf-row-inline logger_v1_option">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_passive_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_passive_checks.label}</span>
                     <span style="display:none;">{$form.log_passive_checks.html}</span>
                     <img class="helpTooltip" name="log_passive_checks">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-log_pid-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.log_pid.label}</span>
                     <span style="display:none;">{$form.log_pid.html}</span>
@@ -505,7 +505,7 @@
 
 			<div class="cf-subsection">{$StatesRetention}</div>
 			<div class="cf-row">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-retain_state_information-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.retain_state_information.label}</span>
                     <span style="display:none;">{$form.retain_state_information.html}</span>
@@ -525,13 +525,13 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-use_retained_program_state-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.use_retained_program_state.label}</span>
                     <span style="display:none;">{$form.use_retained_program_state.html}</span>
                     <img class="helpTooltip" name="use_retained_program_state">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-use_retained_scheduling_info-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.use_retained_scheduling_info.label}</span>
                     <span style="display:none;">{$form.use_retained_scheduling_info.html}</span>
@@ -575,7 +575,7 @@
             </div>
             <div class="cf-subsection">{$MacrosMgmt}</div>
 			<div class="cf-row">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_macros_filter-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_macros_filter.label}</span>
                     <span style="display:none;">{$form.enable_macros_filter.html}</span>
@@ -672,7 +672,7 @@
 
 			<div class="cf-subsection">{$AutoRescheduling}</div>
 			<div class="cf-row">
-                <div class="cf-toggle-row" data-cf-enables="#cf-auto-resched-fields" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row" data-cf-enables="#cf-auto-resched-fields">
                     <label class="cl-toggle"><input type="checkbox" id="cf-auto_reschedule_checks-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.auto_reschedule_checks.label}</span>
                     <span style="display:none;">{$form.auto_reschedule_checks.html}</span>
@@ -694,7 +694,7 @@
 
 			<div class="cf-subsection">{$Optimization}</div>
 			<div class="cf-row">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-enable_environment_macros-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.enable_environment_macros.label}</span>
                     <span style="display:none;">{$form.enable_environment_macros.html}</span>
@@ -740,13 +740,13 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-use_regexp_matching-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.use_regexp_matching.label}</span>
                     <span style="display:none;">{$form.use_regexp_matching.html}</span>
                     <img class="helpTooltip" name="use_regexp_matching">
                 </div>
-                <div class="cf-toggle-row" style="flex:1;white-space:nowrap;">
+                <div class="cf-toggle-row cf-toggle-row--grow">
                     <label class="cl-toggle"><input type="checkbox" id="cf-use_true_regexp_matching-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.use_true_regexp_matching.label}</span>
                     <span style="display:none;">{$form.use_true_regexp_matching.html}</span>
