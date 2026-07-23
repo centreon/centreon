@@ -700,7 +700,7 @@
 .cf-field > .oreonbutton .clearAllSelect2 {
     order: 2;
     flex-shrink: 0;
-    margin: 0;
+    margin-left: -32px;
 }
 
 .cf-field .select2-container .select2-selection {
@@ -708,6 +708,7 @@
     border: 1px solid var(--color-divider, #e3e3e3);
     border-radius: 6px;
     padding: 6px 12px;
+    padding-right: 36px;
 }
 
 .cf-field .select2-container--focus .select2-selection {
@@ -775,17 +776,29 @@
     color: var(--color-primary-hover, #255891) !important;
 }
 
-/* Select2 clear button — order it before help icon */
+/* Select2 clear button — sits inside the field's right edge instead of
+   as a separate icon after it. Stays a normal flex item (order 8, right
+   before the help icon) so it doesn't need to know whether a help icon
+   follows it or not; the negative margin-left just pulls its own box
+   back over the select2 field's right padding (see the matching
+   padding-right added to .select2-selection above) without taking it
+   out of flex flow or touching any markup. */
 .cf-field .clearAllSelect2 {
     order: 8;
     opacity: 0.4;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, background-color 0.15s;
     flex-shrink: 0;
     align-self: center;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 0;
+    width: 28px;
+    height: 28px;
+    margin-left: -32px;
+    position: relative;
+    z-index: 2;
+    border-radius: 50%;
 }
 
 .cf-field .clearAllSelect2 img {
@@ -796,6 +809,7 @@
 
 .cf-field .clearAllSelect2:hover {
     opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* Help tooltip always last, vertically centered */
