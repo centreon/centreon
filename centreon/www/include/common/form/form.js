@@ -32,6 +32,30 @@ var CentreonForm = (function () {
     //  The form loads in an iframe so all QuickForm JS works natively.
     // =========================================================================
 
+    /** @private localStorage key used to remember the side panel's last width */
+    var SIDE_PANEL_WIDTH_KEY = 'cf_side_panel_width';
+
+    /** @private Read the last resized width from localStorage, if any */
+    function getSavedSidePanelWidth() {
+        try {
+            var stored = parseInt(window.localStorage.getItem(SIDE_PANEL_WIDTH_KEY), 10);
+
+            return stored > 0 ? stored : null;
+        } catch (e) {
+            // localStorage can throw (e.g. private browsing) — just skip restoring
+            return null;
+        }
+    }
+
+    /** @private Persist the current side panel width to localStorage */
+    function saveSidePanelWidth(width) {
+        try {
+            window.localStorage.setItem(SIDE_PANEL_WIDTH_KEY, width);
+        } catch (e) {
+            // Ignore: not critical if the width isn't remembered
+        }
+    }
+
     /**
      * Open the side panel with a form URL.
      *
@@ -106,6 +130,12 @@ var CentreonForm = (function () {
         var dragging = false;
 
         if (handle && panel) {
+            // Restore the width the user picked last time, if any.
+            var savedWidth = getSavedSidePanelWidth();
+            if (savedWidth) {
+                panel.style.width = savedWidth + 'px';
+            }
+
             handle.addEventListener('mousedown', function (e) {
                 e.preventDefault();
                 dragging = true;
@@ -137,6 +167,8 @@ var CentreonForm = (function () {
                 if (iframe) {
                     iframe.style.pointerEvents = '';
                 }
+
+                saveSidePanelWidth(parseInt(panel.style.width, 10));
             });
         }
 
@@ -639,6 +671,44 @@ var CentreonForm = (function () {
                 radioOff.checked = true;
             }
         });
+
+        // Keep the toggle in sync when the form is reset: the toggle checkbox
+        // has no default checked state, so a native reset would always turn it
+        // off. Re-read the (post-reset) radio value on the next tick.
+        var form = toggle.form || radioOn.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    toggle.checked = radioOn.checked;
+                }, 0);
+            });
+        }
+    }
+
+    /**
+     * Sync an iPhone-style toggle (cl-toggle) with a plain checkbox — for
+     * pages where the underlying QuickForm field is a lone checkbox rather
+     * than a radio pair (see syncToggle() above for the radio-pair case).
+     * One-directional: the toggle drives the checkbox's checked state; the
+     * checkbox itself stays hidden in the markup.
+     *
+     * @param {string} toggleId          - DOM id of the toggle <input type="checkbox">
+     * @param {string} checkboxSelector  - CSS selector for the real checkbox, e.g. '#all_hosts' or 'input[name="dupSvTplAssoc"]'
+     * @param {function} [onChange]      - Optional extra callback(checkbox), run once on init and again on every change
+     */
+    function syncToggleCheckbox(toggleId, checkboxSelector, onChange) {
+        var toggle = document.getElementById(toggleId);
+        var checkbox = document.querySelector(checkboxSelector);
+
+        if (!toggle || !checkbox) return;
+
+        toggle.checked = checkbox.checked;
+        if (onChange) onChange(checkbox);
+
+        toggle.addEventListener('change', function () {
+            checkbox.checked = toggle.checked;
+            if (onChange) onChange(checkbox);
+        });
     }
 
     // =========================================================================
@@ -850,13 +920,43 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
 
         steps.forEach(function (step) {
             try { step(); } catch (e) { if (window.console) console.error('CentreonForm init step failed', e); }
+        });
+    }
+
+    /**
+     * Pressing Enter in a plain text field submits the form via its visible
+     * Save button, same as a native <input type="submit"> is supposed to do.
+     * Explicit instead of relying on the browser default so it's consistent
+     * regardless of field/browser quirks (e.g. select2's own search box,
+     * which manages Enter itself to confirm the highlighted option).
+     *
+     * @private
+     */
+    function initEnterToSubmit() {
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+
+            var target = e.target;
+            if (!target || target.tagName !== 'INPUT') return;
+            if (target.classList.contains('select2-search__field')) return;
+
+            var type = (target.getAttribute('type') || 'text').toLowerCase();
+            if (['text', 'email', 'number', 'tel', 'url', 'password', 'search'].indexOf(type) === -1) return;
+
+            var form = target.closest('form');
+            if (!form) return;
+            var submitBtn = form.querySelector('.cf-actions input[type="submit"]:not([disabled])');
+            if (!submitBtn) return;
+
+            e.preventDefault();
+            submitBtn.click();
         });
     }
 
@@ -1035,6 +1135,7 @@ var CentreonForm = (function () {
         initCheckboxChips:    initCheckboxChips,
         initChips:            initChips,
         syncToggle:           syncToggle,
+        syncToggleCheckbox:   syncToggleCheckbox,
         makeToggle:           makeToggle,
         initSoloToggles:      initSoloToggles,
         initToggleDependencies: initToggleDependencies,
