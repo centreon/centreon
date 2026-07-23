@@ -29,7 +29,7 @@
                     <label class="cf-label-float">{$form.sg_alias.label}</label>
                     <img class="helpTooltip" name="alias">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.sg_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-sg-activate-toggle" />
@@ -135,13 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     CentreonForm.initFormPage({ geo: true });
     CentreonForm.syncToggle('cf-sg-activate-toggle', 'sg_activate', '1', '0');
 
-    // Sync auto-create services toggle with checkbox (not a radio)
-    var dupToggle = document.getElementById('cf-toggle-dupSvTpl');
-    var dupCb = document.querySelector('input[name="dupSvTplAssoc"]');
-    if (dupToggle && dupCb) {
-        dupToggle.checked = dupCb.checked;
-        dupToggle.addEventListener('change', function() { dupCb.checked = this.checked; });
-    }
+    CentreonForm.syncToggleCheckbox('cf-toggle-dupSvTpl', 'input[name="dupSvTplAssoc"]');
 });
 </script>
 {/literal}
