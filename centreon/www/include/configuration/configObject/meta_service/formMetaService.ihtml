@@ -188,7 +188,7 @@
                     <label class="cf-label-float">{$form.graph_id.label}</label>
                     <img class="helpTooltip" name="graph_template">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.meta_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-meta-activate-toggle" />
