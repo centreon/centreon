@@ -845,6 +845,19 @@
     align-self: center;
 }
 
+/* Some fields (e.g. Check Command) have an extra static icon hand-coded
+   right after the field's own markup (view/edit template, view command
+   info — .ico-14/.ico-16, not part of the select2 field or the clear/
+   help icons). Being an unordered flex item, it otherwise lands between
+   the select2 box and the clear button, which breaks the clear button's
+   negative-margin trick (it assumes the select2 box is its immediate
+   flex predecessor). Push any such icon to the end instead. */
+.cf-field > img.ico-14,
+.cf-field > img.ico-16 {
+    order: 10;
+    align-self: center;
+}
+
 /* ==========================================================================
    Checkboxes
    ========================================================================== */
