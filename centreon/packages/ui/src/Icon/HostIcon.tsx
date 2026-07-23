@@ -1,4 +1,5 @@
 import type { SvgIconProps } from '@mui/material';
+
 import { ReactElement } from 'react';
 
 import BaseIcon from './BaseIcon';
