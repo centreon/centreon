@@ -132,6 +132,24 @@ const checkIfConfigurationIsNotExported = (): void => {
   });
 };
 
+const legacyPollerName = 'QA-legacy-poller';
+const legacyPollerUid = 900000002;
+
+const buildInsertPollerQuery = (name: string, uid: number): string =>
+  `INSERT INTO nagios_server (name, localhost, ns_activate, ssh_port, uid) VALUES ('${name}', '0', '1', 22, ${uid})`;
+
+const buildInsertRunningInstanceQuery = (
+  instanceId: number,
+  name: string
+): string =>
+  `INSERT INTO instances (instance_id, name, running, last_alive, deleted) VALUES (${instanceId}, '${name}', 1, UNIX_TIMESTAMP(), 0)`;
+
+const buildDeleteInstanceByNameQuery = (name: string): string =>
+  `DELETE FROM instances WHERE name = '${name}'`;
+
+const buildDeletePollerByNameQuery = (name: string): string =>
+  `DELETE FROM nagios_server WHERE name = '${name}'`;
+
 export {
   insertPollerConfigUserAcl,
   getPoller,
@@ -142,5 +160,11 @@ export {
   breakSomePollers,
   waitPollerListToLoad,
   checkIfConfigurationIsNotExported,
-  testHostName
+  testHostName,
+  legacyPollerName,
+  legacyPollerUid,
+  buildInsertPollerQuery,
+  buildInsertRunningInstanceQuery,
+  buildDeleteInstanceByNameQuery,
+  buildDeletePollerByNameQuery
 };
