@@ -76,7 +76,7 @@
                     <label class="cf-label-float">{$form.acl_res_alias.label}</label>
                     <img class="helpTooltip" name="tip_description">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.acl_res_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-acl-res-activate-toggle" />
@@ -106,7 +106,7 @@
             <div class="cf-row">
                 <div class="cf-acl-pickhead">
                     <span class="cf-acl-picklabel">{t}Select host one by one{/t}</span>
-                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span class="cf-toggle-row">
                         <span>{t}Include All{/t}</span>
                         <label class="cl-toggle">
                             <input type="checkbox" id="cf-all-hosts-toggle" />
@@ -127,7 +127,7 @@
             <div class="cf-row">
                 <div class="cf-acl-pickhead">
                     <span class="cf-acl-picklabel">{t}Select hosts by Hostgroups{/t}</span>
-                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span class="cf-toggle-row">
                         <span>{t}Include All{/t}</span>
                         <label class="cl-toggle">
                             <input type="checkbox" id="cf-all-hostgroups-toggle" />
@@ -164,7 +164,7 @@
             <div class="cf-row">
                 <div class="cf-acl-pickhead">
                     <span class="cf-acl-picklabel">{t}Select Service groups{/t}</span>
-                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span class="cf-toggle-row">
                         <span>{t}Include All{/t}</span>
                         <label class="cl-toggle">
                             <input type="checkbox" id="cf-all-servicegroups-toggle" />
@@ -235,7 +235,7 @@
             <div class="cf-row">
                 <div class="cf-acl-pickhead">
                     <span class="cf-acl-picklabel">{t}Select Image folders{/t}</span>
-                    <span class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                    <span class="cf-toggle-row">
                         <span>{t}Include All{/t}</span>
                         <label class="cl-toggle">
                             <input type="checkbox" id="cf-all-imagefolders-toggle" />
@@ -297,25 +297,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Bind the iPhone-style toggles to their hidden "Include all" checkboxes,
     // and grey out the matching picker accordingly.
-    function cfSyncAllToggle(toggleId, checkboxId) {
-        var toggle = document.getElementById(toggleId);
-        var checkbox = document.getElementById(checkboxId);
-        if (!toggle || !checkbox) return;
-        toggle.checked = checkbox.checked;
-        if (typeof toggleTableDeps === 'function') {
-            toggleTableDeps(jQuery(checkbox));
-        }
-        toggle.addEventListener('change', function () {
-            checkbox.checked = toggle.checked;
-            if (typeof toggleTableDeps === 'function') {
-                toggleTableDeps(jQuery(checkbox));
-            }
-        });
-    }
-    cfSyncAllToggle('cf-all-hosts-toggle', 'all_hosts');
-    cfSyncAllToggle('cf-all-hostgroups-toggle', 'all_hostgroups');
-    cfSyncAllToggle('cf-all-servicegroups-toggle', 'all_servicegroups');
-    cfSyncAllToggle('cf-all-imagefolders-toggle', 'all_image_folders');
+    CentreonForm.syncToggleCheckbox('cf-all-hosts-toggle', '#all_hosts', function (cb) {
+        if (typeof toggleTableDeps === 'function') toggleTableDeps(jQuery(cb));
+    });
+    CentreonForm.syncToggleCheckbox('cf-all-hostgroups-toggle', '#all_hostgroups', function (cb) {
+        if (typeof toggleTableDeps === 'function') toggleTableDeps(jQuery(cb));
+    });
+    CentreonForm.syncToggleCheckbox('cf-all-servicegroups-toggle', '#all_servicegroups', function (cb) {
+        if (typeof toggleTableDeps === 'function') toggleTableDeps(jQuery(cb));
+    });
+    CentreonForm.syncToggleCheckbox('cf-all-imagefolders-toggle', '#all_image_folders', function (cb) {
+        if (typeof toggleTableDeps === 'function') toggleTableDeps(jQuery(cb));
+    });
 });
 </script>
 {/literal}
