@@ -376,164 +376,166 @@ jobs:
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
-  dockerize:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, changes, package]
-    if: |
-      needs.changes.outputs.trigger_packaging == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.event.pull_request.head.repo.fork != true
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (dockerize)
+#   dockerize:
+#     runs-on: ubuntu-24.04
+#     needs: [get-environment, changes, package]
+#     if: |
+#       needs.changes.outputs.trigger_packaging == 'true' &&
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       needs.get-environment.outputs.stability != 'stable' &&
+#       github.event.pull_request.head.repo.fork != true
+#
+#     env:
+#       project: centreon-open-tickets
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+#
+#     name: dockerize ${{ matrix.operating_system }}
+#
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#       - name: Generate information according to matrix os
+#         id: matrix_include
+#         run: |
+#           if [ "${{ matrix.operating_system }}" = "alma9" ]; then
+#             DISTRIB=el9
+#             PACKAGE_EXTENSION=rpm
+#           elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
+#             DISTRIB=el10
+#             PACKAGE_EXTENSION=rpm
+#           elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
+#             DISTRIB=trixie
+#             PACKAGE_EXTENSION=deb
+#           elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
+#             DISTRIB=jammy
+#             PACKAGE_EXTENSION=deb
+#           else
+#             echo "::error::${{ matrix.operating_system }} is not managed"
+#             exit 1
+#           fi
+#
+#           echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
+#           echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
+#         shell: bash
+#
+#       - name: Login to registry
+#         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+#         with:
+#           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+#           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+#           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+#
+#       - name: Compute image tag
+#         id: image_tag
+#         env:
+#           REF: ${{ github.head_ref || github.ref_name }}
+#           MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+#         run: |
+#           if [[ "$REF" == "develop" ]]; then
+#             echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+#             echo "additional_tag=develop" >> $GITHUB_OUTPUT
+#           else
+#             SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+#             if [[ -z "$SANITIZED_REF" ]]; then
+#               echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+#               exit 1
+#             fi
+#             echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+#             echo "additional_tag=" >> $GITHUB_OUTPUT
+#           fi
+#         shell: bash
+#
+#       - name: Get FROM image tag
+#         id: from_image_version
+#         uses: ./.github/actions/get-docker-from-image-version
+#         with:
+#           from_image: centreon-web-${{ matrix.operating_system }}
+#           current_tag: ${{ steps.image_tag.outputs.tag }}
+#           major_version: ${{ needs.get-environment.outputs.major_version }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+#           registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+#
+#       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
+#         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+#         with:
+#           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
+#           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
+#           fail-on-cache-miss: true
+#
+#       - env:
+#           PACKAGE_EXTENSION: ${{ steps.matrix_include.outputs.package_extension }}
+#         run: |
+#           mkdir packages-centreon
+#           mv *."$PACKAGE_EXTENSION" packages-centreon/
+#         shell: bash
+#
+#       - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+#
+#       - name: Compute docker tags
+#         id: docker_tags
+#         env:
+#           REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+#           IMAGE: ${{ env.project }}-${{ matrix.operating_system }}
+#           TAG: ${{ steps.image_tag.outputs.tag }}
+#           ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
+#         run: |
+#           TAGS="${REGISTRY}/${IMAGE}:${TAG}"
+#           if [[ -n "$ADDITIONAL" ]]; then
+#             TAGS="${TAGS},${REGISTRY}/${IMAGE}:${ADDITIONAL}"
+#           fi
+#           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+#         shell: bash
+#
+#       - name: Build and push web image
+#         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+#         env:
+#           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+#           DOCKER_BUILD_SUMMARY: false
+#           DOCKER_BUILD_RECORD_UPLOAD: false
+#         with:
+#           file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
+#           context: .
+#           build-args: |
+#             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+#             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+#           pull: true
+#           push: true
+#           tags: ${{ steps.docker_tags.outputs.tags }}
 
-    env:
-      project: centreon-open-tickets
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-
-    name: dockerize ${{ matrix.operating_system }}
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Generate information according to matrix os
-        id: matrix_include
-        run: |
-          if [ "${{ matrix.operating_system }}" = "alma9" ]; then
-            DISTRIB=el9
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "alma10" ]; then
-            DISTRIB=el10
-            PACKAGE_EXTENSION=rpm
-          elif [ "${{ matrix.operating_system }}" = "trixie" ]; then
-            DISTRIB=trixie
-            PACKAGE_EXTENSION=deb
-          elif [ "${{ matrix.operating_system }}" = "jammy" ]; then
-            DISTRIB=jammy
-            PACKAGE_EXTENSION=deb
-          else
-            echo "::error::${{ matrix.operating_system }} is not managed"
-            exit 1
-          fi
-
-          echo "distrib=$DISTRIB" >> $GITHUB_OUTPUT
-          echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Login to registry
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
-        with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
-
-      - name: Compute image tag
-        id: image_tag
-        env:
-          REF: ${{ github.head_ref || github.ref_name }}
-          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
-        run: |
-          if [[ "$REF" == "develop" ]]; then
-            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
-            echo "additional_tag=develop" >> $GITHUB_OUTPUT
-          else
-            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
-            if [[ -z "$SANITIZED_REF" ]]; then
-              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
-              exit 1
-            fi
-            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
-            echo "additional_tag=" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
-      - name: Get FROM image tag
-        id: from_image_version
-        uses: ./.github/actions/get-docker-from-image-version
-        with:
-          from_image: centreon-web-${{ matrix.operating_system }}
-          current_tag: ${{ steps.image_tag.outputs.tag }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-
-      - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ./*.${{ steps.matrix_include.outputs.package_extension }}
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
-          fail-on-cache-miss: true
-
-      - env:
-          PACKAGE_EXTENSION: ${{ steps.matrix_include.outputs.package_extension }}
-        run: |
-          mkdir packages-centreon
-          mv *."$PACKAGE_EXTENSION" packages-centreon/
-        shell: bash
-
-      - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
-
-      - name: Compute docker tags
-        id: docker_tags
-        env:
-          REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          IMAGE: ${{ env.project }}-${{ matrix.operating_system }}
-          TAG: ${{ steps.image_tag.outputs.tag }}
-          ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
-        run: |
-          TAGS="${REGISTRY}/${IMAGE}:${TAG}"
-          if [[ -n "$ADDITIONAL" ]]; then
-            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${ADDITIONAL}"
-          fi
-          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Build and push web image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
-        env:
-          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
-          DOCKER_BUILD_SUMMARY: false
-          DOCKER_BUILD_RECORD_UPLOAD: false
-        with:
-          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
-          context: .
-          build-args: |
-            "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
-          pull: true
-          push: true
-          tags: ${{ steps.docker_tags.outputs.tags }}
-
-  deliver-sources:
-    runs-on: centreon-common
-    needs: [get-environment, package]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
-      github.event_name != 'workflow_dispatch' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Deliver sources
-        uses: ./.github/actions/release-sources
-        with:
-          bucket_directory: centreon-open-tickets
-          module_directory: centreon-open-tickets
-          module_name: centreon-open-tickets
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (deliver-sources)
+#   deliver-sources:
+#     runs-on: centreon-common
+#     needs: [get-environment, package]
+#     if: |
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) &&
+#       github.event_name != 'workflow_dispatch' &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       github.event.pull_request.head.repo.fork != true
+#
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#       - name: Deliver sources
+#         uses: ./.github/actions/release-sources
+#         with:
+#           bucket_directory: centreon-open-tickets
+#           module_directory: centreon-open-tickets
+#           module_name: centreon-open-tickets
+#           major_version: ${{ needs.get-environment.outputs.major_version }}
+#           minor_version: ${{ needs.get-environment.outputs.minor_version }}
+#           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   xray-prepare-test-plan:
     name: xray-prepare-test-plan
@@ -555,285 +557,293 @@ jobs:
       XRAY_CLIENT_ID: ${{ secrets.XRAY_CLIENT_ID }}
       XRAY_CLIENT_SECRET: ${{ secrets.XRAY_CLIENT_SECRET }}
 
-  e2e-test:
-    needs:
-      [get-environment, changes, xray-prepare-test-plan, dockerize]
-    if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.event.pull_request.head.repo.fork != true
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-    name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (e2e-test)
+#   e2e-test:
+#     needs:
+#       [get-environment, changes, xray-prepare-test-plan, dockerize]
+#     if: |
+#       needs.changes.outputs.trigger_e2e_testing == 'true' &&
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       needs.get-environment.outputs.stability != 'stable' &&
+#       github.event.pull_request.head.repo.fork != true
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+#     name: e2e-test-${{ matrix.operating_system }}-${{ matrix.database }}
+#
+#     uses: ./.github/workflows/cypress-e2e-parallelization.yml
+#     with:
+#       name: e2e
+#       module_name: centreon-open-tickets
+#       image_name: centreon-open-tickets
+#       database_image: bitnamilegacy/${{ matrix.database }}
+#       os: ${{ matrix.operating_system }}
+#       features_path: tests/e2e/features
+#       major_version: ${{ needs.get-environment.outputs.major_version }}
+#       minor_version: ${{ needs.get-environment.outputs.minor_version }}
+#       stability: ${{ needs.get-environment.outputs.stability }}
+#       target_stability: ${{ needs.get-environment.outputs.target_stability }}
+#       package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, case(matrix.operating_system == 'alma10', 'rpm-el10', matrix.operating_system == 'alma9', 'rpm-el9', 'deb-trixie') ) }}
+#       package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
+#       test_tags: ${{ matrix.test_tags }}
+#       dependencies_lock_file: centreon-open-tickets/tests/e2e/pnpm-lock.yaml
+#       jira_test_plan_key: ${{ needs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
+#       xray_test_plan_issue_id: ${{ needs.xray-prepare-test-plan.outputs.xray_test_plan_issue_id }}
+#       database_name: ${{ matrix.database }}
+#       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+#       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+#     secrets:
+#       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+#       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+#       xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
+#       xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
+#       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+#       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+#       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+#       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
-    uses: ./.github/workflows/cypress-e2e-parallelization.yml
-    with:
-      name: e2e
-      module_name: centreon-open-tickets
-      image_name: centreon-open-tickets
-      database_image: bitnamilegacy/${{ matrix.database }}
-      os: ${{ matrix.operating_system }}
-      features_path: tests/e2e/features
-      major_version: ${{ needs.get-environment.outputs.major_version }}
-      minor_version: ${{ needs.get-environment.outputs.minor_version }}
-      stability: ${{ needs.get-environment.outputs.stability }}
-      target_stability: ${{ needs.get-environment.outputs.target_stability }}
-      package_cache_key: ${{ format('{0}-{1}-{2}', github.sha, github.run_id, case(matrix.operating_system == 'alma10', 'rpm-el10', matrix.operating_system == 'alma9', 'rpm-el9', 'deb-trixie') ) }}
-      package_directory: centreon-open-tickets/tests/e2e/fixtures/packages
-      test_tags: ${{ matrix.test_tags }}
-      dependencies_lock_file: centreon-open-tickets/tests/e2e/pnpm-lock.yaml
-      jira_test_plan_key: ${{ needs.xray-prepare-test-plan.outputs.jira_test_plan_key }}
-      xray_test_plan_issue_id: ${{ needs.xray-prepare-test-plan.outputs.xray_test_plan_issue_id }}
-      database_name: ${{ matrix.database }}
-      is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-    secrets:
-      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-      xray_client_id: ${{ secrets.XRAY_CLIENT_ID }}
-      xray_client_secret: ${{ secrets.XRAY_CLIENT_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (deliver)
+#   deliver:
+#     needs: [get-environment, changes, package, e2e-test]
+#     if: |
+#       needs.changes.outputs.trigger_delivery == 'true' &&
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       github.event.pull_request.head.repo.fork != true
+#     runs-on: ubuntu-24.04
+#     strategy:
+#       matrix:
+#         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+#
+#     name: deliver ${{ matrix.distrib }}
+#     permissions:
+#       contents: read
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#       - name: Deliver RPM package on Artifactory
+#         if: matrix.package_extension == 'rpm'
+#         uses: ./.github/actions/rpm-delivery
+#         with:
+#           module_name: open-tickets
+#           distrib: ${{ matrix.distrib }}
+#           version: ${{ needs.get-environment.outputs.major_version }}
+#           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+#           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+#           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+#           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+#
+#       - name: Deliver DEB package on Artifactory
+#         if: matrix.package_extension == 'deb'
+#         uses: ./.github/actions/deb-delivery
+#         with:
+#           module_name: open-tickets
+#           distrib: ${{ matrix.distrib }}
+#           version: ${{ needs.get-environment.outputs.major_version }}
+#           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+#           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-  deliver:
-    needs: [get-environment, changes, package, e2e-test]
-    if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (promote)
+#   promote:
+#     needs: [get-environment, deliver]
+#     if: |
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       github.event.pull_request.head.repo.fork != true
+#     runs-on: ubuntu-24.04
+#     strategy:
+#       matrix:
+#         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+#
+#     name: promote ${{ matrix.distrib }}
+#     permissions:
+#       contents: read
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#       - name: Promote ${{ matrix.distrib }} to stable on Artifactory
+#         uses: ./.github/actions/promote-to-stable
+#         with:
+#           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
+#           module_name: open-tickets
+#           distrib: ${{ matrix.distrib }}
+#           major_version: ${{ needs.get-environment.outputs.major_version }}
+#           minor_version: ${{ needs.get-environment.outputs.minor_version }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           github_ref_name: ${{ github.ref_name }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
-    name: deliver ${{ matrix.distrib }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (set-skip-label)
+#   set-skip-label:
+#     needs: [get-environment, deliver, promote]
+#     if: |
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled')
+#     uses: ./.github/workflows/set-pull-request-skip-label.yml
 
-      - name: Deliver RPM package on Artifactory
-        if: matrix.package_extension == 'rpm'
-        uses: ./.github/actions/rpm-delivery
-        with:
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (clear-branch-cache)
+#   clear-branch-cache:
+#     runs-on: ubuntu-24.04
+#     needs: [get-environment, deliver]
+#     env:
+#       GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+#     if: |
+#       needs.get-environment.outputs.is_nightly == 'true' &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       github.event.pull_request.head.repo.fork != true
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#       - name: List and delete cache
+#         env:
+#           REF_NAME: ${{ github.ref_name }}
+#         run: |
+#           mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
+#           echo $cache_keys
+#           while read row; do
+#             gh cache delete $row
+#             echo "Cache $row was deleted."
+#           done <<< "$cache_keys"
+#         shell: bash
 
-      - name: Deliver DEB package on Artifactory
-        if: matrix.package_extension == 'deb'
-        uses: ./.github/actions/deb-delivery
-        with:
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (create-jira-nightly-ticket)
+#   create-jira-nightly-ticket:
+#     runs-on: ubuntu-24.04
+#     needs: [
+#       get-environment,
+#       deliver
+#     ]
+#     if: |
+#       needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
+#       (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
+#       startsWith(github.ref_name, 'dev') &&
+#       github.event.pull_request.head.repo.fork != true
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+#
+#       - name: Create Jira ticket based on nightly build failure
+#         uses: ./.github/actions/create-jira-ticket
+#         with:
+#           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+#           jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+#           jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+#           module_name: "centreon-open-tickets"
+#           ticket_reason_for_creation: "Nightly"
 
-  promote:
-    needs: [get-environment, deliver]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (deliver-pulp)
+#   deliver-pulp:
+#     continue-on-error: true
+#     needs: [get-environment, changes, package, e2e-test]
+#     if: |
+#       needs.changes.outputs.trigger_delivery == 'true' &&
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       github.event.pull_request.head.repo.fork != true
+#     runs-on: centreon-ubuntu-22.04
+#     strategy:
+#       matrix:
+#         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+#
+#     name: deliver ${{ matrix.distrib }} (pulp)
+#     permissions:
+#       contents: read
+#       id-token: write
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+#
+#       - name: Deliver packages on Pulp
+#         id: deliver_pulp
+#         uses: ./.github/actions/package-delivery-pulp
+#         continue-on-error: true
+#         with:
+#           module_name: open-tickets
+#           distrib: ${{ matrix.distrib }}
+#           version: ${{ needs.get-environment.outputs.major_version }}
+#           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+#           delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+#           pulp_url: ${{ vars.PULP_API_URL }}
+#           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+#           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+#
+#       - name: Warn if the Pulp delivery failed
+#         if: steps.deliver_pulp.outcome == 'failure'
+#         shell: bash
+#         run: |
+#           echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
 
-    name: promote ${{ matrix.distrib }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Promote ${{ matrix.distrib }} to stable on Artifactory
-        uses: ./.github/actions/promote-to-stable
-        with:
-          artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          minor_version: ${{ needs.get-environment.outputs.minor_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          github_ref_name: ${{ github.ref_name }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-
-  set-skip-label:
-    needs: [get-environment, deliver, promote]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled')
-    uses: ./.github/workflows/set-pull-request-skip-label.yml
-
-  clear-branch-cache:
-    runs-on: ubuntu-24.04
-    needs: [get-environment, deliver]
-    env:
-      GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-    if: |
-      needs.get-environment.outputs.is_nightly == 'true' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: List and delete cache
-        env:
-          REF_NAME: ${{ github.ref_name }}
-        run: |
-          mapfile -t cache_keys < <(gh cache list --ref "refs/heads/$REF_NAME" --json key -q '.[] | .key')
-          echo $cache_keys
-          while read row; do
-            gh cache delete $row
-            echo "Cache $row was deleted."
-          done <<< "$cache_keys"
-        shell: bash
-
-  create-jira-nightly-ticket:
-    runs-on: ubuntu-24.04
-    needs: [
-      get-environment,
-      deliver
-    ]
-    if: |
-      needs.get-environment.outputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled() || contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) &&
-      startsWith(github.ref_name, 'dev') &&
-      github.event.pull_request.head.repo.fork != true
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Create Jira ticket based on nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-          module_name: "centreon-open-tickets"
-          ticket_reason_for_creation: "Nightly"
-
-  deliver-pulp:
-    continue-on-error: true
-    needs: [get-environment, changes, package, e2e-test]
-    if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-
-    name: deliver ${{ matrix.distrib }} (pulp)
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Deliver packages on Pulp
-        id: deliver_pulp
-        uses: ./.github/actions/package-delivery-pulp
-        continue-on-error: true
-        with:
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          version: ${{ needs.get-environment.outputs.major_version }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
-          pulp_url: ${{ vars.PULP_API_URL }}
-          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
-
-      - name: Warn if the Pulp delivery failed
-        if: steps.deliver_pulp.outcome == 'failure'
-        shell: bash
-        run: |
-          echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
-
-  promote-pulp:
-    continue-on-error: true
-    needs: [get-environment, deliver-pulp]
-    if: |
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: centreon-ubuntu-22.04
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
-
-    name: promote ${{ matrix.distrib }} (pulp)
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Promote ${{ matrix.distrib }} to stable on Pulp
-        id: promote_pulp
-        uses: ./.github/actions/promote-to-stable-pulp
-        continue-on-error: true
-        with:
-          module_name: open-tickets
-          distrib: ${{ matrix.distrib }}
-          major_version: ${{ needs.get-environment.outputs.major_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          pulp_url: ${{ vars.PULP_API_URL }}
-          pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
-          audience: ${{ vars.PULP_OIDC_AUDIENCE }}
-
-      - name: Warn if the Pulp promotion failed
-        if: steps.promote_pulp.outcome == 'failure'
-        shell: bash
-        run: |
-          echo "::warning::Pulp promotion failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory promotion remains authoritative). See the 'Promote to stable on Pulp' step."
+  # [release-bump test — TO REVERT] disabled: downstream of packaging (promote-pulp)
+#   promote-pulp:
+#     continue-on-error: true
+#     needs: [get-environment, deliver-pulp]
+#     if: |
+#       needs.get-environment.outputs.skip_workflow == 'false' &&
+#       (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
+#       ! cancelled() &&
+#       ! contains(needs.*.result, 'failure') &&
+#       ! contains(needs.*.result, 'cancelled') &&
+#       github.event.pull_request.head.repo.fork != true
+#     runs-on: centreon-ubuntu-22.04
+#     strategy:
+#       matrix:
+#         include: ${{ fromJson(needs.get-environment.outputs.package_matrix) }}
+#
+#     name: promote ${{ matrix.distrib }} (pulp)
+#     permissions:
+#       contents: read
+#       id-token: write
+#     steps:
+#       - name: Checkout sources
+#         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+#
+#       - name: Promote ${{ matrix.distrib }} to stable on Pulp
+#         id: promote_pulp
+#         uses: ./.github/actions/promote-to-stable-pulp
+#         continue-on-error: true
+#         with:
+#           module_name: open-tickets
+#           distrib: ${{ matrix.distrib }}
+#           major_version: ${{ needs.get-environment.outputs.major_version }}
+#           stability: ${{ needs.get-environment.outputs.stability }}
+#           release_type: ${{ needs.get-environment.outputs.release_type }}
+#           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+#           pulp_url: ${{ vars.PULP_API_URL }}
+#           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
+#           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
+#
+#       - name: Warn if the Pulp promotion failed
+#         if: steps.promote_pulp.outcome == 'failure'
+#         shell: bash
+#         run: |
+#           echo "::warning::Pulp promotion failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory promotion remains authoritative). See the 'Promote to stable on Pulp' step."
