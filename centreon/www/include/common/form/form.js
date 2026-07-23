@@ -685,6 +685,32 @@ var CentreonForm = (function () {
         }
     }
 
+    /**
+     * Sync an iPhone-style toggle (cl-toggle) with a plain checkbox — for
+     * pages where the underlying QuickForm field is a lone checkbox rather
+     * than a radio pair (see syncToggle() above for the radio-pair case).
+     * One-directional: the toggle drives the checkbox's checked state; the
+     * checkbox itself stays hidden in the markup.
+     *
+     * @param {string} toggleId          - DOM id of the toggle <input type="checkbox">
+     * @param {string} checkboxSelector  - CSS selector for the real checkbox, e.g. '#all_hosts' or 'input[name="dupSvTplAssoc"]'
+     * @param {function} [onChange]      - Optional extra callback(checkbox), run once on init and again on every change
+     */
+    function syncToggleCheckbox(toggleId, checkboxSelector, onChange) {
+        var toggle = document.getElementById(toggleId);
+        var checkbox = document.querySelector(checkboxSelector);
+
+        if (!toggle || !checkbox) return;
+
+        toggle.checked = checkbox.checked;
+        if (onChange) onChange(checkbox);
+
+        toggle.addEventListener('change', function () {
+            checkbox.checked = toggle.checked;
+            if (onChange) onChange(checkbox);
+        });
+    }
+
     // =========================================================================
     //  MACRO ROW CLEANUP
     //  Restructures sheepIt macro clone rows for a cleaner layout.
@@ -1109,6 +1135,7 @@ var CentreonForm = (function () {
         initCheckboxChips:    initCheckboxChips,
         initChips:            initChips,
         syncToggle:           syncToggle,
+        syncToggleCheckbox:   syncToggleCheckbox,
         makeToggle:           makeToggle,
         initSoloToggles:      initSoloToggles,
         initToggleDependencies: initToggleDependencies,

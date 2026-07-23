@@ -945,6 +945,16 @@
     align-items: center;
     gap: 12px;
     padding: 8px 0;
+    /* Most pages place this inside a wider flex row and want it sized to
+       its own content rather than stretching — was previously repeated as
+       an inline style on every single usage (53 times across 16 branches).
+       Pages that do want it to grow use .cf-toggle-row--grow instead. */
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.cf-toggle-row--grow {
+    flex: 1 1 auto;
 }
 
 .cf-toggle-row span {
@@ -1384,3 +1394,83 @@
 .cf-side-panel-body {
     overflow: visible;
 }
+
+/* ==========================================================================
+   Deploy-configuration wizard (generate / generate-traps forms)
+   Poller picker + Apply button, step indicator, progress bar, per-poller
+   tabs and consoles. Previously an identical <style> block duplicated in
+   both formGenerateFiles.ihtml and formGenerateTraps.ihtml.
+   ========================================================================== */
+
+.gen-wrap { max-width: 920px; }
+.gen-top { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+.gen-top .cf-field { flex: 1; min-width: 300px; }
+.gen-apply {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px; font-size: 14px; font-weight: 600;
+    border: none; border-radius: 6px; cursor: pointer;
+    background: var(--bt-info-background-color, #2E68AA); color: #fff;
+    transition: filter .15s;
+}
+.gen-apply:hover { filter: brightness(0.94); }
+.gen-apply:disabled { opacity: .5; cursor: not-allowed; }
+.gen-nopoller { color: #FF4A4A; font-size: 13px; margin: 4px 0 0; }
+
+/* Advanced (just under the poller field) */
+.gen-adv { margin: 8px 0 4px; }
+.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #2E68AA); font-weight: 500; }
+.gen-adv .gen-adv-body {
+    padding: 12px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px;
+    background: #f7f8fa; border: 1px solid var(--color-divider, #e6e8ec); border-radius: 6px;
+}
+.gen-adv-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333; }
+
+/* Toggle switch: inherits the shared design-system .cl-toggle from form.css */
+
+/* Stepper */
+.gen-stepper { display: flex; align-items: center; margin: 22px 0 14px; }
+.gen-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #9aa3ad; font-weight: 500; }
+.gen-step .dot {
+    width: 24px; height: 24px; border-radius: 50%; background: #cfd6df; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+    transition: background .2s;
+}
+.gen-step.active { color: var(--color-primary-light, #2E68AA); }
+.gen-step.active .dot { background: var(--color-primary-light, #2E68AA); }
+.gen-step.done { color: var(--color-success, #88B922); }
+.gen-step.done .dot { background: var(--color-success, #88B922); }
+.gen-step.err { color: #FF4A4A; }
+.gen-step.err .dot { background: #FF4A4A; }
+.gen-step.skipped { opacity: .4; }
+.gen-connector { flex: 1; height: 2px; background: #dde1e6; margin: 0 10px; min-width: 20px; }
+
+/* Progress */
+.gen-progress { height: 10px; background: #eceef1; border-radius: 6px; overflow: hidden; }
+.gen-progress > span { display: block; height: 100%; width: 0; background: var(--color-success, #88B922); transition: width .3s ease, background .2s; }
+.gen-pct { text-align: right; font-size: 12px; color: #888; margin-top: 4px; }
+
+/* One tab per poller (shown only when several pollers) */
+.gen-tabs { display: flex; flex-wrap: wrap; margin-top: 14px; }
+.gen-tab {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+    color: var(--body-color, #666); border-bottom: 2px solid transparent; margin-bottom: -2px;
+}
+.gen-tab:hover { color: var(--list-color, #333); }
+.gen-tab.active { color: var(--color-primary-light, #2E68AA); border-bottom-color: var(--color-primary-light, #2E68AA); font-weight: 600; }
+.gen-tab .st { width: 9px; height: 9px; border-radius: 50%; background: #cfd6df; flex-shrink: 0; }
+.gen-tab.run .st { background: var(--color-primary-light, #2E68AA); animation: genpulse 1s infinite; }
+.gen-tab.ok  .st { background: var(--color-success, #88B922); }
+.gen-tab.err .st { background: #FF4A4A; }
+@keyframes genpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* Console panels (one per poller) */
+.gen-console {
+    background: #1e222a; color: #d5dae1; font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 12px; line-height: 1.6; padding: 14px 16px; border-radius: 8px;
+    margin-top: 10px; max-height: 340px; overflow: auto; white-space: pre-wrap;
+}
+.gen-console.attached { border-top-left-radius: 0; margin-top: 0; }
+.gen-console .ok { color: #8fce46; } .gen-console .err { color: #ff6b6b; }
+.gen-console .warn { color: #f3b34d; } .gen-console .muted { color: #8b95a1; }
+.gen-console b { color: #fff; }
