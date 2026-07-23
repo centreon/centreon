@@ -130,6 +130,7 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
                     INNER JOIN `:dbstg`.instances i
                     ON ns.uid = i.instance_id OR ns.id = i.instance_id
                 SET ns.is_encryption_ready = i.is_encryption_ready
+                WHERE i.deleted = 0
                 SQL
         ));
         $statement->execute();
