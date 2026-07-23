@@ -32,15 +32,18 @@ if (! isset($limit) || (int) $limit < 0) {
     $limit = $centreon->optGen['maxViewConfiguration'];
 }
 
-$allowedOrders = ['ASC' => 'ASC', 'DESC' => 'DESC'];
-$allowedOrderColumns = ['host_name' => 'host_name', 'service_description' => 'service_description'];
-
 $order = 'ASC';
 $orderBy = 'host_name';
 
 if (! empty($_POST['order']) && ! empty($_POST['orderby'])) {
-    $order = $allowedOrders[$_POST['order']] ?? 'ASC';
-    $orderBy = $allowedOrderColumns[$_POST['orderby']] ?? 'host_name';
+    $order = match ($_POST['order']) {
+        'DESC' => 'DESC',
+        default => 'ASC',
+    };
+    $orderBy = match ($_POST['orderby']) {
+        'service_description' => 'service_description',
+        default => 'host_name',
+    };
 }
 
 require_once './include/common/autoNumLimit.php';
