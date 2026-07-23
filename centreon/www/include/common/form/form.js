@@ -792,18 +792,26 @@ var CentreonForm = (function () {
 
     /**
      * Initialize the geo coordinates address autocomplete.
-     * Requires two elements:
-     * - An input with id="cfGeoAddress" (the search field)
-     * - A div with id="cfGeoResults" (the dropdown container)
+     * Requires two elements (ids configurable — see options — for pages
+     * that tuck the picker inside a popin/modal instead of an inline field):
+     * - An input, id="cfGeoAddress" by default (the search field)
+     * - A div, id="cfGeoResults" by default (the dropdown container)
      * - A target input with name="geo_coords" (where the lat,lon is written)
      *
-     * @param {number} [debounce=400] - Debounce delay in ms before searching.
+     * @param {Object} [options]
+     * @param {string}   [options.inputId='cfGeoAddress']
+     * @param {string}   [options.resultsId='cfGeoResults']
+     * @param {number}   [options.debounce=400] - Debounce delay in ms before searching.
+     * @param {function} [options.onSelect] - Called (item, coordInput) after a
+     *   result is picked, instead of the default behavior of echoing the
+     *   picked address back into the search field (e.g. to close a popin).
      */
-    function initGeoAutocomplete(debounce) {
-        debounce = debounce || 400;
+    function initGeoAutocomplete(options) {
+        options = options || {};
+        var debounce = options.debounce || 400;
 
-        var geoInput   = document.getElementById('cfGeoAddress');
-        var geoResults = document.getElementById('cfGeoResults');
+        var geoInput   = document.getElementById(options.inputId || 'cfGeoAddress');
+        var geoResults = document.getElementById(options.resultsId || 'cfGeoResults');
         if (!geoInput || !geoResults) return;
 
         var timer = null;
@@ -864,8 +872,12 @@ var CentreonForm = (function () {
                 : null;
             if (label) label.classList.add('cf-label-float');
 
-            // Show the selected address in the search field
-            geoInput.value = item.querySelector('.cf-geo-item-name').textContent;
+            if (options.onSelect) {
+                options.onSelect(item, coordInput);
+            } else {
+                // Show the selected address in the search field
+                geoInput.value = item.querySelector('.cf-geo-item-name').textContent;
+            }
             geoResults.style.display = 'none';
         });
 
