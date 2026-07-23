@@ -30,8 +30,8 @@ LOG_FILE="${WORK_DIR}/log/install-poller.log"
 # Deployment type: docker | vm (required, no default)
 POLLER_TYPE=""
 
-# Cloud mode: true (Centreon Cloud) | false (on-prem)
-CLOUD_MODE="true"
+# Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
+CLOUD_MODE="false"
 
 # Common install args
 GORGONE_TOKEN=""

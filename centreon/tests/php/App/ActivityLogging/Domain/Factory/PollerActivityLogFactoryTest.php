@@ -31,7 +31,7 @@ use App\ActivityLogging\Domain\Factory\PollerActivityLogFactory;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -62,7 +62,7 @@ final class PollerActivityLogFactoryTest extends TestCase
             uid: new PollerUid(123456789012345),
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
-            engineConfiguration: new EngineConfiguration(),
+            engineInformation: new EngineInformation(),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),

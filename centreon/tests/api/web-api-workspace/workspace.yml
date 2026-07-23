@@ -106,6 +106,8 @@ collections:
     path: "collections/Resources_By_Parent_Monitoring"
   - name: "Monitoring_Server_Configuration"
     path: "collections/Monitoring_Server_Configuration"
+  - name: "Poller_Configuration"
+    path: "collections/Poller_Configuration"
   - name: "Monitoring_Timeline"
     path: "collections/Monitoring_Timeline"
   - name: "Comment"

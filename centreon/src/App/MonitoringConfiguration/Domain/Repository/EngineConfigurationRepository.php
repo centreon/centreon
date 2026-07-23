@@ -21,12 +21,11 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Validator;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use Symfony\Component\Validator\Constraint;
+use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\EngineConfiguration;
 
-#[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class UniquePollerName extends Constraint
+interface EngineConfigurationRepository
 {
-    public string $message = 'A poller with this name already exists.';
+    public function add(EngineConfiguration $engineConfiguration): void;
 }

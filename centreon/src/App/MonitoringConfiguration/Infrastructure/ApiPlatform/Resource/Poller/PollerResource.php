@@ -60,18 +60,18 @@ final class PollerResource
 
         public string $address,
 
-        #[ApiProperty(identifier: true, writable: false)]
-        public ?int $id = null,
+        #[ApiProperty(identifier: true)]
+        public int $id,
 
-        #[ApiProperty(writable: false)]
-        public ?string $uid = null,
+        public string $uid,
+
+        public string $gorgoneCommunicationType,
 
         #[ApiProperty(
-            writable: false,
-            openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
+            openapiContext: ['example' => 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>']
         )]
         #[Sensitive]
-        public ?string $installationCommand = null,
+        public string $installationCommand = '',
     ) {
     }
 }

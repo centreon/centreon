@@ -63,6 +63,8 @@ class GetHostTemplateSaasPresenter extends AbstractPresenter implements GetHostT
                 'is_locked' => $response->isLocked,
                 'categories' => $response->categories,
                 'templates' => $response->templates,
+                'freshness_checked' => $response->freshnessChecked,
+                'freshness_threshold' => $response->freshnessThreshold,
                 'event_handler_enabled' => $response->eventHandlerEnabled,
                 'event_handler_command_id' => $response->eventHandlerCommandId,
                 'macros' => array_map(

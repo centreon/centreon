@@ -1,0 +1,29 @@
+meta {
+  name: GET /logout - Logout administrator - HTTP 200
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrlWeb}}/logout
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Logout is successful", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    bru.deleteEnvVar("authToken");
+    bru.deleteEnvVar("cleanupToken");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

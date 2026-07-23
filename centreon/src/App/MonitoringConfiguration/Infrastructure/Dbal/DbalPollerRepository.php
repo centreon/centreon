@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
@@ -53,7 +54,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2',
+ *   gorgone_communication_type: '1'|'2'|'3'|'4',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -81,7 +82,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2',
+ *   gorgone_communication_type: '1'|'2'|'3'|'4',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -173,17 +174,17 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
                 ->setParameter('uid', $poller->uid->value)
-                ->setParameter('gorgone_communication_type', $poller->gorgoneConfiguration->communicationType->value)
+                ->setParameter('gorgone_communication_type', $this->communicationTypeToDatabase($poller->gorgoneConfiguration->communicationType))
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
                 ->setParameter('remote_server_use_as_proxy', $poller->gorgoneConfiguration->useRemoteServerAsProxy ? '1' : '0')
-                ->setParameter('engine_start_command', $poller->engineConfiguration->startCommand)
-                ->setParameter('engine_stop_command', $poller->engineConfiguration->stopCommand)
-                ->setParameter('engine_restart_command', $poller->engineConfiguration->restartCommand)
-                ->setParameter('engine_reload_command', $poller->engineConfiguration->reloadCommand)
-                ->setParameter('nagios_bin', $poller->engineConfiguration->binaryPath)
-                ->setParameter('nagiostats_bin', $poller->engineConfiguration->statisticsBinaryPath)
-                ->setParameter('nagios_perfdata', $poller->engineConfiguration->perfdataFilePath)
+                ->setParameter('engine_start_command', $poller->engineInformation->startCommand)
+                ->setParameter('engine_stop_command', $poller->engineInformation->stopCommand)
+                ->setParameter('engine_restart_command', $poller->engineInformation->restartCommand)
+                ->setParameter('engine_reload_command', $poller->engineInformation->reloadCommand)
+                ->setParameter('nagios_bin', $poller->engineInformation->binaryPath)
+                ->setParameter('nagiostats_bin', $poller->engineInformation->statisticsBinaryPath)
+                ->setParameter('nagios_perfdata', $poller->engineInformation->perfdataFilePath)
                 ->setParameter('broker_reload_command', $poller->brokerConfiguration->reloadCommand)
                 ->setParameter('centreonbroker_cfg_path', $poller->brokerConfiguration->configurationPath)
                 ->setParameter('centreonbroker_module_path', $poller->brokerConfiguration->modulesPath)
@@ -459,5 +460,15 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         );
 
         return $poller;
+    }
+
+    private function communicationTypeToDatabase(GorgoneCommunicationTypeEnum $communicationType): string
+    {
+        return match ($communicationType) {
+            GorgoneCommunicationTypeEnum::ZMQ => '1',
+            GorgoneCommunicationTypeEnum::SSH => '2',
+            GorgoneCommunicationTypeEnum::Pull => '3',
+            GorgoneCommunicationTypeEnum::PullWss => '4',
+        };
     }
 }

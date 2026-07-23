@@ -8,7 +8,6 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, find, isEmpty, isNil } from 'ramda';
 import { Suspense, useMemo } from 'react';
-import { useSearchParams } from 'react-router';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
@@ -16,8 +15,7 @@ import {
   getPanelConfigurationsDerivedAtom,
   getPanelOptionsAndDataDerivedAtom,
   isEditingAtom,
-  setPanelOptionsAndDataDerivedAtom,
-  switchPanelsEditionModeDerivedAtom
+  setPanelOptionsAndDataDerivedAtom
 } from '../../atoms';
 import DescriptionWrapper from '../../components/DescriptionWrapper';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
@@ -48,10 +46,6 @@ const Panel = ({
 
   const { changeViewMode } = useLinkToResourceStatus();
 
-  const [searchParams, setSearchParams] = useSearchParams(
-    window.location.search
-  );
-
   const getPanelOptionsAndData = useAtomValue(
     getPanelOptionsAndDataDerivedAtom
   );
@@ -61,9 +55,6 @@ const Panel = ({
   const refreshInterval = useAtomValue(dashboardRefreshIntervalAtom);
   const isEditing = useAtomValue(isEditingAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
-  const switchPanelsEditionMode = useSetAtom(
-    switchPanelsEditionModeDerivedAtom
-  );
 
   const { canEditField } = useCanEditProperties();
   const { saveDashboard } = useSaveDashboard();
@@ -84,10 +75,6 @@ const Panel = ({
   );
 
   const changePanelOptions = (partialOptions: object): void => {
-    switchPanelsEditionMode(true);
-    searchParams.set('edit', 'true');
-    setSearchParams(searchParams);
-
     setPanelOptions({
       data: panelOptionsAndData?.data,
       id,

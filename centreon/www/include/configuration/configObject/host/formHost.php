@@ -53,7 +53,7 @@ $datasetRoutes = [
     'contact_groups' => BASE_ROUTE . '?object=centreon_configuration_contactgroup&action=list',
     'default_timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=defaultValues&target=host&field=host_location&id=' . $host_id,
     'timezones' => BASE_ROUTE . '?object=centreon_configuration_timezone&action=list',
-    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_comman&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
+    'default_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id&id=' . $host_id,
     'check_commands' => BASE_ROUTE . '?object=centreon_configuration_command&action=list&t=2',
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
@@ -858,30 +858,34 @@ if (! $isCloudPlatform) {
     }
 
     $form->addElement('select2', 'host_childs', _('Child Hosts'), [], $attributes['host_child']);
+}
 
-    //
-    // # Sort 3 - Data treatment
-    //
-    if ($o === HOST_ADD) {
-        $form->addElement('header', 'title3', _('Add Data Processing'));
-    } elseif ($o === HOST_MODIFY) {
-        $form->addElement('header', 'title3', _('Modify Data Processing'));
-    } elseif ($o === HOST_WATCH) {
-        $form->addElement('header', 'title3', _('View Data Processing'));
-    } elseif ($o === HOST_MASSIVE_CHANGE) {
-        $form->addElement('header', 'title3', _('Mass Change'));
-    }
+//
+// # Sort 3 - Data treatment
+//
+if ($o === HOST_ADD) {
+    $form->addElement('header', 'title3', _('Add Data Processing'));
+} elseif ($o === HOST_MODIFY) {
+    $form->addElement('header', 'title3', _('Modify Data Processing'));
+} elseif ($o === HOST_WATCH) {
+    $form->addElement('header', 'title3', _('View Data Processing'));
+} elseif ($o === HOST_MASSIVE_CHANGE) {
+    $form->addElement('header', 'title3', _('Mass Change'));
+}
 
-    $form->addElement('header', 'treatment', _('Data Processing'));
+$form->addElement('header', 'treatment', _('Data Processing'));
 
-    $hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Yes'), '1');
-    $hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('No'), '0');
-    $hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2');
-    $form->addGroup($hostCF, 'host_check_freshness', _('Check Freshness'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_check_freshness' => '2']);
-    }
+$hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Yes'), '1');
+$hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('No'), '0');
+$hostCF[] = $form->createElement('radio', 'host_check_freshness', null, _('Default'), '2');
+$form->addGroup($hostCF, 'host_check_freshness', _('Check Freshness'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_check_freshness' => '2']);
+}
 
+$form->addElement('text', 'host_freshness_threshold', _('Freshness Threshold'), $attrsText2);
+
+if (! $isCloudPlatform) {
     $hostFDE[] = $form->createElement('radio', 'host_flap_detection_enabled', null, _('Yes'), '1');
     $hostFDE[] = $form->createElement('radio', 'host_flap_detection_enabled', null, _('No'), '0');
     $hostFDE[] = $form->createElement('radio', 'host_flap_detection_enabled', null, _('Default'), '2');
@@ -890,10 +894,8 @@ if (! $isCloudPlatform) {
         $form->setDefaults(['host_flap_detection_enabled' => '2']);
     }
 
-    $form->addElement('text', 'host_freshness_threshold', _('Freshness Threshold'), $attrsText2);
     $form->addElement('text', 'host_low_flap_threshold', _('Low Flap Threshold'), $attrsText2);
     $form->addElement('text', 'host_high_flap_threshold', _('High Flap Threshold'), $attrsText2);
-
 }
 
 $form->addElement('select', 'ehi_icon_image', _('Icon'), $extImg, [

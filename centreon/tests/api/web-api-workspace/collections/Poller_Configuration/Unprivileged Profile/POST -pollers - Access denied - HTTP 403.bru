@@ -1,0 +1,29 @@
+meta {
+  name: POST /pollers - Access denied - HTTP 403
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/pollers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "poller-bruno-forbidden",
+    "address": "1.2.3.7",
+    "poller_type": "vm",
+    "poller_token_name": "{{PollerTokenName}}"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

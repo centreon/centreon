@@ -26,7 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -77,7 +77,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             centralUrl: self::CENTRAL_URL,
         );
 
-        self::assertStringContainsString('--poller_token ' . self::POLLER_TOKEN, $factory->generate());
+        self::assertStringContainsString('--poller_token test-token:' . self::POLLER_TOKEN, $factory->generate());
     }
 
     public function testGenerateCommandContainsPollerUid(): void
@@ -182,7 +182,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         );
 
         $expected = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
+            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
             self::CENTRAL_URL,
             self::POLLER_TOKEN,
             self::POLLER_UID,
@@ -193,6 +193,34 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         );
 
         self::assertSame($expected, $factory->generate());
+    }
+
+    public function testGenerateCommandContainsCloudFlagWhenCloudPlatform(): void
+    {
+        $factory = new PollerInstallationCommandFactory(
+            poller: $this->createPoller(PollerTypeEnum::VM),
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            isCloudPlatform: true,
+            centralUrl: self::CENTRAL_URL,
+        );
+
+        self::assertStringEndsWith('--cloud', $factory->generate());
+    }
+
+    public function testGenerateCommandDoesNotContainCloudFlagWhenOnPremise(): void
+    {
+        $factory = new PollerInstallationCommandFactory(
+            poller: $this->createPoller(PollerTypeEnum::VM),
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            isCloudPlatform: false,
+            centralUrl: self::CENTRAL_URL,
+        );
+
+        self::assertStringNotContainsString('--cloud', $factory->generate());
     }
 
     private function createPoller(PollerTypeEnum $type): Poller
@@ -211,7 +239,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
-            engineConfiguration: new EngineConfiguration(),
+            engineInformation: new EngineInformation(),
             gorgoneConfiguration: new GorgoneConfiguration(),
         );
     }
