@@ -152,6 +152,20 @@ const buildDeleteInstanceByNameQuery = (name: string): string =>
 const buildDeletePollerByNameQuery = (name: string): string =>
   `DELETE FROM nagios_server WHERE name = '${name}'`;
 
+const isRunningColumnIndex = 4;
+
+const assertPollerIsRunning = (name: string): void => {
+  cy.wait(waitPollerListToLoad);
+
+  cy.getIframeBody()
+    .contains('td', name)
+    .parent('tr')
+    .find('td')
+    .eq(isRunningColumnIndex)
+    .find('.service_ok')
+    .should('exist');
+};
+
 export {
   insertPollerConfigUserAcl,
   getPoller,
@@ -170,5 +184,6 @@ export {
   buildInsertPollerQuery,
   buildInsertRunningInstanceQuery,
   buildDeleteInstanceByNameQuery,
-  buildDeletePollerByNameQuery
+  buildDeletePollerByNameQuery,
+  assertPollerIsRunning
 };

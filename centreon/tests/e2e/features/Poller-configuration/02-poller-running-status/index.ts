@@ -3,6 +3,7 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
+  assertPollerIsRunning,
   buildDeleteInstanceByNameQuery,
   buildDeletePollerByNameQuery,
   buildInsertPollerQuery,
@@ -11,23 +12,8 @@ import {
   legacyPollerName,
   legacyPollerUid,
   pollerName,
-  pollerUid,
-  waitPollerListToLoad
+  pollerUid
 } from '../common';
-
-const isRunningColumnIndex = 4;
-
-const assertPollerIsRunning = (name: string): void => {
-  cy.wait(waitPollerListToLoad);
-
-  cy.getIframeBody()
-    .contains('td', name)
-    .parent('tr')
-    .find('td')
-    .eq(isRunningColumnIndex)
-    .find('.service_ok')
-    .should('exist');
-};
 
 beforeEach(() => {
   cy.startContainers();
@@ -101,7 +87,7 @@ Given(
 
 When('the user opens the pollers configuration page', () => {
   cy.visit(PAGES.configuration.pollersLegacy);
-  cy.url().should('include', '/centreon/main.php?p=60901');
+  cy.url().should('include', PAGES.configuration.pollersLegacy);
 });
 
 Then('the seeded poller is displayed as running', () => {
