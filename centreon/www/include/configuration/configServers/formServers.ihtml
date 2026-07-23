@@ -313,92 +313,11 @@
 
 {literal}
 <script type="text/javascript">
-function cfScrollTo(sectionId, clickedLink) {
-    var section = document.getElementById(sectionId);
-    if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (section.classList.contains('collapsed')) section.classList.remove('collapsed');
-    }
-    document.querySelectorAll('.cf-tab-nav a').forEach(function(a) { a.classList.remove('active'); });
-    if (clickedLink) clickedLink.classList.add('active');
-}
-function cfToggleSection(header) { header.parentElement.classList.toggle('collapsed'); }
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Float labels for pre-filled inputs
-    document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function(input) {
-        if (input.value && input.value.trim() !== '') {
-            var label = input.parentElement.querySelector('label');
-            if (label) label.classList.add('cf-label-float');
-        }
-        input.addEventListener('focus', function() {
-            var label = this.parentElement.querySelector('label');
-            if (label) label.classList.add('cf-label-float');
-        });
-        input.addEventListener('blur', function() {
-            if (!this.value || this.value.trim() === '') {
-                var label = this.parentElement.querySelector('label');
-                if (label) label.classList.remove('cf-label-float');
-            }
-        });
-    });
-
-    // Sync toggles with radio buttons (Yes/No and Enabled/Disabled)
-    function cfSyncToggle(toggleId, radioName, onValue, offValue) {
-        var toggle = document.getElementById(toggleId);
-        var radioOn = document.querySelector('input[name="' + radioName + '"][value="' + onValue + '"]')
-            || document.querySelector('input[name="' + radioName + '[' + radioName + ']"][value="' + onValue + '"]');
-        var radioOff = document.querySelector('input[name="' + radioName + '"][value="' + offValue + '"]')
-            || document.querySelector('input[name="' + radioName + '[' + radioName + ']"][value="' + offValue + '"]');
-        if (toggle && radioOn) {
-            toggle.checked = radioOn.checked;
-            toggle.addEventListener('change', function() {
-                if (this.checked) { radioOn.checked = true; }
-                else if (radioOff) { radioOff.checked = true; }
-            });
-        }
-    }
-    cfSyncToggle('cf-toggle-localhost', 'localhost', '1', '0');
-    cfSyncToggle('cf-toggle-is-default', 'is_default', '1', '0');
-    cfSyncToggle('cf-toggle-ns-activate', 'ns_activate', '1', '0');
-
-    // Hide breadcrumb and title in side panel
-    if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
-        var breadcrumb = document.querySelector('.pathway');
-        if (breadcrumb) breadcrumb.style.display = 'none';
-        var title = document.querySelector('.cf-page-title');
-        if (title) title.style.display = 'none';
-    }
-
-    // Custom tooltip on hover
-    setTimeout(function() {
-        var hoverTimer = null, tipEl = null;
-        jQuery('.helpTooltip').off('click').css('cursor', 'help')
-        .on('mouseenter', function() {
-            var self = this;
-            hoverTimer = setTimeout(function() {
-                var helpSpan = document.getElementById('help:' + jQuery(self).attr('name'));
-                if (!helpSpan) return;
-                if (tipEl) tipEl.remove();
-                tipEl = document.createElement('div');
-                tipEl.className = 'cf-tooltip';
-                tipEl.innerHTML = helpSpan.innerHTML;
-                document.body.appendChild(tipEl);
-                var rect = self.getBoundingClientRect();
-                var top = rect.top - tipEl.offsetHeight - 8;
-                if (top < 4) top = rect.bottom + 8;
-                var left = rect.left + rect.width / 2 - tipEl.offsetWidth / 2;
-                if (left < 4) left = 4;
-                if (left + tipEl.offsetWidth > window.innerWidth - 4) left = window.innerWidth - tipEl.offsetWidth - 4;
-                tipEl.style.top = top + 'px';
-                tipEl.style.left = left + 'px';
-                tipEl.style.opacity = '1';
-            }, 500);
-        }).on('mouseleave', function() {
-            clearTimeout(hoverTimer);
-            if (tipEl) { tipEl.remove(); tipEl = null; }
-        });
-    }, 500);
+    CentreonForm.initFormPage();
+    CentreonForm.syncToggle('cf-toggle-localhost', 'localhost', '1', '0');
+    CentreonForm.syncToggle('cf-toggle-is-default', 'is_default', '1', '0');
+    CentreonForm.syncToggle('cf-toggle-ns-activate', 'ns_activate', '1', '0');
 });
 </script>
 {/literal}
