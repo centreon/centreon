@@ -33,7 +33,7 @@ const getElements = (): void => {
 export default (): void =>
   describe(labelHosts, () => {
     describe('responsive behaviors', () => {
-      it.only('hides the button text when the screen is under 1024px width', () => {
+      it('hides the button text when the screen is under 1024px width', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
