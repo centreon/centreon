@@ -32,6 +32,30 @@ var CentreonForm = (function () {
     //  The form loads in an iframe so all QuickForm JS works natively.
     // =========================================================================
 
+    /** @private localStorage key used to remember the side panel's last width */
+    var SIDE_PANEL_WIDTH_KEY = 'cf_side_panel_width';
+
+    /** @private Read the last resized width from localStorage, if any */
+    function getSavedSidePanelWidth() {
+        try {
+            var stored = parseInt(window.localStorage.getItem(SIDE_PANEL_WIDTH_KEY), 10);
+
+            return stored > 0 ? stored : null;
+        } catch (e) {
+            // localStorage can throw (e.g. private browsing) — just skip restoring
+            return null;
+        }
+    }
+
+    /** @private Persist the current side panel width to localStorage */
+    function saveSidePanelWidth(width) {
+        try {
+            window.localStorage.setItem(SIDE_PANEL_WIDTH_KEY, width);
+        } catch (e) {
+            // Ignore: not critical if the width isn't remembered
+        }
+    }
+
     /**
      * Open the side panel with a form URL.
      *
@@ -106,6 +130,12 @@ var CentreonForm = (function () {
         var dragging = false;
 
         if (handle && panel) {
+            // Restore the width the user picked last time, if any.
+            var savedWidth = getSavedSidePanelWidth();
+            if (savedWidth) {
+                panel.style.width = savedWidth + 'px';
+            }
+
             handle.addEventListener('mousedown', function (e) {
                 e.preventDefault();
                 dragging = true;
@@ -137,6 +167,8 @@ var CentreonForm = (function () {
                 if (iframe) {
                     iframe.style.pointerEvents = '';
                 }
+
+                saveSidePanelWidth(parseInt(panel.style.width, 10));
             });
         }
 
@@ -225,26 +257,13 @@ var CentreonForm = (function () {
      * - On blur: un-float if the input is empty
      */
     function initFloatLabels() {
+        // The templates render every field label with the .cf-label-float class,
+        // so labels sit on the top border at all times. We keep them there and no
+        // longer drop them back into the field on blur (which looked inconsistent
+        // once a field had been focused). This just guarantees the class is set.
         document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function (input) {
             var label = input.parentElement.querySelector('label');
-            if (!label) return;
-
-            // Float label if input already has a value
-            if (input.value && input.value.trim() !== '') {
-                label.classList.add('cf-label-float');
-            }
-
-            input.addEventListener('focus', function () {
-                var lbl = this.parentElement.querySelector('label');
-                if (lbl) lbl.classList.add('cf-label-float');
-            });
-
-            input.addEventListener('blur', function () {
-                if (!this.value || this.value.trim() === '') {
-                    var lbl = this.parentElement.querySelector('label');
-                    if (lbl) lbl.classList.remove('cf-label-float');
-                }
-            });
+            if (label) label.classList.add('cf-label-float');
         });
     }
 
@@ -652,6 +671,44 @@ var CentreonForm = (function () {
                 radioOff.checked = true;
             }
         });
+
+        // Keep the toggle in sync when the form is reset: the toggle checkbox
+        // has no default checked state, so a native reset would always turn it
+        // off. Re-read the (post-reset) radio value on the next tick.
+        var form = toggle.form || radioOn.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    toggle.checked = radioOn.checked;
+                }, 0);
+            });
+        }
+    }
+
+    /**
+     * Sync an iPhone-style toggle (cl-toggle) with a plain checkbox — for
+     * pages where the underlying QuickForm field is a lone checkbox rather
+     * than a radio pair (see syncToggle() above for the radio-pair case).
+     * One-directional: the toggle drives the checkbox's checked state; the
+     * checkbox itself stays hidden in the markup.
+     *
+     * @param {string} toggleId          - DOM id of the toggle <input type="checkbox">
+     * @param {string} checkboxSelector  - CSS selector for the real checkbox, e.g. '#all_hosts' or 'input[name="dupSvTplAssoc"]'
+     * @param {function} [onChange]      - Optional extra callback(checkbox), run once on init and again on every change
+     */
+    function syncToggleCheckbox(toggleId, checkboxSelector, onChange) {
+        var toggle = document.getElementById(toggleId);
+        var checkbox = document.querySelector(checkboxSelector);
+
+        if (!toggle || !checkbox) return;
+
+        toggle.checked = checkbox.checked;
+        if (onChange) onChange(checkbox);
+
+        toggle.addEventListener('change', function () {
+            checkbox.checked = toggle.checked;
+            if (onChange) onChange(checkbox);
+        });
     }
 
     // =========================================================================
@@ -863,13 +920,43 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
 
         steps.forEach(function (step) {
             try { step(); } catch (e) { if (window.console) console.error('CentreonForm init step failed', e); }
+        });
+    }
+
+    /**
+     * Pressing Enter in a plain text field submits the form via its visible
+     * Save button, same as a native <input type="submit"> is supposed to do.
+     * Explicit instead of relying on the browser default so it's consistent
+     * regardless of field/browser quirks (e.g. select2's own search box,
+     * which manages Enter itself to confirm the highlighted option).
+     *
+     * @private
+     */
+    function initEnterToSubmit() {
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+
+            var target = e.target;
+            if (!target || target.tagName !== 'INPUT') return;
+            if (target.classList.contains('select2-search__field')) return;
+
+            var type = (target.getAttribute('type') || 'text').toLowerCase();
+            if (['text', 'email', 'number', 'tel', 'url', 'password', 'search'].indexOf(type) === -1) return;
+
+            var form = target.closest('form');
+            if (!form) return;
+            var submitBtn = form.querySelector('.cf-actions input[type="submit"]:not([disabled])');
+            if (!submitBtn) return;
+
+            e.preventDefault();
+            submitBtn.click();
         });
     }
 
@@ -889,6 +976,138 @@ var CentreonForm = (function () {
     function _findRadio(name, value) {
         return document.querySelector('input[name="' + name + '[' + name + ']"][value="' + value + '"]')
             || document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+    }
+
+    // =========================================================================
+    //  MAKE TOGGLE
+    //  Turn QuickForm checkbox field(s) into a Centreon design-system switch.
+    //  Call BEFORE initFormPage so the chip auto-transform skips them.
+    // =========================================================================
+
+    /**
+     * @param {string|string[]} names one or more checkbox element names
+     */
+    function makeToggle(names) {
+        if (!Array.isArray(names)) {
+            names = [names];
+        }
+        names.forEach(function (name) {
+            var input = document.querySelector('input[name="' + name + '"]');
+            if (!input) {
+                return;
+            }
+            var field = input.closest('.cf-field');
+            if (field) {
+                _convertToToggle(field, input);
+            }
+        });
+    }
+
+    /**
+     * @private Convert a single checkbox inside a .cf-field into a cl-toggle switch.
+     * The original <input> element is preserved (id, name, handlers) so submission
+     * and any bound JS keep working.
+     */
+    function _convertToToggle(field, input) {
+        if (field.classList.contains('cf-field-toggle')) {
+            return;
+        }
+        var lbl = field.querySelector('.cf-label-float') || field.querySelector('label');
+        var text = lbl ? lbl.textContent.trim() : '';
+        var help = field.querySelector('.helpTooltip');
+
+        var toggle = document.createElement('label');
+        toggle.className = 'cl-toggle';
+        toggle.appendChild(input);
+        var slider = document.createElement('span');
+        slider.className = 'cl-toggle-slider';
+        toggle.appendChild(slider);
+
+        field.innerHTML = '';
+        field.classList.add('cf-field-toggle');
+        field.appendChild(toggle);
+        var span = document.createElement('span');
+        span.className = 'cf-toggle-label';
+        span.textContent = text;
+        field.appendChild(span);
+        if (help) {
+            field.appendChild(help);
+        }
+    }
+
+    // =========================================================================
+    //  AUTO SOLO TOGGLES
+    //  Turn every remaining single (solo) QuickForm checkbox into a design-system
+    //  toggle. Multi-checkbox groups (turned into chips) and hidden/clone
+    //  checkboxes are left alone; a field or container marked
+    //  [data-cf-no-auto-toggle] opts out.
+    // =========================================================================
+    function initSoloToggles() {
+        var wrapper = document.querySelector('.cf-form-wrapper');
+        if (!wrapper) return;
+
+        var fields = [];
+        var groups = [];
+        wrapper.querySelectorAll('.md-checkbox input[type="checkbox"]').forEach(function (input) {
+            var mdc = input.closest('.md-checkbox');
+            if (!mdc || mdc.offsetParent === null) return;                        // hidden
+            if (input.closest('.clonable') || input.closest('.macroclone')) return; // clone/macro rows
+            var field = input.closest('.cf-field');
+            if (!field) return;
+            if (field.querySelector('.cf-chips') || field.classList.contains('cf-field-toggle')) return;
+            if (field.closest('[data-cf-no-auto-toggle]')) return;                // opt-out
+            var idx = fields.indexOf(field);
+            if (idx === -1) { fields.push(field); groups.push({ field: field, items: [] }); idx = groups.length - 1; }
+            groups[idx].items.push(input);
+        });
+
+        groups.forEach(function (g) {
+            if (g.items.length !== 1) return;   // solo checkboxes only (groups become chips)
+            try { _convertToToggle(g.field, g.items[0]); } catch (e) {}
+        });
+    }
+
+    // =========================================================================
+    //  TOGGLE DEPENDENCIES (grey out dependent fields)
+    //  Declarative: on a checkbox/toggle set
+    //    data-cf-disables="<selector>"  -> targets disabled + greyed when checked
+    //    data-cf-enables="<selector>"   -> targets disabled + greyed when unchecked
+    //  The attribute may sit on the checkbox itself or on a container holding one.
+    // =========================================================================
+    function initToggleDependencies() {
+        document.querySelectorAll('[data-cf-disables],[data-cf-enables]').forEach(_applyToggleDependency);
+    }
+
+    /** @private Wire one dependency source and apply its initial state. */
+    function _applyToggleDependency(el) {
+        var input = (el.matches && el.matches('input[type="checkbox"]'))
+            ? el
+            : el.querySelector('input[type="checkbox"]');
+        if (!input) return;
+
+        var disSel = el.getAttribute('data-cf-disables');
+        var enSel  = el.getAttribute('data-cf-enables');
+        if (!disSel && !enSel) return;
+
+        function apply() {
+            if (disSel) _setFieldsDisabled(disSel, input.checked);
+            if (enSel)  _setFieldsDisabled(enSel, !input.checked);
+        }
+        input.addEventListener('change', apply);
+        apply();
+    }
+
+    /** @private Disable + grey (or restore) every field/control matched by a selector. */
+    function _setFieldsDisabled(selector, disabled) {
+        document.querySelectorAll(selector).forEach(function (target) {
+            var isControl = target.matches && target.matches('input,select,textarea,button');
+            var box = isControl ? (target.closest('.cf-field') || target) : target;
+            box.classList.toggle('cf-disabled', disabled);
+            if (isControl) target.disabled = disabled;
+            box.querySelectorAll('input,select,textarea,button').forEach(function (el) {
+                el.disabled = disabled;
+            });
+        });
     }
 
     // =========================================================================
@@ -916,6 +1135,10 @@ var CentreonForm = (function () {
         initCheckboxChips:    initCheckboxChips,
         initChips:            initChips,
         syncToggle:           syncToggle,
+        syncToggleCheckbox:   syncToggleCheckbox,
+        makeToggle:           makeToggle,
+        initSoloToggles:      initSoloToggles,
+        initToggleDependencies: initToggleDependencies,
         initMacroCleanup:     initMacroCleanup,
         initGeoAutocomplete:  initGeoAutocomplete,
         hideBreadcrumbInPanel: hideBreadcrumbInPanel,
@@ -931,3 +1154,4 @@ var cfOpenPanel     = CentreonForm.openPanel;
 var cfClosePanel    = function () { CentreonForm.closePanel(CentreonForm._sidePanelListing); };
 var cfToggleSection = CentreonForm.toggleSection;
 var cfScrollTo      = CentreonForm.scrollTo;
+var cfMakeToggle    = CentreonForm.makeToggle;
