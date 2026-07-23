@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
 use Webmozart\Assert\Assert;
 
-final readonly class EngineConfiguration
+final readonly class EngineInformation
 {
     public const DEFAULT_START_COMMAND = 'systemctl start centengine';
     public const DEFAULT_STOP_COMMAND = 'systemctl stop centengine';

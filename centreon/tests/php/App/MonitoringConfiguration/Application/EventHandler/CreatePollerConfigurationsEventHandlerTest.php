@@ -21,13 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\ActivityLogging\Domain\Factory;
+namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 
-use App\ActivityLogging\Domain\Aggregate\ActionEnum;
-use App\ActivityLogging\Domain\Aggregate\Actor;
-use App\ActivityLogging\Domain\Aggregate\ActorId;
-use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
-use App\ActivityLogging\Domain\Factory\PollerActivityLogFactory;
+use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommand;
+use App\MonitoringConfiguration\Application\EventHandler\CreatePollerConfigurationsEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
@@ -41,20 +38,36 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
 
-final class PollerActivityLogFactoryTest extends TestCase
+final class CreatePollerConfigurationsEventHandlerTest extends TestCase
 {
-    public function testCreate(): void
+    public function testItDispatchesCreateEngineConfigurationCommand(): void
     {
-        $factory = new PollerActivityLogFactory();
+        $poller = $this->createPoller(42, 'My Poller');
+        $event = new PollerCreated($poller, 1);
 
+        $commandBus = $this->createMock(CommandBus::class);
+        $commandBus->expects(self::once())
+            ->method('execute')
+            ->with(self::callback(static fn (object $command): bool => $command instanceof CreateEngineConfigurationCommand
+                && $command->pollerId->value === 42
+                && $command->pollerName === 'My Poller'));
+
+        $handler = new CreatePollerConfigurationsEventHandler($commandBus);
+        $handler($event);
+    }
+
+    private function createPoller(int $pollerId, string $pollerName): Poller
+    {
         $poller = new Poller(
             id: null,
-            name: new PollerName('MyPoller'),
-            address: new PollerAddress('192.168.1.1'),
+            name: new PollerName($pollerName),
+            address: new PollerAddress('127.0.0.1'),
             isCentral: false,
             isDefault: false,
             isActivated: true,
@@ -71,28 +84,8 @@ final class PollerActivityLogFactoryTest extends TestCase
 
         $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
         $reflection->setAccessible(true);
-        $reflection->setValue($poller, new PollerId(42));
+        $reflection->setValue($poller, new PollerId($pollerId));
 
-        $firedAt = new \DateTimeImmutable();
-
-        $activityLog = $factory->create(
-            action: ActionEnum::Add,
-            aggregate: $poller,
-            firedBy: new Actor(id: new ActorId(1)),
-            firedAt: $firedAt,
-        );
-
-        self::assertSame(ActionEnum::Add, $activityLog->action);
-        self::assertSame(42, $activityLog->target->id->value);
-        self::assertSame('MyPoller', $activityLog->target->name->value);
-        self::assertSame(TargetTypeEnum::Poller, $activityLog->target->type);
-        self::assertSame(1, $activityLog->actor->id->value);
-        self::assertSame($firedAt, $activityLog->performedAt);
-        self::assertSame([
-            'ns_name' => 'MyPoller',
-            'ns_ip_address' => '192.168.1.1',
-            'ns_activate' => '1',
-            'poller_type' => 'vm',
-        ], $activityLog->details);
+        return $poller;
     }
 }
