@@ -87,9 +87,4 @@ final class FakePollerRepository implements PollerRepository
     {
         return clone $this;
     }
-
-    public function getCentralAddress(): PollerAddress
-    {
-        return new PollerAddress('192.168.1.100');
-    }
 }

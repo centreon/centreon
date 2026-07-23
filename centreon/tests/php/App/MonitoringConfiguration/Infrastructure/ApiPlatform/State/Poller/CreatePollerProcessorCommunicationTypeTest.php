@@ -139,10 +139,9 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 
         $pollerRepository = $this->createMock(PollerRepository::class);
         $pollerRepository->method('findOneByName')->willReturn(null);
-        $pollerRepository->method('getCentralAddress')->willReturn(new PollerAddress('192.168.1.100'));
 
         $requestStack = new RequestStack();
-        $requestStack->push(Request::create('/', Request::METHOD_POST, server: ['HTTPS' => 'on']));
+        $requestStack->push(Request::create('https://central.example.com/centreon/api/configuration/pollers', Request::METHOD_POST));
 
         return new CreatePollerProcessor(
             commandBus: $commandBus,

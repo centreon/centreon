@@ -103,13 +103,14 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $request = $this->requestStack->getMainRequest()
             ?? throw new \RuntimeException('No active HTTP request');
 
+        $centralBaseUrl = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
         $factory = new PollerInstallationCommandFactory(
             $model,
             $token,
             $appSecret,
             $salt,
-            $this->pollerRepository->getCentralAddress()->value,
-            $request->getScheme(),
+            $centralBaseUrl,
             $this->isCloudPlatform,
         );
 

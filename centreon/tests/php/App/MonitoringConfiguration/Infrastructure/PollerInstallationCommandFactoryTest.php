@@ -43,7 +43,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PollerInstallationCommandFactoryTest extends TestCase
 {
-    private const CENTRAL_URL = 'centreon.example.com';
+    private const CENTRAL_BASE_URL = 'https://centreon.example.com/centreon';
     private const POLLER_TOKEN = 'my-secure-poller-token';
     private const APP_SECRET = 'my-app-secret';
     private const SALT = 'my-salt';
@@ -57,13 +57,13 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         $command = $factory->generate();
 
         self::assertStringContainsString('curl -fsSL', $command);
-        self::assertStringContainsString('https://' . self::CENTRAL_URL . '/poller/install.sh', $command);
+        self::assertStringContainsString(self::CENTRAL_BASE_URL . '/poller/install.sh', $command);
         self::assertStringContainsString('| bash -s --', $command);
     }
 
@@ -74,7 +74,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--poller_token test-token:' . self::POLLER_TOKEN, $factory->generate());
@@ -87,7 +87,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--uid ' . self::POLLER_UID, $factory->generate());
@@ -100,7 +100,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--name ' . escapeshellarg(self::POLLER_NAME), $factory->generate());
@@ -113,7 +113,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--type vm', $factory->generate());
@@ -126,7 +126,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--type docker', $factory->generate());
@@ -139,10 +139,10 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
-        self::assertStringContainsString('--central_url https://' . self::CENTRAL_URL, $factory->generate());
+        self::assertStringContainsString('--central_url ' . self::CENTRAL_BASE_URL, $factory->generate());
     }
 
     public function testGenerateCommandContainsAppSecret(): void
@@ -152,7 +152,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--appsecret ' . self::APP_SECRET, $factory->generate());
@@ -165,7 +165,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringContainsString('--salt ' . self::SALT, $factory->generate());
@@ -178,16 +178,16 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
             salt: self::SALT,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         $expected = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url https://%s --appsecret %s --salt %s',
-            self::CENTRAL_URL,
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
+            self::CENTRAL_BASE_URL,
             self::POLLER_TOKEN,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
-            self::CENTRAL_URL,
+            self::CENTRAL_BASE_URL,
             self::APP_SECRET,
             self::SALT,
         );
@@ -203,7 +203,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             isCloudPlatform: true,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringEndsWith('--cloud', $factory->generate());
@@ -217,7 +217,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             appSecret: self::APP_SECRET,
             salt: self::SALT,
             isCloudPlatform: false,
-            centralUrl: self::CENTRAL_URL,
+            centralBaseUrl: self::CENTRAL_BASE_URL,
         );
 
         self::assertStringNotContainsString('--cloud', $factory->generate());

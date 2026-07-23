@@ -68,13 +68,14 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         $request = $this->requestStack->getMainRequest()
             ?? throw new \RuntimeException('No active HTTP request');
 
+        $centralBaseUrl = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
         $factory = new PollerInstallationCommandFactory(
             $poller,
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
-            $this->pollerRepository->getCentralAddress()->value,
-            $request->getScheme(),
+            $centralBaseUrl,
             $this->isCloudPlatform,
         );
 

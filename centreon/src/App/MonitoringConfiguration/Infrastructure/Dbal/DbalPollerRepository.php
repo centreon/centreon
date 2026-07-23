@@ -417,25 +417,6 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         ];
     }
 
-    public function getCentralAddress(): PollerAddress
-    {
-        $address = $this->connection->createQueryBuilder()
-            ->select('COALESCE(hostname, address)')
-            ->from('platform_topology')
-            ->where("type = 'central'")
-            ->executeQuery()
-            ->fetchOne();
-
-        if (! is_string($address)) {
-            throw new CentralServerNotFoundException(
-                criteria: ['type' => 'central'],
-                message: 'No central server found in platform_topology',
-            );
-        }
-
-        return new PollerAddress($address);
-    }
-
     private function loadCmaCertificates(Poller $poller): void
     {
         $qb = $this->realTimeConnection->createQueryBuilder();

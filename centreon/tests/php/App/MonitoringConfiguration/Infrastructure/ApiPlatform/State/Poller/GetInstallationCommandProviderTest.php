@@ -33,12 +33,11 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
     private const POLLER_NAME = 'test-poller';
     private const POLLER_TYPE = 'vm';
     private const CENTRAL_ADDRESS = '192.168.1.100';
-    private const CENTRAL_HOSTNAME = 'central.example.com';
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->insertCentral(self::CENTRAL_HOSTNAME);
+        $this->insertCentral();
     }
 
     public function testItReturns401WhenNotAuthenticated(): void
@@ -95,13 +94,11 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL http://%s/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url http://%s --appsecret test-app-secret --salt test-salt',
-            self::CENTRAL_HOSTNAME,
+            'curl -fsSL http://localhost/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url http://localhost --appsecret test-app-secret --salt test-salt',
             $tokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
-            self::CENTRAL_HOSTNAME,
         );
         self::assertSame($expected, $data['installation_command']);
     }
@@ -118,46 +115,16 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL http://%s/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url http://%s --appsecret test-app-secret --salt test-salt',
-            self::CENTRAL_HOSTNAME,
+            'curl -fsSL http://localhost/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url http://localhost --appsecret test-app-secret --salt test-salt',
             $namedTokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
-            self::CENTRAL_HOSTNAME,
         );
         self::assertSame($expected, $data['installation_command']);
     }
 
-    public function testItFallsBackToAddressWhenHostnameIsNull(): void
-    {
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
-        $connection->executeStatement("DELETE FROM platform_topology WHERE type = 'central'");
-        $connection->executeStatement("DELETE FROM nagios_server WHERE localhost = '1'");
-        $this->insertCentral(null);
-
-        $pollerId = $this->insertPoller(self::POLLER_NAME);
-        $tokenValue = $this->insertPollerToken('test-token-fallback');
-        $this->login();
-
-        $response = $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, $pollerId));
-        self::assertResponseIsSuccessful();
-
-        $data = $response->toArray();
-        $expected = sprintf(
-            'curl -fsSL http://%s/poller/install.sh | bash -s -- --poller_token test-token-fallback:%s --uid %s --name %s --type %s --central_url http://%s --appsecret test-app-secret --salt test-salt',
-            self::CENTRAL_ADDRESS,
-            $tokenValue,
-            self::POLLER_UID,
-            escapeshellarg(self::POLLER_NAME),
-            self::POLLER_TYPE,
-            self::CENTRAL_ADDRESS,
-        );
-        self::assertSame($expected, $data['installation_command']);
-    }
-
-    private function insertCentral(?string $hostname): void
+    private function insertCentral(): void
     {
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
@@ -172,7 +139,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $connection->insert('platform_topology', [
             'address' => self::CENTRAL_ADDRESS,
-            'hostname' => $hostname,
+            'hostname' => 'central.example.com',
             'name' => 'Central',
             'type' => 'central',
             'parent_id' => null,
