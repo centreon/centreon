@@ -58,7 +58,7 @@ const sevenDays = 60 * 60 * 24 * 7;
 const isGreaterThanSevenDays = gt(__, sevenDays);
 
 const getUserInitials = (name?: string | null): string => {
-  const words = (name ?? '').trim().split(/\s+/).filter(Boolean);
+  const words = (name ?? '').trim().split(/[\s_]+/).filter(Boolean);
 
   if (words.length === 0) {
     return '?';
