@@ -34,7 +34,7 @@
                     <label class="cf-label-float">{$form.contact_name.label}</label>
                     <img class="helpTooltip" name="contact_name">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.contact_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-contact-activate-toggle" />
