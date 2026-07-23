@@ -1,12 +1,14 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
-  type ActionClapi,
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
+import {
+  openEventLogsPageAsRestrictedUser,
+  openHostFilterDropdown
+} from '../common';
 
 const serviceTemplate = 'SNMP-Linux-Load-Average';
 
@@ -18,31 +20,6 @@ const monitoredHosts = {
 const baseAclProfile = 'resources/clapi/config-ACL/event-logs-acl-user.json';
 const resourceAclProfile =
   'resources/clapi/config-ACL/event-logs-acl-resource.json';
-const restrictedUserFixture = 'event-logs-restricted-user';
-
-const applyAclProfile = (fixturePath: string): void => {
-  cy.fixture(fixturePath).then((actions: Array<ActionClapi>) => {
-    actions.forEach((action) => {
-      cy.executeActionViaClapi({ bodyContent: action });
-    });
-  });
-  cy.applyAcl();
-};
-
-const openEventLogsPageAsRestrictedUser = (): void => {
-  cy.logout();
-  cy.loginByTypeOfUser({ jsonName: restrictedUserFixture, loginViaApi: false });
-  cy.visit(PAGES.monitoring.eventLogsLegacy);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'select#host_filter');
-};
-
-const openHostFilterDropdown = (): void => {
-  cy.getIframeBody()
-    .find('select#host_filter')
-    .siblings('span.select2-container')
-    .click();
-};
 
 beforeEach(() => {
   cy.startContainers();
@@ -120,11 +97,11 @@ Given('monitored resources have generated events', () => {
 });
 
 Given('a restricted user is granted access to the Event Logs menu only', () => {
-  applyAclProfile(baseAclProfile);
+  cy.applyAclProfile(baseAclProfile);
 });
 
 Given('the restricted user is granted access to specific resources', () => {
-  applyAclProfile(resourceAclProfile);
+  cy.applyAclProfile(resourceAclProfile);
 });
 
 When('the restricted user opens the Event Logs page', () => {
