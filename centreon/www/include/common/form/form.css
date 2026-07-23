@@ -835,8 +835,8 @@
    nudge it right/down slightly from that first pass to line up with
    the eraser icon's height. */
 .cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
-    right: 31px;
-    top: 4px;
+    right: 21px;
+    top: -1px;
 }
 
 /* Help tooltip always last, vertically centered */
