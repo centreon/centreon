@@ -132,6 +132,8 @@ const checkIfConfigurationIsNotExported = (): void => {
   });
 };
 
+const pollerName = 'QA-poller';
+const pollerUid = 900000001;
 const legacyPollerName = 'QA-legacy-poller';
 const legacyPollerUid = 900000002;
 
@@ -161,6 +163,8 @@ export {
   waitPollerListToLoad,
   checkIfConfigurationIsNotExported,
   testHostName,
+  pollerName,
+  pollerUid,
   legacyPollerName,
   legacyPollerUid,
   buildInsertPollerQuery,

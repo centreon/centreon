@@ -10,10 +10,24 @@ import {
   getPoller,
   legacyPollerName,
   legacyPollerUid,
+  pollerName,
+  pollerUid,
   waitPollerListToLoad
 } from '../common';
 
 const isRunningColumnIndex = 4;
+
+const assertPollerIsRunning = (name: string): void => {
+  cy.wait(waitPollerListToLoad);
+
+  cy.getIframeBody()
+    .contains('td', name)
+    .parent('tr')
+    .find('td')
+    .eq(isRunningColumnIndex)
+    .find('.service_ok')
+    .should('exist');
+};
 
 beforeEach(() => {
   cy.startContainers();
@@ -29,6 +43,28 @@ afterEach(() => {
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true });
+});
+
+Given('a poller is running and reports its uid as runtime instance id', () => {
+  // Reset any leftover from a previous run, then create the poller config.
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query: buildDeleteInstanceByNameQuery(pollerName)
+  });
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: buildDeletePollerByNameQuery(pollerName)
+  });
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: buildInsertPollerQuery(pollerName, pollerUid)
+  });
+
+  // An up-to-date Broker writes the Snowflake uid into instances.instance_id.
+  cy.requestOnDatabase({
+    database: 'centreon_storage',
+    query: buildInsertRunningInstanceQuery(pollerUid, pollerName)
+  });
 });
 
 Given(
@@ -68,14 +104,10 @@ When('the user opens the pollers configuration page', () => {
   cy.url().should('include', '/centreon/main.php?p=60901');
 });
 
-Then('the legacy poller is displayed as running', () => {
-  cy.wait(waitPollerListToLoad);
+Then('the seeded poller is displayed as running', () => {
+  assertPollerIsRunning(pollerName);
+});
 
-  cy.getIframeBody()
-    .contains('td', legacyPollerName)
-    .parent('tr')
-    .find('td')
-    .eq(isRunningColumnIndex)
-    .find('.service_ok')
-    .should('exist');
+Then('the seeded legacy poller is displayed as running', () => {
+  assertPollerIsRunning(legacyPollerName);
 });
