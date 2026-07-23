@@ -112,7 +112,7 @@
                     <label class="cf-label-float">{$form.acl_topo_alias.label}</label>
                     <img class="helpTooltip" name="tip_alias">
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.acl_topo_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-acl-topo-activate-toggle" />
