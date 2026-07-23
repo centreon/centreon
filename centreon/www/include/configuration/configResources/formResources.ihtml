@@ -17,7 +17,7 @@
                     {$form.resource_name.html}
                     <label class="cf-label-float">{$form.resource_name.label}</label>
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.resource_activate.label}</span>
                     <label class="cl-toggle">
                         <input type="checkbox" id="cf-resource-activate-toggle" />
@@ -31,7 +31,7 @@
                     {$form.resource_line.html}
                     <label class="cf-label-float">{$form.resource_line.label}</label>
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <span>{$form.is_password.label}</span>
                     <span>{$form.is_password.html}</span>
                 </div>
