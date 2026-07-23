@@ -714,6 +714,14 @@
     border-color: var(--color-primary-light, #2E68AA);
 }
 
+/* Dropdown menu — match the closed field's 6px radius (the base select2
+   theme defaults to 4px, slightly out of step with the rest of the form).
+   The base theme already zeroes out the side that connects to the field
+   (--above/--below modifiers), so only the base radius needs bumping. */
+.select2-dropdown {
+    border-radius: 6px;
+}
+
 /* Select2 clear button — order it before help icon */
 .cf-field .clearAllSelect2 {
     order: 8;
