@@ -125,7 +125,8 @@ export default (): void => {
         {
           expected: 'JO',
           fullname: 'John',
-          title: 'uses the first two letters when the full name is a single word'
+          title:
+            'uses the first two letters when the full name is a single word'
         },
         {
           expected: 'JD',
