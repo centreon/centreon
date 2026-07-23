@@ -645,6 +645,8 @@ class CentreonTopCounter extends CentreonWebService
         foreach ($listConfPoller as $poller) {
             $listPoller[$poller['id']] = ['id' => $poller['id'], 'name' => $poller['name'], 'stability' => 0, 'database' => ['state' => 0, 'time' => null], 'latency' => ['state' => 0, 'time' => null]];
             $uidToId[$poller['uid']] = $poller['id'];
+            // Legacy pollers unaware of the Snowflake UID still report nagios_server.id as instance_id.
+            $uidToId[$poller['id']] = $poller['id'];
         }
 
         if ($uidToId === []) {
