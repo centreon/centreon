@@ -112,12 +112,12 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Macros{/t}</div>
+            <div class="cf-subsection">{t}Macros{/t}</div>
             <div class="cf-row">
                 {include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Check Command{/t}</div>
+            <div class="cf-subsection">{t}Check Command{/t}</div>
             <div class="cf-row">
                 <div class="cf-field" style="max-width:70%;">
                     {$form.command_command_id.html}
@@ -150,7 +150,7 @@
             </div>
             {/if}
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Service Scheduling Options{/t}</div>
+            <div class="cf-subsection">{t}Service Scheduling Options{/t}</div>
             <div class="cf-row">
                 <div class="cf-field" style="max-width:260px;">
                     {$form.timeperiod_tp_id.html}
@@ -227,7 +227,7 @@
                 {/if}
             </div>
 
-            <div id="cf-notif-receivers-sep" style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Notification receivers{/t}</div>
+            <div id="cf-notif-receivers-sep" class="cf-subsection">{t}Notification receivers{/t}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -306,7 +306,7 @@
                 {/if}
             {/if}
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{t}Notification options{/t}</div>
+            <div class="cf-subsection">{t}Notification options{/t}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -427,7 +427,7 @@
                 </div>
             {/if}
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.traps}</div>
+            <div class="cf-subsection">{$form.header.traps}</div>
             {if $o == "mc"}
             <div class="cf-row">
                 <div class="cf-field">
@@ -474,7 +474,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Freshness_Control_options}</div>
+            <div class="cf-subsection">{$Freshness_Control_options}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_check_freshness.html}
@@ -488,7 +488,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Flapping_Options}</div>
+            <div class="cf-subsection">{$Flapping_Options}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_flap_detection_enabled.html}
@@ -507,7 +507,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$History_Options}</div>
+            <div class="cf-subsection">{$History_Options}</div>
             <div class="cf-row-inline">
                 <div class="cf-field">
                     {$form.service_retain_status_information.html}
@@ -528,7 +528,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$Event_Handler}</div>
+            <div class="cf-subsection">{$Event_Handler}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_event_handler_enabled.html}
@@ -590,7 +590,7 @@
                 </div>
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.nagios}</div>
+            <div class="cf-subsection">{$form.header.nagios}</div>
             <div class="cf-row-inline">
                 {if $msg.nagios >= 2}
                 <div class="cf-field" style="max-width:50%;">
@@ -656,7 +656,7 @@
                 {/if}
             </div>
 
-            <div style="margin:18px 0 8px;font-size:13px;font-weight:600;color:var(--list-color,#555);border-bottom:1px solid var(--color-divider,#e3e3e3);padding-bottom:4px;">{$form.header.furtherInfos}</div>
+            <div class="cf-subsection">{$form.header.furtherInfos}</div>
             <div class="cf-row">
                 <div class="cf-field">
                     {$form.service_comment.html}
@@ -996,54 +996,25 @@ jQuery(function() {
     CentreonForm.syncToggle('cf-use-only-contacts-toggle', 'service_use_only_contacts_from_host', '1', '0');
     {/literal}{/if}{literal}
 
-    // Geo coordinates picker — same address autocomplete as the Host form,
-    // but tucked away in a popin so it doesn't clutter the Service form.
+    // Geo coordinates picker — same address autocomplete as the Host form
+    // (CentreonForm.initGeoAutocomplete), but tucked away in a popin so it
+    // doesn't clutter the Service form: the search field/results use their
+    // own ids, and picking a result closes the popin instead of echoing the
+    // address back into the search field.
     (function() {
         var pickerBtn = document.getElementById('svcGeoPickerBtn');
-        var geoInput = document.getElementById('svcGeoAddress');
-        var geoResults = document.getElementById('svcGeoResults');
-        if (!pickerBtn || !geoInput || !geoResults) return;
-
-        pickerBtn.addEventListener('click', function() {
-            jQuery('#geoPickerPopin').centreonPopin('open');
+        if (pickerBtn) {
+            pickerBtn.addEventListener('click', function() {
+                jQuery('#geoPickerPopin').centreonPopin('open');
+            });
+        }
+        CentreonForm.initGeoAutocomplete({
+            inputId: 'svcGeoAddress',
+            resultsId: 'svcGeoResults',
+            onSelect: function() {
+                jQuery('#geoPickerPopin').centreonPopin('close');
+            }
         });
-
-        var timer = null;
-        geoInput.addEventListener('input', function() {
-            clearTimeout(timer);
-            var q = this.value.trim();
-            if (q.length < 3) { geoResults.style.display = 'none'; return; }
-            timer = setTimeout(function() {
-                fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&q=' + encodeURIComponent(q))
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (!data || data.length === 0) { geoResults.style.display = 'none'; return; }
-                    var html = '';
-                    data.forEach(function(item) {
-                        html += '<div class="cf-geo-item" data-coords="' + item.lat + ',' + item.lon + '">'
-                            + '<span class="cf-geo-item-name">' + item.display_name + '</span>'
-                            + '<span class="cf-geo-item-coords">' + item.lat + ', ' + item.lon + '</span></div>';
-                    });
-                    geoResults.innerHTML = html;
-                    geoResults.style.display = 'block';
-                }).catch(function() { geoResults.style.display = 'none'; });
-            }, 400);
-        });
-        geoResults.addEventListener('click', function(e) {
-            var item = e.target.closest('.cf-geo-item');
-            if (!item) return;
-            var coordInput = document.querySelector('input[name="geo_coords"]');
-            if (coordInput) { coordInput.value = item.dataset.coords; }
-            var label = coordInput ? coordInput.parentElement.querySelector('label') : null;
-            if (label) label.classList.add('cf-label-float');
-            geoInput.value = '';
-            geoResults.style.display = 'none';
-            jQuery('#geoPickerPopin').centreonPopin('close');
-        });
-        document.addEventListener('click', function(e) {
-            if (!geoInput.contains(e.target) && !geoResults.contains(e.target)) geoResults.style.display = 'none';
-        });
-        geoInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') e.preventDefault(); });
     })();
 });
 
