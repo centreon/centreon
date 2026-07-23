@@ -724,21 +724,27 @@
 
 /* Multi-select "tags" — themed blue chips instead of the base theme's
    plain grey, matching the soft-blue tint already used for hover/selected
-   states elsewhere (listing.css's rgba(46, 104, 170, ...) rows). */
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: rgba(46, 104, 170, 0.10);
-    border: 1px solid rgba(46, 104, 170, 0.25);
-    color: var(--color-primary-light, #2E68AA);
+   states elsewhere (listing.css's rgba(46, 104, 170, ...) rows).
+   Centreon's own Themes/Generic-theme/style.css (loaded before this file)
+   already forces .select2-selection__choice itself fully transparent
+   with !important and instead paints two child pill-halves: .select2-content
+   (the label, left half) and .select2-selection__choice__remove (the "x",
+   right half) — so those two are what need overriding, with !important to
+   beat style.css's own !important on some of these same properties. */
+.select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
+    background-color: rgba(46, 104, 170, 0.10) !important;
+    border-color: rgba(46, 104, 170, 0.3) !important;
+    color: var(--color-primary-light, #2E68AA) !important;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    color: var(--color-primary-light, #2E68AA);
-    opacity: 0.6;
+    background-color: rgba(46, 104, 170, 0.10) !important;
+    border-color: rgba(46, 104, 170, 0.3) !important;
+    color: var(--color-primary-light, #2E68AA) !important;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    color: var(--color-primary-hover, #255891);
-    opacity: 1;
+    color: var(--color-primary-hover, #255891) !important;
 }
 
 /* Select2 clear button — order it before help icon */
