@@ -1,27 +1,4 @@
 {$form.javascript}
-{literal}
-<style>
-/* Hide breadcrumb and page title when loaded in side panel */
-.cf-in-panel .cf-page-title,
-.cf-in-panel .cf-tab-nav { margin-top: 0; }
-</style>
-<script type="text/javascript">
-// Detect if we're inside the side panel iframe and hide breadcrumb + title
-if (window.frameElement && window.frameElement.id === 'cfSidePanelFrame') {
-    document.addEventListener('DOMContentLoaded', function() {
-        // Hide the breadcrumb (rendered by main.get.php before our form)
-        var breadcrumb = document.querySelector('.pathway');
-        if (breadcrumb) breadcrumb.style.display = 'none';
-        // Hide the page title (already in the panel header)
-        var title = document.querySelector('.cf-page-title');
-        if (title) title.style.display = 'none';
-        // Add class for panel-specific styles
-        var wrapper = document.querySelector('.cf-form-wrapper');
-        if (wrapper) wrapper.classList.add('cf-in-panel');
-    });
-}
-</script>
-{/literal}
 
 <form {$form.attributes}>
 <div class="cf-form-wrapper">
