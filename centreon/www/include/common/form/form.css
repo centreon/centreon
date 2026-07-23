@@ -801,15 +801,30 @@
     border-radius: 50%;
 }
 
+/* Hide the red circle-cross.png the JS still inserts and paint a grey
+   eraser icon instead (inline SVG — no new image asset to add/track). */
 .cf-field .clearAllSelect2 img {
-    display: block;
-    vertical-align: middle;
-    margin: 0;
+    visibility: hidden;
+    width: 14px;
+    height: 14px;
+}
+
+.cf-field .clearAllSelect2 {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-45 12 12)'%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='%23999'/%3E%3Crect x='4' y='8' width='16' height='4' rx='2' fill='%23bbb'/%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='none' stroke='%23777' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
 }
 
 .cf-field .clearAllSelect2:hover {
     opacity: 1;
     background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* The dropdown chevron sat at the field's far right, which the clear
+   button now also occupies — shift it 40px left to clear the overlap. */
+.cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+    right: 41px;
 }
 
 /* Help tooltip always last, vertically centered */
