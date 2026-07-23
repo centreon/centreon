@@ -722,6 +722,25 @@
     border-radius: 6px;
 }
 
+/* Multi-select "tags" — themed blue chips instead of the base theme's
+   plain grey, matching the soft-blue tint already used for hover/selected
+   states elsewhere (listing.css's rgba(46, 104, 170, ...) rows). */
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: rgba(46, 104, 170, 0.10);
+    border: 1px solid rgba(46, 104, 170, 0.25);
+    color: var(--color-primary-light, #2E68AA);
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: var(--color-primary-light, #2E68AA);
+    opacity: 0.6;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: var(--color-primary-hover, #255891);
+    opacity: 1;
+}
+
 /* Select2 clear button — order it before help icon */
 .cf-field .clearAllSelect2 {
     order: 8;
