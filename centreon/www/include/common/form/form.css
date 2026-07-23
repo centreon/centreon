@@ -700,7 +700,7 @@
 .cf-field > .oreonbutton .clearAllSelect2 {
     order: 2;
     flex-shrink: 0;
-    margin-left: -32px;
+    margin-left: -35px;
 }
 
 .cf-field .select2-container .select2-selection {
@@ -804,7 +804,7 @@
     line-height: 0;
     width: 28px;
     height: 28px;
-    margin-left: -32px;
+    margin-left: -35px;
     position: relative;
     z-index: 2;
     border-radius: 50%;
@@ -830,13 +830,27 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* The dropdown chevron sat at the field's far right, which the clear
-   button now also occupies — shift it left to clear the overlap, and
-   nudge it right/down slightly from that first pass to line up with
-   the eraser icon's height. */
+/* Hide the dropdown chevron entirely on every select2 field — it kept
+   fighting with the clear button for the same corner and needing
+   re-tuning; the clear button and the open dropdown are affordance
+   enough without it. */
 .cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
-    right: 21px;
-    top: 6px;
+    display: none;
+}
+
+/* Empty-state placeholder — show a plain "-" instead of repeating the
+   field's own label/prompt text back inside the box (each field's JS
+   init sets its own placeholder string, so this can't be fixed at the
+   source without editing every page; hide the real text and paint "-"
+   via ::after instead, applied to every select2 field). */
+.cf-field .select2-selection__placeholder {
+    font-size: 0;
+}
+
+.cf-field .select2-selection__placeholder::after {
+    content: "-";
+    font-size: 14px;
+    color: var(--body-color, #999);
 }
 
 /* Help tooltip always last, vertically centered */
