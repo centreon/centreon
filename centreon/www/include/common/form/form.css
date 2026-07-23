@@ -740,6 +740,16 @@
     border-bottom-right-radius: 6px;
 }
 
+/* The multi-select "N element(s) found / Select all" header
+   (centreon-select2.js's initSelectAll) is prepended as the dropdown's
+   first child with its own full-width background — round its top
+   corners explicitly rather than relying only on the parent's
+   overflow: hidden to clip it. */
+.select2-dropdown .select2-results-header {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
 /* Multi-select "tags" — themed blue chips instead of the base theme's
    plain grey, matching the soft-blue tint already used for hover/selected
    states elsewhere (listing.css's rgba(46, 104, 170, ...) rows).
