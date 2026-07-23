@@ -93,17 +93,16 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
                 : GorgoneCommunicationTypeEnum::ZMQ,
         );
 
+        $request = $this->requestStack->getMainRequest()
+            ?? throw new \RuntimeException('No active HTTP request');
+        $centralBaseUrl = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
         $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
         $appSecret = $this->engineSecretsRepository->getAppSecret();
         $salt = $this->engineSecretsRepository->getSalt();
 
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
-
-        $request = $this->requestStack->getMainRequest()
-            ?? throw new \RuntimeException('No active HTTP request');
-
-        $centralBaseUrl = $request->getSchemeAndHttpHost() . $request->getBasePath();
 
         $factory = new PollerInstallationCommandFactory(
             $model,
