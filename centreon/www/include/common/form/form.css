@@ -716,14 +716,28 @@
 
 /* Dropdown menu — match the closed field's 6px radius (the base select2
    theme defaults to 4px, slightly out of step with the rest of the form).
-   The base theme already zeroes out the side that connects to the field
-   (--above/--below modifiers), so only the base radius needs bumping.
    overflow: hidden is required too — otherwise the scrollable results
    list (which spans edge-to-edge, e.g. the highlighted-row background)
    isn't clipped to the rounded shape and the corners look square anyway. */
 .select2-dropdown {
     border-radius: 6px;
     overflow: hidden;
+}
+
+/* The base theme deliberately squares off whichever side touches the
+   field (a "merged" look, no border on that side) when the menu opens
+   --above or --below it. Round that side too instead, so no select2
+   dropdown ever shows a flat/square corner. */
+.select2-container--open .select2-dropdown--below {
+    border-top: 1px solid var(--select2-dropdown-border-color, var(--color-divider, #e3e3e3));
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.select2-container--open .select2-dropdown--above {
+    border-bottom: 1px solid var(--select2-dropdown-border-color, var(--color-divider, #e3e3e3));
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
 }
 
 /* Multi-select "tags" — themed blue chips instead of the base theme's
