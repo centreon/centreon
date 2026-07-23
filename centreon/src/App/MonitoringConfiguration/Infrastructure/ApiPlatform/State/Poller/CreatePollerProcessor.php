@@ -103,6 +103,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $token,
             $appSecret,
             $salt,
+            $this->isCloudPlatform,
         );
 
         $resource = $this->transformer->transform($model);
