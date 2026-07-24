@@ -148,11 +148,15 @@ final readonly class DbalGlobalMacroRepository extends DbalRepository implements
         $this->connection->executeStatement(
             <<<'SQL'
                 INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
-                SELECT resource_id, :poller_id
-                FROM cfg_resource
+                SELECT cr.resource_id, :poller_id
+                FROM cfg_resource cr
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM cfg_resource_instance_relations crir
+                    WHERE crir.resource_id = cr.resource_id AND crir.instance_id = :poller_id_check
+                )
                 SQL,
-            ['poller_id' => $pollerId->value],
-            ['poller_id' => ParameterType::INTEGER],
+            ['poller_id' => $pollerId->value, 'poller_id_check' => $pollerId->value],
+            ['poller_id' => ParameterType::INTEGER, 'poller_id_check' => ParameterType::INTEGER],
         );
     }
 
