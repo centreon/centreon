@@ -21,18 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Application\Command;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
+use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
+use App\Shared\Application\Command\AsCommandHandler;
 
-interface GlobalMacroRepository
+#[AsCommandHandler]
+final readonly class LinkGlobalMacrosToPollerCommandHandler
 {
-    /**
-     * @return \IteratorAggregate<int, GlobalMacro>&\Countable
-     */
-    public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function __construct(
+        private GlobalMacroRepository $globalMacroRepository,
+    ) {
+    }
 
-    public function linkAllToPoller(PollerId $pollerId): void;
+    public function __invoke(LinkGlobalMacrosToPollerCommand $command): void
+    {
+        $this->globalMacroRepository->linkAllToPoller($command->pollerId);
+    }
 }

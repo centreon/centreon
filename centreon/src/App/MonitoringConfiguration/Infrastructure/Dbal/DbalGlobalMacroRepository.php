@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\Shared\Domain\Collection;
@@ -34,6 +35,7 @@ use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
@@ -139,6 +141,19 @@ final readonly class DbalGlobalMacroRepository extends DbalRepository implements
                 ));
             }
         }
+    }
+
+    public function linkAllToPoller(PollerId $pollerId): void
+    {
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                SELECT resource_id, :poller_id
+                FROM cfg_resource
+                SQL,
+            ['poller_id' => $pollerId->value],
+            ['poller_id' => ParameterType::INTEGER],
+        );
     }
 
     /**

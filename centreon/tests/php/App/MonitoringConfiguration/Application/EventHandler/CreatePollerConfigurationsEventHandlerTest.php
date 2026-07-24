@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommand;
+use App\MonitoringConfiguration\Application\Command\LinkGlobalMacrosToPollerCommand;
 use App\MonitoringConfiguration\Application\EventHandler\CreatePollerConfigurationsEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
@@ -46,20 +47,28 @@ use PHPUnit\Framework\TestCase;
 
 final class CreatePollerConfigurationsEventHandlerTest extends TestCase
 {
-    public function testItDispatchesCreateEngineConfigurationCommand(): void
+    public function testItDispatchesConfigurationCommands(): void
     {
         $poller = $this->createPoller(42, 'My Poller');
         $event = new PollerCreated($poller, 1);
 
+        $dispatched = [];
         $commandBus = $this->createMock(CommandBus::class);
-        $commandBus->expects(self::once())
+        $commandBus->expects(self::exactly(2))
             ->method('execute')
-            ->with(self::callback(static fn (object $command): bool => $command instanceof CreateEngineConfigurationCommand
-                && $command->pollerId->value === 42
-                && $command->pollerName === 'My Poller'));
+            ->willReturnCallback(static function (object $command) use (&$dispatched): void {
+                $dispatched[] = $command;
+            });
 
         $handler = new CreatePollerConfigurationsEventHandler($commandBus);
         $handler($event);
+
+        self::assertInstanceOf(CreateEngineConfigurationCommand::class, $dispatched[0]);
+        self::assertSame(42, $dispatched[0]->pollerId->value);
+        self::assertSame('My Poller', $dispatched[0]->pollerName);
+
+        self::assertInstanceOf(LinkGlobalMacrosToPollerCommand::class, $dispatched[1]);
+        self::assertSame(42, $dispatched[1]->pollerId->value);
     }
 
     private function createPoller(int $pollerId, string $pollerName): Poller
