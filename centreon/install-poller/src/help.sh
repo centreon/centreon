@@ -45,7 +45,7 @@ function help() {
   echo -e "  --with-cma\t\t\tEnable Centreon Monitoring Agent support (TLS certs mounts + port 4317)"
   echo ""
   echo "Notes:"
-  echo -e "  --cloud\t\t\tGorgone address auto-derived: gorgone-centreon-<central_url>, port 443, ssl=true"
+  echo -e "  --cloud\t\t\tGorgone address: same host as --central_url, port 443, ssl=true"
   echo -e "  (no --cloud)\t\t\tOn-prem: Gorgone address from --central_url; ssl/port default to false/80, or true/443 if --central_url starts with https://, or --gorgone-ssl if set"
   echo -e "  --central_url\t\t\tPath segment (if any) is used as the web app's base_uri for Gorgone's PullWSS URL"
   echo ""

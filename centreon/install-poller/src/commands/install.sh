@@ -155,7 +155,9 @@ function _installValidateArgs() {
 # Single source of truth for the gorgone connection parameters,
 # shared by both the docker and vm code paths.
 # Gorgone's poller-facing websocket is fronted by Apache (mod_proxy_wstunnel) on
-# the standard web port in both modes, not on a gorgone-specific port anymore.
+# the standard web port in both modes, not on a gorgone-specific port or
+# dedicated "gorgone-" endpoint anymore — cloud and on-prem both reach it
+# through the same central host, just at ${GORGONE_PULLWSS_CENTRAL_URI}.
 #
 # SSL is resolved in priority order: explicit --gorgone-ssl, then the
 # http(s):// scheme in --central_url, then the --cloud default (Cloud is
@@ -164,11 +166,11 @@ function _installValidateArgs() {
 # match whichever SSL value was resolved, unless explicitly set via
 # --central_url's host:port.
 function _installDeriveCentral() {
+  GORGONE_ADDRESS="${CENTRAL_HOST}"
+
   if [ "${CLOUD_MODE}" = "true" ]; then
-    GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
     ENGINE_PORT="443"
   else
-    GORGONE_ADDRESS="${CENTRAL_HOST}"
     ENGINE_PORT="5669"
   fi
 
