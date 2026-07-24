@@ -21,6 +21,8 @@ import '../features/Platform-upgrade-update/commands';
 import '../features/Additional-connectors/commands';
 import '../features/Macros/commands';
 
+import type { ActionClapi } from '../commons';
+
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -79,6 +81,19 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add(
+  'applyAclProfile',
+  (fixturePath: string): Cypress.Chainable => {
+    cy.fixture(fixturePath).then((actions: Array<ActionClapi>) => {
+      actions.forEach((action) => {
+        cy.executeActionViaClapi({ bodyContent: action });
+      });
+    });
+
+    return cy.applyAcl();
+  }
+);
+
 interface Serviceparams {
   name: string;
   paramName: string;
@@ -136,6 +151,7 @@ interface HtmlElt {
 declare global {
   namespace Cypress {
     interface Chainable {
+      applyAclProfile: (fixturePath: string) => Cypress.Chainable;
       disableListingAutoRefresh: () => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginKeycloak: (jsonName: string) => Cypress.Chainable;

@@ -1,29 +1,21 @@
 #!/usr/bin/env bash
 # Specific setup for the Real_Time_Monitoring_Server collection.
 #
-# GET /monitoring/servers joins centreon_storage.instances to
-# centreon.nagios_server. Since the instance_id migration to a Snowflake UID,
-# the matching key is nagios_server.uid (NOT nagios_server.id): Broker writes
-# nagios_server.uid into instances.instance_id. A regression where the JOIN
-# uses nagios_server.id silently returns an empty list.
-#
-# A fresh CI platform has no realtime instances row, so the endpoint would
-# return an empty array either way and the tests could not tell a broken JOIN
-# from a healthy-but-empty platform. We seed a dedicated poller whose
-# instances.instance_id equals its nagios_server.uid and differs from its
-# nagios_server.id, so the poller is returned only when the JOIN resolves on
-# uid. This does not impact other collections: each bruno-test job runs in its
-# own ephemeral Docker container.
+# GET /monitoring/servers joins instances to nagios_server on uid, falling back
+# to nagios_server.id. We seed two pollers to cover both branches: an up-to-date
+# one (instance_id == uid) and a legacy one (instance_id == config id). uids are
+# large and config ids small, so each poller matches once (no duplicate).
 #
 # mysql connects to the "db" service host, as in the other fixture scripts.
 
 set -euo pipefail
 
-# JS-safe value (below 2^53) so Bruno can parse the returned id without losing
-# precision, while staying well above any auto-increment nagios_server.id.
+# JS-safe values (below 2^53) so Bruno parses the returned id without precision
+# loss, while staying above any auto-increment nagios_server.id.
 POLLER_UID=900000001
+LEGACY_POLLER_UID=900000002
 
-# Seed a dedicated poller for the Real_Time_Monitoring_Server collection.
+# Up-to-date poller: instance_id == nagios_server.uid.
 echo "Seeding realtime poller (uid=${POLLER_UID}) for /monitoring/servers regression coverage"
 mysql -hdb -uroot -pcentreon -e "
   DELETE FROM centreon_storage.instances WHERE instance_id = ${POLLER_UID};
@@ -32,6 +24,19 @@ mysql -hdb -uroot -pcentreon -e "
     VALUES ('QA-realtime-poller', '0', '1', 22, ${POLLER_UID});
   INSERT INTO centreon_storage.instances (instance_id, name, running, last_alive, deleted)
     VALUES (${POLLER_UID}, 'QA-realtime-poller', 1, UNIX_TIMESTAMP(), 0);
+"
+
+# Legacy poller: instance_id == nagios_server.id (auto-incremented, captured via
+# LAST_INSERT_ID), reproducing what an older Broker writes.
+echo "Seeding legacy realtime poller (instance_id == config id) for JOIN fallback coverage"
+mysql -hdb -uroot -pcentreon -e "
+  DELETE FROM centreon_storage.instances WHERE name = 'QA-legacy-poller';
+  DELETE FROM centreon.nagios_server WHERE name = 'QA-legacy-poller';
+  INSERT INTO centreon.nagios_server (name, localhost, ns_activate, ssh_port, uid)
+    VALUES ('QA-legacy-poller', '0', '1', 22, ${LEGACY_POLLER_UID});
+  SET @legacyConfigId = LAST_INSERT_ID();
+  INSERT INTO centreon_storage.instances (instance_id, name, running, last_alive, deleted)
+    VALUES (@legacyConfigId, 'QA-legacy-poller', 1, UNIX_TIMESTAMP(), 0);
 "
 
 echo "Real_Time_Monitoring_Server setup-web.sh: done."
