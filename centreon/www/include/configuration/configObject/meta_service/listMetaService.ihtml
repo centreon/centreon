@@ -95,19 +95,19 @@ var msListing = new CentreonListing({
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$msPage}{literal}&o=c&meta_id=' + row.id;
             var title = '{/literal}{t}Modify a Meta Service{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
-        { id:'calcul_type', align:'center', render: function(row) {
+        { id:'calcul_type', align:'center', render: function(row, l) {
             var map = { 'AVE':'Average', 'SOM':'Sum', 'MIN':'Min', 'MAX':'Max' };
-            return map[row.calcul_type] || row.calcul_type || '';
+            return map[row.calcul_type] || l.escape(row.calcul_type) || '';
         }},
-        { id:'warning', align:'center', render: function(row) { return row.warning || '-'; }},
-        { id:'critical', align:'center', render: function(row) { return row.critical || '-'; }}
+        { id:'warning', align:'center', render: function(row, l) { return l.escape(row.warning) || '-'; }},
+        { id:'critical', align:'center', render: function(row, l) { return l.escape(row.critical) || '-'; }}
     ],
     renderOptions: function(row, l) {
         var html = '';
         if (row.select_mode === 1) {
-            html += '<a href="#" title="Components" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;" onclick="cfOpenPanel(\'main.get.php?p={/literal}{$msPage}{literal}&meta_id=' + row.id + '&o=ci\', \'' + l.escape(row.name || '') + ' - Components\'); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></a>';
+            html += '<a href="#" title="Components" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;" onclick="cfOpenPanel(\'main.get.php?p={/literal}{$msPage}{literal}&meta_id=' + row.id + '&o=ci\', \'' + clEscapeAttr(row.name || '') + ' - Components\'); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></a>';
         }
         var checked = row.activate ? ' checked' : '';
         html += '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="msListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
