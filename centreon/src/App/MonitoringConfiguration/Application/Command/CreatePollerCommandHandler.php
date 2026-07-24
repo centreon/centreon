@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Service\PollerUidGenerator;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -45,12 +46,14 @@ final readonly class CreatePollerCommandHandler
         private PollerRepository $repository,
         private EventBus $eventBus,
         private PollerUidGenerator $uidGenerator,
+        private GlobalMacroRepository $globalMacroRepository,
     ) {
     }
 
     public function __invoke(CreatePollerCommand $command): Poller
     {
         $uid = $this->uidGenerator->generate();
+        $globalMacros = $this->globalMacroRepository->findAll();
 
         $poller = new Poller(
             id: null,
@@ -61,7 +64,7 @@ final readonly class CreatePollerCommandHandler
             isActivated: true,
             pollerType: $command->pollerType,
             uid: $uid,
-            globalMacros: new Collection([], GlobalMacro::class),
+            globalMacros: new Collection(iterator_to_array($globalMacros), GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: $command->gorgoneCommunicationType,
             ),

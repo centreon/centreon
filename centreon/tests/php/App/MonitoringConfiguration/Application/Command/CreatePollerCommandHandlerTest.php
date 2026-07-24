@@ -25,12 +25,19 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommandHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpression;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\Shared\Domain\Collection;
 use PHPUnit\Framework\TestCase;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGlobalMacroRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerUidGenerator;
 use Tests\App\Shared\Double\EventBusSpy;
@@ -42,7 +49,8 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
         $uidGenerator = new FakePollerUidGenerator();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
+        $globalMacroRepository = new FakeGlobalMacroRepository();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
 
         $command = new CreatePollerCommand(
             name: new PollerName('MyPoller'),
@@ -68,7 +76,8 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
         $uidGenerator = new FakePollerUidGenerator();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
+        $globalMacroRepository = new FakeGlobalMacroRepository();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
 
         $command = new CreatePollerCommand(
             name: new PollerName('CloudPoller'),
@@ -88,7 +97,8 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
         $uidGenerator = new FakePollerUidGenerator();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
+        $globalMacroRepository = new FakeGlobalMacroRepository();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
 
         $command = new CreatePollerCommand(
             name: new PollerName('DockerPoller'),
@@ -107,7 +117,8 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
         $uidGenerator = new FakePollerUidGenerator();
-        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
+        $globalMacroRepository = new FakeGlobalMacroRepository();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
 
         $poller = $handler(new CreatePollerCommand(
             name: new PollerName('MyPoller'),
@@ -120,5 +131,33 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertCount(1, $events);
         self::assertSame($poller, $events[0]->aggregate);
         self::assertSame(42, $events[0]->creatorId);
+    }
+
+    public function testPollerReceivesGlobalMacros(): void
+    {
+        $macro = new GlobalMacro(
+            id: new GlobalMacroId(1),
+            name: new GlobalMacroName('$USER1$'),
+            expression: new GlobalMacroExpression('/usr/lib/nagios/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $uidGenerator = new FakePollerUidGenerator();
+        $globalMacroRepository = new FakeGlobalMacroRepository([$macro]);
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
+
+        $poller = $handler(new CreatePollerCommand(
+            name: new PollerName('MyPoller'),
+            pollerType: PollerTypeEnum::VM,
+            address: new PollerAddress('192.168.1.1'),
+            creatorId: 1,
+        ));
+
+        self::assertCount(1, $poller->globalMacros);
     }
 }

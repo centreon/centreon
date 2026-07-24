@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 
 interface GlobalMacroRepository
@@ -33,6 +32,4 @@ interface GlobalMacroRepository
      * @return \IteratorAggregate<int, GlobalMacro>&\Countable
      */
     public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable;
-
-    public function linkAllToPoller(PollerId $pollerId): void;
 }

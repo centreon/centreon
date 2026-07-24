@@ -24,23 +24,25 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\Shared\Domain\Collection;
 
 final class FakeGlobalMacroRepository implements GlobalMacroRepository
 {
-    /** @var array<int, PollerId> */
-    public array $linkedPollerIds = [];
+    /** @var Collection<GlobalMacro> */
+    private readonly Collection $macros;
+
+    /**
+     * @param GlobalMacro[] $macros
+     */
+    public function __construct(array $macros = [])
+    {
+        $this->macros = new Collection($macros, GlobalMacro::class);
+    }
 
     public function findAll(?GlobalMacroCriteria $criteria = null): \IteratorAggregate&\Countable
     {
-        return new Collection([], GlobalMacro::class);
-    }
-
-    public function linkAllToPoller(PollerId $pollerId): void
-    {
-        $this->linkedPollerIds[] = $pollerId;
+        return $this->macros;
     }
 }

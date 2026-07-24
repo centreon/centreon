@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
 use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommand;
-use App\MonitoringConfiguration\Application\Command\LinkGlobalMacrosToPollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
@@ -51,12 +50,6 @@ final readonly class CreatePollerConfigurationsEventHandler
             new CreateEngineConfigurationCommand(
                 pollerId: $pollerId,
                 pollerName: $poller->name->value,
-            ),
-        );
-
-        $this->commandBus->execute(
-            new LinkGlobalMacrosToPollerCommand(
-                pollerId: $pollerId,
             ),
         );
     }
