@@ -8,8 +8,9 @@ inputs:
     description: "The distribution used for packaging"
     required: true
   major_version:
-    description: "Centreon packaged major version"
-    required: true
+    description: "Centreon packaged major version (not used by the plugins repository family)"
+    required: false
+    default: ""
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
@@ -19,6 +20,10 @@ inputs:
   is_cloud:
     description: "Release context (cloud or not cloud)"
     required: true
+  repository_name:
+    description: "Target repository family: standard, standard-internal, business, business-internal or plugins"
+    required: false
+    default: "standard"
   verify:
     description: "Verify the promoted packages afterwards (presence, metadata resolution, fetchability)"
     required: false
@@ -61,6 +66,7 @@ runs:
         stability: ${{ inputs.stability }}
         release_type: ${{ inputs.release_type }}
         is_cloud: ${{ inputs.is_cloud }}
+        repository_name: ${{ inputs.repository_name }}
 
     - name: Setup pulp-cli
       uses: ./.github/actions/setup-pulp-cli
@@ -96,6 +102,8 @@ runs:
         TESTING_POOL_PATH: ${{ steps.pulp-properties.outputs.testing_pool_path }}
         TESTING_SUITE: ${{ steps.pulp-properties.outputs.testing_suite }}
         STABLE_SUITE: ${{ steps.pulp-properties.outputs.stable_suite }}
+        STABLE_REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.stable_repository_name }}
+        STABLE_BASE_PATH: ${{ steps.pulp-properties.outputs.stable_base_path }}
         PACKAGE_DISTRIB_NAME: ${{ steps.pulp-properties.outputs.package_distrib_name }}
         STABILITY: ${{ inputs.stability }}
         PULP_URL: ${{ inputs.pulp_url }}

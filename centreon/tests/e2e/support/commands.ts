@@ -56,7 +56,7 @@ Cypress.Commands.add('loginKeycloak', (jsonName): Cypress.Chainable => {
 Cypress.Commands.add(
   'isInProfileMenu',
   (targetedMenu: string): Cypress.Chainable => {
-    cy.get('header svg[aria-label="Profile"]').click();
+    cy.get('header [aria-label="Profile"]').click();
 
     return cy.get('div[role="tooltip"]').contains(targetedMenu);
   }
