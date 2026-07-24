@@ -14,7 +14,7 @@ import { createPollerEndpoint } from '../../../../api/endpoints';
 import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
-import { constructCentralAddress } from './constructCentralAddress';
+import { constructCentralAddress, webUrl } from './constructCentralAddress';
 
 interface PollerResponse {
   id: number;
@@ -49,7 +49,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
   const submit = useCallback(async (values: CloudInstallCommandFormValues) => {
     try {
       const centralAddress = platformFeatures?.isCloudPlatform
-        ? constructCentralAddress(window.location.href)
+        ? constructCentralAddress(webUrl.get())
         : values?.centralAddress?.trim();
 
       const pollerResponse = await createPoller({
