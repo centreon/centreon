@@ -42,12 +42,15 @@ CENTRAL_HOST=""
 CENTRAL_PORT=""
 # ssl inferred from the http(s):// scheme in --central_url, if any (empty = not specified)
 CENTRAL_URL_SSL=""
+# path segment of --central_url, if any (e.g. "/centreon"); empty means root-mounted
+CENTRAL_BASE_URI=""
 APP_SECRET=""
 SALT=""
 
 # Gorgone connection (derived from the args above)
 GORGONE_ADDRESS=""
 GORGONE_SSL=""
+GORGONE_PULLWSS_CENTRAL_URI=""
 
 # Engine broker connection port for the healthcheck (cloud: 443, on-prem: 5669)
 ENGINE_PORT=""

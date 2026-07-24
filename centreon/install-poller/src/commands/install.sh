@@ -61,6 +61,11 @@ function _installParseArguments() {
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
       # Explicit port only; the per-mode default is applied in _installDeriveCentral.
       CENTRAL_PORT=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
+      # Path segment of --central_url (e.g. "/centreon"), if any. The
+      # generated install one-liner always includes the real base_uri here,
+      # so an absent path legitimately means the app is mounted at "/".
+      CENTRAL_BASE_URI=$(echo "${_url_no_scheme}" | grep -o '/.*' || true)
+      CENTRAL_BASE_URI="${CENTRAL_BASE_URI%/}"
       ;;
     --appsecret)
       shift
@@ -166,6 +171,8 @@ function _installDeriveCentral() {
     GORGONE_ADDRESS="${CENTRAL_HOST}"
     ENGINE_PORT="5669"
   fi
+
+  GORGONE_PULLWSS_CENTRAL_URI="${CENTRAL_BASE_URI}/gorgone/pullwss/websocket"
 
   if [ -z "${GORGONE_SSL}" ]; then
     if [ -n "${CENTRAL_URL_SSL}" ]; then
