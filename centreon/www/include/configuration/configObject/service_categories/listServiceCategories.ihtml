@@ -95,12 +95,12 @@ var scListing = new CentreonListing({
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$scPage}{literal}&o=c&sc_id=' + row.id;
             var title = '{/literal}{t}Modify a Service Category{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'description', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$scPage}{literal}&o=c&sc_id=' + row.id;
             var title = '{/literal}{t}Modify a Service Category{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.description||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.description||'')+'</a>';
         }},
         { id:'svc_count', align:'center', render: function(row) { return row.svc_count; }},
         { id:'level', align:'center', render: function(row, l) {
