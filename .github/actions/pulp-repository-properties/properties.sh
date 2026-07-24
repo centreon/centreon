@@ -1,8 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$VERSION" || -z "$STABILITY" || -z "$IS_CLOUD" ]]; then
+if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$STABILITY" || -z "$IS_CLOUD" ]]; then
   echo "::error::some mandatory inputs are empty, please check the logs."
+  exit 1
+fi
+
+# repository_name selects the standard (open-source), business (paid) or plugins
+# repository family. standard/business have "-internal" variants: either a cloud
+# context (is_cloud) or an explicit "-internal" suffix means the internal repo.
+# plugins repositories are not versioned (packages carry their own date-based
+# versioning), so the version input is only required for the other families.
+REPOSITORY_TYPE="${REPOSITORY_TYPE:-standard}"
+case "$REPOSITORY_TYPE" in
+  standard | standard-internal) REPO_BASE="standard" ;;
+  business | business-internal) REPO_BASE="business" ;;
+  plugins) REPO_BASE="plugins" ;;
+  *)
+    echo "::error::Unsupported repository_name: $REPOSITORY_TYPE"
+    exit 1
+    ;;
+esac
+
+if [[ "$REPO_BASE" != "plugins" && -z "$VERSION" ]]; then
+  echo "::error::version input is mandatory for the $REPOSITORY_TYPE repository family."
   exit 1
 fi
 
@@ -11,16 +32,26 @@ fi
 # family checks below are portable across both conventions.
 case "$DISTRIB_FAMILY" in
   el | el[0-9]*)
-    ROOT_REPO="rpm-standard"
+    FAMILY_PREFIX="rpm-"
     DISTRIB_FAMILY="el"
     ;;
-  debian) ROOT_REPO="apt-standard" ;;
-  ubuntu) ROOT_REPO="ubuntu-standard" ;;
+  debian) FAMILY_PREFIX="apt-" ;;
+  ubuntu) FAMILY_PREFIX="ubuntu-" ;;
   *)
     echo "::error::Unsupported distribution family: $DISTRIB_FAMILY"
     exit 1
     ;;
 esac
+
+ROOT_REPO="${FAMILY_PREFIX}${REPO_BASE}"
+
+# business (paid) rpm content is served under an opaque path segment, mirroring
+# the Artifactory layout; only rpm business repos use it (deb business does not).
+BUSINESS_HASH="1a97ff9985262bf3daf7a0919f9c59a6"
+HASH_SEGMENT=""
+if [[ "$REPO_BASE" == "business" && "$DISTRIB_FAMILY" == "el" ]]; then
+  HASH_SEGMENT="/$BUSINESS_HASH"
+fi
 
 TESTING_SEGMENT="testing"
 TESTING_POOL_SEGMENT="testing"
@@ -50,7 +81,54 @@ POOL_PATH=""
 TESTING_POOL_PATH=""
 STABLE_POOL_PATH=""
 
-if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+if [[ "$REPO_BASE" == "plugins" ]]; then
+  # plugins repositories are not versioned and use their own testing layout: a
+  # bare "testing" segment for releases and "testing-hotfix" for hotfixes,
+  # mirroring the artifactory rpm-plugins/<distrib>/<stability> layout. deb
+  # plugins share one apt-plugins/ubuntu-plugins repo with <distrib>-<stability>
+  # suites.
+  if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+    echo "::notice::Feature delivery is not supported for plugins packages, skipping delivery."
+    echo "skip_delivery=true" >> "$GITHUB_OUTPUT"
+    exit 0
+  fi
+
+  TESTING_SEGMENT="testing"
+  TESTING_POOL_SEGMENT="testing"
+  if [[ "$RELEASE_TYPE" == "hotfix" ]]; then
+    TESTING_SEGMENT="testing-hotfix"
+    TESTING_POOL_SEGMENT="testing/hotfix"
+  fi
+
+  STABILITY_SEGMENT="$STABILITY"
+  POOL_SEGMENT="$STABILITY"
+  if [[ "$STABILITY" == "testing" ]]; then
+    STABILITY_SEGMENT="$TESTING_SEGMENT"
+    POOL_SEGMENT="$TESTING_POOL_SEGMENT"
+  fi
+
+  if [[ "$DISTRIB_FAMILY" == "el" ]]; then
+    REPOSITORY_PREFIX="$ROOT_REPO-$DISTRIB-$STABILITY_SEGMENT"
+    BASE_PATH_PREFIX="$ROOT_REPO/$DISTRIB/$STABILITY_SEGMENT"
+    TESTING_REPOSITORY_PREFIX="$ROOT_REPO-$DISTRIB-$TESTING_SEGMENT"
+    STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$DISTRIB-stable"
+    STABLE_BASE_PATH_PREFIX="$ROOT_REPO/$DISTRIB/stable"
+  else
+    REPOSITORY_NAME="$ROOT_REPO"
+    BASE_PATH="$ROOT_REPO"
+    SUITE="$DISTRIB-$STABILITY_SEGMENT"
+    TESTING_SUITE="$DISTRIB-$TESTING_SEGMENT"
+    # stable lives in a DEDICATED repository with plain-codename suites, so
+    # the client apt configuration stays identical to the artifactory one
+    # (deb .../apt-plugins-stable <codename> main)
+    STABLE_REPOSITORY_NAME="$ROOT_REPO-stable"
+    STABLE_BASE_PATH="$ROOT_REPO-stable"
+    STABLE_SUITE="$DISTRIB"
+    POOL_PATH="pool/$POOL_SEGMENT/$MODULE_NAME"
+    TESTING_POOL_PATH="pool/$TESTING_POOL_SEGMENT/$MODULE_NAME"
+    STABLE_POOL_PATH="pool/stable/$MODULE_NAME"
+  fi
+elif [[ "$DELIVERY_TYPE" == "feature" ]]; then
   if [[ "$DISTRIB_FAMILY" != "el" ]]; then
     echo "::notice::Feature delivery is not supported for $DISTRIB_FAMILY packages, skipping delivery."
     echo "skip_delivery=true" >> "$GITHUB_OUTPUT"
@@ -64,18 +142,18 @@ if [[ "$DELIVERY_TYPE" == "feature" ]]; then
   fi
 
   REPOSITORY_PREFIX="$ROOT_REPO-feature-$FEATURE_TICKET-$VERSION-$DISTRIB-$STABILITY"
-  BASE_PATH_PREFIX="$ROOT_REPO-feature/$FEATURE_TICKET/$VERSION/$DISTRIB/$STABILITY"
+  BASE_PATH_PREFIX="$ROOT_REPO-feature$HASH_SEGMENT/$FEATURE_TICKET/$VERSION/$DISTRIB/$STABILITY"
 else
-  if [[ "$IS_CLOUD" == "true" ]]; then
+  if [[ "$IS_CLOUD" == "true" || "$REPOSITORY_TYPE" == *-internal ]]; then
     ROOT_REPO="$ROOT_REPO-internal"
   fi
 
   if [[ "$DISTRIB_FAMILY" == "el" ]]; then
     REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$STABILITY_SEGMENT"
-    BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
+    BASE_PATH_PREFIX="$ROOT_REPO$HASH_SEGMENT/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
     TESTING_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$TESTING_SEGMENT"
     STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-stable"
-    STABLE_BASE_PATH_PREFIX="$ROOT_REPO/$VERSION/$DISTRIB/stable"
+    STABLE_BASE_PATH_PREFIX="$ROOT_REPO$HASH_SEGMENT/$VERSION/$DISTRIB/stable"
   else
     REPOSITORY_NAME="$ROOT_REPO"
     BASE_PATH="$ROOT_REPO"
@@ -88,6 +166,13 @@ else
   fi
 fi
 
+# unless a dedicated stable repository was selected above, stable shares the
+# delivery repository
+STABLE_REPOSITORY_NAME="${STABLE_REPOSITORY_NAME:-$REPOSITORY_NAME}"
+STABLE_BASE_PATH="${STABLE_BASE_PATH:-$BASE_PATH}"
+
+echo "[DEBUG] - repository_type: $REPOSITORY_TYPE"
+echo "[DEBUG] - root_repo: $ROOT_REPO"
 echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
 echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
 echo "[DEBUG] - testing_repository_prefix: $TESTING_REPOSITORY_PREFIX"
@@ -114,6 +199,8 @@ echo "[DEBUG] - stable_pool_path: $STABLE_POOL_PATH"
   echo "suite=$SUITE"
   echo "testing_suite=$TESTING_SUITE"
   echo "stable_suite=$STABLE_SUITE"
+  echo "stable_repository_name=$STABLE_REPOSITORY_NAME"
+  echo "stable_base_path=$STABLE_BASE_PATH"
   echo "pool_path=$POOL_PATH"
   echo "testing_pool_path=$TESTING_POOL_PATH"
   echo "stable_pool_path=$STABLE_POOL_PATH"

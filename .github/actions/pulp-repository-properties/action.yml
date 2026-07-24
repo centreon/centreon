@@ -8,8 +8,9 @@ inputs:
     description: "The distribution used for packaging"
     required: true
   version:
-    description: "Centreon packaged major version"
-    required: true
+    description: "Centreon packaged major version (not used by the plugins repository family)"
+    required: false
+    default: ""
   stability:
     description: "The package stability (stable, testing, unstable)"
     required: true
@@ -22,6 +23,10 @@ inputs:
     required: true
   delivery_type:
     description: "Delivery to feature or standard repository"
+    required: false
+    default: "standard"
+  repository_name:
+    description: "Target repository family: standard, standard-internal, business, business-internal or plugins"
     required: false
     default: "standard"
 outputs:
@@ -67,6 +72,12 @@ outputs:
   stable_suite:
     description: "Apt suite of stable deb packages"
     value: ${{ steps.properties.outputs.stable_suite }}
+  stable_repository_name:
+    description: "Repository holding the stable packages (dedicated for deb plugins, the delivery repository otherwise)"
+    value: ${{ steps.properties.outputs.stable_repository_name }}
+  stable_base_path:
+    description: "Base path serving the stable packages"
+    value: ${{ steps.properties.outputs.stable_base_path }}
   pool_path:
     description: "Module scoped pool path of the deb delivery"
     value: ${{ steps.properties.outputs.pool_path }}
@@ -98,5 +109,6 @@ runs:
         RELEASE_TYPE: ${{ inputs.release_type }}
         IS_CLOUD: ${{ inputs.is_cloud }}
         DELIVERY_TYPE: ${{ inputs.delivery_type }}
+        REPOSITORY_TYPE: ${{ inputs.repository_name }}
         GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
       run: ${{ github.action_path }}/properties.sh
