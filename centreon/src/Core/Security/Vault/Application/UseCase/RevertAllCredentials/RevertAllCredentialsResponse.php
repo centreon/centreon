@@ -21,27 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\Vault\Application\Exceptions;
+namespace Core\Security\Vault\Application\UseCase\RevertAllCredentials;
 
-class VaultException extends \Exception
+use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialErrorDto;
+use Core\Security\Vault\Application\UseCase\MigrateAllCredentials\CredentialRecordedDto;
+
+final class RevertAllCredentialsResponse
 {
-    public static function unableToMigrateCredentials(): self
-    {
-        return new self(_('Unable to migrate passwords'));
-    }
+    /** @var \Traversable<CredentialRecordedDto|CredentialErrorDto> */
+    public \Traversable $results;
 
-    public static function unableToRevertCredentials(): self
+    public function __construct()
     {
-        return new self(_('Unable to revert passwords'));
-    }
-
-    public static function noVaultConfigured(): self
-    {
-        return new self(_('No vault configured'));
-    }
-
-    public static function vaultNotAvailable(): self
-    {
-        return new self(_('Vault is not available'));
+        $this->results = new \ArrayIterator([]);
     }
 }

@@ -637,6 +637,12 @@ parameters:
 			path: src/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/Migrator/VmWareV6CredentialMigrator.php
 
 		-
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/Security/Vault/Application/UseCase/RevertAllCredentials/Reverter/VmWareV6CredentialReverter.php
+
+		-
 			message: '#^Method Core\\Security\\Vault\\Domain\\Model\\NewVaultConfiguration\:\:getRoleId\(\) has Exception in PHPDoc @throws tag but it''s not thrown\.$#'
 			identifier: throws.unusedType
 			count: 1
