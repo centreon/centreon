@@ -9,10 +9,12 @@ FROM debian:13-slim AS extractor
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        dpkg && \
-    rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    bash -e <<EOF
+apt-get update && \
+apt-get install -y --no-install-recommends \
+    dpkg && \
+rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOF
 
 # Extract .deb packages from bind mount
 # NOTE: Uses --mount=type=bind to avoid copying large .deb files into build context
@@ -57,16 +59,18 @@ EOF
 # NOTE: centreontrapdforward only writes spool files — no SQLite or SNMP OID libs needed
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        snmptrapd=5.9.4+dfsg-2+deb13u1 \
-        perl=5.40.1-6 \
-        libdbi-perl=1.647-1+deb13u1 \
-        tzdata=2026b-0+deb13u1 \
-        ca-certificates=20250419 \
-        procps=2:4.0.4-9 && \
-    apt-get clean && \
-    rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
+    bash -e <<EOF
+apt-get update
+apt-get install -y --no-install-recommends \
+    snmptrapd=5.9.4+dfsg-2+deb13u1 \
+    perl=5.40.1-6 \
+    libdbi-perl=1.647-1+deb13u1 \
+    tzdata=2026b-0+deb13u1 \
+    ca-certificates=20250419 \
+    procps=2:4.0.4-9
+apt-get clean
+rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
+EOF
 
 # Create runtime directory structure and set permissions
 # /var/spool/centreontrapd: Working directory for trap forwarding (world-writable for pipeline)
@@ -97,9 +101,11 @@ COPY --from=centreon-perl-selected --link /centreon-modules/ /usr/share/perl5/ce
 COPY --link --chmod=755 .github/docker/centreon-snmptrapd/trixie/entrypoint /usr/local/lib/centreon-snmptrapd/
 
 # Verify runtime integrity: Perl modules loadable, binary executable
-RUN perl -I/usr/share/perl5 \
-      -e "require centreon::script::centreontrapdforward or die 'centreontrapdforward module failed'" && \
-    test -x /usr/share/centreon/bin/centreontrapdforward || exit 1
+RUN bash -e <<EOF
+perl -I/usr/share/perl5 \
+    -e "require centreon::script::centreontrapdforward or die 'centreontrapdforward module failed'"
+test -x /usr/share/centreon/bin/centreontrapdforward || exit 1
+EOF
 
 # Runtime environment and build metadata
 ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5 \

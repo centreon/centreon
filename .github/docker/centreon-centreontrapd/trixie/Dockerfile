@@ -9,10 +9,12 @@ FROM debian:13-slim AS extractor
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        dpkg && \
-    rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    bash -e <<EOF
+apt-get update
+apt-get install -y --no-install-recommends \
+        dpkg
+rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
+EOF
 
 # Extract .deb packages from bind mount
 # NOTE: Uses --mount=type=bind to avoid copying large .deb files into build context
@@ -63,20 +65,22 @@ EOF
 # Other: timezone, CA certs, file monitoring, process utilities
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        perl=5.40.1-6 \
-        libdbi-perl=1.647-1+deb13u1 \
-        libdbd-sqlite3-perl=1.76-1 \
-        libconfig-inifiles-perl=3.000003-3+deb13u1 \
-        libsnmp-perl=5.9.4+dfsg-2+deb13u1 \
-        snmp=5.9.4+dfsg-2+deb13u1 \
-        tzdata=2026b-0+deb13u1 \
-        ca-certificates=20250419 \
-        inotify-tools=4.23.9.0-2+b1 \
-        procps=2:4.0.4-9 && \
-    apt-get clean && \
-    rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
+    bash -e <<EOF
+apt-get update
+apt-get install -y --no-install-recommends \
+    perl=5.40.1-6 \
+    libdbi-perl=1.647-1+deb13u1 \
+    libdbd-sqlite3-perl=1.76-1 \
+    libconfig-inifiles-perl=3.000003-3+deb13u1 \
+    libsnmp-perl=5.9.4+dfsg-2+deb13u1 \
+    snmp=5.9.4+dfsg-2+deb13u1 \
+    tzdata=2026b-0+deb13u1 \
+    ca-certificates=20250419 \
+    inotify-tools=4.23.9.0-2+b1 \
+    procps=2:4.0.4-9 && \
+apt-get clean
+rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
+EOF
 
 # Create runtime directory structure and set permissions
 # /var/spool/centreontrapd: Working directory for trap processing (world-writable for pipeline)
@@ -113,13 +117,15 @@ COPY --from=centreon-perl-selected --link /centreon-modules/ /usr/share/perl5/ce
 COPY --link --chmod=755 .github/docker/centreon-centreontrapd/trixie/entrypoint /usr/local/lib/centreon-centreontrapd/
 
 # Verify runtime integrity: Perl modules loadable, binary executable
-RUN perl -I/usr/share/perl5 \
-      -e "require centreon::script::centreontrapd or die 'centreontrapd module failed'" && \
-    perl -I/usr/share/perl5 \
-      -e "require centreon::trapd::lib or die 'trapd::lib module failed'" && \
-    perl -I/usr/share/perl5 \
-      -e "require DBI; require DBD::SQLite" && \
-    test -x /usr/share/centreon/bin/centreontrapd || exit 1
+RUN bash -e <<EOF
+perl -I/usr/share/perl5 \
+    -e "require centreon::script::centreontrapd or die 'centreontrapd module failed'"
+perl -I/usr/share/perl5 \
+    -e "require centreon::trapd::lib or die 'trapd::lib module failed'"
+perl -I/usr/share/perl5 \
+    -e "require DBI; require DBD::SQLite"
+test -x /usr/share/centreon/bin/centreontrapd || exit 1
+EOF
 
 # Runtime environment and build metadata
 ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5 \
