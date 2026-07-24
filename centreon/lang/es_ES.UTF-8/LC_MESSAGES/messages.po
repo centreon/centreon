@@ -25438,3 +25438,19 @@ msgstr ""
 #: unknown
 # msgid "Failed to create poller"
 # msgstr ""
+
+#: unknown
+# msgid "Enter your poller's information"
+# msgstr ""
+
+#: unknown
+# msgid "Poller name"
+# msgstr ""
+
+#: unknown
+# msgid "Poller adress"
+# msgstr ""
+
+#: unknown
+# msgid "Centreon Central adress, as seen by this poller"
+# msgstr ""
