@@ -125,14 +125,14 @@ var stListing = new CentreonListing({
                     // Default icon: inline SVG (currentColor) instead of the flat-black
                     // raster fallback, so it follows the row's text color in dark mode.
                     ? '<svg viewBox="0 0 24 24" width="14" height="14" style="vertical-align:middle;padding-right:4px;" fill="currentColor"><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="5" r="1.3"/><circle cx="17.5" cy="7.5" r="1.1"/><circle cx="19" cy="12" r="1.3"/><circle cx="17.5" cy="16.5" r="1.1"/><circle cx="12" cy="19" r="1.3"/><circle cx="6.5" cy="16.5" r="1.1"/><circle cx="5" cy="12" r="1.3"/><circle cx="6.5" cy="7.5" r="1.1"/></svg>'
-                    : '<img src="'+row.icon+'" class="ico-14" style="padding-right:4px;"/>')
+                    : '<img src="'+clEscapeAttr(row.icon)+'" class="ico-14" style="padding-right:4px;"/>')
                 : '';
             var link = 'main.get.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + row.id;
-            return icon + '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return icon + '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'scheduling', align:'center' },
         { id:'templates', render: function(row, l) {
