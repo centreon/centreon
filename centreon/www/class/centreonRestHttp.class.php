@@ -109,6 +109,8 @@ class CentreonRestHttp
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        // SSL peer verification is intentionally disabled to support self-signed
+        // and internal-CA certificates used in on-premise deployments.
         if ($noCheckCertificate) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
