@@ -420,15 +420,6 @@ contents:
       group: "centreon"
       mode: 0775
 
-  # TODO(MON-205365): destination path below is a draft, not yet confirmed with
-  # the web team. It must resolve to an unauthenticated, web-accessible URL so
-  # pollers can be installed with `curl -fsSL https://<central_url>/<path> | bash -s -- ...`.
-  # Verified against packaging/src/centreon-apache.conf: non-.php files under
-  # ${install_dir}/www are served directly by Apache (Require all granted, no
-  # proxy/auth — only *.php paths get proxied to PHP-FPM), so this file would be
-  # reachable unauthenticated at ${base_uri}/install-poller/install.sh. The
-  # ${base_uri} prefix ("/centreon" by default) may not match what the web team
-  # wants for the final curl one-liner — revisit once the route is agreed.
   - src: "../install-poller/install.sh"
     dst: "/usr/share/centreon/www/poller/install.sh"
     file_info:
