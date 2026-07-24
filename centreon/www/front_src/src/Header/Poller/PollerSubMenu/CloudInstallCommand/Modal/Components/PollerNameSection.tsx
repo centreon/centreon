@@ -1,5 +1,6 @@
-import { platformFeaturesAtom } from '@centreon/ui-context';
 import { TextField } from '@mui/material';
+
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
@@ -8,10 +9,10 @@ import { useTranslation } from 'react-i18next';
 
 import { Section } from '../../../../../../AgentConfiguration/Listing/InstallationCommandModal/Components';
 import {
+  labelCentralAddress,
   labelEnterPollerNameAndAddress,
   labelPollerAddress,
-  labelPollerName,
-  labelCentralAddress
+  labelPollerName
 } from '../../../../translatedLabels';
 import { isGeneratedAtom } from '../../atoms';
 import type { CloudInstallCommandFormValues } from '../../models';
@@ -22,7 +23,7 @@ const PollerNameSection = (): ReactElement => {
   const { values, setFieldValue, setFieldTouched, errors, touched } =
     useFormikContext<CloudInstallCommandFormValues>();
 
-  const platformFeatures = useAtomValue(platformFeaturesAtom)
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
 
   return (
     <Section order={1} title={t(labelEnterPollerNameAndAddress)}>
@@ -60,26 +61,25 @@ const PollerNameSection = (): ReactElement => {
           value={values.pollerAddress}
         />
       </div>
-      {
-        !platformFeatures?.isCloudPlatform &&  
-            <div className="my-2">
-              <TextField
-                data-testid="centreon-central-address"
-                disabled={isGenerated}
-                error={touched.centralAddress && Boolean(errors.centralAddress)}
-                fullWidth
-                helperText={touched.centralAddress && errors.centralAddress}
-                label={t(labelCentralAddress)}
-                onChange={(e) => {
-                  setFieldTouched('centralAddress', true, false);
-                  setFieldValue('centralAddress', e.target.value);
-                }}
-                required
-                size="small"
-                value={values.centralAddress}
-              />
-            </div>
-      }
+      {!platformFeatures?.isCloudPlatform && (
+        <div className="my-2">
+          <TextField
+            data-testid="centreon-central-address"
+            disabled={isGenerated}
+            error={touched.centralAddress && Boolean(errors.centralAddress)}
+            fullWidth
+            helperText={touched.centralAddress && errors.centralAddress}
+            label={t(labelCentralAddress)}
+            onChange={(e) => {
+              setFieldTouched('centralAddress', true, false);
+              setFieldValue('centralAddress', e.target.value);
+            }}
+            required
+            size="small"
+            value={values.centralAddress}
+          />
+        </div>
+      )}
     </Section>
   );
 };

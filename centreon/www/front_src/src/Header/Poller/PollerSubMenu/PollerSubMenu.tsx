@@ -35,7 +35,6 @@ export const PollerSubMenu = ({
   exportConfig,
   displayPollerButton
 }: PollerSubMenuProps): ReactElement => {
-
   return (
     <List className="min-w-[216px] p-0" data-testid="poller-menu">
       {!isEmpty(issues) ? (
