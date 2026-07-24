@@ -70,7 +70,7 @@ const getUserInitials = (name?: string | null): string => {
   const initials =
     words.length === 1 ? words[0].slice(0, 2) : `${words[0][0]}${words[1][0]}`;
 
-  return initials.toUpperCase();
+  return initials.toLocaleUpperCase();
 };
 
 interface UserData {
