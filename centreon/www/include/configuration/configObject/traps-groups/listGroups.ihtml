@@ -88,7 +88,7 @@ var grpListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$grpPage}{literal}&o=c&id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }}
     ],
     renderOptions: function(row) {

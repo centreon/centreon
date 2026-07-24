@@ -127,7 +127,7 @@ var trapsListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$trapsPage}{literal}&o=c&traps_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'oid', render: function(row, l) {
             return '<span style="font-family:monospace;font-size:12px;">'+l.escape(row.oid)+'</span>';
