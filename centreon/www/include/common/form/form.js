@@ -784,6 +784,21 @@ var CentreonForm = (function () {
         });
     }
 
+    /**
+     * @private Escape a value for safe use as HTML text content or inside an
+     * HTML attribute (escapes &, <, >, " and '). Used for third-party API
+     * data (e.g. Nominatim results) that gets concatenated into an HTML
+     * string before being assigned to innerHTML — never trust it as-is.
+     */
+    function _escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     // =========================================================================
     //  GEO COORDINATES AUTOCOMPLETE
     //  Address search via Nominatim (OpenStreetMap) API.
@@ -840,11 +855,11 @@ var CentreonForm = (function () {
                         var html = '';
                         data.forEach(function (item) {
                             html += '<div class="cf-geo-item" data-coords="'
-                                + item.lat + ',' + item.lon + '">'
+                                + _escapeHtml(item.lat) + ',' + _escapeHtml(item.lon) + '">'
                                 + '<span class="cf-geo-item-name">'
-                                + item.display_name + '</span>'
+                                + _escapeHtml(item.display_name) + '</span>'
                                 + '<span class="cf-geo-item-coords">'
-                                + item.lat + ', ' + item.lon + '</span></div>';
+                                + _escapeHtml(item.lat) + ', ' + _escapeHtml(item.lon) + '</span></div>';
                         });
 
                         geoResults.innerHTML = html;
