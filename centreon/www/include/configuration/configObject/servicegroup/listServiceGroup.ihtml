@@ -94,12 +94,12 @@ var sgListing = new CentreonListing({
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$sgPage}{literal}&o=c&sg_id=' + row.id;
             var title = '{/literal}{t}Modify Service Group{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$sgPage}{literal}&o=c&sg_id=' + row.id;
             var title = '{/literal}{t}Modify Service Group{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+l.escape(title)+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }}
     ],
     renderOptions: function(row, l) {
