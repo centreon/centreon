@@ -89,11 +89,11 @@ var hdListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$depHDPage}{literal}&o=c&dep_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'desc', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$depHDPage}{literal}&o=c&dep_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.desc||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.desc||'')+'</a>';
         }}
     ],
     renderOptions: function(row) {
