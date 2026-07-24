@@ -28,10 +28,10 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\Shared\Domain\Collection;
 
-final class FakeGlobalMacroRepository implements GlobalMacroRepository
+final readonly class FakeGlobalMacroRepository implements GlobalMacroRepository
 {
     /** @var Collection<GlobalMacro> */
-    private readonly Collection $macros;
+    private Collection $macros;
 
     /**
      * @param GlobalMacro[] $macros
