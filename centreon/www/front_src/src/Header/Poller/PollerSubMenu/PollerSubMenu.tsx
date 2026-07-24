@@ -1,12 +1,8 @@
 import { Button, List, ListItem, Typography } from '@mui/material';
 
-import { platformFeaturesAtom } from '@centreon/ui-context';
-
-import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
 import { ReactElement } from 'react';
 
-import FederatedComponent from '../../../components/FederatedComponents';
 import CloudInstallCommand from './CloudInstallCommand/CloudInstallCommand';
 import ExportConfiguration from './ExportConfiguration';
 
@@ -39,8 +35,6 @@ export const PollerSubMenu = ({
   exportConfig,
   displayPollerButton
 }: PollerSubMenuProps): ReactElement => {
-  const platformFeatures = useAtomValue(platformFeaturesAtom);
-  const isCreatePollerDisplayed = false && !platformFeatures?.isCloudPlatform; // for now
 
   return (
     <List className="min-w-[216px] p-0" data-testid="poller-menu">
@@ -87,17 +81,9 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
 
-      {platformFeatures?.isCloudPlatform && (
-        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
-          <FederatedComponent path="/cloud-extensions" />
-        </ListItem>
-      )}
-
-      {isCreatePollerDisplayed && (
-        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
-          <CloudInstallCommand closeSubMenu={closeSubMenu} />
-        </ListItem>
-      )}
+      <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
+        <CloudInstallCommand closeSubMenu={closeSubMenu} />
+      </ListItem>
     </List>
   );
 };

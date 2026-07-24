@@ -1,3 +1,5 @@
+import { platformFeaturesAtom } from '@centreon/ui-context';
+
 import {
   centreonBaseURL,
   Method,
@@ -5,7 +7,7 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +18,7 @@ import type { CloudInstallCommandFormValues } from '../models';
 
 interface PollerResponse {
   id: number;
-  command: string;
+  installation_command: string;
 }
 
 interface UseInstallCommandState {
@@ -30,6 +32,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
   const [isOpen, setIsOpen] = useAtom(isModalOpenAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
   const setPollerId = useSetAtom(pollerIdAtom);
+  const  platformFeatures = useAtomValue(platformFeaturesAtom)
 
   const { showErrorMessage } = useSnackbar();
 
@@ -45,12 +48,16 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
   const submit = useCallback(async (values: CloudInstallCommandFormValues) => {
     try {
+
+      const central_address = platformFeatures?.isCloudPlatform ? "I don't know" : values?.centralAddress
+
       const pollerResponse = await createPoller({
         payload: {
           address: values.pollerAddress.trim(),
           name: values.pollerName.trim(),
           poller_type: values.environment,
-          token: values?.token?.name
+          poller_token_name: values?.token?.name,
+          central_address
         }
       });
 
@@ -66,7 +73,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
       setPollerId(pollerId);
 
       const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (response?.command || '')
+      const command = (response?.installation_command || '')
         .split('<CENTRAL_URL>')
         .join(centralUrl);
 

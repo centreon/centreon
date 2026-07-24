@@ -11,6 +11,7 @@ export const useValidationSchema = () => {
           .oneOf(Object.values(PollerEnvironment))
           .required(),
         pollerAddress: string().trim().required(),
+        centralAddress: string().trim().required(),
         pollerName: string().trim().required(),
         token: object({
           id: string().required(),
