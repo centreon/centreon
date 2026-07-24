@@ -1,8 +1,8 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import i18next from 'i18next';
 import { createStore, Provider } from 'jotai';
-import { platformFeaturesAtom } from '@centreon/ui-context';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
@@ -38,9 +38,9 @@ const createPollerSuccessResponse = {
   '@id': '/centreon/api/latest/pollers/11',
   '@type': 'Poller',
   address: '192.0.0.98',
+  id: 11,
   installation_command:
     'installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317',
-  id: 11,
   name: 'poller-docker_07',
   poller_type: 'docker',
   uuid: '019dcf18-bdb1-7f89-a61f-45b8fcfb27e6'
@@ -528,7 +528,10 @@ describe('CloudInstallCommand', () => {
 
         cy.findByTestId('Command')
           .scrollIntoView()
-          .should('contain.text', createPollerSuccessResponse.installation_command);
+          .should(
+            'contain.text',
+            createPollerSuccessResponse.installation_command
+          );
       });
 
       it('shows an error message when the API call fails', () => {
@@ -541,7 +544,6 @@ describe('CloudInstallCommand', () => {
         cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
         cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
         cy.findByLabelText(`${labelCentralAddress} *`).type('192.168.1.1');
-
 
         cy.findByLabelText(labelSelectTokenPlaceholder).click();
         cy.waitForRequest('@getTokens');

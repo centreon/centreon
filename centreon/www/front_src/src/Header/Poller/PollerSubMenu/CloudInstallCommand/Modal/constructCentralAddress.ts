@@ -8,7 +8,6 @@ export const constructCentralAddress = (webUrl: string): string => {
   return `broker-${platformName}-${orga}.${regionAndDomain.join('.')}`;
 };
 
-
 export const webUrl = {
   get: (): string => window.location.href
 };
