@@ -116,13 +116,13 @@ var htListing = new CentreonListing({
         { id:'name', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$htPage}{literal}&o=c&host_id=' + row.id;
             var icon = row.icon
-                ? '<img src="'+l.escape(row.icon)+'" class="ico-16 margin_right" onerror="this.outerHTML=\'<img src=./img/icons/host.svg class=ico-16 style=width:16px;height:16px;vertical-align:middle;margin-right:4px; />\'" />'
+                ? '<img src="'+clEscapeAttr(row.icon)+'" class="ico-16 margin_right" onerror="this.outerHTML=\'<img src=./img/icons/host.svg class=ico-16 style=width:16px;height:16px;vertical-align:middle;margin-right:4px; />\'" />'
                 : '<svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:middle;margin-right:4px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><circle cx="6.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/><circle cx="6.5" cy="17.5" r="0.6" fill="currentColor" stroke="none"/></svg>';
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+icon+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+icon+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$htPage}{literal}&o=c&host_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'svc_count', align:'center', render: function(row) {
             return row.svc_count ? '<span style="display:inline-block;min-width:22px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;color:var(--color-primary-light,#2E68AA);background:rgba(46,104,170,.12);">'+row.svc_count+'</span>' : '<span style="opacity:.4;">0</span>';
