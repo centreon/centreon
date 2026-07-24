@@ -91,11 +91,11 @@ var aclListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$aclPage}{literal}&o=c&acl_group_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var link = 'main.get.php?p={/literal}{$aclPage}{literal}&o=c&acl_group_id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+l.escape(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||row.desc||row.alias||'')+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'contact_count', align:'center' },
         { id:'cg_count', align:'center' }
