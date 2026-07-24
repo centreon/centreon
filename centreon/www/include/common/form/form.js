@@ -784,6 +784,21 @@ var CentreonForm = (function () {
         });
     }
 
+    /**
+     * @private Escape a value for safe use as HTML text content or inside an
+     * HTML attribute (escapes &, <, >, " and '). Used for third-party API
+     * data (e.g. Nominatim results) that gets concatenated into an HTML
+     * string before being assigned to innerHTML — never trust it as-is.
+     */
+    function _escapeHtml(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     // =========================================================================
     //  GEO COORDINATES AUTOCOMPLETE
     //  Address search via Nominatim (OpenStreetMap) API.
@@ -792,18 +807,26 @@ var CentreonForm = (function () {
 
     /**
      * Initialize the geo coordinates address autocomplete.
-     * Requires two elements:
-     * - An input with id="cfGeoAddress" (the search field)
-     * - A div with id="cfGeoResults" (the dropdown container)
+     * Requires two elements (ids configurable — see options — for pages
+     * that tuck the picker inside a popin/modal instead of an inline field):
+     * - An input, id="cfGeoAddress" by default (the search field)
+     * - A div, id="cfGeoResults" by default (the dropdown container)
      * - A target input with name="geo_coords" (where the lat,lon is written)
      *
-     * @param {number} [debounce=400] - Debounce delay in ms before searching.
+     * @param {Object} [options]
+     * @param {string}   [options.inputId='cfGeoAddress']
+     * @param {string}   [options.resultsId='cfGeoResults']
+     * @param {number}   [options.debounce=400] - Debounce delay in ms before searching.
+     * @param {function} [options.onSelect] - Called (item, coordInput) after a
+     *   result is picked, instead of the default behavior of echoing the
+     *   picked address back into the search field (e.g. to close a popin).
      */
-    function initGeoAutocomplete(debounce) {
-        debounce = debounce || 400;
+    function initGeoAutocomplete(options) {
+        options = options || {};
+        var debounce = options.debounce || 400;
 
-        var geoInput   = document.getElementById('cfGeoAddress');
-        var geoResults = document.getElementById('cfGeoResults');
+        var geoInput   = document.getElementById(options.inputId || 'cfGeoAddress');
+        var geoResults = document.getElementById(options.resultsId || 'cfGeoResults');
         if (!geoInput || !geoResults) return;
 
         var timer = null;
@@ -832,11 +855,11 @@ var CentreonForm = (function () {
                         var html = '';
                         data.forEach(function (item) {
                             html += '<div class="cf-geo-item" data-coords="'
-                                + item.lat + ',' + item.lon + '">'
+                                + _escapeHtml(item.lat) + ',' + _escapeHtml(item.lon) + '">'
                                 + '<span class="cf-geo-item-name">'
-                                + item.display_name + '</span>'
+                                + _escapeHtml(item.display_name) + '</span>'
                                 + '<span class="cf-geo-item-coords">'
-                                + item.lat + ', ' + item.lon + '</span></div>';
+                                + _escapeHtml(item.lat) + ', ' + _escapeHtml(item.lon) + '</span></div>';
                         });
 
                         geoResults.innerHTML = html;
@@ -864,8 +887,12 @@ var CentreonForm = (function () {
                 : null;
             if (label) label.classList.add('cf-label-float');
 
-            // Show the selected address in the search field
-            geoInput.value = item.querySelector('.cf-geo-item-name').textContent;
+            if (options.onSelect) {
+                options.onSelect(item, coordInput);
+            } else {
+                // Show the selected address in the search field
+                geoInput.value = item.querySelector('.cf-geo-item-name').textContent;
+            }
             geoResults.style.display = 'none';
         });
 
