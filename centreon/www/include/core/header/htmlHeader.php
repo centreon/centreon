@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,12 @@ $versionParam = isset($centreon->informations) && isset($centreon->informations[
     ? '?version=' . $centreon->informations['version']
     : '';
 
+$brandName = 'Centreon Infrastructure Monitoring';
+$pageTitle = (isset($redirect) && is_array($redirect) && ! empty($redirect['topology_name']))
+    ? $redirect['topology_name'] . ' - ' . $brandName
+    : $brandName;
+$pageTitle = htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8');
+
 echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 
 $variablesThemeCSS  = 'Centreon-Light';
@@ -50,10 +56,10 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $centreon->user->lang; ?>">
-    <title>Centreon - IT & Network Monitoring</title>
+    <title><?php echo $pageTitle; ?></title>
     <link rel="shortcut icon" href="./img/favicon.ico"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="Generator" content="Centreon - Copyright (C) 2005 - 2021 Open Source Matters. All rights reserved."/>
+    <meta name="Generator" content="Centreon - Copyright (C) 2005 - 2026 Open Source Matters. All rights reserved."/>
     <meta name="robots" content="index, nofollow"/>
 
     <?php if (isset($isMobile) && $isMobile) { ?>
