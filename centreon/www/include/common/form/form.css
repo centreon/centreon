@@ -18,6 +18,13 @@
     padding: 16px 20px 0;
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--list-color, #333);
+    /* Push .cf-actions to the bottom of the panel even when the form's own
+       content is short — position: sticky alone only keeps it in view
+       while scrolling, it doesn't pull it down when there's nothing to
+       scroll (see .cf-actions below). */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==========================================================================
@@ -1186,7 +1193,10 @@
     justify-content: flex-end;
     gap: 12px;
     padding: 16px 0;
-    margin-top: 16px;
+    /* Flush against the bottom of .cf-form-wrapper's flex column when the
+       form's content is short (overrides the 16px default margin-top so it
+       doesn't fight with the auto push). */
+    margin-top: auto;
     /* Keep Reset/Save reachable while the form scrolls, same white banner
        treatment as .cf-tab-nav at the top. */
     position: sticky;
