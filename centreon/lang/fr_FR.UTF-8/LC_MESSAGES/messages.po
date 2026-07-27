@@ -1135,7 +1135,7 @@ msgstr "Avancé : gorgone - le collecteur se connecte au central"
 #: centreon/www/install/react_translation.php
 msgid "Prerequisite: configure the central to accept pullwss connections"
 msgstr ""
-"Prérequis : configurer le central pour écouter les connexions pullwss"
+"Prérequis : configurer le central pour accepter les connexions PullWSS"
 
 #: centreon/www/install/react_translation.php
 msgid "documentation"
