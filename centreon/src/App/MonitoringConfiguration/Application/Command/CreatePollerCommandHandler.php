@@ -74,7 +74,7 @@ final readonly class CreatePollerCommandHandler
 
         $this->repository->add($poller);
 
-        $this->eventBus->fire(new PollerCreated($poller, $command->creatorId));
+        $this->eventBus->fire(new PollerCreated($poller, $command->creatorId, $command->centralAddress));
 
         return $poller;
     }

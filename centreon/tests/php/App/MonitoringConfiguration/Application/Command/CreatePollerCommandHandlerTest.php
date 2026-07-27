@@ -121,4 +121,24 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertSame($poller, $events[0]->aggregate);
         self::assertSame(42, $events[0]->creatorId);
     }
+
+    public function testCentralAddressIsThreadedToEvent(): void
+    {
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $uidGenerator = new FakePollerUidGenerator();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator);
+
+        $handler(new CreatePollerCommand(
+            name: new PollerName('MyPoller'),
+            pollerType: PollerTypeEnum::VM,
+            address: new PollerAddress('192.168.1.1'),
+            creatorId: 1,
+            centralAddress: '10.0.0.1',
+        ));
+
+        $events = $eventBus->getDispatchedEvents(PollerCreated::class);
+        self::assertCount(1, $events);
+        self::assertSame('10.0.0.1', $events[0]->centralAddress);
+    }
 }
