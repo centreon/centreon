@@ -236,6 +236,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $this->uniqueName('NoToken'),
                 'poller_type' => 'vm',
                 'address' => '192.168.1.1',
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -252,6 +253,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'poller_type' => 'vm',
                 'address' => '192.168.1.1',
                 'poller_token_name' => 'non-existent-token-' . bin2hex(random_bytes(4)),
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
