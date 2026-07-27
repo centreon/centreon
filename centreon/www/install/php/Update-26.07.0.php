@@ -259,6 +259,8 @@ $migrateModuleTableInstanceIds = function () use ($pearDB, &$errorMessage, $vers
         $pearDB->executeStatement("ALTER TABLE `{$table}` DROP FOREIGN KEY `{$constraint}`");
     }
 
+    $pearDB->executeStatement("ALTER TABLE `{$table}` MODIFY COLUMN `instance_id` BIGINT UNSIGNED NOT NULL");
+
     $pearDB->executeStatement(
         <<<SQL
             UPDATE `{$table}` t
@@ -266,8 +268,6 @@ $migrateModuleTableInstanceIds = function () use ($pearDB, &$errorMessage, $vers
             SET t.`instance_id` = ns.`uid`
             SQL
     );
-
-    $pearDB->executeStatement("ALTER TABLE `{$table}` MODIFY COLUMN `instance_id` BIGINT UNSIGNED NOT NULL");
 
     $pearDB->executeStatement(
         "ALTER TABLE `{$table}` ADD CONSTRAINT `{$constraint}`"
