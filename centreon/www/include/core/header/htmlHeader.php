@@ -111,7 +111,7 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/javascript/jquery/plugins/qtip/jquery-qtip.css" rel="stylesheet" type="text/css"/>
 
     <!-- Modern form styles -->
-    <link href="./include/common/form/form.css<?php echo $versionParam . '&t=' . time(); ?>" rel="stylesheet" type="text/css" />
+    <link href="./include/common/form/form.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
 
     <!-- graph css -->
     <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
@@ -138,7 +138,7 @@ if (! isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['if
     ?>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery.min.js"></script>
     <!-- Modern form JS (must load after jQuery) -->
-    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam . '&t=' . time(); ?>"></script>
+    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam; ?>"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/toggleClick/jquery.toggleClick.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/select2/js/select2.full.min.js">
