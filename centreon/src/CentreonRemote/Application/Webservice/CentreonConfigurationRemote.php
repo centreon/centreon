@@ -25,6 +25,7 @@ use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 use CentreonRemote\Domain\Service\ConfigurationWizard\{
     PollerConnectionConfigurationService,
     RemoteConnectionConfigurationService
@@ -316,6 +317,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              description="if the connection should be made with open broker flow"
      *          ),
      *          @OA\Property(
+     *              property="gorgone_pull_wss",
+     *              type="boolean",
+     *              description="if true, provision the poller with gorgone_communication_type=pullwss and gorgone_port=8086 (poller wizard only)"
+     *          ),
+     *          @OA\Property(
      *              property="db_user",
      *              type="string",
      *              description="database username"
@@ -450,6 +456,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverConfigurationService->setServerIp($serverIP);
         $serverConfigurationService->setName($serverName);
         $serverConfigurationService->setOnePeerRetention($openBrokerFlow);
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            $serverConfigurationService->setGorgoneCommunicationType(NagiosServer::PULLWSS);
+            $serverConfigurationService->setGorgonePort(NagiosServer::PULLWSS_GORGONE_PORT);
+        }
 
         // set linked pollers
         $pollerConfigurationBridge->collectDataFromRequest();
