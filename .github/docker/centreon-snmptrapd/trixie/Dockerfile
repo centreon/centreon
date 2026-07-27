@@ -52,7 +52,7 @@ groupadd -g 900 centreon
 useradd -u 900 -g centreon -m -r -l -d /var/spool/centreon -s /bin/bash centreon
 EOF
 
-# Install runtime dependencies (pinned to Debian 13 trixie versions for reproducibility)
+# Install runtime dependencies
 # snmptrapd: SNMP trap receiver daemon
 # perl + libs: Trap forwarding and configuration utilities
 # Other: timezone, CA certs, process utilities
@@ -62,12 +62,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     bash -e <<EOF
 apt-get update
 apt-get install -y --no-install-recommends \
-    snmptrapd=5.9.4+dfsg-2+deb13u1 \
-    perl=5.40.1-6 \
-    libdbi-perl=1.647-1+deb13u1 \
-    tzdata=2026b-0+deb13u1 \
-    ca-certificates=20250419 \
-    procps=2:4.0.4-9
+    snmptrapd \
+    perl \
+    libdbi-perl \
+    tzdata \
+    ca-certificates \
+    procps
 apt-get clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF

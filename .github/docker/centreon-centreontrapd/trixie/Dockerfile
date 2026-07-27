@@ -58,7 +58,7 @@ usermod -aG centreon-gorgone centreon
 usermod -aG centreon-engine centreon
 EOF
 
-# Install runtime dependencies (pinned to Debian 13 trixie versions for reproducibility)
+# Install runtime dependencies
 # Perl core + libraries: centreon trapd handlers and utilities
 # snmp: SNMP OID resolution via Net::SNMP Perl bindings
 # sqlite3: centreontrapd.sdb database (poller mode=1)
@@ -68,16 +68,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     bash -e <<EOF
 apt-get update
 apt-get install -y --no-install-recommends \
-    perl=5.40.1-6 \
-    libdbi-perl=1.647-1+deb13u1 \
-    libdbd-sqlite3-perl=1.76-1 \
-    libconfig-inifiles-perl=3.000003-3+deb13u1 \
-    libsnmp-perl=5.9.4+dfsg-2+deb13u1 \
-    snmp=5.9.4+dfsg-2+deb13u1 \
-    tzdata=2026b-0+deb13u1 \
-    ca-certificates=20250419 \
-    inotify-tools=4.23.9.0-2+b1 \
-    procps=2:4.0.4-9 && \
+    perl \
+    libdbi-perl \
+    libdbd-sqlite3-perl \
+    libconfig-inifiles-perl \
+    libsnmp-perl \
+    snmp \
+    tzdata \
+    ca-certificates \
+    inotify-tools \
+    procps && \
 apt-get clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/*
 EOF
