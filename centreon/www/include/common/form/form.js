@@ -1191,4 +1191,22 @@ var cfOpenPanel     = CentreonForm.openPanel;
 var cfClosePanel    = function () { CentreonForm.closePanel(CentreonForm._sidePanelListing); };
 var cfToggleSection = CentreonForm.toggleSection;
 var cfScrollTo      = CentreonForm.scrollTo;
+
+// Unsaved-changes tracking for the side panel's "discard changes?" guard
+// (see listing.js wireSidePanelDirtyGuard). Runs unconditionally as soon as
+// this file loads rather than as a step in CentreonForm.initFormPage(): not
+// every form page actually calls that shared initializer (some, e.g. the
+// Host form, predate it and still have their own hand-rolled JS), so this
+// needs to fire on every page regardless of which pattern that particular
+// form uses.
+document.addEventListener('DOMContentLoaded', function () {
+    window.cfFormDirty = false;
+    document.querySelectorAll('form').forEach(function (form) {
+        ['input', 'change'].forEach(function (type) {
+            form.addEventListener(type, function (e) {
+                if (e.isTrusted) window.cfFormDirty = true;
+            });
+        });
+    });
+});
 var cfMakeToggle    = CentreonForm.makeToggle;
