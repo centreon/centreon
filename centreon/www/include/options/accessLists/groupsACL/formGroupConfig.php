@@ -62,6 +62,15 @@ if (($o == 'c' || $o == 'w') && $acl_group_id) {
     }
     $DBRESULT->closeCursor();
 
+    // Drop migration placeholder relations (id 0 / empty) so the select2 fields
+    // do not display a phantom "0" entry when no real contact/contactgroup is linked.
+    $group['cg_contacts'] = array_values(
+        array_filter($group['cg_contacts'] ?? [], static fn ($v) => (int) $v > 0)
+    );
+    $group['cg_contactGroups'] = array_values(
+        array_filter($group['cg_contactGroups'] ?? [], static fn ($v) => (int) $v > 0)
+    );
+
     // Set Menu link List
     $query = 'SELECT DISTINCT acl_topology_id
         FROM acl_group_topology_relations
@@ -158,6 +167,29 @@ while ($res = $DBRESULT->fetchRow()) {
 unset($res);
 $DBRESULT->closeCursor();
 
+// The menu/action/resource pickers use a static select2 (no ajax datasource exists
+// for ACL topologies, actions and resources). Static select2 renders selected labels
+// from the default array key, so rebuild the defaults as [label => id] using the
+// option lists above (and drop any invalid/placeholder id).
+foreach (
+    [
+        'menuAccess' => $menus,
+        'actionAccess' => $action,
+        'resourceAccess' => $resources,
+    ] as $field => $options
+) {
+    if (empty($group[$field])) {
+        continue;
+    }
+    $labeled = [];
+    foreach ($group[$field] as $id) {
+        if ((int) $id > 0 && isset($options[$id])) {
+            $labeled[$options[$id]] = $id;
+        }
+    }
+    $group[$field] = $labeled;
+}
+
 // #########################################################
 // Var information to format the element
 //
@@ -171,12 +203,13 @@ $eTemplate = '<table><tr>'
     . '</tr></table>';
 
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
+$aclGroupName = isset($group['acl_group_name'])
+    ? CentreonUtils::escapeAll($group['acl_group_name'])
+    : '';
 if ($o == 'a') {
-    $form->addElement('header', 'title', _('Add a Group'));
-} elseif ($o == 'c') {
-    $form->addElement('header', 'title', _('Modify a Group'));
-} elseif ($o == 'w') {
-    $form->addElement('header', 'title', _('View a Group'));
+    $form->addElement('header', 'title', _('Group ACL'));
+} elseif ($o == 'c' || $o == 'w') {
+    $form->addElement('header', 'title', _('Group ACL') . ' - ' . $aclGroupName);
 }
 
 // Contact basic information
@@ -190,70 +223,27 @@ $form->addElement('header', 'menu', _('Menu access list link'));
 $form->addElement('header', 'resource', _('Resources access list link'));
 $form->addElement('header', 'actions', _('Action access list link'));
 
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'cg_contacts',
-    [_('Linked Contacts'), _('Available'), _('Selected')],
-    $contacts,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
+$contactRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contact&action=list';
+$attrContacts = [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => $contactRoute,
+    'multiple' => true,
+    'linkedObject' => 'centreonContact',
+];
+$form->addElement('select2', 'cg_contacts', _('Linked Contacts'), [], $attrContacts);
 
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'cg_contactGroups',
-    [_('Linked Contact Groups'), _('Available'), _('Selected')],
-    $contactGroups,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
+$contactGroupRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_contactgroup&action=list';
+$attrContactGroups = [
+    'datasourceOrigin' => 'ajax',
+    'availableDatasetRoute' => $contactGroupRoute,
+    'multiple' => true,
+    'linkedObject' => 'centreonContactgroup',
+];
+$form->addElement('select2', 'cg_contactGroups', _('Linked Contact Groups'), [], $attrContactGroups);
 
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'menuAccess',
-    [_('Menu access'), _('Available'), _('Selected')],
-    $menus,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
-
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'actionAccess',
-    [_('Actions access'), _('Available'), _('Selected')],
-    $action,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
-
-$ams1 = $form->addElement(
-    'advmultiselect',
-    'resourceAccess',
-    [_('Resources access'), _('Available'), _('Selected')],
-    $resources,
-    $attrsAdvSelect,
-    SORT_ASC
-);
-$ams1->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
-$ams1->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
-$ams1->setElementTemplate($eTemplate);
-echo $ams1->getElementJs(false);
+$form->addElement('select2', 'menuAccess', _('Menu access'), $menus, ['multiple' => true]);
+$form->addElement('select2', 'actionAccess', _('Actions access'), $action, ['multiple' => true]);
+$form->addElement('select2', 'resourceAccess', _('Resources access'), $resources, ['multiple' => true]);
 
 // Further informations
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
