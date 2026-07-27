@@ -72,7 +72,10 @@ runs:
       uses: ./.github/actions/setup-pulp-cli
       with:
         pulp_url: ${{ inputs.pulp_url }}
-        audience: ${{ inputs.audience }}
+        # suffixed per package format so the pulp server can grant rpm.* vs deb.*
+        # permissions separately instead of both to every promote call (see the
+        # audience-keyed rules in delivery-tooling's configmap-settings.yaml)
+        audience: ${{ inputs.audience }}/${{ steps.pulp-properties.outputs.package_extension == 'rpm' && 'rpm-delivery' || 'deb-delivery' }}
 
     - name: Promote RPM packages to stable
       id: promote-rpm
