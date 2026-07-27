@@ -211,4 +211,53 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertCount(1, $macroTwo->pollers);
         self::assertCount(1, $macroThree->pollers);
     }
+
+    public function testDuplicateMacroNamesAreDeduplicatedByFirstOccurrence(): void
+    {
+        $firstUser1 = new GlobalMacro(
+            id: new GlobalMacroId(1),
+            name: new GlobalMacroName('$USER1$'),
+            expression: new GlobalMacroExpression('/usr/lib/nagios/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+        $duplicateUser1 = new GlobalMacro(
+            id: new GlobalMacroId(10),
+            name: new GlobalMacroName('$USER1$'),
+            expression: new GlobalMacroExpression('/opt/other/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+        $user2 = new GlobalMacro(
+            id: new GlobalMacroId(2),
+            name: new GlobalMacroName('$USER2$'),
+            expression: new GlobalMacroExpression('/usr/lib64/nagios/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $uidGenerator = new FakePollerUidGenerator();
+        $globalMacroRepository = new FakeGlobalMacroRepository([$firstUser1, $duplicateUser1, $user2]);
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
+
+        $poller = $handler(new CreatePollerCommand(
+            name: new PollerName('MyPoller'),
+            pollerType: PollerTypeEnum::VM,
+            address: new PollerAddress('192.168.1.1'),
+            creatorId: 1,
+        ));
+
+        self::assertCount(2, $poller->globalMacros);
+        self::assertCount(1, $firstUser1->pollers);
+        self::assertCount(0, $duplicateUser1->pollers);
+        self::assertCount(1, $user2->pollers);
+    }
 }

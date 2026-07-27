@@ -74,7 +74,12 @@ final readonly class CreatePollerCommandHandler
             pollerCommands: new Collection([], PollerCommand::class),
         );
 
+        $seenMacroNames = [];
         foreach ($this->globalMacroRepository->findAll() as $globalMacro) {
+            if (isset($seenMacroNames[$globalMacro->name->value])) {
+                continue;
+            }
+            $seenMacroNames[$globalMacro->name->value] = true;
             $poller->addGlobalMacro($globalMacro);
         }
 
