@@ -16,7 +16,7 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 16px 20px 0;
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--list-color, #333);
     /* Push .cf-actions to the bottom of the panel even when the form's own
        content is short — position: sticky alone only keeps it in view
