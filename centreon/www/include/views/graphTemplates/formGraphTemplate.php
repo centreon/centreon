@@ -75,7 +75,7 @@ $form->addElement('text', 'width', _('Width'), $attrsText2);
 $form->addElement('text', 'height', _('Height'), $attrsText2);
 $form->addElement('text', 'lower_limit', _('Lower Limit'), $attrsText2);
 $form->addElement('text', 'upper_limit', _('Upper Limit'), ['id' => 'upperLimitTxt', 'size' => '6']);
-$form->addElement('checkbox', 'size_to_max', _('Size to max'), '', ['id' => 'sizeToMax', 'onClick' => 'sizeToMaxx();']);
+$form->addElement('checkbox', 'size_to_max', _('Size to max'), '', ['id' => 'sizeToMax', 'data-cf-disables' => '#upperLimitTxt']);
 $form->addElement('text', 'ds_name', _('Data Source Name'), $attrsText);
 $form->addElement('select', 'base', _('Base'), ['1000' => '1000', '1024' => '1024']);
 
@@ -111,7 +111,7 @@ if ($o == 'c' || $o == 'a') {
 $form->addElement('checkbox', 'stacked', _('Stacking'));
 $form->addElement('checkbox', 'scaled', _('Scale Graph Values'));
 $form->addElement('textarea', 'comment', _('Comments'), $attrsTextarea);
-$form->addElement('checkbox', 'default_tpl1', _('Default Centreon Graph Template'));
+$form->addElement('checkbox', 'default_tpl1', _('Default Template'));
 
 $form->addElement('hidden', 'graph_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -143,11 +143,11 @@ if ($o == 'w') {
     $form->freeze();
 } elseif ($o == 'c') {
     $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_danger']);
     $form->setDefaults($graph);
 } elseif ($o == 'a') {
     $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Delete'), ['class' => 'btc bt_danger']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_danger']);
 }
 $tpl->assign('msg', ['changeL' => 'main.php?p=' . $p . '&o=c&graph_id=' . $graph_id, 'changeT' => _('Modify')]);
 
@@ -216,20 +216,5 @@ if ($valid) {
     $tpl->assign('o', $o);
     $tpl->display('formGraphTemplate.ihtml');
 }
-?>
-<script type='text/javascript'>
-    jQuery(function () {
-        sizeToMaxx();
-    });
 
-    function sizeToMaxx() {
-        var upperLimitTxt = $('#upperLimitTxt');
-        var sizeToMax = $('#sizeToMax');
-
-        if (sizeToMax.is(':checked')) {
-            upperLimitTxt.prop('disabled', true);
-        } else {
-            upperLimitTxt.prop('disabled', false);
-        }
-    }
-</script>
+// "Size to max" greying is now handled by CentreonForm (data-cf-disables).
