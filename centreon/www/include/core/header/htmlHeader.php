@@ -253,10 +253,17 @@ while ($topology_js = $DBRESULT->fetch()) {
             if (isset($_GET['problem'])) {
                 $obis .= '_pb';
             }
-            if (isset($_GET['acknowledge'])) {
-                $obis .= '_ack_' . htmlspecialchars($_GET['acknowledge'], ENT_QUOTES, 'UTF-8');
+            if (
+                isset($_GET['acknowledge'])
+                && is_scalar($_GET['acknowledge'])
+                && in_array((string) $_GET['acknowledge'], ['0', '1'], true)
+            ) {
+                $obis .= '_ack_' . (string) $_GET['acknowledge'];
             }
-            echo "\tsetTimeout('initM({$tM}, \"{$obis}\")', 0);";
+            echo "\tsetTimeout(function () { initM("
+                . (int) $tM . ', '
+                . json_encode($obis, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)
+                . '); }, 0);';
         }
     } elseif ($topology_js['init']) {
         echo 'if (typeof ' . $topology_js['init'] . " == 'function') {";
