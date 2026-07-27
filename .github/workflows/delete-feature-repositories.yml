@@ -81,7 +81,11 @@ jobs:
 
   delete-pulp-feature-repositories:
     needs: [check-other-feature-prs]
-    if: needs.check-other-feature-prs.outputs.feature_prs_found == 'false'
+    # id-token: write below mints a Pulp OIDC token; never do that for a fork PR,
+    # consistent with the deliver-pulp / promote-pulp guard in web.yml
+    if: |
+      needs.check-other-feature-prs.outputs.feature_prs_found == 'false' &&
+      github.event.pull_request.head.repo.fork != true
     # same runner as the deliver-pulp / promote-pulp jobs: the Pulp api must be
     # reachable from here, and continue-on-error would mask a network failure
     runs-on: centreon-ubuntu-22.04
