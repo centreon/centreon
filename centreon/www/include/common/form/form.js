@@ -830,6 +830,7 @@ var CentreonForm = (function () {
         if (!geoInput || !geoResults) return;
 
         var timer = null;
+        var activeRequest = null;
 
         // Search on input (debounced)
         geoInput.addEventListener('input', function () {
@@ -841,12 +842,20 @@ var CentreonForm = (function () {
             }
 
             timer = setTimeout(function () {
+                // Cancel a still-pending previous lookup so a slow older
+                // response can't overwrite what the user is now typing.
+                if (activeRequest) activeRequest.abort();
+                var controller = new AbortController();
+                activeRequest = controller;
+                var timeoutId = setTimeout(function () { controller.abort(); }, 5000);
+
                 var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=5&q='
                     + encodeURIComponent(query);
 
-                fetch(url)
+                fetch(url, { signal: controller.signal })
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
+                        clearTimeout(timeoutId);
                         if (!data || data.length === 0) {
                             geoResults.style.display = 'none';
                             return;
@@ -866,6 +875,7 @@ var CentreonForm = (function () {
                         geoResults.style.display = 'block';
                     })
                     .catch(function () {
+                        clearTimeout(timeoutId);
                         geoResults.style.display = 'none';
                     });
             }, debounce);
