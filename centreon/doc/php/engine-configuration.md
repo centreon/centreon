@@ -18,8 +18,9 @@ When a poller is created via the API (`POST /configuration/monitoring-servers/po
 
 ```
 CreatePollerCommandHandler
-  ├─ GlobalMacroRepository::findAll()     ← load all global macros
-  ├─ new Poller(globalMacros: ...)        ← attach macros to the aggregate
+  ├─ GlobalMacroRepository::findAll()       ← load all global macros
+  ├─ new Poller(globalMacros: [])           ← empty collection
+  ├─ Poller::addGlobalMacro() (per macro)   ← bidirectional linking
   ├─ PollerRepository::add()
   │    ├─ INSERT nagios_server
   │    └─ INSERT cfg_resource_instance_relations (per macro)
@@ -33,7 +34,7 @@ CreatePollerCommandHandler
                            └─ INSERT cfg_nagios_broker_module
 ```
 
-Global macros are loaded eagerly and attached to the Poller aggregate before persistence — `PollerRepository::add()` handles both the poller INSERT and the macro-linking INSERTs in the same transaction.
+Global macros are loaded eagerly and attached to the Poller aggregate before persistence — both the poller INSERT and the macro-linking INSERTs in `PollerRepository::add()` execute within the command bus transaction (see [section 4](#4-transactional-guarantee)).
 
 The event handler is named plural (`CreatePollerConfigurations`) — future tickets will add broker and gorgone configuration dispatches in the same handler.
 

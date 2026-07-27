@@ -162,4 +162,53 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertCount(1, $macro->pollers);
         self::assertSame($poller, $macro->pollers->toArray()[0]);
     }
+
+    public function testPollerReceivesMultipleGlobalMacros(): void
+    {
+        $macroOne = new GlobalMacro(
+            id: new GlobalMacroId(1),
+            name: new GlobalMacroName('$USER1$'),
+            expression: new GlobalMacroExpression('/usr/lib/nagios/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+        $macroTwo = new GlobalMacro(
+            id: new GlobalMacroId(2),
+            name: new GlobalMacroName('$USER2$'),
+            expression: new GlobalMacroExpression('/usr/lib64/nagios/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+        $macroThree = new GlobalMacro(
+            id: new GlobalMacroId(3),
+            name: new GlobalMacroName('$USER3$'),
+            expression: new GlobalMacroExpression('/usr/local/nagios/plugins'),
+            comment: null,
+            isPassword: false,
+            activated: true,
+            pollers: new Collection([], Poller::class),
+        );
+
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $uidGenerator = new FakePollerUidGenerator();
+        $globalMacroRepository = new FakeGlobalMacroRepository([$macroOne, $macroTwo, $macroThree]);
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
+
+        $poller = $handler(new CreatePollerCommand(
+            name: new PollerName('MyPoller'),
+            pollerType: PollerTypeEnum::VM,
+            address: new PollerAddress('192.168.1.1'),
+            creatorId: 1,
+        ));
+
+        self::assertCount(3, $poller->globalMacros);
+        self::assertCount(1, $macroOne->pollers);
+        self::assertCount(1, $macroTwo->pollers);
+        self::assertCount(1, $macroThree->pollers);
+    }
 }
