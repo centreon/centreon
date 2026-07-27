@@ -1,103 +1,51 @@
 {$form.javascript}
+
 <form {$form.attributes}>
-    <input type="hidden" id="centreon_token" name="centreon_token" value="{$csrfToken}" />
-    <input type="hidden" name="level" value="1">
-    <table class="formTable table">
-        <tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {t}Configuration Files Export{/t}</h3>
-          </td>
-        </tr>
-        <tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{t}Polling instances{/t}</h4>
-          </td>
-        </tr>
-        <tr class="list_one">
-            <td class="FormRowField"><img class="helpTooltip" name="host">&nbsp;{$form.nhost.label}</td>
-          <td class="FormRowValue">
-              <i id="noSelectedPoller" style="color:red;margin-left:20px;" hidden>{$noPollerSelectedLabel}</i>
-              {$form.nhost.html}
-          </td>
-        </tr>
-        <tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2"><h4>{t}Actions{/t}</h4></td>
-        </tr>
-        <tr class="list_two"><td class="FormRowField" colspan="2"><img class="helpTooltip" name="gen">&nbsp;{$form.gen.html}&nbsp;{$form.gen.label}</td></tr>
-        <tr class="list_one"><td class="FormRowField" colspan="2"><img class="helpTooltip" name="debug">&nbsp;{$form.debug.html}&nbsp;{$form.debug.label}</td></tr>
-        <tr class="list_two"><td class="FormRowValue" colspan="2"><img class="helpTooltip" name="move">&nbsp;{$form.move.html}&nbsp;{$form.move.label}</td></tr>
-        <tr class="list_one"><td class="FormRowValue"><img class="helpTooltip" name="restart">&nbsp;{$form.restart.html}&nbsp;{$form.restart.label}</td>
-        <td class="FormRowValue">{$form.restart_mode.label}&nbsp;{$form.restart_mode.html}</td></tr>
-        <tr class="list_two"><td class="FormRowValue" colspan="2"><img class="helpTooltip" name="postcmd">&nbsp;{$form.postcmd.html}&nbsp;{$form.postcmd.label}</td></tr>
-	</table>
-	<div align="center" id="validForm"><p class="oreonbutton">{$form.submit.html}</p></div>
-	<div id='console' style='visibility: hidden;'>
-		<table class="formTable table">
-			<tr class="ListHeader">
-				<td class="FormHeader" colspan="2">
-                  <h3>| {$consoleLabel}</h3>
-                </td>
-			</tr>
-			<tr class="list_one">
-				<td class="FormRowField">
-					{$progressLabel} (<label id='progressPct'></label>)
-				</td>
-				<td class="FormRowValue">
-					<div id="progress_bar"></div>
-				</td>
-			</tr>
-			<tr class="list_two">
-				<td class="FormRowField consoleSteps">
-					<div id="consoleContent"></div>
-				</td>
-				<td class="FormRowValue">
-					<div id="consoleDetails"></div>
-				</td>
-			</tr>
-			<tbody id="error_log">
-			</tbody>
-		</table>
-	</div>
-	{if isset($msg_debug) || isset($msg_copy) || isset($msg_restart) }
-	<div>
-		<ul id="mainnav">
-		{assign var='cpt' value=0}
-		{foreach from=$host_list key=key item=item}
-			{if isset($msg_restart[$key]) || isset($msg_copy[$key]) || isset($msg_debug[$key])}
-			{assign var='cpt' value=$cpt+1}
-			<li class="a" id='c{$cpt}'><a href="#generate"  onclick="javascript:montre('{$cpt}');">{$host_list[$key]}</a></li>
-			{/if}
-		{/foreach}
-		</ul>
-	</div>
-	<a name="generate">
-	{assign var='cpt' value=0}
-	{foreach from=$tab_server key=key item=item}
-	{assign var='cpt' value=$cpt+1}
-	<div id='tab{$cpt}' class='tab'>
-	 	<table class="ListTable">
-		 	<tr class="ListHeader">
-		 		<td class="FormHeader"><img src='./img/icones/16x16/component_green.gif'>&nbsp;&nbsp;{$form.header.status}</td>
-		 	</tr>
-		 	{if isset($msg_debug[$key])}
-		 	<tr class="list_two_fixe">
-		 		<td class="ListColLvl1_name">{$msg_debug[$key]}</td>
-		 	</tr>
-		 	{/if}
-		 	{if isset($msg_copy[$key])}
-		 	<tr class="list_one_fixe">
-		 		<td class="ListColLvl1_name">{$msg_copy[$key]}</td>
-		 	</tr>
-			{/if}
-		 	{if isset($msg_restart[$key])}
-		 	<tr class="list_two_fixe">
-		 		<td class="ListColLvl1_name">{$msg_restart[$key]}</td>
-		 	</tr>
-		 	{/if}
-		 </table>
-	</div>
-	 	{/foreach}
-	{/if}
-	{$form.hidden}
+<input type="hidden" id="centreon_token" name="centreon_token" value="{$csrfToken}" />
+
+<div class="cf-form-wrapper gen-wrap">
+    <h1 class="cf-page-title" style="margin-bottom:22px;">{t}Deploy configuration{/t}</h1>
+
+    <div class="gen-top">
+        <div class="cf-field">
+            {$form.nhost.html}
+            <label class="cf-label-float">{$form.nhost.label}</label>
+        </div>
+        <button type="button" id="applyBtn" class="gen-apply" onclick="genApply();">
+            {t}Apply configuration{/t}
+        </button>
+    </div>
+    <p id="noSelectedPoller" class="gen-nopoller" hidden>{$noPollerSelectedLabel}</p>
+    <p id="noSelectedAction" class="gen-nopoller" hidden>{t}Please select at least one action (Generate &amp; Test, Move or Restart/Reload).{/t}</p>
+
+    <!-- Advanced (right under the poller field) -->
+    <details class="gen-adv">
+        <summary>{t}Advanced{/t}</summary>
+        <div class="gen-adv-body">
+            <div class="gen-adv-row">{$form.gen.html} <span>{$form.gen.label}</span></div>
+            <div class="gen-adv-row">{$form.move.html} <span>{$form.move.label}</span></div>
+            <div class="gen-adv-row">{$form.restart.html} <span>{$form.restart.label}</span> &nbsp;&mdash;&nbsp; {$form.restart_mode.label} {$form.restart_mode.html}</div>
+        </div>
+    </details>
+
+    <!-- Stepper -->
+    <div class="gen-stepper">
+        <div class="gen-step" id="stp-generate"><span class="dot">1</span><span>{t}Generate & Test{/t}</span></div>
+        <div class="gen-connector"></div>
+        <div class="gen-step" id="stp-restart"><span class="dot">2</span><span>{t}Move & Restart{/t}</span></div>
+        <div class="gen-connector"></div>
+        <div class="gen-step" id="stp-postcmd"><span class="dot">3</span><span>{t}Post-command{/t}</span></div>
+    </div>
+
+    <div class="gen-progress"><span id="genBar"></span></div>
+    <div class="gen-pct"><span id="genPct">0%</span></div>
+
+    <!-- One tab + console panel per poller -->
+    <div id="console" style="display:none;">
+        <div class="gen-tabs" id="genTabs"></div>
+        <div id="genPanels"></div>
+    </div>
+</div>
+
+{$form.hidden}
 </form>
-{$helptext}
