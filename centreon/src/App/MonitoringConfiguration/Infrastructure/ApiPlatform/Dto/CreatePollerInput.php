@@ -46,6 +46,10 @@ final readonly class CreatePollerInput
         #[Assert\Length(min: 1, max: 255)]
         #[ExistingPollerToken]
         public string $pollerTokenName,
+
+        #[Assert\NotBlank(normalizer: 'trim')]
+        #[Assert\Length(max: 255)]
+        public string $centralAddress,
     ) {
     }
 }
