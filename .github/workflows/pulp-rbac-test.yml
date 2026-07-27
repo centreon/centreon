@@ -1,0 +1,138 @@
+name: pulp-rbac-test
+
+# Manual-only: this workflow makes real authenticated write attempts (modify_content) against
+# the live Pulp instance to validate the object-scope + audience-split OIDC rules
+# (delivery-tooling#138 / MON-199322). It must never run on every push/PR.
+#
+# Why this lives here and not in delivery-tooling's own pulp-oidc-test.yml: GitHub scopes an
+# OIDC token to the repository the workflow runs in. delivery-tooling's test workflow can only
+# ever mint a token with `repository: centreon/delivery-tooling`, so it structurally cannot
+# exercise the rules matched on `repository: centreon/centreon`. This workflow mints the token
+# as centreon/centreon instead — the only way to test what a real delivery/promote run here
+# would actually be granted.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pulp_url:
+        description: "Pulp API base URL"
+        required: false
+        default: "https://pulp-api.apps.centreon.com"
+      audience:
+        description: "Base OIDC audience (must match a value in the pulp server GITHUB_OIDC.audience list)"
+        required: false
+        default: "https://pulp.dev.centreon.io"
+      package_format:
+        description: "Which delivery audience to request (rpm-delivery or deb-delivery suffix)"
+        required: true
+        type: choice
+        options: ["rpm", "deb"]
+      positive_repository_href:
+        description: >-
+          An existing repository href this token's family SHOULD be granted write on (e.g. an
+          rpm-standard-* repo for a run using package_format=rpm). Example:
+          /api/v3/repositories/rpm/rpm/<uuid>/. Required to run the positive check.
+        required: true
+      negative_repository_href:
+        description: >-
+          An existing repository href OUTSIDE this token's family (e.g. an rpm-business-* repo
+          when positive_repository_href is rpm-standard-*) — expected to be refused. Leave empty
+          to skip this check.
+        required: false
+        default: ""
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: centreon-ubuntu-22.04
+    steps:
+      - name: Get GitHub OIDC token — this package format's delivery audience
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        with:
+          script: |
+            const aud = `${{ inputs.audience }}/${{ inputs.package_format }}-delivery`
+            const token = await core.getIDToken(aud)
+            core.setSecret(token)
+            core.exportVariable('PULP_TOKEN_SAME_FORMAT', token)
+            core.info(`Requested OIDC token for audience: ${aud}`)
+
+      - name: Get GitHub OIDC token — the OTHER package format's delivery audience
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
+        with:
+          script: |
+            const other = '${{ inputs.package_format }}' === 'rpm' ? 'deb' : 'rpm'
+            const aud = `${{ inputs.audience }}/${other}-delivery`
+            const token = await core.getIDToken(aud)
+            core.setSecret(token)
+            core.exportVariable('PULP_TOKEN_OTHER_FORMAT', token)
+            core.info(`Requested OIDC token for audience: ${aud}`)
+
+      - name: Debug — decoded claims of the same-format token
+        run: |
+          python3 - "$PULP_TOKEN_SAME_FORMAT" <<'PY'
+          import sys, json, base64
+          payload = sys.argv[1].split('.')[1]
+          payload += '=' * (-len(payload) % 4)
+          claims = json.loads(base64.urlsafe_b64decode(payload))
+          for k in ("iss", "aud", "sub", "repository", "ref", "actor", "workflow", "exp"):
+              if k in claims:
+                  print(f"  {k:12} = {claims[k]}")
+          PY
+
+      - name: Positive case — write within this token's own family
+        env:
+          PULP_URL: ${{ inputs.pulp_url }}
+          HREF: ${{ inputs.positive_repository_href }}
+        run: |
+          code=$(curl -sS -o /tmp/positive.json -w '%{http_code}' -X POST \
+            -H "Authorization: Github $PULP_TOKEN_SAME_FORMAT" \
+            -H "Content-Type: application/json" \
+            -d '{"add_content_units": []}' \
+            "${PULP_URL}${HREF}modify/")
+          echo "HTTP $code against $HREF (same family, same package format)"
+          echo "  expected: 202 — this repository should be covered by this token's grant"
+          head -c 500 /tmp/positive.json; echo
+          if [[ "$code" != "202" ]]; then
+            echo "::error::expected 202, got $code — the object-scope grant for this family/format is missing or wrong"
+            exit 1
+          fi
+
+      - name: Negative case — write outside this token's family
+        if: inputs.negative_repository_href != ''
+        env:
+          PULP_URL: ${{ inputs.pulp_url }}
+          HREF: ${{ inputs.negative_repository_href }}
+        run: |
+          code=$(curl -sS -o /tmp/negative_family.json -w '%{http_code}' -X POST \
+            -H "Authorization: Github $PULP_TOKEN_SAME_FORMAT" \
+            -H "Content-Type: application/json" \
+            -d '{"add_content_units": []}' \
+            "${PULP_URL}${HREF}modify/")
+          echo "HTTP $code against $HREF (different family, same package format)"
+          echo "  expected: 403 — this repository is outside the family this repo may write to"
+          head -c 500 /tmp/negative_family.json; echo
+          if [[ "$code" == "202" ]]; then
+            echo "::error::expected 403, got 202 — this token can write outside its own family, the object-scope grant is too broad"
+            exit 1
+          fi
+
+      - name: Negative case — write with the wrong package-format audience
+        env:
+          PULP_URL: ${{ inputs.pulp_url }}
+          HREF: ${{ inputs.positive_repository_href }}
+        run: |
+          code=$(curl -sS -o /tmp/negative_format.json -w '%{http_code}' -X POST \
+            -H "Authorization: Github $PULP_TOKEN_OTHER_FORMAT" \
+            -H "Content-Type: application/json" \
+            -d '{"add_content_units": []}' \
+            "${PULP_URL}${HREF}modify/")
+          echo "HTTP $code against $HREF, using the OTHER format's audience token"
+          echo "  expected: 403 — a deb-delivery token must not get rpm.* (or vice versa)"
+          head -c 500 /tmp/negative_format.json; echo
+          if [[ "$code" == "202" ]]; then
+            echo "::error::expected 403, got 202 — the rpm/deb audience split is not effective, this token got the wrong package format's permissions"
+            exit 1
+          fi
