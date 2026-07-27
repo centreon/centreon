@@ -53,7 +53,6 @@ final readonly class CreatePollerCommandHandler
     public function __invoke(CreatePollerCommand $command): Poller
     {
         $uid = $this->uidGenerator->generate();
-        $globalMacros = $this->globalMacroRepository->findAll();
 
         $poller = new Poller(
             id: null,
@@ -64,7 +63,7 @@ final readonly class CreatePollerCommandHandler
             isActivated: true,
             pollerType: $command->pollerType,
             uid: $uid,
-            globalMacros: new Collection(iterator_to_array($globalMacros), GlobalMacro::class),
+            globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(
                 communicationType: $command->gorgoneCommunicationType,
             ),
@@ -74,6 +73,10 @@ final readonly class CreatePollerCommandHandler
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
         );
+
+        foreach ($this->globalMacroRepository->findAll() as $globalMacro) {
+            $poller->addGlobalMacro($globalMacro);
+        }
 
         $this->repository->add($poller);
 

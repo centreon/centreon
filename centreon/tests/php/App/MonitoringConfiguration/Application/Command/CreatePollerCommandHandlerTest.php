@@ -159,5 +159,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
         ));
 
         self::assertCount(1, $poller->globalMacros);
+        self::assertCount(1, $macro->pollers);
+        self::assertSame($poller, $macro->pollers->toArray()[0]);
     }
 }
