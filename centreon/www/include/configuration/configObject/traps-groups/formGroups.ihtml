@@ -1,47 +1,58 @@
 {$form.javascript}
+
 <form {$form.attributes}>
-	<div id="validFormTop">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-	</div>
-	<div id='tab1' class='tab'>
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-		<tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{t}General Information{/t}</h4>
-            </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="name">{$form.name.label}</td><td class="FormRowValue">{$form.name.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="traps">{$form.traps.label}</td><td class="FormRowValue">{$form.traps.html}</td></tr>	
-	</table>
-	</div>
-	<div id="validForm">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-	</div>
-	{$form.hidden}
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <!-- Section: General Information -->
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}General Information{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.name.html}
+                    <label class="cf-label-float">{$form.name.label}</label>
+                    <img class="helpTooltip" name="name">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.traps.html}
+                    <label class="cf-label-float">{$form.traps.label}</label>
+                    <img class="helpTooltip" name="traps">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
+</div>
+
+{$form.hidden}
 </form>
 {$helptext}
+
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+});
+</script>
+{/literal}
