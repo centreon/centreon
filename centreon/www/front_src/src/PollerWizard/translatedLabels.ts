@@ -42,7 +42,7 @@ export const labelGorgonePullWss =
   'Advanced: gorgone - poller connects to the central';
 
 export const labelGorgonePullWssPrerequisite =
-  'Prerequisite: configure the central to accept pullwss connections';
+  'Prerequisite: configure the central to accept PullWSS connections';
 
 export const labelDocumentation = 'documentation';
 
