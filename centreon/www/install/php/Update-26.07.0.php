@@ -259,14 +259,20 @@ $migrateModuleTableInstanceIds = function () use ($pearDB, &$errorMessage, $vers
         $pearDB->executeStatement("ALTER TABLE `{$table}` DROP FOREIGN KEY `{$constraint}`");
     }
 
+    $pearDB->executeStatement(
+        <<<SQL
+            UPDATE `{$table}` t
+            INNER JOIN `nagios_server` ns ON ns.`id` = t.`instance_id`
+            SET t.`instance_id` = ns.`uid`
+            SQL
+    );
+
     $pearDB->executeStatement("ALTER TABLE `{$table}` MODIFY COLUMN `instance_id` BIGINT UNSIGNED NOT NULL");
 
-    if ($fkExists) {
-        $pearDB->executeStatement(
-            "ALTER TABLE `{$table}` ADD CONSTRAINT `{$constraint}`"
-            . ' FOREIGN KEY (`instance_id`) REFERENCES `nagios_server` (`id`) ON DELETE CASCADE'
-        );
-    }
+    $pearDB->executeStatement(
+        "ALTER TABLE `{$table}` ADD CONSTRAINT `{$constraint}`"
+        . ' FOREIGN KEY (`instance_id`) REFERENCES `nagios_server` (`uid`) ON DELETE CASCADE'
+    );
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -797,8 +803,8 @@ try {
 
     // DDL statements for configuration database
     $addVmwareUpdatedField();
-    $migrateModuleTableInstanceIds();
     $renamePollerUuidToUid();
+    $migrateModuleTableInstanceIds();
     $addEventScriptLogger();
     $updateBbdoVersionDefault();
     $updateBbdoVersionValues();
