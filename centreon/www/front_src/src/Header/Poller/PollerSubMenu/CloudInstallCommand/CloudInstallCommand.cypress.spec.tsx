@@ -31,7 +31,7 @@ import {
 } from '../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
 import CloudInstallCommand from './CloudInstallCommand';
-import { webUrl } from './Modal/constructCentralAddress';
+import { webUrl } from './Modal/useInstallCommand';
 
 const createPollerSuccessResponse = {
   '@context': '/centreon/api/latest/contexts/Poller',
@@ -596,7 +596,7 @@ describe('CloudInstallCommand', () => {
           expect(request.body.name).to.equal('my-poller');
           expect(request.body.address).to.equal('192.168.1.1');
           expect(request.body.central_address).to.equal(
-            'broker-funky-donkey-staging.euwest1.centreon.click'
+            'https://staging.euwest1.centreon.click/funky-donkey'
           );
         });
       });
