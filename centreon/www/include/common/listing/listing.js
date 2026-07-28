@@ -42,7 +42,81 @@ document.addEventListener('DOMContentLoaded', function () {
         // (defaultDatasetRoute) shortly after the page loads.
         setTimeout(function () { clUpdateAdvBadge(panel); }, 500);
     });
+
+    // Focus-driven chevron/eraser on single-select advanced filters (same model
+    // as the form). select2 renders asynchronously (some fields load options via
+    // a slow route), so re-run over a short bounded window instead of a single
+    // retry — clInitAdvSelectClear is idempotent (data-cl-adv-clear guard).
+    clInitAdvSelectClear();
+    var advTries = 0;
+    var advTimer = setInterval(function () {
+        clInitAdvSelectClear();
+        if (++advTries >= 8) { clearInterval(advTimer); } // ~4s safety window
+    }, 500);
 });
+
+// Give single-select advanced-filter fields the show-on-interaction behaviour:
+// a value/placeholder at rest, chevron while active, chevron + eraser while
+// active AND filled. Visibility is driven by CSS through the classes toggled
+// here; the eraser itself is centreon-select2's own (already positioned).
+function clInitAdvSelectClear() {
+    document.querySelectorAll('.cl-adv-field').forEach(function (field) {
+        if (field.getAttribute('data-cl-adv-clear')) return;
+
+        var selectEl = field.querySelector('select');
+        if (!selectEl || selectEl.multiple) return;
+
+        // Recognize a select2 field even before its container is painted, via
+        // the inline centreonSelect2 init script, and defer until it exists.
+        var isSelect2 = !!field.querySelector('.select2-container')
+            || Array.prototype.some.call(
+                field.querySelectorAll('script'),
+                function (s) { return s.textContent.indexOf('centreonSelect2') !== -1; }
+            );
+        if (isSelect2 && !field.querySelector('.select2-selection--single')) return;
+
+        field.setAttribute('data-cl-adv-clear', '1');
+        field.classList.add('cl-adv-clearable');
+
+        var $ = window.jQuery;
+        var isOpen = false;
+        function syncFilled() {
+            field.classList.toggle('cl-adv-filled', selectEl.value !== '' && selectEl.value != null);
+        }
+        function setActive(on) { field.classList.toggle('cl-adv-active', on); }
+
+        syncFilled();
+        if ($) {
+            $(selectEl).on('change', syncFilled);
+            $(selectEl).on('select2:open', function () { isOpen = true; setActive(true); });
+            $(selectEl).on('select2:close', function () {
+                isOpen = false;
+                setTimeout(function () { setActive(field.contains(document.activeElement)); }, 0);
+            });
+        } else {
+            selectEl.addEventListener('change', syncFilled);
+        }
+        // While the dropdown is open select2 moves focus to a search field in
+        // <body>, so focusout must not deactivate then.
+        field.addEventListener('focusin', function () { setActive(true); });
+        field.addEventListener('focusout', function () {
+            setTimeout(function () {
+                setActive(isOpen || field.contains(document.activeElement));
+            }, 0);
+        });
+        // The eraser is centreon-select2's own <span> (its click handler clears
+        // the field). A mousedown on it would blur the select → focusout removes
+        // .cl-adv-active → the eraser is hidden (display:none) BEFORE the click
+        // lands, so the clear never fires. Prevent that default focus shift
+        // (delegated so it also covers a late-appended eraser); the eraser's own
+        // click handler then still runs while the field stays active.
+        field.addEventListener('mousedown', function (e) {
+            if (e.target && e.target.closest && e.target.closest('.clearAllSelect2')) {
+                e.preventDefault();
+            }
+        });
+    });
+}
 
 function CentreonListing(config) {
 
@@ -71,7 +145,6 @@ function CentreonListing(config) {
         // Behaviour
         defaultLimit: config.defaultLimit || 30,
         autoRefresh:  config.autoRefresh !== undefined ? config.autoRefresh : 30000,
-        emptyMessage: config.emptyMessage || 'No items found',
 
         // Live search: fetch as the user types (debounced) instead of requiring
         // a Search button. Standard for the single search field.
@@ -140,6 +213,10 @@ function CentreonListing(config) {
     var allLoaded      = false;
     var totalLoaded    = 0;
 
+    // Auto-refresh timer handle — stored so init() can clear it before re-arming
+    // (init() may run more than once on combo pages; otherwise timers stack).
+    var autoRefreshTimer = null;
+
     // =====================================================================
     // Public: HTML escape utility
     // =====================================================================
@@ -182,9 +259,15 @@ function CentreonListing(config) {
     }
 
     function restoreCheckedIds(ids) {
-        for (var i = 0; i < ids.length; i++) {
-            jQuery('#' + cfg.tableBodyId + ' input[name="' + ids[i] + '"]').prop('checked', true);
-        }
+        if (!ids || !ids.length) return;
+        // Match by comparing the name in JS rather than interpolating the id into
+        // a jQuery selector (a name with a quote/bracket would break the selector).
+        var wanted = {};
+        for (var i = 0; i < ids.length; i++) { wanted[ids[i]] = true; }
+        jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]').each(function () {
+            var name = this.getAttribute('name');
+            if (name && wanted[name]) { this.checked = true; }
+        });
     }
 
     // =====================================================================
@@ -208,20 +291,24 @@ function CentreonListing(config) {
         var wrap = document.createElement('div');
         wrap.className = 'cl-empty-state';
 
+        // Translated framing strings (fall back to English), with the page
+        // title interpolated into the %s placeholder. See window.clI18n in
+        // htmlHeader.php — listing.js is a static file and can't use {t}.
+        var i18n = (window.clI18n && window.clI18n.emptyState) || {};
         var title = document.querySelector('.cl-page-title');
         var titleText = title ? title.textContent.trim() : '';
         if (title) {
             var h2 = document.createElement('h2');
             h2.className = 'cl-empty-state-title';
-            h2.textContent = 'Welcome to the ' + titleText + ' page';
+            h2.textContent = (i18n.title || 'Welcome to the %s page').replace('%s', titleText);
             wrap.appendChild(h2);
         }
 
         var p = document.createElement('p');
         p.className = 'cl-empty-state-text';
         p.textContent = titleText
-            ? 'You haven’t configured any ' + titleText.toLowerCase() + ' yet. Add your first one below and Centreon will start monitoring it right away.'
-            : 'Nothing configured yet. Add your first entry below to get started.';
+            ? (i18n.text || 'You haven\'t configured any %s yet. Add your first one below and Centreon will start monitoring it right away.').replace('%s', titleText.toLowerCase())
+            : (i18n.textFallback || 'Nothing configured yet. Add your first entry below to get started.');
         wrap.appendChild(p);
 
         var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
@@ -311,8 +398,8 @@ function CentreonListing(config) {
         var wrapper = jQuery('<div class="cl-more-actions"></div>');
         var btn = jQuery(
             '<button type="button" class="cl-more-actions-btn">' +
+                '<span class="cl-more-actions-icon" aria-hidden="true">&#x22EF;</span>' +
                 '<span class="cl-more-actions-label"></span>' +
-                '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
             '</button>'
         );
         var menu = jQuery('<div class="cl-more-actions-menu" role="menu"></div>');
@@ -327,7 +414,9 @@ function CentreonListing(config) {
             var item = jQuery('<div class="cl-more-actions-item" role="menuitem" tabindex="0"></div>')
                 .text($opt.text())
                 .attr('data-value', value);
-            if (/delete/i.test($opt.text())) {
+            // Key the danger (red) style off the option VALUE ('d' = delete),
+            // not its translated label, so it applies in every locale.
+            if (value === 'd') {
                 item.addClass('cl-more-actions-item--danger');
             }
             menu.append(item);
@@ -386,25 +475,11 @@ function CentreonListing(config) {
             if (value === 'mc' && openMassChangePanel(label)) {
                 return;
             }
-            if (/delete|disable|duplicate/i.test(label)) {
-                clConfirmAction(label, function (confirmed) {
-                    if (!confirmed) return;
-                    // The onchange handler still has its own native confirm()
-                    // for this action (e.g. "Do you confirm the deletion?")
-                    // — the user already confirmed via our modal, so make
-                    // that redundant native prompt a no-op instead of asking
-                    // twice.
-                    var originalConfirm = window.confirm;
-                    window.confirm = function () { return true; };
-                    try {
-                        applyValue(value);
-                    } finally {
-                        window.confirm = originalConfirm;
-                    }
-                });
-            } else {
-                applyValue(value);
-            }
+            // Everything else is delegated to the <select>'s own onchange
+            // (clMoreAction), which drives the styled, value-based confirmation
+            // — no native confirm()/alert(), and locale-independent (keyed on
+            // the option value, not its translated label).
+            applyValue(value);
         }
 
         btn.on('click', function (e) {
@@ -557,7 +632,7 @@ function CentreonListing(config) {
 
         if (!rows || rows.length === 0) {
             tbody.html('<tr><td colspan="99" style="text-align:center;padding:24px;color:#a7a9ac;">' +
-                self.escape(cfg.emptyMessage) + '</td></tr>');
+                self.escape(clListingLabel('noResults', 'No results found')) + '</td></tr>');
             return;
         }
 
@@ -572,8 +647,8 @@ function CentreonListing(config) {
                 var disabledAttr = isLocked ? ' disabled' : '';
                 tr += '<td class="cl-col-picker">' +
                     '<div class="md-checkbox md-checkbox-inline">' +
-                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1"' + disabledAttr + ' />' +
-                        '<label class="empty-label" for="select_' + rowId + '"></label>' +
+                        '<input type="checkbox" id="select_' + clEscapeAttr(rowId) + '" name="select[' + clEscapeAttr(rowId) + ']" value="1"' + disabledAttr + ' />' +
+                        '<label class="empty-label" for="select_' + clEscapeAttr(rowId) + '"></label>' +
                     '</div>' +
                 '</td>';
             }
@@ -582,7 +657,7 @@ function CentreonListing(config) {
             for (var c = 0; c < cfg.columns.length; c++) {
                 var col = cfg.columns[c];
                 var align = col.align ? ' class="cl-col-' + col.align + '"' : '';
-                var cellHtml = col.render ? col.render(row, self) : self.escape(row[col.id] || '');
+                var cellHtml = col.render ? col.render(row, self) : self.escape(row[col.id] == null ? '' : row[col.id]);
                 tr += '<td' + align + '>' + cellHtml + '</td>';
             }
 
@@ -620,8 +695,8 @@ function CentreonListing(config) {
                 var disabledAttr = isLocked ? ' disabled' : '';
                 tr += '<td class="cl-col-picker">' +
                     '<div class="md-checkbox md-checkbox-inline">' +
-                        '<input type="checkbox" id="select_' + rowId + '" name="select[' + rowId + ']" value="1"' + disabledAttr + ' />' +
-                        '<label class="empty-label" for="select_' + rowId + '"></label>' +
+                        '<input type="checkbox" id="select_' + clEscapeAttr(rowId) + '" name="select[' + clEscapeAttr(rowId) + ']" value="1"' + disabledAttr + ' />' +
+                        '<label class="empty-label" for="select_' + clEscapeAttr(rowId) + '"></label>' +
                     '</div>' +
                 '</td>';
             }
@@ -629,7 +704,7 @@ function CentreonListing(config) {
             for (var c = 0; c < cfg.columns.length; c++) {
                 var col = cfg.columns[c];
                 var align = col.align ? ' class="cl-col-' + col.align + '"' : '';
-                var cellHtml = col.render ? col.render(row, self) : self.escape(row[col.id] || '');
+                var cellHtml = col.render ? col.render(row, self) : self.escape(row[col.id] == null ? '' : row[col.id]);
                 tr += '<td' + align + '>' + cellHtml + '</td>';
             }
 
@@ -682,40 +757,22 @@ function CentreonListing(config) {
 
         var startRow = total > 0 ? num * limit + 1 : 0;
         var endRow   = Math.min((num + 1) * limit, total);
-        var info     = startRow + '-' + endRow + ' of ' + total;
+        var info     = startRow + '-' + endRow + ' ' + clListingLabel('of', 'of') + ' ' + total;
+
+        // React-style layout: [rows-per-page ▾] [count] [first][prev][next][last]
+        // The four nav arrows are always shown and greyed (disabled) at the ends.
+        var nav = function (title, disabled, page, inner) {
+            var svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+            if (disabled) {
+                return '<span class="cl-page-nav cl-page-nav--disabled" title="' + title + '">' + svg + '</span>';
+            }
+            return '<a href="#" class="cl-page-nav" title="' + title + '" onclick="' + instanceName() + '.goToPage(' + page + ');return false;">' + svg + '</a>';
+        };
 
         var html = '';
 
-        // First / Previous
-        if (num > 0) {
-            html += '<a href="#" class="cl-page-nav" title="First page" onclick="' + instanceName() + '.goToPage(0);return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 6 11 12 17 18"/><line x1="7" y1="6" x2="7" y2="18"/></svg></a>';
-            html += '<a href="#" class="cl-page-nav" title="Previous page" onclick="' + instanceName() + '.goToPage(' + (num - 1) + ');return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg></a>';
-        }
-
-        // Page numbers
-        var startPage = Math.max(0, num - 5);
-        var endPage   = Math.min(totalPages - 1, num + 5);
-        for (var i = startPage; i <= endPage; i++) {
-            if (i === num) {
-                html += '<span class="cl-page-current">' + (i + 1) + '</span>';
-            } else {
-                html += '<a href="#" class="cl-page-num" onclick="' + instanceName() + '.goToPage(' + i + ');return false;">'
-                    + (i + 1) + '</a>';
-            }
-        }
-
-        // Next / Last
-        if (num < totalPages - 1) {
-            html += '<a href="#" class="cl-page-nav" title="Next page" onclick="' + instanceName() + '.goToPage(' + (num + 1) + ');return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></a>';
-            html += '<a href="#" class="cl-page-nav" title="Last page" onclick="' + instanceName() + '.goToPage(' + (totalPages - 1) + ');return false;">'
-                + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 6 13 12 7 18"/><line x1="17" y1="6" x2="17" y2="18"/></svg></a>';
-        }
-
         // Rows-per-page selector
-        html += ' <select class="cl-limit-select" onchange="' + instanceName() + '.changeLimit(this.value);">';
+        html += '<select class="cl-limit-select" onchange="' + instanceName() + '.changeLimit(this.value);">';
         var limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
         for (var j = 0; j < limits.length; j++) {
             var sel = limits[j] === limit ? ' selected' : '';
@@ -725,6 +782,14 @@ function CentreonListing(config) {
 
         // Row count info
         html += '<span class="cl-page-info">' + info + '</span>';
+
+        // Navigation arrows (first / previous / next / last)
+        var isFirst = num <= 0;
+        var isLast = num >= totalPages - 1;
+        html += nav(clListingLabel('firstPage', 'First page'), isFirst, 0, '<polyline points="17 6 11 12 17 18"/><line x1="7" y1="6" x2="7" y2="18"/>');
+        html += nav(clListingLabel('previousPage', 'Previous page'), isFirst, num - 1, '<polyline points="15 6 9 12 15 18"/>');
+        html += nav(clListingLabel('nextPage', 'Next page'), isLast, num + 1, '<polyline points="9 6 15 12 9 18"/>');
+        html += nav(clListingLabel('lastPage', 'Last page'), isLast, totalPages - 1, '<polyline points="7 6 13 12 7 18"/><line x1="17" y1="6" x2="17" y2="18"/>');
 
         jQuery('#' + cfg.paginationTopId).html(html);
         jQuery('#' + cfg.paginationBottomId).html(html);
@@ -810,7 +875,12 @@ function CentreonListing(config) {
                     var el = jQuery('#' + key);
                     if (el.length && el.is('select')) {
                         var text = labels[key] || val;
-                        if (!el.find('option[value="' + val + '"]').length) {
+                        // Compare values in JS rather than interpolating into a
+                        // selector (a value with a quote would break el.find()).
+                        var hasOption = el.find('option').filter(function () {
+                            return this.value === String(val);
+                        }).length > 0;
+                        if (!hasOption) {
                             el.append(new Option(text, val, true, true));
                         } else {
                             el.val(val);
@@ -933,9 +1003,12 @@ function CentreonListing(config) {
             });
         }
 
-        // Auto-refresh (disabled in infinite scroll mode to avoid resetting the list)
+        // Auto-refresh (disabled in infinite scroll mode to avoid resetting the
+        // list). Clear any previous timer first so repeated init() calls don't
+        // stack duplicate periodic fetches.
+        if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
         if (cfg.autoRefresh > 0 && !cfg.infiniteScroll) {
-            setInterval(function () {
+            autoRefreshTimer = setInterval(function () {
                 self.fetch(currentNum, currentLimit, currentSearch, true);
             }, cfg.autoRefresh);
         }
@@ -965,22 +1038,42 @@ function CentreonListing(config) {
 // Positioned fixed in body — no overflow clipping, no delay
 // Usage: <span data-cl-tooltip="PID: 123<br>Uptime: 2d">ⓘ</span>
 // ==========================================================================
+// Vanilla JS (delegated on document) so it never depends on jQuery being
+// loaded before this file — the IIFE runs at parse time.
 (function () {
     var tip = null;
-    jQuery(document).on('mouseenter', '[data-cl-tooltip]', function () {
-        var content = jQuery(this).attr('data-cl-tooltip');
+
+    function removeTip() {
+        if (tip) {
+            tip.parentNode && tip.parentNode.removeChild(tip);
+            tip = null;
+        }
+    }
+
+    document.addEventListener('mouseover', function (e) {
+        var el = e.target.closest ? e.target.closest('[data-cl-tooltip]') : null;
+        if (!el || (tip && tip._owner === el)) return;
+        var content = el.getAttribute('data-cl-tooltip');
         if (!content) return;
-        tip = jQuery('<div class="cl-tooltip-popup">' + content + '</div>');
-        jQuery('body').append(tip);
-        var rect = this.getBoundingClientRect();
-        var top = rect.top - tip.outerHeight() - 6;
+        removeTip();
+        tip = document.createElement('div');
+        tip.className = 'cl-tooltip-popup';
+        tip.innerHTML = content;
+        tip._owner = el;
+        document.body.appendChild(tip);
+        var rect = el.getBoundingClientRect();
+        var top = rect.top - tip.offsetHeight - 6;
         if (top < 0) top = rect.bottom + 6;
-        tip.css({
-            top: top + 'px',
-            left: (rect.left + rect.width / 2 - tip.outerWidth() / 2) + 'px'
-        });
-    }).on('mouseleave', '[data-cl-tooltip]', function () {
-        if (tip) { tip.remove(); tip = null; }
+        tip.style.top = top + 'px';
+        tip.style.left = (rect.left + rect.width / 2 - tip.offsetWidth / 2) + 'px';
+    });
+
+    document.addEventListener('mouseout', function (e) {
+        var el = e.target.closest ? e.target.closest('[data-cl-tooltip]') : null;
+        if (!el) return;
+        // Ignore moves that stay within the same trigger element.
+        if (e.relatedTarget && el.contains(e.relatedTarget)) return;
+        removeTip();
     });
 })();
 
@@ -1091,11 +1184,15 @@ function clCountActiveFilters(panel) {
 }
 
 function clUpdateAdvBadge(panel) {
+    var count = clCountActiveFilters(panel);
+    // Enable "Clear" only when at least one filter is active — mirrors the React
+    // advanced-filters behaviour (Clear is disabled when no filter is set).
+    var clearBtn = panel.querySelector('.cl-adv-clear');
+    if (clearBtn) clearBtn.disabled = count === 0;
     var toggleBtn = document.querySelector('[data-cl-adv-panel="' + panel.id + '"]');
     if (!toggleBtn) return;
     var badge = toggleBtn.querySelector('.cl-adv-badge');
     if (!badge) return;
-    var count = clCountActiveFilters(panel);
     badge.textContent = count;
     badge.style.display = count > 0 ? 'flex' : 'none';
 }
@@ -1130,10 +1227,20 @@ function clToast(message, type) {
 //  without instantiating a CentreonListing table.
 // ==========================================================================
 
+// Translated framework label for the shared listing lib's JS-built UI
+// (pagination, empty message, modal close/OK). Falls back to English.
+// See window.clI18n.listing in htmlHeader.php — listing.js is a static file
+// and can't use Smarty's {t}...{/t} tags directly.
+function clListingLabel(key, fallback) {
+    var l = window.clI18n && window.clI18n.listing;
+    return (l && l[key]) || fallback;
+}
+
 function clEscape(str) {
-    if (!str) return '';
+    // Only null/undefined become empty — a legitimate 0 or false must still render.
+    if (str == null) return '';
     var div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
+    div.appendChild(document.createTextNode(String(str)));
     return div.innerHTML;
 }
 
@@ -1148,6 +1255,27 @@ function clEscapeAttr(str) {
         .replace(/'/g, '&#39;');
 }
 
+// Fill a translated template that may contain intended <strong> markup and
+// {{ key }} interpolation placeholders (same convention as the i18next-based
+// React listings). The template is trusted (developer-authored, translated),
+// so it is injected as-is; only the substituted values are HTML-escaped, so no
+// user data can inject markup. Result is safe to inject via innerHTML.
+function clFillTemplate(template, replacements) {
+    return String(template == null ? '' : template).replace(/\{\{\s*(\w+)\s*\}\}/g, function (match, key) {
+        return Object.prototype.hasOwnProperty.call(replacements, key) ? clEscape(replacements[key]) : match;
+    });
+}
+
+// Read the display name of a selected row from its selection checkbox: the
+// first data cell (the .cl-col-picker column is skipped), which by convention
+// holds the object's name.
+function clSelectedRowName(checkbox) {
+    var row = checkbox && checkbox.closest ? checkbox.closest('tr') : null;
+    if (!row) return '';
+    var cell = row.querySelector('td:not(.cl-col-picker)');
+    return cell ? cell.textContent.trim() : '';
+}
+
 // ==========================================================================
 //  Confirmation modal — generic building block shared by the bulk-action
 //  confirmation (Delete/Disable/Duplicate) and the "discard unsaved changes"
@@ -1160,10 +1288,15 @@ function clShowConfirmModal(opts, callback) {
     overlay.className = 'cl-confirm-overlay';
     var modal = document.createElement('div');
     modal.className = 'cl-confirm-modal';
+    // Dialog semantics for screen readers + a unique id to label it by title.
+    var titleId = 'cl-confirm-title-' + (clShowConfirmModal._seq = (clShowConfirmModal._seq || 0) + 1);
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', titleId);
     modal.innerHTML =
         '<div class="cl-confirm-header">' +
-            '<h3 class="cl-confirm-title"></h3>' +
-            '<button type="button" class="cl-confirm-close" aria-label="Close">&times;</button>' +
+            '<h3 class="cl-confirm-title" id="' + titleId + '"></h3>' +
+            '<button type="button" class="cl-confirm-close" aria-label="' + clListingLabel('close', 'Close') + '">&times;</button>' +
         '</div>' +
         '<div class="cl-confirm-body"></div>' +
         '<div class="cl-confirm-actions">' +
@@ -1171,64 +1304,165 @@ function clShowConfirmModal(opts, callback) {
             '<button type="button" class="cl-confirm-confirm-btn"></button>' +
         '</div>';
     modal.querySelector('.cl-confirm-title').textContent = opts.title;
-    modal.querySelector('.cl-confirm-body').textContent = opts.message;
-    modal.querySelector('.cl-confirm-cancel').textContent = opts.cancelLabel;
+    // messageHtml is pre-escaped by the caller (only the intended <strong> tags
+    // are real markup); plain message stays textContent for safety.
+    if (opts.messageHtml) {
+        modal.querySelector('.cl-confirm-body').innerHTML = opts.messageHtml;
+    } else {
+        modal.querySelector('.cl-confirm-body').textContent = opts.message;
+    }
+    var cancelBtn = modal.querySelector('.cl-confirm-cancel');
     var confirmBtn = modal.querySelector('.cl-confirm-confirm-btn');
-    confirmBtn.textContent = opts.confirmLabel;
+    confirmBtn.textContent = opts.confirmLabel || clListingLabel('ok', 'OK');
     confirmBtn.classList.add(opts.danger ? 'cl-confirm-confirm-btn--danger' : 'cl-confirm-confirm-btn--primary');
+    // Alert mode: a single acknowledge button, no cancel.
+    if (opts.alert) {
+        cancelBtn.parentNode.removeChild(cancelBtn);
+        cancelBtn = null;
+    } else {
+        cancelBtn.textContent = opts.cancelLabel || (window.clI18n && window.clI18n.cancel) || 'Cancel';
+    }
     overlay.appendChild(modal);
+    // Remember the trigger so focus can be restored when the dialog closes.
+    var previouslyFocused = document.activeElement;
     document.body.appendChild(overlay);
-    requestAnimationFrame(function () { overlay.classList.add('open'); });
+    requestAnimationFrame(function () {
+        overlay.classList.add('open');
+        // Move focus into the dialog (confirm is the primary action).
+        try { confirmBtn.focus(); } catch (e) {}
+    });
 
     function close(result) {
         overlay.classList.remove('open');
-        document.removeEventListener('keydown', onKeydown);
+        document.removeEventListener('keydown', onKeydown, true);
         setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 150);
-        callback(result);
+        // Restore focus to whatever triggered the dialog.
+        try { if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus(); } catch (e) {}
+        if (typeof callback === 'function') callback(result);
     }
     function onKeydown(e) {
-        if (e.key === 'Escape') close(false);
+        if (e.key === 'Escape') {
+            // Eat the key so lower layers (side panel / popover Escape handlers)
+            // don't also react while this dialog is up.
+            e.preventDefault(); e.stopPropagation();
+            close(false);
+        } else if (e.key === 'Enter') {
+            e.preventDefault(); e.stopPropagation();
+            close(true);
+        } else if (e.key === 'Tab') {
+            // Trap focus within the dialog.
+            var f = Array.prototype.slice.call(modal.querySelectorAll('button:not([disabled])'));
+            if (!f.length) return;
+            var first = f[0], last = f[f.length - 1], active = document.activeElement;
+            if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+            else if (f.indexOf(active) === -1) { e.preventDefault(); first.focus(); }
+        }
     }
-    document.addEventListener('keydown', onKeydown);
+    // Capture phase so this runs BEFORE bubble-phase document Escape handlers
+    // (side panel / popover); stopPropagation above then keeps them from firing.
+    document.addEventListener('keydown', onKeydown, true);
     overlay.addEventListener('click', function (e) {
         if (e.target === overlay) close(false);
     });
     modal.querySelector('.cl-confirm-close').addEventListener('click', function () { close(false); });
-    modal.querySelector('.cl-confirm-cancel').addEventListener('click', function () { close(false); });
+    if (cancelBtn) cancelBtn.addEventListener('click', function () { close(false); });
     confirmBtn.addEventListener('click', function () { close(true); });
 }
 
-// Replaces the native confirm()/alert() for destructive bulk actions
-// (Delete, Disable, Duplicate) in the "More actions" menu (see
-// enhanceBulkActionSelect above). Derives the object name from the page's
-// own title, so nothing needs to be configured per listing.
-//   clConfirmAction('Delete', function (confirmed) { ... })
-function clConfirmAction(actionLabel, callback) {
-    var label = actionLabel.trim();
-    var key = /delete/i.test(label) ? 'delete' : (/disable/i.test(label) ? 'disable' : 'duplicate');
-    var isDestructive = key === 'delete' || key === 'disable';
-    var titleEl = document.querySelector('.cl-page-title');
-    var object = titleEl ? titleEl.textContent.trim().toLowerCase() : 'item(s)';
+// Handle a "More actions" (o1/o2) <select> change with the styled, secure
+// confirmation modal instead of the native confirm()/alert(). Keyed off the
+// option value ('d', 'm', ...), NOT its translated label, so it behaves the
+// same in every locale. Titles/messages/labels come from the select's data-*
+// attributes (translated in PHP), with English fallbacks.
+function clMoreAction(select) {
+    if (!select || select.selectedIndex <= 0) {
+        return;
+    }
+    var value = select.value;
+    var form = select.form;
+    var attr = function (name, fallback) {
+        return select.getAttribute(name) || fallback;
+    };
+    var reset = function () { select.selectedIndex = 0; };
+    var doAction = function () {
+        if (typeof window.setO === 'function') {
+            window.setO(value);
+        }
+        // Use the prototype in case a field named "submit" shadows form.submit.
+        if (form) {
+            HTMLFormElement.prototype.submit.call(form);
+        }
+    };
+    var onResult = function (confirmed) {
+        if (confirmed) {
+            doAction();
+        } else {
+            reset();
+        }
+    };
 
-    // Translated templates come from htmlHeader.php (window.clI18n) — this
-    // file is a plain static asset and can't use Smarty's {t}...{/t} tags
-    // directly. Falls back to English if that global isn't present.
-    var i18n = window.clI18n && window.clI18n.confirm && window.clI18n.confirm[key];
-    var cancelLabel = (window.clI18n && window.clI18n.cancel) || 'Cancel';
-    var titleTpl = i18n ? i18n.title : (label + ' %s');
-    var messageTpl = i18n ? i18n.message : (
-        'You are about to ' + label.toLowerCase() + ' the selected %s.' +
-        (key === 'delete' ? ' This action cannot be undone.' : '') +
-        ' Do you want to continue?'
-    );
+    // Actually-selected rows: the per-row selection checkboxes (name="select[<id>]"),
+    // NOT the activation toggles (no name), the dup inputs (name="dupNbr[...]"), nor
+    // the header "check all" box (name="checkall").
+    var scope = form || document;
+    var checkedRows = scope.querySelectorAll('.cl-col-picker input[type="checkbox"][name^="select["]:checked');
+    var selectedCount = checkedRows.length;
 
-    clShowConfirmModal({
-        title: titleTpl.replace('%s', object),
-        message: messageTpl.replace('%s', object),
-        cancelLabel: cancelLabel,
-        confirmLabel: label,
-        danger: isDestructive
-    }, callback);
+    // Row-based actions require at least one selected row.
+    if (selectedCount === 0) {
+        clShowConfirmModal({
+            alert: true,
+            title: '',
+            message: attr('data-msg-select', 'Please select one or more items')
+        });
+        reset();
+        return;
+    }
+
+    if (value === 'd') { // Delete
+        var isMany = selectedCount > 1;
+        var deleteOpts = {
+            danger: true,
+            title: attr(isMany ? 'data-title-delete-many' : 'data-title-delete-one', attr('data-title-delete', 'Delete')),
+            confirmLabel: attr('data-label-delete', 'Delete'),
+            cancelLabel: attr('data-label-cancel', 'Cancel')
+        };
+        // New per-count message templates carry {{ name }} (single selection) or
+        // {{ count }} (several) placeholders, with the bold parts marked up inline
+        // as <strong> in the translated string. Fall back to the old plain message.
+        var template = attr(isMany ? 'data-msg-delete-many' : 'data-msg-delete-one', '');
+        if (template) {
+            var replacements = isMany
+                ? { count: String(selectedCount) }
+                : { name: clSelectedRowName(checkedRows[0]) };
+            deleteOpts.messageHtml = clFillTemplate(template, replacements);
+        } else {
+            deleteOpts.message = attr('data-msg-delete', 'You are about to delete the selected object(s). This action cannot be undone. Do you want to delete?');
+        }
+        clShowConfirmModal(deleteOpts, onResult);
+    } else if (value === 'm') { // Duplicate
+        var isManyDup = selectedCount > 1;
+        var dupOpts = {
+            title: attr(isManyDup ? 'data-title-duplicate-many' : 'data-title-duplicate-one', attr('data-title-duplicate', 'Duplicate')),
+            confirmLabel: attr('data-label-duplicate', 'Duplicate'),
+            cancelLabel: attr('data-label-cancel', 'Cancel')
+        };
+        // Per-count templates: {{ name }} (single selection) or {{ count }}
+        // (several), bold parts marked up inline. Fall back to the old message.
+        var dupTemplate = attr(isManyDup ? 'data-msg-duplicate-many' : 'data-msg-duplicate-one', '');
+        if (dupTemplate) {
+            var dupReplacements = isManyDup
+                ? { count: String(selectedCount) }
+                : { name: clSelectedRowName(checkedRows[0]) };
+            dupOpts.messageHtml = clFillTemplate(dupTemplate, dupReplacements);
+        } else {
+            dupOpts.message = attr('data-msg-duplicate', 'Do you want to duplicate the selected object(s)?');
+        }
+        clShowConfirmModal(dupOpts, onResult);
+    } else { // Enable / Disable / Mass Change — no confirmation
+        doAction();
+    }
 }
 
 // "Discard unsaved changes?" prompt shown when the user clicks outside an
@@ -1239,12 +1473,11 @@ function clConfirmAction(actionLabel, callback) {
 function clConfirmDiscardChanges(callback) {
     var i18n = window.clI18n && window.clI18n.confirmDiscard;
     clShowConfirmModal({
-        title: (i18n && i18n.title) || 'Discard changes?',
+        title: (i18n && i18n.title) || 'Do you want to leave this page?',
         message: (i18n && i18n.message)
             || 'You have unsaved changes. Are you sure you want to close this panel without saving?',
-        cancelLabel: (window.clI18n && window.clI18n.cancel) || 'Cancel',
-        confirmLabel: (i18n && i18n.confirm) || 'Discard',
-        danger: true
+        cancelLabel: (i18n && i18n.cancel) || 'Stay',
+        confirmLabel: (i18n && i18n.confirm) || 'Leave'
     }, callback);
 }
 

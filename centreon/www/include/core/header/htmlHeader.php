@@ -135,9 +135,29 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
                 }
             },
             confirmDiscard: {
-                title: <?php echo json_encode(_('Discard changes?')); ?>,
+                title: <?php echo json_encode(_('Do you want to leave this page?')); ?>,
                 message: <?php echo json_encode(_('You have unsaved changes. Are you sure you want to close this panel without saving?')); ?>,
-                confirm: <?php echo json_encode(_('Discard')); ?>
+                cancel: <?php echo json_encode(_('Stay')); ?>,
+                confirm: <?php echo json_encode(_('Leave')); ?>
+            },
+            emptyState: {
+                title: <?php echo json_encode(_('Welcome to the %s page')); ?>,
+                text: <?php echo json_encode(_('You haven\'t configured any %s yet. Add your first one below and Centreon will start monitoring it right away.')); ?>,
+                textFallback: <?php echo json_encode(_('Nothing configured yet. Add your first entry below to get started.')); ?>
+            },
+            selectPlaceholder: {
+                single: <?php echo json_encode(_('Select')); ?>,
+                multiple: <?php echo json_encode(_('Search')); ?>
+            },
+            listing: {
+                noResults: <?php echo json_encode(_('No results found')); ?>,
+                of: <?php echo json_encode(_('of')); ?>,
+                firstPage: <?php echo json_encode(_('First page')); ?>,
+                previousPage: <?php echo json_encode(_('Previous page')); ?>,
+                nextPage: <?php echo json_encode(_('Next page')); ?>,
+                lastPage: <?php echo json_encode(_('Last page')); ?>,
+                close: <?php echo json_encode(_('Close')); ?>,
+                ok: <?php echo json_encode(_('OK')); ?>
             }
         };
     </script>
