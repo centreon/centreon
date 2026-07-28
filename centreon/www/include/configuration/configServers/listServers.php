@@ -53,9 +53,7 @@ $search = $centreon->historySearch[$url]['search'] ?? '';
 $tpl->assign('searchP', $search);
 
 // Default limit
-$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
-$gopt = $dbResult->fetch();
-$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
 
 $tpl->assign('can_generate', $can_generate);
