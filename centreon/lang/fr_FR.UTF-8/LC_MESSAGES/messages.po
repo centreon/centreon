@@ -25126,7 +25126,7 @@ msgid "Poller name"
 msgstr "Nom du collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Poller adress"
+msgid "Poller address"
 msgstr "Adresse du collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
