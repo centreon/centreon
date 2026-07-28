@@ -96,7 +96,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         );
 
         self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame('192.168.1.254', $capturedCommand->centralAddress);
+        self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
     }
 
     private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
