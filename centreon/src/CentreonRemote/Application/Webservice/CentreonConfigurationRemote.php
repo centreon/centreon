@@ -21,9 +21,13 @@
 
 namespace CentreonRemote\Application\Webservice;
 
+use App\Kernel;
 use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\Gorgone\Command\NodesSync;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
+use CentreonLog;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
 use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 use CentreonRemote\Domain\Service\ConfigurationWizard\{
@@ -31,6 +35,7 @@ use CentreonRemote\Domain\Service\ConfigurationWizard\{
     RemoteConnectionConfigurationService
 };
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
+use Throwable;
 use Webmozart\Assert\InvalidArgumentException;
 
 /**
@@ -493,6 +498,24 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             $serverId = $serverConfigurationService->insert();
         } catch (\Exception $e) {
             return ['error' => true, 'message' => $e->getMessage()];
+        }
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            // Notify the Gorgone `centreon` module that a new PullWSS poller was added.
+            // Fire-and-forget: any failure must not prevent the poller from being created.
+            try {
+                Kernel::createForWeb()
+                    ->getContainer()
+                    ->get(GorgoneServiceInterface::class)
+                    ->send(new NodesSync());
+            } catch (Throwable $exception) {
+                CentreonLog::create()->warning(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    'Failed to trigger Gorgone nodes sync',
+                    ['source' => 'poller_wizard', 'poller_id' => $serverId],
+                    $exception,
+                );
+            }
         }
 
         $taskId = null;
