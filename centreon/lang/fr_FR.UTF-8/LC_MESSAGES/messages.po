@@ -25118,7 +25118,7 @@ msgid "Failed to create poller"
 msgstr "Échec de la création du collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Enter your poller' information"
+msgid "Enter your poller information"
 msgstr "Entrez les informations de votre collecteur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
