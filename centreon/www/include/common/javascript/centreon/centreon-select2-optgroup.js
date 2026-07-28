@@ -72,6 +72,12 @@
         this.select2Options.ajax = this.ajaxOptions;
       }
 
+      /* Keep the dropdown open after each pick on multiple selects so several
+         values can be chosen in a row without reopening it every time. */
+      if (this.settings.multiple && this.select2Options.closeOnSelect === undefined) {
+        this.select2Options.closeOnSelect = false;
+      }
+
       this.$elem.select2(this.select2Options);
 
       this.initNiceScroll();

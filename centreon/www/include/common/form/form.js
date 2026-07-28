@@ -938,6 +938,219 @@ var CentreonForm = (function () {
     }
 
     // =========================================================================
+    //  SELECT2 PLACEHOLDERS + MULTI-SELECT SINGLE-ROW COLLAPSE
+    // =========================================================================
+
+    /**
+     * Give select2 fields a placeholder (the field label) like the simple
+     * selects have. Sets data-placeholder on the underlying <select> (read by
+     * select2 if it initializes later) and the single-select search field's
+     * placeholder (if select2 is already initialized).
+     */
+    function initSelect2Placeholders() {
+        var i18n = (window.clI18n && window.clI18n.selectPlaceholder) || {};
+        document.querySelectorAll('.cf-field').forEach(function (field) {
+            var select = field.querySelector('select');
+            if (!select) return;
+            // Generic placeholder — the field's label above already names the
+            // control: "Search" for multi-selects (type to filter), "Select" for
+            // single-selects. Translatable via window.clI18n (htmlHeader.php).
+            var ph = select.multiple ? (i18n.multiple || 'Search') : (i18n.single || 'Select');
+
+            if (!select.getAttribute('data-placeholder')) {
+                select.setAttribute('data-placeholder', ph);
+            }
+            // Multi-select inline-search placeholder is managed dynamically by
+            // initMultiSelectCollapse (shown only when nothing is selected), so
+            // it is intentionally not forced here.
+            var singleSearch = field.querySelector('.select2-selection--single .select2-search__field');
+            if (singleSearch && !singleSearch.getAttribute('placeholder')) {
+                singleSearch.setAttribute('placeholder', ph);
+            }
+        });
+    }
+
+    /**
+     * Keep a select2 multiple selection on one line; overflowing chips are
+     * clipped and a "+N" blue-text control reveals them. It toggles expand/collapse;
+     * the selection also auto-expands while its dropdown is open so the inline
+     * search field is usable, then re-collapses on close.
+     */
+    function initMultiSelectCollapse() {
+        var $ = window.jQuery;
+        document.querySelectorAll('.cf-field .select2-selection--multiple').forEach(function (sel) {
+            if (sel.getAttribute('data-cf-collapse')) return;
+            sel.setAttribute('data-cf-collapse', '1');
+
+            var field = sel.closest('.cf-field');
+            var selectEl = field ? field.querySelector('select') : null;
+
+            // The label text used as the inline-search placeholder — shown only
+            // when nothing is selected. Otherwise select2's tiny search field
+            // leaks a sliver of it (e.g. a stray "C") next to the chips.
+            // Generic "Search" placeholder for the inline search of multi-selects
+            // (translatable via window.clI18n; the field label already names it).
+            var phText = (window.clI18n && window.clI18n.selectPlaceholder
+                && window.clI18n.selectPlaceholder.multiple) || 'Search';
+            function syncPlaceholder() {
+                var searchField = sel.querySelector('.select2-search__field');
+                if (!searchField) return;
+                var hasChips = !!sel.querySelector('.select2-selection__choice');
+                searchField.setAttribute('placeholder', hasChips ? '' : phText);
+            }
+
+            var more = document.createElement('span');
+            more.className = 'cf-chips-more';
+            more.style.display = 'none';
+            // Don't let clicks on the "+N" text open the select2 dropdown.
+            more.addEventListener('mousedown', function (e) { e.preventDefault(); e.stopPropagation(); });
+            more.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sel.classList.contains('cf-chips-expanded')) {
+                    collapse();
+                } else {
+                    expand(true);
+                }
+            });
+            sel.appendChild(more);
+            sel.classList.add('cf-chips-collapsed');
+
+            function expand(manual) {
+                sel.classList.add('cf-chips-expanded');
+                sel.classList.remove('cf-chips-collapsed');
+                // Only offer a manual collapse control when the user expanded it.
+                if (manual) {
+                    more.textContent = '−'; // − (minus) to collapse back
+                    more.style.display = '';
+                } else {
+                    more.style.display = 'none';
+                }
+            }
+
+            function collapse() {
+                sel.classList.remove('cf-chips-expanded');
+                sel.classList.add('cf-chips-collapsed');
+                recount();
+            }
+
+            // Count chips wrapped onto row 2+ (clipped by the collapsed max-height).
+            // Chips share an offsetParent (the positioned selection box), so the
+            // top row is the minimum offsetTop and anything below it is hidden.
+            function recount() {
+                if (sel.classList.contains('cf-chips-expanded')) return;
+                var rendered = sel.querySelector('.select2-selection__rendered');
+                // Keep the FIRST (oldest) chips in view on the single visible
+                // row: select2 scrolls the rendered box to the newest chip /
+                // inline search when a selection is made, which would otherwise
+                // show the last chips. Pin it back to the top.
+                if (rendered) rendered.scrollTop = 0;
+                var choices = rendered
+                    ? rendered.querySelectorAll('.select2-selection__choice')
+                    : [];
+                if (!choices.length) { more.style.display = 'none'; return; }
+                var firstTop = Infinity;
+                choices.forEach(function (c) { if (c.offsetTop < firstTop) firstTop = c.offsetTop; });
+                var hidden = 0;
+                choices.forEach(function (c) { if (c.offsetTop > firstTop + 2) hidden++; });
+                if (hidden > 0) {
+                    more.textContent = '+' + hidden;
+                    more.style.display = '';
+                } else {
+                    more.style.display = 'none';
+                }
+            }
+
+            // Re-measure when chips are added/removed (select2 re-renders the list).
+            var rendered = sel.querySelector('.select2-selection__rendered');
+            if (rendered && window.MutationObserver) {
+                new MutationObserver(function () {
+                    syncPlaceholder();
+                    if (!sel.classList.contains('cf-chips-expanded')) recount();
+                }).observe(rendered, { childList: true, subtree: true });
+            }
+            window.addEventListener('resize', recount);
+
+            // Auto-expand while the dropdown is open (inline search needs to show),
+            // re-collapse on close.
+            if ($ && selectEl) {
+                $(selectEl)
+                    .on('select2:open', function () { expand(false); })
+                    .on('select2:close', function () { collapse(); syncPlaceholder(); })
+                    .on('change', syncPlaceholder);
+            }
+
+            syncPlaceholder();
+            recount();
+        });
+    }
+
+    /**
+     * Give single selects — both native <select> and select2 single — the same
+     * eraser (clear button) as multiple selects: a clickable icon sitting inside
+     * the field's right corner that clears the current value. The eraser shows
+     * only once a value is picked; while the field is empty the dropdown chevron
+     * stays visible as the affordance.
+     *
+     * Skipped when the select2 wrapper already injected its own clear button
+     * (allowClear) — those keep their behavior.
+     */
+    function initSingleSelectClear() {
+        var $ = window.jQuery;
+        document.querySelectorAll('.cf-field').forEach(function (field) {
+            if (field.getAttribute('data-cf-single-clear')) return;
+            if (field.querySelector('.clearAllSelect2')) return; // wrapper already added one
+
+            var selectEl = field.querySelector('select');
+            if (!selectEl || selectEl.multiple) return;
+
+            // A select2 field keeps its <select> hidden and renders a container;
+            // wait for that container's single selection before wiring up.
+            var isSelect2 = !!field.querySelector('.select2-container');
+            if (isSelect2 && !field.querySelector('.select2-selection--single')) return;
+
+            field.setAttribute('data-cf-single-clear', '1');
+            field.classList.add('cf-single-clearable');
+
+            function isFilled() {
+                return selectEl.value !== '' && selectEl.value != null;
+            }
+            function sync() {
+                field.classList.toggle('cf-single-filled', isFilled());
+            }
+
+            // Reuse the eraser look (icon, size, corner position, hover) from
+            // the multiple select via the shared .clearAllSelect2 class. The
+            // shared order/margin rules pull it back over the field's reserved
+            // right padding, so it renders inside the select box's corner.
+            var clear = document.createElement('span');
+            clear.className = 'clearAllSelect2 cf-single-clear';
+            clear.setAttribute('title', 'Clear field');
+            clear.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            clear.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isSelect2 && $) {
+                    $(selectEl).val(null).trigger('change');
+                } else {
+                    selectEl.value = '';
+                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                sync();
+            });
+
+            selectEl.parentNode.appendChild(clear);
+
+            sync();
+            if ($) {
+                $(selectEl).on('change', sync);
+            } else {
+                selectEl.addEventListener('change', sync);
+            }
+        });
+    }
+
+    // =========================================================================
     //  CONVENIENCE INITIALIZERS
     // =========================================================================
 
@@ -957,7 +1170,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
@@ -965,6 +1178,15 @@ var CentreonForm = (function () {
         steps.forEach(function (step) {
             try { step(); } catch (e) { if (window.console) console.error('CentreonForm init step failed', e); }
         });
+
+        // select2 may finish rendering just after DOMContentLoaded; re-run the
+        // select2-dependent steps once (both are idempotent) so late-rendered
+        // multi-selects still get their placeholder and single-row collapse.
+        setTimeout(function () {
+            try { initSelect2Placeholders(); } catch (e) {}
+            try { initMultiSelectCollapse(); } catch (e) {}
+            try { initSingleSelectClear(); } catch (e) {}
+        }, 400);
     }
 
     /**

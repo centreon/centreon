@@ -16,7 +16,7 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 16px 20px 0;
-    font-family: Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: Roboto, Arial;
     color: var(--list-color, #333);
     /* Push .cf-actions to the bottom of the panel even when the form's own
        content is short — position: sticky alone only keeps it in view
@@ -34,7 +34,7 @@
 .cf-page-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--list-color, #333);
+    color: var(--cl-link-color, #2E68AA);
     margin: 0 0 8px;
 }
 
@@ -45,19 +45,31 @@
 .cf-tab-nav {
     display: flex;
     gap: 0;
-    border-bottom: 2px solid var(--color-divider, #e3e3e3);
+    /* Stay on a single line: never wrap tabs onto a second row, scroll
+       horizontally instead. The bottom divider is drawn with an inset shadow
+       (not border-bottom) so it isn't affected by the horizontal scrollbar. */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-shadow: inset 0 -2px 0 var(--color-divider, #e3e3e3);
     margin-bottom: 16px;
+    /* Fixed at the top of the scrolling form panel. */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--body-background, #fff);
+    scrollbar-width: thin;
 }
 
 .cf-tab-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 500;
     color: var(--body-color, #666);
     text-decoration: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.15s, border-color 0.15s;
+    transition: color 0.15s, box-shadow 0.15s;
     cursor: pointer;
 }
 
@@ -67,15 +79,10 @@
 
 .cf-tab-nav a.active {
     color: var(--color-primary-light, #2E68AA);
-    border-bottom-color: var(--color-primary-light, #2E68AA);
+    /* Active underline as an inset shadow at the tab's bottom edge, overlapping
+       the nav's divider — no negative margin that overflow would clip. */
+    box-shadow: inset 0 -2px 0 var(--color-primary-light, #2E68AA);
     font-weight: 600;
-}
-
-.cf-tab-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--body-background, #fff);
 }
 
 /* ==========================================================================
@@ -94,19 +101,23 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 14px;
-    background: #ddd;
-    color: var(--list-color, #333);
-    font-size: 13px;
-    font-weight: 500;
+    padding: 6px 16px;
+    background: var(--color-background-listing-header, #d9d9d9);
+    color: var(--cl-header-color, #000);
+    font-size: 12px;
+    font-weight: 700;
     cursor: pointer;
     user-select: none;
-    transition: background 0.15s;
-    border-radius: 4px;
+    transition: filter 0.15s;
+    /* No own radius: the section container rounds it via overflow:hidden. A
+       rounded child inside the 1px border leaves a thin white arc in the top
+       corners (the two curves are offset by the border width), so let the
+       square header fill right into the clipped corner instead. */
+    border-radius: 0;
 }
 
 .cf-section-header:hover {
-    background: #d2d2d2;
+    filter: brightness(0.96);
 }
 
 .cf-section-chevron {
@@ -662,7 +673,8 @@
 
 .cf-field select {
     width: 100%;
-    padding: 10px;
+    height: 40px;
+    padding: 0 32px 0 12px;
     font-size: 12px;
     border: 1px solid var(--color-divider, #e3e3e3);
     border-radius: 6px;
@@ -675,7 +687,6 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
-    padding-right: 32px;
 }
 
 .cf-field select:focus {
@@ -704,101 +715,34 @@
     min-width: 0;
     width: auto !important;
 }
+/* Multi-select (oreonbutton) clear: sits just to the RIGHT of the field so it
+   stays visible next to the chips / "+N" pill instead of being covered by the
+   pill. (Single selects keep the overlapping -35px rule below, which tucks the
+   eraser inside the field where the chevron is hidden.) */
 .cf-field > .oreonbutton .clearAllSelect2 {
     order: 2;
     flex-shrink: 0;
-    margin-left: -35px;
+    margin-left: 4px;
+    /* Kept above the "+N" text as a safety net on very narrow fields. */
+    position: relative;
+    z-index: 5;
 }
 
 .cf-field .select2-container .select2-selection {
-    min-height: 44px;
+    min-height: 40px;
     border: 1px solid var(--color-divider, #e3e3e3);
     border-radius: 6px;
     padding: 6px 12px;
     padding-right: 36px;
 }
 
-/* Themes/Generic-theme/style.css forces multi-select boxes to
-   min-height: auto !important, which the rule above can't override —
-   that's why "Implied Contacts"-style multi-select fields render at a
-   different height than single-select ones on the same form. Force it
-   back to the same 44px. */
-.cf-field .select2-container .select2-selection--multiple {
-    min-height: 44px !important;
-}
-
 .cf-field .select2-container--focus .select2-selection {
     border-color: var(--color-primary-light, #2E68AA);
 }
 
-/* Dropdown menu — match the closed field's 6px radius (the base select2
-   theme defaults to 4px, slightly out of step with the rest of the form).
-   overflow: hidden is required too — otherwise the scrollable results
-   list (which spans edge-to-edge, e.g. the highlighted-row background)
-   isn't clipped to the rounded shape and the corners look square anyway. */
-.select2-dropdown {
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-/* The base theme deliberately squares off whichever side touches the
-   field (a "merged" look, no border on that side) when the menu opens
-   --above or --below it. Round that side too instead, so no select2
-   dropdown ever shows a flat/square corner. */
-.select2-container--open .select2-dropdown--below {
-    border-top: 1px solid var(--select2-dropdown-border-color, var(--color-divider, #e3e3e3));
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-}
-
-.select2-container--open .select2-dropdown--above {
-    border-bottom: 1px solid var(--select2-dropdown-border-color, var(--color-divider, #e3e3e3));
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-/* The multi-select "N element(s) found / Select all" header
-   (centreon-select2.js's initSelectAll) is prepended as the dropdown's
-   first child with its own full-width background — round its top
-   corners explicitly rather than relying only on the parent's
-   overflow: hidden to clip it. */
-.select2-dropdown .select2-results-header {
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-}
-
-/* Multi-select "tags" — themed blue chips instead of the base theme's
-   plain grey, matching the soft-blue tint already used for hover/selected
-   states elsewhere (listing.css's rgba(46, 104, 170, ...) rows).
-   Centreon's own Themes/Generic-theme/style.css (loaded before this file)
-   already forces .select2-selection__choice itself fully transparent
-   with !important and instead paints two child pill-halves: .select2-content
-   (the label, left half) and .select2-selection__choice__remove (the "x",
-   right half) — so those two are what need overriding, with !important to
-   beat style.css's own !important on some of these same properties. */
-.select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
-    background-color: rgba(46, 104, 170, 0.10) !important;
-    border-color: rgba(46, 104, 170, 0.3) !important;
-    color: var(--color-primary-light, #2E68AA) !important;
-}
-
-.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    background-color: rgba(46, 104, 170, 0.10) !important;
-    border-color: rgba(46, 104, 170, 0.3) !important;
-    color: var(--color-primary-light, #2E68AA) !important;
-}
-
-.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    color: var(--color-primary-hover, #255891) !important;
-}
-
-/* Select2 clear button — sits inside the field's right edge instead of
-   as a separate icon after it. Stays a normal flex item (order 8, right
-   before the help icon) so it doesn't need to know whether a help icon
-   follows it or not; the negative margin-left just pulls its own box
-   back over the select2 field's right padding (see the matching
-   padding-right added to .select2-selection above) without taking it
-   out of flex flow or touching any markup. */
+/* Select2 clear button — HEAD's eraser icon, sitting inside the field's right
+   edge (order 8, right before the help icon). The negative margin pulls its
+   box back over the field's reserved right padding without leaving flex flow. */
 .cf-field .clearAllSelect2 {
     order: 8;
     opacity: 0.4;
@@ -837,27 +781,32 @@
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Hide the dropdown chevron entirely on every select2 field — it kept
-   fighting with the clear button for the same corner and needing
-   re-tuning; the clear button and the open dropdown are affordance
-   enough without it. */
-.cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+/* The single-select eraser (injected by CentreonForm.initSingleSelectClear,
+   for both native <select> and select2 single) only appears once a value is
+   picked. */
+.cf-field .cf-single-clear {
     display: none;
 }
-
-/* Empty-state placeholder — show a plain "-" instead of repeating the
-   field's own label/prompt text back inside the box (each field's JS
-   init sets its own placeholder string, so this can't be fixed at the
-   source without editing every page; hide the real text and paint "-"
-   via ::after instead, applied to every select2 field). */
-.cf-field .select2-selection__placeholder {
-    font-size: 0;
+.cf-field.cf-single-filled .cf-single-clear {
+    display: inline-flex;
+}
+/* Native <select>: drop its chevron background while filled so the eraser
+   takes over the corner (mirrors the select2 chevron/eraser swap below). */
+.cf-field.cf-single-filled select {
+    background-image: none;
 }
 
-.cf-field .select2-selection__placeholder::after {
-    content: "-";
-    font-size: 14px;
-    color: var(--body-color, #999);
+/* Forms use the eraser clear button in the field's right corner, so hide the
+   select2 dropdown chevron there. The listing filter-bar select2 keeps its
+   chevron — this rule is .cf-field-scoped and beats the global chevron. */
+.cf-field .select2-container--default .select2-selection--single .select2-selection__arrow {
+    display: none !important;
+}
+/* ...but on a clearable single select, keep the chevron visible WHILE empty
+   (the eraser only takes over the corner once a value is selected). */
+.cf-field.cf-single-clearable:not(.cf-single-filled)
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+    display: flex !important;
 }
 
 /* Help tooltip always last, vertically centered */
@@ -1332,6 +1281,11 @@
     transition: transform 0.3s ease;
     display: flex;
     flex-direction: column;
+    /* Round the panel's only visible outer corner (it's pinned top/right), to
+       match the 8px radius of the listing header and form section headers.
+       overflow:hidden clips the white header to the rounded corner. */
+    border-top-left-radius: 8px;
+    overflow: hidden;
 }
 
 .cf-side-panel.open {
@@ -1484,3 +1438,226 @@
 .gen-console .ok { color: #8fce46; } .gen-console .err { color: #ff6b6b; }
 .gen-console .warn { color: #f3b34d; } .gen-console .muted { color: #8b95a1; }
 .gen-console b { color: #fff; }
+
+/* ==========================================================================
+   Select2 — restyled to resemble the React multi-select
+   --------------------------------------------------------------------------
+   form.css is loaded globally (htmlHeader.php), and select2's dropdown is
+   appended to <body>, so these rules are intentionally unscoped. Explicit
+   colors (React palette) keep it consistent in forms AND listing filters.
+   Behaviour is untouched — this is CSS only.
+   ========================================================================== */
+
+/* --- Selection box (single & multiple). !important beats the Generic-theme
+       rules that force border-radius:0 on select2. --- */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border-radius: 8px !important;
+    min-height: 40px;
+    /* Dark-aware box/text (base wires the single-selection bg to a var that
+       isn't overridden in dark, so force it here). Light = #fff, unchanged. */
+    background: var(--body-background, #fff) !important;
+    color: var(--body-color, #333);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--focus .select2-selection--multiple,
+.select2-container--default.select2-container--open .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--multiple {
+    border-color: var(--color-primary-light, #2E68AA) !important;
+    box-shadow: 0 0 0 1px var(--color-primary-light, #2E68AA);
+}
+
+/* --- Single select: vertically center the chosen text --- */
+.select2-container--default .select2-selection--single {
+    display: flex;
+    align-items: center;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 1.4 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* --- Single select: replace the default triangle with a clean, centered
+       chevron (the arrow box spans the full height and flex-centers the mark) --- */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    top: 0 !important;
+    right: 6px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    display: none;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    margin-top: -3px;
+    border-right: 2px solid var(--c-text-secondary, #6b7280);
+    border-bottom: 2px solid var(--c-text-secondary, #6b7280);
+    transform: rotate(45deg);
+    pointer-events: none;
+    transition: transform 0.15s ease;
+}
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow::after {
+    margin-top: 3px;
+    transform: rotate(-135deg);
+}
+
+/* --- Multiple select chips. Centreon splits each chip into `.select2-content`
+       (the text, floated left) and `.select2-selection__choice__remove` (the ×,
+       floated right); the theme colors them grey with !important. We recolor
+       both halves navy so together they read as one React-style pill. --- */
+/* Chips match the React (HostGroups) multi-select: a single solid filled pill,
+   20px tall, fully rounded (10px radius), small caption text, with an inline
+   translucent × delete mark. Centreon's theme splits each chip into two child
+   halves (.select2-content = label, .select2-selection__choice__remove = ×);
+   we colour both the same and round only the outer corners so together they
+   read as one pill. */
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 3px 3px 0 0 !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
+    height: 20px;
+    box-sizing: border-box;
+    background-color: var(--color-primary-light, #2E68AA) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px 0 0 10px !important;
+    padding: 0 4px 0 12px !important;
+    font-size: 10px;
+    line-height: 20px !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    box-sizing: border-box;
+    background-color: var(--color-primary-light, #2E68AA) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border: none !important;
+    border-radius: 0 10px 10px 0 !important;
+    padding: 0 10px 0 4px !important;
+    margin: 0 !important;
+    font-size: 14px;
+    line-height: 20px !important;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    background-color: var(--color-primary-light, #2E68AA) !important;
+    color: #fff !important;
+}
+
+/* --- Multi-select single-row collapse. Chips are kept on one line; overflowing
+       chips are clipped and a "+N" blue-text control (injected by CentreonForm)
+       reveals them on click. --- */
+.cf-field .select2-selection--multiple {
+    position: relative;
+}
+.cf-field .select2-selection--multiple .select2-selection__rendered {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    overflow: hidden;
+}
+/* Chips never shrink */
+.cf-field .select2-selection--multiple .select2-selection__choice {
+    flex: 0 0 auto;
+}
+/* Collapsed: keep wrapping (so width stays bound to the field — chips never push
+   the selector wider than its column) but clamp to a single visible row. Chips
+   that wrap onto row 2+ are hidden and counted into the "+N" chip. */
+.select2-selection--multiple.cf-chips-collapsed .select2-selection__rendered {
+    flex-wrap: wrap;
+    align-content: flex-start;
+    /* Exactly one chip row: a chip is 20px tall + 3px top margin = 23px, and
+       row 2 starts at 26px — clamp to 25px + zero vertical padding so the
+       second row is fully clipped (no peeking chip tops). */
+    max-height: 25px;
+    padding-top: 0;
+    padding-bottom: 0;
+    /* Reserve room for the "+N" text AND the eraser to its right. */
+    padding-right: 66px;
+}
+.select2-selection--multiple.cf-chips-expanded .select2-selection__rendered {
+    flex-wrap: wrap;
+    max-height: none;
+    padding-right: 66px;
+}
+/* The "+N" reveal — plain standard-blue text (not a chip, so it reads as an
+   inline action/link) sitting right after the selected chips. */
+.cf-chips-more {
+    position: absolute;
+    /* Vertically centered so it aligns with the eraser (which is align-self:
+       center) on the same horizontal line, whatever the box height. */
+    top: 50%;
+    transform: translateY(-50%);
+    /* Sit to the LEFT of the eraser (which occupies the ~35px right corner)
+       so the two never overlap. */
+    right: 40px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    color: var(--color-primary-light, #2E68AA);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 3;
+    user-select: none;
+    transition: opacity 0.15s ease;
+}
+.cf-chips-more:hover {
+    text-decoration: underline;
+}
+
+/* --- Dropdown panel --- */
+.select2-dropdown {
+    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    background: var(--body-background, #fff);
+    color: var(--body-color, #333);
+}
+.select2-search--dropdown .select2-search__field {
+    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border-radius: 6px !important;
+    padding: 6px 10px;
+    outline: none;
+    background: var(--body-background, #fff);
+    color: var(--body-color, #333);
+}
+.select2-search--dropdown .select2-search__field:focus {
+    border-color: var(--color-primary-light, #2E68AA) !important;
+}
+/* Placeholder (single selection + multi inline search) — greyed like inputs */
+.select2-container--default .select2-selection__placeholder,
+.select2-search--inline .select2-search__field::placeholder {
+    color: var(--c-text-secondary, #8a8a8a) !important;
+    opacity: 1;
+}
+.select2-results__option {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--body-color, #333);
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--color-listing-hover, #E6EDF5) !important;
+    color: var(--cl-link-color, #2E68AA) !important;
+}
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: rgba(46, 104, 170, 0.08) !important;
+    color: var(--cl-link-color, #2E68AA) !important;
+    font-weight: 500;
+}
