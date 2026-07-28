@@ -82,39 +82,52 @@
     display: inline-block;
 }
 
+/* Ghost text button "⋯ More actions" — the ellipsis icon sits BEFORE the
+   label, both centered, with no border/background and no <select> chrome,
+   matching the React HostGroups page. */
 .cl-more-actions-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
+    gap: 6px;
+    height: 36px;
+    padding: 0 12px;
     font-size: 14px;
-    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
+    font-weight: 500;
+    border: none;
     border-radius: 4px;
-    background: var(--select-background, #fff);
-    color: var(--body-color, #333);
+    background: transparent;
+    color: var(--color-primary-light, #131D5A);
     cursor: pointer;
     line-height: 1.4;
-    transition: border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
     outline: none;
 }
 
 .cl-more-actions-btn:hover {
-    border-color: var(--color-primary-light, #2E68AA);
+    background: var(--color-listing-hover, #E6EDF5);
 }
 
 .cl-more-actions-btn:focus-visible {
-    border-color: var(--color-primary-light, #2E68AA);
-    outline: 2px solid var(--color-primary-light, #2E68AA);
+    outline: 2px solid var(--color-primary-light, #131D5A);
     outline-offset: 2px;
 }
 
+/* The "⋯" glyph before the label */
+.cl-more-actions-icon {
+    display: inline-flex;
+    align-items: center;
+    font-size: 20px;
+    line-height: 1;
+}
+
 .cl-more-actions--disabled .cl-more-actions-btn {
+    color: var(--color-grey-chateau, #a7a9ac);
+    opacity: 0.6;
     cursor: not-allowed;
-    opacity: 0.5;
 }
 
 .cl-more-actions--disabled .cl-more-actions-btn:hover {
-    border-color: var(--listing-border-botom-color, #E3E3E3);
+    background: transparent;
 }
 
 .cl-more-actions-menu {
@@ -321,7 +334,7 @@
 .cl-pagination {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -341,34 +354,51 @@
 }
 
 .cl-pagination a {
-    color: var(--cl-link-color, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
 }
 
 .cl-pagination a:hover {
-    background-color: var(--list-hover-background-color, #E6EDF5);
+    background-color: var(--color-listing-hover, #E6EDF5);
     text-decoration: none;
 }
 
-/* Navigation arrows (first, prev, next, last) — outlined chevrons, tight */
-.cl-pagination a.cl-page-nav {
-    min-width: 16px;
+/* Navigation arrows (first, prev, next, last) — MUI-style icon buttons,
+   matching the React (HostGroups) pagination: ~20px icons, 32px round buttons,
+   grey, circular hover. */
+.cl-pagination a.cl-page-nav,
+.cl-pagination span.cl-page-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    color: var(--body-color, #8a8a8a);
+    border-radius: 4px;
+    color: var(--c-text-secondary, #8a8a8a);
 }
 
-.cl-pagination a.cl-page-nav svg {
-    width: 16px;
-    height: 16px;
+.cl-pagination a.cl-page-nav svg,
+.cl-pagination span.cl-page-nav svg {
+    width: 20px;
+    height: 20px;
     fill: none !important;
     stroke: currentColor;
 }
 
 .cl-pagination a.cl-page-nav:hover {
-    background: none;
+    background-color: var(--color-listing-hover, #E6EDF5);
 }
 
 .cl-pagination a.cl-page-nav:hover svg {
-    stroke: var(--cl-link-color, #2E68AA);
+    stroke: var(--color-primary-light, #131D5A);
+}
+
+/* Disabled nav arrows (at the first / last page) — greyed, non-interactive */
+.cl-pagination .cl-page-nav--disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
 }
 
 /* Current page indicator */
@@ -379,28 +409,35 @@
     min-width: 28px;
     height: 28px;
     border-radius: 4px;
-    background-color: var(--bt-info-background-color, #2E68AA);
-    color: var(--btc-color, #fff);
+    background-color: var(--color-primary-light, #131D5A);
+    color: #fff;
     font-size: 13px;
     font-weight: 600;
 }
 
 /* "X-Y of Z" label */
 .cl-pagination .cl-page-info {
-    font-size: 13px;
-    color: var(--body-color, #555);
-    padding: 0 4px;
+    font-size: 14px;
+    color: var(--c-text-secondary, #8a8a8a);
+    padding: 0 8px;
 }
 
-/* Rows-per-page selector */
+/* Rows-per-page selector — borderless text + chevron, like the MUI
+   TablePagination select used on the React (HostGroups) pages. */
 .cl-pagination .cl-limit-select {
-    padding: 4px 8px;
-    font-size: 13px;
-    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
-    border-radius: 4px;
-    background: var(--select-background, #fff);
+    height: 32px;
+    padding: 0 22px 0 6px;
+    font-size: 14px;
+    color: var(--body-color, #555);
+    border: none;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
     cursor: pointer;
-    min-width: 50px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 /* ==========================================================================
@@ -409,7 +446,10 @@
 
 .cl-listing-table {
     width: 100%;
-    border-collapse: collapse;
+    /* separate (not collapse) so the header cells can render rounded top
+       corners — matches the Resource Status listing header (radius-lg = 8px).
+       Row separators are `border-bottom` only, so spacing:0 stays identical. */
+    border-collapse: separate;
     border-spacing: 0;
     background: var(--select-background, #fff);
     border: none;
@@ -418,13 +458,15 @@
 /* -- Table header --------------------------------------------------------- */
 
 .cl-listing-table thead th {
-    padding: 6px 16px;
-    font-weight: 600;
-    font-size: 13px;
-    color: #fff;
+    height: 30px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--cl-header-color, #000);
     text-align: left;
     border-bottom: none;
-    background: #8C8C8C;
+    background: var(--color-background-listing-header, #d9d9d9);
     white-space: nowrap;
     user-select: none;
     /* Stick right under the actions bar so only the rows scroll. */
@@ -441,10 +483,18 @@
     text-align: right;
 }
 
+.cl-listing-table thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.cl-listing-table thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
 .cl-listing-table thead th.cl-col-picker {
-    width: 16px;
+    width: 40px;
     text-align: center;
-    padding: 6px 6px;
+    padding: 6px 8px;
     vertical-align: middle;
 }
 
@@ -482,7 +532,11 @@
 .cl-listing-table tbody td.cl-col-picker {
     width: 16px;
     text-align: center;
-    padding: 4px 6px;
+    /* Horizontal padding must match the header th.cl-col-picker (8px): the
+       Material checkbox box is an absolutely-positioned label::before pinned to
+       the cell's padding-left, so an unequal left padding misaligns the row
+       checkboxes with the header "select all". */
+    padding: 4px 8px;
 }
 
 /* -- Links inside rows ---------------------------------------------------- */
@@ -607,16 +661,21 @@
     justify-content: center;
     margin: 0;
     height: 100%;
+    /* The checkbox box is sized in em (1.25em). Pin the font-size so the
+       header "select all" and the row checkboxes render at an identical size,
+       regardless of the differing header (12px) vs row (13px) text sizes. */
+    font-size: 13px;
 }
 
 .cl-listing-table .cl-col-picker .md-checkbox input[type="checkbox"] {
     margin: 0;
 }
 
-/* Nudge the header "check all" checkbox up to align with the header label */
+/* The header th now has a definite height (30px) and the checkbox is
+   flex-centered at height:100%, so it aligns on its own — no nudge needed. */
 .cl-listing-table thead .cl-col-picker .md-checkbox {
     position: relative;
-    top: -2px;
+    top: 0;
 }
 
 /* Listing page title + description (breadcrumb stays visible above) */
@@ -624,7 +683,8 @@
     font-size: 22px;
     font-weight: 700;
     margin: 8px 0 4px;
-    color: var(--body-color, #333);
+    /* Light: follows body text; dark: white to match the React page title. */
+    color: var(--cl-page-title-color, var(--body-color, #333));
 }
 .cl-page-desc {
     margin: 0 0 14px;
@@ -665,9 +725,28 @@
     line-height: 1;
 }
 
-/* White checkbox border on dark header */
+/* Pin the checkbox box to a fixed pixel size so it never scales with the
+   surrounding font-size context (it otherwise renders smaller in the header
+   when the listing has no rows). */
+.cl-listing-table .cl-col-picker .md-checkbox label:before {
+    width: 16px;
+    height: 16px;
+}
+
+/* Vertically center the box (label::before) and its checkmark (label::after)
+   in the cell. They're absolutely positioned at top:0, so flex
+   align-items:center can't move them — without this the header "select all"
+   sits at the top of the header row instead of centered. */
+.cl-listing-table .cl-col-picker .md-checkbox label:before,
+.cl-listing-table .cl-col-picker .md-checkbox label:after {
+    top: 50%;
+    margin-top: -8px;
+}
+
+/* Checkbox border on the listing header follows the header text color
+   (black in light, white in dark — matches the React header). */
 .cl-listing-table thead th .md-checkbox label::before {
-    border-color: #fff;
+    border-color: var(--cl-header-color, #000);
 }
 
 /* ==========================================================================
@@ -800,6 +879,18 @@
     font-size: 13px;
 }
 
+/* Native <select> in the filter bar — styled like our simple select (chevron) */
+.cl-filter-bar select.cl-search-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 32px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
 .cl-filter-bar .select2-container {
     width: 180px !important;
 }
@@ -870,10 +961,10 @@
     height: 38px;
 }
 
-/* Keep only the single × clear; hide the select2 built-in (circled) clear */
+/* Hide the select2 built-in (circled red cross) clear everywhere — the advanced
+   panel uses the grey eraser (.clearAllSelect2) styled below instead. */
 .cl-filter-bar .clearAllSelect2,
 .cl-filter-bar .select2-selection__clear,
-.cl-adv-panel .clearAllSelect2,
 .cl-adv-panel .select2-selection__clear {
     display: none !important;
 }
@@ -970,7 +1061,7 @@
     padding: 0 12px 0 36px;
     border: 1px solid var(--select-border-color, #c2c7ce);
     border-radius: 4px;
-    font-family: Roboto, sans-serif;
+    font-family: Roboto, Arial;
     font-size: 14px;
     outline: none;
     box-sizing: border-box;
@@ -1020,7 +1111,9 @@
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: var(--cl-link-color, #2E68AA);
+    /* Same blue as the "Add" button (--bt-info-background-color): #2E68AA in
+       light, #6EAFF8 in dark. */
+    color: var(--bt-info-background-color, #2E68AA);
     cursor: pointer;
 }
 
@@ -1052,9 +1145,10 @@
     height: 16px;
     padding: 0 4px;
     border-radius: 999px;
-    background: #1B2550;
-    color: #fff;
-    font-family: Roboto, sans-serif;
+    /* Active-filter indicator uses the same blue as the "Add" button / adv icon. */
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
+    font-family: Roboto, Arial;
     font-size: 10px;
     font-weight: 700;
     line-height: 1;
@@ -1096,7 +1190,7 @@
     border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--cl-link-color, #2E68AA);
-    font-family: Roboto, sans-serif;
+    font-family: Roboto, Arial;
     font-size: 14px;
     cursor: pointer;
     white-space: nowrap;
@@ -1164,34 +1258,6 @@
     box-sizing: border-box;
 }
 
-/* Control row: select + per-field clear cross */
-.cl-adv-control {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.cl-adv-control .select2-container {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.cl-adv-clear-field {
-    flex: 0 0 auto;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    padding: 0 2px;
-    color: var(--color-danger, #FF4A4A);
-    opacity: 0.55;
-}
-
-.cl-adv-clear-field:hover {
-    opacity: 1;
-}
-
 .cl-adv-field .select2-container {
     width: 100% !important;
 }
@@ -1201,11 +1267,50 @@
     min-height: 38px;
     display: flex;
     align-items: center;
+    padding-right: 64px;
+}
+
+/* Grey eraser clear button injected by the select2 wrapper (.clearAllSelect2),
+   anchored inside the select box's right corner. The dropdown chevron is hidden
+   below so the eraser takes its spot instead of overlapping it. */
+.cl-adv-field {
+    position: relative;
+}
+
+.cl-adv-panel .clearAllSelect2 {
+    display: inline-flex;
+    position: absolute;
+    right: 34px;
+    bottom: 5px;
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: opacity 0.15s, background-color 0.15s;
+    border-radius: 50%;
+    z-index: 2;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-45 12 12)'%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='%23999'/%3E%3Crect x='4' y='8' width='16' height='4' rx='2' fill='%23bbb'/%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='none' stroke='%23777' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+}
+
+/* Hide the red circle-cross.png the wrapper still inserts (eraser SVG replaces it). */
+.cl-adv-panel .clearAllSelect2 img {
+    display: none;
+}
+
+.cl-adv-panel .clearAllSelect2:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .cl-adv-field > label,
 .cl-adv-caption {
-    font-family: Roboto, sans-serif;
+    font-family: Roboto, Arial;
     font-size: 12px;
     color: var(--body-color, #6b7280);
 }
@@ -1219,28 +1324,52 @@
     flex: 0 0 auto;
 }
 
-.cl-adv-clear {
-    height: 38px;
-    padding: 0 16px;
-    border: 1px solid var(--listing-border-botom-color, #b5b5b5);
+/* Clear/Search match the React Configuration advanced-filters buttons
+   (@centreon/ui Button, size="small"): Clear is a ghost/text button (no border,
+   transparent, primary-colored text), Search is a primary contained button. */
+.cl-adv-clear,
+.cl-adv-search {
+    height: auto;
     border-radius: 4px;
-    background: var(--body-background, #fff);
-    color: var(--body-color, #333);
-    font-family: Roboto, sans-serif;
+    font-family: Roboto, Arial;
     font-size: 14px;
+    line-height: 22px;
+    font-weight: 500;
+    letter-spacing: 0.02857em;
+    text-transform: none;
     cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.cl-adv-clear {
+    padding: 4px 8px;
+    border: 0;
+    background: transparent;
+    color: var(--color-primary-light, #2E68AA);
+}
+
+.cl-adv-clear:hover {
+    background: rgba(46, 104, 170, 0.08);
+}
+
+.cl-adv-clear:disabled {
+    color: var(--text-disabled, #999);
+    cursor: default;
+}
+
+.cl-adv-clear:disabled:hover {
+    background: transparent;
 }
 
 .cl-adv-search {
-    height: 38px;
-    padding: 0 18px;
+    padding: 4px 16px;
     border: 0;
-    border-radius: 4px;
     background: var(--color-primary-light, #2E68AA);
     color: #fff;
-    font-family: Roboto, sans-serif;
-    font-size: 14px;
-    cursor: pointer;
+}
+
+.cl-adv-search:hover {
+    background: var(--color-primary-hover, #255891);
 }
 
 /* ==========================================================================
@@ -1319,26 +1448,6 @@
 .cl-adv-panel--popover .cl-adv-actions {
     margin-left: 0;
     justify-content: space-between;
-}
-
-.cl-adv-panel--popover .cl-adv-clear {
-    height: 38px;
-    padding: 0 16px;
-    border: none;
-    border-radius: 6px;
-    background: rgba(46, 104, 170, 0.10);
-    color: var(--cl-link-color, #2E68AA);
-    font-weight: 600;
-}
-
-.cl-adv-panel--popover .cl-adv-clear:hover {
-    background: rgba(46, 104, 170, 0.18);
-}
-
-.cl-adv-panel--popover .cl-adv-search {
-    font-weight: 600;
-    border-radius: 6px;
-    padding: 0 24px;
 }
 
 /* ==========================================================================
@@ -1456,7 +1565,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--table-header-background, #6b7888);
+    background: var(--color-background-listing-header, #d9d9d9);
 }
 
 /* ==========================================================================
@@ -1509,11 +1618,12 @@
 }
 .cl-diff-header {
     display: flex;
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 0.2px;
+    background: var(--color-background-listing-header, #d9d9d9);
+    color: var(--cl-header-color, #000);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 .cl-diff-header span {
     flex: 1;
@@ -1765,13 +1875,14 @@
     font-size: 12px;
 }
 .cld-diff-table th {
-    background: var(--table-header-background, #6b7888);
-    color: #fff;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 0.2px;
+    background: var(--color-background-listing-header, #d9d9d9);
+    color: var(--cl-header-color, #000);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     padding: 7px 12px;
-    text-align: left;
+    text-align: center;
 }
 .cld-diff-table td {
     padding: 6px 12px;
@@ -1862,9 +1973,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.35);
+    padding: 16px;
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.2s ease;
 }
 
 .cl-confirm-overlay.open {
@@ -1872,14 +1984,14 @@
 }
 
 .cl-confirm-modal {
-    width: 420px;
-    max-width: calc(100vw - 32px);
+    width: 100%;
+    max-width: 520px;
     background: var(--body-background, #fff);
     border-radius: 8px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
     padding: 20px 24px;
-    transform: translateY(-12px);
-    transition: transform 0.15s ease;
+    transform: translateY(8px);
+    transition: transform 0.2s ease;
 }
 
 .cl-confirm-overlay.open .cl-confirm-modal {
@@ -1896,9 +2008,9 @@
 
 .cl-confirm-title {
     margin: 0;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 700;
-    color: var(--body-color, #1b1b1b);
+    color: var(--color-primary-light, #131D5A);
 }
 
 .cl-confirm-close {
@@ -1909,16 +2021,18 @@
     height: 26px;
     padding: 0;
     border: none;
-    border-radius: 4px;
+    border-radius: 50%;
     background: transparent;
-    color: var(--body-color, #6b7280);
+    color: var(--c-text-secondary, #8a8a8a);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
+    transition: background 0.15s, color 0.15s;
 }
 
 .cl-confirm-close:hover {
-    background: var(--list-hover-background-color, #E6EDF5);
+    background: var(--color-listing-hover, #E6EDF5);
+    color: var(--list-color, #333);
 }
 
 .cl-confirm-body {
@@ -1936,28 +2050,40 @@
 }
 
 .cl-confirm-cancel {
-    padding: 8px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 18px;
+    box-sizing: border-box;
     font-size: 14px;
     font-weight: 500;
-    color: var(--body-color, #333);
-    background: rgba(127, 127, 127, 0.14);
-    border: none;
+    color: var(--color-primary-light, #131D5A);
+    background: transparent;
+    border: 1px solid var(--c-divider-strong, #b5b5b5);
     border-radius: 4px;
     cursor: pointer;
+    transition: background 0.15s, color 0.15s;
 }
 
 .cl-confirm-cancel:hover {
-    background: rgba(127, 127, 127, 0.22);
+    background: var(--color-listing-hover, #E6EDF5);
 }
 
 .cl-confirm-confirm-btn {
-    padding: 8px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 18px;
+    box-sizing: border-box;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fff;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
 /* Delete / Disable — destructive */
@@ -1966,15 +2092,15 @@
 }
 
 .cl-confirm-confirm-btn--danger:hover {
-    background: #e23e3e;
+    background: #e0202e;
 }
 
 /* Duplicate and other non-destructive actions */
 .cl-confirm-confirm-btn--primary {
-    background: var(--bt-info-background-color, #2E68AA);
-    color: var(--btc-color, #fff);
+    background: var(--color-primary-light, #131D5A);
+    color: #fff;
 }
 
 .cl-confirm-confirm-btn--primary:hover {
-    background: var(--bt-info-hover-background-color, #255891);
+    background: var(--color-primary-hover, #2A3575);
 }
