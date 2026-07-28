@@ -3417,6 +3417,10 @@ msgstr "Configurer les collecteurs"
 msgid "Configure service"
 msgstr "Configurer le service"
 
+#: unknown
+msgid "Configure the hosts monitored by your platform."
+msgstr "Configurez les hôtes supervisés par votre plateforme."
+
 #: centreon/www/install/front_translate.php
 msgid "Confirm"
 msgstr "Confirmer"
@@ -11149,6 +11153,10 @@ msgstr "Modifier un groupe"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Modify a Host"
 msgstr "Modifier un hôte"
+
+#: unknown
+msgid "Modify host"
+msgstr "Modifier l'hôte"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -21492,6 +21500,10 @@ msgid "Delete command"
 msgstr "Supprimer la commande"
 
 #: unknown
+msgid "Delete host"
+msgstr "Supprimer l'hôte"
+
+#: unknown
 msgid "Delete host categories"
 msgstr "Supprimer les catégories d'hôtes"
 
@@ -21506,6 +21518,10 @@ msgstr "Supprimer le groupe d'hôtes"
 #: unknown
 msgid "Delete host groups"
 msgstr "Supprimer les groupes d'hôtes"
+
+#: unknown
+msgid "Delete hosts"
+msgstr "Supprimer les hôtes"
 
 #: unknown
 msgid "Dependencies Management"
@@ -21616,6 +21632,10 @@ msgid "Do you want to delete this widget?"
 msgstr "Voulez-vous supprimer ce widget ?"
 
 #: unknown
+msgid "Do you want to duplicate the selected host(s)?"
+msgstr "Voulez-vous dupliquer le(s) hôte(s) sélectionné(s) ?"
+
+#: unknown
 msgid "Donate"
 msgstr "Donation"
 
@@ -21652,12 +21672,20 @@ msgid "Duplicate connector configuration"
 msgstr "Dupliquer la configuration de connecteur"
 
 #: unknown
+msgid "Duplicate host"
+msgstr "Dupliquer l'hôte"
+
+#: unknown
 msgid "Duplicate host group"
 msgstr "Dupliquer le groupe d'hôtes"
 
 #: unknown
 msgid "Duplicate host groups"
 msgstr "Dupliquer les groupes d'hôtes"
+
+#: unknown
+msgid "Duplicate hosts"
+msgstr "Dupliquer les hôtes"
 
 #: unknown
 msgid "ERROR"
@@ -24736,6 +24764,14 @@ msgstr ""
 
 #: unknown
 msgid ""
+"You are about to delete <strong>{{ count }} hosts.</strong> This action "
+"cannot be undone. Do you want to delete them?"
+msgstr ""
+"Vous êtes sur le point de supprimer <strong>{{ count }} hôtes</strong>. "
+"Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid ""
 "You are about to delete the <strong>{{ name }}</strong> additional "
 "configuration. This action cannot be undone. Do you want to delete it?"
 msgstr ""
@@ -24769,6 +24805,14 @@ msgstr ""
 
 #: unknown
 msgid ""
+"You are about to delete the <strong>{{ name }}</strong> host. This action "
+"cannot be undone. Do you want to delete it?"
+msgstr ""
+"Vous êtes sur le point de supprimer l'hôte <strong>{{ name }}</strong>. "
+"Cette action est irréversible. Voulez-vous le supprimer ?"
+
+#: unknown
+msgid ""
 "You are about to delete the token <b> {{tokenName}}</b>. This action <br> "
 "cannot be undone. If you proceed, all requests made using this token will "
 "be <br> rejected. Do you want to delete the token?"
@@ -24795,6 +24839,14 @@ msgstr ""
 "strong>. Combien de duplications souhaitez-vous effectuer ?"
 
 #: unknown
+msgid ""
+"You are about to duplicate <strong>{{ count }} hosts.</strong> Do you want "
+"to duplicate them?"
+msgstr ""
+"Vous êtes sur le point de dupliquer <strong>{{ count }} hôtes</strong>. "
+"Voulez-vous les dupliquer ?"
+
+#: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> command."
 msgstr ""
 "Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
@@ -24815,6 +24867,14 @@ msgid ""
 msgstr ""
 "Vous êtes sur le point de dupliquer le groupe d'hôtes <strong>{{ name }}</"
 "strong>. Combien de duplications souhaitez-vous effectuer ?"
+
+#: unknown
+msgid ""
+"You are about to duplicate the <strong>{{ name }}</strong> host. Do you want "
+"to duplicate it?"
+msgstr ""
+"Vous êtes sur le point de dupliquer l'hôte <strong>{{ name }}</strong>. "
+"Voulez-vous le dupliquer ?"
 
 #: unknown
 msgid ""

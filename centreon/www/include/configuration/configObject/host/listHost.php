@@ -72,13 +72,13 @@ $form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 
 // Select2 filters
 $hgRoute = './api/internal.php?object=centreon_configuration_hostgroup&action=list';
-$form->addElement('select2', 'hostgroup', '', [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hgRoute, 'multiple' => false, 'defaultDataset' => $hostgroup, 'linkedObject' => 'centreonHostgroups', 'allowClear' => false]);
+$form->addElement('select2', 'hostgroup', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hgRoute, 'multiple' => false, 'defaultDataset' => $hostgroup, 'linkedObject' => 'centreonHostgroups', 'allowClear' => true]);
 
 $pollerRoute = './api/internal.php?object=centreon_configuration_poller&action=list';
-$form->addElement('select2', 'poller', '', [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $pollerRoute, 'multiple' => false, 'defaultDataset' => $pollerVal, 'linkedObject' => 'centreonInstance', 'allowClear' => false]);
+$form->addElement('select2', 'poller', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $pollerRoute, 'multiple' => false, 'defaultDataset' => $pollerVal, 'linkedObject' => 'centreonInstance', 'allowClear' => true]);
 
 $tplRoute = './api/internal.php?object=centreon_configuration_hosttemplate&action=list';
-$form->addElement('select2', 'template', '', [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $tplRoute, 'multiple' => false, 'defaultDataset' => $templateVal, 'linkedObject' => 'centreonHosttemplates', 'allowClear' => false]);
+$form->addElement('select2', 'template', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $tplRoute, 'multiple' => false, 'defaultDataset' => $templateVal, 'linkedObject' => 'centreonHosttemplates', 'allowClear' => true]);
 
 $statusFilter = ['' => '', 1 => _('Disabled'), 2 => _('Enabled')];
 $statusDefault = '';
@@ -98,19 +98,26 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 <?php
 
 foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex >= 3 && this.form.elements['" . $option . "'].selectedIndex <= 6) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+    // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
+    // the native confirm()/alert(); messages passed as data-* attributes so the
+    // handler stays locale-independent (keyed on the option value). The delete
+    // title/message vary by selection count, with the name (single) or count
+    // (several) rendered in bold via the {{ name }} / {{ count }} placeholders.
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete host'),
+        'data-title-delete-many' => _('Delete hosts'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> host. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} hosts.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate-one' => _('Duplicate host'),
+        'data-title-duplicate-many' => _('Duplicate hosts'),
+        'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> host. Do you want to duplicate it?'),
+        'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} hosts.</strong> Do you want to duplicate them?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
     $form->addElement('select', $option, null,
         [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable'), 'dp' => _('Deploy Service')], $attrs);
     $form->setDefaults([$option => null]);

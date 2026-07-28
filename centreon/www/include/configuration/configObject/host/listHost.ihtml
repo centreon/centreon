@@ -16,7 +16,7 @@ CentreonForm.detectSidePanelClose();
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$hostPage}&o=a', '{t}Add a Host{/t}'); return false;">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$hostPage}&o=a" data-panel-title="{t}Add a Host{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
@@ -25,7 +25,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--with-adv">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchH" value="{$searchH}" class="cl-search-simple" placeholder="{t}Search hosts{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchH" value="{$searchH}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
                     <button type="button" class="cl-adv-icon-btn" data-cl-adv-panel="clAdvPanel" onclick="clToggleAdvancedFilters(this)" title="{t}Advanced filters{/t}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
                         <span class="cl-adv-badge"></span>
@@ -36,24 +36,15 @@ CentreonForm.detectSidePanelClose();
                             <div class="cl-adv-fields">
                                 <div class="cl-adv-field">
                                     <label>{$Hostgroup}</label>
-                                    <div class="cl-adv-control">
-                                        {$form.hostgroup.html}
-                                        <button type="button" class="cl-adv-clear-field" onclick="jQuery('#hostgroup').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-                                    </div>
+                                    {$form.hostgroup.html}
                                 </div>
                                 <div class="cl-adv-field">
                                     <label>{$Poller}</label>
-                                    <div class="cl-adv-control">
-                                        {$form.poller.html}
-                                        <button type="button" class="cl-adv-clear-field" onclick="jQuery('#poller').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-                                    </div>
+                                    {$form.poller.html}
                                 </div>
                                 <div class="cl-adv-field">
                                     <label>{$Template}</label>
-                                    <div class="cl-adv-control">
-                                        {$form.template.html}
-                                        <button type="button" class="cl-adv-clear-field" onclick="jQuery('#template').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
-                                    </div>
+                                    {$form.template.html}
                                 </div>
                             </div>
                             <div class="cl-adv-actions">
@@ -123,7 +114,6 @@ var hostListing = new CentreonListing({
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'host_listing_limit',
-    emptyMessage:  'No hosts found',
     autoRefresh:   15000,
     liveSearch:    true,
     rowIdField:    'id',
@@ -138,11 +128,10 @@ var hostListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$hostPage}{literal}&o=c&host_id=' + row.id;
-            var title = '{/literal}{t}Modify Host{/t}{literal} - ' + row.name;
             var icon = row.icon
                 ? '<img src="'+clEscapeAttr(row.icon)+'" class="ico-16" style="vertical-align:middle;margin-right:8px;" onerror="this.outerHTML=\'<img src=./img/icons/host.svg class=ico-16 style=width:16px;height:16px;vertical-align:middle;margin-right:8px; />\'" />'
-                : '<svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:middle;margin-right:8px;" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><circle cx="6.5" cy="6.5" r="0.6" fill="currentColor" stroke="none"/><circle cx="6.5" cy="17.5" r="0.6" fill="currentColor" stroke="none"/></svg>';
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+icon+l.escape(row.name)+'</a>';
+                : '<svg viewBox="0 0 24 24" width="16" height="16" style="vertical-align:middle;margin-right:8px;" fill="currentColor"><path d="M4 21C3.45 21 2.97917 20.8042 2.5875 20.4125C2.19583 20.0208 2 19.55 2 19V5C2 4.45 2.19583 3.97917 2.5875 3.5875C2.97917 3.19583 3.45 3 4 3H9C9.55 3 10.0208 3.19583 10.4125 3.5875C10.8042 3.97917 11 4.45 11 5V19C11 19.55 10.8042 20.0208 10.4125 20.4125C10.0208 20.8042 9.55 21 9 21H4ZM15 21C14.45 21 13.9792 20.8042 13.5875 20.4125C13.1958 20.0208 13 19.55 13 19V5C13 4.45 13.1958 3.97917 13.5875 3.5875C13.9792 3.19583 14.45 3 15 3H20C20.55 3 21.0208 3.19583 21.4125 3.5875C21.8042 3.97917 22 4.45 22 5V19C22 19.55 21.8042 20.0208 21.4125 20.4125C21.0208 20.8042 20.55 21 20 21H15ZM4 19H9V5H4V19ZM15 19H20V5H15V19ZM5 15H8V13H5V15ZM16 15H19V13H16V15ZM5 12H8V10H5V12ZM16 12H19V10H16V12ZM5 9H8V7H5V9ZM16 9H19V7H16V9Z"/></svg>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify host{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+icon+l.escape(row.name)+'</a>';
         }},
         { id:'mon_state', align:'center', render: function(row, l) {
             if (row.mon_state === null || row.mon_state === undefined) return '<span style="opacity:.3;">-</span>';
@@ -177,7 +166,7 @@ var hostListing = new CentreonListing({
                     // read/write -> edit (o=c), read-only -> view (o=w, frozen form)
                     var mode = (tplAccess === 1) ? 'c' : 'w';
                     var tplUrl = 'main.get.php?p=60103&o=' + mode + '&host_id=' + t.id;
-                    parts.push('<a href="#" onclick="cfOpenPanel(\''+tplUrl+'\', \''+clEscapeAttr(t.name)+'\'); return false;">'+tplName+'</a>');
+                    parts.push('<a href="#" data-panel-url="'+clEscapeAttr(tplUrl)+'" data-panel-title="'+clEscapeAttr(t.name)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+tplName+'</a>');
                 } else {
                     // no access to the Host Templates menu -> not clickable
                     parts.push(tplName);
@@ -189,7 +178,7 @@ var hostListing = new CentreonListing({
     renderOptions: function(row, l) {
         var svcLink = './main.php?p=602&hostId=' + row.id;
         var checked = row.activate ? ' checked' : '';
-        return '<a href="'+svcLink+'" title="Display this host\'s services" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></a>' +
+        return '<a href="'+svcLink+'" title="Display this host\'s services" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);vertical-align:middle;"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:middle;"><path d="M10 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2M6 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m12-8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m-4 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m4-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m-4-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m-4-4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2"/></svg></a>' +
             '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="hostListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
             '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }
