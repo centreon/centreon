@@ -37,6 +37,15 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-config/centreonMainCfg.class
 
 const ZMQ = 1;
 const SSH = 2;
+const PULL = 3;
+const PULLWSS = 4;
+
+const GORGONE_DEFAULT_PORTS = [
+    ZMQ => 5556,
+    SSH => 22,
+    PULL => 5556,
+    PULLWSS => 8086,
+];
 
 /**
  * Retrieve the next available suffixes for this server name from database

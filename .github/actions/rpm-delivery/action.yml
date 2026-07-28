@@ -157,7 +157,7 @@ runs:
         done
 
         if [[ "$DELIVERY_TYPE" == "feature" ]]; then
-          ROOT_REPO_PATH="rpm-standard-feature-$(echo "$GH_HEAD_REF" | grep -oP '^.*MON-[0-9]+')"
+          ROOT_REPO_PATH="rpm-standard-feature/$(echo "$GH_HEAD_REF" | grep -oP '^.*MON-[0-9]+')"
         elif [[ "$IS_CLOUD" == "true" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else

@@ -1128,6 +1128,19 @@ msgstr "Paramètres avancés"
 msgid "Advanced: reverse Centreon Broker communication flow"
 msgstr "Avancé : inverser le flux de communication du Broker Centreon"
 
+#: centreon/www/install/react_translation.php
+msgid "Advanced: gorgone - poller connects to the central"
+msgstr "Avancé : gorgone - le collecteur se connecte au central"
+
+#: centreon/www/install/react_translation.php
+msgid "Prerequisite: configure the central to accept PullWSS connections"
+msgstr ""
+"Prérequis : configurer le central pour accepter les connexions PullWSS"
+
+#: centreon/www/install/react_translation.php
+msgid "documentation"
+msgstr "documentation"
+
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "After"
 msgstr "Après"
@@ -13457,6 +13470,14 @@ msgstr "Certificat public (.crt, .cert, .cer)"
 msgid "Public views list"
 msgstr "List des vues publiques"
 
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "Pull (Deprecated)"
+msgstr "Pull (Obsolète)"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "PullWSS"
+msgstr "PullWSS"
+
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 msgid "Queue file"
 msgstr "File d'évènements"
@@ -14372,6 +14393,10 @@ msgstr "Recherche SQL"
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "SSH"
 msgstr "SSH"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "SSH (Deprecated)"
+msgstr "SSH (Obsolète)"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "SSH Legacy port"
@@ -19724,6 +19749,10 @@ msgstr "Votre widget a été modifié avec succès !"
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "ZMQ"
 msgstr "ZMQ"
+
+#: centreon/www/include/configuration/configServers/formServers.php
+msgid "ZMQ (Default)"
+msgstr "ZMQ (Par défaut)"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Zero-centered"
