@@ -964,7 +964,10 @@ msgid "Destination directory."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
@@ -2313,12 +2316,6 @@ msgstr ""
 msgid "Set the domain for search the service"
 msgstr ""
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr ""
@@ -2326,9 +2323,9 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/help.php

@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/install/centreon_broker_translation.php
 msgid ""
 msgstr ""
@@ -12,8 +11,8 @@ msgstr ""
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2026-04-17 09:26+0000\n"
 "Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
-"Language-Team: French <https://translate.apps.centreon.com/projects/"
-"centreon-infra-monitoring/develop/web-messages/fr/>\n"
+"Language-Team: French <https://translate.apps.centreon.com/projects/centreon-"
+"infra-monitoring/develop/web-messages/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -90,6 +89,10 @@ msgstr "1 jour"
 #: centreon/www/install/smarty_translate.php
 msgid "1 minute"
 msgstr "1 minute"
+
+#: centreon/www/install/front_translate.php
+msgid "1,000+"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "12 hours"
@@ -1036,6 +1039,7 @@ msgstr "Informations supplémentaires"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/configuration/configServers/listServers.php
+#: centreon/www/install/front_translate.php
 msgid "Address"
 msgstr "Adresse"
 
@@ -1441,39 +1445,9 @@ msgstr "Une erreur est survenue"
 msgid "An error occurred during authentication"
 msgstr "Une erreur est survenue durant l'authentification"
 
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when applying post update actions"
+#: centreon/src/Core/Security/Authentication/Application/UseCase/LogoutSession/LogoutSession.php
+msgid "An error occurred during session logout"
 msgstr ""
-"Une erreur s'est produite lors de l'application des actions postérieures à "
-"la mise à jour"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-#, php-format
-msgid "An error occurred when applying the update %s (%s)"
-msgstr ""
-"Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-#, php-format
-msgid "An error occurred when applying the update (%s)"
-msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when retrieving available updates"
-msgstr ""
-"Une erreur s'est produite lors de la récupération des mises à jour "
-"disponibles"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when retrieving the current version"
-msgstr ""
-"Une erreur s'est produite lors de la récupération de la version actuelle"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "An error occurred when writing engine context configuration"
-msgstr ""
-"Une erreur s'est produite lors de l'écriture de la configuration du contexte "
-"moteur"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 #, php-format
@@ -2099,6 +2073,14 @@ msgstr "Évènements Broker"
 msgid "Broker module information"
 msgstr "Information du module broker"
 
+#: centreon/www/class/centreonBroker.class.php
+msgid ""
+"Broker reload command does not match the expected format. Please check the "
+"monitoring server configuration."
+msgstr ""
+"La commande de rechargement du broker ne correspond pas au format attendu. "
+"Veuillez vérifier la configuration du serveur de supervision."
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Buffering timeout"
 msgstr "Temps avant activation du processus de basculement (failover)"
@@ -2370,16 +2352,6 @@ msgstr "Impossible d'ouvrir le fichier des statistiques"
 msgid "Cannot register the '%s' platform : '%s'@'%s' behind a '%s' platform"
 msgstr ""
 "Impossible d'enregistrer la plateforme '%s' : '%s'@'%s' derrière un '%s'"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "Cannot retrieve the current version"
-msgstr "La version actuelle n'a pas pu être récupérée"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementException.php
-msgid "Cannot retrieve the database version information"
-msgstr ""
-"Les informations de version de la base de données n'ont pas pu être "
-"récupérées"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
@@ -2942,6 +2914,14 @@ msgid "Click here for details"
 msgstr "Cliquez ici pour les détails"
 
 #: centreon/www/install/front_translate.php
+msgid ""
+"Click to generate the command. Once it's ready, copy it and run it in your "
+"environment."
+msgstr ""
+"Cliquez pour générer la commande. Une fois prête, copiez-la et exécutez-la "
+"dans votre environnement."
+
+#: centreon/www/install/front_translate.php
 msgid "Client ID"
 msgstr "Identifiant client"
 
@@ -3291,6 +3271,10 @@ msgstr "Nom de l'image obligatoire"
 msgid "Compulsory name"
 msgstr "Nom obligatoire"
 
+#: centreon/www/install/front_translate.php
+msgid "Computing exact count…"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Condensed"
 msgstr "Condensé"
@@ -3633,12 +3617,22 @@ msgid "Copy link"
 msgstr "Copier le lien"
 
 #: centreon/www/install/front_translate.php
+msgid "Copy the following command and run it on your poller to register it."
+msgstr ""
+"Copiez la commande suivante et exécutez-la sur votre collecteur pour "
+"l'enregistrer."
+
+#: centreon/www/install/front_translate.php
 msgid "Copy the link to this resource"
 msgstr "Copier le lien vers cette ressource"
 
 #: centreon/www/install/front_translate.php
 msgid "Copy/paste x.509 certificate"
 msgstr "Copier/coller le certificat x.509"
+
+#: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
+msgid "Could not copy VMWare configuration file"
+msgstr ""
 
 #: centreon/www/api/class/centreon_proxy.class.php
 msgid "Could not establish connection to Centreon IMP servers ("
@@ -3654,6 +3648,7 @@ msgstr ""
 "supervision '%s'.\n"
 "Veuillez vérifier son chemin ou le créer"
 
+#: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
 #: centreon/www/include/configuration/configGenerate/xml/restartPollers.php
@@ -3754,6 +3749,10 @@ msgstr "Créer un nouveau collecteur"
 #: centreon/www/install/react_translation.php
 msgid "Create new Remote Server"
 msgstr "Créer un nouveau serveur distant"
+
+#: centreon/www/install/front_translate.php
+msgid "Create new poller"
+msgstr "Créer un nouveau collecteur"
 
 #: centreon/www/include/home/customViews/index.php
 msgid "Create new view "
@@ -4225,10 +4224,6 @@ msgstr "Fichier de débogage (répertoire + fichier)"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Debug file Maximum Size"
 msgstr "Taille maximale du fichier de débogage"
-
-#: centreon/www/include/Administration/parameters/debug/form.php
-msgid "Debug level"
-msgstr "Niveau de débug"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Debug messages"
@@ -5257,6 +5252,10 @@ msgstr "Voulez-vous passer en mode classique ?"
 msgid "Do you want to switch to regex mode?"
 msgstr "Voulez-vous passer en mode regex ?"
 
+#: centreon/www/install/front_translate.php
+msgid "Docker compose"
+msgstr "Docker compose"
+
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -5971,6 +5970,14 @@ msgstr "Statut de l'ordonnanceur"
 msgid "Engine configuration"
 msgstr "Configuration du moteur de collecte"
 
+#: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
+msgid ""
+"Engine restart command does not match the expected format. Please check the "
+"monitoring server configuration."
+msgstr ""
+"La commande de redémarrage du moteur ne correspond pas au format attendu. "
+"Veuillez vérifier la configuration du serveur de supervision."
+
 #: centreon/www/install/front_translate.php
 msgid "Enter Regex"
 msgstr "Entrer une expression régulière"
@@ -5978,6 +5985,10 @@ msgstr "Entrer une expression régulière"
 #: centreon/www/install/front_translate.php
 msgid "Enter regex mode"
 msgstr "Activer le mode regex"
+
+#: centreon/www/install/front_translate.php
+msgid "Enter your poller's name and address"
+msgstr "Entrez le nom et l'adresse de votre collecteur"
 
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -6160,10 +6171,6 @@ msgstr "Erreur lors de l'initialisation de l'URI de l'API"
 #: centreon/src/Centreon/Domain/Option/OptionService.php
 msgid "Error when retrieving selected options"
 msgstr "Erreur lors de la récupération des options selectionnées"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementException.php
-msgid "Error when retrieving the database version"
-msgstr "Erreur lors de la récupération de la version de la base de données"
 
 #: centreon/src/Centreon/Domain/Filter/FilterService.php
 #, php-format
@@ -6545,7 +6552,8 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving LDAP auth information"
-msgstr "Erreur lors de la récupération des informations d'authentification LDAP"
+msgstr ""
+"Erreur lors de la récupération des informations d'authentification LDAP"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while retrieving a command"
@@ -6835,6 +6843,7 @@ msgstr "Erreur lors de la recherche d'utilisateurs"
 msgid "Error while searching host categories in real time context"
 msgstr "Erreur lors de la recherche de catégories d'hôtes"
 
+#: centreon/src/Core/Security/Authentication/Domain/Exception/ProviderException.php
 #: centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php
 #, php-format
 msgid "Error while searching provider configuration: '%s'"
@@ -7309,6 +7318,10 @@ msgid "FQDN / Address"
 msgstr "FQDN / Adresse"
 
 #: centreon/www/install/front_translate.php
+msgid "Failed to close the ticket"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Failed to copy breadcrumb"
 msgstr "Échec de la copie du fil d'Ariane"
 
@@ -7323,6 +7336,10 @@ msgstr "Échec de la copie du lien"
 #: centreon/www/install/front_translate.php
 msgid "Failed to copy the command!"
 msgstr "Échec de la copie de la commande !"
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to create poller"
+msgstr "Échec de la création du collecteur"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to create the dashboard"
@@ -7905,6 +7922,10 @@ msgid "Generate SNMP Trap configuration"
 msgstr "Générer la configuration des traps SNMP"
 
 #: centreon/www/install/front_translate.php
+msgid "Generate installation command"
+msgstr "Générez la commande d'installation"
+
+#: centreon/www/install/front_translate.php
 msgid "Generate token"
 msgstr "Générer un jeton"
 
@@ -7928,6 +7949,10 @@ msgstr "Génération du cache de l'application"
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Generating files"
 msgstr "Génération des fichiers"
+
+#: centreon/www/install/front_translate.php
+msgid "Generating..."
+msgstr "Génération en cours..."
 
 #: centreon/src/Centreon/Domain/MonitoringServer/Exception/ConfigurationMonitoringServerException.php
 #, php-format
@@ -9455,6 +9480,11 @@ msgstr "Format de coordonnées invalide"
 msgid "Invalid coordinates values specified"
 msgstr "Valeurs de coordonnées invalides"
 
+#: centreon/www/include/monitoring/downtime/AddDowntime.php
+#, php-format
+msgid "Invalid date format"
+msgstr "Format de date invalide"
+
 #: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
 msgid ""
@@ -10251,6 +10281,10 @@ msgstr "A partir d'une vue existante"
 msgid "Loaded"
 msgstr "Chargé"
 
+#: centreon/www/install/front_translate.php
+msgid "Loading..."
+msgstr "Chargement en cours..."
+
 #: centreon/src/Core/Security/ProviderConfiguration/Domain/Local/ConfigurationException.php
 msgid "Local provider configuration not found"
 msgstr "Configuration du fournisseur d'accès local non trouvée"
@@ -10578,11 +10612,6 @@ msgstr "Constructeur"
 #: centreon/www/install/front_translate.php
 msgid "Many thanks to all the contributors to the security of Centreon"
 msgstr "Un grand merci à tous les contributeurs pour la sécurité de Centreon"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/DatabaseRequirementValidators/MariaDbRequirementException.php
-#, php-format
-msgid "MariaDB version %s required (%s installed)"
-msgstr "La version %s de MariaDB est requise (%s installée)"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -11455,6 +11484,18 @@ msgstr "Informations détaillées"
 #: centreon/www/install/front_translate.php
 msgid "More filters"
 msgstr "Plus de filtres"
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"More than 1,000 resources match your search. Click to compute the exact "
+"count."
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+"Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour "
+"continuer."
 
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Move Export Files"
@@ -12400,6 +12441,18 @@ msgstr "Une colonne"
 msgid "One of the elements provided is not a ResourceGroup type"
 msgstr "Un des éléments fourni n'est pas de type ResourceGroup"
 
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host group(s)."
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/service/DB-Func.php
+msgid ""
+"One or more of the selected services cannot be moved: a service with the "
+"same description already exists on the target host(s)."
+msgstr ""
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "One peer retention"
 msgstr "Rétention des données pour connexion depuis serveur Central"
@@ -12603,16 +12656,6 @@ msgstr "Format de la chaîne de sortie (Formatage printf)"
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 msgid "Outputs"
 msgstr "Sorties"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/PhpRequirementException.php
-#, php-format
-msgid "PHP extension %s not loaded"
-msgstr "L'extension %s de PHP n'est pas chargée"
-
-#: centreon/src/Core/Platform/Infrastructure/Validator/RequirementValidators/PhpRequirementException.php
-#, php-format
-msgid "PHP version %s required (%s installed)"
-msgstr "La version %s de PHP est requise (%s installée)"
 
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid "PID"
@@ -12983,20 +13026,16 @@ msgstr "La plateforme n'a pas été trouvée"
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
-"for more details"
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in "
+"\"%s\" for more details"
 msgstr ""
-"Veuillez consulter les fichiers \"prod.upgrade.log\" et \"prod.web.log\" situés "
-"dans \"%s\" pour plus de détails"
+"Veuillez consulter les fichiers \"prod.upgrade.log\" et \"prod.web.log\" "
+"situés dans \"%s\" pour plus de détails"
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #, php-format
 msgid "Please choose a date before %d"
 msgstr "Veuillez choisir une date avant %d"
-
-#: centreon/www/include/monitoring/downtime/AddDowntime.php
-msgid "Invalid date format"
-msgstr "Format de date invalide"
 
 #: centreon/www/install/front_translate.php
 msgid "Please contact your administrator for more information."
@@ -13119,6 +13158,10 @@ msgstr "Veuillez utiliser l'interface Web pour installer Centreon."
 #, php-format
 msgid "Please use Web UI to update Centreon."
 msgstr "Veuillez utiliser l'interface Web pour mettre à jour Centreon."
+
+#: centreon/www/install/front_translate.php
+msgid "Please wait..."
+msgstr "Merci de patienter..."
 
 #: centreon/www/install/front_translate.php
 msgid "Please, select a valid countdown"
@@ -14880,6 +14923,10 @@ msgid "Select time zone"
 msgstr "Sélectionner un fuseau horaire"
 
 #: centreon/www/install/front_translate.php
+msgid "Select token"
+msgstr "Sélectionnez un jeton"
+
+#: centreon/www/install/front_translate.php
 msgid "Select type"
 msgstr "Sélectionner un type"
 
@@ -14890,6 +14937,10 @@ msgstr "Sélectionner les utilisateurs"
 #: centreon/www/install/front_translate.php
 msgid "Select your hosts' operating system"
 msgstr "Sélectionnez le système d'exploitation de vos hôtes"
+
+#: centreon/www/install/front_translate.php
+msgid "Select your poller's environment"
+msgstr "Sélectionnez l'environnement de votre collecteur"
 
 #: centreon/www/class/centreonConfigCentreonBroker.php
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
@@ -16572,6 +16623,10 @@ msgid "The command format is invalid"
 msgstr "Le format de la commande est invalide"
 
 #: centreon/www/install/front_translate.php
+msgid "The command is being generated…"
+msgstr "La commande est en cours de génération…"
+
+#: centreon/www/install/front_translate.php
 msgid ""
 "The command is only valid for hosts with an agent-initiated connection to "
 "this poller."
@@ -17861,6 +17916,10 @@ msgstr "Impossible d'analyser l'URL d'autorisation"
 msgid "Unable to retrieve platform information's data."
 msgstr "Impossible de récupérer les données d'information sur la plateforme."
 
+#: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
+msgid "Unable to revert passwords"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -18042,10 +18101,6 @@ msgstr "Mettre à jour la configuration d'agent"
 #: centreon/www/install/front_translate.php
 msgid "Update all"
 msgstr "Tout mettre à jour"
-
-#: centreon/src/Core/Platform/Application/UseCase/UpdateVersions/UpdateVersionsException.php
-msgid "Update already in progress"
-msgstr "Une mise à jour est déjà en cours"
 
 #: centreon/www/install/front_translate.php
 msgid "Update dashboard"
@@ -18252,6 +18307,10 @@ msgstr "V2 (ISO-8601, avec réglage fin du niveau de journalisation)"
 msgid "VAULT INFORMATION"
 msgstr "Accès au coffre-fort"
 
+#: centreon/www/install/front_translate.php
+msgid "VM or physical"
+msgstr "VM ou physique"
+
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Valid Email"
@@ -18327,6 +18386,10 @@ msgstr "La configuration du Vault a été mise à jour"
 #: centreon/src/CentreonLegacy/Core/Install/Step/Step6Vault.php
 msgid "Vault information"
 msgstr "Accès au coffre-fort"
+
+#: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
+msgid "Vault is not available"
+msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/listMnftr.php
@@ -19565,10 +19628,6 @@ msgstr "Vous devez saisir tous les arguments ou laisser vide"
 msgid "You must provide at least one %s"
 msgstr "Vous devez ajouter au moins un %s"
 
-#: centreon/src/Core/Resources/Infrastructure/Repository/DbReadResourceRepository.php
-msgid "You must provide at least one ACL provider"
-msgstr "Vous devez fournir au moins un fournisseur ACL"
-
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "You need to select a least one polling instance."
 msgstr "Vous devez sélectionner au moins une instance de collecte."
@@ -19808,13 +19867,6 @@ msgstr ""
 #, php-format
 msgid "[%s] The value \"%s\" was expected to be a valid e-mail address"
 msgstr "[%s] La valeur \"%s\" n'est pas une adresse email valide"
-
-#: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
-#, php-format
-msgid ""
-"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-msgstr ""
-"[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine valide"
 
 #: centreon/src/Centreon/Domain/Common/Assertion/AssertionException.php
 #, php-format
@@ -20350,6 +20402,10 @@ msgid "year"
 msgstr "année"
 
 #: centreon/www/install/front_translate.php
+msgid "{{count}} resources"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "{{label}} can be at most {{max}} characters"
 msgstr "{{label}} peut contenir au maximum {{max}} caractères"
 
@@ -20649,6 +20705,40 @@ msgid "An error occured while your platform update"
 msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 
 #: unknown
+msgid "An error occurred when applying post update actions"
+msgstr ""
+"Une erreur s'est produite lors de l'application des actions postérieures "
+"à la mise à jour"
+
+#, php-format
+#: unknown
+msgid "An error occurred when applying the update %s (%s)"
+msgstr ""
+"Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
+
+#, php-format
+#: unknown
+msgid "An error occurred when applying the update (%s)"
+msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
+
+#: unknown
+msgid "An error occurred when retrieving available updates"
+msgstr ""
+"Une erreur s'est produite lors de la récupération des mises à jour "
+"disponibles"
+
+#: unknown
+msgid "An error occurred when retrieving the current version"
+msgstr ""
+"Une erreur s'est produite lors de la récupération de la version actuelle"
+
+#: unknown
+msgid "An error occurred when writing engine context configuration"
+msgstr ""
+"Une erreur s'est produite lors de l'écriture de la configuration du "
+"contexte moteur"
+
+#: unknown
 msgid "An error occurred while filtering columns"
 msgstr "Une erreur est survenue lors du filtrage des colonnes"
 
@@ -20897,6 +20987,16 @@ msgstr ""
 "serveur distant"
 
 #: unknown
+msgid "Cannot retrieve the current version"
+msgstr "La version actuelle n'a pas pu être récupérée"
+
+#: unknown
+msgid "Cannot retrieve the database version information"
+msgstr ""
+"Les informations de version de la base de données n'ont pas pu être "
+"récupérées"
+
+#: unknown
 msgid "Cannot set parent id on a central server"
 msgstr "Il n'est pas possible d'assigner un id parent à un serveur central"
 
@@ -20968,8 +21068,8 @@ msgstr "Information sur Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
@@ -21285,8 +21385,8 @@ msgstr ""
 "Impossible de trouver la base de données de configuration. La session a "
 "probablement expiré."
 
-#: unknown
 #, php-format
+#: unknown
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -21379,6 +21479,10 @@ msgstr "Récupération des données OK"
 #: unknown
 msgid "Database Informations"
 msgstr "Informations de la base de données"
+
+#: unknown
+msgid "Debug level"
+msgstr "Niveau de débug"
 
 #: unknown
 msgid "Default Engine"
@@ -21728,6 +21832,10 @@ msgstr "Erreur lors de l'installation du correctif : %s."
 #: unknown
 msgid "Error when recovering the number of tokens"
 msgstr "Erreur lors de la récupération du nombre de token"
+
+#: unknown
+msgid "Error when retrieving the database version"
+msgstr "Erreur lors de la récupération de la version de la base de données"
 
 #: unknown
 msgid "Error when searching for a resource of monitoring server"
@@ -22617,8 +22725,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -22763,6 +22871,11 @@ msgstr "Map"
 #: unknown
 msgid "Map Icon"
 msgstr "Icône pour la carte"
+
+#, php-format
+#: unknown
+msgid "MariaDB version %s required (%s installed)"
+msgstr "La version %s de MariaDB est requise (%s installée)"
 
 #: unknown
 msgid "Maximum Check Result Reaper Time"
@@ -23096,9 +23209,19 @@ msgstr "Vue d'ensemble"
 msgid "PENDING"
 msgstr "EN ATTENTE"
 
+#, php-format
+#: unknown
+msgid "PHP extension %s not loaded"
+msgstr "L'extension %s de PHP n'est pas chargée"
+
 #: unknown
 msgid "PHP file included"
 msgstr "Fichier PHP inclus"
+
+#, php-format
+#: unknown
+msgid "PHP version %s required (%s installed)"
+msgstr "La version %s de PHP est requise (%s installée)"
 
 #: unknown
 msgid "Parent Host Categories"
@@ -23218,10 +23341,6 @@ msgstr ""
 #: unknown
 msgid "Please select an user in order to display resources"
 msgstr "Merci de sélectionner un utilisateur pour afficher les ressources"
-
-#: unknown
-msgid "Please wait..."
-msgstr "Merci de patienter..."
 
 #: unknown
 msgid "Plugin Test"
@@ -24003,8 +24122,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#: unknown
 #, php-format
+#: unknown
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
@@ -24355,6 +24474,10 @@ msgstr "Temps état disponible"
 #: unknown
 msgid "Update additional configuration"
 msgstr "Mettre à jour la configuration additionnelle"
+
+#: unknown
+msgid "Update already in progress"
+msgstr "Une mise à jour est déjà en cours"
 
 #: unknown
 msgid "Update definition in case of double definition"
@@ -24822,6 +24945,10 @@ msgid "You must fill in more resources."
 msgstr "Vous devez indiquer plus de ressources."
 
 #: unknown
+msgid "You must provide at least one ACL provider"
+msgstr "Vous devez fournir au moins un fournisseur ACL"
+
+#: unknown
 msgid "You must set a poller for generate configuration."
 msgstr "Sélectionner un collecteur pour générer la configuration."
 
@@ -24836,6 +24963,13 @@ msgstr "Vou devez spécifier un nom d'utilisateur"
 #: unknown
 msgid "Your session is expired."
 msgstr "Votre session a expiré"
+
+#, php-format
+#: unknown
+msgid ""
+"[%s] The value \"%s\" was expected to be a valid ip address or domain name"
+msgstr ""
+"[%s] La valeur \"%s\" n'est pas une adresse IP ou un nom de domaine valide"
 
 #: unknown
 msgid "cgi"
@@ -25024,66 +25158,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-#: src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
-msgid "Engine restart command does not match the expected format. Please check the monitoring server configuration."
-msgstr "La commande de redémarrage du moteur ne correspond pas au format attendu. Veuillez vérifier la configuration du serveur de supervision."
-
-#: www/class/centreonBroker.class.php
-msgid "Broker reload command does not match the expected format. Please check the monitoring server configuration."
-msgstr "La commande de rechargement du broker ne correspond pas au format attendu. Veuillez vérifier la configuration du serveur de supervision."
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "More than 1,000 resources match your search. Click to continue."
-msgstr "Plus de 1 000 ressources correspondent à votre recherche. Cliquez pour continuer."
-
-#: packages/ui/src/Listing/translatedLabels.ts
-msgid "Loading..."
-msgstr "Chargement en cours..."
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Create new poller"
-msgstr "Créer un nouveau collecteur"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Enter your poller's name and address"
-msgstr "Entrez le nom et l'adresse de votre collecteur"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Select your poller's environment"
-msgstr "Sélectionnez l'environnement de votre collecteur"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "VM or physical"
-msgstr "VM ou physique"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Docker compose"
-msgstr "Docker compose"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Select token"
-msgstr "Sélectionnez un jeton"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Generate installation command"
-msgstr "Générez la commande d'installation"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "The command is being generated…"
-msgstr "La commande est en cours de génération…"
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
-msgstr "Cliquez pour générer la commande. Une fois prête, copiez-la et exécutez-la dans votre environnement."
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Generating..."
-msgstr "Génération en cours..."
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Copy the following command and run it on your poller to register it."
-msgstr "Copiez la commande suivante et exécutez-la sur votre collecteur pour l'enregistrer."
-
-#: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Failed to create poller"
-msgstr "Échec de la création du collecteur"

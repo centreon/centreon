@@ -1254,8 +1254,11 @@ msgid "Destination directory."
 msgstr "Diretório de destino."
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
-msgstr "Diretório de ficheiros de log."
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -2873,12 +2876,6 @@ msgstr "Modelo de gráfico padrão."
 msgid "Set the domain for search the service"
 msgstr "Configurar o domínio para pesquisa de serviço"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Criticalidades são definidas no nível da categoria de objeto."
@@ -2886,13 +2883,10 @@ msgstr "Criticalidades são definidas no nível da categoria de objeto."
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
 msgstr ""
-"Nível de gravidade, deve ser um número. \n"
-"Os itens exibidos serão classificados em ordem crescente. \n"
-"Assim, a criticidade mais baixa é considerada de alta prioridade."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Short description of configuration"
@@ -6405,6 +6399,10 @@ msgstr ""
 "Compatível apenas com o motor Centreon> = 1.3."
 
 #: unknown
+msgid "Directory of log files."
+msgstr "Diretório de ficheiros de log."
+
+#: unknown
 msgid "Directory of trap configuration files."
 msgstr ""
 "Diretório contendo arquivos que permitem que o SNMPTT traduza traps SNMP."
@@ -6860,6 +6858,16 @@ msgstr "Criticalidade, usada para classificar objetos no menu Supervisão."
 #: unknown
 msgid "Severity level, must be a number. "
 msgstr "Nível de gravidade, deve ser um número."
+
+#: unknown
+msgid ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+msgstr ""
+"Nível de gravidade, deve ser um número. \n"
+"Os itens exibidos serão classificados em ordem crescente. \n"
+"Assim, a criticidade mais baixa é considerada de alta prioridade."
 
 #: unknown
 msgid ""

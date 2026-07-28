@@ -409,16 +409,6 @@ msgstr "Centreon Web URI."
 msgid "Centreontrapd init script to restart process on poller."
 msgstr "Centreontrapd init script to restart process on poller."
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"Check this option if your command requires shell features like pipes, "
-"redirections, globbing etc. Note that commands requiring shell are slowing "
-"down the poller server."
-msgstr ""
-"Check this option if your command requires shell features like pipes, "
-"redirections, globbing etc. Note that commands requiring shell are slowing "
-"down the poller server."
-
 #: centreon/www/include/configuration/configObject/traps-mibs/help.php
 msgid ""
 "Choose a local MIB file containing SNMP trap definitions to upload and "
@@ -552,10 +542,6 @@ msgstr ""
 "send. Additionally the format and the parameters of the trap can be "
 "described."
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid "Comments regarding the command."
-msgstr "Comments regarding the command."
-
 #: centreon/www/include/views/componentTemplates/help.php
 msgid "Comments regarding the curve template."
 msgstr "Comments regarding the curve template."
@@ -584,16 +570,6 @@ msgstr "Compatible with Centreon Broker only."
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Connection timeout"
 msgstr "Connection timeout"
-
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"Connectors are run in background and execute specific commands without the "
-"need to execute a binary, thus enhancing performance. This feature is "
-"available in Centreon Engine (>= 1.3)"
-msgstr ""
-"Connectors are run in background and execute specific commands without the "
-"need to execute a binary, thus enhancing performance. This feature is "
-"available in Centreon Engine (>= 1.3)"
 
 #: centreon/www/include/configuration/configGenerate/help.php
 msgid "Copies the generated files into the scheduler's configuration folder."
@@ -1191,14 +1167,6 @@ msgstr ""
 "If you do not specify any notification options, monitoring engine will "
 "assume that you want notifications to be sent out for all possible states."
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"Define the type of the command. The type will be used to show the command "
-"only in the relevant sections."
-msgstr ""
-"Define the type of the command. The type will be used to show the command "
-"only in the relevant sections."
-
 #: centreon/www/include/configuration/configObject/service/help.php
 msgid "Define which service states \"stalking\" is enabled for."
 msgstr "Define which service states \"stalking\" is enabled for."
@@ -1228,8 +1196,11 @@ msgid "Destination directory."
 msgstr "Destination directory."
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
-msgstr "Directory of log files."
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -2435,6 +2406,54 @@ msgstr ""
 "allow them to not only list, create and delete tokens for themselves, but "
 "also manage tokens for other users."
 
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list and edit check commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list and edit discovery commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list and edit miscellaneous commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list and edit notification commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list check commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list discovery commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list miscellaneous commands."
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/help.php
+msgid ""
+"Provided that the user can access the commands configuration menu, this "
+"action will allow them to list notification commands."
+msgstr ""
+
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Public certificate file path when TLS encryption is used."
 msgstr "Public certificate file path when TLS encryption is used."
@@ -2779,14 +2798,6 @@ msgstr "Set as default graph template."
 msgid "Set the domain for search the service"
 msgstr "Set the domain for search the service"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Severities are defined in the service category object."
@@ -2794,13 +2805,10 @@ msgstr "Severities are defined in the service category object."
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
 msgstr ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Short description of configuration"
@@ -3189,24 +3197,6 @@ msgstr ""
 msgid "The alias is used to define a longer name or description for the host."
 msgstr "The alias is used to define a longer name or description for the host."
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"The argument description provided here will be displayed instead of the "
-"technical names like ARGn."
-msgstr ""
-"The argument description provided here will be displayed instead of the "
-"technical names like ARGn."
-
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"The argument example defined here will be displayed together with the "
-"command selection and help in providing a hint of how to parametrize the "
-"command for execution."
-msgstr ""
-"The argument example defined here will be displayed together with the "
-"command selection and help in providing a hint of how to parametrize the "
-"command for execution."
-
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "The base DN for search groups"
 msgstr "The base DN for search groups"
@@ -3214,34 +3204,6 @@ msgstr "The base DN for search groups"
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "The base DN for search users"
 msgstr "The base DN for search users"
-
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"The command line specifies the real command line which is actually executed "
-"by Monitoring engine. Before execution, all valid macros are replaced with "
-"their respective values. To use the dollar sign ($) on the command line, you "
-"have to escape it with another dollar sign ($$). A semicolon (;) is used as "
-"separator for config file comments and must be worked around by setting a "
-"$USER$ macro to a semicolon and then referencing it here in place of the "
-"semicolon. If you want to pass arguments to commands during runtime, you can "
-"use $ARGn$ macros in the command line."
-msgstr ""
-"The command line specifies the real command line which is actually executed "
-"by Monitoring engine. Before execution, all valid macros are replaced with "
-"their respective values. To use the dollar sign ($) on the command line, you "
-"have to escape it with another dollar sign ($$). A semicolon (;) is used as "
-"separator for config file comments and must be worked around by setting a "
-"$USER$ macro to a semicolon and then referencing it here in place of the "
-"semicolon. If you want to pass arguments to commands during runtime, you can "
-"use $ARGn$ macros in the command line."
-
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"The command name is used to identify and display this command in contact, "
-"host and service definitions."
-msgstr ""
-"The command name is used to identify and display this command in contact, "
-"host and service definitions."
 
 #: centreon/www/include/configuration/configObject/connector/help.php
 msgid "The connector binary that centreon-engine will launch."
@@ -3325,14 +3287,6 @@ msgstr ""
 msgid "The login attribute<br/>In Centreon : Alias / Login"
 msgstr "The login attribute<br/>In Centreon : Alias / Login"
 
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"The macro description provided here will be displayed instead of the "
-"technical name."
-msgstr ""
-"The macro description provided here will be displayed instead of the "
-"technical name."
-
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "The maximum queries per transaction before commit."
 msgstr "The maximum queries per transaction before commit."
@@ -3378,14 +3332,6 @@ msgid ""
 msgstr ""
 "The optional definition of a graph template will be used as default graph "
 "template for this service."
-
-#: centreon/www/include/configuration/configObject/command/help.php
-msgid ""
-"The optional definition of a graph template will be used as default graph "
-"template, when no other is specified."
-msgstr ""
-"The optional definition of a graph template will be used as default graph "
-"template, when no other is specified."
 
 #: centreon/www/include/Administration/parameters/general/help.php
 msgid ""
@@ -5831,3 +5777,121 @@ msgid ""
 msgstr ""
 "number of partitions created in advance to prevent issues, by default 10 "
 "days."
+
+#: unknown
+msgid ""
+"Check this option if your command requires shell features like pipes, "
+"redirections, globbing etc. Note that commands requiring shell are "
+"slowing down the poller server."
+msgstr ""
+"Check this option if your command requires shell features like pipes, "
+"redirections, globbing etc. Note that commands requiring shell are "
+"slowing down the poller server."
+
+#: unknown
+msgid "Comments regarding the command."
+msgstr "Comments regarding the command."
+
+#: unknown
+msgid ""
+"Connectors are run in background and execute specific commands without "
+"the need to execute a binary, thus enhancing performance. This feature is "
+"available in Centreon Engine (>= 1.3)"
+msgstr ""
+"Connectors are run in background and execute specific commands without "
+"the need to execute a binary, thus enhancing performance. This feature is "
+"available in Centreon Engine (>= 1.3)"
+
+#: unknown
+msgid ""
+"Define the type of the command. The type will be used to show the command "
+"only in the relevant sections."
+msgstr ""
+"Define the type of the command. The type will be used to show the command "
+"only in the relevant sections."
+
+#: unknown
+msgid "Directory of log files."
+msgstr "Directory of log files."
+
+#: unknown
+msgid ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+msgstr ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+
+#: unknown
+msgid ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+msgstr ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+
+#: unknown
+msgid ""
+"The argument description provided here will be displayed instead of the "
+"technical names like ARGn."
+msgstr ""
+"The argument description provided here will be displayed instead of the "
+"technical names like ARGn."
+
+#: unknown
+msgid ""
+"The argument example defined here will be displayed together with the "
+"command selection and help in providing a hint of how to parametrize the "
+"command for execution."
+msgstr ""
+"The argument example defined here will be displayed together with the "
+"command selection and help in providing a hint of how to parametrize the "
+"command for execution."
+
+#: unknown
+msgid ""
+"The command line specifies the real command line which is actually "
+"executed by Monitoring engine. Before execution, all valid macros are "
+"replaced with their respective values. To use the dollar sign ($) on the "
+"command line, you have to escape it with another dollar sign ($$). A "
+"semicolon (;) is used as separator for config file comments and must be "
+"worked around by setting a $USER$ macro to a semicolon and then "
+"referencing it here in place of the semicolon. If you want to pass "
+"arguments to commands during runtime, you can use $ARGn$ macros in the "
+"command line."
+msgstr ""
+"The command line specifies the real command line which is actually "
+"executed by Monitoring engine. Before execution, all valid macros are "
+"replaced with their respective values. To use the dollar sign ($) on the "
+"command line, you have to escape it with another dollar sign ($$). A "
+"semicolon (;) is used as separator for config file comments and must be "
+"worked around by setting a $USER$ macro to a semicolon and then "
+"referencing it here in place of the semicolon. If you want to pass "
+"arguments to commands during runtime, you can use $ARGn$ macros in the "
+"command line."
+
+#: unknown
+msgid ""
+"The command name is used to identify and display this command in contact, "
+"host and service definitions."
+msgstr ""
+"The command name is used to identify and display this command in contact, "
+"host and service definitions."
+
+#: unknown
+msgid ""
+"The macro description provided here will be displayed instead of the "
+"technical name."
+msgstr ""
+"The macro description provided here will be displayed instead of the "
+"technical name."
+
+#: unknown
+msgid ""
+"The optional definition of a graph template will be used as default graph "
+"template, when no other is specified."
+msgstr ""
+"The optional definition of a graph template will be used as default graph "
+"template, when no other is specified."
