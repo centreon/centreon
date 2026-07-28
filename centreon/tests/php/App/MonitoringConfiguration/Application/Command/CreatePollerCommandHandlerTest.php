@@ -85,6 +85,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
             gorgoneCommunicationType: GorgoneCommunicationTypeEnum::PullWss,
+            centralAddress: new PollerAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -105,6 +106,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::Docker,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -125,6 +127,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 42,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         $events = $eventBus->getDispatchedEvents(PollerCreated::class);
@@ -274,11 +277,11 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: '10.0.0.1',
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         $events = $eventBus->getDispatchedEvents(PollerCreated::class);
         self::assertCount(1, $events);
-        self::assertSame('10.0.0.1', $events[0]->centralAddress);
+        self::assertSame('10.0.0.1', $events[0]->centralAddress->value);
     }
 }

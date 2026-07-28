@@ -89,7 +89,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             gorgoneCommunicationType: $this->isCloudPlatform
                 ? GorgoneCommunicationTypeEnum::PullWss
                 : GorgoneCommunicationTypeEnum::ZMQ,
-            centralAddress: $data->centralAddress,
+            centralAddress: new PollerAddress($data->centralAddress),
         );
 
         $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
