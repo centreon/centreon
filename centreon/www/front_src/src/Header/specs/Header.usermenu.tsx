@@ -36,6 +36,7 @@ export default (): void => {
     it('expands the popper when the user icon is clicked', () => {
       initialize();
       cy.get('[data-cy=userIcon]').as('userIcon');
+      cy.get('@userIcon').contains('AA');
       cy.get('@userIcon').click();
       cy.get('[data-cy=popper]').as('popper');
 
@@ -117,6 +118,61 @@ export default (): void => {
       cy.contains(labelFullscreen).realClick();
 
       cy.contains(labelFullscreen).should('not.exist');
+    });
+
+    describe('User icon initials', () => {
+      [
+        {
+          expected: 'JO',
+          fullname: 'John',
+          title:
+            'uses the first two letters when the full name is a single word'
+        },
+        {
+          expected: 'JD',
+          fullname: 'John_Doe',
+          title:
+            'uses the first letter of each word when the full name has two words separated by an underscore'
+        },
+        {
+          expected: 'JD',
+          fullname: 'John Doe',
+          title:
+            'uses the first letter of each word when the full name has two words separated by a space'
+        },
+        {
+          expected: 'JD',
+          fullname: 'John_Doe_Due',
+          title:
+            'uses the first letter of the first two words when the full name has more than two words'
+        },
+        {
+          expected: 'AP',
+          fullname: 'admin_plateforme',
+          title:
+            'uses the first letter of each word when the full name contains an underscore'
+        },
+        {
+          expected: 'AD',
+          fullname: '',
+          title:
+            'falls back to the username initials when the full name is empty',
+          username: 'admin'
+        },
+        {
+          expected: '?',
+          fullname: '',
+          title:
+            'displays a placeholder when both the full name and username are empty',
+          username: ''
+        }
+      ].forEach(({ fullname, expected, title, username }) => {
+        it(title, () => {
+          initialize({ user: { fullname, username } });
+
+          cy.get('[data-cy=userIcon]').should('have.text', expected);
+        });
+      });
     });
   });
 };
