@@ -91,10 +91,7 @@ runs:
       uses: ./.github/actions/setup-pulp-cli
       with:
         pulp_url: ${{ inputs.pulp_url }}
-        # suffixed per package format so the pulp server can grant rpm.* vs deb.*
-        # permissions separately instead of both to every delivery call (see the
-        # audience-keyed rules in delivery-tooling's configmap-settings.yaml)
-        audience: ${{ inputs.audience }}/${{ steps.pulp-properties.outputs.package_extension == 'rpm' && 'rpm-delivery' || 'deb-delivery' }}
+        audience: ${{ inputs.audience }}
 
     - name: Deliver RPM packages
       id: deliver-rpm
