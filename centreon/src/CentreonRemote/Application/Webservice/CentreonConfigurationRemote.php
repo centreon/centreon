@@ -500,24 +500,6 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             return ['error' => true, 'message' => $e->getMessage()];
         }
 
-        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
-            // Notify the Gorgone `centreon` module that a new PullWSS poller was added.
-            // Fire-and-forget: any failure must not prevent the poller from being created.
-            try {
-                Kernel::createForWeb()
-                    ->getContainer()
-                    ->get(GorgoneServiceInterface::class)
-                    ->send(new NodesSync());
-            } catch (Throwable $exception) {
-                CentreonLog::create()->warning(
-                    CentreonLog::TYPE_BUSINESS_LOG,
-                    'Failed to trigger Gorgone nodes sync',
-                    ['source' => 'poller_wizard', 'poller_id' => $serverId],
-                    $exception,
-                );
-            }
-        }
-
         $taskId = null;
 
         // if it is remote server wizard, create an export task and link pollers to it if needed
@@ -589,6 +571,22 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
             ]);
+        }
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            try {
+                Kernel::createForWeb()
+                    ->getContainer()
+                    ->get(GorgoneServiceInterface::class)
+                    ->send(new NodesSync());
+            } catch (Throwable $exception) {
+                CentreonLog::create()->warning(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    'Failed to trigger Gorgone nodes sync',
+                    ['source' => 'poller_wizard', 'poller_id' => $serverId],
+                    $exception,
+                );
+            }
         }
 
         // Update session to reload ACL
