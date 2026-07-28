@@ -45,9 +45,7 @@ $searchStatus = $centreon->historySearch[$url]['status'] ?? '';
 $searchVendor = $centreon->historySearch[$url]['vendor'] ?? '';
 $tpl->assign('searchT', $search);
 
-$dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
-$gopt = $dbResult->fetch();
-$defaultLimit = (int) ($gopt['value'] ?? 30) ?: 30;
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
 
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
