@@ -25440,7 +25440,7 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Enter your poller's information"
+# msgid "Enter your poller information"
 # msgstr ""
 
 #: unknown
@@ -25448,9 +25448,9 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Poller adress"
+# msgid "Poller address"
 # msgstr ""
 
 #: unknown
-# msgid "Centreon Central adress, as seen by this poller"
+# msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
