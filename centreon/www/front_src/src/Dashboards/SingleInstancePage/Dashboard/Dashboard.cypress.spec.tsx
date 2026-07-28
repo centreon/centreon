@@ -5,6 +5,8 @@ import widgetGenericTextProperties from 'centreon-widgets/centreon-widget-generi
 // @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-input/moduleFederation.json'.
 import widgetInputConfiguration from 'centreon-widgets/centreon-widget-input/moduleFederation.json';
 import widgetInputProperties from 'centreon-widgets/centreon-widget-input/properties.json';
+import widgetResourcesTableConfiguration from 'centreon-widgets/centreon-widget-resourcestable/moduleFederation.json';
+import { labelViewByHost } from 'centreon-widgets/centreon-widget-resourcestable/src/Listing/translatedLabels';
 import widgetSingleMetricConfiguration from 'centreon-widgets/centreon-widget-singlemetric/moduleFederation.json';
 import widgetSingleMetricProperties from 'centreon-widgets/centreon-widget-singlemetric/properties.json';
 // @ts-expect-error ts-migrate(2307) FIXME: Cannot find module 'centreon-widgets/centreon-widget-text/moduleFederation.json'.
@@ -55,7 +57,11 @@ import {
   labelUpdate
 } from '../../translatedLabels';
 import Dashboard from './Dashboard';
-import { dashboardAtom, isRedirectionBlockedAtom } from './atoms';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  isRedirectionBlockedAtom
+} from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
@@ -114,6 +120,10 @@ const initializeWidgets = (): ReturnType<typeof createStore> => {
     {
       ...widgetWebpageConfiguration,
       moduleFederationName: 'centreon-widget-webpage/src'
+    },
+    {
+      ...widgetResourcesTableConfiguration,
+      moduleFederationName: 'centreon-widget-resourcestable/src'
     }
   ];
 
@@ -440,6 +450,30 @@ const runFavoriteManagementFromDetails = ({ action, customDetailsPath }) => {
   });
 };
 
+const initializeResourcesTableDashboard = (): {
+  store: ReturnType<typeof createStore>;
+} => {
+  cy.fixture(
+    'Dashboards/Dashboard/WidgetInteractions/resourcestable.json'
+  ).then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'centreon-widget-resourcestable',
+      method: Method.GET,
+      path: './api/latest/monitoring/resources?**',
+      response: data
+    });
+  });
+
+  const { store } = initializeAndMount({
+    ...editorRoles,
+    customDetailsPath: 'Dashboards/Dashboard/WidgetInteractions/details.json'
+  });
+
+  cy.waitForRequest('@getDashboardDetails');
+
+  return { store };
+};
+
 describe('Dashboard', () => {
   describe('Roles', () => {
     it('has access to the dashboard edition features when the user has the editor role', () => {
@@ -473,6 +507,56 @@ describe('Dashboard', () => {
       initializeAndMount(viewerAdministratorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
+
+      cy.contains(labelEditDashboard).should('be.visible');
+    });
+  });
+
+  describe('Widget interactions in view mode', () => {
+    it('keeps the dashboard in view mode when a widget selector is used', () => {
+      const { store } = initializeResourcesTableDashboard();
+
+      cy.findByLabelText(labelViewByHost).click();
+
+      cy.contains(labelEditDashboard).should('be.visible');
+      cy.findByLabelText(labelSave).should('not.exist');
+      cy.url().should('not.include', 'edit=true');
+
+      cy.wrap(null).then(() => {
+        expect(store.get(isEditingAtom)).to.equal(false);
+
+        const resourcesTablePanel = store
+          .get(dashboardAtom)
+          .layout.find(({ name }) =>
+            equals(name, 'centreon-widget-resourcestable')
+          );
+
+        expect(resourcesTablePanel?.options?.displayType).to.equal('host');
+      });
+
+      cy.makeSnapshot();
+    });
+
+    it('discards widget interactions made in view mode when the edition mode is activated', () => {
+      const { store } = initializeResourcesTableDashboard();
+
+      cy.findByLabelText(labelViewByHost).click();
+
+      cy.findByLabelText(labelEditDashboard).click();
+
+      cy.wrap(null).then(() => {
+        expect(store.get(isEditingAtom)).to.equal(true);
+
+        const resourcesTablePanel = store
+          .get(dashboardAtom)
+          .layout.find(({ name }) =>
+            equals(name, 'centreon-widget-resourcestable')
+          );
+
+        expect(resourcesTablePanel?.options?.displayType).to.equal(undefined);
+      });
+
+      cy.findByLabelText(labelCancel).click();
 
       cy.contains(labelEditDashboard).should('be.visible');
     });

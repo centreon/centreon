@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -25,6 +25,7 @@ import {
   isEditingAtom
 } from '../../atoms';
 import { useLastRefresh } from '../../hooks/useLastRefresh';
+import useResetDashboardFromSavedState from '../../hooks/useResetDashboardFromSavedState';
 import {
   labelMoreActions,
   labelResourcesStatus,
@@ -66,7 +67,9 @@ const PanelHeader = ({
   const dashboard = useAtomValue(dashboardAtom);
   const duplicatePanel = useSetAtom(duplicatePanelDerivedAtom);
 
-  const setIsEditing = useSetAtom(isEditingAtom);
+  const [isEditing, setIsEditing] = useAtom(isEditingAtom);
+
+  const resetDashboardFromSavedState = useResetDashboardFromSavedState();
 
   const panel = useMemo(
     () => dashboard.layout.find((dashbordPanel) => equals(dashbordPanel.i, id)),
@@ -92,6 +95,9 @@ const PanelHeader = ({
 
   const duplicate = (event: MouseEvent): void => {
     event.preventDefault();
+    if (!isEditing) {
+      resetDashboardFromSavedState();
+    }
     setIsEditing(() => true);
     duplicatePanel(id);
   };
