@@ -8,7 +8,7 @@ CentreonForm.detectSidePanelClose();
 
 <form name='form' method='POST'>
     <div class="cl-page-header">
-        <h1 class="cl-page-title">{t}Host categories{/t}</h1>
+        <h1 class="cl-page-title">{t}Host Categories{/t}</h1>
         <span class="cl-page-title-sep"></span>
         <p class="cl-page-desc">{t}Group hosts into categories to organize and filter your configuration.{/t}</p>
     </div>
@@ -16,7 +16,7 @@ CentreonForm.detectSidePanelClose();
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$hcPage}&o=a', '{t}Add a Host Category{/t}'); return false;">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$hcPage}&o=a" data-panel-title="{t}Add a host category{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
@@ -25,7 +25,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchHC" value="{$searchHC}" class="cl-search-simple" placeholder="{t}Search host categories{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchHC" value="{$searchHC}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
                 </div>
             </div>
             <div class="cl-toolbar-right">
@@ -85,20 +85,17 @@ var hcListing = new CentreonListing({
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'hc_listing_limit',
-    emptyMessage:  'No host categories found',
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$hcPage}{literal}&o=c&hc_id=' + row.id;
-            var title = '{/literal}{t}Modify Host Category{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a host category{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$hcPage}{literal}&o=c&hc_id=' + row.id;
-            var title = '{/literal}{t}Modify Host Category{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a host category{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'enabled_hosts', align:'center' },
         { id:'disabled_hosts', align:'center' },

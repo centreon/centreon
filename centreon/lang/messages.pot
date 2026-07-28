@@ -845,6 +845,14 @@ msgstr ""
 msgid "Add a host category"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
