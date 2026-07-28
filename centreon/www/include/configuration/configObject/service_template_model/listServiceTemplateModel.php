@@ -38,11 +38,7 @@ $tpl->assign('headerMenu_parent', _('Templates'));
 $tpl->assign('headerMenu_options', _('Options'));
 
 // Default limit from config
-$defaultLimit = 30;
-$dbResult = $pearDB->query("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
-if ($gopt = $dbResult->fetch()) {
-    $defaultLimit = (int) $gopt['value'] ?: 30;
-}
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
 $tpl->assign('stPage', $p);
 
