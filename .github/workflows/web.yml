@@ -795,8 +795,11 @@ jobs:
         gherkin-lint,
         e2e-lint,
       ]
+    # TEMP TEST HACK (MON-199322): trigger_packaging bypassed to force a real
+    # package build, so deliver-pulp below has something real to deliver while
+    # testing the Pulp RBAC scope changes on this branch. MUST be reverted
+    # before merge.
     if: |
-      needs.changes.outputs.trigger_packaging == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
@@ -1475,20 +1478,20 @@ jobs:
   deliver-pulp:
     continue-on-error: true
     runs-on: centreon-ubuntu-22.04
+    # TEMP TEST HACK (MON-199322): depends directly on `package` instead of
+    # [changes, get-environment, e2e-test] — skips the change-detection and e2e
+    # gates entirely so this runs right after packages build, faster, for Pulp
+    # RBAC delivery testing on this branch only. MUST be reverted before merge.
     needs:
       [
-        changes,
         get-environment,
-        e2e-test
+        package
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
