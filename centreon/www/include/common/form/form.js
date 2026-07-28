@@ -370,6 +370,10 @@ var CentreonForm = (function () {
 
                 // Click handler: update visual state and hidden radio
                 btn.addEventListener('click', function () {
+                    // User gesture on a custom control → mark the form dirty
+                    // (the synthetic change dispatched below is !isTrusted and so
+                    // is ignored by the unsaved-changes guard).
+                    window.cfFormDirty = true;
                     buttons.forEach(function (b) {
                         b.classList.remove('active');
                     });
@@ -458,6 +462,7 @@ var CentreonForm = (function () {
                     var radio = _findRadio(base, v);
                     if (radio && radio.checked) btn.classList.add('active');
                     btn.addEventListener('click', function () {
+                        window.cfFormDirty = true; // user gesture → form is dirty
                         Array.prototype.forEach.call(btns, function (b) { b.classList.remove('active'); });
                         btn.classList.add('active');
                         var r = _findRadio(base, v);
@@ -612,6 +617,7 @@ var CentreonForm = (function () {
                     chip.textContent = lbl ? lbl.textContent.trim() : (it.input.value || '');
                     if (it.input.checked) chip.classList.add('active');
                     chip.addEventListener('click', function () {
+                        window.cfFormDirty = true; // user gesture → form is dirty
                         var isExclusive = (it.input === exclusive);
                         if (exclusive && isExclusive) {
                             g.items.forEach(function (o) {
@@ -938,6 +944,306 @@ var CentreonForm = (function () {
     }
 
     // =========================================================================
+    //  SELECT2 PLACEHOLDERS + MULTI-SELECT SINGLE-ROW COLLAPSE
+    // =========================================================================
+
+    /**
+     * Give select2 fields a placeholder (the field label) like the simple
+     * selects have. Sets data-placeholder on the underlying <select> (read by
+     * select2 if it initializes later) and the single-select search field's
+     * placeholder (if select2 is already initialized).
+     */
+    function initSelect2Placeholders() {
+        var i18n = (window.clI18n && window.clI18n.selectPlaceholder) || {};
+        document.querySelectorAll('.cf-field').forEach(function (field) {
+            var select = field.querySelector('select');
+            if (!select) return;
+            // Generic placeholder — the field's label above already names the
+            // control: "Search" for multi-selects (type to filter), "Select" for
+            // single-selects. Translatable via window.clI18n (htmlHeader.php).
+            var ph = select.multiple ? (i18n.multiple || 'Search') : (i18n.single || 'Select');
+
+            if (!select.getAttribute('data-placeholder')) {
+                select.setAttribute('data-placeholder', ph);
+            }
+            // Multi-select inline-search placeholder is managed dynamically by
+            // initMultiSelectCollapse (shown only when nothing is selected), so
+            // it is intentionally not forced here.
+            var singleSearch = field.querySelector('.select2-selection--single .select2-search__field');
+            if (singleSearch && !singleSearch.getAttribute('placeholder')) {
+                singleSearch.setAttribute('placeholder', ph);
+            }
+        });
+    }
+
+    /**
+     * Keep a select2 multiple selection on one line; overflowing chips are
+     * clipped and a "+N" blue-text control reveals them. It toggles expand/collapse;
+     * the selection also auto-expands while its dropdown is open so the inline
+     * search field is usable, then re-collapses on close.
+     */
+    function initMultiSelectCollapse() {
+        var $ = window.jQuery;
+        document.querySelectorAll('.cf-field .select2-selection--multiple').forEach(function (sel) {
+            if (sel.getAttribute('data-cf-collapse')) return;
+            sel.setAttribute('data-cf-collapse', '1');
+
+            var field = sel.closest('.cf-field');
+            var selectEl = field ? field.querySelector('select') : null;
+
+            // The label text used as the inline-search placeholder — shown only
+            // when nothing is selected. Otherwise select2's tiny search field
+            // leaks a sliver of it (e.g. a stray "C") next to the chips.
+            // Generic "Search" placeholder for the inline search of multi-selects
+            // (translatable via window.clI18n; the field label already names it).
+            var phText = (window.clI18n && window.clI18n.selectPlaceholder
+                && window.clI18n.selectPlaceholder.multiple) || 'Search';
+            function syncPlaceholder() {
+                var searchField = sel.querySelector('.select2-search__field');
+                if (!searchField) return;
+                var hasChips = !!sel.querySelector('.select2-selection__choice');
+                searchField.setAttribute('placeholder', hasChips ? '' : phText);
+            }
+
+            var more = document.createElement('span');
+            more.className = 'cf-chips-more';
+            more.style.display = 'none';
+            // Don't let clicks on the "+N" text open the select2 dropdown.
+            more.addEventListener('mousedown', function (e) { e.preventDefault(); e.stopPropagation(); });
+            more.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (sel.classList.contains('cf-chips-expanded')) {
+                    collapse();
+                } else {
+                    expand(true);
+                }
+            });
+            sel.appendChild(more);
+            sel.classList.add('cf-chips-collapsed');
+
+            function expand(manual) {
+                sel.classList.add('cf-chips-expanded');
+                sel.classList.remove('cf-chips-collapsed');
+                // Only offer a manual collapse control when the user expanded it.
+                if (manual) {
+                    more.textContent = '−'; // − (minus) to collapse back
+                    more.style.display = '';
+                } else {
+                    more.style.display = 'none';
+                }
+            }
+
+            function collapse() {
+                sel.classList.remove('cf-chips-expanded');
+                sel.classList.add('cf-chips-collapsed');
+                recount();
+            }
+
+            // Count chips wrapped onto row 2+ (clipped by the collapsed max-height).
+            // Chips share an offsetParent (the positioned selection box), so the
+            // top row is the minimum offsetTop and anything below it is hidden.
+            function recount() {
+                if (sel.classList.contains('cf-chips-expanded')) return;
+                var rendered = sel.querySelector('.select2-selection__rendered');
+                // Keep the FIRST (oldest) chips in view on the single visible
+                // row: select2 scrolls the rendered box to the newest chip /
+                // inline search when a selection is made, which would otherwise
+                // show the last chips. Pin it back to the top.
+                if (rendered) rendered.scrollTop = 0;
+                var choices = rendered
+                    ? rendered.querySelectorAll('.select2-selection__choice')
+                    : [];
+                if (!choices.length) { more.style.display = 'none'; return; }
+                var firstTop = Infinity;
+                choices.forEach(function (c) { if (c.offsetTop < firstTop) firstTop = c.offsetTop; });
+                var hidden = 0;
+                choices.forEach(function (c) { if (c.offsetTop > firstTop + 2) hidden++; });
+                if (hidden > 0) {
+                    more.textContent = '+' + hidden;
+                    more.style.display = '';
+                } else {
+                    more.style.display = 'none';
+                }
+            }
+
+            // Re-measure when chips are added/removed (select2 re-renders the list).
+            var rendered = sel.querySelector('.select2-selection__rendered');
+            if (rendered && window.MutationObserver) {
+                new MutationObserver(function () {
+                    syncPlaceholder();
+                    if (!sel.classList.contains('cf-chips-expanded')) recount();
+                }).observe(rendered, { childList: true, subtree: true });
+            }
+            window.addEventListener('resize', recount);
+
+            // Auto-expand while the dropdown is open (inline search needs to show),
+            // re-collapse on close.
+            // Show-on-interaction affordance, same model as single selects: the
+            // clear-all eraser appears only while the multi-select is active
+            // (focused / dropdown open) AND something is selected. Per-chip ×
+            // removes stay visible. Visibility is driven by CSS through the
+            // classes toggled here.
+            if (field) field.classList.add('cf-multi-clearable');
+            var mIsOpen = false;
+            function setMultiActive(on) { if (field) field.classList.toggle('cf-select-active', on); }
+            function syncMultiFilled() {
+                if (field) {
+                    field.classList.toggle('cf-multi-filled', !!sel.querySelector('.select2-selection__choice'));
+                }
+            }
+
+            if ($ && selectEl) {
+                $(selectEl)
+                    .on('select2:open', function () { mIsOpen = true; expand(false); setMultiActive(true); })
+                    .on('select2:close', function () {
+                        mIsOpen = false;
+                        collapse();
+                        syncPlaceholder();
+                        // Keep active if focus stayed within the field.
+                        setTimeout(function () {
+                            setMultiActive(!!field && field.contains(document.activeElement));
+                        }, 0);
+                    })
+                    .on('change', function () { syncPlaceholder(); syncMultiFilled(); });
+            }
+            if (field) {
+                field.addEventListener('focusin', function () { setMultiActive(true); });
+                field.addEventListener('focusout', function () {
+                    setTimeout(function () {
+                        setMultiActive(mIsOpen || field.contains(document.activeElement));
+                    }, 0);
+                });
+            }
+
+            syncPlaceholder();
+            syncMultiFilled();
+            recount();
+        });
+    }
+
+    /**
+     * Give single selects — both native <select> and select2 single — the same
+     * eraser (clear button) as multiple selects: a clickable icon sitting inside
+     * the field's right corner that clears the current value. The eraser shows
+     * only once a value is picked; while the field is empty the dropdown chevron
+     * stays visible as the affordance.
+     *
+     * Skipped when the select2 wrapper already injected its own clear button
+     * (allowClear) — those keep their behavior.
+     */
+    function initSingleSelectClear() {
+        var $ = window.jQuery;
+        document.querySelectorAll('.cf-field').forEach(function (field) {
+            if (field.getAttribute('data-cf-single-clear')) return;
+
+            var selectEl = field.querySelector('select');
+            if (!selectEl || selectEl.multiple) return;
+
+            // A select2 field keeps its <select> hidden and renders a container.
+            // We must recognize it as select2 even BEFORE select2 has rendered
+            // that container — its inline init <script> (centreonSelect2) is a
+            // reliable, timing-independent marker. Treating a not-yet-rendered
+            // select2 as a native <select> is what used to wire up the eraser on
+            // the wrong assumptions and leave the field showing BOTH a chevron
+            // and centreon-select2's own always-on eraser at once.
+            var isSelect2 = !!field.querySelector('.select2-container')
+                || Array.prototype.some.call(
+                    field.querySelectorAll('script'),
+                    function (s) { return s.textContent.indexOf('centreonSelect2') !== -1; }
+                );
+            // select2 not painted yet: defer (without marking done) so the
+            // post-DOMContentLoaded re-run wires it up once the container exists.
+            if (isSelect2 && !field.querySelector('.select2-selection--single')) return;
+
+            field.setAttribute('data-cf-single-clear', '1');
+            field.classList.add('cf-single-clearable');
+
+            // centreon-select2 (allowClear is on by default) appends its OWN
+            // always-on eraser. It isn't filled-aware and sits next to the
+            // chevron this framework shows while the field is empty — so drop it
+            // and let the filled-aware .cf-single-clear below be the single
+            // source of truth for clearing a single select.
+            if (isSelect2) {
+                field.querySelectorAll('.clearAllSelect2:not(.cf-single-clear)').forEach(function (el) {
+                    if (el.parentNode) el.parentNode.removeChild(el);
+                });
+            }
+
+            function isFilled() {
+                return selectEl.value !== '' && selectEl.value != null;
+            }
+            function sync() {
+                field.classList.toggle('cf-single-filled', isFilled());
+            }
+
+            // Reuse the eraser look (icon, size, corner position, hover) from
+            // the multiple select via the shared .clearAllSelect2 class. The
+            // shared order/margin rules pull it back over the field's reserved
+            // right padding, so it renders inside the select box's corner.
+            var clear = document.createElement('span');
+            clear.className = 'clearAllSelect2 cf-single-clear';
+            clear.setAttribute('title', 'Clear field');
+            // Stop the mousedown from reaching select2 (which would open the
+            // dropdown) now that the eraser lives inside the select2 container.
+            clear.addEventListener('mousedown', function (e) { e.preventDefault(); e.stopPropagation(); });
+            clear.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (isSelect2 && $) {
+                    $(selectEl).val(null).trigger('change');
+                } else {
+                    selectEl.value = '';
+                    selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                sync();
+            });
+
+            // Anchor the eraser in the SAME frame as the select2 chevron — i.e.
+            // inside the .select2-container (positioned) — so the two sit side by
+            // side by absolute right-offsets instead of guessing at flex flow
+            // (which put them in different frames and made them overlap). Native
+            // <select> keeps the eraser as a flex sibling in the field.
+            var s2container = isSelect2 && field.querySelector('.select2-container');
+            (s2container || selectEl.parentNode).appendChild(clear);
+
+            sync();
+            if ($) {
+                $(selectEl).on('change', sync);
+            } else {
+                selectEl.addEventListener('change', sync);
+            }
+
+            // Reveal the chevron / eraser ONLY while the field is being used —
+            // focused, or with its dropdown open. At rest the field shows just
+            // its value / placeholder. .cf-select-active drives the CSS above.
+            function setActive(on) {
+                field.classList.toggle('cf-select-active', on);
+            }
+            if (isSelect2 && $) {
+                var isOpen = false;
+                $(selectEl).on('select2:open', function () { isOpen = true; setActive(true); });
+                $(selectEl).on('select2:close', function () {
+                    isOpen = false;
+                    // Keep active if focus returned to the selection box.
+                    setTimeout(function () { setActive(field.contains(document.activeElement)); }, 0);
+                });
+                // While the dropdown is open select2 moves focus into a search
+                // field appended to <body>, so focusout must not deactivate then.
+                field.addEventListener('focusin', function () { setActive(true); });
+                field.addEventListener('focusout', function () {
+                    setTimeout(function () {
+                        setActive(isOpen || field.contains(document.activeElement));
+                    }, 0);
+                });
+            } else {
+                selectEl.addEventListener('focus', function () { setActive(true); });
+                selectEl.addEventListener('blur', function () { setActive(false); });
+            }
+        });
+    }
+
+    // =========================================================================
     //  CONVENIENCE INITIALIZERS
     // =========================================================================
 
@@ -957,7 +1263,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
         if (options.geo) steps.push(initGeoAutocomplete);
@@ -965,6 +1271,19 @@ var CentreonForm = (function () {
         steps.forEach(function (step) {
             try { step(); } catch (e) { if (window.console) console.error('CentreonForm init step failed', e); }
         });
+
+        // select2 may finish rendering after DOMContentLoaded — some fields load
+        // their options via a slow defaultDatasetRoute. Re-run the select2-
+        // dependent steps over a short bounded window (all idempotent via their
+        // data-* guards) so even late-rendered selects get wired, instead of
+        // relying on a single fixed delay.
+        var reRuns = 0;
+        var reRunTimer = setInterval(function () {
+            try { initSelect2Placeholders(); } catch (e) {}
+            try { initMultiSelectCollapse(); } catch (e) {}
+            try { initSingleSelectClear(); } catch (e) {}
+            if (++reRuns >= 8) { clearInterval(reRunTimer); } // ~4s safety window
+        }, 500);
     }
 
     /**
@@ -977,6 +1296,10 @@ var CentreonForm = (function () {
      * @private
      */
     function initEnterToSubmit() {
+        // Bind the document listener at most once, even if initFormPage() runs
+        // more than once on a page (otherwise Enter would submit N times).
+        if (window.__cfEnterToSubmit) return;
+        window.__cfEnterToSubmit = true;
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Enter') return;
 
