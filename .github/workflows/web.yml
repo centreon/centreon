@@ -1324,6 +1324,12 @@ jobs:
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
+  # TEMP TEST HACK — MUST be reverted before merge. Added
+  # `github.event_name != 'workflow_dispatch'` (matching deliver-sources/
+  # build-openapi-documentation above) so this real Artifactory delivery job
+  # does NOT run during the Pulp RBAC test dispatches (delivery-tooling
+  # MON-199322) — those must only publish to Pulp, never the real, still-
+  # authoritative Artifactory.
   deliver:
     runs-on: ubuntu-24.04
     needs:
@@ -1341,6 +1347,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
+      github.event_name != 'workflow_dispatch' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
