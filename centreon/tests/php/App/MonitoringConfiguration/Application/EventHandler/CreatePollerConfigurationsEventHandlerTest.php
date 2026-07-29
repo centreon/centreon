@@ -26,7 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Application\EventHandler;
 use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommand;
 use App\MonitoringConfiguration\Application\EventHandler\CreatePollerConfigurationsEventHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -81,7 +81,7 @@ final class CreatePollerConfigurationsEventHandlerTest extends TestCase
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineInformation: new EngineInformation(),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
