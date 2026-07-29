@@ -160,6 +160,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         self::assertCount(1, $poller->globalMacros);
@@ -208,6 +209,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         self::assertCount(3, $poller->globalMacros);
@@ -257,6 +259,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         self::assertCount(2, $poller->globalMacros);
@@ -265,7 +268,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
         self::assertCount(1, $user2->pollers);
     }
 
-    public function testCentralAddressIsThreadedToEvent(): void
+    public function testCentralAddressIsSetOnPoller(): void
     {
         $repository = new FakePollerRepository();
         $eventBus = new EventBusSpy();
@@ -273,7 +276,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
         $globalMacroRepository = new FakeGlobalMacroRepository();
         $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
 
-        $handler(new CreatePollerCommand(
+        $poller = $handler(new CreatePollerCommand(
             name: new PollerName('MyPoller'),
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
@@ -281,8 +284,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
-        $events = $eventBus->getDispatchedEvents(PollerCreated::class);
-        self::assertCount(1, $events);
-        self::assertSame('10.0.0.1', $events[0]->centralAddress->value);
+        self::assertNotNull($poller->centralAddress);
+        self::assertSame('10.0.0.1', $poller->centralAddress->value);
     }
 }

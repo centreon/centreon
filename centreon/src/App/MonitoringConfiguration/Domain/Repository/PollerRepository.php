@@ -49,7 +49,5 @@ interface PollerRepository
      */
     public function get(PollerId $pollerId): Poller;
 
-    public function getCentralAddress(PollerId $pollerId): ?PollerAddress;
-
     public function withCmaCertificates(): self;
 }

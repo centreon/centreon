@@ -64,8 +64,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             ? $this->pollerTokenRepository->getValidPollerTokenByName($tokenName)
             : $this->pollerTokenRepository->getFirstValidPollerToken();
 
-        $centralAddress = $this->pollerRepository->getCentralAddress($pollerId);
-        if (! $centralAddress instanceof PollerAddress) {
+        if (! $poller->centralAddress instanceof PollerAddress) {
             throw new BadRequestHttpException(sprintf('No central address configured for poller #%d.', $pollerId->value));
         }
 
@@ -75,7 +74,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
             $this->isCloudPlatform,
-            $centralAddress->value,
+            $poller->centralAddress->value,
         );
 
         return new InstallationCommandResource(

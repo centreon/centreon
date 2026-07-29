@@ -72,6 +72,7 @@ final readonly class CreatePollerCommandHandler
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: $command->centralAddress,
         );
 
         $seenMacroNames = [];
@@ -85,7 +86,7 @@ final readonly class CreatePollerCommandHandler
 
         $this->repository->add($poller);
 
-        $this->eventBus->fire(new PollerCreated($poller, $command->creatorId, $command->centralAddress));
+        $this->eventBus->fire(new PollerCreated($poller, $command->creatorId));
 
         return $poller;
     }

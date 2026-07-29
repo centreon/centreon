@@ -23,18 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Event;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
-use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Event\AggregateCreated;
 
 final readonly class PollerCreated extends AggregateCreated
 {
-    public function __construct(
-        AggregateRoot $aggregate,
-        int $creatorId,
-        public PollerAddress $centralAddress,
-        \DateTimeImmutable $firedAt = new \DateTimeImmutable(),
-    ) {
-        parent::__construct($aggregate, $creatorId, $firedAt);
-    }
 }

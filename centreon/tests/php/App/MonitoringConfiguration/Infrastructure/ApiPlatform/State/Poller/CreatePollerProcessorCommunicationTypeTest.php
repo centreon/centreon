@@ -117,6 +117,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: new PollerAddress('192.168.1.254'),
         );
 
         $commandBus = $this->createMock(CommandBus::class);

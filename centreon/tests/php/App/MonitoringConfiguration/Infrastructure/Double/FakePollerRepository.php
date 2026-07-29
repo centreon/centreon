@@ -38,9 +38,6 @@ final class FakePollerRepository implements PollerRepository
     /** @var array<int, Poller> */
     public array $pollers = [];
 
-    /** @var array<int, PollerAddress> */
-    public array $centralAddresses = [];
-
     public function add(Poller $poller): void
     {
         do {
@@ -84,11 +81,6 @@ final class FakePollerRepository implements PollerRepository
     public function get(PollerId $pollerId): Poller
     {
         return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
-    }
-
-    public function getCentralAddress(PollerId $pollerId): ?PollerAddress
-    {
-        return $this->centralAddresses[$pollerId->value] ?? null;
     }
 
     public function withCmaCertificates(): self
