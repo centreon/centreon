@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\BrokerOptio
 use App\MonitoringConfiguration\Domain\Aggregate\EngineConfiguration\EngineConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -163,6 +164,8 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
             id: null,
             name: new PollerName($pollerName),
             address: new PollerAddress('192.168.1.100'),
+            // Required by the broker handler, which also listens to PollerCreated.
+            centralAddress: new CentralAddress('10.0.0.1'),
             isCentral: false,
             isDefault: false,
             isActivated: true,
