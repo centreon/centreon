@@ -319,6 +319,24 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $poller;
     }
 
+    public function getCentralAddress(PollerId $pollerId): ?PollerAddress
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('pt.central_address')
+            ->from('platform_topology', 'pt')
+            ->where('pt.server_id = :serverId')
+            ->setParameter('serverId', $pollerId->value)
+            ->setMaxResults(1);
+
+        $result = $qb->executeQuery()->fetchOne();
+
+        if (! is_string($result) || trim($result) === '') {
+            return null;
+        }
+
+        return new PollerAddress(trim($result));
+    }
+
     public function withCmaCertificates(): self
     {
         return new self(

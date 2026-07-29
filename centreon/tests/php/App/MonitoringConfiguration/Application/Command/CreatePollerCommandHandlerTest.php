@@ -57,6 +57,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);

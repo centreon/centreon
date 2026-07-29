@@ -76,7 +76,7 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
     {
         $poller = $this->createPoller(1, 'My Poller');
 
-        $this->eventBus->fire(new PollerCreated($poller, 1));
+        $this->eventBus->fire(new PollerCreated($poller, 1, new PollerAddress('10.0.0.1')));
 
         $cfgNagios = $this->connection->fetchAssociative(
             'SELECT * FROM cfg_nagios WHERE nagios_server_id = :id',
@@ -136,7 +136,7 @@ final class PollerCreatedEngineConfigurationTest extends KernelTestCase
 
             $poller = $this->createPoller(2, 'Rollback Test Poller');
 
-            $this->eventBus->fire(new PollerCreated($poller, 1));
+            $this->eventBus->fire(new PollerCreated($poller, 1, new PollerAddress('10.0.0.1')));
 
             $this->connection->commit();
             self::fail('Expected engine configuration creation to throw');

@@ -35,8 +35,8 @@ final readonly class CreatePollerCommand
         public PollerTypeEnum $pollerType,
         public PollerAddress $address,
         public int $creatorId,
-        public GorgoneCommunicationTypeEnum $gorgoneCommunicationType = GorgoneCommunicationTypeEnum::ZMQ,
         public PollerAddress $centralAddress,
+        public GorgoneCommunicationTypeEnum $gorgoneCommunicationType = GorgoneCommunicationTypeEnum::ZMQ,
     ) {
     }
 }

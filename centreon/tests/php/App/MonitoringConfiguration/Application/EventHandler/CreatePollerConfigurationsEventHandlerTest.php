@@ -49,7 +49,7 @@ final class CreatePollerConfigurationsEventHandlerTest extends TestCase
     public function testItDispatchesConfigurationCommands(): void
     {
         $poller = $this->createPoller(42, 'My Poller');
-        $event = new PollerCreated($poller, 1);
+        $event = new PollerCreated($poller, 1, new PollerAddress('10.0.0.1'));
 
         $dispatched = [];
         $commandBus = $this->createMock(CommandBus::class);
