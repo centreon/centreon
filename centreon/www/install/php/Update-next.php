@@ -21,8 +21,8 @@
 
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\QueryParameters\QueryParameter;
-use Adaptation\Database\QueryParameters\QueryParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerUpgrade;
 
 require_once __DIR__ . '/../../../bootstrap.php';
