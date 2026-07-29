@@ -1682,8 +1682,8 @@
       while (i >= 0) {
         attr = el.attributes[i];
         name = attr.name.toLowerCase();
-        value = attr.value;
-        if (name.indexOf("on") === 0) {
+        value = attr.value.replace(/[\t\r\n]/g, "");
+        if (name.indexOf("on") === 0 || name === "srcdoc") {
           el.removeAttribute(attr.name);
         } else if ((name === "href" || name === "src" || name === "xlink:href") && /^\s*javascript:/i.test(value)) {
           el.removeAttribute(attr.name);
