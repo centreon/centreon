@@ -1561,6 +1561,67 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      # TEMP TEST HACK — MUST be reverted before merge. Mints a real OIDC token for this job's
+      # own context (repository: centreon/centreon) and exports it for the RBAC assertions step
+      # below, which probes the domain-scoped WorkloadIdentity grants converted tonight directly
+      # against Pulp's REST API — bypassing promote-to-stable-pulp/package-delivery-pulp, which
+      # are not domain-aware yet (task #25).
+      - name: DEBUG — mint OIDC token and decode its claims
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const token = await core.getIDToken('https://pulp.dev.centreon.io')
+            core.setSecret(token)
+            core.exportVariable('PULP_TOKEN', token)
+            const payload = token.split('.')[1]
+            const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString())
+            for (const k of ['iss','aud','sub','repository','ref','ref_type','actor','workflow','event_name']) {
+              if (k in decoded) core.info(`  ${k} = ${decoded[k]}`)
+            }
+
+      # TEMP TEST HACK — MUST be reverted before merge (delivery-tooling MON-199322 WorkloadIdentity
+      # RBAC test). Three repos were pre-provisioned via delivery-tooling's create-repos.yml
+      # (major_version=00.00, throwaway, target=pulp): one in the "standard" domain (this
+      # repository's actual rpm-delivery grant), one in "business" (a domain this repository has
+      # no grant in at all), one in "standard-stable" (this repository DOES have a grant here, but
+      # only when the token's `ref` matches a gated branch/tag pattern — this branch's ref does
+      # not, so this must still be denied). modify_content is exercised with an empty content
+      # delta (add/remove_content_units: []) — a genuine no-op mutation, harmless, but it still
+      # triggers the exact same permission check a real delivery would.
+      - name: TEMP TEST HACK — WorkloadIdentity RBAC assertions (allow / deny / ref-gate)
+        shell: bash
+        run: |
+          PULP_URL="${{ vars.PULP_API_URL }}"
+
+          assert_code() {
+            local label="$1" href="$2" expect_ok="$3" code
+            code=$(curl -sS -o /tmp/wi_assert.json -w '%{http_code}' -X POST \
+              -H "Authorization: Github $PULP_TOKEN" -H "Content-Type: application/json" \
+              -d '{"add_content_units": [], "remove_content_units": []}' \
+              "$PULP_URL$href"modify/)
+            echo "[$label] HTTP $code (href: $href)"
+            head -c 300 /tmp/wi_assert.json; echo
+            if [[ "$expect_ok" == "true" && "$code" != "202" ]]; then
+              echo "::error::[$label] expected 202 (grant should allow this), got $code"
+              exit 1
+            fi
+            if [[ "$expect_ok" == "false" && "$code" == "202" ]]; then
+              echo "::error::[$label] expected a DENY (401/403), got 202 — this grant should NOT allow this"
+              exit 1
+            fi
+          }
+
+          assert_code "ALLOW standard (matching domain, no ref gate)" \
+            "/standard/api/v3/repositories/rpm/rpm/019faec7-f674-71aa-bd09-25353eca3bd2/" true
+
+          assert_code "DENY business (no grant in this domain)" \
+            "/business/api/v3/repositories/rpm/rpm/019faec8-f933-712e-9157-34b6c3aea3d5/" false
+
+          assert_code "DENY standard-stable (grant exists but ref does not match)" \
+            "/standard-stable/api/v3/repositories/rpm/rpm/019faec8-b332-7bee-ae47-1bf23f74b913/" false
+
+          echo "All three WorkloadIdentity RBAC assertions passed."
+
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
         uses: ./.github/actions/promote-to-stable-pulp
