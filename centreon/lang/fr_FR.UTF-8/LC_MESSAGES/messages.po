@@ -25116,3 +25116,19 @@ msgstr "Copiez la commande suivante et exécutez-la sur votre collecteur pour l'
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Failed to create poller"
 msgstr "Échec de la création du collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Enter your poller information"
+msgstr "Entrez les informations de votre collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Poller name"
+msgstr "Nom du collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Poller address"
+msgstr "Adresse du collecteur"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Centreon Central address, as seen by this poller"
+msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
