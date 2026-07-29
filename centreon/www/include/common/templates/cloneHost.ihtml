@@ -1,18 +1,3 @@
-<div id="{$cloneId}_controls">
-    <div id="{$cloneId}_add">
-        <span class="add-new-entry">
-            {assign var=isFrozen value=0}
-            {foreach from=$cloneSet item=v}
-                {if $v->isFrozen()}
-                    {assign var=isFrozen value=1}
-                {/if}
-            {/foreach}
-            {if $isFrozen == 0}
-                {t} + Add a new entry{/t}
-            {/if}
-        </span>
-    </div>
-</div>
 <ul id="{$cloneId}" class="clonable no-deco-list">
     <li class="clone_template" id="{$cloneId}_template">
         <hr style='margin:2;'/>
