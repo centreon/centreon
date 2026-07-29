@@ -1569,7 +1569,14 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
+          # TEMP TEST HACK — MUST be reverted before merge. Hardcoded to
+          # 'stable' instead of needs.get-environment.outputs.stability
+          # ('testing' on this branch, needed so deliver-pulp populates the
+          # testing tier this promotes from): the action itself only
+          # actually executes the promote write when its OWN stability input
+          # is 'stable', otherwise it's a dry run (delivery-tooling MON-199322
+          # RBAC audit — testing the real stable-tier write/ref restriction).
+          stability: "stable"
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           pulp_url: ${{ vars.PULP_API_URL }}
