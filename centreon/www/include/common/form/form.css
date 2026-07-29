@@ -284,6 +284,24 @@
     padding: 4px 0;
 }
 
+/* Two segmented-row controls side by side (e.g. Active/Passive checks).
+   Stay content-sized (never shrink the Yes/No/Default buttons — that
+   clips them, since .cf-segmented has overflow:hidden) and rely on the
+   row's own justify-content:space-between to spread the pair across the
+   full width instead. Only the label's oversized 140px reservation is
+   trimmed here, to close the gap before the buttons. Scoped to this
+   explicit modifier (not every .cf-row-inline > .cf-segmented-row) since
+   several other rows pair a single segmented-row with an unrelated
+   .cf-field and must keep their own default layout. */
+.cf-segmented-row--half {
+    flex: 0 0 auto;
+}
+
+.cf-segmented-row--half > span {
+    min-width: 0;
+    white-space: nowrap;
+}
+
 .cf-segmented-row > span {
     font-size: 13px;
     font-weight: 500;
@@ -391,7 +409,7 @@
 .cf-macro-columns {
     display: flex;
     gap: 10px;
-    padding: 0 0 4px;
+    padding: 0 0 4px 40px;
     font-size: 12px;
     font-weight: 600;
     color: var(--body-color, #6b7280);
@@ -457,7 +475,11 @@
    clean bordered square elsewhere in the app (e.g. the Escalation form's
    "Host inheritance to services" checkbox) via the existing global rules
    in style.css — overriding it here only fought that cascade and made it
-   worse. */
+   worse. Confirmed again the hard way: three different reskins (a toggle
+   switch styled directly via appearance:none + ::before, a toggle switch
+   via a hidden-checkbox + sibling slider, then an open/closed padlock via
+   the same hidden-checkbox technique with an explicit onclick) each ran
+   into a different way of not actually working. Leave this plain. */
 .cf-macro-password {
     display: flex;
     align-items: center;
@@ -488,21 +510,37 @@
     width: 26px;
     height: 26px;
     border-radius: 4px;
-    color: var(--cl-link-color, #2E68AA);
+    color: var(--body-color, #999);
     cursor: pointer;
-    transition: background-color 0.15s;
+    transition: background-color 0.15s, color 0.15s;
 }
 
 .cf-macro-action-btn:hover {
-    background: rgba(46, 104, 170, 0.1);
+    color: var(--list-color, #333);
+    background: rgba(0, 0, 0, 0.06);
 }
 
-.cf-macro-action-btn--danger {
-    color: var(--color-danger, #FF4A4A);
+/* Drag handle — sits in front of the row (name/value/actions), instead of
+   grouped with the description/delete buttons at the end, so the standard
+   6-dot grip reads as "grab to reorder" rather than another click action. */
+.cf-macro-drag-handle {
+    color: var(--body-color, #999);
+    cursor: grab;
+    flex-shrink: 0;
 }
 
-.cf-macro-action-btn--danger:hover {
-    background: rgba(255, 74, 74, 0.1);
+.cf-macro-drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Reset-to-template-value icon — same eraser artwork as the select2 clear
+   button (.clearAllSelect2), reused here for visual consistency between
+   the two "undo/clear a field" affordances. */
+.cf-macro-reset-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-45 12 12)'%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='%23999'/%3E%3Crect x='4' y='8' width='16' height='4' rx='2' fill='%23bbb'/%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='none' stroke='%23777' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
 }
 
 /* Invisible placeholder — keeps the icon slot's width reserved so every

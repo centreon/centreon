@@ -25,6 +25,13 @@
 </div>
 <ul id="{$cloneId}" class="macroclone no-deco-list">
     <li class="clone_template onemacro cf-macro-row" id="{$cloneId}_template">
+        {if $isFrozen == 0}
+        <span class="cf-macro-action-btn cf-macro-drag-handle clonehandle" title="{t}Move{/t}">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+        </span>
+        {else}
+        <span class="cf-macro-action-btn cf-macro-action-slot cf-macro-drag-handle"></span>
+        {/if}
         {foreach from=$cloneSet item=v key=cf_idx}
             {if $cf_idx == 1}
                 <span class="cf-macro-name">
@@ -53,21 +60,16 @@
         <input type='hidden' id='isFrozen_#index#' name='isFrozen_#index#' value="{$isFrozen}" />
         <span class="cf-macro-actions">
             {if $isFrozen == 0}
-            <span id="{$cloneId}_remove_current" class="cf-macro-action-btn cf-macro-action-btn--danger" title="{t}Delete{/t}">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <span id="{$cloneId}_remove_current" class="cf-macro-action-btn" title="{t}Delete{/t}">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </span>
             {else}
             <span class="cf-macro-action-btn cf-macro-action-slot"></span>
             {/if}
+            {if false}
             <span class="cf-macro-action-btn" title="{t}Show description{/t}" onclick='javascript:loadDescription(#index#)'>
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
             </span>
-            {if $isFrozen == 0}
-            <span class="cf-macro-action-btn clonehandle" title="{t}Move{/t}">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
-            </span>
-            {else}
-            <span class="cf-macro-action-btn cf-macro-action-slot"></span>
             {/if}
             <span class="cf-macro-action-btn cf-macro-action-slot cf-macro-reset-slot"></span>
         </span>
