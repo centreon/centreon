@@ -35,6 +35,19 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
+$removeDebugLevelFromOptions = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = "Unable to remove 'debug_level' from options table";
+    LoggerUpgrade::create()->info($version, "Removing 'debug_level' from options table");
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            DELETE FROM `options` WHERE `key` = 'debug_level'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Successfully removed 'debug_level' from options table");
+};
+
 $addCentralAddressColumn = function () use ($pearDB, &$errorMessage, $version): void {
     if ($pearDB->columnExists(
         $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
@@ -64,7 +77,7 @@ $addCentralAddressColumn = function () use ($pearDB, &$errorMessage, $version): 
  * Builds address as: {orga}.{region}.{domain}/{site}
  */
 $resolveCloudCentralAddress = function () use ($version): ?string {
-    $filePath = '/etc/centreon/poller_installation';
+    $filePath = _CENTREON_ETC_ . '/poller_installation';
 
     if (! is_readable($filePath)) {
         LoggerUpgrade::create()->warning(
@@ -218,6 +231,7 @@ try {
         $pearDB->startTransaction();
     }
 
+    $removeDebugLevelFromOptions();
     $populateCentralAddress();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
