@@ -23,8 +23,6 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
-use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
@@ -49,7 +47,6 @@ final class DbalModuleRepository implements ModuleRepository
         private readonly Connection $realtimeConnection,
         #[Autowire(param: 'upgrade.modules_dir')]
         private readonly string $modulesDir,
-        private readonly ConnectionConfig $connectionConfig,
         #[Autowire(param: 'upgrade.centreon_path')]
         private readonly string $centreonPath,
         private readonly LoggerInterface $logger,
@@ -295,8 +292,8 @@ final class DbalModuleRepository implements ModuleRepository
             return;
         }
 
-        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
-        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
+        $pearDB = $this->configConnection;
+        $pearDBO = $this->realtimeConnection;
         $centreon_path = $this->centreonPath;
 
         require_once $filePath;
