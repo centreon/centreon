@@ -115,7 +115,7 @@ lookup_deb_content() {
   # read), and a transient error must not read as "content absent" either.
   local endpoint=$1 query=$2 out attempt
   for attempt in 1 2 3 4 5; do
-    out=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
+    out=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "limit=1" \
       $query \
       "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/$endpoint/" | jq -r '.results[0].pulp_href // empty') || out=""
@@ -135,7 +135,7 @@ resolve_task_content() {
   local body state content attempt
   for ((attempt = 0; attempt < 200; attempt++)); do
     refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
+    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
     state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
     case "$state" in
       completed)
@@ -165,7 +165,7 @@ resolve_task_content() {
 # emit the release-component hrefs a package is associated with
 lookup_prcs() {
   local package_href=$1
-  curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
+  curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
     --data-urlencode "package=$package_href" \
     --data-urlencode "limit=100" \
     "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \

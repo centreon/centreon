@@ -45,7 +45,7 @@ for repo in $(printf '%s\n' "${E_REPOSITORY[@]}" | sort -u); do
   )"
   pages=0
   while [[ -n "$url" ]] && ((pages < 20)); do
-    page=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$url") || {
+    page=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$url") || {
       echo "[WARN] presence page fetch failed for $repo ($url)" >&2
       break
     }

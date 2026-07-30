@@ -27,7 +27,7 @@ resolve_promoted_content() {
   local body state content attempt
   for ((attempt = 0; attempt < 200; attempt++)); do
     refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
+    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
     state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
     case "$state" in
       completed)
@@ -47,7 +47,7 @@ resolve_promoted_content() {
     esac
   done
   content=$(
-    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
+    curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "sha256=$sha256" \
       --data-urlencode "limit=1" \
       "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.results[0].pulp_href // empty'
@@ -86,7 +86,7 @@ for ARCH in noarch x86_64; do
   )"
   while [[ -n "$url" ]]; do
     refresh_pulp_token
-    page=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$url")
+    page=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$url")
     echo "$page" | jq -c '.results[]' >> "$RESULTS_FILE"
     url=$(echo "$page" | jq -r '.next // empty')
   done

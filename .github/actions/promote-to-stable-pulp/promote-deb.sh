@@ -97,7 +97,7 @@ url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
 )"
 while [[ -n "$url" ]]; do
   refresh_pulp_token
-  page=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$url")
+  page=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$url")
   echo "$page" | jq -c '.results[]' >> "$RESULTS_FILE"
   url=$(echo "$page" | jq -r '.next // empty')
 done
@@ -154,7 +154,7 @@ url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
 )"
 while [[ -n "$url" ]]; do
   refresh_pulp_token
-  page=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" "$url")
+  page=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" "$url")
   echo "$page" | jq -r '.results[].sha256' >> "$STABLE_SHAS_FILE"
   url=$(echo "$page" | jq -r '.next // empty')
 done
@@ -173,7 +173,7 @@ PULP_LABELS=$(jq -cn --arg mod "$MODULE_NAME" '{"module": $mod}')
 lookup_deb_content() {
   local endpoint=$1 query=$2 out attempt
   for attempt in 1 2 3 4 5; do
-    out=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
+    out=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "limit=1" \
       $query \
       "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/$endpoint/" | jq -r '.results[0].pulp_href // empty') || out=""
@@ -193,7 +193,7 @@ resolve_task_content() {
   local body state content attempt
   for ((attempt = 0; attempt < 200; attempt++)); do
     refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
+    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
     state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
     case "$state" in
       completed)
@@ -223,7 +223,7 @@ resolve_task_content() {
 # emit the release-component hrefs a package is associated with
 lookup_prcs() {
   local package_href=$1
-  curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
+  curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
     --data-urlencode "package=$package_href" \
     --data-urlencode "limit=100" \
     "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
@@ -355,7 +355,7 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
     refresh_pulp_token
     STABLE_LATEST=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.latest_version_href')
     STABLE_RC_SET=$(
-      curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" \
+      curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" \
         "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/?$(
           printf 'repository_version=%s&limit=1' "$(jq -rn --arg v "$STABLE_LATEST" '$v | @uri')"
         )" | jq -r '.results[0].release_component // empty'

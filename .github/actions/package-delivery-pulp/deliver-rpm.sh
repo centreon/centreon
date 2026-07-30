@@ -36,7 +36,7 @@ assert_not_in_stable() {
   # genuinely not existing yet
   local repo_page
   repo_page=$(
-    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
+    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "name=$stable_repository" \
       --data-urlencode "limit=1" \
       "$PULP_URL/$PULP_DOMAIN/api/v3/repositories/rpm/rpm/"
@@ -49,7 +49,7 @@ assert_not_in_stable() {
   [[ -z "$repository_version" ]] && return 0
 
   count=$(
-    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
+    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "repository_version=$repository_version" \
       --data-urlencode "name=$name" \
       --data-urlencode "version=$version" \
@@ -76,7 +76,7 @@ resolve_uploaded_content() {
   local body state content attempt
   for ((attempt = 0; attempt < 200; attempt++)); do
     refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
+    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
     state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
     case "$state" in
       completed)
@@ -96,7 +96,7 @@ resolve_uploaded_content() {
     esac
   done
   content=$(
-    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
+    curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "sha256=$sha256" \
       --data-urlencode "limit=1" \
       "$PULP_URL/$PULP_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.results[0].pulp_href // empty'

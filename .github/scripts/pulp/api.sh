@@ -22,7 +22,7 @@ switch_pulp_domain() {
   if command -v pulp >/dev/null 2>&1; then
     pulp config create --overwrite --base-url "$PULP_URL" --api-root "/" \
       --domain "$PULP_DOMAIN" \
-      --header "Authorization:Github $PULP_TOKEN" --timeout 0 >/dev/null 2>&1 || true
+      --header "Authorization:Bearer $PULP_TOKEN" --timeout 0 >/dev/null 2>&1 || true
   fi
 }
 
@@ -63,7 +63,7 @@ refresh_pulp_token() {
   if command -v pulp >/dev/null 2>&1; then
     pulp config create --overwrite --base-url "$PULP_URL" --api-root "/" \
       --domain "$PULP_DOMAIN" \
-      --header "Authorization:Github $token" --timeout 0 >/dev/null 2>&1 || true
+      --header "Authorization:Bearer $token" --timeout 0 >/dev/null 2>&1 || true
   fi
 }
 
@@ -77,13 +77,13 @@ wait_task() {
   local state attempt
   for ((attempt = 0; attempt < 600; attempt++)); do
     refresh_pulp_token
-    state=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null | jq -r '.state' 2>/dev/null) || state=""
+    state=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null | jq -r '.state' 2>/dev/null) || state=""
     case "$state" in
       completed)
         return 0
         ;;
       failed|canceled)
-        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
+        echo "::error::Task $task_href $state: $(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" | jq -c '.error')"
         return 1
         ;;
       *)
@@ -101,7 +101,7 @@ pulp_upload() {
   local attempt response http_code body
   for attempt in 1 2 3 4 5; do
     refresh_pulp_token
-    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
+    response=$(curl -sS -H "Authorization: Bearer $PULP_TOKEN" -w $'\n%{http_code}' "$@" 2>/dev/null) || response=""
     http_code=${response##*$'\n'}
     body=${response%$'\n'*}
     if [[ "$http_code" == "202" ]]; then
@@ -128,7 +128,7 @@ wait_task_race() {
   local task_href=$1 body state error attempt
   for ((attempt = 0; attempt < 600; attempt++)); do
     refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
+    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
     state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
     case "$state" in
       completed)
@@ -165,7 +165,7 @@ pulp_resource_exists() {
   local type_path=$1 name=$2 attempt response http_code count
   for attempt in 1 2 3 4; do
     refresh_pulp_token
-    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' -G \
+    response=$(curl -sS -H "Authorization: Bearer $PULP_TOKEN" -w $'\n%{http_code}' -G \
       --data-urlencode "name=$name" --data-urlencode "limit=1" \
       "$PULP_URL/$PULP_DOMAIN/api/v3/$type_path/" 2>/dev/null) || response=$'\n000'
     http_code="${response##*$'\n'}"
@@ -194,7 +194,7 @@ post_json() {
   response=$'\n000'
   for attempt in 1 2 3 4; do
     refresh_pulp_token
-    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' \
+    response=$(curl -sS -H "Authorization: Bearer $PULP_TOKEN" -w $'\n%{http_code}' \
       -X POST -H "Content-Type: application/json" -d "$json" "$url" 2>/dev/null) || response=$'\n000'
     code="${response##*$'\n'}"
     case "$code" in
@@ -213,7 +213,7 @@ start_modify_task() {
   local url=$1 body_file=$2 attempt response http_code body
   for attempt in 1 2 3 4 5; do
     refresh_pulp_token
-    response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' \
+    response=$(curl -sS -H "Authorization: Bearer $PULP_TOKEN" -w $'\n%{http_code}' \
       -X POST -H "Content-Type: application/json" \
       -d @"$body_file" "$url" 2>/dev/null) || response=""
     http_code=${response##*$'\n'}
@@ -239,7 +239,7 @@ start_modify_task() {
 # downloader role); unguarded distributions ignore the header.
 content_curl() {
   refresh_pulp_token
-  curl -H "Authorization: Github $PULP_TOKEN" "$@"
+  curl -H "Authorization: Bearer $PULP_TOKEN" "$@"
 }
 
 create_publication() {
