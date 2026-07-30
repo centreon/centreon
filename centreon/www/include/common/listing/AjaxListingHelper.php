@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
 
@@ -160,8 +162,8 @@ class AjaxListingHelper
 
         $limit = self::DEFAULT_LIMIT;
         try {
-            $result = $this->db->query("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
-            $value = $result->fetchColumn();
+            // Constant key (no user input) → no bound parameters needed.
+            $value = $this->db->fetchOne("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
             if ($value !== false && (int) $value > 0) {
                 $limit = min((int) $value, self::MAX_LIMIT);
             }
@@ -266,28 +268,29 @@ class AjaxListingHelper
     public function logToggleAction(string $objectType, int $objectId, string $objectName, string $actionType): void
     {
         try {
-            $pearDBO = new CentreonDB('centstorage');
+            $storageDb = new CentreonDB('centstorage');
 
-            // Check if audit log is enabled
-            $optResult = $pearDBO->query('SELECT audit_log_option FROM `config` LIMIT 1');
-            $auditOpt = $optResult->fetchColumn();
+            // Skip when audit logging is disabled in the configuration.
+            $auditOpt = $storageDb->fetchOne('SELECT `audit_log_option` FROM `config` LIMIT 1');
             if ($auditOpt != '1') {
                 return;
             }
 
-            $userId = $this->centreon ? $this->centreon->user->get_id() : 0;
+            $userId = $this->centreon ? (int) $this->centreon->user->get_id() : 0;
 
-            $stmt = $pearDBO->prepare(
-                'INSERT INTO `log_action` (action_log_date, object_type, object_id, object_name, action_type, log_contact_id)'
-                . ' VALUES (:ts, :obj_type, :obj_id, :obj_name, :action, :uid)'
+            $storageDb->executeStatement(
+                'INSERT INTO `log_action` '
+                . '(action_log_date, object_type, object_id, object_name, action_type, log_contact_id) '
+                . 'VALUES (:ts, :obj_type, :obj_id, :obj_name, :action, :uid)',
+                QueryParameters::create([
+                    QueryParameter::int('ts', time()),
+                    QueryParameter::string('obj_type', $objectType),
+                    QueryParameter::int('obj_id', $objectId),
+                    QueryParameter::string('obj_name', $objectName),
+                    QueryParameter::string('action', $actionType),
+                    QueryParameter::int('uid', $userId),
+                ])
             );
-            $stmt->bindValue(':ts', time(), PDO::PARAM_INT);
-            $stmt->bindValue(':obj_type', $objectType, PDO::PARAM_STR);
-            $stmt->bindValue(':obj_id', $objectId, PDO::PARAM_INT);
-            $stmt->bindValue(':obj_name', $objectName, PDO::PARAM_STR);
-            $stmt->bindValue(':action', $actionType, PDO::PARAM_STR);
-            $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
-            $stmt->execute();
         } catch (Throwable $e) {
             // Don't fail the toggle because auditing failed — but record the lost
             // audit entry so the drop is observable (this is a security/compliance
