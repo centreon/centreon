@@ -1036,7 +1036,8 @@ function CentreonListing(config) {
 // ==========================================================================
 // Global instant tooltip for [data-cl-tooltip] elements
 // Positioned fixed in body — no overflow clipping, no delay
-// Usage: <span data-cl-tooltip="PID: 123<br>Uptime: 2d">ⓘ</span>
+// Usage: <span data-cl-tooltip="PID: 123 — Uptime: 2d">ⓘ</span>
+// Content is rendered as plain text (textContent), so it can never inject HTML.
 // ==========================================================================
 // Vanilla JS (delegated on document) so it never depends on jQuery being
 // loaded before this file — the IIFE runs at parse time.
@@ -1058,7 +1059,7 @@ function CentreonListing(config) {
         removeTip();
         tip = document.createElement('div');
         tip.className = 'cl-tooltip-popup';
-        tip.innerHTML = content;
+        tip.textContent = content;
         tip._owner = el;
         document.body.appendChild(tip);
         var rect = el.getBoundingClientRect();
