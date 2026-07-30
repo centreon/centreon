@@ -11,6 +11,10 @@ source "$(dirname "$0")/../../scripts/pulp/api.sh"
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
+# DOMAIN_ENABLED requires every viewset URL to carry a domain segment (see api.sh).
+# Falls back to "default" so a caller that never computed a domain keeps working
+# against the pre-Domains repositories that still live there.
+PULP_DOMAIN="${PULP_DOMAIN:-default}"
 
 # refuse delivering a package that is already published in the stable repository.
 # rebuilding a testing/unstable version with a different content is fine, but a
@@ -35,7 +39,7 @@ assert_not_in_stable() {
     curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "name=$stable_repository" \
       --data-urlencode "limit=1" \
-      "$PULP_URL/api/v3/repositories/rpm/rpm/"
+      "$PULP_URL/$PULP_DOMAIN/api/v3/repositories/rpm/rpm/"
   ) || {
     echo "::error::Cannot check the stable repository $stable_repository to guard $name $version-$release ($arch); refusing to deliver. Retry once the api is reachable."
     return 1
@@ -52,7 +56,7 @@ assert_not_in_stable() {
       --data-urlencode "release=$release" \
       --data-urlencode "arch=$arch" \
       --data-urlencode "limit=1" \
-      "$PULP_URL/api/v3/content/rpm/packages/" | jq -r '.count'
+      "$PULP_URL/$PULP_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.count'
   ) || {
     echo "::error::Cannot check the stable repository $stable_repository content to guard $name $version-$release ($arch); refusing to deliver. Retry once the api is reachable."
     return 1
@@ -95,7 +99,7 @@ resolve_uploaded_content() {
     curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "sha256=$sha256" \
       --data-urlencode "limit=1" \
-      "$PULP_URL/api/v3/content/rpm/packages/" | jq -r '.results[0].pulp_href // empty'
+      "$PULP_URL/$PULP_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.results[0].pulp_href // empty'
   )
   if [[ -z "$content" ]]; then
     echo "::error::Cannot resolve the uploaded content for task $task_href (sha256 $sha256)" >&2
@@ -181,7 +185,7 @@ for ARCH in noarch x86_64; do
       pulp_upload \
         -F "file=@\"$FILE\"" \
         -F "pulp_labels=$PULP_LABELS" \
-        "$PULP_URL/api/v3/content/rpm/packages/" > "$UPLOAD_DIR/$i.task"
+        "$PULP_URL/$PULP_DOMAIN/api/v3/content/rpm/packages/" > "$UPLOAD_DIR/$i.task"
     ) &
     while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
       wait -n || true

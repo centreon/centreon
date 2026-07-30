@@ -70,6 +70,7 @@ fi
 REPOSITORY_PREFIX=""
 BASE_PATH_PREFIX=""
 TESTING_REPOSITORY_PREFIX=""
+TESTING_BASE_PATH_PREFIX=""
 STABLE_REPOSITORY_PREFIX=""
 STABLE_BASE_PATH_PREFIX=""
 REPOSITORY_NAME=""
@@ -111,6 +112,7 @@ if [[ "$REPO_BASE" == "plugins" ]]; then
     REPOSITORY_PREFIX="$ROOT_REPO-$DISTRIB-$STABILITY_SEGMENT"
     BASE_PATH_PREFIX="$ROOT_REPO/$DISTRIB/$STABILITY_SEGMENT"
     TESTING_REPOSITORY_PREFIX="$ROOT_REPO-$DISTRIB-$TESTING_SEGMENT"
+    TESTING_BASE_PATH_PREFIX="$ROOT_REPO/$DISTRIB/$TESTING_SEGMENT"
     STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$DISTRIB-stable"
     STABLE_BASE_PATH_PREFIX="$ROOT_REPO/$DISTRIB/stable"
   else
@@ -152,6 +154,7 @@ else
     REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$STABILITY_SEGMENT"
     BASE_PATH_PREFIX="$ROOT_REPO$HASH_SEGMENT/$VERSION/$DISTRIB/$STABILITY_SEGMENT"
     TESTING_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-$TESTING_SEGMENT"
+    TESTING_BASE_PATH_PREFIX="$ROOT_REPO$HASH_SEGMENT/$VERSION/$DISTRIB/$TESTING_SEGMENT"
     STABLE_REPOSITORY_PREFIX="$ROOT_REPO-$VERSION-$DISTRIB-stable"
     STABLE_BASE_PATH_PREFIX="$ROOT_REPO$HASH_SEGMENT/$VERSION/$DISTRIB/stable"
   else
@@ -159,7 +162,25 @@ else
     BASE_PATH="$ROOT_REPO"
     SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
     TESTING_SUITE="$DISTRIB-$VERSION-$TESTING_SEGMENT"
-    STABLE_SUITE="$DISTRIB-$VERSION-stable"
+    # stable lives in a DEDICATED repository (create-deb-repos.sh in
+    # delivery-tooling: "stable is now ALWAYS a dedicated repository", same
+    # rule as rpm and deb plugins), with a single plain-codename suite. Naming
+    # keeps the artifactory-compatible irregular ordering: standard keeps
+    # $ROOT_REPO's own "-internal" suffix position, business puts the version
+    # before "business" on debian but after on ubuntu.
+    if [[ "$REPO_BASE" == "business" ]]; then
+      BUSINESS_INTERNAL_SUFFIX=""
+      [[ "$ROOT_REPO" == *-internal ]] && BUSINESS_INTERNAL_SUFFIX="-internal"
+      if [[ "$FAMILY_PREFIX" == "apt-" ]]; then
+        STABLE_REPOSITORY_NAME="apt-$VERSION-business$BUSINESS_INTERNAL_SUFFIX-stable"
+      else
+        STABLE_REPOSITORY_NAME="ubuntu-business$BUSINESS_INTERNAL_SUFFIX-$VERSION-stable"
+      fi
+    else
+      STABLE_REPOSITORY_NAME="$ROOT_REPO-$VERSION-stable"
+    fi
+    STABLE_BASE_PATH="$STABLE_REPOSITORY_NAME"
+    STABLE_SUITE="$DISTRIB"
     POOL_PATH="pool/$VERSION/$POOL_SEGMENT/$MODULE_NAME"
     TESTING_POOL_PATH="pool/$VERSION/$TESTING_POOL_SEGMENT/$MODULE_NAME"
     STABLE_POOL_PATH="pool/$VERSION/stable/$MODULE_NAME"
@@ -171,11 +192,28 @@ fi
 STABLE_REPOSITORY_NAME="${STABLE_REPOSITORY_NAME:-$REPOSITORY_NAME}"
 STABLE_BASE_PATH="${STABLE_BASE_PATH:-$BASE_PATH}"
 
+# Pulp Domains, one per edition/channel (standard/business/plugins). "-internal"/
+# cloud repositories live in the SAME domain as their non-internal sibling
+# (business-internal repositories exist across every stability, matching
+# resolve_pulp_domain's substring match on REPO_BASE, not on the "-internal"
+# suffix), so REPO_BASE alone is enough -- no separate cloud-aware branch
+# needed here.
+DOMAIN="$REPO_BASE"
+# stable is always a genuinely separate repository object (rpm: per version/
+# distrib/arch; deb: dedicated $ROOT_REPO-stable, set above) -- never a suite
+# living inside the same repository as testing -- so it always gets its own
+# "-stable" domain (delivery-tooling poc/pulp/k8s/job-bootstrap-ci-role.yaml's
+# resolve_pulp_domain* helpers follow the same rule; create-deb-repos.sh's
+# comment "stable is now ALWAYS a dedicated repository" is the source of
+# truth here).
+STABLE_DOMAIN="$REPO_BASE-stable"
+
 echo "[DEBUG] - repository_type: $REPOSITORY_TYPE"
 echo "[DEBUG] - root_repo: $ROOT_REPO"
 echo "[DEBUG] - repository_prefix: $REPOSITORY_PREFIX"
 echo "[DEBUG] - base_path_prefix: $BASE_PATH_PREFIX"
 echo "[DEBUG] - testing_repository_prefix: $TESTING_REPOSITORY_PREFIX"
+echo "[DEBUG] - testing_base_path_prefix: $TESTING_BASE_PATH_PREFIX"
 echo "[DEBUG] - stable_repository_prefix: $STABLE_REPOSITORY_PREFIX"
 echo "[DEBUG] - stable_base_path_prefix: $STABLE_BASE_PATH_PREFIX"
 echo "[DEBUG] - repository_name: $REPOSITORY_NAME"
@@ -186,12 +224,15 @@ echo "[DEBUG] - stable_suite: $STABLE_SUITE"
 echo "[DEBUG] - pool_path: $POOL_PATH"
 echo "[DEBUG] - testing_pool_path: $TESTING_POOL_PATH"
 echo "[DEBUG] - stable_pool_path: $STABLE_POOL_PATH"
+echo "[DEBUG] - domain: $DOMAIN"
+echo "[DEBUG] - stable_domain: $STABLE_DOMAIN"
 
 {
   echo "skip_delivery=false"
   echo "repository_prefix=$REPOSITORY_PREFIX"
   echo "base_path_prefix=$BASE_PATH_PREFIX"
   echo "testing_repository_prefix=$TESTING_REPOSITORY_PREFIX"
+  echo "testing_base_path_prefix=$TESTING_BASE_PATH_PREFIX"
   echo "stable_repository_prefix=$STABLE_REPOSITORY_PREFIX"
   echo "stable_base_path_prefix=$STABLE_BASE_PATH_PREFIX"
   echo "repository_name=$REPOSITORY_NAME"
@@ -204,4 +245,6 @@ echo "[DEBUG] - stable_pool_path: $STABLE_POOL_PATH"
   echo "pool_path=$POOL_PATH"
   echo "testing_pool_path=$TESTING_POOL_PATH"
   echo "stable_pool_path=$STABLE_POOL_PATH"
+  echo "domain=$DOMAIN"
+  echo "stable_domain=$STABLE_DOMAIN"
 } >> "$GITHUB_OUTPUT"

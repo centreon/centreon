@@ -11,6 +11,10 @@ source "$(dirname "$0")/../../scripts/pulp/api.sh"
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
+# DOMAIN_ENABLED requires every viewset URL to carry a domain segment (see api.sh).
+# Falls back to "default" so a caller that never computed a domain keeps working
+# against the pre-Domains repositories that still live there.
+PULP_DOMAIN="${PULP_DOMAIN:-default}"
 
 # refuse delivering a package that is already published in the stable suite.
 # rebuilding a testing/unstable version with a different content is fine, but a
@@ -114,7 +118,7 @@ lookup_deb_content() {
     out=$(curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
       --data-urlencode "limit=1" \
       $query \
-      "$PULP_URL/api/v3/content/deb/$endpoint/" | jq -r '.results[0].pulp_href // empty') || out=""
+      "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/$endpoint/" | jq -r '.results[0].pulp_href // empty') || out=""
     if [[ -n "$out" ]]; then
       echo "$out"
       return 0
@@ -164,7 +168,7 @@ lookup_prcs() {
   curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Github $PULP_TOKEN" -G \
     --data-urlencode "package=$package_href" \
     --data-urlencode "limit=100" \
-    "$PULP_URL/api/v3/content/deb/package_release_components/" \
+    "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
     | jq -r '.results[].release_component'
 }
 
@@ -231,7 +235,7 @@ for FILE in "${LEGACY_FILES[@]}"; do
         -F "component=main" \
         -F "repository=$REPOSITORY_HREF" \
         -F "pulp_labels=$PULP_LABELS" \
-        "$PULP_URL/api/v3/content/deb/packages/"
+        "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/"
     )
     wait_task_race "$LEGACY_TASK" && rc=0 || rc=$?
     if [[ $rc -eq 0 ]]; then
@@ -305,7 +309,7 @@ for i in "${!ORPHAN_FILES[@]}"; do
       -F "file=@\"$FILE\"" \
       -F "relative_path=$POOL_PATH/$FILE" \
       -F "pulp_labels=$PULP_LABELS" \
-      "$PULP_URL/api/v3/content/deb/packages/" > "$UPLOAD_DIR/$i.task"
+      "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/" > "$UPLOAD_DIR/$i.task"
   ) &
   while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
     wait -n || true
@@ -357,7 +361,7 @@ for i in "${!PACKAGE_HREFS[@]}"; do
   fi
   (
     refresh_pulp_token
-    out=$(post_json "$PULP_URL/api/v3/content/deb/package_release_components/" \
+    out=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
       "{\"package\": \"${PACKAGE_HREFS[$i]}\", \"release_component\": \"$RELEASE_COMPONENT_HREF\"}") || out=$'\n000'
     code="${out##*$'\n'}"
     body="${out%$'\n'*}"

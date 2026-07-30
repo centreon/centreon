@@ -43,7 +43,7 @@ for repo in $(printf '%s\n' "${E_REPOSITORY[@]}" | sort -u); do
     echo "[WARN] Repository $repo does not exist or has no version"
     continue
   fi
-  url="$PULP_URL/api/v3/content/deb/packages/?$(
+  url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
     printf 'repository_version=%s&pulp_label_select=%s&ordering=-pulp_created&limit=1000' \
       "$(jq -rn --arg v "$version_href" '$v | @uri')" \
       "$(jq -rn --arg v "module=$MODULE_NAME" '$v | @uri')"

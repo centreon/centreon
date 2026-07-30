@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 # Shared pulp api helpers for the delivery/promotion scripts. Source this file
 # like manifest.sh; PULP_URL and PULP_TOKEN must be set by the caller.
+#
+# PULP_DOMAIN: DOMAIN_ENABLED requires every viewset URL to carry a domain
+# segment, no unprefixed fallback (same rule already documented in
+# delivery-tooling's create-rpm-repos.sh/create-deb-repos.sh). Every raw REST
+# call in this file that hits a domain-scoped viewset (repositories,
+# distributions, content, tasks, publications) is prefixed with
+# "/$PULP_DOMAIN". Defaults to "default" so callers that never set it (or run
+# against a pre-Domains instance) keep their current behavior.
+PULP_DOMAIN="${PULP_DOMAIN:-default}"
+
+# switch the domain pulp-cli/raw-curl calls target (e.g. promote-rpm.sh/
+# promote-deb.sh move from the testing-tier domain to the stable-tier one
+# partway through). Unlike PULP_DOMAIN alone, this forces pulp-cli's config
+# to update immediately: refresh_pulp_token only re-runs "pulp config create"
+# when the token itself is stale (>240s old), so a plain reassignment could
+# leave pulp-cli pointed at the old domain for up to 4 minutes.
+switch_pulp_domain() {
+  PULP_DOMAIN="$1"
+  if command -v pulp >/dev/null 2>&1; then
+    pulp config create --overwrite --base-url "$PULP_URL" --api-root "/" \
+      --domain "$PULP_DOMAIN" \
+      --header "Authorization:Github $PULP_TOKEN" --timeout 0 >/dev/null 2>&1 || true
+  fi
+}
 
 # the github actions oidc token expires ~5 minutes after issuance, which is
 # shorter than a large delivery: refresh it before it goes stale whenever the
@@ -38,6 +62,7 @@ refresh_pulp_token() {
   fi
   if command -v pulp >/dev/null 2>&1; then
     pulp config create --overwrite --base-url "$PULP_URL" --api-root "/" \
+      --domain "$PULP_DOMAIN" \
       --header "Authorization:Github $token" --timeout 0 >/dev/null 2>&1 || true
   fi
 }
@@ -142,7 +167,7 @@ pulp_resource_exists() {
     refresh_pulp_token
     response=$(curl -sS -H "Authorization: Github $PULP_TOKEN" -w $'\n%{http_code}' -G \
       --data-urlencode "name=$name" --data-urlencode "limit=1" \
-      "$PULP_URL/api/v3/$type_path/" 2>/dev/null) || response=$'\n000'
+      "$PULP_URL/$PULP_DOMAIN/api/v3/$type_path/" 2>/dev/null) || response=$'\n000'
     http_code="${response##*$'\n'}"
     if [[ "$http_code" == "200" ]]; then
       count=$(printf '%s' "${response%$'\n'*}" | jq -r '.count' 2>/dev/null) || count=""

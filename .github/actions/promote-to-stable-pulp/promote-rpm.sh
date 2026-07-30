@@ -10,6 +10,54 @@ source "$(dirname "$0")/../../scripts/pulp/api.sh"
 # (an unset org variable is forwarded as an empty string, overriding the default)
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
+# testing (source) and stable (destination) repositories live in different
+# Pulp Domains (e.g. "standard" vs "standard-stable"); PULP_DOMAIN covers the
+# read phase below, switch_pulp_domain moves to PULP_STABLE_DOMAIN before the
+# write phase.
+PULP_DOMAIN="${PULP_DOMAIN:-default}"
+PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
+
+# wait for a repository-less upload task and emit the created content href,
+# falling back to a stable-domain sha256 lookup (content already existing on a
+# job re-run, or a task response without created_resources) -- mirrors
+# deliver-rpm.sh's resolve_uploaded_content, scoped to the stable domain since
+# this uploads INTO the stable domain (see the cross-domain note below).
+resolve_promoted_content() {
+  local task_href=$1 sha256=$2
+  local body state content attempt
+  for ((attempt = 0; attempt < 200; attempt++)); do
+    refresh_pulp_token
+    body=$(curl -fsSL -H "Authorization: Github $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
+    state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
+    case "$state" in
+      completed)
+        content=$(echo "$body" | jq -r '.created_resources[0] // empty')
+        if [[ -n "$content" ]]; then
+          echo "$content"
+          return 0
+        fi
+        break
+        ;;
+      failed | canceled)
+        break
+        ;;
+      *)
+        sleep 3
+        ;;
+    esac
+  done
+  content=$(
+    curl -fsSL -H "Authorization: Github $PULP_TOKEN" -G \
+      --data-urlencode "sha256=$sha256" \
+      --data-urlencode "limit=1" \
+      "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.results[0].pulp_href // empty'
+  )
+  if [[ -z "$content" ]]; then
+    echo "::error::Cannot resolve the promoted content for task $task_href (sha256 $sha256)" >&2
+    return 1
+  fi
+  echo "$content"
+}
 
 declare -A ARCH_CONTENT
 declare -A ARCH_RESULTS
@@ -31,7 +79,7 @@ for ARCH in noarch x86_64; do
   # paginate: the testing repository keeps every delivered version, so the
   # module listing can exceed a single page
   RESULTS_FILE=$(mktemp)
-  url="$PULP_URL/api/v3/content/rpm/packages/?$(
+  url="$PULP_URL/$PULP_DOMAIN/api/v3/content/rpm/packages/?$(
     printf 'repository_version=%s&pulp_label_select=%s&limit=1000' \
       "$(jq -rn --arg v "$VERSION_HREF" '$v | @uri')" \
       "$(jq -rn --arg v "module=$MODULE_NAME" '$v | @uri')"
@@ -70,8 +118,13 @@ if [[ "$STABILITY" != "stable" ]]; then
   exit 0
 fi
 
+# everything from here on targets the stable-tier domain
+refresh_pulp_token
+switch_pulp_domain "$PULP_STABLE_DOMAIN"
+
 for ARCH in noarch x86_64; do
   CONTENT="${ARCH_CONTENT[$ARCH]:-[]}"
+  RESULTS="${ARCH_RESULTS[$ARCH]:-[]}"
   ARCH_PACKAGES_COUNT=$(echo "$CONTENT" | jq 'length')
 
   if [[ "$ARCH_PACKAGES_COUNT" -eq 0 ]]; then
@@ -81,6 +134,7 @@ for ARCH in noarch x86_64; do
 
   STABLE_REPOSITORY_NAME="$STABLE_REPOSITORY_PREFIX-$ARCH"
   STABLE_BASE_PATH="$STABLE_BASE_PATH_PREFIX/$ARCH"
+  TESTING_BASE_PATH="$TESTING_BASE_PATH_PREFIX/$ARCH"
 
   if ! pulp_resource_exists "repositories/rpm/rpm" "$STABLE_REPOSITORY_NAME"; then
     echo "::error::stable rpm repository $STABLE_REPOSITORY_NAME does not exist. Pulp repositories and distributions are provisioned centrally by delivery-tooling create-repos; run create-repos for this version before promoting."
@@ -93,6 +147,50 @@ for ARCH in noarch x86_64; do
   fi
 
   STABLE_REPOSITORY_HREF=$(pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
+
+  # Pulp Domains have no cross-domain content sharing at all: RepositoryVersion.
+  # add_content asserts every content unit's pulp_domain matches the
+  # repository's own (confirmed against the live pulpcore source), and even
+  # pulp_deb's own copy_content task filters to the current domain before
+  # calling add_content. Testing and stable repositories live in different
+  # domains, so promoting means re-downloading each package from testing's
+  # published distribution and re-uploading it fresh into the stable domain --
+  # mirroring how the JFrog promote job has always worked (download from
+  # testing, upload to stable: Artifactory has no content-by-reference concept
+  # at all, so this was never a shortcut there in the first place).
+  echo "[INFO] Re-uploading $ARCH_PACKAGES_COUNT package(s) from $TESTING_BASE_PATH into the stable domain"
+  DOWNLOAD_DIR=$(mktemp -d)
+  UPLOAD_DIR=$(mktemp -d)
+  MAX_PARALLEL_UPLOADS=8
+  mapfile -t PKG_ROWS < <(echo "$RESULTS" | jq -c '.[]')
+  for i in "${!PKG_ROWS[@]}"; do
+    if ((i % 40 == 0)); then
+      refresh_pulp_token
+    fi
+    (
+      refresh_pulp_token
+      location_href=$(echo "${PKG_ROWS[$i]}" | jq -r '.location_href')
+      dest="$DOWNLOAD_DIR/$i-$(basename "$location_href")"
+      content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_BASE_PATH/$location_href"
+      pulp_upload -F "file=@\"$dest\"" \
+        "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" > "$UPLOAD_DIR/$i.task"
+    ) &
+    while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
+      wait -n || true
+    done
+  done
+  wait || true
+
+  NEW_HREFS=()
+  for i in "${!PKG_ROWS[@]}"; do
+    if [[ ! -s "$UPLOAD_DIR/$i.task" ]]; then
+      echo "::error::Re-upload into the stable domain failed for $(echo "${PKG_ROWS[$i]}" | jq -r '.name') ($ARCH), see the worker error above"
+      exit 1
+    fi
+    NEW_HREFS+=("$(resolve_promoted_content "$(cat "$UPLOAD_DIR/$i.task")" "$(echo "${PKG_ROWS[$i]}" | jq -r '.sha256')")")
+  done
+  rm -rf "$DOWNLOAD_DIR" "$UPLOAD_DIR"
+  CONTENT=$(printf '%s\n' "${NEW_HREFS[@]}" | jq -R . | jq -cs .)
 
   echo "[INFO] Promoting $ARCH_PACKAGES_COUNT packages to $STABLE_REPOSITORY_NAME"
   # pulp-cli repository content modify does not resolve content by pulp_href, use the api directly
