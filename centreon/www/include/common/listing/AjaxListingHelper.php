@@ -80,7 +80,6 @@ class AjaxListingHelper
         require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
         require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
         require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
-        require_once _CENTREON_PATH_ . '/www/class/HtmlAnalyzer.php';
 
         header('Content-Type: application/json');
 
@@ -142,7 +141,7 @@ class AjaxListingHelper
         $limit = ($limit === false || $limit < 1) ? $defaultLimit : min($limit, self::MAX_LIMIT);
 
         return [
-            'search' => HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search'] ?? ''),
+            'search' => HtmlSanitizer::createFromString((string) ($_GET['search'] ?? ''))->sanitize()->removeTags()->getString(),
             'num'    => $num,
             'limit'  => $limit,
         ];
