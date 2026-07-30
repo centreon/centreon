@@ -30,7 +30,7 @@ use Adaptation\Log\Logger;
  * Helper class for AJAX listing endpoints.
  *
  * Provides boilerplate: session validation, parameter parsing,
- * Centreon autoloader registration, and JSON response helpers.
+ * and JSON response helpers.
  *
  * Usage in an AJAX endpoint:
  *
@@ -67,7 +67,7 @@ class AjaxListingHelper
     }
 
     /**
-     * Bootstrap the AJAX endpoint: config, session, autoloader, JSON header.
+     * Bootstrap the AJAX endpoint: config, Composer autoloader, session, JSON header.
      * Exits with appropriate HTTP error on failure.
      */
     public static function boot(): self
@@ -102,20 +102,12 @@ class AjaxListingHelper
             self::jsonError('Internal error', 500);
         }
 
-        // Register Centreon class autoloader for session deserialization
+        // Session deserialization needs the Centreon class graph. The critical
+        // classes are required explicitly (so we don't depend on composer classmap
+        // freshness for the bootstrap); any other www/class/ classes referenced by
+        // the session object resolve through the Composer autoloader loaded above.
         require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
         require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
-
-        spl_autoload_register(function ($sClass): void {
-            $fileName = lcfirst($sClass);
-            $fileNameType1 = _CENTREON_PATH_ . '/www/class/' . $fileName . '.class.php';
-            $fileNameType2 = _CENTREON_PATH_ . '/www/class/' . $fileName . '.php';
-            if (file_exists($fileNameType1)) {
-                require_once $fileNameType1;
-            } elseif (file_exists($fileNameType2)) {
-                require_once $fileNameType2;
-            }
-        });
 
         $centreon = $_SESSION['centreon'] ?? null;
 
@@ -145,35 +137,6 @@ class AjaxListingHelper
             'num'    => $num,
             'limit'  => $limit,
         ];
-    }
-
-    /**
-     * Configured default page size — the platform-wide setting from
-     * `options.maxViewConfiguration` (Administration > Parameters > "Limit per
-     * page"). Falls back to DEFAULT_LIMIT when unset/invalid/unreadable. Cached
-     * for the lifetime of the request.
-     */
-    private function getDefaultLimit(): int
-    {
-        if ($this->defaultLimit !== null) {
-            return $this->defaultLimit;
-        }
-
-        $limit = self::DEFAULT_LIMIT;
-        try {
-            // Constant key (no user input) → no bound parameters needed.
-            $value = $this->db->fetchOne("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
-            if ($value !== false && (int) $value > 0) {
-                $limit = min((int) $value, self::MAX_LIMIT);
-            }
-        } catch (Throwable $e) {
-            Logger::create(LogChannelEnum::WEB)->error(
-                'AJAX listing: could not read maxViewConfiguration, using fallback limit',
-                ['exception' => $e]
-            );
-        }
-
-        return $this->defaultLimit = $limit;
     }
 
     /**
@@ -339,5 +302,34 @@ class AjaxListingHelper
         echo json_encode(['error' => $message]);
 
         exit;
+    }
+
+    /**
+     * Configured default page size — the platform-wide setting from
+     * `options.maxViewConfiguration` (Administration > Parameters > "Limit per
+     * page"). Falls back to DEFAULT_LIMIT when unset/invalid/unreadable. Cached
+     * for the lifetime of the request.
+     */
+    private function getDefaultLimit(): int
+    {
+        if ($this->defaultLimit !== null) {
+            return $this->defaultLimit;
+        }
+
+        $limit = self::DEFAULT_LIMIT;
+        try {
+            // Constant key (no user input) → no bound parameters needed.
+            $value = $this->db->fetchOne("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
+            if ($value !== false && (int) $value > 0) {
+                $limit = min((int) $value, self::MAX_LIMIT);
+            }
+        } catch (Throwable $e) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                'AJAX listing: could not read maxViewConfiguration, using fallback limit',
+                ['exception' => $e]
+            );
+        }
+
+        return $this->defaultLimit = $limit;
     }
 }
