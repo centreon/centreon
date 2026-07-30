@@ -35,18 +35,8 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-$removeDebugLevelFromOptions = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = "Unable to remove 'debug_level' from options table";
-    LoggerUpgrade::create()->info($version, "Removing 'debug_level' from options table");
 
-    $pearDB->executeStatement(
-        <<<'SQL'
-            DELETE FROM `options` WHERE `key` = 'debug_level'
-            SQL
-    );
-
-    LoggerUpgrade::create()->info($version, "Successfully removed 'debug_level' from options table");
-};
+// TODO add your functions here
 
 $addCentralAddressColumn = function () use ($pearDB, &$errorMessage, $version): void {
     if ($pearDB->columnExists(
@@ -231,7 +221,6 @@ try {
         $pearDB->startTransaction();
     }
 
-    $removeDebugLevelFromOptions();
     $populateCentralAddress();
 
     $errorMessage = 'Unable to commit the configuration database transaction';
