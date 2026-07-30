@@ -208,6 +208,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         $this->setId($poller, new PollerId($pollerId));
+        $this->linkGlobalMacros($poller);
     }
 
     public function findOneByName(PollerName $name): ?Poller
@@ -460,6 +461,25 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         );
 
         return $poller;
+    }
+
+    private function linkGlobalMacros(Poller $poller): void
+    {
+        /** @var PollerId $pollerId */
+        $pollerId = $poller->id();
+
+        foreach ($poller->globalMacros as $globalMacro) {
+            $this->connection->executeStatement(
+                <<<'SQL'
+                    INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                    VALUES (:resource_id, :instance_id)
+                    SQL,
+                [
+                    'resource_id' => $globalMacro->id()->value,
+                    'instance_id' => $pollerId->value,
+                ],
+            );
+        }
     }
 
     private function communicationTypeToDatabase(GorgoneCommunicationTypeEnum $communicationType): string

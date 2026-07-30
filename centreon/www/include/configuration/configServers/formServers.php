@@ -197,8 +197,38 @@ if ($serverType !== 'central') {
     $form->addElement('text', 'ssh_port', _('SSH Legacy port'), $attrsText3);
 }
 
-$tab[] = $form->createElement('radio', 'gorgone_communication_type', null, _('ZMQ'), ZMQ);
-$tab[] = $form->createElement('radio', 'gorgone_communication_type', null, _('SSH'), SSH);
+$tab[] = $form->createElement(
+    'radio',
+    'gorgone_communication_type',
+    null,
+    _('ZMQ (Default)'),
+    ZMQ,
+    ['onclick' => 'setGorgonePortForProtocol(' . ZMQ . ');']
+);
+$tab[] = $form->createElement(
+    'radio',
+    'gorgone_communication_type',
+    null,
+    _('PullWSS'),
+    PULLWSS,
+    ['onclick' => 'setGorgonePortForProtocol(' . PULLWSS . ');']
+);
+$tab[] = $form->createElement(
+    'radio',
+    'gorgone_communication_type',
+    null,
+    _('SSH (Deprecated)'),
+    SSH,
+    ['onclick' => 'setGorgonePortForProtocol(' . SSH . ');']
+);
+$tab[] = $form->createElement(
+    'radio',
+    'gorgone_communication_type',
+    null,
+    _('Pull (Deprecated)'),
+    PULL,
+    ['onclick' => 'setGorgonePortForProtocol(' . PULL . ');']
+);
 $form->addGroup($tab, 'gorgone_communication_type', _('Gorgone connection protocol'), '&nbsp;');
 $form->addElement('text', 'gorgone_port', _('Gorgone connection port'), $attrsText3);
 
@@ -424,6 +454,16 @@ if ($valid) {
             jQuery('#gorgoneData').fadeIn({duration: 0});
         } else {
             jQuery('#gorgoneData').fadeOut({duration: 0});
+        }
+    }
+
+    // default gorgone port per communication protocol (ZMQ=1, SSH=2, Pull=3, PullWSS=4)
+    const gorgoneDefaultPorts = <?= json_encode(GORGONE_DEFAULT_PORTS, JSON_THROW_ON_ERROR); ?>;
+
+    function setGorgonePortForProtocol(protocol) {
+        const defaultPort = gorgoneDefaultPorts[protocol];
+        if (defaultPort !== undefined) {
+            jQuery("input[name='gorgone_port']").val(defaultPort).trigger('change');
         }
     }
 

@@ -21,15 +21,21 @@
 
 namespace CentreonRemote\Application\Webservice;
 
+use App\Kernel;
 use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\Gorgone\Command\NodesSync;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
+use CentreonLog;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 use CentreonRemote\Domain\Service\ConfigurationWizard\{
     PollerConnectionConfigurationService,
     RemoteConnectionConfigurationService
 };
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
+use Throwable;
 use Webmozart\Assert\InvalidArgumentException;
 
 /**
@@ -316,6 +322,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              description="if the connection should be made with open broker flow"
      *          ),
      *          @OA\Property(
+     *              property="gorgone_pull_wss",
+     *              type="boolean",
+     *              description="if true, provision the poller with gorgone_communication_type=pullwss and gorgone_port=8086 (poller wizard only)"
+     *          ),
+     *          @OA\Property(
      *              property="db_user",
      *              type="string",
      *              description="database username"
@@ -451,6 +462,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverConfigurationService->setName($serverName);
         $serverConfigurationService->setOnePeerRetention($openBrokerFlow);
 
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            $serverConfigurationService->setGorgoneCommunicationType(NagiosServer::PULLWSS);
+            $serverConfigurationService->setGorgonePort(NagiosServer::PULLWSS_GORGONE_PORT);
+        }
+
         // set linked pollers
         $pollerConfigurationBridge->collectDataFromRequest();
         // set additional Remote Servers
@@ -555,6 +571,22 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
             ]);
+        }
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            try {
+                Kernel::createForWeb()
+                    ->getContainer()
+                    ->get(GorgoneServiceInterface::class)
+                    ->send(new NodesSync());
+            } catch (Throwable $exception) {
+                CentreonLog::create()->warning(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    'Failed to trigger Gorgone nodes sync',
+                    ['source' => 'poller_wizard', 'poller_id' => $serverId],
+                    $exception,
+                );
+            }
         }
 
         // Update session to reload ACL

@@ -1755,12 +1755,16 @@ msgstr ""
 "pour les coordonnées de Paris saisir \"48.51,2.20\""
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "Gorgone communication protocol (ZMQ or SSH)"
-msgstr "Protocole de communication Gorgone (ZMQ ou SSH)"
+msgid "Gorgone communication protocol (ZMQ, PullWSS, SSH or Pull)"
+msgstr "Protocole de communication Gorgone (ZMQ, PullWSS, SSH ou Pull)"
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "Gorgone port of the remote poller (5556 or 22)"
-msgstr "Port de communication Gorgone (5556 ou 22)"
+msgid ""
+"Gorgone port of the remote poller (by default: 5556 for ZMQ, 22 for SSH, 5556 "
+"for Pull and 8086 for PullWSS)"
+msgstr ""
+"Port Gorgone du collecteur distant (par défaut : 5556 en ZMQ, 22 en SSH, "
+"5556 en Pull et 8086 en PullWSS)"
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Height of grid. Used to export the chart."

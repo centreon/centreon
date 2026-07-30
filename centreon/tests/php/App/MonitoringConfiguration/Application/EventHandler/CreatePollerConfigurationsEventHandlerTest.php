@@ -46,20 +46,25 @@ use PHPUnit\Framework\TestCase;
 
 final class CreatePollerConfigurationsEventHandlerTest extends TestCase
 {
-    public function testItDispatchesCreateEngineConfigurationCommand(): void
+    public function testItDispatchesConfigurationCommands(): void
     {
         $poller = $this->createPoller(42, 'My Poller');
         $event = new PollerCreated($poller, 1);
 
+        $dispatched = [];
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->expects(self::once())
             ->method('execute')
-            ->with(self::callback(static fn (object $command): bool => $command instanceof CreateEngineConfigurationCommand
-                && $command->pollerId->value === 42
-                && $command->pollerName === 'My Poller'));
+            ->willReturnCallback(static function (object $command) use (&$dispatched): void {
+                $dispatched[] = $command;
+            });
 
         $handler = new CreatePollerConfigurationsEventHandler($commandBus);
         $handler($event);
+
+        self::assertInstanceOf(CreateEngineConfigurationCommand::class, $dispatched[0]);
+        self::assertSame(42, $dispatched[0]->pollerId->value);
+        self::assertSame('My Poller', $dispatched[0]->pollerName);
     }
 
     private function createPoller(int $pollerId, string $pollerName): Poller
