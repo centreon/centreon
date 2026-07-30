@@ -1288,14 +1288,28 @@ function clEscapeAttr(str) {
         .replace(/'/g, '&#39;');
 }
 
-// Fill a translated template that may contain intended <strong> markup and
-// {{ key }} interpolation placeholders (same convention as the i18next-based
-// React listings). The template is trusted (developer-authored, translated),
-// so it is injected as-is; only the substituted values are HTML-escaped, so no
-// user data can inject markup. Result is safe to inject via innerHTML.
-function clFillTemplate(template, replacements) {
-    return String(template == null ? '' : template).replace(/\{\{\s*(\w+)\s*\}\}/g, function (match, key) {
-        return Object.prototype.hasOwnProperty.call(replacements, key) ? clEscape(replacements[key]) : match;
+// Fill `el` from a translated template: the plain text becomes text nodes and
+// each {{ key }} substitution is rendered as a <strong> built via textContent. The
+// emphasis therefore needs NO <strong> markup in the (translated) template, and
+// the modal never touches innerHTML — so there is no XSS sink and a substituted
+// value can never inject HTML. Any stray <strong> tags left in a template are
+// stripped, so both the new plain-text templates and old inline-markup ones work.
+function clFillTemplateInto(el, template, replacements) {
+    replacements = replacements || {};
+    // split() with a capturing group yields [text, key, text, key, …] — keys at odd indexes.
+    String(template == null ? '' : template).split(/\{\{\s*(\w+)\s*\}\}/).forEach(function (part, i) {
+        if (i % 2 === 1) {
+            if (Object.prototype.hasOwnProperty.call(replacements, part)) {
+                var strong = document.createElement('strong');
+                strong.textContent = replacements[part];
+                el.appendChild(strong);
+            } else {
+                el.appendChild(document.createTextNode('{{' + part + '}}'));
+            }
+        } else if (part) {
+            var text = part.replace(/<\/?strong>/gi, '');
+            if (text) { el.appendChild(document.createTextNode(text)); }
+        }
     });
 }
 
@@ -1337,12 +1351,14 @@ function clShowConfirmModal(opts, callback) {
             '<button type="button" class="cl-confirm-confirm-btn"></button>' +
         '</div>';
     modal.querySelector('.cl-confirm-title').textContent = opts.title;
-    // messageHtml is pre-escaped by the caller (only the intended <strong> tags
-    // are real markup); plain message stays textContent for safety.
-    if (opts.messageHtml) {
-        modal.querySelector('.cl-confirm-body').innerHTML = opts.messageHtml;
+    // Body is built as DOM — never innerHTML. A template with {{ key }} placeholders
+    // renders each substitution in bold via clFillTemplateInto; otherwise the plain
+    // message is set as text.
+    var body = modal.querySelector('.cl-confirm-body');
+    if (opts.messageTemplate) {
+        clFillTemplateInto(body, opts.messageTemplate, opts.messageReplacements);
     } else {
-        modal.querySelector('.cl-confirm-body').textContent = opts.message;
+        body.textContent = opts.message;
     }
     var cancelBtn = modal.querySelector('.cl-confirm-cancel');
     var confirmBtn = modal.querySelector('.cl-confirm-confirm-btn');
@@ -1461,15 +1477,15 @@ function clMoreAction(select) {
             confirmLabel: attr('data-label-delete', 'Delete'),
             cancelLabel: attr('data-label-cancel', 'Cancel')
         };
-        // New per-count message templates carry {{ name }} (single selection) or
-        // {{ count }} (several) placeholders, with the bold parts marked up inline
-        // as <strong> in the translated string. Fall back to the old plain message.
+        // Per-count message templates carry a {{ name }} (single selection) or
+        // {{ count }} (several) placeholder; the interpolated value is rendered
+        // bold by the modal (no inline markup needed). Fall back to the old plain message.
         var template = attr(isMany ? 'data-msg-delete-many' : 'data-msg-delete-one', '');
         if (template) {
-            var replacements = isMany
+            deleteOpts.messageTemplate = template;
+            deleteOpts.messageReplacements = isMany
                 ? { count: String(selectedCount) }
                 : { name: clSelectedRowName(checkedRows[0]) };
-            deleteOpts.messageHtml = clFillTemplate(template, replacements);
         } else {
             deleteOpts.message = attr('data-msg-delete', 'You are about to delete the selected object(s). This action cannot be undone. Do you want to delete?');
         }
@@ -1482,13 +1498,14 @@ function clMoreAction(select) {
             cancelLabel: attr('data-label-cancel', 'Cancel')
         };
         // Per-count templates: {{ name }} (single selection) or {{ count }}
-        // (several), bold parts marked up inline. Fall back to the old message.
+        // (several); the interpolated value is rendered bold by the modal. Fall
+        // back to the old plain message.
         var dupTemplate = attr(isManyDup ? 'data-msg-duplicate-many' : 'data-msg-duplicate-one', '');
         if (dupTemplate) {
-            var dupReplacements = isManyDup
+            dupOpts.messageTemplate = dupTemplate;
+            dupOpts.messageReplacements = isManyDup
                 ? { count: String(selectedCount) }
                 : { name: clSelectedRowName(checkedRows[0]) };
-            dupOpts.messageHtml = clFillTemplate(dupTemplate, dupReplacements);
         } else {
             dupOpts.message = attr('data-msg-duplicate', 'Do you want to duplicate the selected object(s)?');
         }
