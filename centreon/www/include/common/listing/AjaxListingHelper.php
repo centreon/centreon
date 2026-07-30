@@ -45,13 +45,18 @@ use Adaptation\Log\Logger;
  */
 class AjaxListingHelper
 {
+    /** Hard fallback page size when the configured default can't be read. */
     private const DEFAULT_LIMIT = 30;
 
+    /** Absolute ceiling on the requested page size (crafted-input safety net). */
     private const MAX_LIMIT = 1000;
 
     private CentreonDB $db;
 
     private mixed $centreon;
+
+    /** Cached configured default page size (options.maxViewConfiguration). */
+    private ?int $defaultLimit = null;
 
     private function __construct(CentreonDB $db, mixed $centreon)
     {
@@ -126,17 +131,48 @@ class AjaxListingHelper
         // Clamp both bounds: FILTER_VALIDATE_INT accepts negatives and has no
         // ceiling, so an unclamped num/limit would feed a malformed or unbounded
         // LIMIT/OFFSET (SQL error or an unbounded result set) to every caller.
+        $defaultLimit = $this->getDefaultLimit();
+
         $num = filter_var($_GET['num'] ?? 0, FILTER_VALIDATE_INT);
         $num = ($num === false || $num < 0) ? 0 : $num;
 
-        $limit = filter_var($_GET['limit'] ?? self::DEFAULT_LIMIT, FILTER_VALIDATE_INT);
-        $limit = ($limit === false || $limit < 1) ? self::DEFAULT_LIMIT : min($limit, self::MAX_LIMIT);
+        $limit = filter_var($_GET['limit'] ?? $defaultLimit, FILTER_VALIDATE_INT);
+        $limit = ($limit === false || $limit < 1) ? $defaultLimit : min($limit, self::MAX_LIMIT);
 
         return [
             'search' => HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search'] ?? ''),
             'num'    => $num,
             'limit'  => $limit,
         ];
+    }
+
+    /**
+     * Configured default page size — the platform-wide setting from
+     * `options.maxViewConfiguration` (Administration > Parameters > "Limit per
+     * page"). Falls back to DEFAULT_LIMIT when unset/invalid/unreadable. Cached
+     * for the lifetime of the request.
+     */
+    private function getDefaultLimit(): int
+    {
+        if ($this->defaultLimit !== null) {
+            return $this->defaultLimit;
+        }
+
+        $limit = self::DEFAULT_LIMIT;
+        try {
+            $result = $this->db->query("SELECT `value` FROM `options` WHERE `key` = 'maxViewConfiguration'");
+            $value = $result->fetchColumn();
+            if ($value !== false && (int) $value > 0) {
+                $limit = min((int) $value, self::MAX_LIMIT);
+            }
+        } catch (Throwable $e) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                'AJAX listing: could not read maxViewConfiguration, using fallback limit',
+                ['exception' => $e]
+            );
+        }
+
+        return $this->defaultLimit = $limit;
     }
 
     /**
