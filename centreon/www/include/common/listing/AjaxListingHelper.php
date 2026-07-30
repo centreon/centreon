@@ -19,6 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 /**
  * Helper class for AJAX listing endpoints.
  *
@@ -33,10 +38,19 @@
  *   $db = $helper->getDb();
  *   // ... run your query ...
  *   $helper->jsonResponse($rows, $total, $params['num'], $params['limit']);
+ *
+ * Security contract: boot() validates the session only. Mutating (POST)
+ * endpoints MUST additionally call validateCsrfToken() and requireWriteAccess()
+ * before performing any write.
  */
 class AjaxListingHelper
 {
+    private const DEFAULT_LIMIT = 30;
+
+    private const MAX_LIMIT = 1000;
+
     private CentreonDB $db;
+
     private mixed $centreon;
 
     private function __construct(CentreonDB $db, mixed $centreon)
@@ -52,6 +66,10 @@ class AjaxListingHelper
     public static function boot(): self
     {
         require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
+        // Composer autoloader (PSR-4 for src/, e.g. Adaptation\Log\Logger). This
+        // standalone endpoint doesn't go through the full bootstrap, so load it
+        // explicitly — otherwise src/ classes used below aren't resolvable.
+        require_once realpath(__DIR__ . '/../../../../vendor/autoload.php');
         require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
         require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
         require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
@@ -67,7 +85,14 @@ class AjaxListingHelper
             if (! CentreonSession::checkSession(session_id(), $db)) {
                 self::jsonError('Unauthorized', 401);
             }
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
+            // Never leak internals to the client, but record the real cause so a
+            // DB outage / broken session backend is diagnosable (was silently
+            // swallowed). Throwable so Error types are handled too, not just Exception.
+            Logger::create(LogChannelEnum::WEB)->error(
+                'AJAX listing: session validation failed',
+                ['exception' => $e]
+            );
             self::jsonError('Internal error', 500);
         }
 
@@ -98,10 +123,19 @@ class AjaxListingHelper
      */
     public function getParams(): array
     {
+        // Clamp both bounds: FILTER_VALIDATE_INT accepts negatives and has no
+        // ceiling, so an unclamped num/limit would feed a malformed or unbounded
+        // LIMIT/OFFSET (SQL error or an unbounded result set) to every caller.
+        $num = filter_var($_GET['num'] ?? 0, FILTER_VALIDATE_INT);
+        $num = ($num === false || $num < 0) ? 0 : $num;
+
+        $limit = filter_var($_GET['limit'] ?? self::DEFAULT_LIMIT, FILTER_VALIDATE_INT);
+        $limit = ($limit === false || $limit < 1) ? self::DEFAULT_LIMIT : min($limit, self::MAX_LIMIT);
+
         return [
             'search' => HtmlAnalyzer::sanitizeAndRemoveTags($_GET['search'] ?? ''),
-            'num'    => filter_var($_GET['num'] ?? 0, FILTER_VALIDATE_INT) ?: 0,
-            'limit'  => filter_var($_GET['limit'] ?? 30, FILTER_VALIDATE_INT) ?: 30,
+            'num'    => $num,
+            'limit'  => $limit,
         ];
     }
 
@@ -121,6 +155,7 @@ class AjaxListingHelper
         if (! $this->centreon) {
             self::jsonError('Forbidden', 403);
         }
+
         return $this->centreon;
     }
 
@@ -198,7 +233,7 @@ class AjaxListingHelper
             $pearDBO = new CentreonDB('centstorage');
 
             // Check if audit log is enabled
-            $optResult = $pearDBO->query("SELECT audit_log_option FROM `config` LIMIT 1");
+            $optResult = $pearDBO->query('SELECT audit_log_option FROM `config` LIMIT 1');
             $auditOpt = $optResult->fetchColumn();
             if ($auditOpt != '1') {
                 return;
@@ -207,8 +242,8 @@ class AjaxListingHelper
             $userId = $this->centreon ? $this->centreon->user->get_id() : 0;
 
             $stmt = $pearDBO->prepare(
-                "INSERT INTO `log_action` (action_log_date, object_type, object_id, object_name, action_type, log_contact_id)"
-                . " VALUES (:ts, :obj_type, :obj_id, :obj_name, :action, :uid)"
+                'INSERT INTO `log_action` (action_log_date, object_type, object_id, object_name, action_type, log_contact_id)'
+                . ' VALUES (:ts, :obj_type, :obj_id, :obj_name, :action, :uid)'
             );
             $stmt->bindValue(':ts', time(), PDO::PARAM_INT);
             $stmt->bindValue(':obj_type', $objectType, PDO::PARAM_STR);
@@ -217,8 +252,14 @@ class AjaxListingHelper
             $stmt->bindValue(':action', $actionType, PDO::PARAM_STR);
             $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
             $stmt->execute();
-        } catch (\Throwable $e) {
-            // Silently fail logging — don't break the toggle
+        } catch (Throwable $e) {
+            // Don't fail the toggle because auditing failed — but record the lost
+            // audit entry so the drop is observable (this is a security/compliance
+            // trail; a silent empty catch made schema drift / DB errors invisible).
+            Logger::create(LogChannelEnum::WEB)->error(
+                sprintf('AJAX listing: audit log write failed for %s#%d (%s)', $objectType, $objectId, $actionType),
+                ['exception' => $e]
+            );
         }
     }
 
@@ -227,13 +268,27 @@ class AjaxListingHelper
      */
     public function jsonResponse(array $rows, int $total, int $num, int $limit): void
     {
-        echo json_encode([
+        // JSON_INVALID_UTF8_SUBSTITUTE: a single non-UTF-8 byte in row data (common
+        // in plugin output/aliases) otherwise makes json_encode() return false,
+        // echoing an empty body with HTTP 200 — the client then sees "no results".
+        $json = json_encode([
             'rows'           => $rows,
             'total'          => $total,
             'num'            => $num,
             'limit'          => $limit,
             'centreon_token' => createCSRFToken(),
-        ]);
+        ], JSON_INVALID_UTF8_SUBSTITUTE);
+
+        if ($json === false) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                'AJAX listing: failed to encode response',
+                ['error' => json_last_error_msg()]
+            );
+            self::jsonError('Encoding error', 500);
+        }
+
+        echo $json;
+
         exit;
     }
 
@@ -244,6 +299,7 @@ class AjaxListingHelper
     {
         http_response_code($httpCode);
         echo json_encode(['error' => $message]);
+
         exit;
     }
 }
