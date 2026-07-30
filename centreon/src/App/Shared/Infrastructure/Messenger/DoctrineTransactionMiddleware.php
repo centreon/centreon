@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Messenger;
 
-use App\Upgrade\Application\Command\UpdateCommand;
+use App\Shared\Application\Command\NonTransactionalCommand;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Envelope;
@@ -40,7 +40,7 @@ final readonly class DoctrineTransactionMiddleware implements MiddlewareInterfac
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
-        if ($envelope->getMessage() instanceof UpdateCommand) {
+        if ($envelope->getMessage() instanceof NonTransactionalCommand) {
             return $stack->next()->handle($envelope, $stack);
         }
 
