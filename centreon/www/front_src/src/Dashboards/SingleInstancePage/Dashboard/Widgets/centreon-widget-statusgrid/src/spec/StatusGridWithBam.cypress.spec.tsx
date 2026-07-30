@@ -65,7 +65,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba1]').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
     }
   },
@@ -79,7 +79,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba1').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -105,7 +105,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba1').should(
         'have.css',
         'color',
-        'rgb(136, 185, 34)'
+        'rgb(159, 199, 78)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -131,7 +131,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba4]').should(
         'have.css',
         'color',
-        'rgb(255, 102, 102)'
+        'rgb(255, 110, 110)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -162,7 +162,7 @@ const baTestCases = [
       cy.get('[data-resourceName=ba5]').should(
         'have.css',
         'color',
-        'rgb(255, 102, 102)'
+        'rgb(255, 110, 110)'
       );
 
       cy.contains('State information').should('be.visible');
@@ -371,14 +371,14 @@ describe('Business activities', () => {
     cy.get('[data-status="ok"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+      .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
     cy.contains('ba2').should('be.visible');
     cy.get('[data-status="pending"]').should('be.visible');
     cy.get('[data-status="pending"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(30, 190, 179)');
+      .should('have.css', 'background-color', 'rgb(30, 190, 59)');
 
     cy.contains('ba3').should('be.visible');
     cy.get('[data-status="unknown"]').should('be.visible');
@@ -426,7 +426,7 @@ describe('Indicators', () => {
     cy.get('[data-status="ok"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(136, 185, 34)');
+      .should('have.css', 'background-color', 'rgb(159, 199, 78)');
 
     cy.contains('Memory').should('be.visible');
     cy.get('[data-status="unknown"]').should('be.visible');
@@ -445,7 +445,7 @@ describe('Indicators', () => {
     cy.get('[data-resourceName="boolean 1"]').should(
       'have.css',
       'color',
-      'rgb(136, 185, 34)'
+      'rgb(159, 199, 78)'
     );
 
     cy.contains('Parent: ba1');
