@@ -91,13 +91,18 @@
 			<tbody id="{$tab.id}_0">
 				<tr class="list_lvl_1">
                   <td class="ListColLvl1_name" colspan="2">
-                    <h4>{$tab.name}</h4>
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                        <h4 style="margin:0;">{$tab.name}</h4>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <select id="block_{$tab.id}"
+                            onchange='checkTypeValidity("block_{$tab.id}")'>{foreach from=$tab.blocks item=block}
+                            <option value="{$block.id}">{$block.name}</option>
+                            {/foreach}</select>
+                            <a id="add_{$tab.id}" onClick="addInfo('{$tab.id}')" class='btc bt_success'>{$tab.link}</a>
+                        </div>
+                    </div>
                   </td>
                 </tr>
-				<tr class="list_one"><td class="FormRowValue" colspan="2"><select id="block_{$tab.id}"
-				onchange='checkTypeValidity("block_{$tab.id}")'>{foreach from=$tab.blocks item=block}
-				<option value="{$block.id}">{$block.name}</option>
-				{/foreach}</select>&nbsp;<a id="add_{$tab.id}" onClick="addInfo('{$tab.id}')" class='btc bt_success'>{$tab.link}</a></td></tr>
 			</tbody>
 			{foreach from=$tab.forms item=formBlock name=formForeach}
 				{assign var="posAbs" value=$smarty.foreach.formForeach.index}
