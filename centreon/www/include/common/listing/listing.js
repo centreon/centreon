@@ -604,13 +604,34 @@ function CentreonListing(config) {
                 updateHeaderCheckboxState();
                 if (cfg.onDataLoaded) cfg.onDataLoaded(data);
             },
-            error: function () {
+            error: function (xhr, status, err) {
                 isLoadingMore = false;
                 jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
+
+                // Always leave a diagnostic trace — this callback used to discard
+                // xhr/status/err, so a "the list is stuck" report had nothing to go on.
+                if (window.console) {
+                    console.error('[CentreonListing] fetch failed', (xhr && xhr.status) || '', status, err);
+                }
+
+                var httpStatus = xhr && xhr.status;
+                if (httpStatus === 401 || httpStatus === 403) {
+                    // Session expired / access lost mid-view: stop the auto-refresh
+                    // so we don't hammer a dead session, and tell the user.
+                    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    return;
+                }
+
                 if (firstLoad) {
                     jQuery('#' + cfg.tableBodyId).html(
-                        '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">Error loading data</td></tr>'
+                        '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">' +
+                        clEscape(clListingLabel('loadError', 'Error loading data')) + '</td></tr>'
                     );
+                } else if (!silent) {
+                    // Surface later failures (page change, search) instead of silently
+                    // leaving stale rows on screen as if they matched the new request.
+                    clToast(clListingLabel('loadError', 'Error loading data'), 'error');
                 }
             }
         });
@@ -837,9 +858,20 @@ function CentreonListing(config) {
                 }
                 toggle.disabled = false;
             },
-            error: function () {
+            error: function (xhr, status, err) {
+                // Revert the optimistic switch and re-enable it (kept), but tell
+                // the user instead of leaving a silently-reverted toggle.
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
+                if (window.console) {
+                    console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
+                }
+                clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                // A stale CSRF token (403) would make every subsequent toggle fail
+                // too; a silent list refresh pulls a fresh token so the next works.
+                if (xhr && xhr.status === 403) {
+                    self.fetch(currentNum, currentLimit, currentSearch, true);
+                }
             }
         });
     };

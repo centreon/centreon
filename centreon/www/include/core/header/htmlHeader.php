@@ -157,7 +157,10 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
                 nextPage: <?php echo json_encode(_('Next page')); ?>,
                 lastPage: <?php echo json_encode(_('Last page')); ?>,
                 close: <?php echo json_encode(_('Close')); ?>,
-                ok: <?php echo json_encode(_('OK')); ?>
+                ok: <?php echo json_encode(_('OK')); ?>,
+                loadError: <?php echo json_encode(_('Error loading data')); ?>,
+                toggleError: <?php echo json_encode(_('Could not change status')); ?>,
+                sessionExpired: <?php echo json_encode(_('Your session has expired — please reload the page.')); ?>
             }
         };
     </script>
