@@ -73,8 +73,16 @@
       }
 
       /* Keep the dropdown open after each pick on multiple selects so several
-         values can be chosen in a row without reopening it every time. */
-      if (this.settings.multiple && this.select2Options.closeOnSelect === undefined) {
+         values can be chosen in a row without reopening it every time — but
+         ONLY inside the redesigned CentreonForm / CentreonListing UIs. Those
+         are matched by their wrapper (.cf-form-wrapper / .cl-listing-container),
+         always an ancestor already in the DOM when this inline init runs.
+         Legacy forms keep select2's default (close on select) so their
+         behavior and snapshots stay untouched. An explicit closeOnSelect passed
+         by the caller still wins. */
+      if (this.settings.multiple &&
+          this.select2Options.closeOnSelect === undefined &&
+          this.$elem.closest('.cf-form-wrapper, .cl-listing-container').length > 0) {
         this.select2Options.closeOnSelect = false;
       }
 
