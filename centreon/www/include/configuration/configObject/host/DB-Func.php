@@ -2881,7 +2881,19 @@ function updateHostInAPI(int $hostId, array $formData): bool
     try {
         $isTemplate = (int) $formData['host_register'] === 0;
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
-        $relationsBefore = getHostRelationsSnapshot($hostId);
+        $relationsBefore = null;
+        try {
+            $relationsBefore = getHostRelationsSnapshot($hostId);
+        } catch (Throwable $ex) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Failed to snapshot host relations before update',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+        }
 
         updateByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
 
@@ -2907,7 +2919,7 @@ function updateHostInAPI(int $hostId, array $formData): bool
         }
 
         try {
-            if (getHostRelationsSnapshot($hostId) !== $relationsBefore) {
+            if ($relationsBefore !== null && getHostRelationsSnapshot($hostId) !== $relationsBefore) {
                 $centreon->CentreonLogAction->insertLog(
                     object_type: ActionLog::OBJECT_TYPE_HOST,
                     object_id: $hostId,
