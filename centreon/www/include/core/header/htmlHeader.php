@@ -114,6 +114,9 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/listing/listing.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="./include/common/listing/listing.js<?php echo $versionParam; ?>"></script>
 
+    <!-- Modern form styles -->
+    <link href="./include/common/form/form.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+
     <!-- The translated strings consumed by listing.js / form.js (window.clI18n)
          used to be dumped here, loading on every legacy page. They now live in
          the shared Smarty partial www/include/common/templates/clI18n.ihtml
@@ -164,6 +167,8 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 if (! isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['iframe'] != 1)) {
     ?>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery.min.js"></script>
+    <!-- Modern form JS (must load after jQuery) -->
+    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam; ?>"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/toggleClick/jquery.toggleClick.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/select2/js/select2.full.min.js">
