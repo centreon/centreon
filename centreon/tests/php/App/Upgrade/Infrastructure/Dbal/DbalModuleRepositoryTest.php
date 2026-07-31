@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Upgrade\Infrastructure\Dbal;
 
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Infrastructure\Dbal\DbalModuleRepository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -57,6 +58,7 @@ final class DbalModuleRepositoryTest extends TestCase
             $this->configConnection,
             $this->realtimeConnection,
             $this->modulesDir,
+            new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
             '/usr/share/centreon/',
             new NullLogger(),
         );
