@@ -21,10 +21,8 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Application\Command;
+namespace App\Shared\Application\Command;
 
-use App\Shared\Application\Command\NonTransactionalCommand;
-
-final readonly class UpdateCommand implements NonTransactionalCommand
+interface NonTransactionalCommand
 {
 }
