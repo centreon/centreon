@@ -32,27 +32,6 @@ jobs:
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
-  dispatch-to-maintained-branches:
-    if: |
-      github.run_attempt == 1 &&
-      github.event_name == 'schedule' &&
-      github.ref_name == 'develop' &&
-      github.event.pull_request.head.repo.fork != true
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - run: |
-          NIGHTLY_TARGETS=("dev-24.10.x" "dev-25.10.x")
-          for target in "${NIGHTLY_TARGETS[@]}"; do
-            echo "[INFO] - Dispatching nightly run to $target branch."
-            gh workflow run docker-web-dependencies.yml -r "$target"
-          done
-        shell: bash
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   get-environment:
     needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
