@@ -1471,16 +1471,20 @@
 /* ==========================================================================
    Select2 — restyled to resemble the React multi-select
    --------------------------------------------------------------------------
-   form.css is loaded globally (htmlHeader.php), and select2's dropdown is
-   appended to <body>, so these rules are intentionally unscoped. Explicit
-   colors (React palette) keep it consistent in forms AND listing filters.
+   form.css is loaded globally (htmlHeader.php), so these rules are confined to
+   the redesigned UIs: the in-page selection box is scoped under the
+   .cf-form-wrapper / .cl-listing-container wrapper, and the dropdown — which
+   select2 appends to <body>, out of the wrapper's reach — is matched by the
+   .cf-select2-dropdown marker class the centreonSelect2 plugin adds only in
+   that context. Legacy select2 keeps the theme's default look. Explicit colors
+   (React palette) keep it consistent in forms AND listing filters.
    Behaviour is untouched — this is CSS only.
    ========================================================================== */
 
 /* --- Selection box (single & multiple). !important beats the Generic-theme
        rules that force border-radius:0 on select2. --- */
-.select2-container--default .select2-selection--single,
-.select2-container--default .select2-selection--multiple {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single,
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple {
     border: 1px solid var(--color-divider, #c2c7ce) !important;
     border-radius: 8px !important;
     min-height: 40px;
@@ -1491,20 +1495,20 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.select2-container--default.select2-container--focus .select2-selection--single,
-.select2-container--default.select2-container--focus .select2-selection--multiple,
-.select2-container--default.select2-container--open .select2-selection--single,
-.select2-container--default.select2-container--open .select2-selection--multiple {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--focus .select2-selection--single,
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--focus .select2-selection--multiple,
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--single,
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--multiple {
     border-color: var(--color-primary-light, #2E68AA) !important;
     box-shadow: 0 0 0 1px var(--color-primary-light, #2E68AA);
 }
 
 /* --- Single select: vertically center the chosen text --- */
-.select2-container--default .select2-selection--single {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single {
     display: flex;
     align-items: center;
 }
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single .select2-selection__rendered {
     line-height: 1.4 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -1512,7 +1516,7 @@
 
 /* --- Single select: replace the default triangle with a clean, centered
        chevron (the arrow box spans the full height and flex-centers the mark) --- */
-.select2-container--default .select2-selection--single .select2-selection__arrow {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 100% !important;
     top: 0 !important;
     right: 6px;
@@ -1520,10 +1524,10 @@
     align-items: center;
     justify-content: center;
 }
-.select2-container--default .select2-selection--single .select2-selection__arrow b {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single .select2-selection__arrow b {
     display: none;
 }
-.select2-container--default .select2-selection--single .select2-selection__arrow::after {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single .select2-selection__arrow::after {
     content: '';
     width: 7px;
     height: 7px;
@@ -1534,7 +1538,7 @@
     pointer-events: none;
     transition: transform 0.15s ease;
 }
-.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow::after {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow::after {
     margin-top: 3px;
     transform: rotate(-135deg);
 }
@@ -1549,13 +1553,13 @@
    halves (.select2-content = label, .select2-selection__choice__remove = ×);
    we colour both the same and round only the outer corners so together they
    read as one pill. */
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice {
     background-color: transparent !important;
     border: 0 !important;
     padding: 0 !important;
     margin: 3px 3px 0 0 !important;
 }
-.select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
     height: 20px;
     box-sizing: border-box;
     background-color: var(--color-primary-light, #2E68AA) !important;
@@ -1566,7 +1570,7 @@
     font-size: 10px;
     line-height: 20px !important;
 }
-.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
@@ -1581,7 +1585,7 @@
     font-size: 14px;
     line-height: 20px !important;
 }
-.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
     background-color: var(--color-primary-light, #2E68AA) !important;
     color: #fff !important;
 }
@@ -1650,8 +1654,10 @@
     text-decoration: underline;
 }
 
-/* --- Dropdown panel --- */
-.select2-dropdown {
+/* --- Dropdown panel. select2 appends it to <body> (out of the wrapper's
+       reach), so it is scoped by the .cf-select2-dropdown marker the
+       centreonSelect2 plugin adds to the dropdown only in the new context. --- */
+.select2-dropdown.cf-select2-dropdown {
     border: 1px solid var(--color-divider, #c2c7ce) !important;
     border-radius: 8px !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
@@ -1659,7 +1665,7 @@
     background: var(--body-background, #fff);
     color: var(--body-color, #333);
 }
-.select2-search--dropdown .select2-search__field {
+.cf-select2-dropdown .select2-search--dropdown .select2-search__field {
     border: 1px solid var(--color-divider, #c2c7ce) !important;
     border-radius: 6px !important;
     padding: 6px 10px;
@@ -1667,25 +1673,26 @@
     background: var(--body-background, #fff);
     color: var(--body-color, #333);
 }
-.select2-search--dropdown .select2-search__field:focus {
+.cf-select2-dropdown .select2-search--dropdown .select2-search__field:focus {
     border-color: var(--color-primary-light, #2E68AA) !important;
 }
-/* Placeholder (single selection + multi inline search) — greyed like inputs */
-.select2-container--default .select2-selection__placeholder,
-.select2-search--inline .select2-search__field::placeholder {
+/* Placeholder (single selection + multi inline search) — greyed like inputs.
+   Both live in the in-page selection box, so they scope under the wrapper. */
+:is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection__placeholder,
+:is(.cf-form-wrapper, .cl-listing-container) .select2-search--inline .select2-search__field::placeholder {
     color: var(--c-text-secondary, #8a8a8a) !important;
     opacity: 1;
 }
-.select2-results__option {
+.cf-select2-dropdown .select2-results__option {
     padding: 8px 12px;
     font-size: 13px;
     color: var(--body-color, #333);
 }
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
+.cf-select2-dropdown .select2-results__option--highlighted[aria-selected] {
     background-color: var(--color-listing-hover, #E6EDF5) !important;
     color: var(--cl-link-color, #2E68AA) !important;
 }
-.select2-container--default .select2-results__option[aria-selected=true] {
+.cf-select2-dropdown .select2-results__option[aria-selected=true] {
     background-color: rgba(46, 104, 170, 0.08) !important;
     color: var(--cl-link-color, #2E68AA) !important;
     font-weight: 500;

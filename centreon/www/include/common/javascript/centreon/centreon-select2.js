@@ -72,18 +72,24 @@
         this.select2Options.ajax = this.ajaxOptions;
       }
 
-      /* Keep the dropdown open after each pick on multiple selects so several
-         values can be chosen in a row without reopening it every time — but
-         ONLY inside the redesigned CentreonForm / CentreonListing UIs. Those
-         are matched by their wrapper (.cf-form-wrapper / .cl-listing-container),
-         always an ancestor already in the DOM when this inline init runs.
-         Legacy forms keep select2's default (close on select) so their
-         behavior and snapshots stay untouched. An explicit closeOnSelect passed
-         by the caller still wins. */
-      if (this.settings.multiple &&
-          this.select2Options.closeOnSelect === undefined &&
-          this.$elem.closest('.cf-form-wrapper, .cl-listing-container').length > 0) {
-        this.select2Options.closeOnSelect = false;
+      /* Confine the redesigned CentreonForm / CentreonListing behavior AND
+         styling to those UIs only, matched by their wrapper (.cf-form-wrapper /
+         .cl-listing-container, always an ancestor already in the DOM when this
+         inline init runs). Legacy forms keep select2's default look and feel so
+         their behavior and snapshots stay untouched. */
+      if (this.$elem.closest('.cf-form-wrapper, .cl-listing-container').length > 0) {
+        /* Keep the dropdown open after each pick on multiple selects so several
+           values can be chosen in a row (unless the caller set closeOnSelect). */
+        if (this.settings.multiple && this.select2Options.closeOnSelect === undefined) {
+          this.select2Options.closeOnSelect = false;
+        }
+        /* select2 appends its dropdown to <body>, outside the wrapper, so an
+           ancestor CSS scope can't reach it. Tag the dropdown with a marker
+           class instead; form.css styles only .cf-select2-dropdown dropdowns. */
+        this.select2Options.dropdownCssClass =
+          (this.select2Options.dropdownCssClass
+            ? this.select2Options.dropdownCssClass + ' '
+            : '') + 'cf-select2-dropdown';
       }
 
       this.$elem.select2(this.select2Options);
