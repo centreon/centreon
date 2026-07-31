@@ -2,10 +2,10 @@ import { Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { useTheme } from '@mui/material/styles';
 
+import { ThemeMode } from '@centreon/ui-context';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { ThemeMode } from '@centreon/ui-context';
 
 import viewByAllActive from '../../icons/view_all_actif.svg';
 import viewByAllActiveDark from '../../icons/view_all_actif_dark.svg';

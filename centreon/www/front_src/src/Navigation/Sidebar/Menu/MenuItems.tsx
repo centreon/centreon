@@ -74,9 +74,7 @@ const useStyles = makeStyles<{ isRoot?: boolean }>()((theme, { isRoot }) => ({
       : isRoot
         ? 'rgba(255, 255, 255, 0.20)'
         : theme.palette.primary.light,
-    color: isRoot
-      ? theme.palette.common.white
-      : theme.palette.primary.main
+    color: isRoot ? theme.palette.common.white : theme.palette.primary.main
   },
   arrowIcon: {
     color: 'inherit'

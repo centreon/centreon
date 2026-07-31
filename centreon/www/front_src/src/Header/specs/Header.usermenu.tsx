@@ -59,7 +59,7 @@ export default (): void => {
       cy.get('header').should(
         'have.css',
         'background-color',
-        'rgb(37, 88, 145)'
+        'rgb(19, 29, 90)'
       );
     });
 
