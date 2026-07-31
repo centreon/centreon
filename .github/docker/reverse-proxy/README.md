@@ -36,11 +36,10 @@ reverse-proxy/verify.sh
 Expected output of step 3:
 
 ```
-» Through the proxy (HTTPS) — expect X-Effective-Scheme: https
-X-Effective-Scheme: https
-
-» Direct to web (HTTP) — expect X-Effective-Scheme: http
-X-Effective-Scheme: http
+» Through the proxy (HTTPS) — expect https
+  PASS proxy → X-Effective-Scheme: https
+» Direct to web (HTTP) — expect http
+  PASS direct → X-Effective-Scheme: http
 ```
 
 Then use Centreon through either entry point:
@@ -104,11 +103,10 @@ reverse-proxy/verify.sh
 Sortie attendue de l'étape 3 :
 
 ```
-» Through the proxy (HTTPS) — expect X-Effective-Scheme: https
-X-Effective-Scheme: https
-
-» Direct to web (HTTP) — expect X-Effective-Scheme: http
-X-Effective-Scheme: http
+» Through the proxy (HTTPS) — expect https
+  PASS proxy → X-Effective-Scheme: https
+» Direct to web (HTTP) — expect http
+  PASS direct → X-Effective-Scheme: http
 ```
 
 Ensuite, exploiter Centreon par l'une ou l'autre porte d'entrée :
