@@ -8910,6 +8910,11 @@ msgstr ""
 msgid "Host Groups Shared"
 msgstr ""
 
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Host ID"
+msgstr ""
+
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "Host ID #%d is invalid"
@@ -16210,6 +16215,11 @@ msgstr ""
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/install/menu_translation.php
 msgid "Service Groups"
+msgstr ""
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Service ID"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php

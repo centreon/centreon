@@ -8562,6 +8562,10 @@ msgstr "Nome dos Grupos de Host"
 msgid "Host Groups Shared"
 msgstr "Grupos de Hosts compartilhados"
 
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Host ID"
+msgstr ""
+
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
 #, php-format
 msgid "Host ID #%d is invalid"
@@ -15267,6 +15271,10 @@ msgstr "Grupo de Serviço"
 #: centreon/www/install/menu_translation.php
 msgid "Service Groups"
 msgstr "Grupos de Serviço"
+
+#: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+msgid "Service ID"
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Service Inter-Check Delay Method"
