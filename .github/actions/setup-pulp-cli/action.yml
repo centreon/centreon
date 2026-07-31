@@ -9,6 +9,19 @@ inputs:
     description: "OIDC audience, must match the pulp server GITHUB_OIDC.audience"
     required: false
     default: "https://pulp.dev.centreon.io"
+  domain:
+    description: |
+      Pulp Domain to operate in (DOMAIN_ENABLED). Every repository created before Domains
+      existed lives in "default" — that stays the right choice for any caller that never sets
+      this. Callers that resolve a domain themselves (package-delivery-pulp, promote-to-stable-pulp)
+      already pass one; without this input it was silently dropped (a GitHub Actions "unexpected
+      input" warning, not a hard failure), leaving pulp-cli's own commands pointed at whatever
+      domain it defaults to without an explicit --domain — confirmed live, 2026-07-31: raw REST
+      helpers (which build their own domain-prefixed URLs from the same properties.sh output)
+      found the right repository while a plain "pulp rpm repository show" on the same name did
+      not, in the same job.
+    required: false
+    default: "default"
 
 runs:
   using: "composite"
@@ -78,12 +91,14 @@ runs:
       shell: bash
       env:
         PULP_URL: ${{ inputs.pulp_url }}
+        DOMAIN: ${{ inputs.domain }}
       run: |
         set -euo pipefail
 
         # fall back to the default when the caller passes an empty value (unset
         # org variable forwarded as "" would otherwise override the default).
         PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
+        DOMAIN="${DOMAIN:-default}"
 
         # keep the pulp-cli config (which stores the OIDC token) under the per-job
         # RUNNER_TEMP rather than the runner's persistent ~/.config, and share the
@@ -100,9 +115,13 @@ runs:
         # pulp-cli splits --header on the first colon and keeps the value
         # verbatim, so no space after the colon (it would be rejected as
         # leading whitespace); the sent header is still "Authorization: Bearer …"
+        # --domain: DOMAIN_ENABLED requires every request to carry a domain name (no unprefixed
+        # fallback); pulp-cli stores it in the profile so every subsequent plain pulp-cli command
+        # inherits it, matching the domain the caller's raw REST helpers already target.
         pulp config create --overwrite \
           --base-url "$PULP_URL" \
           --api-root "/" \
+          --domain "$DOMAIN" \
           --header "Authorization:Bearer $PULP_TOKEN" \
           --timeout 0
 
