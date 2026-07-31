@@ -23,78 +23,10 @@ runs:
       run: |
         set -euo pipefail
 
-        # unconditional: pip is a no-op when the pinned versions are already
-        # satisfied, and a `command -v pulp` skip would also skip the pulp-glue
-        # patch below on a persistent runner with a cached (unpatched) install
-        echo "[INFO] Installing pulp-cli"
-        pip install --quiet "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3"
-
-        # pulp-glue's PulpContext.call()/wait_for_task()/wait_for_task_group() re-fetch
-        # task (and task-group) status via raw self.api.call(...) calls that never
-        # receive the pulp_domain parameter, unlike the call two lines above that
-        # creates the task (which injects it via self.domain_enabled). Under a
-        # domain-scoped Pulp deployment this 404s every task/task-group status check
-        # with "No Task matches the given query", regardless of --background/
-        # non-blocking mode: the buggy re-fetch runs unconditionally right after task
-        # creation, before the blocking/non-blocking branch is even reached. Confirmed
-        # present, unfixed upstream, in pulp-glue 0.37.1 (pinned here) and 0.40.1
-        # (latest) as of 2026-07-31. Patch in place until fixed upstream; the exact-
-        # count check makes an upstream shape change fail loudly instead of silently
-        # doing nothing.
-        echo "[INFO] Patching pulp-glue for domain-aware task status re-fetches"
-        # the heredoc body is indented to satisfy this YAML block scalar (every
-        # line must carry at least its base indentation); dedent it back to valid
-        # Python before exec'ing, rather than relying on a bare `python3 -` which
-        # would choke on that leading whitespace as an IndentationError
-        python3 -c "import sys, textwrap; exec(textwrap.dedent(sys.stdin.read()))" <<'PYEOF'
-        import inspect
-        import pathlib
-
-        import pulp_glue.common.context as m
-
-        path = pathlib.Path(inspect.getfile(m))
-        src = path.read_text()
-
-        patches = [
-            (
-                'parameters={"task_href": task_href}',
-                'parameters={"task_href": task_href, '
-                '**({"pulp_domain": self.pulp_domain} if self.domain_enabled else {})}',
-                1,
-            ),
-            (
-                'parameters={"task_group_href": task_group_href}',
-                'parameters={"task_group_href": task_group_href, '
-                '**({"pulp_domain": self.pulp_domain} if self.domain_enabled else {})}',
-                1,
-            ),
-            (
-                'parameters={"task_href": task["pulp_href"]}',
-                'parameters={"task_href": task["pulp_href"], '
-                '**({"pulp_domain": self.pulp_domain} if self.domain_enabled else {})}',
-                2,
-            ),
-            (
-                'parameters={"task_group_href": task_group["pulp_href"]}',
-                'parameters={"task_group_href": task_group["pulp_href"], '
-                '**({"pulp_domain": self.pulp_domain} if self.domain_enabled else {})}',
-                1,
-            ),
-        ]
-
-        for old, new, expected_count in patches:
-            count = src.count(old)
-            if count != expected_count:
-                raise SystemExit(
-                    f"pulp-glue patch: expected {expected_count} occurrence(s) of "
-                    f"{old!r}, found {count}. pulp-glue's source has likely changed "
-                    "shape; update the patch in setup-pulp-cli/action.yml."
-                )
-            src = src.replace(old, new)
-
-        path.write_text(src)
-        print(f"[INFO] Patched {path}")
-        PYEOF
+        if ! command -v pulp >/dev/null 2>&1; then
+          echo "[INFO] Installing pulp-cli"
+          pip install --quiet "pulp-cli==0.37.1" "pulp-cli-deb==0.4.3"
+        fi
 
     - name: Request a GitHub OIDC token for pulp
       shell: bash
