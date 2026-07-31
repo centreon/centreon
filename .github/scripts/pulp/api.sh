@@ -245,18 +245,41 @@ content_curl() {
 create_publication() {
   local plugin=$1 repository=$2
   shift 2
-  local out task attempt outer rc
+  # pulp-cli is not used here: its own task re-poll (wait_for_task's loop, and
+  # the unconditional re-fetch inside PulpContext.call() that runs even in
+  # --background mode) is domain-unaware and 404s under Domains ("No Task
+  # matches the given query") -- confirmed tasks_read has no pulp_domain
+  # parameter to inject at all, the domain travels embedded in the task href
+  # itself, so no pulp-cli subcommand invocation for a task-creating call can
+  # be made to work here. Goes straight through post_json/wait_task_race
+  # instead, both already domain-aware raw-REST helpers.
+  local publication_path
+  case "$plugin" in
+    rpm) publication_path="rpm/rpm" ;;
+    deb) publication_path="deb/apt" ;;
+    *) echo "::error::create_publication: unsupported plugin $plugin" >&2; return 1 ;;
+  esac
+  local repo_href body_json response code body task attempt outer rc
   # outer retry: the publication task itself can die server-side for
   # retryable reasons (task worker terminated mid-task, version race)
   for outer in 1 2 3; do
     task=""
     for attempt in 1 2 3; do
       refresh_pulp_token
-      if out=$(pulp --background "$plugin" publication create --repository "$repository" "$@" 2>&1); then
-        # an output without a task href (gateway error page relayed by the
-        # cli) is a start failure too, retried like a non-zero exit
-        task=$(grep -oPm1 '/api/v3/tasks/[0-9a-f-]+/' <<< "$out" || true)
-        [[ -n "$task" ]] && break
+      repo_href=$(pulp "$plugin" repository show --name "$repository" 2>/dev/null | jq -r '.pulp_href // empty') || repo_href=""
+      if [[ -n "$repo_href" ]]; then
+        if [[ "$*" == *"--structured"* ]]; then
+          body_json=$(jq -nc --arg repo "$repo_href" '{repository: $repo, structured: true, simple: false}')
+        else
+          body_json=$(jq -nc --arg repo "$repo_href" '{repository: $repo}')
+        fi
+        response=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/publications/$publication_path/" "$body_json")
+        code="${response##*$'\n'}"
+        body="${response%$'\n'*}"
+        if [[ "$code" == "202" ]]; then
+          task=$(echo "$body" | jq -r '.task // empty')
+          [[ -n "$task" ]] && break
+        fi
       fi
       echo "[WARN] publication start attempt $attempt/3 failed for $repository, retrying..." >&2
       sleep $((attempt * 10))
