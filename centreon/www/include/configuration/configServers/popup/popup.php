@@ -66,11 +66,14 @@ $dbResult->closeCursor();
 // get poller informations
 $statement = $pearDB->prepare(
     "SELECT ns.`id`, ns.`name`, ns.`gorgone_port`, ns.`ns_ip_address`, ns.`localhost`, ns.remote_id,
-      remote_server_use_as_proxy, cn.`command_file`, GROUP_CONCAT( pr.`remote_server_id` ) AS list_remote_server_id
+      ns.`gorgone_communication_type`,
+      remote_server_use_as_proxy, cn.`command_file`, GROUP_CONCAT( pr.`remote_server_id` ) AS list_remote_server_id,
+      MAX(pt.`central_address`) AS `central_address`
     FROM nagios_server AS ns
     LEFT JOIN remote_servers AS rs ON rs.server_id = ns.id
     LEFT JOIN cfg_nagios AS cn ON cn.`nagios_id` = ns.`id`
     LEFT JOIN rs_poller_relation AS pr ON pr.`poller_server_id` = ns.`id`
+    LEFT JOIN platform_topology AS pt ON pt.`server_id` = ns.`id`
     WHERE ns.ns_activate = '1'
     AND ns.`id` = :server_id"
 );
@@ -130,6 +133,46 @@ if ($server['localhost'] === '1') {
         ],
         $config
     );
+} elseif ($server['gorgone_communication_type'] === '4') {
+    // config for poller in pullwss mode (no thumbprints needed)
+    $tokenStatement = $pearDB->prepare(
+        "SELECT `token_name`, `token_string`
+        FROM `authentication_tokens`
+        WHERE `type` = 'poller'
+        AND `is_revoked` = 0
+        AND (`expiration_date` IS NULL OR `expiration_date` > :nowEpoch)
+        ORDER BY `creation_date` ASC
+        LIMIT 1"
+    );
+    $tokenStatement->bindValue(':nowEpoch', time(), PDO::PARAM_INT);
+    $tokenStatement->execute();
+    $tokenRow = $tokenStatement->fetch(PDO::FETCH_ASSOC);
+
+    if ($tokenRow === false) {
+        $gorgoneError = true;
+        $config = 'No valid poller token found. Please create one before generating the configuration.';
+    } else {
+        $config = file_get_contents('./poller_pullwss.yaml');
+        $config = str_replace(
+            [
+                '__SERVERNAME__',
+                '__SERVERID__',
+                '__GORGONEPORT__',
+                '__COMMAND__',
+                '__TOKEN__',
+                '__CENTRALADDRESS__',
+            ],
+            [
+                $server['name'],
+                $server['id'],
+                $server['gorgone_port'],
+                $server['command_file'],
+                $tokenRow['token_name'] . ':' . $tokenRow['token_string'],
+                $server['central_address'] ?? $server['ns_ip_address'],
+            ],
+            $config
+        );
+    }
 } else {
     $gorgoneService = $kernel->getContainer()->get(Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface::class);
     $thumbprints = '';
@@ -202,8 +245,30 @@ if ($server['localhost'] === '1') {
             ],
             $config
         );
+    } elseif ($server['gorgone_communication_type'] === '3') {
+        // config for poller in pull mode
+        $config = file_get_contents('./poller_pull.yaml');
+        $config = str_replace(
+            [
+                '__SERVERNAME__',
+                '__SERVERID__',
+                '__GORGONEPORT__',
+                '__THUMBPRINT__',
+                '__COMMAND__',
+                '__CENTRALADDRESS__',
+            ],
+            [
+                $server['name'],
+                $server['id'],
+                $server['gorgone_port'],
+                $thumbprints,
+                $server['command_file'],
+                $server['central_address'] ?? $server['ns_ip_address'],
+            ],
+            $config
+        );
     } else {
-        // config for poller
+        // config for poller (zmq/ssh)
         $config = file_get_contents('./poller.yaml');
         $config = str_replace(
             [

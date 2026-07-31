@@ -1,0 +1,21 @@
+name: gorgoned-__SERVERNAME__
+description: Configuration for poller __SERVERNAME__
+gorgone:
+  gorgonecore:
+    id: __SERVERID__
+    privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
+    pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
+  modules:
+    - name: engine
+      package: gorgone::modules::centreon::engine::hooks
+      enable: true
+      command_file: "__COMMAND__"
+
+    - name: pullwss
+      package: "gorgone::modules::core::pullwss::hooks"
+      enable: true
+      ssl: true
+      token: __TOKEN__
+      port: __GORGONEPORT__
+      address: __CENTRALADDRESS__
+      central_uri: "/centreon/gorgone/pullwss/websocket"
