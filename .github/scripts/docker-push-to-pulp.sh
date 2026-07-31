@@ -47,14 +47,14 @@ echo "::endgroup::"
 
 echo "::group::Ensure Pulp container distribution exists"
 EXISTING=$(curl -sS \
-  -H "Authorization: Github $OIDC_TOKEN" \
+  -H "Authorization: Bearer $OIDC_TOKEN" \
   -G --data-urlencode "base_path=$BASE_PATH" \
   "$PULP_URL/api/v3/distributions/container/container/" \
   | jq -r '.results[0].pulp_href // empty')
 if [[ -z "$EXISTING" ]]; then
   echo "Distribution $BASE_PATH not found, creating..."
   TASK_HREF=$(curl -sS -f -X POST \
-    -H "Authorization: Github $OIDC_TOKEN" \
+    -H "Authorization: Bearer $OIDC_TOKEN" \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"$BASE_PATH\",\"base_path\":\"$BASE_PATH\"}" \
     "$PULP_URL/api/v3/distributions/container/container/" \
@@ -62,7 +62,7 @@ if [[ -z "$EXISTING" ]]; then
   echo "Waiting for creation task $TASK_HREF to complete..."
   TASK_STATE=""
   for _ in $(seq 1 30); do
-    TASK_STATE=$(curl -sS -H "Authorization: Github $OIDC_TOKEN" "$PULP_URL$TASK_HREF" | jq -r '.state')
+    TASK_STATE=$(curl -sS -H "Authorization: Bearer $OIDC_TOKEN" "$PULP_URL$TASK_HREF" | jq -r '.state')
     echo "  task state: $TASK_STATE"
     if [[ "$TASK_STATE" == "completed" ]]; then
       break
@@ -83,7 +83,7 @@ echo "::endgroup::"
 
 echo "::group::Login to Pulp registry via OIDC"
 PULP_JWT=$(curl -sS \
-  -H "Authorization: Github $OIDC_TOKEN" \
+  -H "Authorization: Bearer $OIDC_TOKEN" \
   "$PULP_URL/token/?service=pulp-api.apps.centreon.com&scope=repository:${BASE_PATH}:push,pull" \
   | jq -r '.token // empty')
 if [[ -z "$PULP_JWT" ]]; then
@@ -139,7 +139,7 @@ echo "::endgroup::"
 
 echo "::group::Set Pulp labels on container distribution"
 ARCHITECTURES=$(echo "$PLATFORMS" | tr ',' '\n' | sed 's|linux/||' | tr '\n' ' ' | sed 's/ $//')
-HREF=$(curl -fsSL -H "Authorization: Github $OIDC_TOKEN" \
+HREF=$(curl -fsSL -H "Authorization: Bearer $OIDC_TOKEN" \
   -G --data-urlencode "base_path=$BASE_PATH" \
   "$PULP_URL/api/v3/distributions/container/container/" \
   | jq -r '.results[0].pulp_href')
@@ -147,7 +147,7 @@ if [[ -z "$HREF" || "$HREF" == "null" ]]; then
   echo "::error::Distribution not found for base_path=$BASE_PATH"
   exit 1
 fi
-RESPONSE=$(curl -sS -w "\nHTTP_STATUS:%{http_code}" -X PATCH -H "Authorization: Github $OIDC_TOKEN" \
+RESPONSE=$(curl -sS -w "\nHTTP_STATUS:%{http_code}" -X PATCH -H "Authorization: Bearer $OIDC_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"pulp_labels\": {\"module\": \"$MODULE\", \"os\": \"$OS\", \"stability\": \"$STABILITY\", \"tags\": \"$PULP_TAGS\", \"architectures\": \"$ARCHITECTURES\"}}" \
   "$PULP_URL$HREF")

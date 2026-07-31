@@ -1596,7 +1596,7 @@ jobs:
           assert_code() {
             local label="$1" href="$2" expect_ok="$3" code
             code=$(curl -sS -o /tmp/wi_assert.json -w '%{http_code}' -X POST \
-              -H "Authorization: Github $PULP_TOKEN" -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $PULP_TOKEN" -H "Content-Type: application/json" \
               -d '{"add_content_units": [], "remove_content_units": []}' \
               "$PULP_URL$href"modify/)
             echo "[$label] HTTP $code (href: $href)"
