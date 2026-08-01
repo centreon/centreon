@@ -31,9 +31,9 @@ interface ListingProp {
 const Listing = ({
   data: listingData,
   loading,
-  openConfig,
   customListingComponent,
-  displayCustomListing
+  displayCustomListing,
+  openConfig
 }: ListingProp): JSX.Element => {
   const { t } = useTranslation();
   const { columns, defaultColumnsIds } = useColumns();
@@ -80,6 +80,7 @@ const Listing = ({
         onRowClick={navigateToDashboard}
         onSelectColumns={setSelectedColumnIds}
         onSort={changeSort}
+        paginated
         rows={formattedRows}
         sortField={sortf}
         sortOrder={sorto}
