@@ -1,0 +1,59 @@
+{*
+   Shared translation strings for the cl-/cf- listing & form frameworks.
+
+   listing.js and form.js are static assets and cannot use Smarty's {t}...{/t},
+   so the translated strings are exposed once here — through the standard gettext
+   {t} mechanism ({escape='js'} makes them safe inside JS string literals) — and
+   read at runtime from window.clI18n.
+
+   Include this partial from any template that instantiates CentreonListing or
+   CentreonForm, before the framework is used, e.g.:
+     {include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
+*}
+<script type="text/javascript">
+    window.clI18n = {
+        cancel: "{t escape='js'}Cancel{/t}",
+        confirm: {
+            delete: {
+                title: "{t escape='js'}Delete %s{/t}",
+                message: "{t escape='js'}You are about to delete the selected %s. This action cannot be undone. Do you want to continue?{/t}"
+            },
+            disable: {
+                title: "{t escape='js'}Disable %s{/t}",
+                message: "{t escape='js'}You are about to disable the selected %s. Do you want to continue?{/t}"
+            },
+            duplicate: {
+                title: "{t escape='js'}Duplicate %s{/t}",
+                message: "{t escape='js'}You are about to duplicate the selected %s. Do you want to continue?{/t}"
+            }
+        },
+        confirmDiscard: {
+            title: "{t escape='js'}Do you want to leave this page?{/t}",
+            message: "{t escape='js'}You have unsaved changes. Are you sure you want to close this panel without saving?{/t}",
+            cancel: "{t escape='js'}Stay{/t}",
+            confirm: "{t escape='js'}Leave{/t}"
+        },
+        emptyState: {
+            title: "{t escape='js'}Welcome to the %s page{/t}",
+            text: "{t escape='js'}You haven't configured any %s yet. Add your first one below and Centreon will start monitoring it right away.{/t}",
+            textFallback: "{t escape='js'}Nothing configured yet. Add your first entry below to get started.{/t}"
+        },
+        selectPlaceholder: {
+            single: "{t escape='js'}Select{/t}",
+            multiple: "{t escape='js'}Search{/t}"
+        },
+        listing: {
+            noResults: "{t escape='js'}No results found{/t}",
+            of: "{t escape='js'}of{/t}",
+            firstPage: "{t escape='js'}First page{/t}",
+            previousPage: "{t escape='js'}Previous page{/t}",
+            nextPage: "{t escape='js'}Next page{/t}",
+            lastPage: "{t escape='js'}Last page{/t}",
+            close: "{t escape='js'}Close{/t}",
+            ok: "{t escape='js'}OK{/t}",
+            loadError: "{t escape='js'}Error loading data{/t}",
+            toggleError: "{t escape='js'}Could not change status{/t}",
+            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}"
+        }
+    };
+</script>
