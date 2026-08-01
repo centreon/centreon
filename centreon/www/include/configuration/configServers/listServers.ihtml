@@ -205,6 +205,62 @@ var pollerListing = new CentreonListing({
 pollerListing.init();
 CentreonForm.initSidePanel(pollerListing);
 
+// ---- More actions dispatcher (duplicate / delete / reload / restart) ----
+window.pollerMoreAction = function (sel) {
+    var val = sel.value;
+    sel.selectedIndex = 0;
+    if (!val) { return; }
+
+    if (val === 'm' || val === 'd') {
+        if (typeof isChecked === 'function' && !isChecked()) {
+            alert('Please select one or more items'); return;
+        }
+        if (val === 'm' && confirm('Do you confirm the duplication ?')) {
+            setO('m'); document.forms['form'].submit();
+        } else if (val === 'd' && confirm('You are about to delete one or more pollers.\nThis action is IRREVERSIBLE.\nDo you confirm the deletion ?')) {
+            setO('d'); document.forms['form'].submit();
+        }
+        return;
+    }
+
+    if (val === 'reload' || val === 'restart') {
+        pollerBulkEngine(val);
+    }
+};
+
+// Reload / Restart the monitoring engine on the selected pollers (bulk, ACL enforced server-side)
+function pollerBulkEngine(action) {
+    var ids = [];
+    jQuery('#clTableBody input[type="checkbox"][name^="select["]:checked').each(function () {
+        var m = (this.name || '').match(/select\[(\d+)\]/);
+        if (m) { ids.push(m[1]); }
+    });
+    if (!ids.length) { clToast('Please select one or more pollers.', 'error'); return; }
+
+    var verb = action;
+    var mode = (action === 'reload') ? 1 : 2;
+    // Explicit confirmation required from the user performing the action
+    if (!confirm('Do you really want to ' + verb + ' the monitoring engine on the ' + ids.length + ' selected poller(s) ?')) {
+        return;
+    }
+    jQuery.ajax({
+        url: './include/configuration/configGenerate/xml/restartPollers.php',
+        type: 'POST',
+        dataType: 'xml',
+        data: { poller: ids.join(','), mode: mode },
+        success: function (xml) {
+            var d = jQuery(xml);
+            var code = (d.find('statuscode').first().text() || '1');
+            if (code === '0') {
+                clToast('A ' + verb + ' signal has been sent to the selected poller(s).', 'success');
+            } else {
+                clToast('Failed to ' + verb + ': ' + (d.find('error').first().text() || 'unknown error'), 'error');
+            }
+        },
+        error: function () { clToast('Request failed.', 'error'); }
+    });
+}
+
 // Enable/disable Export button based on poller selection
 function updateExportBtn() {
     var btn = document.getElementById('exportConfigurationLink');
