@@ -1,3 +1,5 @@
+import { alpha } from '@mui/material';
+
 import { makeStyles } from 'tss-react/mui';
 
 export const usePanelHeaderStyles = makeStyles()((theme) => ({
@@ -38,16 +40,25 @@ export const usePanelHeaderStyles = makeStyles()((theme) => ({
     marginTop: '-8px',
     width: '45%'
   },
-  panelHeaderContentWithShrink: {
-    width: '20%'
+  panelLastRefresh: {
+    color: theme.palette.text.disabled,
+    cursor: 'pointer',
+    fontSize: '0.65rem',
+    whiteSpace: 'nowrap'
   },
-  panelHeaderRefreshButton: {
-    height: 'auto',
-    padding: `1px ${theme.spacing(0.5)}`
+  panelResourceLink: {
+    '&:hover': {
+      boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.15)}`
+    },
+    borderRadius: '50%',
+    display: 'inline-flex',
+    opacity: 0,
+    pointerEvents: 'none',
+    transition: theme.transitions.create(['opacity', 'box-shadow'])
   },
   panelTitle: {
-    fontSize: '1.3rem',
-    fontWeight: theme.typography.fontWeightBold,
+    fontSize: '1.1rem',
+    fontWeight: theme.typography.fontWeightMedium,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',

@@ -3,6 +3,7 @@
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import UpdateIcon from '@mui/icons-material/Update';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { Menu } from '@mui/material';
 
@@ -27,9 +28,16 @@ import {
   labelDeleteWidget,
   labelDuplicate,
   labelEditWidget,
+  labelRefresh,
   labelViewProperties
 } from '../../translatedLabels';
 import { ExpandableData } from './models';
+
+interface ResourceStatusAction {
+  Icon: unknown;
+  label: string;
+  onClick: () => void;
+}
 
 interface Props {
   anchor: HTMLElement | null;
@@ -37,6 +45,8 @@ interface Props {
   duplicate: (event: React.MouseEvent) => void;
   id: string;
   expandableData?: ExpandableData;
+  onRefresh?: () => void;
+  resourceStatusAction?: ResourceStatusAction;
 }
 
 const MorePanelActions = ({
@@ -44,7 +54,9 @@ const MorePanelActions = ({
   close,
   id,
   duplicate,
-  expandableData
+  expandableData,
+  onRefresh,
+  resourceStatusAction
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 
@@ -94,9 +106,30 @@ const MorePanelActions = ({
     close();
   };
 
+  const handleRefresh = (): void => {
+    onRefresh?.();
+    close();
+  };
+
   const displayEditButtons = canEdit;
 
+  const seeMoreResourceAction = resourceStatusAction
+    ? [ActionsListActionDivider.divider, resourceStatusAction]
+    : [];
+
+  const refreshAction = onRefresh
+    ? [
+        {
+          Icon: UpdateIcon,
+          label: t(labelRefresh),
+          onClick: handleRefresh
+        },
+        ActionsListActionDivider.divider
+      ]
+    : [];
+
   const defaultEditActions = [
+    ...refreshAction,
     {
       Icon: EditIcon,
       label: t(labelEditWidget),
@@ -107,7 +140,8 @@ const MorePanelActions = ({
       Icon: ContentCopyIcon,
       label: t(labelDuplicate),
       onClick: duplicate
-    }
+    },
+    ...seeMoreResourceAction
   ];
 
   const deleteAction = [
@@ -134,11 +168,13 @@ const MorePanelActions = ({
     : [...defaultEditActions, ...expandableAction, ...deleteAction];
 
   const defaultViewActions = [
+    ...refreshAction,
     {
       Icon: VisibilityOutlinedIcon,
       label: t(labelViewProperties),
       onClick: edit
-    }
+    },
+    ...seeMoreResourceAction
   ];
 
   const viewActions = !expandableData

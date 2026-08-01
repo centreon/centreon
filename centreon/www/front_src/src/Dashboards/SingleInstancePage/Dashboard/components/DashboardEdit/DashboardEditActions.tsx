@@ -102,7 +102,7 @@ const DashboardEditActions = ({
         iconVariant="start"
         onClick={startEditing}
         size="small"
-        variant="ghost"
+        variant="primary"
       >
         {t(labelEditDashboard)}
       </Button>
@@ -116,7 +116,7 @@ const DashboardEditActions = ({
         data-testid="cancel_dashboard"
         onClick={cancel}
         size="small"
-        variant="ghost"
+        variant="secondary"
       >
         {t(labelCancel)}
       </Button>
