@@ -29,7 +29,6 @@ import {
 import type { Line } from '../common/timeSeries/models';
 import { useMarginTop } from '../common/useMarginTop';
 import Lines from './BasicComponents/Lines';
-import useRegularLines from './BasicComponents/Lines/RegularLines/useRegularLines';
 import {
   canDisplayThreshold,
   findLineOfOriginMetricThreshold,

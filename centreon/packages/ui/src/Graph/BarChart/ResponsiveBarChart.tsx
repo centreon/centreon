@@ -1,6 +1,5 @@
 import { Skeleton } from '@mui/material';
 
-import { getTicks } from '@visx/scale';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 import {
