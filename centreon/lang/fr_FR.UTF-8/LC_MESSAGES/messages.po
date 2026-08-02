@@ -12033,6 +12033,12 @@ msgid "Notes"
 msgstr "Notes"
 
 #: centreon/www/install/smarty_translate.php
+msgid "Nothing configured yet. Add your first entry below to get started."
+msgstr ""
+"Rien n'est encore configuré. Ajoutez votre première entrée ci-dessous pour "
+"commencer."
+
+#: unknown
 msgid "Nothing here, use the \"Add\" button"
 msgstr "Rien à afficher, utiliser le bouton \"Add\""
 
@@ -14752,6 +14758,10 @@ msgstr "Voir les commandes de notification"
 #: centreon/www/install/front_translate.php
 msgid "Seems that your Apache configuration is not up-to-date"
 msgstr "Il semble que votre configuration Apache ne soit pas à jour"
+
+#: unknown
+msgid "Select"
+msgstr "Sélectionner"
 
 #: centreon/www/install/react_translation.php
 msgid "Select IP"
@@ -18820,6 +18830,10 @@ msgstr "Hebdomadaire"
 msgid "Welcome to Centreon Setup"
 msgstr "Bienvenue dans le processus d'installation de Centreon"
 
+#: unknown
+msgid "Welcome to the %s page"
+msgstr "Bienvenue sur la page %s"
+
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Commands page"
 msgstr "Bienvenue sur la page Commandes"
@@ -19552,6 +19566,14 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You have to keep at least one contact to access to Centreon"
 msgstr "Vous devez avoir au moins un contact pour accéder à Centreon"
+
+#: unknown
+msgid ""
+"You haven't configured any %s yet. Add your first one below and Centreon "
+"will start monitoring it right away."
+msgstr ""
+"Vous n'avez pas encore configuré de %s. Ajoutez-en un ci-dessous et Centreon "
+"commencera à le superviser immédiatement."
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -24837,6 +24859,14 @@ msgstr ""
 msgid "You have unsaved changes, do you want to proceed?"
 msgstr ""
 "Vous avez des modifications non enregistrées, voulez-vous continuer ?"
+
+#: unknown
+msgid ""
+"You have unsaved changes. Are you sure you want to close this panel without "
+"saving?"
+msgstr ""
+"Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer ce "
+"panneau sans enregistrer ?"
 
 #: unknown
 msgid ""
