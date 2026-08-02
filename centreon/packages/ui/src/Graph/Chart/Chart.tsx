@@ -29,6 +29,7 @@ import {
 import type { Line } from '../common/timeSeries/models';
 import { useMarginTop } from '../common/useMarginTop';
 import Lines from './BasicComponents/Lines';
+import useRegularLines from './BasicComponents/Lines/RegularLines/useRegularLines';
 import {
   canDisplayThreshold,
   findLineOfOriginMetricThreshold,
@@ -119,6 +120,8 @@ const Chart = ({
   boundariesUnit
 }: Props): ReactElement => {
   const { classes } = useChartStyles();
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
 
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -146,16 +149,6 @@ const Chart = ({
     [displayedLines]
   );
 
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      axis,
-      firstUnit,
-      graphData,
-      secondUnit,
-      thresholds,
-      thresholdUnit
-    });
-
   const allUnits = getUnits(linesGraph);
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
@@ -165,7 +158,8 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxAxisCharacters:
+        maxRightAxisCharactersRef.current || maxLeftAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -229,6 +223,21 @@ const Chart = ({
 
   const leftScale = yScalesPerUnit[fallbackLeftUnit];
   const rightScale = yScalesPerUnit[fallbackRightUnit];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal: false,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
 
   const linesDisplayedAsLine = useMemo(
     () =>

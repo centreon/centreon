@@ -1,5 +1,6 @@
 import { Skeleton } from '@mui/material';
 
+import { getTicks } from '@visx/scale';
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, flatten, gte, has, isNil, pluck } from 'ramda';
 import {
@@ -91,6 +92,9 @@ const ResponsiveBarChart = ({
   zoomPreview,
   annotationEvent
 }: Props): ReactElement => {
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
+
   const { title, timeSeries, baseAxis, lines } = graphData || {};
 
   const { classes, cx } = useTooltipStyles();
@@ -111,23 +115,14 @@ const ResponsiveBarChart = ({
   const [firstUnit, secondUnit] = getUnits(displayedLines);
   const allUnits = getUnits(lines || []);
 
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      axis,
-      firstUnit,
-      graphData,
-      secondUnit,
-      thresholds,
-      thresholdUnit
-    });
-
   const { legendRef, graphWidth, graphHeight, titleRef } =
     useComputeBaseChartDimensions({
       hasSecondUnit: Boolean(secondUnit),
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxAxisCharacters:
+        maxRightAxisCharactersRef.current || maxLeftAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -202,6 +197,22 @@ const ResponsiveBarChart = ({
 
   const leftScale = yScalesPerUnit[firstUnit ?? allUnits[0]];
   const rightScale = yScalesPerUnit[secondUnit ?? allUnits[1]];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
+
   const pixelsToShift = computPixelsToShiftMouse(xScaleLinear);
 
   useEffect(
