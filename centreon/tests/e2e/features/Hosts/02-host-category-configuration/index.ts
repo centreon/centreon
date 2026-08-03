@@ -41,6 +41,19 @@ const openFormFor = (name: string): void => {
     .should('be.visible');
 };
 
+// Pick an option in the select2 multi-select of the field carrying `label`.
+// The placeholder is now the generic "Search", so anchor on the field label.
+const selectInField = (label: string, option: string): void => {
+  sidePanelBody()
+    .contains('.cf-field', label)
+    .find('.select2-selection')
+    .click();
+  sidePanelBody()
+    .find('.select2-results__option', { timeout: 20000 })
+    .contains(option)
+    .click();
+};
+
 const createCategory = (body: Record<string, unknown>): void => {
   cy.request({
     body,
@@ -177,12 +190,11 @@ When('the user changes the properties of a host category', () => {
     .find('input[name="hc_alias"]')
     .clear()
     .type(hostCategories.forTest.alias);
-  sidePanelBody().find('input[placeholder="Linked Hosts"]').click();
-  sidePanelBody().find('div[title="host2"]').click();
-  sidePanelBody().find('input[placeholder="Linked Host Template"]').click();
-  sidePanelBody().find('div[title="generic-host"]').click();
-  // Disable via the modernized Status toggle (replaces the legacy "Disabled" radio).
-  sidePanelBody().find('#cf-hc-activate-toggle').click();
+  selectInField('Linked Hosts', 'host2');
+  selectInField('Linked Host Template', 'generic-host');
+  // Disable via the modernized Status toggle (replaces the legacy "Disabled"
+  // radio). The real checkbox is hidden behind the slider, so force the click.
+  sidePanelBody().find('#cf-hc-activate-toggle').click({ force: true });
   sidePanelBody()
     .find('textarea[name="hc_comment"]')
     .clear()
@@ -205,13 +217,11 @@ Then('the properties are updated', () => {
     .find('input[name="hc_alias"]')
     .should('have.value', hostCategories.forTest.alias);
   sidePanelBody()
-    .find('span.select2-content')
-    .eq(0)
-    .should('have.attr', 'title', 'host2');
+    .find('.select2-selection__choice[title="host2"]')
+    .should('exist');
   sidePanelBody()
-    .find('span.select2-content')
-    .eq(1)
-    .should('have.attr', 'title', 'generic-host');
+    .find('.select2-selection__choice[title="generic-host"]')
+    .should('exist');
   sidePanelBody().find('#cf-hc-activate-toggle').should('not.be.checked');
   sidePanelBody()
     .find('textarea[name="hc_comment"]')
@@ -232,9 +242,10 @@ When('the user toggles the host category off from the listing', () => {
     .find('#clTableBody')
     .contains(hostCategories.default.name)
     .parents('tr')
+    // The real checkbox is 0x0 behind the .cl-toggle slider; force the click.
     .find('.cl-toggle input[type="checkbox"]')
     .should('be.checked')
-    .click();
+    .click({ force: true });
 
   cy.wait('@toggleHc');
 });
@@ -264,7 +275,7 @@ When('the user toggles the host category on from the listing', () => {
     .parents('tr')
     .find('.cl-toggle input[type="checkbox"]')
     .should('not.be.checked')
-    .click();
+    .click({ force: true });
 
   cy.wait('@toggleHcOn').its('response.statusCode').should('eq', 200);
 });
@@ -287,8 +298,9 @@ const selectRowAndRunBulkAction = (name: string, action: string): void => {
     .find('#clTableBody')
     .contains(name)
     .parents('tr')
+    // The real checkbox is visibility:hidden behind its md-checkbox label.
     .find('.cl-col-picker input[type="checkbox"]')
-    .click();
+    .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
