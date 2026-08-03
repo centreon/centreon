@@ -5,71 +5,7 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 
 import hostCategories from '../../../fixtures/host-categories/category.json';
 
-const listingPage = PAGES.configuration.hostCategoriesLegacy;
 const secondCategoryName = 'host-category-second';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-// The modernized page renders an AJAX table; wait for it and its rows.
-const openListing = (): void => {
-  cy.visit(listingPage);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.greaterThan', 0);
-};
-
-// The add/edit form loads in a nested iframe (#cfSidePanelFrame) inside the
-// legacy #main-content iframe, so getIframeBody() (top-level) cannot reach it.
-// Drill one level deeper and return the side-panel document body.
-const sidePanelBody = (): Cypress.Chainable =>
-  cy
-    .getIframeBody()
-    .find('#cfSidePanelFrame')
-    .its('0.contentDocument.body', { timeout: 20000 })
-    .should('not.be.empty')
-    .then(cy.wrap);
-
-// Open the side-panel form by clicking a category name link, then wait for it.
-const openFormFor = (name: string): void => {
-  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
-  sidePanelBody()
-    .find('input[name="hc_name"]', { timeout: 20000 })
-    .should('be.visible');
-};
-
-// Pick an option in the select2 multi-select of the field carrying `label`.
-// The placeholder is now the generic "Search", so anchor on the field label.
-const selectInField = (label: string, option: string): void => {
-  // The multi-select is collapsed and its dropdown header overlaps the control,
-  // and a previously opened dropdown may still cover it, so force both clicks.
-  sidePanelBody()
-    .contains('.cf-field', label)
-    .find('.select2-selection')
-    .click({ force: true });
-  sidePanelBody()
-    .find('.select2-results__option', { timeout: 20000 })
-    .contains(option)
-    .click({ force: true });
-};
-
-const createCategory = (body: Record<string, unknown>): void => {
-  cy.request({
-    body,
-    headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
-    url: '/centreon/api/beta/configuration/hosts/categories'
-  }).then((response) => {
-    expect(response.status).to.eq(201);
-  });
-};
-
-// ---------------------------------------------------------------------------
-// Setup
-// ---------------------------------------------------------------------------
 
 beforeEach(() => {
   cy.startContainers();
@@ -81,6 +17,10 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'POST',
+    url: INTERCEPTORS.ajax.host_categories_toggle
+  }).as('toggleHc');
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: 'host2',
@@ -94,10 +34,6 @@ afterEach(() => {
   cy.stopContainers();
 });
 
-// ---------------------------------------------------------------------------
-// Background
-// ---------------------------------------------------------------------------
-
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
     jsonName: 'admin',
@@ -106,11 +42,11 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a host category is configured', () => {
-  createCategory(hostCategories.default);
+  cy.createHostCategory(hostCategories.default);
 });
 
 Given('a second host category is configured', () => {
-  createCategory({
+  cy.createHostCategory({
     alias: secondCategoryName,
     comment: 'second',
     is_activated: true,
@@ -118,12 +54,8 @@ Given('a second host category is configured', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Listing loads
-// ---------------------------------------------------------------------------
-
 When('the user opens the host categories listing', () => {
-  openListing();
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
 });
 
 Then(
@@ -136,10 +68,6 @@ Then(
       .should('exist');
   }
 );
-
-// ---------------------------------------------------------------------------
-// Search
-// ---------------------------------------------------------------------------
 
 When('the user searches for the first host category', () => {
   // Live search (debounced AJAX) — no submit button, the table refreshes on type.
@@ -161,12 +89,8 @@ Then('only the matching host category is displayed', () => {
     .should('not.exist');
 });
 
-// ---------------------------------------------------------------------------
-// Edit (deep, through the side-panel form)
-// ---------------------------------------------------------------------------
-
 When('the user changes the properties of a host category', () => {
-  openListing();
+  cy.openHostCategoriesListing();
   // host2 must be monitored so it is selectable as a linked host.
   cy.waitUntil(
     () =>
@@ -183,25 +107,30 @@ When('the user changes the properties of a host category', () => {
     { interval: 20000, timeout: 100000 }
   );
 
-  openFormFor(hostCategories.default.name);
-  sidePanelBody()
+  cy.openHostCategoryForm(hostCategories.default.name);
+  cy.getHostCategorySidePanelBody()
     .find('input[name="hc_name"]')
     .clear()
     .type(hostCategories.forTest.name);
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
     .find('input[name="hc_alias"]')
     .clear()
     .type(hostCategories.forTest.alias);
-  selectInField('Linked Hosts', 'host2');
-  selectInField('Linked Host Template', 'generic-host');
+  cy.selectHostCategoryFieldOption('Linked Hosts', 'host2');
+  cy.selectHostCategoryFieldOption('Linked Host Template', 'generic-host');
   // Disable via the modernized Status toggle (replaces the legacy "Disabled"
   // radio). The real checkbox is hidden behind the slider, so force the click.
-  sidePanelBody().find('#cf-hc-activate-toggle').click({ force: true });
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
+    .find('#cf-hc-activate-toggle')
+    .click({ force: true });
+  cy.getHostCategorySidePanelBody()
     .find('textarea[name="hc_comment"]')
     .clear()
     .type(hostCategories.forTest.comment);
-  sidePanelBody().find('input.btc.bt_success[name^="submit"]').first().click();
+  cy.getHostCategorySidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -211,35 +140,28 @@ Then('the properties are updated', () => {
     .find('#clTableBody')
     .contains(hostCategories.forTest.name)
     .should('exist');
-  openFormFor(hostCategories.forTest.name);
-  sidePanelBody()
+  cy.openHostCategoryForm(hostCategories.forTest.name);
+  cy.getHostCategorySidePanelBody()
     .find('input[name="hc_name"]')
     .should('have.value', hostCategories.forTest.name);
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
     .find('input[name="hc_alias"]')
     .should('have.value', hostCategories.forTest.alias);
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
     .find('.select2-selection__choice[title="host2"]')
     .should('exist');
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
     .find('.select2-selection__choice[title="generic-host"]')
     .should('exist');
-  sidePanelBody().find('#cf-hc-activate-toggle').should('not.be.checked');
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
+    .find('#cf-hc-activate-toggle')
+    .should('not.be.checked');
+  cy.getHostCategorySidePanelBody()
     .find('textarea[name="hc_comment"]')
     .should('have.value', hostCategories.forTest.comment);
 });
 
-// ---------------------------------------------------------------------------
-// Toggle enable/disable from the listing
-// ---------------------------------------------------------------------------
-
 When('the user toggles the host category off from the listing', () => {
-  cy.intercept({
-    method: 'POST',
-    url: '**/ajaxHostCategoriesToggle.php'
-  }).as('toggleHc');
-
   cy.getIframeBody()
     .find('#clTableBody')
     .contains(hostCategories.default.name)
@@ -266,11 +188,6 @@ Then('the toggle request succeeds and the category is disabled', () => {
 });
 
 When('the user toggles the host category on from the listing', () => {
-  cy.intercept({
-    method: 'POST',
-    url: '**/ajaxHostCategoriesToggle.php'
-  }).as('toggleHcOn');
-
   cy.getIframeBody()
     .find('#clTableBody')
     .contains(hostCategories.default.name)
@@ -290,10 +207,6 @@ Then('the category is enabled again', () => {
     .find('.cl-toggle input[type="checkbox"]')
     .should('be.checked');
 });
-
-// ---------------------------------------------------------------------------
-// Duplicate
-// ---------------------------------------------------------------------------
 
 const selectRowAndRunBulkAction = (name: string, action: string): void => {
   cy.getIframeBody()
@@ -316,7 +229,7 @@ const selectRowAndRunBulkAction = (name: string, action: string): void => {
 };
 
 When('the user duplicates a host category', () => {
-  openListing();
+  cy.openHostCategoriesListing();
   selectRowAndRunBulkAction(hostCategories.default.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -328,22 +241,20 @@ Then('a new host category is created with identical properties', () => {
     .find('#clTableBody')
     .contains(`${hostCategories.default.name}_1`)
     .should('exist');
-  openFormFor(`${hostCategories.default.name}_1`);
-  sidePanelBody()
+  cy.openHostCategoryForm(`${hostCategories.default.name}_1`);
+  cy.getHostCategorySidePanelBody()
     .find('input[name="hc_name"]')
     .should('have.value', `${hostCategories.default.name}_1`);
-  sidePanelBody()
+  cy.getHostCategorySidePanelBody()
     .find('input[name="hc_alias"]')
     .should('have.value', hostCategories.default.alias);
-  sidePanelBody().find('#cf-hc-activate-toggle').should('be.checked');
+  cy.getHostCategorySidePanelBody()
+    .find('#cf-hc-activate-toggle')
+    .should('be.checked');
 });
 
-// ---------------------------------------------------------------------------
-// Delete
-// ---------------------------------------------------------------------------
-
 When('the user deletes a host category', () => {
-  openListing();
+  cy.openHostCategoriesListing();
   selectRowAndRunBulkAction(hostCategories.default.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -360,10 +271,6 @@ Then(
   }
 );
 
-// ---------------------------------------------------------------------------
-// Pagination
-// ---------------------------------------------------------------------------
-
 Then('the pagination information shows the total count', () => {
   cy.getIframeBody()
     .find('#clPaginationTop')
@@ -371,15 +278,11 @@ Then('the pagination information shows the total count', () => {
     .should('match', /\d+-\d+ of \d+/);
 });
 
-// ---------------------------------------------------------------------------
-// Search persistence
-// ---------------------------------------------------------------------------
-
 When(
   'the user opens the host category form and comes back to the listing',
   () => {
-    openFormFor(hostCategories.default.name);
-    openListing();
+    cy.openHostCategoryForm(hostCategories.default.name);
+    cy.openHostCategoriesListing();
   }
 );
 
