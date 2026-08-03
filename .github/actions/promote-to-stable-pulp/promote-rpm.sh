@@ -64,6 +64,39 @@ resolve_promoted_content() {
   echo "$content"
 }
 
+# resolve a package's actual served location within a published repodata, by
+# sha256 (mirrors check-rpm.sh's resolve_href): pulp_rpm's publish task lays
+# packages out under Packages/<letter>/<file> by default, which does not match
+# the raw content API's location_href (the upload-time relative path).
+# Confirmed live, 2026-08-03: downloading testing packages by location_href
+# directly 404'd for every package -- the served href has a Packages/c/ prefix
+# the API attribute never carries.
+resolve_rpm_href() {
+  local primary_file=$1 sha=$2
+  [[ -s "$primary_file" ]] || return 0
+  awk -v sha="$sha" '
+    BEGIN { RS = "</package>" }
+    index($0, ">" sha "</checksum>") {
+      if (match($0, /<location[^>]*href="[^"]+"/)) {
+        s = substr($0, RSTART, RLENGTH)
+        sub(/.*href="/, "", s); sub(/"$/, "", s)
+        print s; exit
+      }
+    }' "$primary_file"
+}
+
+# fetch the published primary.xml for a base_path into $3 (a single fetch:
+# promote processes one base_path per arch sequentially, unlike check-rpm.sh's
+# many-packages-in-parallel caching)
+fetch_primary_xml() {
+  local domain=$1 base_path=$2 out=$3 repomd primary_href
+  repomd=$(content_curl -fsSL "$PULP_CONTENT_URL/$domain/$base_path/repodata/repomd.xml" 2>/dev/null || true)
+  primary_href=$(printf '%s' "$repomd" | grep -oP '<location href="\K[^"]+primary\.xml[^"]*' | head -1 || true)
+  if [[ -n "$primary_href" ]]; then
+    content_curl -fsSL "$PULP_CONTENT_URL/$domain/$base_path/$primary_href" 2>/dev/null | gunzip -c 2>/dev/null > "$out" || true
+  fi
+}
+
 declare -A ARCH_CONTENT
 declare -A ARCH_RESULTS
 TOTAL_PACKAGES_COUNT=0
@@ -167,6 +200,8 @@ for ARCH in noarch x86_64; do
   DOWNLOAD_DIR=$(mktemp -d)
   UPLOAD_DIR=$(mktemp -d)
   MAX_PARALLEL_UPLOADS=8
+  TESTING_PRIMARY_XML=$(mktemp)
+  fetch_primary_xml "$TESTING_DOMAIN" "$TESTING_BASE_PATH" "$TESTING_PRIMARY_XML"
   mapfile -t PKG_ROWS < <(echo "$RESULTS" | jq -c '.[]')
   for i in "${!PKG_ROWS[@]}"; do
     if ((i % 40 == 0)); then
@@ -175,8 +210,14 @@ for ARCH in noarch x86_64; do
     (
       refresh_pulp_token
       location_href=$(echo "${PKG_ROWS[$i]}" | jq -r '.location_href')
+      sha256=$(echo "${PKG_ROWS[$i]}" | jq -r '.sha256')
+      served_href=$(resolve_rpm_href "$TESTING_PRIMARY_XML" "$sha256")
+      if [[ -z "$served_href" ]]; then
+        echo "::error::Cannot resolve the published location of $(echo "${PKG_ROWS[$i]}" | jq -r '.name') (sha256 $sha256) in $TESTING_BASE_PATH" >&2
+        exit 1
+      fi
       dest="$DOWNLOAD_DIR/$i-$(basename "$location_href")"
-      content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$TESTING_BASE_PATH/$location_href"
+      content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$TESTING_BASE_PATH/$served_href"
       pulp_upload -F "file=@\"$dest\"" \
         "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" > "$UPLOAD_DIR/$i.task"
     ) &
@@ -195,6 +236,7 @@ for ARCH in noarch x86_64; do
     NEW_HREFS+=("$(resolve_promoted_content "$(cat "$UPLOAD_DIR/$i.task")" "$(echo "${PKG_ROWS[$i]}" | jq -r '.sha256')")")
   done
   rm -rf "$DOWNLOAD_DIR" "$UPLOAD_DIR"
+  rm -f "$TESTING_PRIMARY_XML"
   CONTENT=$(printf '%s\n' "${NEW_HREFS[@]}" | jq -R . | jq -cs .)
 
   echo "[INFO] Promoting $ARCH_PACKAGES_COUNT packages to $STABLE_REPOSITORY_NAME"
