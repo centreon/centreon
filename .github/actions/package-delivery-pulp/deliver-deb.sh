@@ -15,6 +15,12 @@ PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
 # Falls back to "default" so a caller that never computed a domain keeps working
 # against the pre-Domains repositories that still live there.
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
+# assert_not_in_stable() reads the *-stable domain's published suite (a distinct
+# namespace from $PULP_DOMAIN, the testing-tier one this delivery writes to).
+# Unlike the rpm guard, this goes through the public content-app (unguarded
+# distributions ignore the auth header entirely, see api.sh's content_curl),
+# so no extra grant is needed here -- only the domain segment in the URL.
+PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 
 # refuse delivering a package that is already published in the stable suite.
 # rebuilding a testing/unstable version with a different content is fine, but a
@@ -37,7 +43,7 @@ assert_not_in_stable() {
   # (the rpm guardrail is likewise fail-closed).
   pkg_file=$(mktemp)
   http_code=$(content_curl -sSL --retry 3 --retry-delay 5 -o "$pkg_file" -w '%{http_code}' \
-    "$PULP_CONTENT_URL/${STABLE_BASE_PATH:-$BASE_PATH}/dists/$STABLE_SUITE/main/binary-$arch/Packages" 2>/dev/null || echo 000)
+    "$PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/${STABLE_BASE_PATH:-$BASE_PATH}/dists/$STABLE_SUITE/main/binary-$arch/Packages" 2>/dev/null || echo 000)
   case "$http_code" in
     404) rm -f "$pkg_file"; return 0 ;;
     200) packages=$(cat "$pkg_file"); rm -f "$pkg_file" ;;

@@ -15,6 +15,11 @@ PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
 # Falls back to "default" so a caller that never computed a domain keeps working
 # against the pre-Domains repositories that still live there.
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
+# assert_not_in_stable() reads the *-stable domain (a distinct namespace from
+# $PULP_DOMAIN, the testing-tier one this delivery writes to) via the
+# read-only centreon.rpm_stable_viewer grant, unconditional on every branch
+# (see configmap-settings.yaml).
+PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 
 # refuse delivering a package that is already published in the stable repository.
 # rebuilding a testing/unstable version with a different content is fine, but a
@@ -39,7 +44,7 @@ assert_not_in_stable() {
     curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" -G \
       --data-urlencode "name=$stable_repository" \
       --data-urlencode "limit=1" \
-      "$PULP_URL/$PULP_DOMAIN/api/v3/repositories/rpm/rpm/"
+      "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/repositories/rpm/rpm/"
   ) || {
     echo "::error::Cannot check the stable repository $stable_repository to guard $name $version-$release ($arch); refusing to deliver. Retry once the api is reachable."
     return 1
@@ -56,7 +61,7 @@ assert_not_in_stable() {
       --data-urlencode "release=$release" \
       --data-urlencode "arch=$arch" \
       --data-urlencode "limit=1" \
-      "$PULP_URL/$PULP_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.count'
+      "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" | jq -r '.count'
   ) || {
     echo "::error::Cannot check the stable repository $stable_repository content to guard $name $version-$release ($arch); refusing to deliver. Retry once the api is reachable."
     return 1
