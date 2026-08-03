@@ -1437,6 +1437,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 'select2:select select2:unselect select2:clear',
                 function () { window.cfFormDirty = true; }
             );
+            // A native reset restores the underlying <select> values, but select2
+            // does not re-render on its own, so its chips/selection stay stale.
+            // Re-sync every select2 on the next tick, once the browser has applied
+            // the reset.
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    window.jQuery(form).find('select').trigger('change');
+                }, 0);
+            });
         }
     });
 });
