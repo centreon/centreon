@@ -835,6 +835,18 @@
 .cf-field.cf-multi-clearable.cf-select-active.cf-multi-filled .clearAllSelect2 {
     display: inline-flex;
 }
+/* Multi-select eraser moved inside the positioned select2 container (see
+   initMultiSelectCollapse) so the whole icon is clickable instead of half of it
+   overlapping — and colliding with — the select2 box. Anchored top-right since
+   the chips can wrap onto several rows. */
+.cf-field .select2-container .cf-multi-clear {
+    position: absolute;
+    right: 8px;
+    left: auto;
+    top: 8px;
+    margin: 0;
+    z-index: 3;
+}
 
 /* Help tooltip always last, vertically centered */
 .cf-field .helpTooltip {
