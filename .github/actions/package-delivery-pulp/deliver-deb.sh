@@ -445,6 +445,6 @@ done
 echo "[INFO] Publishing repository $REPOSITORY_NAME"
 create_publication deb "$REPOSITORY_NAME" --structured
 
-echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$BASE_PATH/ $SUITE main"
+echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_DOMAIN/$BASE_PATH/ $SUITE main"
 
 manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "${STABILITY:-}" "delivery" "$PULP_CONTENT_URL"

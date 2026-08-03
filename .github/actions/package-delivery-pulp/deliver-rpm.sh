@@ -273,7 +273,7 @@ for ARCH in noarch x86_64; do
   echo "[INFO] Publishing repository $REPOSITORY_NAME"
   create_publication rpm "$REPOSITORY_NAME"
 
-  echo "::notice::Packages are available at $PULP_CONTENT_URL/$BASE_PATH/"
+  echo "::notice::Packages are available at $PULP_CONTENT_URL/$PULP_DOMAIN/$BASE_PATH/"
 done
 
 manifest_write "$MODULE_NAME" "${DISTRIB:-}" "rpm" "${STABILITY:-}" "delivery" "$PULP_CONTENT_URL"

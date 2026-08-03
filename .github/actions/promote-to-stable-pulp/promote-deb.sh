@@ -17,6 +17,12 @@ PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
 # the write phase.
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
+# switch_pulp_domain overwrites PULP_DOMAIN itself (see api.sh) once the write
+# phase starts below; download_testing_package always fetches from the
+# original (testing-tier) domain regardless of when it's called (including
+# after the switch, on the batched-promote path), so its own copy of the
+# pre-switch domain is kept here.
+TESTING_DOMAIN="$PULP_DOMAIN"
 
 if ! pulp_resource_exists "repositories/deb/apt" "$REPOSITORY_NAME"; then
   echo "::error::Nothing to promote, repository $REPOSITORY_NAME does not exist"
@@ -44,7 +50,7 @@ suite_sha_file() {
   local base_path=$1 suite=$2 out release_file arches arch pkg_file rc
   out=$(mktemp)
   release_file=$(mktemp)
-  fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" "$release_file" && rc=0 || rc=$?
+  fetch_index "$PULP_CONTENT_URL/$PULP_DOMAIN/$base_path/dists/$suite/Release" "$release_file" && rc=0 || rc=$?
   if [[ $rc -eq 2 ]]; then
     echo "$out"
     return 0
@@ -55,7 +61,7 @@ suite_sha_file() {
   arches=$(awk -F': ' '/^Architectures:/ {print $2}' "$release_file")
   for arch in $arches; do
     pkg_file=$(mktemp)
-    if ! fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$arch/Packages" "$pkg_file"; then
+    if ! fetch_index "$PULP_CONTENT_URL/$PULP_DOMAIN/$base_path/dists/$suite/main/binary-$arch/Packages" "$pkg_file"; then
       echo "::error::Cannot fetch the $suite binary-$arch Packages index; refusing to promote from a partial view." >&2
       return 1
     fi
@@ -74,14 +80,14 @@ suite_sha_file() {
 download_testing_package() {
   local sha256=$1 arch=$2 dest=$3 filename
   filename=$(
-    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/$BASE_PATH/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
+    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
       awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i } }'
   )
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
     return 1
   fi
-  content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$BASE_PATH/$filename"
+  content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/$filename"
 }
 
 TESTING_SHAS_FILE=$(suite_sha_file "$BASE_PATH" "$TESTING_SUITE")
@@ -250,7 +256,7 @@ if ((${#UNPROMOTED_HREFS[@]} == 0)); then
       '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
   done < <(echo "$PACKAGES" | jq -c '.[]')
   create_publication deb "$STABLE_REPOSITORY_NAME" --structured
-  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
   manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
   exit 0
 fi
@@ -381,7 +387,7 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
           --arg suite "$STABLE_SUITE" \
           '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
       done < <(echo "$PACKAGES" | jq -c '.[]')
-      echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+      echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
       manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
       exit 0
     fi
@@ -538,6 +544,6 @@ done < <(echo "$PACKAGES" | jq -c '.[]')
 echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
 create_publication deb "$STABLE_REPOSITORY_NAME" --structured
 
-echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
 
 manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"

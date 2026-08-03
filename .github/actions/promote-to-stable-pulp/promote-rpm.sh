@@ -16,6 +16,11 @@ PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
 # write phase.
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
+# switch_pulp_domain overwrites PULP_DOMAIN itself (see api.sh) once the write
+# phase starts below; content served under TESTING_BASE_PATH still lives in
+# the original (testing-tier) domain, so its own copy is kept for the
+# content-app fetch that happens after the switch.
+TESTING_DOMAIN="$PULP_DOMAIN"
 
 # wait for a repository-less upload task and emit the created content href,
 # falling back to a stable-domain sha256 lookup (content already existing on a
@@ -171,7 +176,7 @@ for ARCH in noarch x86_64; do
       refresh_pulp_token
       location_href=$(echo "${PKG_ROWS[$i]}" | jq -r '.location_href')
       dest="$DOWNLOAD_DIR/$i-$(basename "$location_href")"
-      content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_BASE_PATH/$location_href"
+      content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$TESTING_BASE_PATH/$location_href"
       pulp_upload -F "file=@\"$dest\"" \
         "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" > "$UPLOAD_DIR/$i.task"
     ) &
@@ -223,7 +228,7 @@ for ARCH in noarch x86_64; do
       '{filename: (.location_href | sub(".*/"; "")), name, version, release, arch, sha256, repository: $repository, base_path: $base_path}')"
   done < <(echo "${ARCH_RESULTS[$ARCH]}" | jq -c '.[]')
 
-  echo "::notice::Packages are available at $PULP_CONTENT_URL/$STABLE_BASE_PATH/"
+  echo "::notice::Packages are available at $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/"
 done
 
 manifest_write "$MODULE_NAME" "${DISTRIB:-}" "rpm" "$STABILITY" "promote" "$PULP_CONTENT_URL"
