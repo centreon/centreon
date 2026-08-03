@@ -1249,11 +1249,8 @@ msgid "Destination directory."
 msgstr "Zielverzeichnis."
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
-"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
-"centreon by default) regardless of this setting."
-msgstr ""
+msgid "Directory of log files."
+msgstr "Verzeichnis für Log-Dateien."
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -2899,6 +2896,12 @@ msgstr "Als Standardgraph-Template verwenden."
 msgid "Set the domain for search the service"
 msgstr "Name der Domäne, in der nach dem LDAP-Dienst gesucht wird"
 
+#: centreon/www/include/Administration/parameters/debug/help.php
+msgid ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Schweregrade werden im Servicekategorieobjekt angegeben."
@@ -2906,10 +2909,13 @@ msgstr "Schweregrade werden im Servicekategorieobjekt angegeben."
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be an integer between 1 and 127. The items displayed "
-"will be sorted in ascending order. Thus the lowest severity is considered "
-"than the highest priority."
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
 msgstr ""
+"Schweregrad. Dieser Wert muss eine Zahl sein. Die Einträge werden in "
+"aufsteigender Reihenfolge angezeigt. Demnach hat der niedrigste Schweregrad "
+"die höchste Priorität."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Short description of configuration"
@@ -6173,10 +6179,6 @@ msgstr ""
 "Befehl nur in relevanten Abschnitten anzuzeigen."
 
 #: unknown
-msgid "Directory of log files."
-msgstr "Verzeichnis für Log-Dateien."
-
-#: unknown
 msgid ""
 "If this option is enable, the comments will be displayed on status chart."
 "<br><b>Warning</b> : This option can slow down the display of chart."
@@ -6244,16 +6246,6 @@ msgid "Severity level use to sort issue in Monitoring menu."
 msgstr ""
 "Schweregrad, der für die Sortierung von Problemen im Überwachungsmenü "
 "genutzt wird."
-
-#: unknown
-msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
-msgstr ""
-"Schweregrad. Dieser Wert muss eine Zahl sein. Die Einträge werden in "
-"aufsteigender Reihenfolge angezeigt. Demnach hat der niedrigste "
-"Schweregrad die höchste Priorität."
 
 #: unknown
 msgid ""
