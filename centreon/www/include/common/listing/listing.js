@@ -314,10 +314,15 @@ function CentreonListing(config) {
         var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
         if (addBtn) {
             var btn = document.createElement('a');
-            btn.className = 'cl-btn-add cl-btn-add--lg';
+            btn.className = 'cl-btn-add cl-btn-add--empty';
             btn.href = addBtn.getAttribute('href') || '#';
             var onclickAttr = addBtn.getAttribute('onclick');
             if (onclickAttr) btn.setAttribute('onclick', onclickAttr);
+            // The copied onclick opens the side panel via this.dataset.panelUrl,
+            // so the data-panel-* attributes must travel with it — otherwise the
+            // panel loads an undefined URL (the full app, then a 404).
+            if (addBtn.dataset.panelUrl) btn.setAttribute('data-panel-url', addBtn.dataset.panelUrl);
+            if (addBtn.dataset.panelTitle) btn.setAttribute('data-panel-title', addBtn.dataset.panelTitle);
             // Explicit inline styles on top of the CSS classes: the icon/text
             // were rendering invisible inside the generic <td> (see the
             // white-space/overflow reset below) — belt-and-suspenders so the
