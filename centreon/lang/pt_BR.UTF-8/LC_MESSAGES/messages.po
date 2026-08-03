@@ -24028,3 +24028,41 @@ msgstr ""
 #: unknown
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
+
+# Host categories - modernized listing/form (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr "Duplicar categoria de host"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Duplicar categorias de host"
+
+#: unknown
+msgid "Delete host category"
+msgstr "Excluir categoria de host"
+
+#: unknown
+msgid "Delete host categories"
+msgstr "Excluir categorias de host"
+
+#: unknown
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr "Agrupe os hosts em categorias para organizar e filtrar sua configuração."
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} categorias de host</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a categoria de host <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} categorias de host</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
