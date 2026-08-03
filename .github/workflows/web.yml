@@ -1617,10 +1617,14 @@ jobs:
           assert_code "DENY business (no grant in this domain)" \
             "/business/api/v3/repositories/rpm/rpm/019faec8-f933-712e-9157-34b6c3aea3d5/" false
 
-          assert_code "DENY standard-stable (grant exists but ref does not match)" \
-            "/standard-stable/api/v3/repositories/rpm/rpm/019faec8-b332-7bee-ae47-1bf23f74b913/" false
+          # the "DENY standard-stable (grant exists but ref does not match)" assertion is
+          # temporarily removed: delivery-tooling's configmap-settings.yaml carries a TEMP TEST
+          # HACK grant scoped to this exact PR's merge ref (refs/pull/11170/merge), to validate
+          # promote-rpm.sh/promote-deb.sh's real write path end-to-end -- that grant makes this
+          # specific assertion legitimately flip from DENY to ALLOW, not a regression. Restore
+          # both this assertion and remove the temp grant together once promote is validated.
 
-          echo "All three WorkloadIdentity RBAC assertions passed."
+          echo "Both WorkloadIdentity RBAC assertions passed."
 
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
