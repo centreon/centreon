@@ -22,7 +22,6 @@ import {
 } from 'ramda';
 
 import type { BarStyle } from '../BarChart/models';
-import { margin } from '../Chart/common';
 import type { LineStyle } from '../Chart/models';
 import type { Threshold, Thresholds } from './models';
 import { formatMetricValueWithUnit } from './timeSeries';

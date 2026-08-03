@@ -90,7 +90,6 @@ interface Props {
     fx?: (pointX: number) => number;
     fy?: (pointY: number) => number;
   };
-  hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
   additionalZoomMargin?: number;
 }
@@ -101,7 +100,6 @@ const InteractionWithGraph = ({
   annotationData,
   timeShiftZonesData,
   transformMatrix,
-  hasSecondUnit,
   maxLeftAxisCharacters,
   additionalZoomMargin = 0
 }: Props): ReactElement => {

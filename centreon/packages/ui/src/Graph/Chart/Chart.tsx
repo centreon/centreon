@@ -157,7 +157,8 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharactersRef.current,
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -394,7 +395,6 @@ const Chart = ({
                     xScale,
                     yScalesPerUnit
                   }}
-                  hasSecondUnit={hasSecondUnit}
                   maxLeftAxisCharacters={maxLeftAxisCharacters}
                   timeShiftZonesData={{
                     ...timeShiftZones,

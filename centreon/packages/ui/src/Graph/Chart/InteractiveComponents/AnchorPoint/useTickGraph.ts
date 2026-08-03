@@ -27,7 +27,6 @@ interface Props {
   rightScale?: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
-  hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
   hasUnit?: boolean;
 }
@@ -39,7 +38,6 @@ const useTickGraph = ({
   rightScale,
   lines = [],
   baseAxis = 1000,
-  hasSecondUnit,
   maxLeftAxisCharacters,
   hasUnit
 }: Props): AnchorPointResult => {

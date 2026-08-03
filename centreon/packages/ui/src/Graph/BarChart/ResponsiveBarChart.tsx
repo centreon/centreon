@@ -120,8 +120,8 @@ const ResponsiveBarChart = ({
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      maxAxisCharacters:
-        maxRightAxisCharactersRef.current || maxLeftAxisCharactersRef.current,
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -296,9 +296,8 @@ const ResponsiveBarChart = ({
             graphHeight={graphHeight}
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
-            hasSecondUnit={Boolean(secondUnit)}
             leftScale={leftScale}
-            maxAxisCharacters={maxLeftAxisCharacters}
+            maxLeftAxisCharacters={maxLeftAxisCharacters}
             orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}
