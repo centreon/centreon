@@ -22,11 +22,20 @@ PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 # content-app fetch that happens after the switch.
 TESTING_DOMAIN="$PULP_DOMAIN"
 
-# re-applied on the re-upload into stable, mirroring promote-deb.sh's own
-# PULP_LABELS: without it, the stable content is indistinguishable from any
-# other module's package by check-rpm.sh's own verification query
-# (pulp_label_select=module=X), and promoted-by-module bookkeeping is lost.
-PULP_LABELS=$(jq -cn --arg mod "$MODULE_NAME" '{"module": $mod}')
+# re-applied on the re-upload into stable, mirroring deliver-rpm.sh's own
+# PULP_LABELS (this is the promote job's own git context, not the original
+# delivery's -- release tracking needs to know which promote run put a
+# package into stable, from which ref/commit). Without at least "module",
+# check-rpm.sh's own verification query (pulp_label_select=module=X) can't
+# find the promoted content either.
+PULP_LABELS=$(jq -cn \
+  --arg mod        "$MODULE_NAME" \
+  --arg git_commit "${GITHUB_SHA:-}" \
+  --arg git_ref    "${GITHUB_REF:-}" \
+  --arg run_id     "${GITHUB_RUN_ID:-}" \
+  --arg actor      "${GITHUB_ACTOR:-}" \
+  --arg workflow   "${GITHUB_WORKFLOW:-}" \
+  '{"module": $mod, "git_commit": $git_commit, "git_ref": $git_ref, "github_run_id": $run_id, "github_actor": $actor, "github_workflow": $workflow}')
 
 # wait for a repository-less upload task and emit the created content href,
 # falling back to a stable-domain sha256 lookup (content already existing on a

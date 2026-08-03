@@ -168,8 +168,17 @@ sort -u "$STABLE_SHAS_FILE" -o "$STABLE_SHAS_FILE"
 
 mkdir -p promoted-packages
 
-# module label, built with jq (safe escaping) — consistent with the delivery scripts
-PULP_LABELS=$(jq -cn --arg mod "$MODULE_NAME" '{"module": $mod}')
+# mirrors deliver-deb.sh's own PULP_LABELS (this is the promote job's own git
+# context, not the original delivery's -- release tracking needs to know
+# which promote run put a package into stable, from which ref/commit)
+PULP_LABELS=$(jq -cn \
+  --arg mod        "$MODULE_NAME" \
+  --arg git_commit "${GITHUB_SHA:-}" \
+  --arg git_ref    "${GITHUB_REF:-}" \
+  --arg run_id     "${GITHUB_RUN_ID:-}" \
+  --arg actor      "${GITHUB_ACTOR:-}" \
+  --arg workflow   "${GITHUB_WORKFLOW:-}" \
+  '{"module": $mod, "git_commit": $git_commit, "git_ref": $git_ref, "github_run_id": $run_id, "github_actor": $actor, "github_workflow": $workflow}')
 
 # emit the href of a stable-domain deb content unit matching the query, empty
 # if absent. Every caller sits on a fallback path where the content is
