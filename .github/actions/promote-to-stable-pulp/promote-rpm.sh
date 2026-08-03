@@ -22,6 +22,12 @@ PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 # content-app fetch that happens after the switch.
 TESTING_DOMAIN="$PULP_DOMAIN"
 
+# re-applied on the re-upload into stable, mirroring promote-deb.sh's own
+# PULP_LABELS: without it, the stable content is indistinguishable from any
+# other module's package by check-rpm.sh's own verification query
+# (pulp_label_select=module=X), and promoted-by-module bookkeeping is lost.
+PULP_LABELS=$(jq -cn --arg mod "$MODULE_NAME" '{"module": $mod}')
+
 # wait for a repository-less upload task and emit the created content href,
 # falling back to a stable-domain sha256 lookup (content already existing on a
 # job re-run, or a task response without created_resources) -- mirrors
@@ -218,7 +224,7 @@ for ARCH in noarch x86_64; do
       fi
       dest="$DOWNLOAD_DIR/$i-$(basename "$location_href")"
       content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$TESTING_BASE_PATH/$served_href"
-      pulp_upload -F "file=@\"$dest\"" \
+      pulp_upload -F "file=@\"$dest\"" -F "pulp_labels=$PULP_LABELS" \
         "$PULP_URL/$PULP_STABLE_DOMAIN/api/v3/content/rpm/packages/" > "$UPLOAD_DIR/$i.task"
     ) &
     while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
