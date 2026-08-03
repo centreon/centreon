@@ -819,7 +819,7 @@ msgstr "Dupliquer la catégorie d'hôte"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Duplicate host categories"
-msgstr "Dupliquer les catégories d'hôte"
+msgstr "Dupliquer les catégories d'hôtes"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
