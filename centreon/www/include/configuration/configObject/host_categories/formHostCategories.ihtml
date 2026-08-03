@@ -189,6 +189,25 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         apply();
         toggle.addEventListener('change', apply);
+
+        // A native reset restores the hidden fields but not the custom toggles
+        // or the severity section visibility, so re-sync them once the browser
+        // has applied the reset (next tick): mirror each toggle from its (reset)
+        // hidden field and collapse/expand the severity fields accordingly.
+        var form = toggle.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    var on = document.querySelector('input[name="hc_activate[hc_activate]"][value="1"]')
+                        || document.querySelector('input[name="hc_activate"][value="1"]');
+                    if (on) { toggle.checked = on.checked; }
+                    var sevToggle = document.getElementById('cf-hc-type-toggle');
+                    var sevCheckbox = document.getElementById('hc_type');
+                    if (sevToggle && sevCheckbox) { sevToggle.checked = sevCheckbox.checked; }
+                    toggleSeverityFields();
+                }, 0);
+            });
+        }
     })();
 });
 </script>
