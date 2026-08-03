@@ -157,8 +157,7 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      maxAxisCharacters:
-        maxRightAxisCharactersRef.current || maxLeftAxisCharactersRef.current,
+      maxAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
