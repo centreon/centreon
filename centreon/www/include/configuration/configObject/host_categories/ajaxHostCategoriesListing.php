@@ -37,8 +37,10 @@ $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-$conditions = [];
-$parameters = [];
+$conditions         = [];
+$parameters         = [];
+$countAclClause     = '';
+$countAclParameters = [];
 
 if ($search !== '') {
     $conditions[] = '(hc.hc_name LIKE :search OR hc.hc_alias LIKE :search)';
@@ -63,6 +65,26 @@ if (! $helper->isAdmin()) {
         $parameters[]   = QueryParameter::int($placeholder, $hcId);
     }
     $conditions[] = 'hc.hc_id IN (' . implode(', ', $placeholders) . ')';
+
+    // Scope the enabled/disabled host counts to the hosts granted by the user's ACL.
+    $aclDbName   = $acl !== null ? $acl->getNameDBAcl() : '';
+    $aclGroupIds = $acl !== null
+        ? array_values(array_filter(array_map('intval', array_keys($acl->getAccessGroups()))))
+        : [];
+
+    if ($aclDbName !== '' && $aclGroupIds !== []) {
+        $aclPlaceholders = [];
+        foreach ($aclGroupIds as $index => $groupId) {
+            $placeholder          = 'acl_gid' . $index;
+            $aclPlaceholders[]    = ':' . $placeholder;
+            $countAclParameters[] = QueryParameter::int($placeholder, $groupId);
+        }
+        $countAclClause = ' AND EXISTS ('
+            . "SELECT 1 FROM `{$aclDbName}`.centreon_acl acl "
+            . 'WHERE acl.host_id = h.host_id '
+            . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ')'
+            . ')';
+    }
 }
 
 $whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
@@ -84,13 +106,13 @@ $dataQuery = <<<SQL
             SELECT COUNT(*)
             FROM hostcategories_relation hr
             INNER JOIN host h ON h.host_id = hr.host_host_id
-            WHERE hr.hostcategories_hc_id = hc.hc_id AND h.host_activate = '1'
+            WHERE hr.hostcategories_hc_id = hc.hc_id AND h.host_activate = '1' AND h.host_register = '1'{$countAclClause}
         ) AS enabled_hosts,
         (
             SELECT COUNT(*)
             FROM hostcategories_relation hr
             INNER JOIN host h ON h.host_id = hr.host_host_id
-            WHERE hr.hostcategories_hc_id = hc.hc_id AND h.host_activate = '0'
+            WHERE hr.hostcategories_hc_id = hc.hc_id AND h.host_activate = '0' AND h.host_register = '1'{$countAclClause}
         ) AS disabled_hosts
     FROM hostcategories hc
     {$whereClause}
@@ -105,6 +127,7 @@ try {
         $dataQuery,
         QueryParameters::create([
             ...$parameters,
+            ...$countAclParameters,
             QueryParameter::int('offset', $num * $limit),
             QueryParameter::int('limit', $limit),
         ])
