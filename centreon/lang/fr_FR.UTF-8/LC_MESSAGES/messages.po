@@ -815,7 +815,7 @@ msgstr "Ajouter une catégorie d'hôte"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Duplicate host category"
-msgstr "Dupliquer la catégorie d'hôte"
+msgstr "Dupliquer la catégorie d'hôtes"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Duplicate host categories"
