@@ -1,4 +1,4 @@
-import { Badge, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 import { getStatusColors, type SeverityCode } from '@centreon/ui';
 
@@ -9,25 +9,39 @@ export interface StyleProps {
   severityCode?: SeverityCode | null;
 }
 
-const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
-  badge: {
-    background: severityCode
-      ? getStatusColors({ severityCode, theme })?.backgroundColor
-      : 'transparent',
-    borderRadius: theme.spacing(1.25),
-    color: theme.palette.common.black,
-    cursor: 'pointer',
-    fontSize: theme.typography.body2.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    height: theme.spacing(2.125),
-    lineHeight: theme.spacing(2.125),
-    minWidth: theme.spacing(2.125),
-    position: 'relative',
-    right: 0,
-    top: 0,
-    transform: 'none'
-  }
-}));
+const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
+  const statusColors = severityCode
+    ? getStatusColors({ severityCode, theme })
+    : null;
+
+  return {
+    container: {
+      alignItems: 'center',
+      color: theme.palette.mode === 'dark' ? '#EAEEF7' : '#1B2233',
+      cursor: 'pointer',
+      display: 'inline-flex',
+      gap: '3px'
+    },
+    count: {
+      fontFamily: 'ui-monospace, "Roboto Mono", Menlo, monospace',
+      fontSize: '12px',
+      fontWeight: theme.typography.fontWeightMedium,
+      lineHeight: 1
+    },
+    dot: {
+      backgroundColor: statusColors?.backgroundColor ?? theme.palette.divider,
+      // Spec (MON-204219 top banner redesign) calls for a "square + clip-path"
+      // status pastille rather than a circle, but doesn't give an exact clip-path
+      // shape. Using a softly-rounded square as a placeholder — verify the
+      // intended shape with the design team before this ships.
+      clipPath:
+        'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+      flexShrink: 0,
+      height: '9px',
+      width: '9px'
+    }
+  };
+});
 
 export interface Props {
   className?: string;
@@ -50,14 +64,10 @@ const StatusCounter = ({
       followCursor
       title={count}
     >
-      <Badge
-        badgeContent={formattedCount}
-        classes={{
-          badge: cx(classes.badge, className)
-        }}
-        max={Number.POSITIVE_INFINITY}
-        overlap="circular"
-      />
+      <span className={cx(classes.container, className)}>
+        <span className={classes.dot} />
+        <span className={classes.count}>{formattedCount}</span>
+      </span>
     </Tooltip>
   );
 };

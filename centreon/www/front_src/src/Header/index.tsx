@@ -9,6 +9,7 @@ import { equals } from 'ramda';
 import { useRef } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
+import Breadcrumbs from '../BreadcrumbTrail';
 import FederatedComponent from '../components/FederatedComponents';
 import Poller from './Poller';
 import HostStatusCounter from './Resources/Host';
@@ -18,14 +19,30 @@ import UserMenu from './UserMenu';
 export const isDarkMode = (theme: Theme): boolean =>
   equals(theme.palette.mode, ThemeMode.dark);
 
-export const headerHeight = 7;
+export const headerHeight = 6;
 
 const useStyles = makeStyles()((theme) => ({
+  breadcrumbItem: {
+    flex: 'initial',
+    marginRight: 0
+  },
+  divider: {
+    backgroundColor: theme.palette.divider,
+    height: theme.spacing(3),
+    marginRight: theme.spacing(2),
+    width: '1px',
+    [theme.breakpoints.down(960)]: {
+      marginRight: theme.spacing(1.5)
+    }
+  },
   fullscreenActivated: {
     display: 'none'
   },
   header: {
     alignItems: 'center',
+    backgroundColor: isDarkMode(theme)
+      ? theme.palette.common.black
+      : theme.palette.background.paper,
     display: 'flex',
     maxHeight: theme.spacing(headerHeight),
     minHeight: theme.spacing(headerHeight),
@@ -36,21 +53,11 @@ const useStyles = makeStyles()((theme) => ({
     '&:empty, &:last-of-type': {
       marginRight: 0
     },
-    '&:first-of-type': {
-      borderRight: `solid 1px ${theme.palette.common.white}`,
-      marginRight: theme.spacing(3.5),
-      paddingRight: theme.spacing(3.5),
-
-      [theme.breakpoints.down(960)]: {
-        marginRight: theme.spacing(2.5),
-        paddingRight: theme.spacing(2.5)
-      }
-    },
     flex: 'initial',
-    marginRight: theme.spacing(6),
+    marginRight: theme.spacing(2),
 
     [theme.breakpoints.down(960)]: {
-      marginRight: theme.spacing(3.5)
+      marginRight: theme.spacing(1.5)
     }
   },
   leftContainer: {
@@ -74,12 +81,20 @@ const Header = (): JSX.Element => {
     <header
       className={cx(
         classes.header,
-        isFullscreenActivated && classes.fullscreenActivated,
-        'bg-primary-dark dark:bg-black'
+        isFullscreenActivated && classes.fullscreenActivated
       )}
       ref={headerRef}
     >
       <div className={classes.leftContainer}>
+        {/* MON-204219: the ticket flags moving the breadcrumb into the top banner
+            as "to confirm - this ticket or a follow-up". Confirm with
+            product/design that this is in scope before merging. */}
+        <div className={classes.breadcrumbItem}>
+          <Breadcrumbs />
+        </div>
+
+        <div className={classes.divider} />
+
         <div className={classes.item}>
           <Poller />
         </div>
