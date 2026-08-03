@@ -170,11 +170,8 @@ const InteractionWithGraph = ({
 
   const graphMarginLeft = useMemo(
     () =>
-      computeGElementMarginLeft({
-        hasSecondUnit,
-        maxCharacters: maxLeftAxisCharacters
-      }) + additionalZoomMargin,
-    [additionalZoomMargin, maxLeftAxisCharacters, hasSecondUnit]
+      computeGElementMarginLeft(maxLeftAxisCharacters) + additionalZoomMargin,
+    [additionalZoomMargin, maxLeftAxisCharacters]
   );
 
   const updateMousePosition = (pointPosition: MousePosition): void => {
