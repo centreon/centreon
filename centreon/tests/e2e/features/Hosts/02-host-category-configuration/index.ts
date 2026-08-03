@@ -44,14 +44,16 @@ const openFormFor = (name: string): void => {
 // Pick an option in the select2 multi-select of the field carrying `label`.
 // The placeholder is now the generic "Search", so anchor on the field label.
 const selectInField = (label: string, option: string): void => {
+  // The multi-select is collapsed and its dropdown header overlaps the control,
+  // and a previously opened dropdown may still cover it, so force both clicks.
   sidePanelBody()
     .contains('.cf-field', label)
     .find('.select2-selection')
-    .click();
+    .click({ force: true });
   sidePanelBody()
     .find('.select2-results__option', { timeout: 20000 })
     .contains(option)
-    .click();
+    .click({ force: true });
 };
 
 const createCategory = (body: Record<string, unknown>): void => {
@@ -308,7 +310,9 @@ const selectRowAndRunBulkAction = (name: string, action: string): void => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select(action);
+  // The native o1 select is hidden (replaced by the .cl-more-actions menu); the
+  // overridden onchange above turns a value change into setO + submit.
+  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
 };
 
 When('the user duplicates a host category', () => {
