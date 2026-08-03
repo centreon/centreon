@@ -70,7 +70,7 @@ const initialize = ({
   cy.viewport('macbook-13');
 };
 
-const checkWidth = (orientation): void => {
+const checkWidth = (): void => {
   cy.get('g[class*="visx-rows"] > line').eq(0).should('have.attr', 'x2');
 };
 
@@ -80,7 +80,7 @@ describe('Bar chart', () => {
       orientation: 'horizontal'
     });
 
-    checkWidth('horizontal');
+    checkWidth();
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -106,7 +106,7 @@ describe('Bar chart', () => {
       }
     });
 
-    checkWidth('horizontal');
+    checkWidth();
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
@@ -136,7 +136,7 @@ describe('Bar chart', () => {
       const userData = renderHook(() => useAtomValue(userAtom));
       userData.result.current.locale = 'en';
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -149,7 +149,7 @@ describe('Bar chart', () => {
     it(`displays the bar chart ${orientation}ly centered in zero`, () => {
       initialize({ axis: { isCenteredZero: true }, orientation });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -162,7 +162,7 @@ describe('Bar chart', () => {
     it(`displays the stacked bar chart ${orientation}ly`, () => {
       initialize({ data: dataPingServiceStacked, orientation });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -175,7 +175,7 @@ describe('Bar chart', () => {
     it(`displays bar chart ${orientation}ly with a mix of stacked and non-stacked data`, () => {
       initialize({ data: dataPingServiceMixedStacked, orientation });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -190,7 +190,7 @@ describe('Bar chart', () => {
         orientation
       });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -205,7 +205,7 @@ describe('Bar chart', () => {
         orientation
       });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -220,7 +220,7 @@ describe('Bar chart', () => {
         orientation
       });
 
-      checkWidth(orientation);
+      checkWidth();
       cy.contains('0 ms').should('be.visible');
       cy.contains('20').should('be.visible');
       cy.contains(':40 AM').should('be.visible');
@@ -239,7 +239,7 @@ describe('Bar chart', () => {
       }
     });
 
-    checkWidth('horizontal');
+    checkWidth();
     cy.contains('0 ms').should('be.visible');
     cy.contains('20').should('be.visible');
     cy.contains(':40 AM').should('be.visible');
