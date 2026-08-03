@@ -10,16 +10,7 @@ inputs:
     required: false
     default: "https://pulp.dev.centreon.io"
   domain:
-    description: |
-      Pulp Domain to operate in (DOMAIN_ENABLED). Every repository created before Domains
-      existed lives in "default" — that stays the right choice for any caller that never sets
-      this. Callers that resolve a domain themselves (package-delivery-pulp, promote-to-stable-pulp)
-      already pass one; without this input it was silently dropped (a GitHub Actions "unexpected
-      input" warning, not a hard failure), leaving pulp-cli's own commands pointed at whatever
-      domain it defaults to without an explicit --domain — confirmed live, 2026-07-31: raw REST
-      helpers (which build their own domain-prefixed URLs from the same properties.sh output)
-      found the right repository while a plain "pulp rpm repository show" on the same name did
-      not, in the same job.
+    description: "Pulp Domain to operate in (DOMAIN_ENABLED). Pre-Domains repositories live in \"default\"."
     required: false
     default: "default"
 
@@ -108,16 +99,9 @@ runs:
         mkdir -p "$XDG_CONFIG_HOME"
         echo "XDG_CONFIG_HOME=$XDG_CONFIG_HOME" >> "$GITHUB_ENV"
 
-        # pulpcore's native WorkloadIdentityAuthentication authenticates requests
-        # carrying a Bearer token (or Basic with the reserved __token__ username);
-        # there is no username/password, the token grants are derived from the
-        # token claims by the pulp server rules
+        # WorkloadIdentityAuthentication reads a Bearer token, no username/password
         # pulp-cli splits --header on the first colon and keeps the value
-        # verbatim, so no space after the colon (it would be rejected as
-        # leading whitespace); the sent header is still "Authorization: Bearer …"
-        # --domain: DOMAIN_ENABLED requires every request to carry a domain name (no unprefixed
-        # fallback); pulp-cli stores it in the profile so every subsequent plain pulp-cli command
-        # inherits it, matching the domain the caller's raw REST helpers already target.
+        # verbatim, so no space after the colon (rejected as leading whitespace)
         pulp config create --overwrite \
           --base-url "$PULP_URL" \
           --api-root "/" \

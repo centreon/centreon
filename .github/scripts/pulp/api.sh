@@ -2,21 +2,13 @@
 # Shared pulp api helpers for the delivery/promotion scripts. Source this file
 # like manifest.sh; PULP_URL and PULP_TOKEN must be set by the caller.
 #
-# PULP_DOMAIN: DOMAIN_ENABLED requires every viewset URL to carry a domain
-# segment, no unprefixed fallback (same rule already documented in
-# delivery-tooling's create-rpm-repos.sh/create-deb-repos.sh). Every raw REST
-# call in this file that hits a domain-scoped viewset (repositories,
-# distributions, content, tasks, publications) is prefixed with
-# "/$PULP_DOMAIN". Defaults to "default" so callers that never set it (or run
-# against a pre-Domains instance) keep their current behavior.
+# DOMAIN_ENABLED requires every viewset URL to carry a domain segment, no
+# unprefixed fallback; every domain-scoped REST call in this file is prefixed with "/$PULP_DOMAIN"
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 
-# switch the domain pulp-cli/raw-curl calls target (e.g. promote-rpm.sh/
-# promote-deb.sh move from the testing-tier domain to the stable-tier one
-# partway through). Unlike PULP_DOMAIN alone, this forces pulp-cli's config
-# to update immediately: refresh_pulp_token only re-runs "pulp config create"
-# when the token itself is stale (>240s old), so a plain reassignment could
-# leave pulp-cli pointed at the old domain for up to 4 minutes.
+# forces pulp-cli's config to update immediately, unlike a plain PULP_DOMAIN
+# reassignment: refresh_pulp_token only re-runs "pulp config create" once the
+# token itself goes stale (>240s), which could leave pulp-cli on the old domain that long
 switch_pulp_domain() {
   PULP_DOMAIN="$1"
   if command -v pulp >/dev/null 2>&1; then
@@ -245,14 +237,9 @@ content_curl() {
 create_publication() {
   local plugin=$1 repository=$2
   shift 2
-  # pulp-cli is not used here: its own task re-poll (wait_for_task's loop, and
-  # the unconditional re-fetch inside PulpContext.call() that runs even in
-  # --background mode) is domain-unaware and 404s under Domains ("No Task
-  # matches the given query") -- confirmed tasks_read has no pulp_domain
-  # parameter to inject at all, the domain travels embedded in the task href
-  # itself, so no pulp-cli subcommand invocation for a task-creating call can
-  # be made to work here. Goes straight through post_json/wait_task_race
-  # instead, both already domain-aware raw-REST helpers.
+  # pulp-cli's own task re-poll is domain-unaware and 404s under Domains ("No
+  # Task matches the given query"), so this goes straight through
+  # post_json/wait_task_race instead, both already domain-aware
   local publication_path
   case "$plugin" in
     rpm) publication_path="rpm/rpm" ;;

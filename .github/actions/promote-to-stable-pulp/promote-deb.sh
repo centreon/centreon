@@ -6,22 +6,16 @@ source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 # shellcheck source=.github/scripts/pulp/api.sh
 source "$(dirname "$0")/../../scripts/pulp/api.sh"
 
-# use the org-variable values, falling back to the defaults when passed empty
-# (an unset org variable is forwarded as an empty string, overriding the default)
+# an unset org variable is forwarded as an empty string, overriding the default
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
-# testing (source) and stable (destination) repositories live in different
-# Pulp Domains (stable is now ALWAYS a dedicated repository, for every deb
-# family -- see delivery-tooling's create-deb-repos.sh); PULP_DOMAIN covers
-# the read phase below, switch_pulp_domain moves to PULP_STABLE_DOMAIN before
-# the write phase.
+# testing and stable repositories live in different Pulp Domains; PULP_DOMAIN
+# covers the read phase, switch_pulp_domain moves to PULP_STABLE_DOMAIN for the write phase
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
-# switch_pulp_domain overwrites PULP_DOMAIN itself (see api.sh) once the write
-# phase starts below; download_testing_package always fetches from the
-# original (testing-tier) domain regardless of when it's called (including
-# after the switch, on the batched-promote path), so its own copy of the
-# pre-switch domain is kept here.
+# switch_pulp_domain overwrites PULP_DOMAIN itself once the write phase
+# starts; download_testing_package always needs the original (testing-tier)
+# domain, including after the switch, so keep our own copy
 TESTING_DOMAIN="$PULP_DOMAIN"
 
 if ! pulp_resource_exists "repositories/deb/apt" "$REPOSITORY_NAME"; then
@@ -40,12 +34,10 @@ fetch_index() {
   return 1
 }
 
-# collect the sha256 set of every package published in a suite. The served
-# dists/ indexes are the source of truth for suite membership: the packages'
-# relative_path cannot be trusted for that (content reused across suites
-# keeps its original upload path) and the release_components api is not
-# listable by the OIDC ci-user. A missing Release (404) is an empty suite;
-# any other fetch failure aborts, a partial set must not drive a promotion.
+# collect the sha256 set of every package published in a suite: the served
+# dists/ indexes are the source of truth for suite membership (relative_path
+# and the release_components api can't be trusted/used here, see deliver-deb.sh).
+# A missing Release (404) is an empty suite; any other fetch failure aborts.
 suite_sha_file() {
   local base_path=$1 suite=$2 out release_file arches arch pkg_file rc
   out=$(mktemp)
@@ -73,10 +65,8 @@ suite_sha_file() {
   echo "$out"
 }
 
-# download the published bytes of a testing package identified by its
-# sha256/arch, resolving its served filename from the testing suite's
-# checksum-indexed Packages file (the structured publication serves packages
-# under the canonical debian pool layout, not their upload relative_path).
+# resolve the served filename from the testing suite's Packages file by
+# sha256 (the published pool layout doesn't match the upload relative_path)
 download_testing_package() {
   local sha256=$1 arch=$2 dest=$3 filename
   filename=$(
@@ -92,9 +82,8 @@ download_testing_package() {
 
 TESTING_SHAS_FILE=$(suite_sha_file "$BASE_PATH" "$TESTING_SUITE")
 
-# packages of the module are identified by the label set at delivery time.
-# Paginated: the repository keeps every delivered version across all suites,
-# so the module listing can exceed a single page.
+# paginated: the repository keeps every delivered version across all suites,
+# so the module listing can exceed a single page
 RESULTS_FILE=$(mktemp)
 url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
   printf 'repository_version=%s&pulp_label_select=%s&limit=1000' \
@@ -108,12 +97,9 @@ while [[ -n "$url" ]]; do
   url=$(echo "$page" | jq -r '.next // empty')
 done
 
-# only the LATEST version of each package is promoted: the testing suite
-# accumulates every delivered build (deb has no retention mechanism).
-# Versions are compared segment by segment (numeric segments as numbers): a
-# plain string max would rank "0.9" above "0.10", which bites the
-# semver-like versions of some modules. Pipeline-built versions carry no
-# epoch or tilde.
+# only the LATEST version of each package is promoted (deb has no retention
+# mechanism, testing accumulates every build); compare segment by segment
+# (numeric as numbers) since a plain string max ranks "0.9" above "0.10"
 TESTING_SET_FILE=$(mktemp)
 jq -R . "$TESTING_SHAS_FILE" | jq -s 'map({key: ., value: true}) | from_entries' > "$TESTING_SET_FILE"
 PACKAGES=$(
@@ -148,10 +134,8 @@ if ! pulp_resource_exists "repositories/deb/apt" "$STABLE_REPOSITORY_NAME"; then
 fi
 STABLE_REPOSITORY_HREF=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
 
-# "already promoted" is decided against the stable repository's OWN version:
-# stable is always a dedicated repository (never a shared one), so it only
-# ever receives stable content -- a promotion whose publication failed then
-# reruns as a plain republish.
+# "already promoted" is decided against the stable repository's OWN version
+# (it's always dedicated, never shared, so it only ever receives stable content)
 STABLE_SHAS_FILE=$(mktemp)
 STABLE_VERSION_HREF=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.latest_version_href')
 url="$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/?$(
@@ -168,9 +152,7 @@ sort -u "$STABLE_SHAS_FILE" -o "$STABLE_SHAS_FILE"
 
 mkdir -p promoted-packages
 
-# mirrors deliver-deb.sh's own PULP_LABELS (this is the promote job's own git
-# context, not the original delivery's -- release tracking needs to know
-# which promote run put a package into stable, from which ref/commit)
+# mirrors deliver-deb.sh's own PULP_LABELS, but this run's own git context
 PULP_LABELS=$(jq -cn \
   --arg mod        "$MODULE_NAME" \
   --arg git_commit "${GITHUB_SHA:-}" \
@@ -180,11 +162,9 @@ PULP_LABELS=$(jq -cn \
   --arg workflow   "${GITHUB_WORKFLOW:-}" \
   '{"module": $mod, "git_commit": $git_commit, "git_ref": $git_ref, "github_run_id": $run_id, "github_actor": $actor, "github_workflow": $workflow}')
 
-# emit the href of a stable-domain deb content unit matching the query, empty
-# if absent. Every caller sits on a fallback path where the content is
-# expected to exist, so an empty result is retried too: the api has been
-# observed answering an empty page for content committed seconds earlier
-# (stale read), and a transient error must not read as "content absent" either.
+# emit the href of a matching stable-domain deb content unit, empty if absent.
+# Retried: the api has been observed answering an empty page for content
+# committed seconds earlier (stale read)
 lookup_deb_content() {
   local endpoint=$1 query=$2 out attempt
   for attempt in 1 2 3 4 5; do
@@ -270,22 +250,11 @@ if ((${#UNPROMOTED_HREFS[@]} == 0)); then
   exit 0
 fi
 
-# batched promote, mirroring the batched delivery. Pulp Domains have no
-# cross-domain content sharing at all: RepositoryVersion.add_content asserts
-# every content unit's pulp_domain matches the repository's own (confirmed
-# against the live pulpcore source), and even pulp_deb's own copy_content task
-# filters to the current domain before calling add_content. Testing and
-# stable repositories live in different domains, so promoting means
-# re-downloading each package from testing's published distribution and
-# re-uploading it fresh into the stable domain -- mirroring how the JFrog
-# promote job has always worked (download from testing, upload to stable).
-#
-# The FIRST package of each architecture is re-uploaded through the legacy
-# path - it get_or_creates the stable ReleaseComponent and ReleaseArchitecture,
-# which the ci user cannot create nor list directly - then the stable
-# release-component href is deduced from its associations, every other
-# package is re-uploaded unassociated and associated explicitly, and one
-# modify adds the whole batch to the stable repository.
+# batched promote, mirroring the batched delivery: Pulp Domains share no
+# content across domains, so promoting means re-downloading each package from
+# testing's published distribution and re-uploading it into the stable domain
+# (see deliver-deb.sh for why the FIRST package of each arch goes through the
+# legacy path to establish the release component).
 declare -A ARCH_SEEN=()
 LEGACY_PACKAGES=()
 BATCH_PACKAGES=()
@@ -299,10 +268,8 @@ while read -r PACKAGE; do
   fi
 done < <(echo "$PACKAGES" | jq -c '.[]')
 
-# the stable release component is deduced from the association the legacy
-# re-upload of the FIRST reference creates: capture its stable-domain
-# association set (if the sha already exists there, e.g. a rerun) before the
-# upload so the new one stands out as the difference.
+# capture the reference package's pre-upload stable associations (if it
+# already exists there, e.g. a rerun) so the new one stands out as the diff
 refresh_pulp_token
 LEGACY_REF_SHA256=$(echo "${LEGACY_PACKAGES[0]}" | jq -r '.sha256')
 LEGACY_REF_BEFORE_HREF=$(lookup_deb_content "packages" "--data-urlencode sha256=$LEGACY_REF_SHA256")
@@ -319,12 +286,9 @@ for PACKAGE in "${LEGACY_PACKAGES[@]}"; do
   echo "[INFO] Downloading $FILE_NAME from $TESTING_SUITE"
   download_testing_package "$SHA256" "$ARCH" "$FILE"
 
-  # re-upload the downloaded bytes with the SAME relative_path into the
-  # stable domain: pulp reuses the content if it already exists there and
-  # only adds the stable suite association, creating the stable
-  # ReleaseComponent/ReleaseArchitecture on the way.
-  # retried: the legacy path creates a repository version and can lose the
-  # version race against a concurrent promotion.
+  # same relative_path into stable: pulp reuses existing content and adds the
+  # stable suite association, creating the ReleaseComponent/ReleaseArchitecture
+  # retried: the legacy path creates a repository version and can lose the race
   for legacy_attempt in 1 2 3; do
     echo "[INFO] Promoting $FILE_NAME to $STABLE_SUITE/main [legacy path, attempt $legacy_attempt]"
     TASK_HREF=$(
@@ -351,10 +315,8 @@ for PACKAGE in "${LEGACY_PACKAGES[@]}"; do
 done
 
 if ((${#BATCH_PACKAGES[@]} > 0)); then
-  # the stable release component is the association the legacy re-upload just
-  # added to the reference package. On a rerun the association pre-exists and
-  # the difference is empty: the reference then carries every suite
-  # association it had before (stable, possibly others for reused content).
+  # the release component is the association the legacy re-upload just added
+  # to the reference package (diffed against its pre-upload set captured above)
   refresh_pulp_token
   LEGACY_REF_STABLE_HREF=$(lookup_deb_content "packages" "--data-urlencode sha256=$LEGACY_REF_SHA256")
   if [[ -z "$LEGACY_REF_STABLE_HREF" ]]; then
@@ -364,9 +326,8 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   LEGACY_REF_AFTER=$(lookup_prcs "$LEGACY_REF_STABLE_HREF" | sort)
   STABLE_RC_SET=$(comm -13 <(echo "$LEGACY_REF_BEFORE") <(echo "$LEGACY_REF_AFTER") | grep . || true)
   if [[ $(echo "$STABLE_RC_SET" | grep -c .) -ne 1 ]]; then
-    # dedicated stable repository: it only ever receives stable suite
-    # associations, so any association on its latest version points to the
-    # stable release component. Covers a rerun where the diff above is empty.
+    # rerun where the diff is empty: any association on stable's latest
+    # version is the release component, since stable only ever gets stable associations
     refresh_pulp_token
     STABLE_LATEST=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.latest_version_href')
     STABLE_RC_SET=$(
@@ -405,10 +366,8 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   fi
   echo "[INFO] Release component of $STABLE_SUITE/main: $STABLE_RC"
 
-  # re-download each remaining package from testing and re-upload it
-  # unassociated into the stable domain (parallel pool of 8, marker-file
-  # based like rpm/deliver-deb), then associate it with the stable release
-  # component.
+  # remaining packages: parallel re-download+upload (pool of 8, marker-file
+  # based like rpm/deliver-deb), associated with the stable release component below
   echo "[INFO] Re-uploading ${#BATCH_PACKAGES[@]} package(s) from $BASE_PATH into the stable domain"
   DOWNLOAD_DIR=$(mktemp -d)
   MAX_PARALLEL=8
@@ -468,11 +427,8 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   done
   rm -rf "$DOWNLOAD_DIR"
 
-  # associate every re-uploaded package with the stable release component.
-  # The package_release_components create is a plain synchronous DRF create
-  # (201 with the created unit, no task), so the href comes straight out of
-  # the response; a failed create (association already existing on a job
-  # re-run) falls back to a lookup.
+  # package_release_components create is synchronous (201 with the unit, no
+  # task); a failed create (already existing on a job re-run) falls back to a lookup
   echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with $STABLE_SUITE/main"
   PRC_DIR=$(mktemp -d)
   for i in "${!PACKAGE_HREFS[@]}"; do
@@ -488,13 +444,11 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
       body="${out%$'\n'*}"
       href=""
       if [[ "$code" == 2* ]]; then
-        # tolerate a non-json body (gateway error page behind a 2xx): a jq
-        # failure inside the substitution would silently kill this subshell
+        # tolerate a non-json body (gateway error page behind a 2xx)
         href=$(echo "$body" | jq -r '.pulp_href // empty' 2>/dev/null) || href=""
       fi
       if [[ -z "$href" ]]; then
-        # the api answers 500 on a duplicate synchronous content create; on a
-        # rerun the stable association simply pre-exists (see the lookup below)
+        # api answers 500 on a duplicate synchronous create; expected on a rerun
         echo "[INFO] $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package'): stable association create answered HTTP $code, falling back to the lookup (expected on a rerun)"
         href=$(lookup_deb_content "package_release_components" \
           "--data-urlencode package=$package_href --data-urlencode release_component=$STABLE_RC")
@@ -524,8 +478,7 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   ADD_BODY_FILE=$(mktemp)
   jq -R . "$ADD_UNITS_FILE" | jq -cs '{add_content_units: [.[] | select(. != "")]}' > "$ADD_BODY_FILE"
   rm -f "$ADD_UNITS_FILE"
-  # retried like the legacy uploads: the modify also creates a repository
-  # version and can lose the same race
+  # retried like the legacy uploads: same repository-version race
   for modify_attempt in 1 2 3; do
     MODIFY_TASK=$(start_modify_task "$PULP_URL${STABLE_REPOSITORY_HREF}modify/" "$ADD_BODY_FILE")
     wait_task_race "$MODIFY_TASK" && rc=0 || rc=$?

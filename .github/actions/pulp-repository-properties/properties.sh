@@ -162,12 +162,10 @@ else
     BASE_PATH="$ROOT_REPO"
     SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
     TESTING_SUITE="$DISTRIB-$VERSION-$TESTING_SEGMENT"
-    # stable lives in a DEDICATED repository (create-deb-repos.sh in
-    # delivery-tooling: "stable is now ALWAYS a dedicated repository", same
-    # rule as rpm and deb plugins), with a single plain-codename suite. Naming
-    # keeps the artifactory-compatible irregular ordering: standard keeps
-    # $ROOT_REPO's own "-internal" suffix position, business puts the version
-    # before "business" on debian but after on ubuntu.
+    # stable is a dedicated repository with a single plain-codename suite, same
+    # rule as rpm and deb plugins; naming keeps the artifactory-compatible
+    # irregular ordering (business puts the version before "business" on
+    # debian but after on ubuntu)
     if [[ "$REPO_BASE" == "business" ]]; then
       BUSINESS_INTERNAL_SUFFIX=""
       [[ "$ROOT_REPO" == *-internal ]] && BUSINESS_INTERNAL_SUFFIX="-internal"
@@ -192,20 +190,11 @@ fi
 STABLE_REPOSITORY_NAME="${STABLE_REPOSITORY_NAME:-$REPOSITORY_NAME}"
 STABLE_BASE_PATH="${STABLE_BASE_PATH:-$BASE_PATH}"
 
-# Pulp Domains, one per edition/channel (standard/business/plugins). "-internal"/
-# cloud repositories live in the SAME domain as their non-internal sibling
-# (business-internal repositories exist across every stability, matching
-# resolve_pulp_domain's substring match on REPO_BASE, not on the "-internal"
-# suffix), so REPO_BASE alone is enough -- no separate cloud-aware branch
-# needed here.
+# one Pulp Domain per edition/channel; "-internal"/cloud repos share the
+# domain of their non-internal sibling, so REPO_BASE alone is enough
 DOMAIN="$REPO_BASE"
-# stable is always a genuinely separate repository object (rpm: per version/
-# distrib/arch; deb: dedicated $ROOT_REPO-stable, set above) -- never a suite
-# living inside the same repository as testing -- so it always gets its own
-# "-stable" domain (delivery-tooling poc/pulp/k8s/job-bootstrap-ci-role.yaml's
-# resolve_pulp_domain* helpers follow the same rule; create-deb-repos.sh's
-# comment "stable is now ALWAYS a dedicated repository" is the source of
-# truth here).
+# stable is always a separate repository object, never a suite inside
+# testing's, so it gets its own "-stable" domain
 STABLE_DOMAIN="$REPO_BASE-stable"
 
 echo "[DEBUG] - repository_type: $REPOSITORY_TYPE"

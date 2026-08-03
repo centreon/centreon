@@ -90,9 +90,7 @@ runs:
         PULP_URL: ${{ inputs.pulp_url }}
         PULP_TOKEN: ${{ env.PULP_TOKEN }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
-        # source (testing tier) and destination (stable tier) live in different
-        # Pulp Domains (e.g. "standard" vs "standard-stable") -- promote-rpm.sh
-        # switches between them itself for the read vs write legs.
+        # testing and stable tiers live in different Pulp Domains; promote-rpm.sh switches between them
         PULP_DOMAIN: ${{ steps.pulp-properties.outputs.domain }}
         PULP_STABLE_DOMAIN: ${{ steps.pulp-properties.outputs.stable_domain }}
       run: ${{ github.action_path }}/promote-rpm.sh
@@ -116,8 +114,7 @@ runs:
         PULP_URL: ${{ inputs.pulp_url }}
         PULP_TOKEN: ${{ env.PULP_TOKEN }}
         PULP_CONTENT_URL: ${{ inputs.pulp_content_url }}
-        # source (testing tier) and destination (stable tier) live in different
-        # Pulp Domains -- promote-deb.sh switches between them itself.
+        # testing and stable tiers live in different Pulp Domains; promote-deb.sh switches between them
         PULP_DOMAIN: ${{ steps.pulp-properties.outputs.domain }}
         PULP_STABLE_DOMAIN: ${{ steps.pulp-properties.outputs.stable_domain }}
       run: ${{ github.action_path }}/promote-deb.sh

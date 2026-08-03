@@ -6,28 +6,20 @@ source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 # shellcheck source=.github/scripts/pulp/api.sh
 source "$(dirname "$0")/../../scripts/pulp/api.sh"
 
-# use the org-variable values, falling back to the defaults when passed empty
-# (an unset org variable is forwarded as an empty string, overriding the default)
+# an unset org variable is forwarded as an empty string, overriding the default
 PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
 PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
-# testing (source) and stable (destination) repositories live in different
-# Pulp Domains (e.g. "standard" vs "standard-stable"); PULP_DOMAIN covers the
-# read phase below, switch_pulp_domain moves to PULP_STABLE_DOMAIN before the
-# write phase.
+# testing and stable repositories live in different Pulp Domains; PULP_DOMAIN
+# covers the read phase, switch_pulp_domain moves to PULP_STABLE_DOMAIN for the write phase
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
-# switch_pulp_domain overwrites PULP_DOMAIN itself (see api.sh) once the write
-# phase starts below; content served under TESTING_BASE_PATH still lives in
-# the original (testing-tier) domain, so its own copy is kept for the
-# content-app fetch that happens after the switch.
+# switch_pulp_domain overwrites PULP_DOMAIN itself once the write phase
+# starts; keep our own copy for the testing-domain content-app fetch after that
 TESTING_DOMAIN="$PULP_DOMAIN"
 
-# re-applied on the re-upload into stable, mirroring deliver-rpm.sh's own
-# PULP_LABELS (this is the promote job's own git context, not the original
-# delivery's -- release tracking needs to know which promote run put a
-# package into stable, from which ref/commit). Without at least "module",
-# check-rpm.sh's own verification query (pulp_label_select=module=X) can't
-# find the promoted content either.
+# re-applied on the re-upload into stable (this promote run's own git context,
+# not the original delivery's); check-rpm.sh's verification query needs at
+# least "module" to find the promoted content
 PULP_LABELS=$(jq -cn \
   --arg mod        "$MODULE_NAME" \
   --arg git_commit "${GITHUB_SHA:-}" \
@@ -37,11 +29,7 @@ PULP_LABELS=$(jq -cn \
   --arg workflow   "${GITHUB_WORKFLOW:-}" \
   '{"module": $mod, "git_commit": $git_commit, "git_ref": $git_ref, "github_run_id": $run_id, "github_actor": $actor, "github_workflow": $workflow}')
 
-# wait for a repository-less upload task and emit the created content href,
-# falling back to a stable-domain sha256 lookup (content already existing on a
-# job re-run, or a task response without created_resources) -- mirrors
-# deliver-rpm.sh's resolve_uploaded_content, scoped to the stable domain since
-# this uploads INTO the stable domain (see the cross-domain note below).
+# mirrors deliver-rpm.sh's resolve_uploaded_content, scoped to the stable domain
 resolve_promoted_content() {
   local task_href=$1 sha256=$2
   local body state content attempt
@@ -79,13 +67,9 @@ resolve_promoted_content() {
   echo "$content"
 }
 
-# resolve a package's actual served location within a published repodata, by
-# sha256 (mirrors check-rpm.sh's resolve_href): pulp_rpm's publish task lays
-# packages out under Packages/<letter>/<file> by default, which does not match
-# the raw content API's location_href (the upload-time relative path).
-# Confirmed live, 2026-08-03: downloading testing packages by location_href
-# directly 404'd for every package -- the served href has a Packages/c/ prefix
-# the API attribute never carries.
+# resolve a package's served location by sha256 (mirrors check-rpm.sh's
+# resolve_href): pulp_rpm publishes under Packages/<letter>/<file>, which
+# doesn't match the content API's location_href (the upload-time relative path)
 resolve_rpm_href() {
   local primary_file=$1 sha=$2
   [[ -s "$primary_file" ]] || return 0
@@ -126,9 +110,6 @@ for ARCH in noarch x86_64; do
 
   VERSION_HREF=$(pulp rpm repository show --name "$TESTING_REPOSITORY_NAME" | jq -r '.latest_version_href')
 
-  # packages of the module are identified by the label set at delivery time;
-  # keep both the href list (for the content modify call) and the package
-  # identity (name/version/release/arch/filename) to feed the promotion manifest
   # paginate: the testing repository keeps every delivered version, so the
   # module listing can exceed a single page
   RESULTS_FILE=$(mktemp)
@@ -144,10 +125,8 @@ for ARCH in noarch x86_64; do
     url=$(echo "$page" | jq -r '.next // empty')
   done
 
-  # only the LATEST build of each package is promoted. Versions are compared
-  # segment by segment (numeric segments as numbers): a plain string max
-  # would rank "0.9" above "0.10", which bites the semver-like versions of
-  # some modules. Pipeline-built versions carry no epoch or tilde.
+  # only the LATEST build of each package is promoted; compare version/release
+  # segment by segment (numeric as numbers) since a plain string max ranks "0.9" above "0.10"
   RESULTS=$(jq -s 'def vkey: [scan("[0-9]+|[^0-9]+") | (tonumber? // .)];
     [.[] | {pulp_href, name, version, release, arch, location_href, sha256}]
     | group_by(.name, .arch) | map(max_by([(.version | vkey), (.release | vkey)]))' "$RESULTS_FILE")
@@ -201,16 +180,10 @@ for ARCH in noarch x86_64; do
 
   STABLE_REPOSITORY_HREF=$(pulp rpm repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
 
-  # Pulp Domains have no cross-domain content sharing at all: RepositoryVersion.
-  # add_content asserts every content unit's pulp_domain matches the
-  # repository's own (confirmed against the live pulpcore source), and even
-  # pulp_deb's own copy_content task filters to the current domain before
-  # calling add_content. Testing and stable repositories live in different
-  # domains, so promoting means re-downloading each package from testing's
-  # published distribution and re-uploading it fresh into the stable domain --
-  # mirroring how the JFrog promote job has always worked (download from
-  # testing, upload to stable: Artifactory has no content-by-reference concept
-  # at all, so this was never a shortcut there in the first place).
+  # Pulp Domains share no content across domains (RepositoryVersion.add_content
+  # requires a matching pulp_domain), so promoting re-downloads each package
+  # from testing's published distribution and re-uploads it into the stable
+  # domain -- same as the JFrog promote job always did.
   echo "[INFO] Re-uploading $ARCH_PACKAGES_COUNT package(s) from $TESTING_BASE_PATH into the stable domain"
   DOWNLOAD_DIR=$(mktemp -d)
   UPLOAD_DIR=$(mktemp -d)
@@ -258,8 +231,7 @@ for ARCH in noarch x86_64; do
   # pulp-cli repository content modify does not resolve content by pulp_href, use the api directly
   ADD_BODY_FILE=$(mktemp)
   echo "$CONTENT" | jq -c '{add_content_units: .}' > "$ADD_BODY_FILE"
-  # retried like the deb path: any task can lose its worker, and concurrent
-  # promotions can race on the stable repository version
+  # retried like the deb path: concurrent promotions can race on the repository version
   for modify_attempt in 1 2 3; do
     TASK_HREF=$(start_modify_task "$PULP_URL${STABLE_REPOSITORY_HREF}modify/" "$ADD_BODY_FILE")
     wait_task_race "$TASK_HREF" && rc=0 || rc=$?
