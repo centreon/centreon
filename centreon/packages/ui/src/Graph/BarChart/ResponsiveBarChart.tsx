@@ -127,7 +127,8 @@ const ResponsiveBarChart = ({
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxLeftAxisCharacters,
+      maxRightAxisCharacters,
       title,
       units: allUnits,
       width

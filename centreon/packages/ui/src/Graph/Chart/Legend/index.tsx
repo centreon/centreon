@@ -74,6 +74,7 @@ const MainLegend = ({
   const getMetricValue = ({ value, unit }: GetMetricValueProps): string =>
     formatMetricValue({
       base,
+      decimalPlaces: 1,
       unit,
       value
     }) || 'N/A';
@@ -119,7 +120,7 @@ const MainLegend = ({
 
   return (
     <div
-      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[50px] mr-[40px]'}`}
+      className={`overflow-x-hidden overflow-y-auto ${!equals(placement, 'bottom') ? 'h-full mt-[15px]' : 'ml-[8px] mr-[8px]'}`}
       data-display-side={!equals(placement, 'bottom')}
     >
       <ul

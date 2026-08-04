@@ -87,7 +87,7 @@ const Axes = ({
         top={isHorizontal ? height - margin.bottom : 0}
       />
 
-      {axisLeft.displayUnit && (
+      {axisLeft.displayUnit && data.axisYLeft?.onUnitChange && (
         <UnitLabel
           onUnitChange={data.axisYLeft?.onUnitChange}
           unit={axisLeft.unit}
@@ -128,7 +128,7 @@ const Axes = ({
           top={isHorizontal ? 0 : height - margin.bottom}
         />
       )}
-      {axisRight.displayUnit && (
+      {axisRight.displayUnit && data.axisYRight?.onUnitChange && (
         <UnitLabel
           onUnitChange={data.axisYRight?.onUnitChange}
           unit={axisRight.unit}

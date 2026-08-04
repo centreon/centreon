@@ -1,7 +1,8 @@
 import { makeStyles } from 'tss-react/mui';
 
-export const useChartStyles = makeStyles()({
+export const useChartStyles = makeStyles()(() => ({
   baseWrapper: {
+    border: '1px solid transparent',
     position: 'relative'
   },
   tooltipChildren: { height: '100%', width: '100%' },
@@ -10,4 +11,4 @@ export const useChartStyles = makeStyles()({
     overflow: 'hidden',
     width: '100%'
   }
-});
+}));

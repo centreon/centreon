@@ -2,9 +2,8 @@ import { equals, isNil } from 'ramda';
 import type { RefCallback } from 'react';
 import useResizeObserver from 'use-resize-observer';
 
-import { margin } from '../../Chart/common';
-import { margins } from '../margins';
 import { useMarginTop } from '../useMarginTop';
+import { computeGElementMarginLeft } from '../utils';
 
 export const extraMargin = 10;
 
@@ -15,7 +14,8 @@ interface UseComputeBaseChartDimensionsProps {
   legendHeight?: number;
   legendPlacement?: string;
   width: number;
-  maxAxisCharacters: number;
+  maxLeftAxisCharacters: number;
+  maxRightAxisCharacters: number;
   title?: string;
   units: Array<string>;
 }
@@ -34,7 +34,8 @@ export const useComputeBaseChartDimensions = ({
   legendPlacement,
   hasSecondUnit,
   legendHeight,
-  maxAxisCharacters,
+  maxLeftAxisCharacters,
+  maxRightAxisCharacters,
   units,
   title
 }: UseComputeBaseChartDimensionsProps): UseComputeBaseChartDimensionsState => {
@@ -60,12 +61,17 @@ export const useComputeBaseChartDimensions = ({
       ? legendRefWidth || 0
       : 0;
 
+  const leftMargin = computeGElementMarginLeft({
+    hasSecondUnit,
+    maxCharacters: maxLeftAxisCharacters
+  });
+  const rightAxisLabelWidth = hasSecondUnit
+    ? maxRightAxisCharacters * 4 + 2
+    : 0;
+
   const graphWidth =
     width > 0
-      ? width -
-        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
-        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
-        legendBoundingWidth
+      ? width - leftMargin - rightAxisLabelWidth - legendBoundingWidth
       : 0;
   const graphHeight =
     (height || 0) > 0
