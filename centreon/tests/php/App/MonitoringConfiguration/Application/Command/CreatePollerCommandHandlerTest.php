@@ -57,6 +57,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -85,6 +86,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
             gorgoneCommunicationType: GorgoneCommunicationTypeEnum::PullWss,
+            centralAddress: new PollerAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -105,6 +107,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::Docker,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -125,6 +128,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 42,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         $events = $eventBus->getDispatchedEvents(PollerCreated::class);
@@ -156,6 +160,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         self::assertCount(1, $poller->globalMacros);
@@ -204,6 +209,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         self::assertCount(3, $poller->globalMacros);
@@ -253,11 +259,32 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
         ));
 
         self::assertCount(2, $poller->globalMacros);
         self::assertCount(1, $firstUser1->pollers);
         self::assertCount(0, $duplicateUser1->pollers);
         self::assertCount(1, $user2->pollers);
+    }
+
+    public function testCentralAddressIsSetOnPoller(): void
+    {
+        $repository = new FakePollerRepository();
+        $eventBus = new EventBusSpy();
+        $uidGenerator = new FakePollerUidGenerator();
+        $globalMacroRepository = new FakeGlobalMacroRepository();
+        $handler = new CreatePollerCommandHandler($repository, $eventBus, $uidGenerator, $globalMacroRepository);
+
+        $poller = $handler(new CreatePollerCommand(
+            name: new PollerName('MyPoller'),
+            pollerType: PollerTypeEnum::VM,
+            address: new PollerAddress('192.168.1.1'),
+            creatorId: 1,
+            centralAddress: new PollerAddress('10.0.0.1'),
+        ));
+
+        self::assertNotNull($poller->centralAddress);
+        self::assertSame('10.0.0.1', $poller->centralAddress->value);
     }
 }
