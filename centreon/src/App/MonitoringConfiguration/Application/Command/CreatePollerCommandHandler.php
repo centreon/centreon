@@ -72,6 +72,7 @@ final readonly class CreatePollerCommandHandler
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: $command->centralAddress,
         );
 
         $seenMacroNames = [];
