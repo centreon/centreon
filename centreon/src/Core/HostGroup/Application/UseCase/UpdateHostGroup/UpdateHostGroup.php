@@ -27,7 +27,6 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Centreon\Domain\RequestParameters\RequestParameters;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     InvalidArgumentResponse,
@@ -41,7 +40,6 @@ use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\Host\Domain\Model\SmallHost;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\{
     ReadHostGroupRepositoryInterface,
@@ -199,13 +197,13 @@ final class UpdateHostGroup
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
         } else {
-            $reachableHosts = $this->readHostRepository->findByRequestParametersAndAccessGroups(
-                new RequestParameters(),
+            $reachableHosts = $this->readHostRepository->findByHostGroupAndAccessGroups(
+                $request->id,
                 $this->readAccessGroupRepository->findByContact($this->user)
             );
 
             $hostsToRemove = (new BasicDifference(
-                array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
+                array_map(fn (SimpleEntity $host): int => $host->getId(), $reachableHosts),
                 $hosts
             ))->getRemoved();
         }
