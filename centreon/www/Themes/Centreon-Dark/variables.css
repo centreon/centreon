@@ -136,11 +136,11 @@
     --list-header-font-color: var( --color-primary-body-background-light);
     --list-header-border-bottom-color: var(--color-divider-dark);
     --list-table-border-color:var(--color-divider-dark);
-    --service-ok-host-up-success-background-color:var(--color-success-dark);
-    --service-warning-background-color : var(--color-warning-dark);
-    --pending-background-color :var(--color-pending-dark);
+    --service-ok-host-up-success-background-color:var(--color-success);
+    --service-warning-background-color : var(--color-warning);
+    --pending-background-color :var(--color-pending);
     --host-unreachable-unknown-background-color : var(--color-unknown-dark);
-    --host-down-danger-service-critical-background-color : var(--color-danger-dark);
+    --host-down-danger-service-critical-background-color : var(--color-danger);
     --arbo-a-bg-grey-background-color:var(--select-background);
     --arbo-a-bg-grey-mid-background-color:var(--arbo-a-bg-grey-background-color);
     --arbo-a-bg-grey-light-background-color:var(--arbo-a-bg-grey-background-color);
@@ -262,6 +262,9 @@
     --custom-macros-template-background-color: var(--color-columbia-blue);
     --badge-color: var(--color-white);
     --badge-a-color : var(--color-white);
+    /* Dark text on the vivid (main-shade) status chips for accessibility —
+       ticket asks for paper (#212121) in dark mode. */
+    --status-badge-font-color: var(--color-primary-body-background-dark);
     --bt-success-hover-font-color: var(--color-white);
     --bt-danger-hover-font-color: var(--color-white);
     --view-body-portlet-border-color: var(--color-divider-dark);
