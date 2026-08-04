@@ -70,12 +70,14 @@ runs:
               --arg major_version "$major_version" \
               --arg repo_type "feature" \
               --arg feature_ticket "$feature_ticket" \
+              --arg target "jfrog" \
               '{
                 event_type: "create-feature-repositories",
                 client_payload: {
                   major_version: $major_version,
                   repo_type: $repo_type,
-                  feature_ticket: $feature_ticket
+                  feature_ticket: $feature_ticket,
+                  target: $target
                 }
               }'
             )"
