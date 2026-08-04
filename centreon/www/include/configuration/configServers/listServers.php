@@ -257,6 +257,8 @@ foreach ($servers as $config) {
         'RowMenu_gorgone_protocol' => $config['gorgone_communication_type'],
         'RowMenu_link' => $serverLink,
         'RowMenu_type' => $serverType,
+        'RowMenu_isPoller' => ! $config['localhost']
+            && ! in_array($config['ns_ip_address'], $remotesServerIPs),
         'RowMenu_is_running' => $isRunning ? _('Yes') : _('No'),
         'RowMenu_is_runningFlag' => $nagiosInfo[$runtimeKey]['is_currently_running'],
         'RowMenu_is_default' => $config['is_default'] ? _('Yes') : _('No'),
