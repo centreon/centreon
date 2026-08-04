@@ -101,7 +101,7 @@ var hcListing = new CentreonListing({
         { id:'enabled_hosts', align:'center' },
         { id:'disabled_hosts', align:'center' },
         { id:'level', align:'center', render: function(row, l) {
-            return row.level ? l.escape('Severity (' + row.level + ')') : 'Regular';
+            return row.level ? l.escape('{/literal}{t escape='js'}Severity{/t}{literal} (' + row.level + ')') : '{/literal}{t escape='js'}Regular{/t}{literal}';
         }}
     ],
     renderOptions: function(row, l) {

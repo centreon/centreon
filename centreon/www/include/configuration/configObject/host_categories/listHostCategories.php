@@ -38,7 +38,6 @@ $tpl->assign('headerMenu_alias', _('Alias'));
 $tpl->assign('headerMenu_eHosts', _('Enabled Hosts'));
 $tpl->assign('headerMenu_dHosts', _('Disabled Hosts'));
 $tpl->assign('headerMenu_type', _('Type'));
-$tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('hcPage', $p);
 
@@ -63,7 +62,7 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 </script>
 <?php
 
-foreach (['o1', 'o2'] as $option) {
+foreach (['o1'] as $option) {
     // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
     // the native confirm()/alert(); messages passed as data-* attributes so the
     // handler stays locale-independent (keyed on the option value).
