@@ -162,23 +162,14 @@ else
     BASE_PATH="$ROOT_REPO"
     SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
     TESTING_SUITE="$DISTRIB-$VERSION-$TESTING_SEGMENT"
-    # stable is a dedicated repository with a single plain-codename suite, same
-    # rule as rpm and deb plugins; naming keeps the artifactory-compatible
-    # irregular ordering (business puts the version before "business" on
-    # debian but after on ubuntu)
-    if [[ "$REPO_BASE" == "business" ]]; then
-      BUSINESS_INTERNAL_SUFFIX=""
-      [[ "$ROOT_REPO" == *-internal ]] && BUSINESS_INTERNAL_SUFFIX="-internal"
-      if [[ "$FAMILY_PREFIX" == "apt-" ]]; then
-        STABLE_REPOSITORY_NAME="apt-$VERSION-business$BUSINESS_INTERNAL_SUFFIX-stable"
-      else
-        STABLE_REPOSITORY_NAME="ubuntu-business$BUSINESS_INTERNAL_SUFFIX-$VERSION-stable"
-      fi
-    else
-      STABLE_REPOSITORY_NAME="$ROOT_REPO-$VERSION-stable"
-    fi
-    STABLE_BASE_PATH="$STABLE_REPOSITORY_NAME"
-    STABLE_SUITE="$DISTRIB"
+    # stable is a dedicated repository (its own Domain, standard-stable/business-stable,
+    # is the write-protection boundary), but shares its NAME with the non-stable one --
+    # Pulp scopes name uniqueness per Domain, and the Domain already says "stable", so
+    # there's no need to also repeat that (or the version) in the repository name: the
+    # version lives in the suite name only, like the non-stable suites above.
+    STABLE_REPOSITORY_NAME="$ROOT_REPO"
+    STABLE_BASE_PATH="$ROOT_REPO"
+    STABLE_SUITE="$DISTRIB-$VERSION"
     POOL_PATH="pool/$VERSION/$POOL_SEGMENT/$MODULE_NAME"
     TESTING_POOL_PATH="pool/$VERSION/$TESTING_POOL_SEGMENT/$MODULE_NAME"
     STABLE_POOL_PATH="pool/$VERSION/stable/$MODULE_NAME"
