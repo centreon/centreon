@@ -181,7 +181,7 @@
     top: -8px;
     left: 10px;
     font-size: 11px;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--body-color, #757575);
     background: var(--body-background, #fff);
     font-weight: 500;
 }
@@ -191,8 +191,8 @@
     width: 100%;
     padding: 10px;
     font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     outline: none;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
@@ -340,16 +340,16 @@
 .cf-form-wrapper .clonable .clone-cell select {
     padding: 8px 10px;
     font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
 }
 
 .cf-form-wrapper .clonable .clone-cell .select2-container .select2-selection {
     min-height: 36px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     padding: 4px 8px;
     font-size: 12px;
 }
@@ -652,8 +652,8 @@
     height: 40px;
     padding: 0 32px 0 12px;
     font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     outline: none;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
@@ -706,8 +706,8 @@
 
 .cf-field .select2-container .select2-selection {
     min-height: 40px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     padding: 6px 12px;
     padding-right: 36px;
 }
