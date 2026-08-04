@@ -196,7 +196,7 @@ When('the user toggles the host category on from the listing', () => {
     .should('not.be.checked')
     .click({ force: true });
 
-  cy.wait('@toggleHcOn').its('response.statusCode').should('eq', 200);
+  cy.wait('@toggleHc').its('response.statusCode').should('eq', 200);
 });
 
 Then('the category is enabled again', () => {
