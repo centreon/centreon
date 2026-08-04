@@ -41,8 +41,8 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@serviceIcon').within(() => {
           cy.findByTestId('GrainIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('not.exist');
         });
-        cy.findByTestId('ExpandMoreIcon').should('not.exist');
       });
 
       it('hides top counters viewport size under 600px', () => {

@@ -30,8 +30,8 @@ export default (): void =>
         cy.viewport(1024, 300);
         cy.get('@hostIcon').within(() => {
           cy.findByTestId('HostIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('not.exist');
         });
-        cy.findByTestId('ExpandMoreIcon').should('not.exist');
       });
 
       it('hides top counters when the screen is is under 600px width', () => {
