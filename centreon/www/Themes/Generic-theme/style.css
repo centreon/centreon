@@ -298,9 +298,6 @@ label {
 .main {
     padding: 0px 15px;
 }
-.pathway {
-    padding: 10px 0;
-}
 pre.wrap {
     white-space: -moz-pre-wrap;
     white-space: -pre-wrap;
@@ -1436,17 +1433,6 @@ div.oreonbutton{
     padding:10px;
 }
 .help       {position:absolute;right:15px;top:15px;}
-
-.pathWay {
-    padding:0px;
-    margin:0px;
-    color:var(--path-way-font-color);
-    font-size: small;
-}
-
-.pathWay :hover {
-    text-decoration: underline;
-}
 
 .imgPathWay {border:0;margin:0 0 -2px;padding:0;}
 

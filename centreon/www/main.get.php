@@ -268,11 +268,6 @@ if (! $centreon->user->showDiv('menu_2')) {
 ?>
     <section class="main section-expand" style="padding-top: 4px;">
 <?php
-// Display PathWay
-if ($min != 1) {
-    include_once './include/core/pathway/pathway.php';
-}
-
 if (isset($url) && $url) {
     include_once $url;
 }
