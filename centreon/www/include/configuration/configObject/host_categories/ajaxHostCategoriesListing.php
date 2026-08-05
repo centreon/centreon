@@ -67,12 +67,12 @@ if (! $helper->isAdmin()) {
     $conditions[] = 'hc.hc_id IN (' . implode(', ', $placeholders) . ')';
 
     // Scope the enabled/disabled host counts to the hosts granted by the user's ACL.
-    $aclDbName   = $acl !== null ? $acl->getNameDBAcl() : '';
     $aclGroupIds = $acl !== null
         ? array_values(array_filter(array_map('intval', array_keys($acl->getAccessGroups()))))
         : [];
 
-    if ($aclDbName !== '' && $aclGroupIds !== []) {
+    if ($aclGroupIds !== []) {
+        $aclDbName       = $pearDB->getConnectionConfig()->getDatabaseNameRealTime();
         $aclPlaceholders = [];
         foreach ($aclGroupIds as $index => $groupId) {
             $placeholder          = 'acl_gid' . $index;
