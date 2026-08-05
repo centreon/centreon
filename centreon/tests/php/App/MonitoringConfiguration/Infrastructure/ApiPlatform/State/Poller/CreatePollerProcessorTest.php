@@ -396,6 +396,40 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
+    public function testCannotCreatePollerWithProtocolSchemeInCentralAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('SchemeCentral'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => 'https://central.example.com',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithProtocolSchemeInAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('SchemeAddress'),
+                'poller_type' => 'vm',
+                'address' => 'http://192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.1',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
     private function uniqueName(string $prefix = 'Poller'): string
     {
         return $prefix . '_' . bin2hex(random_bytes(4));

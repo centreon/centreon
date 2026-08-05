@@ -40,6 +40,7 @@ final readonly class CreatePollerInput
 
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: PollerAddress::MIN_LENGTH, max: PollerAddress::MAX_LENGTH)]
+        #[Assert\Regex(pattern: '~://~', match: false, message: 'This value must be an IP address or a hostname, without a protocol scheme.')]
         public string $address,
 
         #[Assert\NotBlank(normalizer: 'trim')]
@@ -49,6 +50,7 @@ final readonly class CreatePollerInput
 
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: PollerAddress::MIN_LENGTH, max: PollerAddress::MAX_LENGTH)]
+        #[Assert\Regex(pattern: '~://~', match: false, message: 'This value must be an IP address or a hostname, without a protocol scheme.')]
         public string $centralAddress,
     ) {
     }
