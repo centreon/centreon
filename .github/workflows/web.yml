@@ -153,11 +153,17 @@ jobs:
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
 
+  # TEMP TEST HACK — MUST be reverted before merge. Added
+  # `github.event_name != 'workflow_dispatch'`: this branch's forced
+  # stability=testing (delivery-tooling MON-199322 RBAC audit) has no real
+  # Update-<version>.php for its fake version, and this check isn't the thing
+  # under test.
   check-version-consistency:
     runs-on: ubuntu-24.04
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      github.event_name != 'workflow_dispatch' &&
       (
         needs.get-environment.outputs.stability == 'testing' ||
         (github.event_name == 'pull_request' && needs.get-environment.outputs.target_stability == 'testing')
@@ -1324,6 +1330,12 @@ jobs:
           cloudfront_role_doc_production: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
           cloudfront_id_doc_api: ${{ secrets.CLOUDFRONT_ID_DOC_API }}
 
+  # TEMP TEST HACK — MUST be reverted before merge. Added
+  # `github.event_name != 'workflow_dispatch'` (matching deliver-sources/
+  # build-openapi-documentation above) so this real Artifactory delivery job
+  # does NOT run during the Pulp RBAC test dispatches (delivery-tooling
+  # MON-199322) — those must only publish to Pulp, never the real, still-
+  # authoritative Artifactory.
   deliver:
     runs-on: ubuntu-24.04
     needs:
@@ -1341,6 +1353,7 @@ jobs:
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
       needs.changes.outputs.trigger_delivery == 'true' &&
+      github.event_name != 'workflow_dispatch' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
@@ -1475,20 +1488,20 @@ jobs:
   deliver-pulp:
     continue-on-error: true
     runs-on: centreon-ubuntu-22.04
+    # TEMP TEST HACK (MON-199322): dropped e2e-test, added package, so this
+    # runs right after packages build instead of waiting on e2e. MUST be
+    # reverted before merge.
     needs:
       [
         changes,
         get-environment,
-        e2e-test
+        package
       ]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      ((needs.get-environment.outputs.delivery_type == 'feature' && contains(github.event.pull_request.labels.*.name, 'delivery-feature')) ||
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability)) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      needs.changes.outputs.trigger_delivery == 'true' &&
       github.event.pull_request.head.repo.fork != true
     strategy:
       matrix:
@@ -1524,12 +1537,14 @@ jobs:
         run: |
           echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
 
+  # TEMP TEST HACK — MUST be reverted before merge. Bypasses the stable-only +
+  # non-workflow_dispatch gating to exercise promote-to-stable-pulp directly
+  # in this PR (delivery-tooling MON-199322 RBAC audit).
   promote-pulp:
     continue-on-error: true
     needs: [get-environment, deliver-pulp]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
@@ -1546,6 +1561,71 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      # TEMP TEST HACK — MUST be reverted before merge. Mints a real OIDC token for this job's
+      # own context (repository: centreon/centreon) and exports it for the RBAC assertions step
+      # below, which probes the domain-scoped WorkloadIdentity grants converted tonight directly
+      # against Pulp's REST API — bypassing promote-to-stable-pulp/package-delivery-pulp, which
+      # are not domain-aware yet (task #25).
+      - name: DEBUG — mint OIDC token and decode its claims
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const token = await core.getIDToken('https://pulp.dev.centreon.io')
+            core.setSecret(token)
+            core.exportVariable('PULP_TOKEN', token)
+            const payload = token.split('.')[1]
+            const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString())
+            for (const k of ['iss','aud','sub','repository','ref','ref_type','actor','workflow','event_name']) {
+              if (k in decoded) core.info(`  ${k} = ${decoded[k]}`)
+            }
+
+      # TEMP TEST HACK — MUST be reverted before merge (delivery-tooling MON-199322 WorkloadIdentity
+      # RBAC test). Three repos were pre-provisioned via delivery-tooling's create-repos.yml
+      # (major_version=00.00, throwaway, target=pulp): one in the "standard" domain (this
+      # repository's actual rpm-delivery grant), one in "business" (a domain this repository has
+      # no grant in at all), one in "standard-stable" (this repository DOES have a grant here, but
+      # only when the token's `ref` matches a gated branch/tag pattern — this branch's ref does
+      # not, so this must still be denied). modify_content is exercised with an empty content
+      # delta (add/remove_content_units: []) — a genuine no-op mutation, harmless, but it still
+      # triggers the exact same permission check a real delivery would.
+      - name: TEMP TEST HACK — WorkloadIdentity RBAC assertions (allow / deny / ref-gate)
+        shell: bash
+        run: |
+          PULP_URL="${{ vars.PULP_API_URL }}"
+
+          assert_code() {
+            local label="$1" href="$2" expect_ok="$3" code
+            code=$(curl -sS -o /tmp/wi_assert.json -w '%{http_code}' -X POST \
+              -H "Authorization: Bearer $PULP_TOKEN" -H "Content-Type: application/json" \
+              -d '{"add_content_units": [], "remove_content_units": []}' \
+              "$PULP_URL$href"modify/)
+            echo "[$label] HTTP $code (href: $href)"
+            head -c 300 /tmp/wi_assert.json; echo
+            if [[ "$expect_ok" == "true" && "$code" != "202" ]]; then
+              echo "::error::[$label] expected 202 (grant should allow this), got $code"
+              exit 1
+            fi
+            if [[ "$expect_ok" == "false" && "$code" == "202" ]]; then
+              echo "::error::[$label] expected a DENY (401/403), got 202 — this grant should NOT allow this"
+              exit 1
+            fi
+          }
+
+          assert_code "ALLOW standard (matching domain, no ref gate)" \
+            "/standard/api/v3/repositories/rpm/rpm/019faec7-f674-71aa-bd09-25353eca3bd2/" true
+
+          assert_code "DENY business (no grant in this domain)" \
+            "/business/api/v3/repositories/rpm/rpm/019faec8-f933-712e-9157-34b6c3aea3d5/" false
+
+          # the "DENY standard-stable (grant exists but ref does not match)" assertion is
+          # temporarily removed: delivery-tooling's configmap-settings.yaml carries a TEMP TEST
+          # HACK grant scoped to this exact PR's merge ref (refs/pull/11170/merge), to validate
+          # promote-rpm.sh/promote-deb.sh's real write path end-to-end -- that grant makes this
+          # specific assertion legitimately flip from DENY to ALLOW, not a regression. Restore
+          # both this assertion and remove the temp grant together once promote is validated.
+
+          echo "Both WorkloadIdentity RBAC assertions passed."
+
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
         uses: ./.github/actions/promote-to-stable-pulp
@@ -1554,7 +1634,14 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
+          # TEMP TEST HACK — MUST be reverted before merge. Hardcoded to
+          # 'stable' instead of needs.get-environment.outputs.stability
+          # ('testing' on this branch, needed so deliver-pulp populates the
+          # testing tier this promotes from): the action itself only
+          # actually executes the promote write when its OWN stability input
+          # is 'stable', otherwise it's a dry run (delivery-tooling MON-199322
+          # RBAC audit — testing the real stable-tier write/ref restriction).
+          stability: "stable"
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
           pulp_url: ${{ vars.PULP_API_URL }}
