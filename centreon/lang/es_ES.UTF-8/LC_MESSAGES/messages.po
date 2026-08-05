@@ -25493,20 +25493,44 @@ msgid "You are about to duplicate the <strong>{{ name }}</strong> host category.
 msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
 
 #: unknown
+msgid "Delete service categories"
+msgstr "Eliminar los categorías de servicio"
+
+#: unknown
 msgid "Delete service groups"
 msgstr "Eliminar los grupos de servicio"
+
+#: unknown
+msgid "Delete service category"
+msgstr "Eliminar la categoría de servicio"
 
 #: unknown
 msgid "Delete service group"
 msgstr "Eliminar el grupo de servicio"
 
 #: unknown
+msgid "Duplicate service categories"
+msgstr "Duplicar los categorías de servicio"
+
+#: unknown
 msgid "Duplicate service groups"
 msgstr "Duplicar los grupos de servicio"
 
 #: unknown
+msgid "Duplicate service category"
+msgstr "Duplicar la categoría de servicio"
+
+#: unknown
 msgid "Duplicate service group"
 msgstr "Duplicar el grupo de servicio"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} categorías de servicio.</strong> Esta acción no se puede deshacer. ¿Desea eliminarlas?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service category. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar la categoría de servicio <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarla?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} service groups.</strong> This action cannot be undone. Do you want to delete them?"
@@ -25515,6 +25539,14 @@ msgstr "Está a punto de eliminar <strong>{{ count }} grupos de servicio.</stron
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> service group. This action cannot be undone. Do you want to delete it?"
 msgstr "Está a punto de eliminar el grupo de servicio <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service categories.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} categorías de servicio.</strong> ¿Desea duplicarlas?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service category. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar la categoría de servicio <strong>{{ name }}</strong>. ¿Desea duplicarla?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} service groups.</strong> Do you want to duplicate them?"
@@ -25527,3 +25559,11 @@ msgstr "Está a punto de duplicar el grupo de servicio <strong>{{ name }}</stron
 #: unknown
 msgid "Group services together to manage them collectively."
 msgstr "Agrupe los servicios para gestionarlos de forma conjunta."
+
+#: unknown
+msgid "Service categories"
+msgstr "Categorías de servicio"
+
+#: unknown
+msgid "Group services into categories to organize and filter your configuration."
+msgstr "Agrupe los servicios en categorías para organizar y filtrar su configuración."

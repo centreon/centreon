@@ -52,7 +52,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
 
 $acl = $oreon->user->access;
 $dbmon = new CentreonDB('centstorage');
-$aclDbName = $acl->getNameDBAcl();
+$aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
 $scString = $acl->getServiceCategoriesString();
 
 switch ($o) {
