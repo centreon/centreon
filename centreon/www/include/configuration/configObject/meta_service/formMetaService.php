@@ -251,6 +251,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $tpl->assign(
     'helpattr',
@@ -272,7 +273,6 @@ $toggleScript = <<<'JS'
     document.addEventListener("DOMContentLoaded", function() {
         function toggleFields() {
             var selectedRadio = document.querySelector('input[name="meta_select_mode[meta_select_mode]"]:checked');
-            console.log(selectedRadio);
             if (!selectedRadio) {
                 // No radio button is selected, so exit or set a default behavior.
                 return;
@@ -288,7 +288,6 @@ $toggleScript = <<<'JS'
         }
 
         var radios = document.getElementsByName("meta_select_mode[meta_select_mode]");
-        console.log(radios);
         if (radios.length > 0) {
             for (var i = 0; i < radios.length; i++){
                 radios[i].addEventListener("change", toggleFields);

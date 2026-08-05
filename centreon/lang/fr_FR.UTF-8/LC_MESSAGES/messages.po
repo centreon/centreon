@@ -25218,12 +25218,20 @@ msgid "Centreon Central address, as seen by this poller"
 msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 
 #: unknown
+msgid "Delete meta services"
+msgstr "Supprimer les meta-services"
+
+#: unknown
 msgid "Delete service categories"
 msgstr "Supprimer les catégories de service"
 
 #: unknown
 msgid "Delete service groups"
 msgstr "Supprimer les groupes de services"
+
+#: unknown
+msgid "Delete meta service"
+msgstr "Supprimer la meta-service"
 
 #: unknown
 msgid "Delete service category"
@@ -25234,6 +25242,10 @@ msgid "Delete service group"
 msgstr "Supprimer le groupe de services"
 
 #: unknown
+msgid "Duplicate meta services"
+msgstr "Dupliquer les meta-services"
+
+#: unknown
 msgid "Duplicate service categories"
 msgstr "Dupliquer les catégories de service"
 
@@ -25242,12 +25254,24 @@ msgid "Duplicate service groups"
 msgstr "Dupliquer les groupes de services"
 
 #: unknown
+msgid "Duplicate meta service"
+msgstr "Dupliquer la meta-service"
+
+#: unknown
 msgid "Duplicate service category"
 msgstr "Dupliquer la catégorie de service"
 
 #: unknown
 msgid "Duplicate service group"
 msgstr "Dupliquer le groupe de services"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} meta services.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} meta-services.</strong> Cette action ne peut pas être annulée. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> meta service. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer la <strong>{{ name }}</strong> meta-service. Cette action ne peut pas être annulée. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} service categories.</strong> This action cannot be undone. Do you want to delete them?"
@@ -25264,6 +25288,14 @@ msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} groupes de serv
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> service group. This action cannot be undone. Do you want to delete it?"
 msgstr "Vous êtes sur le point de supprimer le <strong>{{ name }}</strong> groupe de services. Cette action ne peut pas être annulée. Voulez-vous le supprimer ?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} meta services.</strong> Do you want to duplicate them?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} meta-services.</strong> Voulez-vous les dupliquer ?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> meta service. Do you want to duplicate it?"
+msgstr "Vous êtes sur le point de dupliquer la <strong>{{ name }}</strong> meta-service. Voulez-vous la dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} service categories.</strong> Do you want to duplicate them?"
@@ -25292,3 +25324,35 @@ msgstr "Catégories de service"
 #: unknown
 msgid "Group services into categories to organize and filter your configuration."
 msgstr "Regroupez les services en catégories pour organiser et filtrer votre configuration."
+
+#: unknown
+msgid "Meta services"
+msgstr "Meta-services"
+
+#: unknown
+msgid "Build virtual services that aggregate metrics from other services."
+msgstr "Construisez des services virtuels qui agrègent les métriques d'autres services."
+
+#: unknown
+msgid "Components"
+msgstr "Composants"
+
+#: unknown
+msgid "Delete metric"
+msgstr "Supprimer la métrique"
+
+#: unknown
+msgid "Delete metrics"
+msgstr "Supprimer les métriques"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> metric. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer la métrique <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} metrics.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} métriques.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid "Back to metrics"
+msgstr "Retour aux métriques"

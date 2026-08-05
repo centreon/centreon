@@ -171,6 +171,9 @@ if ($valid) {
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($path);
 
+    // Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+    $tpl->assign('centreon_path', _CENTREON_PATH_);
+
     // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
@@ -180,5 +183,9 @@ if ($valid) {
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('valid', $valid);
+    // In edit mode (o=cs) the request carries msr_id, not meta_id; recover the
+    // meta service id from the loaded relation so Back returns to the right list.
+    $backMetaId = (int) ($meta_id ?: ($metric['meta_id'] ?? 0));
+    $tpl->assign('backUrl', 'main.get.php?p=' . $p . '&o=ci&meta_id=' . $backMetaId);
     $tpl->display('metric.ihtml');
 }

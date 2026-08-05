@@ -24067,12 +24067,20 @@ msgid "You are about to duplicate the <strong>{{ name }}</strong> host category.
 msgstr "Você está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
 
 #: unknown
+msgid "Delete meta services"
+msgstr "Excluir os meta-serviços"
+
+#: unknown
 msgid "Delete service categories"
 msgstr "Excluir os categorias de serviço"
 
 #: unknown
 msgid "Delete service groups"
 msgstr "Excluir os grupos de serviço"
+
+#: unknown
+msgid "Delete meta service"
+msgstr "Excluir o meta-serviço"
 
 #: unknown
 msgid "Delete service category"
@@ -24083,6 +24091,10 @@ msgid "Delete service group"
 msgstr "Excluir o grupo de serviço"
 
 #: unknown
+msgid "Duplicate meta services"
+msgstr "Duplicar os meta-serviços"
+
+#: unknown
 msgid "Duplicate service categories"
 msgstr "Duplicar os categorias de serviço"
 
@@ -24091,12 +24103,24 @@ msgid "Duplicate service groups"
 msgstr "Duplicar os grupos de serviço"
 
 #: unknown
+msgid "Duplicate meta service"
+msgstr "Duplicar o meta-serviço"
+
+#: unknown
 msgid "Duplicate service category"
 msgstr "Duplicar a categoria de serviço"
 
 #: unknown
 msgid "Duplicate service group"
 msgstr "Duplicar o grupo de serviço"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} meta services.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} meta-serviços.</strong> Esta ação não pode ser desfeita. Deseja excluí-los?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> meta service. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir o meta-serviço <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-lo?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} service categories.</strong> This action cannot be undone. Do you want to delete them?"
@@ -24113,6 +24137,14 @@ msgstr "Você está prestes a excluir <strong>{{ count }} grupos de serviço.</s
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> service group. This action cannot be undone. Do you want to delete it?"
 msgstr "Você está prestes a excluir o grupo de serviço <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-lo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} meta services.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} meta-serviços.</strong> Deseja duplicá-los?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> meta service. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar o meta-serviço <strong>{{ name }}</strong>. Deseja duplicá-lo?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} service categories.</strong> Do you want to duplicate them?"
@@ -24141,3 +24173,35 @@ msgstr "Categorias de Serviço"
 #: unknown
 msgid "Group services into categories to organize and filter your configuration."
 msgstr "Agrupe os serviços em categorias para organizar e filtrar sua configuração."
+
+#: unknown
+msgid "Meta services"
+msgstr "Meta-serviços"
+
+#: unknown
+msgid "Build virtual services that aggregate metrics from other services."
+msgstr "Crie serviços virtuais que agregam métricas de outros serviços."
+
+#: unknown
+msgid "Components"
+msgstr "Componentes"
+
+#: unknown
+msgid "Delete metric"
+msgstr "Excluir a métrica"
+
+#: unknown
+msgid "Delete metrics"
+msgstr "Excluir as métricas"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> metric. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a métrica <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} metrics.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} métricas.</strong> Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "Back to metrics"
+msgstr "Voltar às métricas"
