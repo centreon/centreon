@@ -144,19 +144,45 @@ export const router = {
   useLocation
 };
 
+const resolveLegacyPath = (
+  search: string,
+  breadcrumbsByPath: BreadcrumbsByPath
+): string | null => {
+  const page = new URLSearchParams(search).get('p');
+
+  if (isNil(page)) {
+    return null;
+  }
+
+  const exactPath = `/main.php?p=${page}`;
+
+  if (breadcrumbsByPath[exactPath]) {
+    return exactPath;
+  }
+
+  return (
+    Object.keys(breadcrumbsByPath).find((key) =>
+      key.startsWith(`${exactPath}&`)
+    ) ?? null
+  );
+};
+
 const Breadcrumbs = (): JSX.Element | null => {
   const navigation = useAtomValue(navigationAtom);
-  const { pathname } = router.useLocation();
+  const { pathname, search } = router.useLocation();
 
-  if (isNil(navigation) || pathname === '/main.php') {
+  if (isNil(navigation)) {
     return null;
   }
 
   const breadcrumbsByPath = getBreadcrumbsByPath(navigation.result);
 
-  return (
-    <BreadcrumbTrail breadcrumbsByPath={breadcrumbsByPath} path={pathname} />
-  );
+  const path =
+    pathname === '/main.php'
+      ? (resolveLegacyPath(search, breadcrumbsByPath) ?? pathname)
+      : pathname;
+
+  return <BreadcrumbTrail breadcrumbsByPath={breadcrumbsByPath} path={path} />;
 };
 
 export default Breadcrumbs;
