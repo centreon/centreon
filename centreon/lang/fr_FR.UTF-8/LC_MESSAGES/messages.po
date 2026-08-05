@@ -811,7 +811,15 @@ msgstr "Ajouter un hôte"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Add a host category"
-msgstr "Ajouter une catégorie d'hôte"
+msgstr "Ajouter une catégorie d'hôtes"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr "Dupliquer la catégorie d'hôtes"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Dupliquer les catégories d'hôtes"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -8121,6 +8129,12 @@ msgstr "Attribut du groupe"
 msgid "Group filter"
 msgstr "Filtre de groupe"
 
+#: unknown
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr ""
+"Regroupez les hôtes en catégories pour organiser et filtrer votre "
+"configuration."
+
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Group member attribute"
 msgstr "Attribut des membres du groupe"
@@ -8363,7 +8377,7 @@ msgstr "Acquitter un hôte"
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/install/dashboard_widgets.php
 msgid "Host Categories"
-msgstr "Catégories d'hôte"
+msgstr "Catégories d'hôtes"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -11097,8 +11111,8 @@ msgid "Modify Vendor"
 msgstr "Modifier un constructeur"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
-msgstr "Modifier une catégorie d'hôte"
+msgid "Modify a host category"
+msgstr "Modifier une catégorie d'hôtes"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
@@ -21478,6 +21492,14 @@ msgid "Delete command"
 msgstr "Supprimer la commande"
 
 #: unknown
+msgid "Delete host categories"
+msgstr "Supprimer les catégories d'hôtes"
+
+#: unknown
+msgid "Delete host category"
+msgstr "Supprimer la catégorie d'hôtes"
+
+#: unknown
 msgid "Delete host group"
 msgstr "Supprimer le groupe d'hôtes"
 
@@ -24698,6 +24720,14 @@ msgstr "Vous êtes"
 
 #: unknown
 msgid ""
+"You are about to delete <strong>{{ count }} host categories.</strong> This "
+"action cannot be undone. Do you want to delete them?"
+msgstr ""
+"Vous êtes sur le point de supprimer <strong>{{ count }} catégories d'hôtes</"
+"strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid ""
 "You are about to delete <strong>{{ count }} host groups.</strong> This "
 "action cannot be undone. Do you want to delete them?"
 msgstr ""
@@ -24723,6 +24753,14 @@ msgstr ""
 
 #: unknown
 msgid ""
+"You are about to delete the <strong>{{ name }}</strong> host category. This "
+"action cannot be undone. Do you want to delete it?"
+msgstr ""
+"Vous êtes sur le point de supprimer la catégorie d'hôtes <strong>{{ name }}</"
+"strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+
+#: unknown
+msgid ""
 "You are about to delete the <strong>{{ name }}</strong> host group. This "
 "action cannot be undone. Do you want to delete it?"
 msgstr ""
@@ -24742,6 +24780,14 @@ msgstr ""
 
 #: unknown
 msgid ""
+"You are about to duplicate <strong>{{ count }} host categories.</strong> Do "
+"you want to duplicate them?"
+msgstr ""
+"Vous êtes sur le point de dupliquer <strong>{{ count }} catégories d'hôtes</"
+"strong>. Voulez-vous les dupliquer ?"
+
+#: unknown
+msgid ""
 "You are about to duplicate <strong>{{ count }} host groups.</strong> How "
 "many duplications would you like to make?"
 msgstr ""
@@ -24753,6 +24799,14 @@ msgid "You are about to duplicate the <strong>{{ name }}</strong> command."
 msgstr ""
 "Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
 "strong>."
+
+#: unknown
+msgid ""
+"You are about to duplicate the <strong>{{ name }}</strong> host category. Do "
+"you want to duplicate it?"
+msgstr ""
+"Vous êtes sur le point de dupliquer la catégorie d'hôtes <strong>{{ name }}</"
+"strong>. Voulez-vous la dupliquer ?"
 
 #: unknown
 msgid ""
