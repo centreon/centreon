@@ -43,6 +43,7 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: isDarkMode(theme)
       ? theme.palette.common.black
       : theme.palette.background.paper,
+    borderBottom: `1px solid ${theme.palette.divider}`,
     display: 'flex',
     maxHeight: theme.spacing(headerHeight),
     minHeight: theme.spacing(headerHeight),
