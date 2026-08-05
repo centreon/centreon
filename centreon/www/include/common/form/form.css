@@ -181,7 +181,7 @@
     top: -8px;
     left: 10px;
     font-size: 11px;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--body-color, #757575);
     background: var(--body-background, #fff);
     font-weight: 500;
 }
@@ -191,8 +191,8 @@
     width: 100%;
     padding: 10px;
     font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     outline: none;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
@@ -340,16 +340,16 @@
 .cf-form-wrapper .clonable .clone-cell select {
     padding: 8px 10px;
     font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
 }
 
 .cf-form-wrapper .clonable .clone-cell .select2-container .select2-selection {
     min-height: 36px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     padding: 4px 8px;
     font-size: 12px;
 }
@@ -652,8 +652,8 @@
     height: 40px;
     padding: 0 32px 0 12px;
     font-size: 12px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     outline: none;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
@@ -706,8 +706,8 @@
 
 .cf-field .select2-container .select2-selection {
     min-height: 40px;
-    border: 1px solid var(--color-divider, #e3e3e3);
-    border-radius: 6px;
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
     padding: 6px 12px;
     padding-right: 36px;
 }
@@ -834,6 +834,18 @@
 }
 .cf-field.cf-multi-clearable.cf-select-active.cf-multi-filled .clearAllSelect2 {
     display: inline-flex;
+}
+/* Multi-select eraser moved inside the positioned select2 container (see
+   initMultiSelectCollapse) so the whole icon is clickable instead of half of it
+   overlapping — and colliding with — the select2 box. Anchored top-right since
+   the chips can wrap onto several rows. */
+.cf-field .select2-container .cf-multi-clear {
+    position: absolute;
+    right: 8px;
+    left: auto;
+    top: 8px;
+    margin: 0;
+    z-index: 3;
 }
 
 /* Help tooltip always last, vertically centered */
@@ -1081,6 +1093,10 @@
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:disabled ~ .cl-toggle-slider,
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle:has(input:disabled) {
     cursor: not-allowed;
+}
+/* Read-only (frozen form): keep the real on/off colour, only block interaction */
+:is(.cf-form-wrapper, .gen-wrap) .cl-toggle--readonly input:disabled + .cl-toggle-slider {
+    opacity: 1;
 }
 
 /* A field turned into a toggle row: control + label side by side */
