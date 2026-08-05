@@ -63,8 +63,8 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] !== '' && $p !== $ret
 }
 
 $acl = $oreon->user->access;
-$aclDbName = $acl->getNameDBAcl();
 $dbmon = new CentreonDB('centstorage');
+$aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
 $sgs = $acl->getServiceGroupAclConf(null, 'broker');
 
 function mywrap($el)

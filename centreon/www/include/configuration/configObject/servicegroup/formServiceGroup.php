@@ -19,6 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -42,12 +47,13 @@ $initialValues = ['sg_hServices' => [], 'sg_hgServices' => []];
 $sg = [];
 $hServices = [];
 if (($o === SERVICE_GROUP_MODIFY || $o === SERVICE_GROUP_WATCH) && $serviceGroupId) {
-    $DBRESULT = $pearDB->prepare('SELECT * FROM servicegroup WHERE sg_id = :sg_id LIMIT 1');
-    $DBRESULT->bindValue(':sg_id', $serviceGroupId, PDO::PARAM_INT);
-    $DBRESULT->execute();
+    $sg_data = $pearDB->fetchAssociative(
+        'SELECT * FROM servicegroup WHERE sg_id = :sg_id LIMIT 1',
+        QueryParameters::create([QueryParameter::int('sg_id', (int) $serviceGroupId)])
+    );
 
     // Set base value
-    $sg = array_map('myDecode', $DBRESULT->fetchRow());
+    $sg = $sg_data ? array_map('myDecode', $sg_data) : [];
 }
 
 $attrsText = ['size' => '30'];
@@ -180,6 +186,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // Just watch a Service Group information
 if ($o === SERVICE_GROUP_WATCH) {
