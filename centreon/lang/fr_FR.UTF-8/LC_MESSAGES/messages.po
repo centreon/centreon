@@ -25314,6 +25314,42 @@ msgid "You are about to duplicate the <strong>{{ name }}</strong> service group.
 msgstr "Vous êtes sur le point de dupliquer le <strong>{{ name }}</strong> groupe de services. Voulez-vous le dupliquer ?"
 
 #: unknown
+msgid "Delete service"
+msgstr "Supprimer le service"
+
+#: unknown
+msgid "Delete services"
+msgstr "Supprimer les services"
+
+#: unknown
+msgid "Duplicate service"
+msgstr "Dupliquer le service"
+
+#: unknown
+msgid "Duplicate services"
+msgstr "Dupliquer les services"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le service <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} services.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} services.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service. Do you want to duplicate it?"
+msgstr "Vous êtes sur le point de dupliquer le service <strong>{{ name }}</strong>. Voulez-vous le dupliquer ?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} services.</strong> Do you want to duplicate them?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} services.</strong> Voulez-vous les dupliquer ?"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Filtres avancés"
+
+#: unknown
 msgid "Group services together to manage them collectively."
 msgstr "Regroupez des services pour les gérer collectivement."
 
@@ -25354,5 +25390,73 @@ msgid "You are about to delete <strong>{{ count }} metrics.</strong> This action
 msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} métriques.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
 
 #: unknown
+msgid "Configure the services monitored on your hosts."
+msgstr "Configurez les services supervisés sur vos hôtes."
+
+#: unknown
+msgid "Configure services grouped by host group."
+msgstr "Configurez les services regroupés par groupe d'hôtes."
+
+#: unknown
+msgid "Service templates"
+msgstr "Modèles de service"
+
+#: unknown
+msgid "Define reusable service configurations to apply across your services."
+msgstr "Définissez des configurations de service réutilisables à appliquer à vos services."
+
+#: unknown
+msgid "Add a Service Template"
+msgstr "Ajouter un modèle de service"
+
+#: unknown
+msgid "Delete service template"
+msgstr "Supprimer le modèle de service"
+
+#: unknown
+msgid "Delete service templates"
+msgstr "Supprimer les modèles de service"
+
+#: unknown
+msgid "Duplicate service template"
+msgstr "Dupliquer le modèle de service"
+
+#: unknown
+msgid "Duplicate service templates"
+msgstr "Dupliquer les modèles de service"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service template. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le modèle de service <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} modèles de service.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service template. Do you want to duplicate it?"
+msgstr "Vous êtes sur le point de dupliquer le modèle de service <strong>{{ name }}</strong>. Voulez-vous le dupliquer ?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service templates.</strong> Do you want to duplicate them?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} modèles de service.</strong> Voulez-vous les dupliquer ?"
+
+#: unknown
 msgid "Back to metrics"
 msgstr "Retour aux métriques"
+
+#: unknown
+msgid "Command Arguments"
+msgstr "Arguments de la commande"
+
+#: unknown
+msgid "Inherit only contacts from host"
+msgstr "Hériter uniquement des contacts de l'hôte"
+
+#: unknown
+msgid "Notification delay"
+msgstr "Délai de notification"
+
+#: unknown
+msgid "Reset to template value"
+msgstr "Réinitialiser à la valeur du modèle"

@@ -952,9 +952,12 @@ if ($o === SERVICE_ADD) {
 $form->addElement('text', 'esi_notes', _('Note'), $attrsText);
 $form->addElement('text', 'esi_notes_url', _('Note URL'), $attrsTextURL);
 $form->addElement('text', 'esi_action_url', _('Action URL'), $attrsTextURL);
+// The OnPrem template shows the icon inside the select2 selection and so has no
+// external preview image; the Cloud one still renders it. Guard the preview
+// refresh: showLogo() dereferences its target with no null check.
 $form->addElement('select', 'esi_icon_image', _('Icon'), $extImg, [
     'id' => 'esi_icon_image',
-    'onChange' => "showLogo('esi_icon_image_img',this.value)",
+    'onChange' => "if (document.getElementById('esi_icon_image_img')) showLogo('esi_icon_image_img',this.value)",
     'onkeyup' => 'this.blur();this.focus();',
 ]);
 
@@ -1094,6 +1097,7 @@ if (isset($service['service_template_model_stm_id']) && ($service['service_templ
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $tpl->assign(
     'alert_check_interval',
@@ -1226,7 +1230,7 @@ if ($valid) {
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('inheritance', $inheritanceMode['value']);
-    $tpl->assign('custom_macro_label', _('Custom macros'));
+    $tpl->assign('custom_macro_label', _('Custom Macros'));
     $tpl->assign('template_inheritance', _('Template inheritance'));
     $tpl->assign('command_inheritance', _('Command inheritance'));
     $tpl->assign('cloneSetMacro', $cloneSetMacro);
@@ -1249,7 +1253,9 @@ if ($valid) {
     ?>
     <script type="text/javascript">
         setTimeout('transformForm()', 200);
-        showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        if (document.getElementById('esi_icon_image_img')) {
+            showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        }
 
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {

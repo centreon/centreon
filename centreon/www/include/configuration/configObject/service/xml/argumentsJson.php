@@ -24,7 +24,6 @@ require_once realpath(__DIR__ . '/../../../../../../config/centreon.config.php')
 require_once __DIR__ . '/argumentsXmlFunction.php';
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
-require_once _CENTREON_PATH_ . '/www/class/centreonXML.class.php';
 
 // Get session
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
@@ -50,15 +49,8 @@ textdomain('messages');
 
 // start init db
 $db = new CentreonDB();
-$xml = new CentreonXML();
 
-$xml->startElement('root');
-$xml->startElement('main');
-$xml->writeElement('argLabel', _('Argument'));
-$xml->writeElement('argValue', _('Value'));
-$xml->writeElement('argExample', _('Example'));
-$xml->writeElement('noArgLabel', _('No argument found for this command'));
-$xml->endElement();
+$args = [];
 
 if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
     $cmdId = CentreonDB::escape($_GET['cmdId']);
@@ -68,6 +60,10 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
 
     $tab = [];
     if (! $cmdId && $svcTplId) {
+        $query4 = 'SELECT service_template_model_stm_id, command_command_id, command_command_id_arg '
+            . 'FROM `service` '
+            . 'WHERE service_id = :svc_tpl_id';
+        $statement4 = $db->prepare($query4);
         while (1) {
             $stmt4 = $db->prepare(
                 'SELECT service_template_model_stm_id, command_command_id, command_command_id_arg
@@ -94,6 +90,7 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
 
     $argTab = [];
     $exampleTab = [];
+    $valueTab = [];
 
     $query2 = 'SELECT command_line, command_example FROM command WHERE command_id = :cmd_id LIMIT 1';
     $statement = $db->prepare($query2);
@@ -144,30 +141,20 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
     }
     $macroStatement->closeCursor();
 
-    // Write XML
-    $style = 'list_two';
-    $disabled = 0;
-    $nbArg = 0;
+    $disabled = $o === 'w';
     foreach ($argTab as $name => $description) {
-        $style = $style == 'list_one' ? 'list_two' : 'list_one';
-        if ($o == 'w') {
-            $disabled = 1;
-        }
-        $xml->startElement('arg');
-        $xml->writeElement('name', $name, false);
-        $xml->writeElement('description', $description, false);
-        $xml->writeElement('value', $valueTab[$name] ?? '', false);
-        $xml->writeElement('example', isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : '', false);
-        $xml->writeElement('style', $style);
-        $xml->writeElement('disabled', $disabled);
-        $xml->endElement();
-        $nbArg++;
+        $args[] = [
+            'name' => $name,
+            'description' => $description,
+            'value' => $valueTab[$name] ?? '',
+            'example' => isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : '',
+            'disabled' => $disabled,
+        ];
     }
 }
-$xml->writeElement('nbArg', $nbArg);
-$xml->endElement();
-header('Content-Type: text/xml');
+
+header('Content-Type: application/json');
 header('Pragma: no-cache');
 header('Expires: 0');
 header('Cache-Control: no-cache, must-revalidate');
-$xml->output();
+echo json_encode(['args' => $args]);
