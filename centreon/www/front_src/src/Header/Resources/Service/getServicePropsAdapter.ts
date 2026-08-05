@@ -239,12 +239,19 @@ const getServicePropsAdapter: GetServicePropsAdapter = ({
     buttonLabel: t(labelServices),
     counters: ['critical', 'warning', 'unknown', 'ok', 'pending'].map(
       (statusName) => {
-        const { to, shortCount, topCounterAriaLabel, onClick, severityCode } =
-          config[statusName as keyof typeof config];
+        const {
+          to,
+          shortCount,
+          count,
+          topCounterAriaLabel,
+          onClick,
+          severityCode
+        } = config[statusName as keyof typeof config];
 
         return {
           ariaLabel: topCounterAriaLabel,
           count: shortCount,
+          detail: count,
           onClick,
           severityCode,
           to

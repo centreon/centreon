@@ -31,6 +31,7 @@ export interface CounterProps {
   counters: Array<{
     ariaLabel: string;
     count: string | number;
+    detail?: string | number;
     onClick: (e: React.MouseEvent) => void;
     severityCode: SeverityCode;
     to: string;
@@ -42,18 +43,24 @@ export default ({ counters }: CounterProps): JSX.Element => {
 
   return (
     <ul className={classes.container}>
-      {counters.map(({ to, ariaLabel, onClick, count, severityCode }) => (
-        <li className={classes.item} key={to.toString().replace(/\W/g, '')}>
-          <Link
-            aria-label={ariaLabel}
-            className={classes.link}
-            onClick={onClick}
-            to={to}
-          >
-            <StatusCounter count={count} severityCode={severityCode} />
-          </Link>
-        </li>
-      ))}
+      {counters.map(
+        ({ to, ariaLabel, onClick, count, detail, severityCode }) => (
+          <li className={classes.item} key={to.toString().replace(/\W/g, '')}>
+            <Link
+              aria-label={ariaLabel}
+              className={classes.link}
+              onClick={onClick}
+              to={to}
+            >
+              <StatusCounter
+                count={count}
+                detail={detail}
+                severityCode={severityCode}
+              />
+            </Link>
+          </li>
+        )
+      )}
     </ul>
   );
 };

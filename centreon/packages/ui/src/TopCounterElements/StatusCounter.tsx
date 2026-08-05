@@ -3,6 +3,7 @@ import { Tooltip } from '@mui/material';
 import { getStatusColors, type SeverityCode } from '@centreon/ui';
 
 import numeral from 'numeral';
+import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 export interface StyleProps {
@@ -46,23 +47,26 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
 export interface Props {
   className?: string;
   count: string | number;
+  detail?: string | number;
   severityCode?: SeverityCode | null;
 }
 
 const StatusCounter = ({
   severityCode = null,
   count,
+  detail,
   className
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ severityCode });
-  const shouldDisableTooltip = Number(count) < 1000;
+  const hasDetail = !isNil(detail);
+  const shouldDisableTooltip = !hasDetail && Number(count) < 1000;
   const formattedCount = numeral(count).format('0.[0]a');
 
   return (
     <Tooltip
       disableHoverListener={shouldDisableTooltip}
       followCursor
-      title={count}
+      title={hasDetail ? detail : count}
     >
       <span className={cx(classes.container, className)}>
         <span className={classes.dot} />
