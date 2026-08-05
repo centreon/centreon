@@ -53,6 +53,7 @@ class BackendTest extends TestCase
         $removed = Backend::cleanOrphanedTmpDirs(3600, $this->exportPath);
 
         $this->assertSame(1, $removed);
+        clearstatcache(true, $stale);
         $this->assertDirectoryDoesNotExist($stale);
     }
 
@@ -77,6 +78,7 @@ class BackendTest extends TestCase
         $removed = Backend::cleanOrphanedTmpDirs(3600, $this->exportPath);
 
         $this->assertSame(1, $removed);
+        clearstatcache(true, $witness);
         $this->assertFileDoesNotExist($witness);
     }
 
