@@ -99,3 +99,9 @@ overrides:
       - systemd
     recommends:
       - logrotate
+
+rpm:
+  summary: Centreon HA common files for database and central nodes
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}
