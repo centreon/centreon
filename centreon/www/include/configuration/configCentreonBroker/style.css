@@ -40,3 +40,161 @@ span.v_required_star {
     font-size: 12px;
     font-weight: bold;
 }
+
+/* ==========================================================================
+   Visual-only alignment with the CentreonForm look used across the rest of
+   the app (form.css). Structure and JS are untouched — this stylesheet is
+   only ever loaded on this page, so selectors below are broader than usual
+   without risk of leaking onto other legacy pages sharing the same class
+   names (e.g. .list_lvl_1, .btc.bt_success).
+   ========================================================================== */
+
+/* Tab bar, restyled to resemble .cf-tab-nav */
+#mainnav {
+    display: flex;
+    float: none;
+    gap: 0;
+    border-bottom: 2px solid var(--color-divider, #e3e3e3);
+    margin-bottom: 16px;
+}
+
+#mainnav li {
+    float: none;
+    margin: 0;
+}
+
+#mainnav li.a,
+#mainnav li.b {
+    border-bottom: none;
+    background: none !important;
+    margin: 0;
+}
+
+#mainnav li a {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--body-color, #666);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+#mainnav li a:hover {
+    color: var(--list-color, #333);
+}
+
+/* .a marks whichever <li> is the active tab (toggled by the existing
+   montre()/changeTab() JS, untouched here) — give it the same active
+   indicator as .cf-tab-nav a.active. */
+#mainnav li.a a {
+    color: var(--color-primary-light, #2E68AA);
+    border-bottom-color: var(--color-primary-light, #2E68AA);
+    font-weight: 600;
+}
+
+.headerTabContainer {
+    margin-bottom: 16px;
+}
+
+/* Section / block header rows — same light-grey used by .cf-section-header
+   elsewhere, not var(--body-background) (too close to white to read as a
+   distinct header band). This same rule covers both the per-tab header
+   ("Centreon-Broker Input") and every per-block header ("Input 1 - IPv4",
+   from blockConfig.ihtml) since they share this class. */
+.formTable .list_lvl_1 .ListColLvl1_name,
+.collapse-wrapper .list_lvl_1 .ListColLvl1_name {
+    background: #ddd;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 14px;
+}
+
+.formTable .list_lvl_1 h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--list-color, #333);
+}
+
+/* Field rows */
+.formTable {
+    max-width: 700px;
+}
+
+.formTable .FormRowField {
+    width: 170px;
+    font-size: 13px;
+    color: var(--list-color, #555);
+}
+
+.formTable .FormRowValue {
+    max-width: 400px;
+}
+
+.formTable input[type="text"],
+.formTable input[type="password"],
+.formTable select {
+    max-width: 400px;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Drop the busy row-separator lines between ordinary field rows — plain
+   .cf-field rows elsewhere rely on spacing alone, no visible divider. */
+.formTable .list_one td,
+.formTable .list_two td {
+    border-bottom: none;
+}
+
+/* Add / delete affordances */
+#validForm .oreonbutton a.btc,
+#validFormTop .oreonbutton a.btc {
+    border-radius: 6px;
+}
+
+/* Save/Reset: the form already renders these buttons twice (#validFormTop
+   right under the tab bar, #validForm again at the very end) as a legacy
+   convenience so they're reachable without scrolling. Keep only the
+   bottom copy, pinned like every other modernized form's .cf-actions,
+   instead of showing both. No markup change: #Form (the actual <form>
+   QuickForm renders, see formCentreonBroker.php) is turned into the same
+   flex-column + min-height:100vh trick .cf-form-wrapper uses elsewhere,
+   so the sticky bottom bar has something to stick to even on a short tab. */
+#validFormTop {
+    display: none;
+}
+
+form#Form {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#validForm {
+    margin-top: auto;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    padding: 16px 0;
+    background: var(--body-background, #fff);
+    border-top: 1px solid var(--color-divider, #e3e3e3);
+}
+
+/* Breadcrumb ("fil d'ariane") above the tab bar — shared component
+   (www/include/core/pathway/pathway.php), not specific to this page, but
+   this stylesheet only ever loads here so hiding it is scoped to Broker. */
+.pathway {
+    display: none;
+}
+
+.ListColLvl1_name a img.ico-14 {
+    opacity: 0.6;
+    transition: opacity 0.15s;
+}
+
+.ListColLvl1_name a:hover img.ico-14 {
+    opacity: 1;
+}
