@@ -16,4 +16,4 @@ gorgone:
       package: "gorgone::modules::core::pull::hooks"
       enable: true
       target_type: tcp
-      target_path: __CENTRALADDRESS__:__GORGONEPORT__
+      target_path: "__CENTRALADDRESS__:__GORGONEPORT__"

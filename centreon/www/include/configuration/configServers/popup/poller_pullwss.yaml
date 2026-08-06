@@ -15,7 +15,7 @@ gorgone:
       package: "gorgone::modules::core::pullwss::hooks"
       enable: true
       ssl: true
-      token: __TOKEN__
+      token: "__TOKEN__"
       port: __GORGONEPORT__
-      address: __CENTRALADDRESS__
+      address: "__CENTRALADDRESS__"
       central_uri: "/centreon/gorgone/pullwss/websocket"
