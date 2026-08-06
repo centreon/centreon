@@ -114,7 +114,7 @@
 		"@visx/shape": "^3.5.0",
 		"@visx/threshold": "^3.5.0",
 		"@visx/visx": "3.11.0",
-		"axios": "^1.12.0",
+		"axios": "^1.15.2",
 		"classnames": "^2.5.1",
 		"clsx": "^2.1.1",
 		"d3-array": "3.2.4",
@@ -153,6 +153,7 @@
 		"string-argv": "^0.3.2",
 		"ts.data.json": "^2.2.0",
 		"tss-react": "^4.9.12",
+		"undici": "https://npm.aikido.io/e9687fd4f3badc70ea6a/undici@5.29.0-aikido.4",
 		"use-deep-compare-effect": "^1.8.1",
 		"yup": "^1.4.0"
 	},
