@@ -145,18 +145,9 @@ when@prod:
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine", "!deprecation"]
                 formatter: monolog.formatter.line
-            # Never let a failing deprecation write break the request; fall back to error_log if the primary handler throws.
             deprecation:
-                type: fallbackgroup
+                type: 'null'
                 channels: [deprecation]
-                members: [deprecation_file, deprecation_error_log]
-            deprecation_file:
-                type: stream
-                path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
-                formatter: monolog.formatter.line
-            deprecation_error_log:
-                type: error_log
-                formatter: monolog.formatter.line
             authentication:
                 type: stream
                 channels: [authentication]
