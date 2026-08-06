@@ -68,7 +68,7 @@ lands in the catch-all (`%env%.web.log`).
 | Excluded channel | Reason |
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise. |
-| `deprecation` | Dedicated file `%env%.deprecations.log`. |
+| `deprecation` | Disabled in prod (`NullHandler`); dev writes `dev.deprecations.log`. Override the handler in a local `monolog.yaml` to re-enable — `prod.deprecations.log` is still declared in `logrotate/centreon`. |
 | `authentication` | Dedicated file `%env%.access.log`. |
 | `token` | Dedicated file `%env%.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | Dedicated files. |
@@ -157,12 +157,12 @@ In production the `prod.*.log` files are rotated by **logrotate**
 (`centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`):
 
 - `prod.web.log` (catch-all)
-- `prod.deprecations.log`
 - `prod.access.log` (authentication)
 - `prod.token.log`
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
+- `prod.deprecations.log` — not created by default (`NullHandler`); declared so an override re-enabling the handler inherits rotation (`missingok` covers the absent-file case).
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` +
 `delaycompress` + `copytruncate`.
