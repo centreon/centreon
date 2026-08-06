@@ -761,7 +761,8 @@ const getBase1024 = ({
 const formatMetricValue = ({
   value,
   unit,
-  base = 1000
+  base = 1000,
+  decimalPlaces = 2
 }: FormatMetricValueProps): string | null => {
   if (isNil(value)) {
     return null;
@@ -775,8 +776,10 @@ const formatMetricValue = ({
     [T, always(base1024 ? ' ib' : 'a')]
   ])(unit);
 
+  const decimalFormat = '0'.repeat(decimalPlaces);
+
   const formattedMetricValue = numeral(Math.abs(value))
-    .format(`0.[00]${formatSuffix}`)
+    .format(`0.[${decimalFormat}]${formatSuffix}`)
     .replace(/B/, unit);
 
   if (lt(value, 0)) {
@@ -790,6 +793,7 @@ const formatMetricValueWithUnit = ({
   value,
   unit,
   base = 1000,
+  decimalPlaces = 2,
   isRaw = false
 }: FormatMetricValueProps & { isRaw?: boolean }): string | null => {
   if (isNil(value)) {
@@ -803,10 +807,17 @@ const formatMetricValueWithUnit = ({
   }
 
   if (equals('%', unit)) {
-    return `${numeral(value).format('0.[00]')}%`;
+    const decimalFormat = '0'.repeat(decimalPlaces);
+
+    return `${numeral(value).format(`0.[${decimalFormat}]`)}%`;
   }
 
-  const formattedMetricValue = formatMetricValue({ base, unit, value });
+  const formattedMetricValue = formatMetricValue({
+    base,
+    decimalPlaces,
+    unit,
+    value
+  });
 
   return formattedMetricValue;
 };

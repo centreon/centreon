@@ -1,1 +1,1 @@
-export const margins = { bottom: 20, left: 20, right: 20, top: 20 };
+export const margins = { bottom: 20, left: 10, right: 10, top: 20 };

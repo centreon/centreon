@@ -122,6 +122,7 @@ export interface NewLines {
 
 export interface FormatMetricValueProps {
   base?: number;
+  decimalPlaces?: number;
   unit: string;
   value: number | null;
 }

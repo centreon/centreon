@@ -67,11 +67,16 @@ const useAxisY = ({
         return '';
       }
 
-      return formatMetricValueWithUnit({
+      const formattedValue = formatMetricValueWithUnit({
         base: data.baseAxis,
+        decimalPlaces: 1,
         unit,
         value: value as number
       }) as string;
+
+      // The unit is already conveyed via the legend; strip it from every
+      // individual tick value instead of repeating it on each one.
+      return formattedValue.replace(/[a-zA-Z%]+$/, '').trimEnd();
     };
 
   const labelProps = ({
