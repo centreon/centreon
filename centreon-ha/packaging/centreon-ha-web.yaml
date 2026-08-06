@@ -115,3 +115,9 @@ overrides:
       - "centreon-ha-common (>= ${MAJOR_VERSION}~)"
       - "centreon-ha-common (<< ${NEXT_MAJOR_VERSION}~)"
       - resource-agents
+
+rpm:
+  summary: Centreon HA scripts and config files for central servers
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}
