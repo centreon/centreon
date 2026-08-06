@@ -19,41 +19,62 @@
  *
  */
 
+declare(strict_types=1);
+
 require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
 require_once _CENTREON_PATH_ . 'www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . 'bootstrap.php';
 require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
-use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 
+// Keep in sync with engine_context_path (config/services.yaml) and
+// upgrade.engine_context_path (config.new/services/upgrade.php): this endpoint
+// deliberately does not boot the Symfony kernel, so it cannot read the parameter.
 const ENGINE_CONTEXT_PATH = '/etc/centreon-engine/engine-context.json';
 
 header('Content-Type: application/json');
+// The response body carries the app secret, the salt and a live poller token.
+header('Cache-Control: no-store');
+
+/**
+ * Emit a JSON response with the given HTTP status code and stop the script.
+ *
+ * @param int $statusCode
+ * @param array<string, string> $payload
+ *
+ * @throws JsonException
+ */
+function sendJsonResponse(int $statusCode, array $payload): never
+{
+    http_response_code($statusCode);
+    echo json_encode($payload, JSON_THROW_ON_ERROR);
+
+    exit();
+}
 
 $pearDB = $dependencyInjector['configuration_db'];
 
 CentreonSession::start(1);
 if (! CentreonSession::checkSession(session_id(), $pearDB)) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Invalid session']);
-
-    exit();
+    sendJsonResponse(403, ['error' => 'Invalid session']);
 }
 
 $centreon = $_SESSION['centreon'];
 $pollerId = filter_var($_GET['id'] ?? false, FILTER_VALIDATE_INT);
 if ($pollerId === false) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid poller id']);
-
-    exit();
+    sendJsonResponse(400, ['error' => 'Invalid poller id']);
 }
 
 $userId = (int) $centreon->user->user_id;
@@ -65,63 +86,63 @@ if ($isAdmin === false) {
         ! $acl->checkAction('create_edit_poller_cfg')
         || ! array_key_exists($pollerId, $acl->getPollers())
     ) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Access denied']);
-
-        exit();
+        sendJsonResponse(403, ['error' => 'Access denied']);
     }
 }
 
 try {
-    $statement = $pearDB->prepare(
-        'SELECT ns.uid, ns.name, ns.poller_type, pt.central_address
-        FROM nagios_server ns
-        LEFT JOIN platform_topology pt ON pt.server_id = ns.id
-        WHERE ns.id = :id'
+    $poller = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT ns.uid, ns.name, ns.poller_type, pt.central_address
+            FROM nagios_server ns
+            LEFT JOIN platform_topology pt ON pt.server_id = ns.id
+            WHERE ns.id = :id
+            SQL,
+        QueryParameters::create([QueryParameter::int('id', $pollerId)]),
     );
-    $statement->bindValue(':id', $pollerId, PDO::PARAM_INT);
-    $statement->execute();
-    $poller = $statement->fetch(PDO::FETCH_ASSOC);
 
     if ($poller === false) {
-        http_response_code(404);
-        echo json_encode(['error' => 'Poller not found']);
-
-        exit();
+        sendJsonResponse(404, ['error' => 'Poller not found']);
     }
 
     $pollerUid = new PollerUid((int) $poller['uid']);
     $pollerType = PollerTypeEnum::from($poller['poller_type']);
-    $isCloudPlatform = filter_var($_ENV['IS_CLOUD_PLATFORM'] ?? false, FILTER_VALIDATE_BOOLEAN);
+    $isCloudPlatform = filter_var(
+        $_ENV['IS_CLOUD_PLATFORM'] ?? $_SERVER['IS_CLOUD_PLATFORM'] ?? getenv('IS_CLOUD_PLATFORM'),
+        FILTER_VALIDATE_BOOLEAN,
+    );
 
     if ($poller['central_address'] === null || $poller['central_address'] === '') {
-        http_response_code(400);
-        echo json_encode(['error' => 'No central address configured for this poller']);
+        sendJsonResponse(400, ['error' => 'No central address configured for this poller']);
+    }
 
-        exit();
+    try {
+        // central_address is written by the remote-server wizard without format validation;
+        // PollerAddress enforces the same IP-or-hostname invariant as the API endpoint,
+        // so no value able to alter the generated shell command can get through.
+        $centralAddress = new PollerAddress($poller['central_address']);
+    } catch (InvalidArgumentException) {
+        sendJsonResponse(400, ['error' => 'Invalid central address configured for this poller']);
     }
 
     // Mirrors DbalPollerTokenRepository::getFirstValidPollerToken(): oldest valid token first,
     // deliberately. Keep both in sync — this endpoint and
     // GET /configuration/pollers/installation-command/{id} must return the same command.
-    $statement = $pearDB->prepare(
-        "SELECT token_string, token_name, creation_date, expiration_date, is_revoked
-        FROM authentication_tokens
-        WHERE type = 'poller'
-        AND is_revoked = 0
-        AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
-        ORDER BY creation_date ASC
-        LIMIT 1"
+    $tokenRow = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT token_string, token_name, creation_date, expiration_date, is_revoked
+            FROM authentication_tokens
+            WHERE type = 'poller'
+            AND is_revoked = 0
+            AND (expiration_date IS NULL OR expiration_date > :nowEpoch)
+            ORDER BY creation_date ASC
+            LIMIT 1
+            SQL,
+        QueryParameters::create([QueryParameter::int('nowEpoch', time())]),
     );
-    $statement->bindValue(':nowEpoch', time(), PDO::PARAM_INT);
-    $statement->execute();
-    $tokenRow = $statement->fetch(PDO::FETCH_ASSOC);
 
     if ($tokenRow === false) {
-        http_response_code(404);
-        echo json_encode(['error' => 'No valid poller token found']);
-
-        exit();
+        sendJsonResponse(404, ['error' => 'No valid poller token found']);
     }
 
     $token = new PollerToken(
@@ -137,22 +158,21 @@ try {
     $engineSecrets = new FsEngineSecretsRepository(ENGINE_CONTEXT_PATH);
 
     $factory = new PollerInstallationCommandFactory(
-        $pollerUid,
-        new PollerName($poller['name']),
-        $pollerType,
-        $token,
-        $engineSecrets->getAppSecret(),
-        $engineSecrets->getSalt(),
-        $isCloudPlatform,
-        $poller['central_address'],
+        pollerUid: $pollerUid,
+        pollerName: new PollerName($poller['name']),
+        pollerType: $pollerType,
+        pollerToken: $token,
+        appSecret: $engineSecrets->getAppSecret(),
+        salt: $engineSecrets->getSalt(),
+        isCloudPlatform: $isCloudPlatform,
+        centralUrl: $centralAddress->value,
     );
 
-    echo json_encode(['command' => $factory->generate()]);
+    sendJsonResponse(200, ['command' => $factory->generate()]);
 } catch (Throwable $exception) {
-    ExceptionLogger::create()->log(
-        $exception,
-        ['source' => 'copyInstallCommand', 'poller_id' => $pollerId],
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Failed to generate poller installation command',
+        ['poller_id' => $pollerId, 'exception' => $exception],
     );
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to generate installation command']);
+    sendJsonResponse(500, ['error' => 'Failed to generate installation command']);
 }
