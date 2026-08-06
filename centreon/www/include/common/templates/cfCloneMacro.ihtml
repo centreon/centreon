@@ -1,0 +1,95 @@
+{*
+ * Modern (CentreonForm) macro clone template.
+ *
+ * Scoped variant of cloneMacro.ihtml for the migrated forms only: it authors
+ * the cf-macro-* layout (column headers, pill rows, SVG action buttons and the
+ * inheritance legend) directly, instead of relying on the runtime JS restructure
+ * used for the legacy template. Legacy forms (services, ...) keep including
+ * cloneMacro.ihtml, so they are not impacted.
+ *
+ * Expects the same context as cloneMacro.ihtml (cloneId, cloneSet) plus the
+ * host form assignments: custom_macro_label, template_inheritance,
+ * command_inheritance. The cloneSet order is [id, name, value, password, from];
+ * cf_idx is the 0-based array key, so 1 = name, 2 = value, 3 = password.
+ *}
+<div class="cf-macro-header">
+    <div class="cf-macro-header-left">
+        <span class="cf-macro-title">{$custom_macro_label}</span>
+        <img class="helpTooltip" name="macro">
+    </div>
+    <div class="cf-macro-header-right">
+        <div id="{$cloneId}_controls">
+            <span id="{$cloneId}_add">
+                {assign var=isFrozen value=0}
+                {foreach from=$cloneSet item=v}
+                    {if $v->isFrozen()}
+                        {assign var=isFrozen value=1}
+                    {/if}
+                {/foreach}
+                {if $isFrozen == 0}
+                <span class="add-new-entry">{t} + Add a new entry{/t}</span>
+                {/if}
+            </span>
+        </div>
+    </div>
+</div>
+<div class="cf-macro-columns">
+    <span class="cf-macro-columns-name">{t}Macro name{/t}</span>
+    <span class="cf-macro-columns-value">{t}Macro value{/t}</span>
+</div>
+<ul id="{$cloneId}" class="macroclone no-deco-list">
+    <li class="clone_template onemacro cf-macro-row" id="{$cloneId}_template">
+        {if $isFrozen == 0}
+        <span class="cf-macro-drag-handle clonehandle" title="{t}Move{/t}">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </span>
+        {else}
+        <span class="cf-macro-drag-handle cf-macro-action-slot"></span>
+        {/if}
+        {foreach from=$cloneSet item=v key=cf_idx}
+            {if $cf_idx == 1}
+                <span class="cf-macro-name">
+                    {if $v->isFrozen()}{$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{/if}
+                    {$v->toHtml()}
+                </span>
+            {elseif $cf_idx == 2}
+                <span class="cf-macro-value">
+                    {if $v->isFrozen()}{$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{/if}
+                    {$v->toHtml()}
+                </span>
+            {elseif $cf_idx == 3}
+                <span class="cf-macro-password" title="{t}Password{/t}">
+                    {$v->toHtml()}
+                </span>
+            {else}
+                {$v->toHtml()}
+            {/if}
+        {/foreach}
+        <input type='hidden' id='macroTplValue_#index#' name='macroTplValue_#index#' value="" />
+        <input type='hidden' id='macroOriginalName_#index#' name='macroOriginalName_#index#' value="" />
+        <input type='hidden' id='macroTplValToDisplay_#index#' name='macroTplValToDisplay_#index#' value="0" />
+        <input type='hidden' id='macroDescription_#index#' name='macroDescription_#index#' value="" />
+        <input type='hidden' id='macroTpl_#index#' name='macroTpl_#index#' value="" />
+        <input type='hidden' id='macroOldValue_#index#' name='macroOldValue_#index#' value="" />
+        <input type='hidden' id='isFrozen_#index#' name='isFrozen_#index#' value="{$isFrozen}" />
+        <span class="cf-macro-actions">
+            {if $isFrozen == 0}
+            <span class="cf-macro-action-btn cf-macro-erase" title="{t}Clear value{/t}"></span>
+            <span id="{$cloneId}_remove_current" class="cf-macro-action-btn cf-macro-action-btn--danger" title="{t}Delete{/t}">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </span>
+            {else}
+            <span class="cf-macro-action-btn cf-macro-action-slot"></span>
+            <span class="cf-macro-action-btn cf-macro-action-slot"></span>
+            {/if}
+        </span>
+        <input type="hidden" name="clone_order_{$cloneId}_#index#" id="clone_order_#index#" />
+    </li>
+    <li id="{$cloneId}_noforms_template">
+        <p class="muted">{t}Nothing here, use the "Add" button{/t}</p>
+    </li>
+</ul>
+<div class="macro_legend cf-macro-legend">
+    <p><span class="state_badge" style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}</p>
+    <p><span class="state_badge" style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}</p>
+</div>

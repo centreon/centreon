@@ -755,6 +755,24 @@ var CentreonForm = (function () {
     function initMacroCleanup() {
         _cleanMacroRows();
 
+        // Eraser (.cf-macro-erase): clear the row's macro value field. Bound
+        // once, delegated on document so it also covers rows sheepIt clones later.
+        if (!document._cfMacroEraseBound) {
+            document._cfMacroEraseBound = true;
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('.cf-macro-erase') : null;
+                if (!btn) return;
+                var row = btn.closest('.onemacro');
+                var val = row && row.querySelector('input[name^="macroValue"]');
+                if (val) {
+                    val.value = '';
+                    // Trigger input so the row is marked as a direct (non-inherited) value.
+                    val.dispatchEvent(new Event('input', { bubbles: true }));
+                    val.focus();
+                }
+            });
+        }
+
         // Watch for sheepIt adding new rows
         var macroList = document.querySelector('ul.macroclone');
         if (macroList) {

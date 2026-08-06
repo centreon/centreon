@@ -528,16 +528,50 @@
 
 .cf-macro-action-btn:hover {
     color: var(--list-color, #333);
-    background: rgba(0, 0, 0, 0.06);
+    /* background-color (not the shorthand) so the eraser's background-image
+       below is preserved on hover. */
+    background-color: rgba(128, 128, 128, 0.16);
+}
+
+/* Delete (×) — neutral by default, red affordance on hover (works on both
+   light and dark grounds). */
+.cf-macro-action-btn--danger:hover {
+    color: #d9534f;
+    background-color: rgba(217, 83, 79, 0.14);
+}
+
+/* Eraser — same grey eraser artwork as the select2 clear button
+   (.clearAllSelect2), for a consistent "clear this field" affordance. Fixed
+   greys read fine on both light and dark grounds (same as the select2 one). */
+.cf-macro-erase {
+    opacity: 0.55;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-45 12 12)'%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='%23999'/%3E%3Crect x='4' y='8' width='16' height='4' rx='2' fill='%23bbb'/%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='none' stroke='%23777' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+}
+
+.cf-macro-erase:hover {
+    opacity: 1;
 }
 
 /* Drag handle — sits in front of the row (name/value/actions), instead of
    grouped with the description/delete buttons at the end, so the standard
    6-dot grip reads as "grab to reorder" rather than another click action. */
 .cf-macro-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    flex-shrink: 0;
+    margin-right: 2px;
     color: var(--body-color, #999);
     cursor: grab;
-    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+.cf-macro-drag-handle:hover {
+    color: var(--list-color, #333);
 }
 
 .cf-macro-drag-handle:active {

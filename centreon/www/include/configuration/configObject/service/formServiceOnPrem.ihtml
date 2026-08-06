@@ -147,9 +147,8 @@
             </div>
             {/if}
 
-            <div class="cf-subsection">{t}Macros{/t}</div>
-            <div class="cf-row">
-                {include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
+            <div class="cf-row" style="background:var(--body-background,#f8f9fa);border:1px solid var(--color-divider,#e3e3e3);border-radius:6px;padding:12px;">
+                {include file="file:$centreon_path/www/include/common/templates/cfCloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
             </div>
 
             <div class="cf-subsection">{t}Service Scheduling Options{/t}</div>
@@ -723,7 +722,10 @@ jQuery(function() {
     * and recover its previous value when it lost focus if no new value has been defined.
     */
     jQuery('ul#macro').find('input[id^=\'macroValue_\']').on('click', function () {
-    if ($(this).closest('div').find('input[type=\'checkbox\']:checked').val() === '1') {
+    // Scope to the row, not to the nearest <div>: cfCloneMacro.ihtml has no
+    // per-row wrapper div, so closest('div') would reach the whole macro block
+    // and match a "password" checkbox belonging to another macro.
+    if ($(this).closest('.onemacro').find('input[type=\'checkbox\']:checked').val() === '1') {
       // It's a password input
       const actualValue = $(this).val();
       $(this).val('');
