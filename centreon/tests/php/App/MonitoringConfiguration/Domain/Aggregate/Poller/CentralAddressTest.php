@@ -77,6 +77,14 @@ final class CentralAddressTest extends TestCase
 
         yield 'port out of range' => ['central.example.com:70000'];
 
+        yield 'single-dot path segment' => ['central.example.com/.'];
+
+        yield 'double-dot path segment' => ['central.example.com/..'];
+
+        yield 'dot segment inside base path' => ['central.example.com/platform/../admin'];
+
+        yield 'leading dot segment' => ['central.example.com/./platform'];
+
         yield 'longer than 255 characters' => [str_repeat('a', 250) . '.example.com'];
     }
 

@@ -43,6 +43,7 @@ final readonly class CentralAddress
     public const MAX_LENGTH = 255;
     private const HOST_PORT_PATTERN = '/^(?<host>.+):(?<port>\d{1,5})$/';
     private const BASE_PATH_PATTERN = '~^[A-Za-z0-9._\-]+(?:/[A-Za-z0-9._\-]+)*$~';
+    private const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';
 
     public string $value;
 
@@ -61,6 +62,12 @@ final readonly class CentralAddress
                 $basePath,
                 self::BASE_PATH_PATTERN,
                 sprintf('[CentralAddress::value] The base path "%s" contains invalid characters', $basePath)
+            );
+            // "." and ".." match BASE_PATH_PATTERN but would make the generated URL
+            // resolve outside the configured base path.
+            Assert::false(
+                (bool) preg_match(self::DOT_SEGMENT_PATTERN, $basePath),
+                sprintf('[CentralAddress::value] The base path "%s" must not contain dot segments', $basePath)
             );
         }
 
