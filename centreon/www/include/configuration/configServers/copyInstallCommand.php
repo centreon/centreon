@@ -101,6 +101,9 @@ try {
         exit();
     }
 
+    // Mirrors DbalPollerTokenRepository::getFirstValidPollerToken(): oldest valid token first,
+    // deliberately. Keep both in sync — this endpoint and
+    // GET /configuration/pollers/installation-command/{id} must return the same command.
     $statement = $pearDB->prepare(
         "SELECT token_string, token_name, creation_date, expiration_date, is_revoked
         FROM authentication_tokens
