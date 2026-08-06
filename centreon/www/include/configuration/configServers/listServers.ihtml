@@ -173,6 +173,30 @@
 </form>
 {literal}
 <script type='text/javascript'>
+    // navigator.clipboard only exists in secure contexts (HTTPS); fall back to a
+    // temporary textarea + execCommand('copy') so the copy also works over plain HTTP.
+    function writeToClipboard(text) {
+        if (navigator.clipboard) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        return new Promise(function(resolve, reject) {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            var succeeded = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (succeeded) {
+                resolve();
+            } else {
+                reject(new Error('execCommand copy failed'));
+            }
+        });
+    }
+
     function copyInstallCommand(id, element) {
         var url = './include/configuration/configServers/copyInstallCommand.php?id=' + id;
         jQuery.ajax({
@@ -184,7 +208,7 @@
                     console.error('Installation command response is empty', data);
                     return;
                 }
-                navigator.clipboard.writeText(data.command).then(function() {
+                writeToClipboard(data.command).then(function() {
                     var img = jQuery(element).find('img');
                     var originalSrc = img.attr('src');
                     img.attr('src', './img/icons/checked.png');
@@ -202,7 +226,7 @@
                 );
             }
         });
-    };
+    }
 
     function displayPopup(id) {
         let popin = jQuery(
