@@ -31,7 +31,7 @@ import {
 } from '../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
 import CloudInstallCommand from './CloudInstallCommand';
-import { webUrl } from './Modal/useInstallCommand';
+import { centralWebAddress } from './Modal/useInstallCommand';
 
 const createPollerSuccessResponse = {
   '@context': '/centreon/api/latest/contexts/Poller',
@@ -571,8 +571,8 @@ describe('CloudInstallCommand', () => {
       });
 
       it('sends a value of centreon central address based on the web url in the API payload if the enviromment is cloud', () => {
-        cy.stub(webUrl, 'get').returns(
-          'https://staging.euwest1.centreon.click/funky-donkey'
+        cy.stub(centralWebAddress, 'get').returns(
+          'staging.euwest1.centreon.click/funky-donkey'
         );
 
         initialize({ isCloudPlatform: true, isModalOpen: true });
@@ -590,12 +590,12 @@ describe('CloudInstallCommand', () => {
           expect(request.body.name).to.equal('my-poller');
           expect(request.body.address).to.equal('192.168.1.1');
           expect(request.body.central_address).to.equal(
-            'staging.euwest1.centreon.click'
+            'staging.euwest1.centreon.click/funky-donkey'
           );
         });
       });
 
-      it('strips the protocol scheme from the central address typed by the user', () => {
+      it('strips the protocol scheme but keeps the base path from the central address typed by the user', () => {
         initialize({ isModalOpen: true });
 
         cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
@@ -611,7 +611,9 @@ describe('CloudInstallCommand', () => {
         cy.findByTestId('Install command').closest('button').click();
 
         cy.waitForRequest('@createPoller').then(({ request }) => {
-          expect(request.body.central_address).to.equal('central.example.com');
+          expect(request.body.central_address).to.equal(
+            'central.example.com/centreon'
+          );
         });
       });
 

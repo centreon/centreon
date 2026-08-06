@@ -1,4 +1,9 @@
-import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+import {
+  centreonBaseURL,
+  Method,
+  useMutationQuery,
+  useSnackbar
+} from '@centreon/ui';
 import { platformFeaturesAtom } from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -10,19 +15,25 @@ import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
-export const webUrl = {
-  get: (): string => window.location.href
+// On cloud, the whole application (including /poller/install.sh) is served
+// under the platform base path, and behind proxies/NAT only the browser knows
+// the client-reachable address — so the central address is host + <base href>,
+// never derived server-side.
+export const centralWebAddress = {
+  get: (): string => `${window.location.host}${centreonBaseURL}`
 };
 
 const normalizeAddress = (address?: string): string | undefined => {
   const trimmed = address?.trim();
 
   if (!trimmed?.includes('://')) {
-    return trimmed;
+    return trimmed?.replace(/\/+$/, '');
   }
 
   try {
-    return new URL(trimmed).hostname;
+    const url = new URL(trimmed);
+
+    return `${url.host}${url.pathname}`.replace(/\/+$/, '');
   } catch {
     return trimmed;
   }
@@ -62,7 +73,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
     try {
       const centralAddress = normalizeAddress(
         platformFeatures?.isCloudPlatform
-          ? webUrl.get()
+          ? centralWebAddress.get()
           : values?.centralAddress
       );
 
