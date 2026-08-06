@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -86,7 +87,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             pollerType: PollerTypeEnum::from($data->pollerType),
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
-            centralAddress: new PollerAddress($data->centralAddress),
+            centralAddress: new CentralAddress($data->centralAddress),
             gorgoneCommunicationType: $this->isCloudPlatform
                 ? GorgoneCommunicationTypeEnum::PullWss
                 : GorgoneCommunicationTypeEnum::ZMQ,
