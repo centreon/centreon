@@ -131,6 +131,33 @@ final class DbalPollerTransformerTest extends TestCase
         self::assertSame(PollerTypeEnum::Docker, $poller->pollerType);
     }
 
+    public function testTransformKeepsValidCentralAddress(): void
+    {
+        $row = $this->buildRow(['central_address' => 'central.example.com:8443/platform']);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertSame('central.example.com:8443/platform', $poller->centralAddress?->value);
+    }
+
+    public function testTransformReducesLegacySchemeCentralAddressToHostAndPort(): void
+    {
+        $row = $this->buildRow(['central_address' => 'https://central.example.com:8443/centreon/monitoring/resources?tab=details']);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertSame('central.example.com:8443', $poller->centralAddress?->value);
+    }
+
+    public function testTransformNullsUnreadableLegacyCentralAddress(): void
+    {
+        $row = $this->buildRow(['central_address' => 'not a valid address!']);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertNull($poller->centralAddress);
+    }
+
     /**
      * @param array<string, mixed> $overrides
      *

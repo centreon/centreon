@@ -61,7 +61,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             uid: new PollerUid((int) $from['poller_uid']),
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
-            centralAddress: is_string($from['central_address'] ?? null) ? new CentralAddress($from['central_address']) : null,
+            centralAddress: $this->centralAddressFromDatabase($from['central_address'] ?? null),
             brokerConfiguration: new BrokerConfiguration(
                 reloadCommand: $from['broker_reload_command'],
                 configurationPath: $from['centreonbroker_cfg_path'],
@@ -92,6 +92,35 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             ),
             cmaCertificates: null,
         );
+    }
+
+    /**
+     * Rows written before the scheme rejection (MON-206245) may carry a full URL:
+     * the modal used to send window.location.href on cloud platforms. Reduce them
+     * to host[:port] so hydration keeps working — their base path cannot be told
+     * apart from the page path of the stored URL. Unreadable values become null,
+     * which downstream reports as "no central address configured".
+     */
+    private function centralAddressFromDatabase(mixed $value): ?CentralAddress
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        if (str_contains($value, '://')) {
+            $host = parse_url($value, PHP_URL_HOST);
+            if (! is_string($host) || $host === '') {
+                return null;
+            }
+            $port = parse_url($value, PHP_URL_PORT);
+            $value = is_int($port) ? sprintf('%s:%d', $host, $port) : $host;
+        }
+
+        try {
+            return new CentralAddress($value);
+        } catch (\InvalidArgumentException) {
+            return null;
+        }
     }
 
     private function communicationTypeFromDatabase(string $value): GorgoneCommunicationTypeEnum
