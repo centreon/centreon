@@ -173,13 +173,10 @@
 </form>
 {literal}
 <script type='text/javascript'>
-    // navigator.clipboard only exists in secure contexts (HTTPS); fall back to a
-    // temporary textarea + execCommand('copy') so the copy also works over plain HTTP.
-    function writeToClipboard(text) {
-        if (navigator.clipboard) {
-            return navigator.clipboard.writeText(text);
-        }
-
+    // Copy through a temporary textarea + execCommand('copy'). Used when
+    // navigator.clipboard is unavailable (non-secure context: plain HTTP) or rejects
+    // (document not focused, permission denied).
+    function legacyCopyToClipboard(text) {
         return new Promise(function(resolve, reject) {
             var textarea = document.createElement('textarea');
             textarea.value = text;
@@ -187,14 +184,30 @@
             textarea.style.opacity = '0';
             document.body.appendChild(textarea);
             textarea.select();
-            var succeeded = document.execCommand('copy');
-            document.body.removeChild(textarea);
-            if (succeeded) {
-                resolve();
-            } else {
-                reject(new Error('execCommand copy failed'));
+            try {
+                // execCommand can throw (SecurityError); the finally block guarantees the
+                // textarea holding the token and secrets never outlives the attempt.
+                var succeeded = document.execCommand('copy');
+                if (succeeded) {
+                    resolve();
+                } else {
+                    reject(new Error('execCommand copy failed'));
+                }
+            } finally {
+                textarea.value = '';
+                document.body.removeChild(textarea);
             }
         });
+    }
+
+    function writeToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).catch(function() {
+                return legacyCopyToClipboard(text);
+            });
+        }
+
+        return legacyCopyToClipboard(text);
     }
 
     function copyInstallCommand(id, element) {
@@ -206,24 +219,33 @@
             success: function(data) {
                 if (!data.command) {
                     console.error('Installation command response is empty', data);
+                    clToast('Could not retrieve the installation command', 'error');
                     return;
                 }
                 writeToClipboard(data.command).then(function() {
                     var img = jQuery(element).find('img');
-                    var originalSrc = img.attr('src');
+                    // Capture the copy icon once: on quick successive clicks the live
+                    // src may already be the check mark, and the stale restore timer
+                    // would otherwise leave the check mark on screen permanently.
+                    if (!img.data('originalSrc')) {
+                        img.data('originalSrc', img.attr('src'));
+                    }
                     img.attr('src', './img/icons/checked.png');
-                    setTimeout(function() {
-                        img.attr('src', originalSrc);
-                    }, 1500);
+                    clearTimeout(img.data('restoreTimer'));
+                    img.data('restoreTimer', setTimeout(function() {
+                        img.attr('src', img.data('originalSrc'));
+                    }, 1500));
                 }).catch(function(error) {
                     console.error('Failed to copy installation command to clipboard', error);
+                    clToast('Could not copy the installation command to the clipboard', 'error');
                 });
             },
             error: function(xhr) {
-                console.error(
-                    'Failed to fetch installation command',
-                    xhr.responseJSON ? xhr.responseJSON.error : xhr.statusText
-                );
+                var message = (xhr.responseJSON && xhr.responseJSON.error)
+                    ? xhr.responseJSON.error
+                    : 'Could not retrieve the installation command';
+                console.error('Failed to fetch installation command', message);
+                clToast(message, 'error');
             }
         });
     }
@@ -243,7 +265,7 @@
             ajaxType: 'GET',
             ajaxDataType: 'html'
         });
-    };
+    }
 
     setDisabledRowStyle();
     //formatting the tags containing a class isTimestamp
