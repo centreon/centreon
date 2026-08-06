@@ -82,12 +82,14 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
+        $centralAddress = new CentralAddress($data->centralAddress);
+
         $command = new CreatePollerCommand(
             name: $pollerName,
             pollerType: PollerTypeEnum::from($data->pollerType),
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
-            centralAddress: new CentralAddress($data->centralAddress),
+            centralAddress: $centralAddress,
             gorgoneCommunicationType: $this->isCloudPlatform
                 ? GorgoneCommunicationTypeEnum::PullWss
                 : GorgoneCommunicationTypeEnum::ZMQ,
@@ -100,13 +102,15 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
+        // Use the normalized value, not the raw input: the stored poller and the
+        // returned command must match what GET /installation-command/{id} generates.
         $factory = new PollerInstallationCommandFactory(
             $model,
             $token,
             $appSecret,
             $salt,
             $this->isCloudPlatform,
-            $data->centralAddress,
+            $centralAddress->value,
         );
 
         $resource = $this->transformer->transform($model);
