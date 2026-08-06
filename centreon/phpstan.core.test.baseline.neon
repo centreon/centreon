@@ -1413,7 +1413,7 @@ parameters:
 		-
 			message: '#^Call to protected method createMock\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 13
+			count: 14
 			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
 
 		-

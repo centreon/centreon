@@ -232,6 +232,13 @@
     content: none;
 }
 
+/* Empty-state add button: same footprint as the toolbar +Add button, but keep
+   the crisp inline SVG plus icon (listing.js renderEmptyState) instead of the
+   ::before character, so the two don't double up. */
+.cl-btn-add--empty::before {
+    content: none;
+}
+
 /* "Nothing here yet" empty state — a big, centered "Welcome to the X page"
    prompt shown in place of the table body when the listing has zero rows
    and no search or advanced filter is currently applied (see listing.js
