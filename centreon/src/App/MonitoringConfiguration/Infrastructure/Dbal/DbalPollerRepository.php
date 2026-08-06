@@ -72,6 +72,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonconnector_path: string|null,
  *   init_script_centreontrapd: string|null,
  *   snmp_trapd_path_conf: string|null,
+ *   central_address: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -100,6 +101,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonconnector_path: string|null,
  *   init_script_centreontrapd: string|null,
  *   snmp_trapd_path_conf: string|null,
+ *   central_address: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -208,6 +210,33 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         $this->setId($poller, new PollerId($pollerId));
+        $this->linkGlobalMacros($poller);
+
+        $centralTopologyId = $this->connection->createQueryBuilder()
+            ->select('id')
+            ->from('platform_topology')
+            ->where("type = 'central'")
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        $this->connection->createQueryBuilder()
+            ->insert('platform_topology')
+            ->values([
+                'address' => ':address',
+                'central_address' => ':centralAddress',
+                'name' => ':name',
+                'type' => "'poller'",
+                'parent_id' => ':parentId',
+                'server_id' => ':serverId',
+                'pending' => "'0'",
+            ])
+            ->setParameter('address', $poller->address->value)
+            ->setParameter('centralAddress', $poller->centralAddress?->value)
+            ->setParameter('name', $poller->name->value)
+            ->setParameter('parentId', is_int($centralTopologyId) || is_string($centralTopologyId) ? (int) $centralTopologyId : null)
+            ->setParameter('serverId', $pollerId)
+            ->executeStatement();
     }
 
     public function findOneByName(PollerName $name): ?Poller
@@ -215,7 +244,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.name = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
@@ -235,7 +266,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.ns_ip_address = :address')
             ->setParameter('address', $address->value)
             ->setMaxResults(1);
@@ -254,8 +287,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns(), ...DbalGlobalMacroRepository::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::GLOBAL_MACRO_JOIN_TABLE_NAME, 'pg1')
             ->innerJoin('pg1', self::TABLE_NAME, 'p', 'p.id = pg1.instance_id')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->leftJoin('p', self::GLOBAL_MACRO_JOIN_TABLE_NAME, 'pg2', 'pg2.instance_id = p.id')
             ->leftJoin('pg2', DbalGlobalMacroRepository::TABLE_NAME, 'gm', 'gm.resource_id = pg2.resource_id') // ensures still filter on relevant pollers
             ->where('pg1.resource_id = :resource_id')
@@ -296,7 +331,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.id = :poller_id')
             ->setParameter('poller_id', $pollerId->value);
 
@@ -460,6 +497,25 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         );
 
         return $poller;
+    }
+
+    private function linkGlobalMacros(Poller $poller): void
+    {
+        /** @var PollerId $pollerId */
+        $pollerId = $poller->id();
+
+        foreach ($poller->globalMacros as $globalMacro) {
+            $this->connection->executeStatement(
+                <<<'SQL'
+                    INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                    VALUES (:resource_id, :instance_id)
+                    SQL,
+                [
+                    'resource_id' => $globalMacro->id()->value,
+                    'instance_id' => $pollerId->value,
+                ],
+            );
+        }
     }
 
     private function communicationTypeToDatabase(GorgoneCommunicationTypeEnum $communicationType): string

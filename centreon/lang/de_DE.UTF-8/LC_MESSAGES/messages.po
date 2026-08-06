@@ -10905,7 +10905,7 @@ msgid "Modify Vendor"
 msgstr "Hersteller bearbeiten"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
+msgid "Modify a host category"
 msgstr "Hostkategorie bearbeiten"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -21560,3 +21560,57 @@ msgstr ""
 #: unknown
 # msgid "Failed to create poller"
 # msgstr ""
+
+#: unknown
+# msgid "Enter your poller information"
+# msgstr ""
+
+#: unknown
+# msgid "Poller name"
+# msgstr ""
+
+#: unknown
+# msgid "Poller address"
+# msgstr ""
+
+#: unknown
+# msgid "Centreon Central address, as seen by this poller"
+# msgstr ""
+
+# Host categories - modernized listing/form (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr "Hostkategorie duplizieren"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Hostkategorien duplizieren"
+
+#: unknown
+msgid "Delete host category"
+msgstr "Hostkategorie löschen"
+
+#: unknown
+msgid "Delete host categories"
+msgstr "Hostkategorien löschen"
+
+#: unknown
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr "Gruppieren Sie Hosts in Kategorien, um Ihre Konfiguration zu organisieren und zu filtern."
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu löschen. Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie sie löschen?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
+msgstr "Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu löschen. Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie sie löschen?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
+msgstr "Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu duplizieren. Möchten Sie sie duplizieren?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
+msgstr "Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu duplizieren. Möchten Sie sie duplizieren?"
+

@@ -87,7 +87,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url <CENTRAL_URL> --appsecret test-app-secret --salt test-salt',
+            'curl -fsSL https://192.168.1.1/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url 192.168.1.1 --appsecret test-app-secret --salt test-salt',
             $tokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
@@ -108,7 +108,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://<CENTRAL_URL>/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url <CENTRAL_URL> --appsecret test-app-secret --salt test-salt',
+            'curl -fsSL https://192.168.1.1/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url 192.168.1.1 --appsecret test-app-secret --salt test-salt',
             $namedTokenValue,
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
@@ -130,7 +130,17 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             'ns_activate' => '1',
         ]);
 
-        return (int) $connection->lastInsertId();
+        $pollerId = (int) $connection->lastInsertId();
+
+        $connection->insert('platform_topology', [
+            'address' => '127.0.0.1',
+            'central_address' => '192.168.1.1',
+            'name' => $name,
+            'type' => 'poller',
+            'server_id' => $pollerId,
+        ]);
+
+        return $pollerId;
     }
 
     private function insertPollerToken(string $tokenName): string

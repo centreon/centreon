@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Service\PollerUidGenerator;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -45,6 +46,7 @@ final readonly class CreatePollerCommandHandler
         private PollerRepository $repository,
         private EventBus $eventBus,
         private PollerUidGenerator $uidGenerator,
+        private GlobalMacroRepository $globalMacroRepository,
     ) {
     }
 
@@ -70,7 +72,17 @@ final readonly class CreatePollerCommandHandler
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: $command->centralAddress,
         );
+
+        $seenMacroNames = [];
+        foreach ($this->globalMacroRepository->findAll() as $globalMacro) {
+            if (isset($seenMacroNames[$globalMacro->name->value])) {
+                continue;
+            }
+            $seenMacroNames[$globalMacro->name->value] = true;
+            $poller->addGlobalMacro($globalMacro);
+        }
 
         $this->repository->add($poller);
 
