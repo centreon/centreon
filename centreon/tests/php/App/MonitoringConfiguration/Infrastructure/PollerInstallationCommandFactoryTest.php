@@ -223,6 +223,34 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         self::assertStringNotContainsString('--cloud', $factory->generate());
     }
 
+    public function testConstructorAndFromPollerGenerateTheSameCommand(): void
+    {
+        $poller = $this->createPoller(PollerTypeEnum::Docker);
+        $token = new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false);
+
+        $fromPoller = PollerInstallationCommandFactory::fromPoller(
+            poller: $poller,
+            pollerToken: $token,
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            isCloudPlatform: true,
+            centralUrl: self::CENTRAL_URL,
+        );
+
+        $fromValueObjects = new PollerInstallationCommandFactory(
+            pollerUid: $poller->uid,
+            pollerName: $poller->name,
+            pollerType: $poller->pollerType,
+            pollerToken: $token,
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            isCloudPlatform: true,
+            centralUrl: self::CENTRAL_URL,
+        );
+
+        self::assertSame($fromPoller->generate(), $fromValueObjects->generate());
+    }
+
     private function createPoller(PollerTypeEnum $type): Poller
     {
         return new Poller(
