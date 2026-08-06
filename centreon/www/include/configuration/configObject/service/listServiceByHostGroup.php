@@ -63,7 +63,13 @@ $form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 // Both select2 filters start empty: CentreonListing re-applies the selected
 // option (and its label) from its own session state on init.
 $tplRoute = './api/internal.php?object=centreon_configuration_servicetemplate&action=list';
-$form->addElement('select2', 'template', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $tplRoute, 'multiple' => false, 'linkedObject' => 'centreonServicetemplates']);
+// No 'linkedObject' here on purpose: with an AJAX source and no
+// defaultDatasetRoute, select2.php resolves the linked class' default
+// dataset, and centreonServicetemplates::getObjectForSelect2(null) returns
+// every service template — all rendered as <option selected>, leaving the
+// filter applied on arrival. The options come from availableDatasetRoute and
+// the selected value is restored client-side by CentreonListing.
+$form->addElement('select2', 'template', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $tplRoute, 'multiple' => false]);
 
 // Status select2 (static options)
 $statusFilter = ['' => '', 1 => _('Disabled'), 2 => _('Enabled')];
