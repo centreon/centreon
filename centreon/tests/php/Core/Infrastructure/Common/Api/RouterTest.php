@@ -183,6 +183,12 @@ it(
         '/centreon/centreon/api/latest/configuration/hosts/7013',
         '/centreon/api/latest/configuration/hosts/7013',
     ],
+    'short-name host with duplicated default base path' => [
+        '/centreon',
+        Router::ABSOLUTE_URL,
+        'https://centreon/centreon/centreon/api/latest/configuration/hosts/7013',
+        'https://centreon/centreon/api/latest/configuration/hosts/7013',
+    ],
 ]);
 
 it('leaves URLs without a doubled base path untouched', function (): void {
