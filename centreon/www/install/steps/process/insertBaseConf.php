@@ -109,6 +109,7 @@ if ($row = $centralServerQuery->fetch()) {
     $stmt = $link->prepare("
         INSERT INTO `platform_topology` (
             `address`,
+            `central_address`,
             `hostname`,
             `name`,
             `type`,
@@ -116,6 +117,7 @@ if ($row = $centralServerQuery->fetch()) {
             `server_id`,
             `pending`
         ) VALUES (
+            :centralAddress,
             :centralAddress,
             :hostname,
             :name,
