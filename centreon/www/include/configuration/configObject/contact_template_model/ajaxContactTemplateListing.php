@@ -19,57 +19,93 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-// Build timeperiod cache
-$tpCache = [];
-$tpResult = $pearDB->query('SELECT tp_id, tp_name FROM timeperiod');
-while ($tp = $tpResult->fetch(PDO::FETCH_ASSOC)) {
-    $tpCache[(int) $tp['tp_id']] = $tp['tp_name'];
-}
+// Only contact templates belong to this listing; registered contacts have their own page.
+$conditions = ["contact_register = '0'"];
+$parameters = [];
 
-// Query contact templates (contact_register = '0')
-$searchCond = '';
-$searchParams = [];
 if ($search !== '') {
-    $searchCond = 'AND contact_name LIKE :search ';
-    $searchParams[':search'] = '%' . $search . '%';
+    $conditions[] = 'contact_name LIKE :search';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS contact_id, contact_name, contact_alias,'
-    . ' timeperiod_tp_id, timeperiod_tp_id2, contact_activate'
-    . " FROM contact WHERE contact_register = '0' " . $searchCond
-    . ' ORDER BY contact_name LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
+$whereClause = 'WHERE ' . implode(' AND ', $conditions);
+
+$timeperiodQuery = <<<'SQL'
+    SELECT tp_id, tp_name FROM timeperiod
+    SQL;
+
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM contact
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT
+        contact_id,
+        contact_name,
+        contact_alias,
+        timeperiod_tp_id,
+        timeperiod_tp_id2,
+        contact_activate
+    FROM contact
+    {$whereClause}
+    ORDER BY contact_name
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $timeperiods = [];
+    foreach ($pearDB->fetchAllAssociative($timeperiodQuery) as $timeperiod) {
+        $timeperiods[(int) $timeperiod['tp_id']] = $timeperiod['tp_name'];
+    }
+
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $contactTemplates = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
+    );
+
+    $rows = [];
+    foreach ($contactTemplates as $contactTemplate) {
+        $rows[] = [
+            'id'            => (int) $contactTemplate['contact_id'],
+            'name'          => $contactTemplate['contact_name'],
+            'alias'         => $contactTemplate['contact_alias'],
+            'host_notif_tp' => $timeperiods[(int) $contactTemplate['timeperiod_tp_id']] ?? '',
+            'svc_notif_tp'  => $timeperiods[(int) $contactTemplate['timeperiod_tp_id2']] ?? '',
+            'activate'      => (int) $contactTemplate['contact_activate'],
+        ];
+    }
+
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch contact templates',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
-
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-$rows = [];
-while ($ct = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'              => (int) $ct['contact_id'],
-        'name'            => $ct['contact_name'],
-        'alias'           => $ct['contact_alias'],
-        'host_notif_tp'   => $tpCache[(int) $ct['timeperiod_tp_id']] ?? '',
-        'svc_notif_tp'    => $tpCache[(int) $ct['timeperiod_tp_id2']] ?? '',
-        'activate'        => (int) $ct['contact_activate'],
-    ];
-}
-
-$helper->jsonResponse($rows, $total, $num, $limit);
