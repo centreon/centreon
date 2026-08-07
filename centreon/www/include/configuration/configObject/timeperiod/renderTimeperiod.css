@@ -9,7 +9,7 @@
     color: var(--c-text-primary, #255891);
     margin: 0 0 14px;
 }
-.tp-title svg { color: var(--c-primary-main, #2E68AA); }
+.tp-title svg { color: var(--bt-info-background-color, #2E68AA); }
 
 .tp-switch { margin-bottom: 18px; }
 .tp-switch select {
@@ -25,7 +25,7 @@
     margin: 20px 0 8px; padding-bottom: 4px;
     border-bottom: 1px solid var(--c-divider, #e8e8e8);
 }
-.tp-section-title svg { color: var(--c-primary-main, #2E68AA); }
+.tp-section-title svg { color: var(--bt-info-background-color, #2E68AA); }
 
 .tp-meta { display: flex; gap: 40px; margin: 6px 0 4px; }
 .tp-meta span { display: block; font-size: 12px; color: var(--c-text-secondary, #6b7280); }

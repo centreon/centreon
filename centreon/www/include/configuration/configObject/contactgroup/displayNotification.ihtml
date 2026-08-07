@@ -13,7 +13,7 @@
     .dn-chip { display: inline-block; padding: 4px 12px; border-radius: 14px; background: rgba(46,104,170,.10); color: #255891; font-size: 12px; font-weight: 600; text-decoration: none; }
     .dn-chip:hover { background: rgba(46,104,170,.20); }
     .dn-table-wrap { margin-bottom: 20px; }
-    .dn-host-ico { color: var(--c-primary-main, #2E68AA); vertical-align: middle; margin-right: 8px; }
+    .dn-host-ico { color: var(--bt-info-background-color, #2E68AA); vertical-align: middle; margin-right: 8px; }
     .dn-empty { text-align: center; padding: 28px; color: var(--c-text-secondary, #6b7280); }
     .cl-listing-table { width: 100%; }
 </style>
