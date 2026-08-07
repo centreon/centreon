@@ -28,7 +28,10 @@ const Radio = ({
   const { values, setFieldValue, setFieldTouched, setValues, setTouched } =
     useFormikContext<FormikValues>();
 
-  const changeRadio = (_, value): void => {
+  const changeRadio = (
+    _: React.ChangeEvent<HTMLInputElement>,
+    value: string
+  ): void => {
     if (includes(value, ['true', 'false'])) {
       if (change) {
         change({
@@ -49,7 +52,13 @@ const Radio = ({
     }
 
     if (change) {
-      change({ setFieldTouched, setFieldValue, setValues, value, values });
+      change({
+        setFieldTouched,
+        setFieldValue,
+        setValues,
+        value,
+        values
+      } as Parameters<NonNullable<InputPropsWithoutGroup['change']>>[0]);
 
       return;
     }

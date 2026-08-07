@@ -1,0 +1,1 @@
+{ "version": "1", "name": "Dashboards", "type": "collection", "ignore": ["node_modules", ".git"] }

@@ -30,7 +30,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListPluginsProv
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
-    shortName: 'ListPlugins',
+    shortName: 'Plugins',
     operations: [
         new GetCollection(
             uriTemplate: '/configuration/plugins',

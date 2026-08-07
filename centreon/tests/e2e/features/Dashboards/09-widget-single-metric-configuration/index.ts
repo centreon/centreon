@@ -1,6 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import 'cypress-real-events/support';
 
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
+
 import {
   checkMetricsAreMonitored,
   checkServicesAreMonitored
@@ -21,11 +23,11 @@ before(() => {
   cy.applyAcl();
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
 
   cy.loginAsAdminViaApiV2()
@@ -50,11 +52,11 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/dashboards'
+    url: INTERCEPTORS.api.dashboard_configuration
   }).as('createDashboard');
   cy.loginByTypeOfUser({
     jsonName: dashboardAdministratorUser.login,

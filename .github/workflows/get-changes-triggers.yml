@@ -29,6 +29,10 @@ on:
         required: false
         type: string
         default: ''
+      translation_paths:
+        required: false
+        type: string
+        default: ''
       is_nightly:
         required: true
         type: string
@@ -77,18 +81,15 @@ jobs:
 
     steps:
       - name: Checkout sources
-        if: github.event_name == 'pull_request' || inputs.base_sha != ''
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: Fetch tags
         if: inputs.base_sha != ''
-        run: git fetch origin tag ${{ inputs.base_sha }} --no-tags || true
-        shell: bash
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-tags: true
 
       - name: Convert inputs to yaml list
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: inline_inputs
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           FRONTEND_PRODUCTION_PATHS: ${{ inputs.frontend_production_paths }}
           BACKEND_PRODUCTION_PATHS: ${{ inputs.backend_production_paths }}
@@ -97,6 +98,7 @@ jobs:
           API_TEST_PATHS: ${{ inputs.api_test_paths }}
           E2E_TEST_PATHS: ${{ inputs.e2e_test_paths }}
           UPGRADE_TEST_PATHS: ${{ inputs.upgrade_test_paths }}
+          TRANSLATION_PATHS: ${{ inputs.translation_paths }}
         with:
           script: |
             const paths = {
@@ -107,6 +109,7 @@ jobs:
               api_test_paths: process.env.API_TEST_PATHS,
               e2e_test_paths: process.env.E2E_TEST_PATHS,
               upgrade_test_paths: process.env.UPGRADE_TEST_PATHS,
+              translation_paths: process.env.TRANSLATION_PATHS,
             };
 
             for (const [key, value] of Object.entries(paths)) {
@@ -124,8 +127,9 @@ jobs:
       - name: Get changed files
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: get_changed_files
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
+          use_rest_api: ${{ github.event_name == 'pull_request' }}
           base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
           files_yaml: |
             frontend_production:
@@ -142,11 +146,13 @@ jobs:
             ${{ steps.inline_inputs.outputs.e2e_test_paths }}
             upgrade_test:
             ${{ steps.inline_inputs.outputs.upgrade_test_paths }}
+            translation:
+            ${{ steps.inline_inputs.outputs.translation_paths }}
 
       - name: Determine triggers for event ${{ github.event_name }}
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: get_triggers
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           IS_NIGHTLY: ${{ inputs.is_nightly }}
           HAS_FRONTEND_PRODUCTION_CHANGES: ${{ steps.get_changed_files.outputs.frontend_production_any_changed }}
@@ -156,74 +162,79 @@ jobs:
           HAS_API_TEST_CHANGES: ${{ steps.get_changed_files.outputs.api_test_any_changed }}
           HAS_E2E_TEST_CHANGES: ${{ steps.get_changed_files.outputs.e2e_test_any_changed }}
           HAS_UPGRADE_TEST_CHANGES: ${{ steps.get_changed_files.outputs.upgrade_test_any_changed }}
+          HAS_TRANSLATION_CHANGES: ${{ steps.get_changed_files.outputs.translation_any_changed }}
+          GITHUB_ACTOR: ${{ github.actor }}
           LABELS: ${{ inputs.labels }}
         with:
           script: |
+            const isNightly  = process.env.IS_NIGHTLY === 'true';
+            const isWeblate  = process.env.GITHUB_ACTOR === 'weblate-service-account';
+
+            let hasBackendProd  = process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true';
+            let hasFrontendProd = process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true';
+            let hasBackendTest  = process.env.HAS_BACKEND_TEST_CHANGES === 'true';
+            let hasFrontendTest = process.env.HAS_FRONTEND_TEST_CHANGES === 'true';
+            let hasApiTest      = process.env.HAS_API_TEST_CHANGES === 'true';
+            let hasE2eTest      = process.env.HAS_E2E_TEST_CHANGES === 'true';
+            let hasUpgradeTest  = process.env.HAS_UPGRADE_TEST_CHANGES === 'true';
+            let hasTranslation  = process.env.HAS_TRANSLATION_CHANGES === 'true';
+
             try {
               const labels = JSON.parse(process.env.LABELS);
               if (labels.includes('force-backend-tests')) {
                 core.info('Label force-backend-tests found: forcing backend testing trigger to true');
-                process.env.HAS_BACKEND_TEST_CHANGES = 'true';
+                hasBackendTest = true;
               }
               if (labels.includes('force-frontend-tests')) {
                 core.info('Label force-frontend-tests found: forcing frontend testing trigger to true');
-                process.env.HAS_FRONTEND_TEST_CHANGES = 'true';
+                hasFrontendTest = true;
               }
               if (labels.includes('force-api-tests')) {
                 core.info('Label force-api-tests found: forcing API testing trigger to true');
-                process.env.HAS_API_TEST_CHANGES = 'true';
+                hasApiTest = true;
               }
               if (labels.includes('force-e2e-tests')) {
                 core.info('Label force-e2e-tests found: forcing E2E testing trigger to true');
-                process.env.HAS_E2E_TEST_CHANGES = 'true';
+                hasE2eTest = true;
               }
               if (labels.includes('force-upgrade-tests')) {
                 core.info('Label force-upgrade-tests found: forcing upgrade testing trigger to true');
-                process.env.HAS_UPGRADE_TEST_CHANGES = 'true';
+                hasUpgradeTest = true;
               }
               if (labels.includes('force-all-tests')) {
                 core.info('Label force-all-tests found: forcing all testing triggers to true');
-                process.env.HAS_BACKEND_TEST_CHANGES = 'true';
-                process.env.HAS_FRONTEND_TEST_CHANGES = 'true';
-                process.env.HAS_API_TEST_CHANGES = 'true';
-                process.env.HAS_E2E_TEST_CHANGES = 'true';
-                process.env.HAS_UPGRADE_TEST_CHANGES = 'true';
+                hasBackendTest = hasFrontendTest = hasApiTest = hasE2eTest = hasUpgradeTest = true;
               }
             } catch (e) {
               core.warning(`Could not parse labels: ${e}`);
             }
 
+            // Non-weblate translation changes behave like backend production changes,
+            // except they don't trigger backend/frontend testing (lint + unit tests).
+            const nonWeblateTranslation = hasTranslation && !isWeblate;
+
+            const isWeblateTranslationOnly = isWeblate && hasTranslation
+              && !hasBackendProd && !hasFrontendProd
+              && !hasBackendTest && !hasFrontendTest
+              && !hasApiTest && !hasE2eTest && !hasUpgradeTest;
+
+            // On PRs, skip everything for Weblate translation-only changes.
+            // On direct pushes to unstable/testing branches, still trigger packaging so
+            // translations are included in the build artifacts.
+            const isPR = context.eventName === 'pull_request';
+
+            if (isWeblateTranslationOnly) {
+              core.info(`weblate-service-account with translation-only changes — skipping all test triggers${isPR ? ' (PR mode)' : ', but keeping packaging for branch push'}.`);
+            }
+
             const outputs = {
-              'trigger_backend_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_BACKEND_TEST_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true',
-              'trigger_frontend_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_TEST_CHANGES === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true',
-              'trigger_packaging':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_API_TEST_CHANGES === 'true'
-                || process.env.HAS_E2E_TEST_CHANGES === 'true',
-              'trigger_api_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_API_TEST_CHANGES === 'true',
-              'trigger_e2e_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_E2E_TEST_CHANGES === 'true',
-              'trigger_upgrade_testing':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_UPGRADE_TEST_CHANGES === 'true',
-              'trigger_delivery':
-                process.env.IS_NIGHTLY === 'true'
-                || process.env.HAS_FRONTEND_PRODUCTION_CHANGES === 'true'
-                || process.env.HAS_BACKEND_PRODUCTION_CHANGES === 'true',
+              trigger_backend_testing:  !isWeblateTranslationOnly && (isNightly || hasBackendTest  || hasBackendProd),
+              trigger_frontend_testing: !isWeblateTranslationOnly && (isNightly || hasFrontendTest || hasFrontendProd),
+              trigger_packaging:        isNightly || hasFrontendProd || hasBackendProd || hasApiTest || hasE2eTest || nonWeblateTranslation || (isWeblateTranslationOnly && !isPR),
+              trigger_api_testing:      !isWeblateTranslationOnly && (isNightly || hasBackendProd  || hasApiTest || nonWeblateTranslation),
+              trigger_e2e_testing:      !isWeblateTranslationOnly && (isNightly || hasFrontendProd || hasBackendProd || hasE2eTest || nonWeblateTranslation),
+              trigger_upgrade_testing:  !isWeblateTranslationOnly && (isNightly || hasUpgradeTest),
+              trigger_delivery:         isNightly || hasFrontendProd || hasBackendProd || nonWeblateTranslation || (isWeblateTranslationOnly && !isPR),
             };
 
             for (const [key, value] of Object.entries(outputs)) {
@@ -234,7 +245,7 @@ jobs:
       - name: Determine triggers for event ${{ github.event_name }}
         if: github.event_name == 'workflow_dispatch'
         id: get_dispatch_triggers
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           LABELS: ${{ inputs.labels }}
         with:

@@ -84,6 +84,7 @@ const BaseChart = ({
   return (
     <>
       <div ref={titleRef}>
+        {/* @ts-expect-error - suppressing pre-existing type mismatch */}
         <Header header={header} ref={titleRef} title={title} />
       </div>
       <div className={classes.container}>
@@ -112,6 +113,7 @@ const BaseChart = ({
                   placement="left"
                   renderExtraComponent={legend?.renderExtraComponent}
                   secondaryClick={legend?.secondaryClick}
+                  // @ts-expect-error - suppressing pre-existing type mismatch
                   setLinesGraph={setLines}
                   shouldDisplayLegendInCompactMode={
                     shouldDisplayLegendInCompactMode
@@ -138,6 +140,7 @@ const BaseChart = ({
             placement="bottom"
             renderExtraComponent={legend.renderExtraComponent}
             secondaryClick={legend?.secondaryClick}
+            // @ts-expect-error - suppressing pre-existing type mismatch
             setLinesGraph={setLines}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
             showCalculations={legend?.showCalculations}

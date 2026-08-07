@@ -18,8 +18,16 @@ import Annotation, {
   yMargin
 } from '.';
 
+interface IconProps {
+  'aria-label'?: string;
+  className?: string;
+  height?: number | string;
+  width?: number | string;
+  style?: React.CSSProperties;
+}
+
 type Props = {
-  Icon: (props) => JSX.Element | null;
+  Icon: (props: IconProps) => JSX.Element | null;
   ariaLabel: string;
   color: string;
   date: string;

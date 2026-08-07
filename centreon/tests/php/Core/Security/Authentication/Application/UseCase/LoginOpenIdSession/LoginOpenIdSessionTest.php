@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\Authentication\Application\UseCase\LoginOpenIdSession;
 
+use Adaptation\Log\LoggerAuthentication;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Menu\Interfaces\MenuServiceInterface;
@@ -137,6 +138,27 @@ beforeEach(function (): void {
     ]);
     $configuration->setCustomConfiguration($customConfiguration);
     $this->validOpenIdConfiguration = $configuration;
+
+    // Capture the access-log emissions of the Login use case by swapping the
+    // LoggerAuthentication singleton for a recording logger (private ctor + singleton).
+    $this->authLoggerSpy = new class () extends \Psr\Log\AbstractLogger {
+        /** @var list<array{level: string, context: array<string, mixed>}> */
+        public array $records = [];
+
+        public function log($level, string|\Stringable $message, array $context = []): void
+        {
+            $this->records[] = ['level' => (string) $level, 'context' => $context];
+        }
+    };
+    $authLoggerReflection = new \ReflectionClass(LoggerAuthentication::class);
+    $facade = $authLoggerReflection->newInstanceWithoutConstructor();
+    $authLoggerReflection->getProperty('logger')->setValue($facade, $this->authLoggerSpy);
+    $authLoggerReflection->getProperty('instance')->setValue(null, $facade);
+});
+
+afterEach(function (): void {
+    // Drop the injected singleton so the real logger is rebuilt for other tests.
+    (new \ReflectionClass(LoggerAuthentication::class))->getProperty('instance')->setValue(null, null);
 });
 
 it('expects to return an error message in presenter when no provider configuration is found', function (): void {
@@ -316,7 +338,7 @@ it('should update access groups for the authenticated user', function (): void {
         ->method('getConfiguration')
         ->willReturn($this->validOpenIdConfiguration);
 
-    $contact = (new Contact())->setId(1);
+    $contact = (new Contact())->setId(1)->setAlias('openid-user');
     $this->provider
         ->expects($this->once())
         ->method('findUserOrFail')
@@ -342,4 +364,14 @@ it('should update access groups for the authenticated user', function (): void {
     );
 
     $useCase($request, $this->presenter);
+
+    // The successful OpenID login must be recorded once on the access log, with the
+    // resolved contact id and the openid provider.
+    $loginSuccessEvents = array_values(array_filter(
+        $this->authLoggerSpy->records,
+        static fn (array $record): bool => ($record['context']['event'] ?? null) === 'login.success',
+    ));
+    expect($loginSuccessEvents)->toHaveCount(1)
+        ->and($loginSuccessEvents[0]['context']['provider'])->toBe('openid')
+        ->and($loginSuccessEvents[0]['context']['user_id'])->toBe(1);
 });

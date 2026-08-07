@@ -11,11 +11,7 @@ jms_serializer:
                 namespace_prefix: "Core\\"
                 path: '%kernel.project_dir%/config/packages/serializer/Core'
 parameters:
-    log_file: '%log_path%/centreon-web.log'
-    env(DEBUG_LEVEL): !php/const Monolog\Logger::WARNING
     curl.timeout: 60
-    debug_level: "%env(int:DEBUG_LEVEL)%"
-    env(DEBUG_CONTACT): null
     db.max_items_by_request: 1000
     api.max_items_by_request: 100
     api.max_query_string_length: 2048
@@ -68,6 +64,9 @@ services:
 
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
+        public: true
+
+    Core\Common\Application\VaultEligibilityService:
         public: true
 
     Adaptation\Database\Connection\Model\ConnectionConfig:
@@ -325,23 +324,6 @@ services:
         class: Core\Infrastructure\Platform\Repository\FileReadPlatformRepository
         arguments: ['%centreon_etc_path%', '%centreon_install_path%']
 
-    Core\Platform\Application\Validator\RequirementValidatorsInterface:
-        class: Core\Platform\Infrastructure\Validator\RequirementValidators
-        arguments:
-            $requirementValidators: !tagged_iterator 'platform.requirement.validators'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidator:
-        arguments:
-            $dbRequirementValidators: !tagged_iterator 'platform.requirement.database.validators'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\PhpRequirementValidator:
-        arguments:
-            $requiredPhpVersion: '%required_php_version%'
-
-    Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidators\MariaDbRequirementValidator:
-        arguments:
-            $requiredMariaDbMinVersion: '%required_mariadb_min_version%'
-
     Core\Platform\Application\Repository\ReadVersionRepositoryInterface:
         class: Core\Platform\Infrastructure\Repository\DbReadVersionRepository
         public: true
@@ -369,16 +351,10 @@ services:
             tags: ['realtime.hypermedia']
         Core\Domain\RealTime\ResourceTypeInterface:
             tags: ['monitoring.resource.type']
-        Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface:
-            tags: ['monitoring.resource.acl']
         Core\Security\ProviderConfiguration\Application\Repository\ReadProviderConfigurationsRepositoryInterface:
             tags: ['authentication.provider.repositories']
         Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations\ProviderConfigurationDtoFactoryInterface:
             tags: ['authentication.provider.response.factories']
-        Core\Platform\Application\Validator\RequirementValidatorInterface:
-            tags: ['platform.requirement.validators']
-        Core\Platform\Infrastructure\Validator\RequirementValidators\DatabaseRequirementValidatorInterface:
-            tags: ['platform.requirement.database.validators']
         Core\Notification\Application\Repository\NotificationResourceRepositoryInterface:
             tags: ['configuration.notification.resource.repositories']
         Core\Notification\Application\Repository\NotifiableResourceRequestProviderInterface:
@@ -506,19 +482,6 @@ services:
     Centreon\Domain\Authentication\UseCase\AuthenticateApi:
         public: true
 
-    # Log configuration
-    monolog.formater:
-        class: Monolog\Formatter\LineFormatter
-        arguments: ["[%%datetime%%] [%%level_name%%] %%message%% %%context%%\n", !php/const DateTimeInterface::ISO8601, false, true]
-
-    monolog.handler:
-        class: Centreon\Domain\Log\ErrorFileHandler
-        arguments: ['@monolog.formater', '%log_file%', 432, '%debug_level%']
-
-    Centreon\Domain\Log\ContactForDebug:
-        class: Centreon\Domain\Log\ContactForDebug
-        arguments: ['%env(DEBUG_CONTACT)%']
-
     Centreon\Domain\Log\Logger:
         public: true
 
@@ -578,6 +541,9 @@ services:
 
     Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface:
         class: Core\MonitoringServer\Infrastructure\Repository\DbWriteMonitoringServerRepository
+        public: true
+
+    Centreon\Infrastructure\Service\VmwareConfigurationService:
         public: true
 
     Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:

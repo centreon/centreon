@@ -47,7 +47,12 @@ const Option = forwardRef(
         )}
         <Stack alignItems="center" direction="row" spacing={1}>
           {thumbnailUrl && (
-            <img alt={children} height={20} src={thumbnailUrl} width={20} />
+            <img
+              alt={typeof children === 'string' ? children : ''}
+              height={20}
+              src={thumbnailUrl}
+              width={20}
+            />
           )}
           <Typography variant="body2">{children}</Typography>
         </Stack>

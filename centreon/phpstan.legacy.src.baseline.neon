@@ -30,24 +30,6 @@ parameters:
 			path: src/Centreon/Application/DataRepresenter/Topology/NavigationList.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 2
-			path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 2
-			path: src/Centreon/Application/Validation/Validator/UniqueEntityValidator.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) di must contain 3 or more characters\.$#'
 			count: 2
 			path: src/Centreon/Application/Webservice/AclGroupWebservice.php
@@ -259,12 +241,6 @@ parameters:
 			path: src/Centreon/Infrastructure/Service/CentreonClapiServiceInterface.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\Service\\CentreonPaginationService\:\:setExtras\(\) has RuntimeException in PHPDoc @throws tag but it''s not thrown\.$#'
-			identifier: throws.unusedType
-			count: 1
-			path: src/Centreon/Infrastructure/Service/CentreonPaginationService.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) di must contain 3 or more characters\.$#'
 			count: 6
 			path: src/Centreon/Infrastructure/Webservice/WebServiceAbstract.php
@@ -375,11 +351,6 @@ parameters:
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) di must contain 3 or more characters\.$#'
 			count: 6
-			path: src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fh must contain 3 or more characters\.$#'
-			count: 3
 			path: src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 
 		-

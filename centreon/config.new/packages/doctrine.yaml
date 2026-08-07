@@ -1,22 +1,32 @@
+parameters:
+    env(DATABASE_SERVER_VERSION): 'mariadb-11.8.0'
+    env(hostCentreon): ''
+    env(hostCentstorage): ''
+    env(user): ''
+    env(password): ''
+    env(db): ''
+    env(dbcstg): ''
+    env(port): '3306'
+
 doctrine:
-   dbal:
-       default_connection: default
-       connections:
-           default:
-               use_savepoints: true
-               dbname: '%env(db)%'
-               user: '%env(user)%'
-               password: '%env(password)%'
-               host: '%env(hostCentreon)%'
-           realtime:
-               use_savepoints: true
-               dbname: '%env(dbcstg)%'
-               user: '%env(user)%'
-               password: '%env(password)%'
-               host: '%env(hostCentreon)%'
-           test_setup_default:
-               use_savepoints: true
-               dbname: '%env(db)%'
-               user: '%env(user)%'
-               password: '%env(password)%'
-               host: '%env(hostCentreon)%'
+  dbal:
+    default_connection: default
+    connections:
+      default:
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(db)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: "%env(hostCentreon)%"
+      realtime:
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(dbcstg)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: "%env(hostCentreon)%"
+      test_setup_default:
+        server_version: "%env(DATABASE_SERVER_VERSION)%"
+        dbname: "%env(db)%"
+        user: "%env(user)%"
+        password: "%env(password)%"
+        host: "%env(hostCentreon)%"

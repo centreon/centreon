@@ -1,0 +1,35 @@
+meta {
+  name: PUT /host-severities - Update HS by editor - HTTP 204
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrlWeb}}/configuration/hosts/severities/{{HostSeverity4Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostSeverity4Name}}",
+    "alias": "{{HostSeverity4Alias}}",
+    "level": 3,
+    "icon_id": 1
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host severity has been successfully updated by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

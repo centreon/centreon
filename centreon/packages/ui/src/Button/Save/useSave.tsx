@@ -25,7 +25,8 @@ interface StartIconConfigProps {
   enabled: boolean;
 }
 
-const isNilOrEmpty = (value): boolean => or(isNil(value), isEmpty(value));
+const isNilOrEmpty = (value: unknown): boolean =>
+  or(isNil(value), isEmpty(value));
 const hasValue = any(pipe(isNilOrEmpty, not));
 
 interface UseSaveState {

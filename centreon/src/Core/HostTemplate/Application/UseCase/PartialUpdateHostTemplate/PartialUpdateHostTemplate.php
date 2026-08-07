@@ -47,6 +47,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\InheritanceManager;
@@ -78,6 +79,7 @@ final class PartialUpdateHostTemplate
 
     public function __construct(
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
@@ -92,6 +94,7 @@ final class PartialUpdateHostTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -182,7 +185,7 @@ final class PartialUpdateHostTemplate
         try {
             $this->dataStorageEngine->startTransaction();
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveHostUuidFromVault($hostTemplate);
             }
 
@@ -485,9 +488,11 @@ final class PartialUpdateHostTemplate
 
         /** @var array<string,CommandMacro> */
         $commandMacros = [];
-        if ($hostTemplate->getCheckCommandId() !== null) {
+        $effectiveCommandId = $hostTemplate->getCheckCommandId()
+            ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $hostTemplate->getCheckCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
@@ -495,10 +500,10 @@ final class PartialUpdateHostTemplate
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
@@ -614,7 +619,7 @@ final class PartialUpdateHostTemplate
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixedName = '_HOST' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
@@ -687,7 +692,7 @@ final class PartialUpdateHostTemplate
         }
 
         // If vault is not configured, just set the value directly
-        if (! $this->writeVaultRepository->isVaultConfigured()) {
+        if (! $this->vaultEligibilityService->shouldUseVault()) {
             $hostTemplate->setSnmpCommunity($snmpCommunity);
 
             return;

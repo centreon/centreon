@@ -36,13 +36,13 @@ runs:
   using: "composite"
   steps:
     - name: Use cache RPM files
-      uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: ./*.rpm
         key: ${{ inputs.cache_key }}
         fail-on-cache-miss: true
 
-    - uses: jfrog/setup-jfrog-cli@5b06f730cc5a6f55d78b30753f8583454b08c0aa # v4.8.1
+    - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -53,36 +53,40 @@ runs:
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
       run: |
         set -eu
         . .version
         major_version=$(grep -E "MAJOR" .version | cut -d '=' -f2)
-        feature_ticket=$(echo "${{ github.event.pull_request.head.ref }}" | grep -oE 'MON-[0-9]+')
+        feature_ticket=$(echo "$GH_HEAD_REF" | grep -oE 'MON-[0-9]+')
         echo "[INFO] Creating a rpm feature repository if it does not exist"
 
-        curl -X POST \
-            -H "Authorization: Bearer ${{ inputs.centreon_technique_pat }}" \
+        curl --fail-with-body -X POST \
+            -H "Authorization: Bearer $CENTREON_TECHNIQUE_PAT" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/centreon/delivery-tooling/dispatches \
             -d "$(jq -n \
               --arg major_version "$major_version" \
               --arg repo_type "feature" \
               --arg feature_ticket "$feature_ticket" \
+              --arg target "jfrog" \
               '{
                 event_type: "create-feature-repositories",
                 client_payload: {
                   major_version: $major_version,
                   repo_type: $repo_type,
-                  feature_ticket: $feature_ticket
+                  feature_ticket: $feature_ticket,
+                  target: $target
                 }
               }'
             )"
 
         attempt=0
         count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
-        until [[ $count -eq 2 || $attempt -ge 40 ]]; do
+        until [[ $count -eq 3 || $attempt -ge 40 ]]; do
           attempt=$((attempt+1))
-          echo "[INFO] Checking is the feature repository has been created... [ATTEMPT $attempt]"
+          echo "[INFO] Checking if the feature repository has been created... [ATTEMPT $attempt]"
           sleep 15
           count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
         done
@@ -97,38 +101,46 @@ runs:
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
+        GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        DISTRIB: ${{ inputs.distrib }}
+        VERSION: ${{ inputs.version }}
+        STABILITY: ${{ inputs.stability }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
+        IS_CLOUD: ${{ inputs.is_cloud }}
+        DELIVERY_TYPE: ${{ inputs.delivery_type }}
       run: |
-        set -eux
+        set -euo pipefail
 
         FILES="*.rpm"
 
-        if [ -z "${{ inputs.module_name }}" ]; then
+        if [ -z "$MODULE_NAME" ]; then
           echo "::error::module name is required"
           exit 1
         fi
 
-        if [ -z "${{ inputs.distrib }}" ]; then
+        if [ -z "$DISTRIB" ]; then
           echo "::error::distrib is required"
           exit 1
         fi
 
         # DEBUG
-        echo "[DEBUG] - Version: ${{ inputs.version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
-        echo "[DEBUG] - module_name: ${{ inputs.module_name }}"
-        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
-        echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
-        echo "[DEBUG] - stability: ${{ inputs.stability }}"
-        echo "[DEBUG] - delivery_type: ${{ inputs.delivery_type }}"
+        echo "[DEBUG] - Version: $VERSION"
+        echo "[DEBUG] - Distrib: $DISTRIB"
+        echo "[DEBUG] - module_name: $MODULE_NAME"
+        echo "[DEBUG] - is_cloud: $IS_CLOUD"
+        echo "[DEBUG] - release_type: $RELEASE_TYPE"
+        echo "[DEBUG] - stability: $STABILITY"
+        echo "[DEBUG] - delivery_type: $DELIVERY_TYPE"
 
         # Make sure all required inputs are NOT empty
-        if [[ -z "${{ inputs.module_name }}" || -z "${{ inputs.distrib }}" || -z ${{ inputs.stability }} || -z ${{ inputs.version }} || -z "${{ inputs.is_cloud }}" ]]; then
+        if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$STABILITY" || -z "$VERSION" || -z "$IS_CLOUD" ]]; then
           echo "::error::some mandatory inputs are empty, please check the logs."
           exit 1
         fi
 
-        if [[ "${{ inputs.delivery_type }}" != "feature" && "${{ inputs.stability }}" != "testing" && "${{ inputs.stability }}" != "unstable" ]]; then
-          echo "::error::stability must be one of: testing, unstable (got '${{ inputs.stability }}')"
+        if [[ "$DELIVERY_TYPE" != "feature" && "$STABILITY" != "testing" && "$STABILITY" != "unstable" ]]; then
+          echo "::error::stability must be one of: testing, unstable (got '$STABILITY')"
           exit 1
         fi
 
@@ -146,25 +158,23 @@ runs:
           mv "$FILE" "$ARCH"
         done
 
-        if [[ "${{ inputs.delivery_type }}" == "feature" ]]; then
-          ROOT_REPO_PATH="rpm-standard-feature-$(echo "${{ github.head_ref || github.ref_name }}" | grep -oP '^.*MON-[0-9]+')"
-        elif [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+        if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+          ROOT_REPO_PATH="rpm-standard-feature/$(echo "$GH_HEAD_REF" | grep -oP '^.*MON-[0-9]+')"
+        elif [[ "$IS_CLOUD" == "true" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
           ROOT_REPO_PATH="rpm-standard"
         fi
 
         for ARCH in "noarch" "x86_64"; do
-          if [[ "${{ inputs.release_type }}" == "hotfix" || "${{ inputs.release_type }}" == "release" ]]; then
-            UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}/"
-            REINDEX_STABILITY="${{ inputs.stability }}-${{ inputs.release_type }}"
+          if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+            UPLOAD_REPO_PATH="$VERSION/$DISTRIB/$STABILITY-$RELEASE_TYPE/$ARCH/$MODULE_NAME/"
+            REINDEX_STABILITY="$STABILITY-$RELEASE_TYPE"
           else
-            UPLOAD_REPO_PATH="${{ inputs.version }}/${{ inputs.distrib }}/${{ inputs.stability }}/$ARCH/${{ inputs.module_name }}/"
-            REINDEX_STABILITY="${{ inputs.stability }}"
+            UPLOAD_REPO_PATH="$VERSION/$DISTRIB/$STABILITY/$ARCH/$MODULE_NAME/"
+            REINDEX_STABILITY="$STABILITY"
           fi
           if [ "$(ls -A $ARCH)" ]; then
             jf rt upload "$ARCH/*.rpm" "$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --sync-deletes="$ROOT_REPO_PATH/$UPLOAD_REPO_PATH" --flat  --detailed-summary
           fi
-
-          curl -H "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" -X POST "${{ env.JF_URL }}/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.version }}/${{ inputs.distrib }}/${REINDEX_STABILITY}/$ARCH&async=1"
         done

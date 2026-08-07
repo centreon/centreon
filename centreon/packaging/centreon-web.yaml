@@ -75,18 +75,21 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php.ini"
-    dst: "/etc/php/8.2/mods-available/centreon.ini"
+    dst: "/etc/php/${PHP_MIN_VERSION}/mods-available/centreon.ini"
     type: config|noreplace
+    expand: true
     file_info:
       mode: 0644
     packager: deb
-  - src: "/etc/php/8.2/mods-available/centreon.ini"
-    dst: "/etc/php/8.2/fpm/conf.d/50-centreon.ini"
+  - src: "/etc/php/${PHP_MIN_VERSION}/mods-available/centreon.ini"
+    dst: "/etc/php/${PHP_MIN_VERSION}/fpm/conf.d/50-centreon.ini"
     type: symlink
+    expand: true
     packager: deb
-  - src: "/etc/php/8.2/mods-available/centreon.ini"
-    dst: "/etc/php/8.2/cli/conf.d/50-centreon.ini"
+  - src: "/etc/php/${PHP_MIN_VERSION}/mods-available/centreon.ini"
+    dst: "/etc/php/${PHP_MIN_VERSION}/cli/conf.d/50-centreon.ini"
     type: symlink
+    expand: true
     packager: deb
 
   - src: "./src/php-fpm.rpm.conf"
@@ -96,8 +99,9 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php-fpm.deb.conf"
-    dst: "/etc/php/8.2/fpm/pool.d/centreon.conf"
+    dst: "/etc/php/${PHP_MIN_VERSION}/fpm/pool.d/centreon.conf"
     type: config|noreplace
+    expand: true
     file_info:
       mode: 0644
     packager: deb
@@ -109,8 +113,9 @@ contents:
       mode: 0644
     packager: rpm
   - src: "./src/php-fpm-systemd.conf"
-    dst: "/lib/systemd/system/php8.2-fpm.service.d/centreon.conf"
+    dst: "/lib/systemd/system/php${PHP_MIN_VERSION}-fpm.service.d/centreon.conf"
     type: config|noreplace
+    expand: true
     file_info:
       mode: 0644
     packager: deb
@@ -190,6 +195,13 @@ contents:
 
   - src: "../bin/migrateCredentials.php"
     dst: "/usr/share/centreon/bin/migrateCredentials.php"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0744
+
+  - src: "../bin/revertCredentials.php"
+    dst: "/usr/share/centreon/bin/revertCredentials.php"
     file_info:
       owner: "root"
       group: "root"
@@ -415,6 +427,13 @@ contents:
       group: "centreon"
       mode: 0775
 
+  - src: "../install-poller/install.sh"
+    dst: "/usr/share/centreon/www/poller/install.sh"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0644
+
 scripts:
   preinstall: ./scripts/centreon-web-preinstall.sh
   postinstall: ./scripts/centreon-web-postinstall.sh
@@ -426,16 +445,13 @@ overrides:
       - centreon-common < ${NEXT_MAJOR_VERSION}
       - centreon-perl-libs >= ${MAJOR_VERSION}
       - centreon-perl-libs < ${NEXT_MAJOR_VERSION}
-      - centreon-poller = ${VERSION}-${RELEASE}${DIST}
-      - centreon-broker-cbd >= ${MAJOR_VERSION}
-      - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
       - bc
       - cronie
       - initscripts
       - "(mariadb or mysql)"
       - httpd
-      - php-common >= 8.2
-      - php-common < 8.3
+      - php-common >= ${PHP_MIN_VERSION}
+      - php-common < ${PHP_MAX_VERSION}
       - php-cli
       - php-pdo
       - php-mysqlnd
@@ -518,9 +534,6 @@ overrides:
       - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
       - "centreon-perl-libs (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
-      - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
-      - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
       - libfile-which-perl
       - lsb-release
       - "mariadb-client | mysql-client"
@@ -598,20 +611,20 @@ rpm:
 deb:
   compression: zstd
   predepends:
-    - php8.2
-    - php8.2-cli
-    - php8.2-fpm
-    - php8.2-curl
-    - php8.2-intl
-    - php8.2-xml
-    - php8.2-dom
-    - php8.2-gd
-    - php8.2-mbstring
-    - php8.2-xml
-    - php8.2-mysql
-    - php8.2-zip
-    - php8.2-snmp
-    - php8.2-ldap
-    - php8.2-readline
-    - php8.2-sqlite3
+    - php${PHP_MIN_VERSION}
+    - php${PHP_MIN_VERSION}-cli
+    - php${PHP_MIN_VERSION}-fpm
+    - php${PHP_MIN_VERSION}-curl
+    - php${PHP_MIN_VERSION}-intl
+    - php${PHP_MIN_VERSION}-xml
+    - php${PHP_MIN_VERSION}-dom
+    - php${PHP_MIN_VERSION}-gd
+    - php${PHP_MIN_VERSION}-mbstring
+    - php${PHP_MIN_VERSION}-xml
+    - php${PHP_MIN_VERSION}-mysql
+    - php${PHP_MIN_VERSION}-zip
+    - php${PHP_MIN_VERSION}-snmp
+    - php${PHP_MIN_VERSION}-ldap
+    - php${PHP_MIN_VERSION}-readline
+    - php${PHP_MIN_VERSION}-sqlite3
     - php-pear

@@ -95,6 +95,7 @@ final readonly class DuplicateCommandsCommandHandler
         }
 
         $this->repository->add(...$commandsToDuplicate);
+
         $this->eventBus->fire(
             new CommandDuplicated($commandsToDuplicate, $duplicateCommandsCommand->duplicatedBy)
         );

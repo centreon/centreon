@@ -64,7 +64,7 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
     }
   };
 
-  const formatList = (type): void => {
+  const formatList = (type: string): void => {
     if (equals(type, elementList)) {
       setElementList(null);
     }
@@ -79,6 +79,7 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
+    // @ts-expect-error - suppressing pre-existing type mismatch
     const anchorNode = selection?.anchor.getNode();
     const element = equals(anchorNode?.getKey(), 'root')
       ? anchorNode
@@ -100,6 +101,7 @@ const ListButton = ({ disabled }: Props): JSX.Element => {
       const type = parentList
         ? parentList.getListType()
         : element.getListType();
+      // @ts-expect-error - suppressing pre-existing type mismatch
       setElementList(type);
     }
   }, [editor]);

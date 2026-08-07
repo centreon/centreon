@@ -19,10 +19,10 @@ type Props = Pick<
   'columnConfiguration' | 'sortField' | 'sortOrder' | 'onSort'
 > & {
   areColumnsEditable: boolean;
-  className: string;
+  className?: string;
   column: Column;
   itemRef: React.RefObject<HTMLDivElement>;
-  style;
+  style: React.CSSProperties;
 } & StylesProps;
 
 const ListingHeaderCell = ({

@@ -39,6 +39,7 @@ use Core\Service\Domain\Model\NewService;
 use Core\Service\Domain\Model\NotificationType;
 use Core\Service\Domain\Model\Service;
 use Core\Service\Infrastructure\Model\NotificationTypeConverter;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements WriteServiceRepositoryInterface
 {
@@ -46,14 +47,14 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
 
     /**
      * @param WriteServiceRepositoryInterface $writeServiceRepository
-     * @param ContactInterface $contact
+     * @param TokenStorageInterface $tokenStorage
      * @param ReadServiceRepositoryInterface $readServiceRepository
      * @param WriteActionLogRepositoryInterface $writeActionLogRepository
      * @param DatabaseConnection $db
      */
     public function __construct(
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
-        private readonly ContactInterface $contact,
+        private readonly TokenStorageInterface $tokenStorage,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         DatabaseConnection $db,
@@ -79,7 +80,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $serviceId,
                 $service->getName(),
                 ActionLog::ACTION_TYPE_DELETE,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $this->writeActionLogRepository->addAction($actionLog);
         } catch (\Throwable $ex) {
@@ -111,7 +112,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $serviceId,
                     $serviceName,
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             } catch (\Throwable $ex) {
@@ -141,7 +142,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                 $serviceId,
                 $newService->getName(),
                 ActionLog::ACTION_TYPE_ADD,
-                $this->contact->getId()
+                $this->getContactId()
             );
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
@@ -186,7 +187,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     $actionType,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
 
                 unset($diff['isActivated']);
@@ -198,7 +199,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service->getId(),
                     $service->getName(),
                     ActionLog::ACTION_TYPE_CHANGE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
             }
 
@@ -236,7 +237,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
                     $service['id'],
                     $service['name'],
                     ActionLog::ACTION_TYPE_DELETE,
-                    $this->contact->getId()
+                    $this->getContactId()
                 );
                 $this->writeActionLogRepository->addAction($actionLog);
             }
@@ -294,5 +295,12 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         }
 
         return $servicePropertiesArray;
+    }
+
+    private function getContactId(): ?int
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof ContactInterface ? $user->getId() : null;
     }
 }

@@ -1,0 +1,99 @@
+meta {
+  name: POST /hosts/templates - Create HT with all properties - HTTP 201
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/hosts/templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{HostTemplate1Name}}",
+    "alias": "{{HostTemplate1Alias}}",
+    "snmp_version": "2c",
+    "snmp_community": "   snmpCommunity-test",
+    "timezone_id": 1,
+    "severity_id": {{HostSeverity1Id}},
+    "check_timeperiod_id": 1,
+    "note_url": "noteUrl-value",
+    "note": "note-value",
+    "action_url": "actionUrl-value",
+    "max_check_attempts": 3,
+    "normal_check_interval": 5,
+    "retry_check_interval": 2,
+    "icon_id": 1,
+    "categories": [ {{HostCategory1Id}} ],
+    "templates": [ {{HostTemplate0Id}} ],
+    "macros": [
+      {
+        "name": "nameA",
+        "value": "valueA",
+        "is_password": false,
+        "description": "some text"
+      },
+      {
+        "name": "nameB",
+        "value": "valueB",
+        "is_password": true,
+        "description": null
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("The host template has been successfully created, with name '{{HostTemplate1Name}}' and alias '{{HostTemplate1Alias}}'.", function () {
+    const body = res.getBody();
+    bru.setEnvVar("HostTemplate1Id", body.id);
+    expect(body).to.include({
+      "id": body.id,
+      "name": bru.getEnvVar("HostTemplate1Name"),
+      "alias": bru.getEnvVar("HostTemplate1Alias"),
+      "snmp_version": "2c",
+      "timezone_id": 1,
+      "severity_id": parseInt(bru.getEnvVar("HostSeverity1Id")),
+      "check_timeperiod_id": 1,
+      "note_url": "noteUrl-value",
+      "note": "note-value",
+      "action_url": "actionUrl-value",
+      "max_check_attempts": 3,
+      "normal_check_interval": 5,
+      "retry_check_interval": 2,
+      "icon_id": 1,
+      "is_locked": false
+    });
+    expect(body.categories[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostCategory1Id")),
+      "name": bru.getEnvVar("HostCategory1Name")
+    });
+    expect(body.templates[0]).to.include({
+      "id": parseInt(bru.getEnvVar("HostTemplate0Id")),
+      "name": bru.getEnvVar("HostTemplate0Name")
+    });
+    expect(body.macros[0]).to.include({
+      "name": "NAMEA",
+      "value": "valueA",
+      "is_password": false,
+      "description": "some text"
+    });
+    expect(body.macros[1]).to.include({
+      "name": "NAMEB",
+      "value": null,
+      "is_password": true,
+      "description": null
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

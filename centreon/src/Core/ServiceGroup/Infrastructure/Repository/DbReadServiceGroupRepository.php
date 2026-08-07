@@ -109,8 +109,9 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
+        $searchJoins = '';
         if ($searchRequest !== null) {
-            $request .= <<<SQL
+            $searchJoins = <<<SQL
                     LEFT JOIN `:db`.servicegroup_relation sgr
                         ON sgr.servicegroup_sg_id = sg.sg_id
                     LEFT JOIN `:db`.host h
@@ -132,6 +133,8 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         ON hg.hg_id = hgr.hostgroup_hg_id
                     {$searchRequest}
                 SQL;
+
+            $request .= $searchJoins;
         }
 
         // handle sort
@@ -149,8 +152,13 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // Calculate the number of rows for the pagination.
-        $sqlTranslator?->calculateNumberOfRows($this->db);
+        // Calculate the total number of rows
+        $countRequest = 'SELECT COUNT(DISTINCT sg.sg_id) FROM `:db`.servicegroup sg' . $searchJoins;
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        $sqlTranslator?->bindSearchValues($countStatement);
+        $countStatement->execute();
+
+        $requestParameters?->setTotal((int) $countStatement->fetchColumn());
 
         // Retrieve data
         $serviceGroups = [];
@@ -205,6 +213,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
 
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
+        $searchJoins = '';
         // Do not join tables if no search provided...
         if ($searchRequest !== null) {
             $hostAcl = $this->generateHostAclSubRequest($accessGroupIds);
@@ -217,7 +226,7 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
             $hostCategoryCondition = $hostCategoryAcl !== '' ? "AND hcr.hostcategories_hc_id IN ({$hostCategoryAcl})" : '';
             $hostGroupCondition = $hostGroupAcl !== '' ? "AND hgr.hostgroup_hg_id IN ({$hostGroupAcl})" : '';
 
-            $request .= <<<SQL
+            $searchJoins = <<<SQL
                     LEFT JOIN `:db`.servicegroup_relation sgr
                         ON sgr.servicegroup_sg_id = sg.sg_id
                     LEFT JOIN `:db`.host h
@@ -239,9 +248,11 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                         ON hg.hg_id = hgr.hostgroup_hg_id
                         {$hostGroupCondition}
                 SQL;
+
+            $request .= $searchJoins;
         }
 
-        $request .= <<<'SQL'
+        $aclJoins = <<<'SQL'
                 INNER JOIN `:db`.acl_resources_sg_relations arsr
                     ON sg.sg_id = arsr.sg_id
                 INNER JOIN `:db`.acl_resources res
@@ -252,11 +263,15 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
                     ON argr.acl_group_id = ag.acl_group_id
             SQL;
 
-        $request .= $searchRequest ? $searchRequest . ' AND ' : ' WHERE ';
+        $request .= $aclJoins;
 
-        $request .= <<<SQL
+        $aclWhereClause = $searchRequest ? $searchRequest . ' AND ' : ' WHERE ';
+
+        $aclWhereClause .= <<<SQL
                 ag.acl_group_id IN ({$bindQuery})
             SQL;
+
+        $request .= $aclWhereClause;
 
         // handle sort
         $sortRequest = $sqlTranslator?->translateSortParameterToSql();
@@ -277,8 +292,17 @@ class DbReadServiceGroupRepository extends AbstractRepositoryDRB implements Read
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // Calculate the number of rows for the pagination.
-        $sqlTranslator?->calculateNumberOfRows($this->db);
+        // Calculate the total number of rows
+        $countRequest = 'SELECT COUNT(DISTINCT sg.sg_id) FROM `:db`.servicegroup sg'
+            . $searchJoins . $aclJoins . $aclWhereClause;
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        $sqlTranslator?->bindSearchValues($countStatement);
+        foreach ($bindValues as $key => $value) {
+            $countStatement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $countStatement->execute();
+
+        $requestParameters?->setTotal((int) $countStatement->fetchColumn());
 
         // Retrieve data
         $serviceGroups = [];

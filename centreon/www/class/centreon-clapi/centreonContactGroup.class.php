@@ -172,10 +172,28 @@ class CentreonContactGroup extends CentreonObject
         }
         $params = ['cg_id', 'cg_name', 'cg_alias'];
         $paramString = str_replace('cg_', '', implode($this->delim, $params));
-        echo $paramString . "\n";
+        echo $paramString . $this->delim . 'members' . "\n";
         $elements = $this->object->getList($params, -1, 0, null, null, $filters);
+
+        $relObj = new Centreon_Object_Relation_Contact_Group_Contact($this->dependencyInjector);
+        $relations = $relObj->getMergedParameters(
+            ['cg_id'],
+            ['contact_alias'],
+            -1,
+            0,
+            null,
+            'ASC',
+            $filters,
+            'AND'
+        );
+        $membersMap = [];
+        foreach ($relations as $rel) {
+            $membersMap[$rel['cg_id']][] = $rel['contact_alias'];
+        }
+
         foreach ($elements as $tab) {
-            echo implode($this->delim, $tab) . "\n";
+            $members = isset($membersMap[$tab['cg_id']]) ? implode('|', $membersMap[$tab['cg_id']]) : '';
+            echo implode($this->delim, $tab) . $this->delim . $members . "\n";
         }
     }
 

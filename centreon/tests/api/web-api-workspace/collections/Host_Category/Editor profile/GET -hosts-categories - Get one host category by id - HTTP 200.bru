@@ -1,0 +1,33 @@
+meta {
+  name: GET /hosts/categories - Get one host category by id - HTTP 200
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/categories/{{HostCategory4Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("The host category retrieved by editor is listed with all of its parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.eql({
+      "id": parseInt(bru.getEnvVar("HostCategory4Id")),
+      "name": bru.getEnvVar("HostCategory4Name"),
+      "alias": bru.getEnvVar("HostCategory4Alias"),
+      "is_activated": true,
+      "comment": "I was created by the Read/Write user"
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

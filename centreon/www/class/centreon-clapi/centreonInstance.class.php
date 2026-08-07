@@ -21,12 +21,14 @@
 
 namespace CentreonClapi;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon_Object_Instance;
 use Centreon_Object_Relation_Instance_Host;
 use Exception;
 use LogicException;
 use PDOException;
 use Pimple\Container;
+use Webmozart\Assert\InvalidArgumentException;
 
 require_once 'centreonObject.class.php';
 require_once 'centreon.Config.Poller.class.php';
@@ -47,7 +49,7 @@ class CentreonInstance extends CentreonObject
     public const ORDER_SSH_PORT = 2;
     public const ORDER_GORGONE_PROTOCOL = 3;
     public const ORDER_GORGONE_PORT = 4;
-    public const GORGONE_COMMUNICATION = ['ZMQ' => '1', 'SSH' => '2'];
+    public const GORGONE_COMMUNICATION = ['ZMQ' => '1', 'SSH' => '2', 'PULL' => '3', 'PULLWSS' => '4'];
     public const INCORRECTIPADDRESS = 'Invalid IP address format';
 
     /** @var CentreonConfigPoller */
@@ -65,11 +67,19 @@ class CentreonInstance extends CentreonObject
     {
         parent::__construct($dependencyInjector);
         $this->object = new Centreon_Object_Instance($dependencyInjector);
+        $isCloudPlatform = filter_var(
+            $_ENV['IS_CLOUD_PLATFORM'] ?? null,
+            FILTER_VALIDATE_BOOL,
+            FILTER_NULL_ON_FAILURE
+        ) === true;
+        $defaultGorgoneCommunicationType = $isCloudPlatform
+            ? self::GORGONE_COMMUNICATION['PULLWSS']
+            : self::GORGONE_COMMUNICATION['ZMQ'];
         $this->params = [
             'localhost' => '0',
             'ns_activate' => '1',
             'ssh_port' => '22',
-            'gorgone_communication_type' => self::GORGONE_COMMUNICATION['ZMQ'],
+            'gorgone_communication_type' => $defaultGorgoneCommunicationType,
             'gorgone_port' => '5556',
             'nagios_bin' => '/usr/sbin/centengine',
             'nagiostats_bin' => '/usr/bin/centenginestats',
@@ -108,6 +118,9 @@ class CentreonInstance extends CentreonObject
         $addParams[$this->object->getUniqueLabelField()] = $params[self::ORDER_UNIQUENAME];
         $addParams['ns_ip_address'] = $params[self::ORDER_ADDRESS];
 
+        if ($params[self::ORDER_GORGONE_PROTOCOL] === '') {
+            $params[self::ORDER_GORGONE_PROTOCOL] = $this->params['gorgone_communication_type'];
+        }
         if (is_numeric($params[self::ORDER_GORGONE_PROTOCOL])) {
             $revertGorgoneCom = array_flip(self::GORGONE_COMMUNICATION);
             $params[self::ORDER_GORGONE_PROTOCOL] = $revertGorgoneCom[$params[self::ORDER_GORGONE_PROTOCOL]];
@@ -125,11 +138,9 @@ class CentreonInstance extends CentreonObject
         $addParams['ssh_port'] = $params[self::ORDER_SSH_PORT];
         $addParams['gorgone_port'] = $params[self::ORDER_GORGONE_PORT];
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            ! filter_var($addParams['ns_ip_address'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($addParams['ns_ip_address'], FILTER_VALIDATE_IP)
-        ) {
+        try {
+            CentreonAssert::ipOrHostname($addParams['ns_ip_address']);
+        } catch (InvalidArgumentException) {
             throw new CentreonClapiException(self::INCORRECTIPADDRESS);
         }
 
@@ -152,13 +163,12 @@ class CentreonInstance extends CentreonObject
             throw new CentreonClapiException(self::MISSINGPARAMETER);
         }
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            $params[1] == 'ns_ip_address'
-            && ! filter_var($params[2], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($params[2], FILTER_VALIDATE_IP)
-        ) {
-            throw new CentreonClapiException(self::INCORRECTIPADDRESS);
+        if ($params[1] == 'ns_ip_address') {
+            try {
+                CentreonAssert::ipOrHostname($params[2]);
+            } catch (InvalidArgumentException) {
+                throw new CentreonClapiException(self::INCORRECTIPADDRESS);
+            }
         }
 
         $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);

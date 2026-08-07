@@ -47,6 +47,7 @@ use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
@@ -76,6 +77,7 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Utility\Difference\BasicDifference;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class PartialUpdateHost
 {
@@ -89,6 +91,7 @@ final class PartialUpdateHost
     public function __construct(
         private readonly WriteHostRepositoryInterface $writeHostRepository,
         private readonly ReadHostRepositoryInterface $readHostRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
@@ -104,6 +107,7 @@ final class PartialUpdateHost
         private readonly PartialUpdateHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly AdminResolver $adminResolver,
@@ -168,7 +172,7 @@ final class PartialUpdateHost
                 }
             );
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-        } catch (AssertionFailedException $ex) {
+        } catch (AssertionFailedException|InvalidArgumentException $ex) {
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
@@ -182,7 +186,7 @@ final class PartialUpdateHost
         try {
             $this->dataStorageEngine->startTransaction();
 
-            if ($this->writeVaultRepository->isVaultConfigured()) {
+            if ($this->vaultEligibilityService->shouldUseVault()) {
                 $this->retrieveHostUuidFromVault($host);
             }
 
@@ -775,9 +779,11 @@ final class PartialUpdateHost
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($host->getCheckCommandId() !== null) {
+        $effectiveCommandId = $host->getCheckCommandId()
+            ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $host->getCheckCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
@@ -785,10 +791,10 @@ final class PartialUpdateHost
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($directMacros)
                 : $directMacros,
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,
@@ -828,7 +834,7 @@ final class PartialUpdateHost
      */
     private function updateMacroInVault(Macro $macro, string $action): Macro
     {
-        if ($this->writeVaultRepository->isVaultConfigured() && $macro->isPassword() === true) {
+        if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
             $macroPrefixedName = '_HOST' . $macro->getName();
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $this->uuid ?? null,
@@ -900,7 +906,7 @@ final class PartialUpdateHost
         }
 
         // If vault is not configured, just set the value directly
-        if (! $this->writeVaultRepository->isVaultConfigured()) {
+        if (! $this->vaultEligibilityService->shouldUseVault()) {
             $host->setSnmpCommunity($snmpCommunity ?? '');
 
             return;

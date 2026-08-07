@@ -1,4 +1,5 @@
 import { equals, pluck, reject } from 'ramda';
+import type { RefObject } from 'react';
 
 import { getValueByUnit } from '../common/utils';
 import type { LegendScale } from '../Legend/models';
@@ -9,8 +10,8 @@ interface ResponsivePieProps {
   defaultInnerRadius: number;
   height: number;
   innerRadiusNoLimit: boolean;
-  legendRef;
-  titleRef;
+  legendRef: RefObject<HTMLElement | null>;
+  titleRef: RefObject<HTMLElement | null>;
   unit: 'percentage' | 'number';
   width: number;
 }

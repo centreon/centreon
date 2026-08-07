@@ -1,0 +1,28 @@
+meta {
+  name: GET /monitoring/resources - List resources - HTTP 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrlWeb}}/monitoring/resources
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Operator Profile can list monitoring resources.", function () {
+    const body = res.getBody();
+    expect(body).to.have.property("result").that.is.an("array");
+    expect(body).to.have.property("meta").that.is.an("object");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

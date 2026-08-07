@@ -34,13 +34,15 @@ runs:
   steps:
     - name: Validate inputs
       uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      env:
+        RELEASE_TYPE: ${{ inputs.release_type }}
       with:
         script: |
-          if (! ['release', 'hotfix'].includes('${{ inputs.release_type }}')) {
+          if (! ['release', 'hotfix'].includes(process.env.RELEASE_TYPE)) {
             throw new Error('release_type input must be defined (release or hotfix)');
           }
 
-    - uses: jfrog/setup-jfrog-cli@5b06f730cc5a6f55d78b30753f8583454b08c0aa # v4.8.1
+    - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -53,20 +55,29 @@ runs:
 
     - name: Promote RPM packages to stable
       if: ${{ steps.parse-distrib.outputs.package_extension == 'rpm' }}
+      env:
+        MAJOR_VERSION: ${{ inputs.major_version }}
+        MINOR_VERSION: ${{ inputs.minor_version }}
+        DISTRIB: ${{ inputs.distrib }}
+        IS_CLOUD: ${{ inputs.is_cloud }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
+        STABILITY: ${{ inputs.stability }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        ARTIFACTORY_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eux
 
         # DEBUG
-        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
-        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
-        echo "[DEBUG] - is_cloud: ${{ inputs.is_cloud }}"
-        echo "[DEBUG] - release_type: ${{ inputs.release_type }}"
-        echo "[DEBUG] - stability: ${{ inputs.stability}}"
+        echo "[DEBUG] - Major version: $MAJOR_VERSION"
+        echo "[DEBUG] - Minor version: $MINOR_VERSION"
+        echo "[DEBUG] - Distrib: $DISTRIB"
+        echo "[DEBUG] - is_cloud: $IS_CLOUD"
+        echo "[DEBUG] - release_type: $RELEASE_TYPE"
+        echo "[DEBUG] - stability: $STABILITY"
 
         # Cloud specific promote
         # delivery by default to onprem, override to internal if is_cloud is true
-        if [[ ${{ inputs.is_cloud }} == "true" ]]; then
+        if [[ "$IS_CLOUD" == "true" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else
           ROOT_REPO_PATH="rpm-standard"
@@ -74,7 +85,7 @@ runs:
 
         # Search for testing packages candidate for promote
         for ARCH in "noarch" "x86_64"; do
-          SEARCH_REPO_PATH="${{ inputs.major_version }}/${{ inputs.distrib }}/testing-${{ inputs.release_type }}/$ARCH/${{ inputs.module_name }}"
+          SEARCH_REPO_PATH="$MAJOR_VERSION/$DISTRIB/testing-$RELEASE_TYPE/$ARCH/$MODULE_NAME"
 
           echo "[DEBUG] - Get path of $ARCH testing artifacts to promote to stable."
           SRC_PATHS=$(jf rt search --include-dirs "$ROOT_REPO_PATH/$SEARCH_REPO_PATH/*.rpm" | jq -r '.[].path')
@@ -90,18 +101,18 @@ runs:
 
           # Build target path based on ARCH
           echo "[DEBUG] - Build $ARCH target path."
-          TARGET_PATH="$ROOT_REPO_PATH/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH/RPMS/${{ inputs.module_name }}/"
+          TARGET_PATH="$ROOT_REPO_PATH/$MAJOR_VERSION/$DISTRIB/stable/$ARCH/RPMS/$MODULE_NAME/"
           echo "[DEBUG] - Target path: $TARGET_PATH"
 
           # Download candidates for promote
           echo "[DEBUG] - Promoting $ARCH testing artifacts to stable."
           for ARTIFACT in ${SRC_PATHS[@]}; do
             echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
-            jf rt download $ARTIFACT --flat
+            jf rt download "$ARTIFACT" --flat
           done
 
           DRY_RUN_FLAG="--dry-run"
-          if [ "${{ inputs.stability }}" == "stable" ]; then
+          if [ "$STABILITY" == "stable" ]; then
             DRY_RUN_FLAG=""
           fi
 
@@ -111,8 +122,8 @@ runs:
             jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
           done
 
-          if [ "${{ inputs.stability }}" == "stable" ]; then
-            curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/yum/$ROOT_REPO_PATH?path=/${{ inputs.major_version }}/${{ inputs.distrib }}/stable/$ARCH&async=1"
+          if [ "$STABILITY" == "stable" ]; then
+            curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" -X POST "https://centreon.jfrog.io/artifactory/api/yum/$ROOT_REPO_PATH?path=/$MAJOR_VERSION/$DISTRIB/stable/$ARCH&async=1"
           fi
 
           # Cleanup before next round of candidates
@@ -123,33 +134,44 @@ runs:
 
     - name: Promote DEB packages to stable
       if: ${{ steps.parse-distrib.outputs.package_extension == 'deb' && inputs.is_cloud == 'false' }}
+      env:
+        MAJOR_VERSION: ${{ inputs.major_version }}
+        MINOR_VERSION: ${{ inputs.minor_version }}
+        DISTRIB: ${{ inputs.distrib }}
+        IS_CLOUD: ${{ inputs.is_cloud }}
+        RELEASE_TYPE: ${{ inputs.release_type }}
+        STABILITY: ${{ inputs.stability }}
+        MODULE_NAME: ${{ inputs.module_name }}
+        ARTIFACTORY_TOKEN: ${{ inputs.artifactory_token }}
+        DISTRIB_FAMILY: ${{ steps.parse-distrib.outputs.distrib_family }}
+        PACKAGE_DISTRIB_NAME: ${{ steps.parse-distrib.outputs.package_distrib_name }}
       run: |
         set -eux
 
-        echo "[DEBUG] - Major version: ${{ inputs.major_version }}"
-        echo "[DEBUG] - Minor version: ${{ inputs.minor_version }}"
-        echo "[DEBUG] - Distrib: ${{ inputs.distrib }}"
+        echo "[DEBUG] - Major version: $MAJOR_VERSION"
+        echo "[DEBUG] - Minor version: $MINOR_VERSION"
+        echo "[DEBUG] - Distrib: $DISTRIB"
 
         # Define ROOT_REPO_PATH for debian
         # There is no cloud ROOT_REPO_PATH for debian, only onprem
         # Should there be a need to deploy debian to cloud repositories, please use the same condition as RPM promotion
         ROOT_REPO_PATH_PREFIX=""
-        if [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "debian" ]]; then
+        if [[ "$DISTRIB_FAMILY" == "debian" ]]; then
           ROOT_REPO_PATH_PREFIX="apt-"
-        elif [[ "${{ steps.parse-distrib.outputs.distrib_family }}" == "ubuntu" ]]; then
+        elif [[ "$DISTRIB_FAMILY" == "ubuntu" ]]; then
           ROOT_REPO_PATH_PREFIX="ubuntu-"
         else
-          echo "::error::Unsupported distribution family: ${{ steps.parse-distrib.outputs.distrib_family }}"
+          echo "::error::Unsupported distribution family: $DISTRIB_FAMILY"
           exit 1
         fi
 
         SOURCE_ROOT_REPO_PATH_SUFFIX=""
         TARGET_ROOT_REPO_PATH_SUFFIX=""
-        if [[ "${{ inputs.is_cloud }}" == "true" ]]; then
+        if [[ "$IS_CLOUD" == "true" ]]; then
           SOURCE_ROOT_REPO_PATH_SUFFIX="-internal"
           TARGET_ROOT_REPO_PATH_SUFFIX="-internal"
-        elif [[ "${{ inputs.major_version }}" < "25.05" ]]; then
-          TARGET_ROOT_REPO_PATH_SUFFIX="-${{ inputs.major_version }}-stable"
+        elif [[ "$MAJOR_VERSION" < "25.05" ]]; then
+          TARGET_ROOT_REPO_PATH_SUFFIX="-$MAJOR_VERSION-stable"
         fi
 
         SOURCE_ROOT_REPO_PATH="${ROOT_REPO_PATH_PREFIX}standard${SOURCE_ROOT_REPO_PATH_SUFFIX}"
@@ -157,16 +179,16 @@ runs:
 
         echo "[DEBUG] - Get path of testing DEB packages to promote to stable."
 
-        case "${{ inputs.major_version }}" in
+        case "$MAJOR_VERSION" in
           "22.10"|"23.10")
             SEARCH_PATTERN="*.deb"
             ;;
           *)
-            SEARCH_PATTERN="*${{ steps.parse-distrib.outputs.package_distrib_name }}*.deb"
+            SEARCH_PATTERN="*${PACKAGE_DISTRIB_NAME}*.deb"
             ;;
         esac
 
-        SRC_PATHS=$(jf rt search --include-dirs "$SOURCE_ROOT_REPO_PATH/pool/${{ inputs.major_version }}/testing/${{ inputs.release_type }}/${{ inputs.module_name }}/${SEARCH_PATTERN}" | jq -r '.[].path')
+        SRC_PATHS=$(jf rt search --include-dirs "$SOURCE_ROOT_REPO_PATH/pool/$MAJOR_VERSION/testing/$RELEASE_TYPE/$MODULE_NAME/${SEARCH_PATTERN}" | jq -r '.[].path')
 
         if [[ ${SRC_PATHS[@]} ]]; then
           for SRC_PATH in ${SRC_PATHS[@]}; do
@@ -180,22 +202,22 @@ runs:
         echo "[DEBUG] - Promoting DEB testing artifacts to stable."
         for ARTIFACT in ${SRC_PATHS[@]}; do
           echo "[DEBUG] - Downloading $ARTIFACT from TESTING."
-          jf rt download $ARTIFACT --flat
+          jf rt download "$ARTIFACT" --flat
         done
 
         DRY_RUN_FLAG="--dry-run"
-        if [ "${{ inputs.stability }}" == "stable" ]; then
+        if [ "$STABILITY" == "stable" ]; then
           DRY_RUN_FLAG=""
         fi
 
         for ARTIFACT_DL in $(find . -maxdepth 1 -type f -name '*.deb' -printf '%f\n'); do
-          ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
-          if [[ "${{ inputs.major_version }}" < "25.05" ]]; then
-            POOL_SUBPATH="${{ inputs.module_name }}"
-            DEB_PROP="${{ inputs.distrib }}/main/$ARCH"
+          ARCH=$(echo "$ARTIFACT_DL" | cut -d '_' -f3 | cut -d '.' -f1)
+          if [[ "$MAJOR_VERSION" < "25.05" ]]; then
+            POOL_SUBPATH="$MODULE_NAME"
+            DEB_PROP="$DISTRIB/main/$ARCH"
           else
-            POOL_SUBPATH="${{ inputs.major_version }}/${{ inputs.stability }}/${{ inputs.module_name }}"
-            DEB_PROP="${{ inputs.distrib }}-${{ inputs.major_version }}-${{ inputs.stability }}/main/$ARCH"
+            POOL_SUBPATH="$MAJOR_VERSION/$STABILITY/$MODULE_NAME"
+            DEB_PROP="$DISTRIB-$MAJOR_VERSION-$STABILITY/main/$ARCH"
           fi
           TARGET_PATH="$TARGET_ROOT_REPO_PATH/pool/${POOL_SUBPATH}/"
 
@@ -203,8 +225,8 @@ runs:
           jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --deb "${DEB_PROP}" --detailed-summary --flat $DRY_RUN_FLAG
         done
 
-        if [ "${{ inputs.stability }}" == "stable" ]; then
-          curl -H "Authorization: Bearer ${{ inputs.artifactory_token }}" -X POST "https://centreon.jfrog.io/artifactory/api/deb/reindex/$TARGET_ROOT_REPO_PATH?async=1"
+        if [ "$STABILITY" == "stable" ]; then
+          curl -H "Authorization: Bearer $ARTIFACTORY_TOKEN" -X POST "https://centreon.jfrog.io/artifactory/api/deb/reindex/$TARGET_ROOT_REPO_PATH?async=1"
         fi
 
         rm -f *.deb

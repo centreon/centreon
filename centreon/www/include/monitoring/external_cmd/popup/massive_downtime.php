@@ -23,7 +23,9 @@ if (! isset($centreon)) {
     exit();
 }
 
-const DOWNTIME_ON_HOST = 75;
+if (! defined('DOWNTIME_ON_HOST')) {
+    define('DOWNTIME_ON_HOST', 75);
+}
 
 $select = [];
 if (isset($_GET['select'])) {

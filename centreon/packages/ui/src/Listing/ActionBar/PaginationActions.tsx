@@ -3,7 +3,16 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import IconButton from '@mui/material/IconButton';
-import type { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
+
+type TablePaginationActionsProps = {
+  count: number;
+  onPageChange: (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    page: number
+  ) => void;
+  page: number;
+  rowsPerPage: number;
+};
 
 import { useTranslation } from 'react-i18next';
 
@@ -22,15 +31,21 @@ const PaginationActions = ({
 }: TablePaginationActionsProps): JSX.Element => {
   const { t } = useTranslation();
 
-  const changeToFirstPage = (event): void => {
+  const changeToFirstPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, 0);
   };
 
-  const changeToPreviousPage = (event): void => {
+  const changeToPreviousPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, page - 1);
   };
 
-  const changeToNextPage = (event): void => {
+  const changeToNextPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, page + 1);
   };
 
@@ -39,7 +54,9 @@ const PaginationActions = ({
   const isFirstPage = page === 0;
   const isLastPage = page >= lastPage;
 
-  const changeToLastPage = (event): void => {
+  const changeToLastPage = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ): void => {
     onPageChange(event, Math.max(0, lastPage));
   };
 

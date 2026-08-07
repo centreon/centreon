@@ -3,7 +3,7 @@ Feature: Check permissions on Agent Configuration
   As a Centreon user
   I want to check which actions are possible with different rights
 
-  @TEST_MON-152000
+  @MON-152000
   Scenario: Create an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     When the user clicks on Add
@@ -13,7 +13,7 @@ Feature: Check permissions on Agent Configuration
     Then the creation form is closed
     And the first configuration is displayed in the Agents Configuration page
 
-  @TEST_MON-152001
+  @MON-152001
   Scenario: Update an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     And an agent configuration is already created
@@ -24,20 +24,20 @@ Feature: Check permissions on Agent Configuration
     Then the update form is closed
     And the updated configuration is displayed correctly in the Agents Configuration page
 
-  @TEST_MON-152002
+  @MON-152002
   Scenario: Delete an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     And an agent configuration is already created
     When the user deletes the Agents Configuration
     Then the Agents Configuration is no longer displayed in the listing page
 
-  @TEST_MON-152003
+  @MON-152003
   Scenario: Access to Agents Configuration page with a non-admin user without topology rights
     Given a non-admin user without topology rights is logged in
     When the user tries to access the Agents Configuration page
     Then the user cannot access the Agents Configuration page
 
-  @TEST_MON-152004
+  @MON-152004
   Scenario: Access to Agents page with a non-admin user with filters on Pollers
     Given a non-admin user is logged in
     And an agent configuration already created linked with two pollers
@@ -50,7 +50,7 @@ Feature: Check permissions on Agent Configuration
     Then a pop up is displayed with all of the agent configuration information with the 2 pollers
     And the user can update the Agents Configuration
 
-  @TEST_MON-152005
+  @MON-152005
   Scenario: Create an agent configuration with a non-admin user with filters on Pollers
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration is displayed
@@ -61,9 +61,9 @@ Feature: Check permissions on Agent Configuration
     Then the creation form is closed
     And the second configuration is displayed in the Agents Configuration page
 
-  @TEST_MON-152006
+  @MON-152006
   Scenario: Delete an agent configuration with a non-admin user with filters on Pollers
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration is displayed
-    When the user deletes the Agents Configuration
-    Then the first Agents Configuration is no longer displayed in the listing page
+    When the non-admin user deletes an Agent Configuration
+    Then the deleted agent Configuration is no longer displayed in the listing page

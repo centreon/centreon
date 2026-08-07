@@ -6,7 +6,13 @@ import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../atoms';
 
 interface UseDuplicateProps {
-  duplicateMutation: ({ ids, nbDuplicates }) => Promise<object | ResponseError>;
+  duplicateMutation: ({
+    ids,
+    nbDuplicates
+  }: {
+    ids: Array<number>;
+    nbDuplicates?: number;
+  }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 

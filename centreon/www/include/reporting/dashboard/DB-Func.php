@@ -19,25 +19,23 @@
  *
  */
 
-// returns days of week taken in account for reporting in a string
-function getReportDaysStr($reportTimePeriod)
+/**
+ * Return days of the week taken in account for reporting as an array for use with prepared statement placeholders.
+ *
+ * @param array $reportTimePeriod
+ * @return string[]
+ */
+function getReportDaysArray($reportTimePeriod)
 {
     $tab = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    $str = '';
-    foreach ($tab as $key => $value) {
+    $days = [];
+    foreach ($tab as $value) {
         if (isset($reportTimePeriod['report_' . $value]) && $reportTimePeriod['report_' . $value]) {
-            if ($str != '') {
-                $str .= ", '" . $value . "'";
-            } else {
-                $str .= "'" . $value . "'";
-            }
+            $days[] = $value;
         }
     }
-    if ($str == '') {
-        $str = 'NULL';
-    }
 
-    return $str;
+    return $days;
 }
 
 /*
@@ -53,20 +51,34 @@ function getLogInDbForHost($host_id, $start_date, $end_date, $reportTimePeriod)
         $hostStats[$name] = 0;
     }
 
-    $days_of_week = getReportDaysStr($reportTimePeriod);
-    $rq = 'SELECT sum(`UPnbEvent`) as UP_A, sum(`UPTimeScheduled`) as UP_T, '
-        . ' sum(`DOWNnbEvent`) as DOWN_A, sum(`DOWNTimeScheduled`) as DOWN_T, '
-        . ' sum(`UNREACHABLEnbEvent`) as UNREACHABLE_A, sum(`UNREACHABLETimeScheduled`) as UNREACHABLE_T, '
-        . ' sum(`UNDETERMINEDTimeScheduled`) as UNDETERMINED_T, '
-        . ' sum(`MaintenanceTime`) as MAINTENANCE_T '
-        . 'FROM `log_archive_host` '
-        . 'WHERE `host_id` = ' . $host_id . ' AND `date_start` >=  ' . $start_date . ' AND `date_end` <= ' . $end_date
-        . ' ' . "AND DATE_FORMAT( FROM_UNIXTIME( `date_start`), '%W') IN (" . $days_of_week . ') '
-        . 'GROUP BY `host_id` ';
+    $days_of_week = getReportDaysArray($reportTimePeriod);
+    if ($days_of_week !== []) {
+        $dayPlaceholders = [];
+        foreach ($days_of_week as $i => $day) {
+            $dayPlaceholders[] = ':day' . $i;
+        }
+        $daysInClause = implode(', ', $dayPlaceholders);
+        $rq = 'SELECT sum(`UPnbEvent`) as UP_A, sum(`UPTimeScheduled`) as UP_T, '
+            . ' sum(`DOWNnbEvent`) as DOWN_A, sum(`DOWNTimeScheduled`) as DOWN_T, '
+            . ' sum(`UNREACHABLEnbEvent`) as UNREACHABLE_A, sum(`UNREACHABLETimeScheduled`) as UNREACHABLE_T, '
+            . ' sum(`UNDETERMINEDTimeScheduled`) as UNDETERMINED_T, '
+            . ' sum(`MaintenanceTime`) as MAINTENANCE_T '
+            . 'FROM `log_archive_host` '
+            . 'WHERE `host_id` = :host_id AND `date_start` >= :start_date AND `date_end` <= :end_date '
+            . "AND DATE_FORMAT(FROM_UNIXTIME(`date_start`), '%W') IN (" . $daysInClause . ') '
+            . 'GROUP BY `host_id` ';
 
-    $dbResult = $pearDBO->query($rq);
-    if ($row = $dbResult->fetch()) {
-        $hostStats = $row;
+        $dbResult = $pearDBO->prepare($rq);
+        $dbResult->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+        $dbResult->bindValue(':start_date', (int) $start_date, PDO::PARAM_INT);
+        $dbResult->bindValue(':end_date', (int) $end_date, PDO::PARAM_INT);
+        foreach ($days_of_week as $i => $day) {
+            $dbResult->bindValue(':day' . $i, $day, PDO::PARAM_STR);
+        }
+        $dbResult->execute();
+        if ($row = $dbResult->fetch()) {
+            $hostStats = $row;
+        }
     }
 
     /*
@@ -254,34 +266,60 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
         }
     }
 
-    $days_of_week = getReportDaysStr($reportTimePeriod);
-    $aclCondition = '';
-    if (! $centreon->user->admin) {
-        $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
-            . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-            . 'AND acl.group_id IN (' . $centreon->user->access->getAccessGroupsString() . ') LIMIT 1)';
-    }
-    $rq = 'SELECT DISTINCT las.service_id, '
-        . 'sum(OKTimeScheduled) as OK_T, '
-        . 'sum(OKnbEvent) as OK_A, '
-        . 'sum(WARNINGTimeScheduled)  as WARNING_T, '
-        . 'sum(WARNINGnbEvent) as WARNING_A, '
-        . 'sum(UNKNOWNTimeScheduled) as UNKNOWN_T, '
-        . 'sum(UNKNOWNnbEvent) as UNKNOWN_A, '
-        . 'sum(CRITICALTimeScheduled) as CRITICAL_T, '
-        . 'sum(CRITICALnbEvent) as CRITICAL_A, '
-        . 'sum(UNDETERMINEDTimeScheduled) as UNDETERMINED_T, '
-        . 'sum(MaintenanceTime) as MAINTENANCE_T '
-        . 'FROM log_archive_service las '
-        . 'WHERE las.host_id = ' . $host_id . ' '
-        . $aclCondition . ' '
-        . 'AND date_start >= ' . $start_date . ' AND date_end <= ' . $end_date . ' '
-        . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $days_of_week . ') '
-        . 'GROUP BY las.service_id ';
-    $dbResult = $pearDBO->query($rq);
-    while ($row = $dbResult->fetch()) {
-        if (isset($hostServiceStats[$row['service_id']])) {
-            $hostServiceStats[$row['service_id']] = $row;
+    $days_of_week = getReportDaysArray($reportTimePeriod);
+    if ($days_of_week !== []) {
+        $dayPlaceholders = [];
+        foreach ($days_of_week as $i => $day) {
+            $dayPlaceholders[] = ':day' . $i;
+        }
+        $daysInClause = implode(', ', $dayPlaceholders);
+        $aclCondition = '';
+        $aclGroupIds = [];
+        if (! $centreon->user->admin) {
+            $aclGroupIds = array_keys($centreon->user->access->getAccessGroups());
+            if ($aclGroupIds === []) {
+                return $hostServiceStats;
+            }
+            $aclPlaceholders = [];
+            foreach ($aclGroupIds as $j => $id) {
+                $aclPlaceholders[] = ':aclGroup' . $j;
+            }
+            $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
+                . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
+                . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
+        }
+        $rq = 'SELECT DISTINCT las.service_id, '
+            . 'sum(OKTimeScheduled) as OK_T, '
+            . 'sum(OKnbEvent) as OK_A, '
+            . 'sum(WARNINGTimeScheduled)  as WARNING_T, '
+            . 'sum(WARNINGnbEvent) as WARNING_A, '
+            . 'sum(UNKNOWNTimeScheduled) as UNKNOWN_T, '
+            . 'sum(UNKNOWNnbEvent) as UNKNOWN_A, '
+            . 'sum(CRITICALTimeScheduled) as CRITICAL_T, '
+            . 'sum(CRITICALnbEvent) as CRITICAL_A, '
+            . 'sum(UNDETERMINEDTimeScheduled) as UNDETERMINED_T, '
+            . 'sum(MaintenanceTime) as MAINTENANCE_T '
+            . 'FROM log_archive_service las '
+            . 'WHERE las.host_id = :host_id '
+            . $aclCondition . ' '
+            . 'AND date_start >= :start_date AND date_end <= :end_date '
+            . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysInClause . ') '
+            . 'GROUP BY las.service_id ';
+        $dbResult = $pearDBO->prepare($rq);
+        $dbResult->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+        $dbResult->bindValue(':start_date', (int) $start_date, PDO::PARAM_INT);
+        $dbResult->bindValue(':end_date', (int) $end_date, PDO::PARAM_INT);
+        foreach ($days_of_week as $i => $day) {
+            $dbResult->bindValue(':day' . $i, $day, PDO::PARAM_STR);
+        }
+        foreach ($aclGroupIds as $j => $id) {
+            $dbResult->bindValue(':aclGroup' . $j, (int) $id, PDO::PARAM_INT);
+        }
+        $dbResult->execute();
+        while ($row = $dbResult->fetch()) {
+            if (isset($hostServiceStats[$row['service_id']])) {
+                $hostServiceStats[$row['service_id']] = $row;
+            }
         }
     }
     $i = 0;
@@ -392,97 +430,119 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
     foreach (getServicesStatsValueName() as $name) {
         $serviceStats[$name] = 0;
     }
-    $daysOfWeek = getReportDaysStr($reportTimePeriod);
-    $aclCondition = '';
-    if (! $centreon->user->admin) {
-        $aclCondition = 'AND EXISTS (SELECT * FROM centreon_acl acl '
-            . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
-            . 'AND acl.group_id IN (' . $centreon->user->access->getAccessGroupsString() . ') )';
-    }
-
-    $bindValues = [
-        ':startDate' => [PDO::PARAM_STR, $startDate],
-        ':endDate' => [PDO::PARAM_STR, $endDate],
-    ];
-
-    $servicesConditions = [];
-    foreach ($services as $index => $service) {
-        $servicesConditions[] = "(las.host_id = :host{$index} AND las.service_id = :service{$index})";
-        $bindValues[':host' . $index] = [PDO::PARAM_INT, $service['hostId']];
-        $bindValues[':service' . $index] = [PDO::PARAM_INT, $service['serviceId']];
-    }
-    $servicesSubquery = 'AND (' . implode(' OR ', $servicesConditions) . ')';
-
-    // Use "like" instead of "=" to avoid mysql bug on partitioned tables
-    $rq = 'SELECT DISTINCT las.host_id, las.service_id, sum(OKTimeScheduled) as OK_T, sum(OKnbEvent) as OK_A, '
-        . 'sum(WARNINGTimeScheduled)  as WARNING_T, sum(WARNINGnbEvent) as WARNING_A, '
-        . 'sum(UNKNOWNTimeScheduled) as UNKNOWN_T, sum(UNKNOWNnbEvent) as UNKNOWN_A, '
-        . 'sum(CRITICALTimeScheduled) as CRITICAL_T, sum(CRITICALnbEvent) as CRITICAL_A, '
-        . 'sum(UNDETERMINEDTimeScheduled) as UNDETERMINED_T, '
-        . 'sum(MaintenanceTime) as MAINTENANCE_T '
-        . 'FROM log_archive_service las '
-        . 'WHERE `date_start` >= :startDate '
-        . 'AND date_end <= :endDate '
-        . $aclCondition . ' '
-        . $servicesSubquery . ' '
-        . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysOfWeek . ') '
-        . 'GROUP BY las.host_id, las.service_id';
-    $statement = $pearDBO->prepare($rq);
-
-    foreach ($bindValues as $bindName => $bindParams) {
-        [$bindType, $bindValue] = $bindParams;
-        $statement->bindValue($bindName, $bindValue, $bindType);
-    }
-
-    $statement->execute();
+    $daysOfWeek = getReportDaysArray($reportTimePeriod);
     $servicesStats = [];
-    $timeTab = getTotalTimeFromInterval($startDate, $endDate, $reportTimePeriod);
-    while ($serviceStats = $statement->fetch()) {
-        if ($timeTab['reportTime']) {
-            $serviceStats['UNDETERMINED_T'] += $timeTab['reportTime']
-                - ($serviceStats['OK_T'] + $serviceStats['WARNING_T'] + $serviceStats['CRITICAL_T']
-                    + $serviceStats['UNKNOWN_T'] + $serviceStats['UNDETERMINED_T'] + $serviceStats['MAINTENANCE_T']);
-        } else {
-            foreach ($status as $key => $value) {
-                $serviceStats[$value . '_T'] = 0;
-            }
-            $serviceStats['UNDETERMINED_T'] = $timeTab['totalTime'];
+    if ($daysOfWeek !== []) {
+        $dayPlaceholders = [];
+        foreach ($daysOfWeek as $i => $day) {
+            $dayPlaceholders[] = ':day' . $i;
         }
-        // Calculate percentage of time (_TP => Total time percentage) for each status
-        $serviceStats['TOTAL_TIME'] = $serviceStats['OK_T'] + $serviceStats['WARNING_T'] + $serviceStats['CRITICAL_T']
-            + $serviceStats['UNKNOWN_T'] + $serviceStats['UNDETERMINED_T'] + $serviceStats['MAINTENANCE_T'];
-        $time = $serviceStats['TOTAL_TIME'];
-        foreach ($status as $value) {
-            $serviceStats[$value . '_TP'] = round($serviceStats[$value . '_T'] / $time * 100, 2);
-        }
-        // The same percentage (_MP => Mean Time percentage) is calculated ignoring undetermined time
-        $serviceStats['MEAN_TIME'] = $serviceStats['OK_T'] + $serviceStats['WARNING_T']
-            + $serviceStats['CRITICAL_T'] + $serviceStats['UNKNOWN_T'];
-        $time = $serviceStats['MEAN_TIME'];
-        if ($serviceStats['MEAN_TIME'] <= 0) {
-            foreach ($status as $value) {
-                if ($value != 'UNDETERMINED' && $value != 'MAINTENANCE') {
-                    $serviceStats[$value . '_MP'] = 0;
-                }
+        $daysInClause = implode(', ', $dayPlaceholders);
+        $aclCondition = '';
+        $aclGroupIds = [];
+        if (! $centreon->user->admin) {
+            $aclGroupIds = array_keys($centreon->user->access->getAccessGroups());
+            if ($aclGroupIds === []) {
+                return $servicesStats;
             }
-        } else {
-            foreach ($status as $value) {
-                if ($value != 'UNDETERMINED' && $value != 'MAINTENANCE') {
-                    $serviceStats[$value . '_MP'] = round($serviceStats[$value . '_T'] / $time * 100, 2);
-                }
+            $aclPlaceholders = [];
+            foreach ($aclGroupIds as $j => $id) {
+                $aclPlaceholders[] = ':aclGroup' . $j;
             }
-        }
-        // Format time for each status (_TF => Time Formated), mean time and total time
-        $serviceStats['MEAN_TIME_F'] = getTimeString($serviceStats['MEAN_TIME'], $reportTimePeriod);
-        $serviceStats['TOTAL_TIME_F'] = getTimeString($serviceStats['TOTAL_TIME'], $reportTimePeriod);
-        foreach ($status as $value) {
-            $serviceStats[$value . '_TF'] = getTimeString($serviceStats[$value . '_T'], $reportTimePeriod);
+            $aclCondition = 'AND EXISTS (SELECT 1 FROM centreon_acl acl '
+                . 'WHERE las.host_id = acl.host_id AND las.service_id = acl.service_id '
+                . 'AND acl.group_id IN (' . implode(', ', $aclPlaceholders) . ') LIMIT 1)';
         }
 
-        $serviceStats['TOTAL_ALERTS'] = $serviceStats['OK_A'] + $serviceStats['WARNING_A'] + $serviceStats['CRITICAL_A']
-            + $serviceStats['UNKNOWN_A'];
+        $bindValues = [
+            ':startDate' => [PDO::PARAM_INT, (int) $startDate],
+            ':endDate' => [PDO::PARAM_INT, (int) $endDate],
+        ];
 
-        $servicesStats[$serviceStats['host_id']][$serviceStats['service_id']] = $serviceStats;
+        $servicesConditions = [];
+        foreach ($services as $index => $service) {
+            $servicesConditions[] = "(las.host_id = :host{$index} AND las.service_id = :service{$index})";
+            $bindValues[':host' . $index] = [PDO::PARAM_INT, $service['hostId']];
+            $bindValues[':service' . $index] = [PDO::PARAM_INT, $service['serviceId']];
+        }
+        $servicesSubquery = 'AND (' . implode(' OR ', $servicesConditions) . ')';
+
+        // Use "like" instead of "=" to avoid mysql bug on partitioned tables
+        $rq = 'SELECT DISTINCT las.host_id, las.service_id, sum(OKTimeScheduled) as OK_T, sum(OKnbEvent) as OK_A, '
+            . 'sum(WARNINGTimeScheduled)  as WARNING_T, sum(WARNINGnbEvent) as WARNING_A, '
+            . 'sum(UNKNOWNTimeScheduled) as UNKNOWN_T, sum(UNKNOWNnbEvent) as UNKNOWN_A, '
+            . 'sum(CRITICALTimeScheduled) as CRITICAL_T, sum(CRITICALnbEvent) as CRITICAL_A, '
+            . 'sum(UNDETERMINEDTimeScheduled) as UNDETERMINED_T, '
+            . 'sum(MaintenanceTime) as MAINTENANCE_T '
+            . 'FROM log_archive_service las '
+            . 'WHERE `date_start` >= :startDate '
+            . 'AND date_end <= :endDate '
+            . $aclCondition . ' '
+            . $servicesSubquery . ' '
+            . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $daysInClause . ') '
+            . 'GROUP BY las.host_id, las.service_id';
+        $statement = $pearDBO->prepare($rq);
+
+        foreach ($bindValues as $bindName => $bindParams) {
+            [$bindType, $bindValue] = $bindParams;
+            $statement->bindValue($bindName, $bindValue, $bindType);
+        }
+        foreach ($daysOfWeek as $i => $day) {
+            $statement->bindValue(':day' . $i, $day, PDO::PARAM_STR);
+        }
+        foreach ($aclGroupIds as $j => $id) {
+            $statement->bindValue(':aclGroup' . $j, (int) $id, PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+        $timeTab = getTotalTimeFromInterval($startDate, $endDate, $reportTimePeriod);
+        while ($serviceStats = $statement->fetch()) {
+            if ($timeTab['reportTime']) {
+                $serviceStats['UNDETERMINED_T'] += $timeTab['reportTime']
+                    - ($serviceStats['OK_T'] + $serviceStats['WARNING_T'] + $serviceStats['CRITICAL_T']
+                        + $serviceStats['UNKNOWN_T'] + $serviceStats['UNDETERMINED_T'] + $serviceStats['MAINTENANCE_T']);
+            } else {
+                foreach ($status as $key => $value) {
+                    $serviceStats[$value . '_T'] = 0;
+                }
+                $serviceStats['UNDETERMINED_T'] = $timeTab['totalTime'];
+            }
+            // Calculate percentage of time (_TP => Total time percentage) for each status
+            $serviceStats['TOTAL_TIME'] = $serviceStats['OK_T'] + $serviceStats['WARNING_T'] + $serviceStats['CRITICAL_T']
+                + $serviceStats['UNKNOWN_T'] + $serviceStats['UNDETERMINED_T'] + $serviceStats['MAINTENANCE_T'];
+            $time = $serviceStats['TOTAL_TIME'];
+            foreach ($status as $value) {
+                $serviceStats[$value . '_TP'] = round($serviceStats[$value . '_T'] / $time * 100, 2);
+            }
+            // The same percentage (_MP => Mean Time percentage) is calculated ignoring undetermined time
+            $serviceStats['MEAN_TIME'] = $serviceStats['OK_T'] + $serviceStats['WARNING_T']
+                + $serviceStats['CRITICAL_T'] + $serviceStats['UNKNOWN_T'];
+            $time = $serviceStats['MEAN_TIME'];
+            if ($serviceStats['MEAN_TIME'] <= 0) {
+                foreach ($status as $value) {
+                    if ($value != 'UNDETERMINED' && $value != 'MAINTENANCE') {
+                        $serviceStats[$value . '_MP'] = 0;
+                    }
+                }
+            } else {
+                foreach ($status as $value) {
+                    if ($value != 'UNDETERMINED' && $value != 'MAINTENANCE') {
+                        $serviceStats[$value . '_MP'] = round($serviceStats[$value . '_T'] / $time * 100, 2);
+                    }
+                }
+            }
+            // Format time for each status (_TF => Time Formated), mean time and total time
+            $serviceStats['MEAN_TIME_F'] = getTimeString($serviceStats['MEAN_TIME'], $reportTimePeriod);
+            $serviceStats['TOTAL_TIME_F'] = getTimeString($serviceStats['TOTAL_TIME'], $reportTimePeriod);
+            foreach ($status as $value) {
+                $serviceStats[$value . '_TF'] = getTimeString($serviceStats[$value . '_T'], $reportTimePeriod);
+            }
+
+            $serviceStats['TOTAL_ALERTS'] = $serviceStats['OK_A'] + $serviceStats['WARNING_A'] + $serviceStats['CRITICAL_A']
+                + $serviceStats['UNKNOWN_A'];
+
+            $servicesStats[$serviceStats['host_id']][$serviceStats['service_id']] = $serviceStats;
+        }
     }
 
     return $servicesStats;
@@ -699,9 +759,10 @@ function getreportingTimePeriod()
 function getHostNameFromId($host_id)
 {
     global $pearDB;
-    $req = 'SELECT  `host_name` FROM `host` WHERE `host_id` = ' . $host_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `host_name` FROM `host` WHERE `host_id` = :host_id');
+    $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['host_name'];
     }
 
@@ -711,9 +772,10 @@ function getHostNameFromId($host_id)
 function getHostgroupNameFromId($hostgroup_id)
 {
     global $pearDB;
-    $req = 'SELECT  `hg_name` FROM `hostgroup` WHERE `hg_id` = ' . $hostgroup_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `hg_name` FROM `hostgroup` WHERE `hg_id` = :hg_id');
+    $statement->bindValue(':hg_id', (int) $hostgroup_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['hg_name'];
     }
 
@@ -723,9 +785,10 @@ function getHostgroupNameFromId($hostgroup_id)
 function getServiceDescriptionFromId($service_id)
 {
     global $pearDB;
-    $req = 'SELECT  `service_description` FROM `service` WHERE `service_id` = ' . $service_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `service_description` FROM `service` WHERE `service_id` = :service_id');
+    $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['service_description'];
     }
 
@@ -735,13 +798,12 @@ function getServiceDescriptionFromId($service_id)
 function getServiceGroupNameFromId($sg_id)
 {
     global $pearDB;
-    $req = 'SELECT  `sg_name` FROM `servicegroup` WHERE `sg_id` = ' . $sg_id;
-    $dbResult = $pearDB->query($req);
-    unset($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `sg_name` FROM `servicegroup` WHERE `sg_id` = :sg_id');
+    $statement->bindValue(':sg_id', (int) $sg_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['sg_name'];
     }
-    $dbResult->closeCursor();
 
     return 'undefined';
 }

@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2025-06-23 12:49+0000\n"
-"Last-Translator: Weblate Admin <weblate.admin@example.com>\n"
-"Language-Team: French <http://weblate.example.com/projects/centreon-web/"
-"centreon-web-help/fr/>\n"
+"PO-Revision-Date: 2026-05-04 13:18+0000\n"
+"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
+"Language-Team: French <https://translate.apps.centreon.com/projects/"
+"centreon-infra-monitoring/develop/web-help/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.12.1\n"
+"X-Generator: Weblate 5.14.3\n"
 
 #: centreon/www/include/configuration/configObject/host/help.php
 msgid ""
@@ -1752,12 +1752,16 @@ msgstr ""
 "pour les coordonnées de Paris saisir \"48.51,2.20\""
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "Gorgone communication protocol (ZMQ or SSH)"
-msgstr "Protocole de communication Gorgone (ZMQ ou SSH)"
+msgid "Gorgone communication protocol (ZMQ, PullWSS, SSH or Pull)"
+msgstr "Protocole de communication Gorgone (ZMQ, PullWSS, SSH ou Pull)"
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "Gorgone port of the remote poller (5556 or 22)"
-msgstr "Port de communication Gorgone (5556 ou 22)"
+msgid ""
+"Gorgone port of the remote poller (by default: 5556 for ZMQ, 22 for SSH, 5556 "
+"for Pull and 8086 for PullWSS)"
+msgstr ""
+"Port Gorgone du collecteur distant (par défaut : 5556 en ZMQ, 22 en SSH, "
+"5556 en Pull et 8086 en PullWSS)"
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Height of grid. Used to export the chart."
@@ -2235,6 +2239,9 @@ msgid ""
 "MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
 "to use the default value."
 msgstr ""
+"Chemin du fichier de configuration MySQL "
+"(par exemple, /etc/my.cnf.d/centreon.cnf). Laissez vide pour utiliser la "
+"valeur par défaut."
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
 msgid "Name of access group."
@@ -2559,48 +2566,64 @@ msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit check commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de contrôle."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit discovery commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de découverte."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit miscellaneous commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de type Divers."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list and edit notification commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher et de modifier les commandes de notification."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list check commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de contrôle."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list discovery commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de découverte."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list miscellaneous commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de type Divers."
 
 #: centreon/www/include/options/accessLists/actionsACL/help.php
 msgid ""
 "Provided that the user can access the commands configuration menu, this "
 "action will allow them to list notification commands."
 msgstr ""
+"Si l'utilisateur peut accéder au menu de configuration des commandes, cette "
+"action lui permettra d'afficher les commandes de notification."
 
 #: centreon/www/include/configuration/configCentreonBroker/help.php
 msgid "Public certificate file path when TLS encryption is used."
@@ -7172,10 +7195,10 @@ msgid ""
 "notification features based on host inheritance will not work if the "
 "hosts are not monitored by the same poller."
 msgstr ""
-"Spécifiez un ou plusieurs modèles de service qui doivent être liés à ce "
-"modèle. Un hôte qui utilise ce modèle d'hôte complètera la relation "
-"d'hôte manquante et aboutira à une définition de service complète. Notez "
-"que les fonctionnalités de notification basées sur l'héritage d'hôte ne "
+"Spécifiez un ou plusieurs modèles de service, qui doivent être liés à ce modèle. "
+"Un hôte qui utilise ce modèle d'hôte viendra compléter la relation d'hôte "
+"manquante et aboutira à une définition de service complète. Notez que "
+"les fonctionnalités de notification basées sur l'héritage d'hôte ne "
 "fonctionneront pas si les hôtes ne sont pas supervisés par le même "
 "collecteur."
 

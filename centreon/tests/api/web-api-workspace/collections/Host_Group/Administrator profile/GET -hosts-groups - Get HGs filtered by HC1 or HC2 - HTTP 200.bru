@@ -1,0 +1,54 @@
+meta {
+  name: GET /hosts/groups - Get HGs filtered by HC1 or HC2 - HTTP 200
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/hosts/groups?search={ "$or":[{"hostcategory.id":{{HostCategory1Id}}},{"hostcategory.id":{{HostCategory2Id}}}]}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("Host groups filtered by HC1 or HC2 are retrieved with all their parameters.", function () {
+    const body = res.getBody();
+    expect(body).to.be.an("object");
+    expect(body).to.have.property("result").that.is.an("array");
+
+    const hg1 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup1Id")));
+    const hg3 = body.result.find(r => r.id === parseInt(bru.getEnvVar("HostGroup3Id")));
+
+    expect(hg1).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup1Id")),
+      "name": bru.getEnvVar("HostGroup1Name"),
+      "alias": bru.getEnvVar("HostGroup1Alias"),
+      "icon": null,
+      "geo_coords": null,
+      "comment": "Hello world! 1",
+      "is_activated": true,
+      "enabled_hosts_count": 1,
+      "disabled_hosts_count": 0
+    });
+    expect(hg3).to.eql({
+      "id": parseInt(bru.getEnvVar("HostGroup3Id")),
+      "name": bru.getEnvVar("HostGroup3Name"),
+      "alias": null,
+      "icon": null,
+      "geo_coords": null,
+      "comment": null,
+      "is_activated": true,
+      "enabled_hosts_count": 1,
+      "disabled_hosts_count": 0
+    });
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

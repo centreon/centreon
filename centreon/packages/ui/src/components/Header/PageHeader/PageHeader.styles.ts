@@ -1,25 +1,29 @@
 import { alpha } from '@mui/system';
 
+import type { CSSObject } from 'tss-react';
 import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
+    '& h1': {
+      fontFamily: theme.typography.h5.fontFamily,
+      fontSize: theme.typography.h5.fontSize,
+      fontWeight: theme.typography.fontWeightMedium,
+      letterSpacing: theme.typography.h5.letterSpacing,
+      lineHeight: theme.typography.h5.lineHeight,
+      margin: theme.spacing(0, 0, 1.5, 0)
+    } as CSSObject,
+
+    '& nav': {
+      display: 'flex',
+      gap: theme.spacing(1),
+      justifyContent: 'flex-end'
+    } as CSSObject,
     alignItems: 'flex-start',
     borderBottom: `1px solid ${theme.palette.primary.main}`,
     display: 'flex',
     flexDirection: 'row',
-    h1: {
-      ...theme.typography.h5,
-      fontWeight: theme.typography.fontWeightMedium,
-      margin: theme.spacing(0, 0, 1.5, 0)
-    },
     justifyContent: 'space-between',
-
-    nav: {
-      display: 'flex',
-      gap: theme.spacing(1),
-      justifyContent: 'flex-end'
-    },
 
     padding: theme.spacing(0, 0, 1.5, 0)
   },
@@ -39,7 +43,7 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: theme.palette.header.page.action.background.default,
 
       color: theme.palette.header.page.action.color.default
-    },
+    } as CSSObject,
     display: 'flex',
 
     gap: theme.spacing(2)
@@ -84,28 +88,30 @@ const useStyles = makeStyles()((theme) => ({
   pageHeaderTitle: {
     '& > *': {
       display: 'grid'
-    },
+    } as CSSObject,
     '& > span': {
       alignItems: 'center',
       display: 'flex',
       flexDirection: 'row',
       gap: theme.spacing(2)
-    },
-    alignSelf: 'flex-start',
-    display: 'flex',
-    flexDirection: 'column',
-    h1: {
-      ...theme.typography.h5,
+    } as CSSObject,
+    '& h1': {
+      fontFamily: theme.typography.h5.fontFamily,
+      fontSize: theme.typography.h5.fontSize,
       fontWeight: theme.typography.fontWeightBold,
+      letterSpacing: theme.typography.h5.letterSpacing,
       lineHeight: '1',
       margin: theme.spacing(0)
-    }
+    } as CSSObject,
+    alignSelf: 'flex-start',
+    display: 'flex',
+    flexDirection: 'column'
   },
   pageHeaderTitleActions: {
     '& > button': {
       opacity: 0.2,
       padding: 0
-    },
+    } as CSSObject,
     alignItems: 'bottom',
     display: 'flex',
     gap: theme.spacing(1),

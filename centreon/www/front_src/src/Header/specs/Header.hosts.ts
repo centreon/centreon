@@ -40,7 +40,7 @@ export default (): void =>
         cy.get('@serviceButton').within(() => {
           cy.findByText(labelHosts).should('not.be.visible');
           cy.findByTestId('ExpandMoreIcon').should('be.visible');
-          cy.findByTestId('DnsIcon').should('be.visible');
+          cy.findByTestId('HostIcon').should('be.visible');
         });
       });
 

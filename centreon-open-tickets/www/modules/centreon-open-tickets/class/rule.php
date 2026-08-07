@@ -151,7 +151,7 @@ class Centreon_OpenTickets_Rule
 
             if (! $centreon_bg->is_admin) {
                 $aclGroupIdsCondition = '';
-                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
+                foreach ($centreon_bg->access->getAccessGroups()->getIds() as $aclId) {
                     if (empty($aclGroupIdsCondition)) {
                         $aclGroupIdsCondition .= ':acl_' . $aclId;
                     } else {
@@ -236,7 +236,7 @@ class Centreon_OpenTickets_Rule
 
             if (! $centreon_bg->is_admin) {
                 $aclGroupIdsCondition = '';
-                foreach (explode(',', str_replace("'", '', $centreon_bg->grouplistStr)) as $aclId) {
+                foreach ($centreon_bg->access->getAccessGroups()->getIds() as $aclId) {
                     if (empty($aclGroupIdsCondition)) {
                         $aclGroupIdsCondition .= ':acl_' . $aclId;
                     } else {
@@ -627,7 +627,7 @@ class Centreon_OpenTickets_Rule
                             ])
                         );
 
-                        $duplicatedRuleId = $this->_db->lastInsertId('mod_open_tickets_rule');
+                        $duplicatedRuleId = $this->_db->lastInsertId();
 
                         // Get form values from initial rule
                         $ruleFormValues = $this->_db->fetchAllAssociative(

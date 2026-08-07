@@ -19,7 +19,124 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
+/**
+ * updateHostMacro updates ticket custom macro value to an empty value to fully remove the ticket
+ *
+ * @param string $macroName name of the macro that must be updated
+ * @param int $hostId id of host
+ * @throws RepositoryException
+ * @return void
+ */
+function updateHostMacro(string $macroName, int $hostId): void
+{
+    global $db;
+
+    // check if host has the macro set up
+    $query = <<<'SQL'
+            SELECT host_macro_id
+            FROM on_demand_macro_host
+            WHERE host_macro_name = :macro_name AND host_host_id = :host_id
+        SQL;
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::string('macro_name', $macroName),
+            QueryParameter::int('host_id', $hostId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching host macro: ' . $e->getMessage(),
+            exception: $e
+        );
+
+        throw new RepositoryException('Error while fetching host macro: ' . $e->getMessage(), previous: $e);
+    }
+
+    if ($row) {
+        $macroId = (int) $row['host_macro_id'];
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_host
+                SET host_macro_value = ''
+                WHERE host_macro_id = :macro_id
+            SQL;
+        try {
+            $db->update($query, QueryParameters::create([
+                QueryParameter::int('macro_id', $macroId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating host macro: ' . $e->getMessage(),
+                exception: $e
+            );
+
+            throw new RepositoryException('Error while updating host macro: ' . $e->getMessage(), previous: $e);
+        }
+    }
+}
+
+/**
+ * updateServiceMacro updates ticket custom macro value to an empty value to fully remove the ticket
+ *
+ * @param string $macroName name of the macro that must be updated
+ * @param int $serviceId id of service
+ * @throws RepositoryException
+ * @return void
+ */
+function updateServiceMacro(string $macroName, int $serviceId): void
+{
+    global $db;
+
+    // check if service has the macro set up
+    $query = <<<'SQL'
+            SELECT svc_macro_id
+            FROM on_demand_macro_service
+            WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
+        SQL;
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::string('macro_name', $macroName),
+            QueryParameter::int('service_id', $serviceId),
+        ]));
+    } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching service macro: ' . $e->getMessage(),
+            exception: $e
+        );
+
+        throw new RepositoryException('Error while fetching service macro: ' . $e->getMessage(), previous: $e);
+    }
+
+    if ($row) {
+        $macroId = (int) $row['svc_macro_id'];
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_service
+                SET svc_macro_value = ''
+                WHERE svc_macro_id = :macro_id
+            SQL;
+        try {
+            $db->update($query, QueryParameters::create([
+                QueryParameter::int('macro_id', $macroId),
+            ]));
+        } catch (CollectionException|ConnectionException|ValueObjectException $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                'Error while updating service macro: ' . $e->getMessage(),
+                exception: $e
+            );
+
+            throw new RepositoryException('Error while updating service macro: ' . $e->getMessage(), previous: $e);
+        }
+    }
+}
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
@@ -66,7 +183,7 @@ $centreon_provider = new $classname(
 
 // We get Host or Service
 $selected_values = explode(',', $get_information['form']['selection']);
-$db_storage = new CentreonDBManager('centstorage');
+$db_storage = new CentreonDB('centstorage');
 
 $problems = [];
 $tickets = [];
@@ -90,18 +207,24 @@ foreach ($selected_values as $value) {
         $hosts_done[$str[0]] = 1;
     }
 }
+$accessGroupIds = '';
+if (! $centreon_bg->is_admin) {
+    $ids = $centreon_bg->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
+}
 
 $query = '(SELECT DISTINCT
-        services.description, hosts.name as host_name, hosts.instance_id, mot.ticket_value, mot.timestamp
+        services.description, services.service_id, hosts.name as host_name, hosts.host_id, hosts.instance_id, mot.ticket_value, mot.timestamp
     FROM services, hosts, mod_open_tickets_link as motl, mod_open_tickets as mot
     WHERE (' . $selected_str . ') AND services.host_id = hosts.host_id';
 if (! $centreon_bg->is_admin) {
-    $query .= ' AND EXISTS(
-        SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ('
-            . $centreon_bg->grouplistStr . '
-        )
-        AND hosts.host_id = centreon_acl.host_id
-        AND services.service_id = centreon_acl.service_id)';
+    $query .= <<<SQL
+            AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+                AND services.service_id = centreon_acl.service_id
+            )
+        SQL;
 }
 $query .= ' AND motl.host_id = hosts.host_id
             AND motl.service_id = services.service_id
@@ -109,18 +232,21 @@ $query .= ' AND motl.host_id = hosts.host_id
     ) UNION ALL (
         SELECT DISTINCT
             NULL as description,
+            NULL as service_id,
             hosts.name as host_name,
+            hosts.host_id,
             hosts.instance_id,
             mot.ticket_value,
             mot.timestamp
         FROM hosts, mod_open_tickets_link as motl, mod_open_tickets as mot
         WHERE hosts.host_id IN (' . $hosts_selected_str . ')';
 if (! $centreon_bg->is_admin) {
-    $query .= ' AND EXISTS(
-        SELECT * FROM centreon_acl
-        WHERE centreon_acl.group_id IN (
-        ' . $centreon_bg->grouplistStr . '
-        ) AND hosts.host_id = centreon_acl.host_id)';
+    $query .= <<<SQL
+            AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+            )
+        SQL;
 }
 $query .= ' AND motl.host_id = hosts.host_id
             AND motl.service_id IS NULL
@@ -132,7 +258,7 @@ try {
     $dbResult = $db_storage->fetchAllAssociative($query);
 } catch (ConnectionException $e) {
     CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
+        CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching tickets to close: ' . $e->getMessage(),
         exception: $e
     );
@@ -152,6 +278,8 @@ foreach ($dbResult as $row) {
     $hosts_done[$row['host_name'] . ';' . $row['description']] = 1;
 }
 
+$ownTransaction = false;
+
 try {
     $centreon_provider->closeTicket($tickets);
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
@@ -164,6 +292,12 @@ try {
 
     $removed_tickets = [];
     $error_msg = [];
+    $macroName = $centreon_provider->getMacroTicketId();
+
+    $ownTransaction = ! $db->isTransactionActive();
+    if ($ownTransaction) {
+        $db->startTransaction();
+    }
 
     foreach ($problems as $row) {
         // an error in ticket close
@@ -181,10 +315,12 @@ try {
             $removed_tickets[$row['ticket_value']] = 1;
         }
         if (is_null($row['description']) || $row['description'] == '') {
+            $fullMacroName = '$_HOST' . $macroName . '$';
+            updateHostMacro($fullMacroName, $row['host_id']);
             $command = 'CHANGE_CUSTOM_HOST_VAR;%s;%s;%s';
             call_user_func_array(
                 [$external_cmd, $method_external_name],
-                [sprintf($command, $row['host_name'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']]
+                [sprintf($command, $row['host_name'], $macroName, ''), $row['instance_id']]
             );
             $command = 'REMOVE_HOST_ACKNOWLEDGEMENT;%s';
             call_user_func_array(
@@ -194,10 +330,12 @@ try {
             continue;
         }
 
+        $fullMacroName = '$_SERVICE' . $macroName . '$';
+        updateServiceMacro($fullMacroName, $row['service_id']);
         $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';
         call_user_func_array(
             [$external_cmd, $method_external_name],
-            [sprintf($command, $row['host_name'], $row['description'], $centreon_provider->getMacroTicketId(), ''), $row['instance_id']]
+            [sprintf($command, $row['host_name'], $row['description'], $macroName, ''), $row['instance_id']]
         );
         if ($centreon_provider->doAck()) {
             $command = 'REMOVE_SVC_ACKNOWLEDGEMENT;%s;%s';
@@ -209,10 +347,30 @@ try {
     }
 
     $external_cmd->write();
-} catch (Exception $e) {
+    if ($ownTransaction) {
+        $db->commitTransaction();
+    }
+} catch (RepositoryException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_BUSINESS_LOG,
+        'Error while closing tickets: ' . $e->getMessage(),
+        exception: $e
+    );
+
+    try {
+        if ($ownTransaction && $db->isTransactionActive()) {
+            $db->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Failed to roll back transaction while closing tickets: ' . $rollbackException->getMessage(),
+            exception: $rollbackException
+        );
+    }
+
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
-    $db->rollback();
 }
 
 $resultat['msg'] = '
@@ -225,7 +383,7 @@ $resultat['msg'] = '
             . join(',', array_keys($removed_tickets)) . '.</td>
     </tr>';
 
-if ($centreon_provider->doCloseTicket() && count($error_msg) > 0) {
+if ($centreon_provider->doCloseTicket() && $error_msg !== []) {
     $resultat['msg'] .= '<tr>
         <td class="FormRowField" style="padding-left:15px; color: red">Issue to close tickets: '
             . join('<br/>', $error_msg) . '.</td>

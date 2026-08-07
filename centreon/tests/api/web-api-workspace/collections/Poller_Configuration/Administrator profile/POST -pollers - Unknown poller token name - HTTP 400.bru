@@ -1,0 +1,30 @@
+meta {
+  name: POST /pollers - Unknown poller token name - HTTP 400
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/pollers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "poller-bruno-unknown-token",
+    "address": "1.2.3.6",
+    "poller_type": "vm",
+    "poller_token_name": "{{UnknownPollerTokenName}}",
+    "central_address": "{{CentralAddress}}"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

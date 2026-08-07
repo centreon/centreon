@@ -43,7 +43,9 @@ const useLoadDetails = (): DetailsState => {
       always(t(labelNoResourceFound)),
       pathOr(t(labelSomethingWentWrong), ['response', 'data', 'message'])
     ),
-    request: getData
+    request: getData as unknown as (
+      token: import('axios').CancelToken
+    ) => (params?: unknown) => Promise<ResourceDetails>
   });
 
   const [customTimePeriod, setCustomTimePeriod] = useAtom(customTimePeriodAtom);
@@ -76,7 +78,10 @@ const useLoadDetails = (): DetailsState => {
       });
   };
 
-  const changeCustomTimePeriod = ({ date, property }): void => {
+  const changeCustomTimePeriod = ({
+    date,
+    property
+  }: ChangeCustomTimePeriodProps): void => {
     const newCustomTimePeriod = getNewCustomTimePeriod({
       ...customTimePeriod,
       [property]: date

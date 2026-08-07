@@ -1,5 +1,8 @@
 #!/bin/sh
 
+mkdir -p /etc/mysql/conf.d
+printf '[client]\nskip-ssl\n' > /etc/mysql/conf.d/client-no-ssl.cnf
+
 while true ; do
   timeout 20 mysql -h${MYSQL_HOST} -uroot -p"${MYSQL_ROOT_PASSWORD}" -e 'SELECT User FROM user' mysql
   retval=$?

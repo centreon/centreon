@@ -42,6 +42,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Exception\HostException;
@@ -63,6 +64,7 @@ use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepository
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Webmozart\Assert\InvalidArgumentException;
 
 final class AddHost
 {
@@ -74,6 +76,7 @@ final class AddHost
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
@@ -88,6 +91,7 @@ final class AddHost
         private readonly AddHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         private readonly WriteRealTimeHostRepositoryInterface $writeRealTimeHostRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
@@ -150,7 +154,7 @@ final class AddHost
             $presenter->presentResponse(
                 $this->createResponse($hostId, $request->templates)
             );
-        } catch (AssertionFailedException|\ValueError $ex) {
+        } catch (AssertionFailedException|InvalidArgumentException|\ValueError $ex) {
             $presenter->presentResponse(new InvalidArgumentResponse($ex));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (HostException $ex) {
@@ -206,7 +210,7 @@ final class AddHost
             ? (int) $inheritanceMode[0]->getValue()
             : 0;
 
-        if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
+        if ($this->vaultEligibilityService->shouldUseVault() && $request->snmpCommunity !== '') {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 null,
                 [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity]
@@ -363,7 +367,7 @@ final class AddHost
                     : ''
                 );
             }
-            if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
+            if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
                 $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_HOST' . $macro->getName() => $macro->getValue()],
@@ -410,9 +414,10 @@ final class AddHost
 
         /** @var array<string,CommandMacro> $commandMacros */
         $commandMacros = [];
-        if ($checkCommandId !== null) {
+        $effectiveCommandId = $checkCommandId ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $checkCommandId,
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 
@@ -420,7 +425,7 @@ final class AddHost
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,

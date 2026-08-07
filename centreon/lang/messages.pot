@@ -845,6 +845,14 @@ msgstr ""
 msgid "Add a host category"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr ""
+
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -3042,6 +3050,7 @@ msgstr ""
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/front_translate.php
 msgid "Command"
 msgstr ""
 
@@ -3062,6 +3071,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Command copied to clipboard"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Command copied!"
 msgstr ""
 
 #: centreon/www/include/monitoring/external_cmd/functions.php
@@ -3682,6 +3695,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Copy breadcrumb"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Copy command"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5559,6 +5576,14 @@ msgstr ""
 msgid "Down status hosts"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Download"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Download the script"
+msgstr ""
+
 #: centreon/src/Core/Metric/Application/Exception/MetricException.php
 msgid "Downloading the performance metrics is not allowed"
 msgstr ""
@@ -6739,6 +6764,10 @@ msgstr ""
 msgid "Error while deleting a host template"
 msgstr ""
 
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while deleting a media"
+msgstr ""
+
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while deleting a notification configuration"
 msgstr ""
@@ -6903,6 +6932,10 @@ msgstr ""
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "Error while retrieving a host template"
+msgstr ""
+
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while retrieving a media"
 msgstr ""
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
@@ -7395,6 +7428,10 @@ msgid "Execute special command"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Execute the script"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Execute this script as root on the central."
 msgstr ""
 
@@ -7638,6 +7675,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to copy link"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to copy the command!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8293,6 +8334,10 @@ msgstr ""
 
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Generate trap database "
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Generate your CMA installation command"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -9937,6 +9982,13 @@ msgstr ""
 msgid "Invalid coordinates values specified"
 msgstr ""
 
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid ""
+"Invalid directory name. Only alphanumeric characters, hyphens and "
+"underscores are allowed."
+msgstr ""
+
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
 #, php-format
 msgid "Invalid event provided (%s)"
@@ -10506,6 +10558,12 @@ msgstr ""
 msgid "Legend Name"
 msgstr ""
 
+#: centreon/www/include/views/componentTemplates/formComponentTemplate.php
+msgid ""
+"Legend is disabled for the default template because it cannot be displayed "
+"in the graph. Metric name will be displayed by default."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Less"
 msgstr ""
@@ -10686,6 +10744,10 @@ msgstr ""
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Links Management"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Linux"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -13734,7 +13796,7 @@ msgstr ""
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
 
@@ -15237,6 +15299,11 @@ msgstr ""
 msgid "Run monitoring engine debug (-v)"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"Run the following command on each host you want to monitor with the agent."
+msgstr ""
+
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Running debug mode"
 msgstr ""
@@ -15850,6 +15917,10 @@ msgid "Select pages"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select poller"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select poller(s)"
 msgstr ""
 
@@ -15880,6 +15951,10 @@ msgid "Select service severities"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select the poller that will monitor your hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select time format"
 msgstr ""
 
@@ -15898,6 +15973,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Select users"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select your hosts' operating system"
 msgstr ""
 
 #: centreon/www/class/centreonConfigCentreonBroker.php
@@ -17680,6 +17759,12 @@ msgstr ""
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The command format is invalid"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"The command is only valid for hosts with an agent-initiated connection to "
+"this poller."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
@@ -20051,6 +20136,10 @@ msgstr ""
 msgid "Wiki page defined"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Windows"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Workhours"
 msgstr ""
@@ -20319,6 +20408,10 @@ msgstr ""
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to access host templates"
+msgstr ""
+
+#: centreon/src/Core/Host/Application/Exception/HostException.php
+msgid "You are not allowed to access hosts"
 msgstr ""
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
@@ -21462,6 +21555,10 @@ msgstr ""
 msgid "the community"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "then copy the script to each host you want to monitor."
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "threshold"
 msgstr ""
@@ -21533,4 +21630,82 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "{{total}} element(s) found"
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Create new poller"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Enter your poller's name and address"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Poller Name"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Select your poller environment"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "VM or physical"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Docker compose"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Select token"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Generate installation command"
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Generating..."
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Copy the following command and run it on your poller to register it."
+msgstr ""
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+#, fuzzy
+#~ needs translation
+msgid "Failed to create poller"
 msgstr ""

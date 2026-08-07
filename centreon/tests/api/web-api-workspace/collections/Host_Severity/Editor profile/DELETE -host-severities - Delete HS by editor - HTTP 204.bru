@@ -1,0 +1,26 @@
+meta {
+  name: DELETE /host-severities - Delete HS by editor - HTTP 204
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/hosts/severities/{{HostSeverity4Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host severity '{{HostSeverity4Name}}' has been successfully deleted by editor.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

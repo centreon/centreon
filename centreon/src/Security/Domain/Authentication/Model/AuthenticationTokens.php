@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
 
+use App\Shared\Domain\Logging\Attribute\Sensitive;
 use Centreon\Domain\Common\Assertion\Assertion;
 
 class AuthenticationTokens
@@ -30,6 +31,7 @@ class AuthenticationTokens
     private const SESSION_TOKEN_MIN_LENGTH = 1;
 
     /** @var string */
+    #[Sensitive]
     private $sessionToken;
 
     /** @var ProviderToken */

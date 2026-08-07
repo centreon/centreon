@@ -1,0 +1,40 @@
+meta {
+  name: POST /dashboards - Add singlemetric widget - HTTP 204
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/dashboards/{{dashboardID}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "panels": [
+      {
+        "id": null,
+        "name": "centreon-widget-singlemetric",
+        "widget_type": "/widgets/singlemetric",
+        "layout": { "x": 0, "y": 0, "width": 5, "height": 3, "min_width": 2, "min_height": 2 },
+        "widget_settings": "{\"data\":{\"resources\":[{\"resourceType\":\"host\",\"resources\":[{\"id\":14,\"name\":\"Centreon-Server\"}]}],\"metrics\":[{\"id\":3,\"name\":\"rtmax\",\"unit\":\"ms\",\"includeAllMetrics\":true}]},\"options\":{\"displayType\":\"text\",\"refreshInterval\":\"default\",\"valueFormat\":\"human\"}}"
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("Singlemetric widget added successfully.", function () {
+    expect(res.status).to.equal(204);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

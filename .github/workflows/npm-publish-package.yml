@@ -16,16 +16,17 @@ jobs:
   publish-package:
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      github.repository == 'centreon/centreon'
+      github.event.pull_request.head.repo.fork != true
     needs: [get-environment]
 
     runs-on: ubuntu-24.04
 
     env:
+      PACKAGE_DIRECTORY: ${{ inputs.package_directory }}
       tag: ${{ github.ref_name == 'develop' && 'latest' || github.head_ref || github.ref_name }}
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Get current package information
         id: get-package-info
@@ -33,11 +34,11 @@ jobs:
           echo "current_package_version=`cat package.json | jq -r '.version'`" >> $GITHUB_OUTPUT
           echo "package_name=`cat package.json | jq -r '.name'`" >> $GITHUB_OUTPUT
         shell: bash
-        working-directory: ${{ inputs.package_directory }}
+        working-directory: ${{ env.PACKAGE_DIRECTORY }}
 
       - name: Get next package version
         id: get-next-package-version
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           CURRENT_VERSION: ${{ steps.get-package-info.outputs.current_package_version }}
           PACKAGE_NAME: ${{ steps.get-package-info.outputs.package_name }}
@@ -79,17 +80,19 @@ jobs:
             } catch (error) {
               core.setFailed(error.message);
             }
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
 
       - name: Write NPM package version
-        run: npm version ${{ steps.get-next-package-version.outputs.package_version }} --no-commit-hooks --no-git-tag-version --no-workspaces-update
-        working-directory: ${{ inputs.package_directory }}
+        env:
+          PACKAGE_VERSION: ${{ steps.get-next-package-version.outputs.package_version }}
+        run: npm version "$PACKAGE_VERSION" --no-commit-hooks --no-git-tag-version --no-workspaces-update
+        working-directory: ${{ env.PACKAGE_DIRECTORY }}
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
-        run: npm publish --access=public --tag=${{ env.tag }}
-        working-directory: ${{ inputs.package_directory }}
+        run: npm publish --access=public --tag="$tag"
+        working-directory: ${{ env.PACKAGE_DIRECTORY }}
 
   set-skip-label:
     needs: [get-environment, publish-package]

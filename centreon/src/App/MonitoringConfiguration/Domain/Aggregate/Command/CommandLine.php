@@ -32,4 +32,34 @@ final readonly class CommandLine
     ) {
         Assert::lengthBetween($value, 1, 65535);
     }
+
+    /**
+     * @return array<string> unique argument names (e.g. ['ARG1', 'ARG2'])
+     */
+    public function extractArguments(): array
+    {
+        preg_match_all('/\$(ARG\d+)\$/', $this->value, $matches);
+
+        return array_values(array_unique($matches[1]));
+    }
+
+    /**
+     * @return array<string> unique host macro names (e.g. ['SOME_MACRO'])
+     */
+    public function extractHostMacros(): array
+    {
+        preg_match_all('/\$_HOST([\w_-]+)\$/', $this->value, $matches);
+
+        return array_values(array_unique($matches[1]));
+    }
+
+    /**
+     * @return array<string> unique service macro names (e.g. ['SOME_MACRO'])
+     */
+    public function extractServiceMacros(): array
+    {
+        preg_match_all('/\$_SERVICE([\w_-]+)\$/', $this->value, $matches);
+
+        return array_values(array_unique($matches[1]));
+    }
 }

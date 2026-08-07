@@ -1,7 +1,7 @@
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import { Axis } from '@visx/visx';
-import type { ScaleLinear } from 'd3-scale';
+import type { ScaleBand, ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, head, isNil, last } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -19,7 +19,10 @@ interface Props {
   orientation: 'horizontal' | 'vertical';
   rightScale: ScaleLinear<number, number>;
   width: number;
-  xScale: ScaleLinear<number, number>;
+  xScale:
+    | ScaleLinear<number, number>
+    | ScaleTime<number, number>
+    | ScaleBand<number>;
 }
 
 const Axes = ({
@@ -47,16 +50,22 @@ const Axes = ({
 
   const xTickCount = Math.floor(Math.min(width / 100, 12));
 
-  const domain = xScale.domain();
+  const domain = xScale.domain() as Array<number | Date>;
 
   const start = head(domain);
   const end = last(domain);
 
-  const tickFormat =
-    data?.axisX?.xAxisTickFormat ?? getXAxisTickFormat({ end, start });
+  const toISOString = (v: number | Date | undefined): string | undefined =>
+    v !== undefined
+      ? (v instanceof Date ? v : new Date(v)).toISOString()
+      : undefined;
 
-  const formatAxisTick = (tick): string =>
-    format({ date: new Date(tick), formatString: tickFormat });
+  const tickFormat =
+    data?.axisX?.xAxisTickFormat ??
+    getXAxisTickFormat({ end: toISOString(end), start: toISOString(start) });
+
+  const formatAxisTick = (tick: unknown): string =>
+    format({ date: new Date(tick as number | Date), formatString: tickFormat });
 
   const displayAxisRight = !isNil(secondUnit) && !isNil(rightScale);
 
@@ -72,7 +81,7 @@ const Axes = ({
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
-          ...axisLeft.tickLabelProps(),
+          ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
           dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
         })}
         top={isHorizontal ? height - margin.bottom : 0}
@@ -94,7 +103,7 @@ const Axes = ({
         strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
         tickFormat={axisLeft.tickFormat}
         tickLabelProps={() => ({
-          ...axisLeft.tickLabelProps(),
+          ...(axisLeft.tickLabelProps as () => Record<string, unknown>)(),
           angle: yAxisTickLabelRotation,
           dx: isHorizontal ? -4 : 4,
           dy: isHorizontal ? 4 : -6
@@ -110,7 +119,7 @@ const Axes = ({
           strokeWidth={!isNil(showBorder) && !showBorder ? 0 : 1}
           tickFormat={axisRight.tickFormat}
           tickLabelProps={() => ({
-            ...axisRight.tickLabelProps(),
+            ...(axisRight.tickLabelProps as () => Record<string, unknown>)(),
             angle: yAxisTickLabelRotation,
             dx: isHorizontal ? 4 : -4,
             dy: 4

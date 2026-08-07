@@ -19,7 +19,7 @@ CREATE TABLE `acknowledgements` (
   `author` varchar(64) DEFAULT NULL,
   `comment_data` varchar(255) DEFAULT NULL,
   `deletion_time` int(11) DEFAULT NULL,
-  `instance_id` int(11) DEFAULT NULL,
+  `instance_id` BIGINT UNSIGNED DEFAULT NULL,
   `notify_contacts` tinyint(1) DEFAULT NULL,
   `persistent_comment` tinyint(1) DEFAULT NULL,
   `state` smallint(6) DEFAULT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE `comments` (
   `entry_type` smallint(6) DEFAULT NULL,
   `expire_time` int(11) DEFAULT NULL,
   `expires` tinyint(1) DEFAULT NULL,
-  `instance_id` int(11) DEFAULT NULL,
+  `instance_id` BIGINT UNSIGNED DEFAULT NULL,
   `internal_id` int(11) NOT NULL,
   `persistent` tinyint(1) DEFAULT NULL,
   `source` smallint(6) DEFAULT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE `downtimes` (
   `duration` int(11) UNSIGNED DEFAULT NULL,
   `end_time` int(11) UNSIGNED DEFAULT NULL,
   `fixed` tinyint(1) DEFAULT NULL,
-  `instance_id` int(11) DEFAULT NULL,
+  `instance_id` BIGINT UNSIGNED DEFAULT NULL,
   `internal_id` int(11) DEFAULT NULL,
   `start_time` int(11) UNSIGNED DEFAULT NULL,
   `actual_start_time` int(11) UNSIGNED DEFAULT NULL,
@@ -202,7 +202,7 @@ UNLOCK TABLES;
 CREATE TABLE `hosts` (
   `host_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `instance_id` int(11) NOT NULL,
+  `instance_id` BIGINT UNSIGNED NOT NULL,
   `acknowledged` tinyint(1) DEFAULT NULL,
   `acknowledgement_type` smallint(6) DEFAULT NULL,
   `action_url` varchar(2048) DEFAULT NULL,
@@ -375,7 +375,7 @@ UNLOCK TABLES;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `instances` (
-  `instance_id` int(11) NOT NULL,
+  `instance_id` BIGINT UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL DEFAULT 'localhost',
   `active_host_checks` tinyint(1) DEFAULT NULL,
   `active_service_checks` tinyint(1) DEFAULT NULL,
@@ -463,7 +463,7 @@ UNLOCK TABLES;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `modules` (
   `module_id` int(11) NOT NULL AUTO_INCREMENT,
-  `instance_id` int(11) NOT NULL,
+  `instance_id` BIGINT UNSIGNED NOT NULL,
   `args` varchar(255) DEFAULT NULL,
   `filename` varchar(255) DEFAULT NULL,
   `loaded` tinyint(1) DEFAULT NULL,

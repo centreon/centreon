@@ -100,7 +100,7 @@ const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
     cy.execInContainer({
       command: [
-        'dnf module enable -y mariadb:10.11',
+        'dnf module enable -y mariadb:11.8',
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
@@ -115,7 +115,7 @@ const installDatabase = (): void => {
     cy.execInContainer({
       command: [
         `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-10.11"
+          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=${osType} --skip-check-installed --skip-maxscale --os-version=${osVersion} --mariadb-server-version="mariadb-11.8"
 EOF`,
         'apt-get update',
         'apt-get install -y mariadb-server mariadb-client'
@@ -379,6 +379,14 @@ const updatePlatformPackages = (): Cypress.Chainable => {
             `dnf install -y ${containerPackageDirectory}/*.rpm`
           ];
           break;
+        case 'alma10':
+          // el10 ships php 8.4 in the official repositories (no dnf module)
+          installCommands = [
+            ...installCommands,
+            `rm -f ${containerPackageDirectory}/centreon{,-central,-mariadb,-mysql}-${major_version}*.rpm`,
+            `dnf install -y ${containerPackageDirectory}/*.rpm`
+          ];
+          break;
         default:
           installCommands = [
             ...installCommands,
@@ -447,7 +455,7 @@ const insertResources = (): Cypress.Chainable => {
 
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
-    const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
+    let targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
 
     // Check if the version-specific file already exists
     return cy
@@ -456,13 +464,18 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         name: 'web'
       })
       .then((fileCheckResult) => {
-        // If version-specific file already exists, no action needed
+        let targetMinor = minor_version;
+        // If version-specific file already exists, increment minor version for testing purposes (to make sure Update-next.php content is tested)
         if (!fileCheckResult.output.includes('File not found')) {
           cy.log(
             `Version-specific update file already exists in container: ${targetUpdateFile}`
           );
-          return cy.wrap(null);
+          cy.log('Incrementing minor version to test Update-next.php content');
+
+          targetMinor = (Number.parseInt(minor_version, 10) + 1).toString();
+          targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
+        Cypress.env('upgrade_target_minor_version', targetMinor);
 
         // If version-specific file does not exist => copy content from Update-next.php
         return cy
@@ -498,7 +511,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
 
                     // Change version in the file
                     return cy.execInContainer({
-                      command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+                      command: `sed -i "s/version = '';/version = '${major_version}.${targetMinor}';/g" ${targetUpdateFile}`,
                       name: 'web'
                     });
                   });
@@ -535,8 +548,10 @@ When('administrator runs the update procedure', () => {
 
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
         cy.contains(
-          `upgraded from version ${installedVersion} to ${major_version}.${minor_version}`
+          `upgraded from version ${installedVersion} to ${major_version}.${targetMinorVersion}`
         ).should('be.visible');
       });
     }
@@ -595,7 +610,11 @@ Then(
     cy.visit('/');
     if (['testing', 'stable'].includes(Cypress.env('STABILITY'))) {
       cy.getWebVersion().then(({ major_version, minor_version }) => {
-        cy.contains(`${major_version}.${minor_version}`).should('be.visible');
+        const targetMinorVersion =
+          Cypress.env('upgrade_target_minor_version') || minor_version;
+        cy.contains(`${major_version}.${targetMinorVersion}`).should(
+          'be.visible'
+        );
       });
     }
     cy.loginByTypeOfUser({

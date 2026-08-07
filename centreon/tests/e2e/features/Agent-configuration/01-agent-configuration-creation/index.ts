@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
@@ -28,27 +29,27 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/agent-configurations?*'
+    url: `${INTERCEPTORS.api.agent_configurations}?*`
   }).as('getAgentsPage');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/agent-configurations'
+    url: INTERCEPTORS.api.agent_configurations
   }).as('addAgents');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administration_tokens}?*`
   }).as('getTokens');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/administration/tokens'
+    url: INTERCEPTORS.api.administration_tokens
   }).as('addToken');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/monitoring-servers?page=*'
+    url: `${INTERCEPTORS.api.monitoring_servers}?page=*`
   }).as('getPollers');
 });
 
@@ -401,7 +402,7 @@ Then('a pop-up is displayed', () => {
 });
 
 Then('the title of this pop-up is {string}', (popupTitle: string) => {
-  cy.get('div[class*="-modalHeader"]')
+  cy.get('[data-testid="modal-header"]')
     .eq(1)
     .within(() => {
       cy.get('h2').should('contain.text', popupTitle);
@@ -409,7 +410,9 @@ Then('the title of this pop-up is {string}', (popupTitle: string) => {
 });
 
 Then('the message body of this pop-up is {string}', (popupMessage: string) => {
-  cy.get('div[class*="-modalBody"]').eq(1).should('contain.text', popupMessage);
+  cy.get('[data-testid="modal-body"]')
+    .eq(1)
+    .should('contain.text', popupMessage);
 });
 
 When(

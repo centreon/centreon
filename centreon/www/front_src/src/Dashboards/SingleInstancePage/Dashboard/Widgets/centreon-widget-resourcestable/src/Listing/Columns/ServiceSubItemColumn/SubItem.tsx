@@ -12,30 +12,41 @@ import useStyles from './SubItem.styles';
 const SubItem = ({ row }: ComponentColumnProps): ReactElement => {
   const { classes } = useStyles({});
 
-  const statusCount = row?.children?.status_count ?? {};
-  const isNestedRow = isNil(row?.children);
+  const typedRow = row as {
+    children?: { status_count?: Record<string, number> };
+    status?: { name?: string };
+    resource_name?: string;
+  };
+
+  const statusCount = typedRow?.children?.status_count ?? {};
+  const isNestedRow = isNil(typedRow?.children);
 
   return (
     <Box className={classes.statusCount}>
-      {row?.resource_name && isNestedRow && (
+      {typedRow?.resource_name && isNestedRow && (
         <Box className={classes.nestedStatus}>
           <StatusChip
-            content={getStatus(row?.status.name.toLowerCase())?.label}
-            severityCode={getStatus(row?.status.name.toLowerCase())?.severity}
+            content={
+              getStatus(typedRow?.status?.name?.toLowerCase() as string)?.label
+            }
+            severityCode={
+              getStatus(typedRow?.status?.name?.toLowerCase() as string)
+                ?.severity
+            }
           />
-          <p>{row?.resource_name}</p>
+          <p>{typedRow?.resource_name}</p>
         </Box>
       )}
 
       {keys(statusCount).map((item) => {
-        if (statusCount[item]) {
+        if (statusCount[item as string]) {
           return (
             <Box className={classes.status} key={item as string}>
               <StatusChip
                 content={getStatus(item as string).label}
                 severityCode={getStatus(item as string).severity}
               />
-              <p>({statusCount[item]})</p>
+              <p>({statusCount[item as string]})</p>
             </Box>
           );
         }

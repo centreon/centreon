@@ -42,9 +42,12 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
+// biome-ignore lint/suspicious/noExplicitAny: HOC accepts varied autocomplete shapes
+type AutocompleteLike = (props: any) => JSX.Element;
+
 const PopoverAutocomplete = (
-  AutocompleteField: (props) => JSX.Element
-): ((props) => JSX.Element) => {
+  AutocompleteField: AutocompleteLike
+): ((props: Props) => JSX.Element) => {
   const InnerAutocomplete = ({
     value,
     label,

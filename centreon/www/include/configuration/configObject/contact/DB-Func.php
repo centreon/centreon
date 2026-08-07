@@ -1273,9 +1273,13 @@ function updateContact_MC(int $contact_id): void
         $stmt->execute();
 
         // Prepare Log
-        $query = "SELECT contact_name FROM `contact` WHERE contact_id='" . $contact_id . "' LIMIT 1";
-        $dbResult2 = $pearDB->query($query);
-        $row = $dbResult2->fetch();
+        $logStmt = $pearDB->prepare('SELECT contact_name FROM `contact` WHERE contact_id = :contactId LIMIT 1');
+        $logStmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
+        $logStmt->execute();
+        $row = $logStmt->fetch();
+        if ($row === false) {
+            return;
+        }
     } catch (PDOException $e) {
         throw new RepositoryException(
             message: 'Database error while updating contact by massive change for contact id ' . $contact_id,
@@ -1671,8 +1675,9 @@ function updateContactContactGroup_MC(int $contactId): bool
     }
 
     try {
-        $query = "SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = {$contactId}";
-        $contactGroupIdsFromDb = $pearDB->executeQueryFetchColumn($query);
+        $cgStmt = $pearDB->prepareQuery('SELECT contactgroup_cg_id FROM contactgroup_contact_relation WHERE contact_contact_id = :contactId');
+        $pearDB->executePreparedQuery($cgStmt, ['contactId' => $contactId]);
+        $contactGroupIdsFromDb = $cgStmt->fetchAll(PDO::FETCH_COLUMN);
 
         $query = 'INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id) VALUES (:contact_id, :contactgroup_id)';
         $pdoSth = $pearDB->prepareQuery($query);
@@ -1756,10 +1761,11 @@ function insertLdapContactInDB($tmpContacts = [])
             unset($tmpConf);
         }
         // Get the contact_id
-        $query = "SELECT contact_id FROM contact WHERE contact_ldap_dn = '"
-            . $pearDB->escape($tmpContacts['dn'][$select_key]) . "'";
         try {
-            $res = $pearDB->query($query);
+            $dnStmt = $pearDB->prepare('SELECT contact_id FROM contact WHERE contact_ldap_dn = :ldapDn');
+            $dnStmt->bindValue(':ldapDn', $tmpContacts['dn'][$select_key], PDO::PARAM_STR);
+            $dnStmt->execute();
+            $res = $dnStmt;
         } catch (PDOException $e) {
             return false;
         }
@@ -1777,22 +1783,37 @@ function insertLdapContactInDB($tmpContacts = [])
             $ldap = $ldapInstances[$arId];
         }
         if ($contact_id) {
-            $sqlUpdate = 'UPDATE contact SET ar_id = ' . $pearDB->escape($arId)
-                . ' %s  WHERE contact_id = ' . (int) $contact_id;
-            $tmplSql = '';
             if (isset($contactTemplates[$arId])) {
-                $tmplSql = ', contact_template_id = ' . $pearDB->escape($contactTemplates[$arId]);
+                $updateStmt = $pearDB->prepare(
+                    'UPDATE contact SET ar_id = :arId, contact_template_id = :tmplId WHERE contact_id = :contactId'
+                );
+                $updateStmt->bindValue(':tmplId', (int) $contactTemplates[$arId], PDO::PARAM_INT);
+            } else {
+                $updateStmt = $pearDB->prepare(
+                    'UPDATE contact SET ar_id = :arId WHERE contact_id = :contactId'
+                );
             }
-            $pearDB->query(sprintf($sqlUpdate, $tmplSql));
+            $updateStmt->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
+            $updateStmt->bindValue(':contactId', (int) $contact_id, PDO::PARAM_INT);
+            $updateStmt->execute();
         }
         $listGroup = [];
         if ($ldap->connect() !== false) {
             $listGroup = $ldap->listGroupsForUser($tmpContacts['dn'][$select_key]);
         }
         if ($listGroup !== []) {
-            $query = "SELECT cg_id FROM contactgroup WHERE cg_name IN ('" . join("','", $listGroup) . "')";
+            $placeholders = [];
+            foreach ($listGroup as $idx => $groupName) {
+                $placeholders[] = ':cg_' . $idx;
+            }
+            $query = 'SELECT cg_id FROM contactgroup WHERE cg_name IN (' . implode(',', $placeholders) . ')';
             try {
-                $res = $pearDB->query($query);
+                $cgStmt = $pearDB->prepare($query);
+                foreach ($listGroup as $idx => $groupName) {
+                    $cgStmt->bindValue(':cg_' . $idx, $groupName, PDO::PARAM_STR);
+                }
+                $cgStmt->execute();
+                $res = $cgStmt;
             } catch (PDOException $e) {
                 return false;
             }

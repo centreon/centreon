@@ -35,9 +35,98 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\Duplica
     processor: DuplicateCommandsProcessor::class,
     input: DuplicateCommandInput::class,
     status: 200,
+    errors: [],
     openapi: new Model\Operation(
+        summary: 'Duplicate a Command resource',
         responses: [
-            403 => new Model\Response('You are not allowed to duplicate commands'),
+            200 => new Model\Response(
+                description: 'A collection holding the duplication outcome for each requested command',
+                content: new \ArrayObject([
+                    'application/ld+json' => new Model\MediaType(
+                        schema: new \ArrayObject([
+                            'type' => 'object',
+                            'properties' => [
+                                '@context' => ['type' => 'string'],
+                                '@id' => ['type' => 'string'],
+                                '@type' => ['type' => 'string', 'example' => 'Collection'],
+                                'totalItems' => ['type' => 'integer'],
+                                'member' => [
+                                    'type' => 'array',
+                                    'items' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            '@id' => ['type' => 'string'],
+                                            '@type' => ['type' => 'string', 'example' => 'DuplicateCommandResource'],
+                                            'command' => [
+                                                'type' => 'string',
+                                                'description' => 'IRI of the duplicated command (absent when the duplication failed)',
+                                            ],
+                                            'status' => ['type' => 'integer'],
+                                            'message' => ['type' => 'string'],
+                                        ],
+                                        'required' => ['@id', '@type', 'status', 'message'],
+                                    ],
+                                ],
+                            ],
+                        ]),
+                        example: [
+                            '@context' => '/centreon/api/latest/contexts/Command',
+                            '@id' => '/centreon/api/latest/.well-known/genid/b69ebebaa3bb3de34dd8',
+                            '@type' => 'Collection',
+                            'totalItems' => 2,
+                            'member' => [
+                                [
+                                    '@id' => '/centreon/api/latest/.well-known/genid/c2afa2366f6f99491863',
+                                    '@type' => 'DuplicateCommandResource',
+                                    'command' => '/centreon/api/latest/configuration/commands/98',
+                                    'status' => 204,
+                                    'message' => 'Command duplicated successfully',
+                                ],
+                                [
+                                    '@id' => '/centreon/api/latest/.well-known/genid/3fa305a034165257c384',
+                                    '@type' => 'DuplicateCommandResource',
+                                    'status' => 404,
+                                    'message' => 'Command with ID 99999 not found',
+                                ],
+                            ],
+                        ],
+                    ),
+                ]),
+            ),
+            400 => new Model\Response(
+                description: 'Invalid input — the request body failed validation',
+                content: new \ArrayObject([
+                    'application/json' => new Model\MediaType(
+                        schema: new \ArrayObject([
+                            'type' => 'object',
+                            'properties' => [
+                                'code' => ['type' => 'integer', 'example' => 400],
+                                'message' => [
+                                    'type' => 'string',
+                                    'description' => 'One line per violation, formatted as "[propertyPath] message"',
+                                    'example' => "[ids] IDs array cannot be empty\n",
+                                ],
+                            ],
+                            'required' => ['code', 'message'],
+                        ]),
+                    ),
+                ]),
+            ),
+            403 => new Model\Response(
+                description: 'You are not allowed to duplicate commands',
+                content: new \ArrayObject([
+                    'application/json' => new Model\MediaType(
+                        schema: new \ArrayObject([
+                            'type' => 'object',
+                            'properties' => [
+                                'code' => ['type' => 'integer', 'example' => 0],
+                                'message' => ['type' => 'string', 'example' => 'You are not allowed to duplicate commands'],
+                            ],
+                            'required' => ['code', 'message'],
+                        ]),
+                    ),
+                ]),
+            ),
         ],
     ),
 )]

@@ -14,7 +14,8 @@ const ExpirationDate = ({
   row,
   isHovered
 }: ComponentColumnProps): JSX.Element => {
-  const isExpired = dayjs(dayjs(row.expirationDate)).isBefore(dayjs());
+  const typedRow = row as { expirationDate?: string | Date | null };
+  const isExpired = dayjs(dayjs(typedRow.expirationDate)).isBefore(dayjs());
 
   const { classes } = useStyles({
     isExpired,
@@ -23,9 +24,9 @@ const ExpirationDate = ({
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
 
-  const expirationDate = row.expirationDate
+  const expirationDate = typedRow.expirationDate
     ? format({
-        date: row.expirationDate,
+        date: typedRow.expirationDate,
         formatString: dateFormat
       })
     : t(labelNeverExpire);

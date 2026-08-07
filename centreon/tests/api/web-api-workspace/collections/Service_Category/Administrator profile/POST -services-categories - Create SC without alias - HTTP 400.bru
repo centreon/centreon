@@ -1,0 +1,33 @@
+meta {
+  name: POST /services/categories - Create SC without alias - HTTP 400
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/services/categories
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Test_Ghost_SC"
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+tests {
+  test("The service category has not been created, because the alias is mandatory.", function () {
+    const body = res.getBody();
+    expect(body.message).to.be.a("string").and.include("[alias]");
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -10,17 +10,17 @@ import type { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 type Props = {
   checkable: boolean;
-  children;
+  children: React.ReactNode;
   columnConfiguration?: ColumnConfiguration;
   columnIds: Array<string>;
-  disableRowCondition: (row) => boolean;
+  disableRowCondition: (row: Record<string, unknown>) => boolean;
   isHovered?: boolean;
   isSelected?: boolean;
   isShiftKeyDown: boolean;
   lastSelectionIndex: number | null;
   limit: number;
   listingVariant?: ListingVariant;
-  row;
+  row: Record<string, unknown>;
   rowColorConditions: Array<RowColorCondition>;
   shiftKeyDownRowPivot: number | null;
   subItemsPivots: Array<number | string>;

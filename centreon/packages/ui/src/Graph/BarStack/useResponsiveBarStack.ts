@@ -1,4 +1,5 @@
 import { scaleOrdinal } from '@visx/scale';
+import type { ScaleOrdinal } from 'd3-scale';
 import { equals, isNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 
@@ -21,7 +22,7 @@ interface UseBarStackState {
   titleVariant: 'xs' | 'sm' | 'md';
   isVerticalBar: boolean;
   legendScale: LegendScale;
-  colorScale;
+  colorScale: ScaleOrdinal<string, string>;
   formattedLegendDirection: 'column' | 'row';
 }
 

@@ -121,16 +121,18 @@ $rq1 = <<<'SQL_WRAP'
             cv.value AS criticality,
             cv.value IS NULL AS isnull
             FROM instances i
-        INNER JOIN hosts h 
+        INNER JOIN hosts h
             ON h.instance_id = i.instance_id
     SQL_WRAP;
 
 if (! $obj->is_admin) {
+    $ids = $obj->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $rq1 .= <<<SQL
 
         INNER JOIN centreon_acl
             ON centreon_acl.host_id = h.host_id
-            AND centreon_acl.group_id IN ({$obj->grouplistStr})
+            AND centreon_acl.group_id IN ({$accessGroupIds})
         SQL;
 }
 

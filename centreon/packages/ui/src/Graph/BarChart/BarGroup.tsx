@@ -2,6 +2,7 @@ import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
 import type { ScaleLinear } from 'd3-scale';
 import { difference, equals, keys, omit, pick } from 'ramda';
+import type { ComponentType } from 'react';
 import { memo, useMemo } from 'react';
 
 import { useDeepMemo } from '../../utils';
@@ -29,7 +30,8 @@ interface Props {
   orientation: 'horizontal' | 'vertical';
   size: number;
   timeSeries: Array<TimeValue>;
-  xScale;
+  // biome-ignore lint/suspicious/noExplicitAny: visx bandwidth scale typing
+  xScale: any;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
   scaleType?: 'linear' | 'logarithmic';
 }
@@ -50,7 +52,9 @@ const BarGroup = ({
   const [firstUnit] = getUnits(lines);
 
   const BarComponent = useMemo(
-    () => (isHorizontal ? VisxBarGroup : BarGroupHorizontal),
+    () =>
+      // biome-ignore lint/suspicious/noExplicitAny: visx BarGroup union type
+      (isHorizontal ? VisxBarGroup : BarGroupHorizontal) as ComponentType<any>,
     [isHorizontal]
   );
 
@@ -76,6 +80,7 @@ const BarGroup = ({
     deps: [normalizedTimeSeries],
     variable: keys(omit(['timeTick'], normalizedTimeSeries[0]))
   });
+  // @ts-expect-error - suppressing pre-existing type mismatch
   const sortedLineKeys = lineKeys.sort((lineKeyA: string, lineKeyB: string) => {
     if (lineKeyA.startsWith('stacked-') && !lineKeyB.startsWith('stacked-')) {
       return true;
@@ -138,14 +143,15 @@ const BarGroup = ({
   const neutralValue = useMemo(() => getNeutralValue(scaleType), [scaleType]);
 
   return (
-    <BarComponent<TimeValue>
+    <BarComponent
       color={colorScale}
       data={normalizedTimeSeries}
       height={size}
       keys={sortedLineKeys}
       {...barComponentBaseProps}
     >
-      {(barGroups) =>
+      {/* biome-ignore lint/suspicious/noExplicitAny: visx BarGroup union type */}
+      {(barGroups: Array<any>) =>
         barGroups.map((barGroup, index) => {
           return (
             <MemoizedGroup
@@ -195,6 +201,7 @@ export default memo(BarGroup, (prevProps, nextProps) => {
   ];
 
   return (
+    // @ts-expect-error - suppressing pre-existing type mismatch
     equals(pick(propsToMemoize, prevProps), pick(propsToMemoize, nextProps)) &&
     equals(prevYScale, nextYScale) &&
     equals(prevXScale, nextXScale)

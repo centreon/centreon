@@ -214,7 +214,9 @@ final class AddHostTemplateController extends AbstractController
              *     templates?: int[],
              *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     event_handler_enabled?: int,
-             *     event_handler_command_id?: null|int
+             *     event_handler_command_id?: null|int,
+             *     freshness_checked?: int,
+             *     freshness_threshold?: null|int
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateSaasSchema.json');
@@ -241,6 +243,8 @@ final class AddHostTemplateController extends AbstractController
             $dto->iconId = $data['icon_id'] ?? null;
             $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled'] ?? 2);
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
+            $dto->freshnessChecked = $data['freshness_checked'] ?? 2;
+            $dto->freshnessThreshold = $data['freshness_threshold'] ?? null;
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {

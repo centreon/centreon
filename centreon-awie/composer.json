@@ -1,21 +1,17 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "26.05",
+  "version": "26.09",
   "type": "project",
   "license": "Apache-2.0",
   "require": {
-    "php": "8.2.*",
+    "php": "8.4.*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-pdo": "*",
     "ext-zip": "*"
   },
   "require-dev": {
-    "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master",
-    "friends-of-behat/mink": "1.11.*",
-    "friends-of-behat/mink-extension": "2.7.*",
     "psr/container": "2.0.*"
   },
   "repositories": [
@@ -28,7 +24,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.2"
+      "php": "8.4.1"
     },
     "preferred-install": {
       "*": "dist"
@@ -78,7 +74,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.3.*"
+      "require": "8.1.*"
     }
   }
 }

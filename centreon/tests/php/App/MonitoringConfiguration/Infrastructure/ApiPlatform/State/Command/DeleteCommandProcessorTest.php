@@ -29,26 +29,24 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class DeleteCommandProcessorTest extends ApiTestCase
 {
     public function testDeleteCommandSuccessfully(): void
     {
-        /** @var CommandRepository $repository */
-        $repository = self::getContainer()->get(CommandRepository::class);
-
-        $repository->add(new Command(
-            id: new CommandId(1),
-            name: new CommandName('original name'),
-            commandLine: new CommandLine('original command'),
-            type: CommandTypeEnum::Check,
-            isShellEnabled: true,
-            isFromMonitoringConnector: false,
-            isActivated: true,
-            connector: null,
-            comment: null,
-        ));
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('command', [
+            'command_id' => 1,
+            'command_name' => 'original name',
+            'command_line' => 'original command',
+            'command_type' => 2,
+            'enable_shell' => '1',
+            'command_activate' => '1',
+            'command_locked' => '0',
+        ]);
 
         $this->login();
 

@@ -1,9 +1,17 @@
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { array, boolean, mixed, number, object, Schema, string } from 'yup';
+import {
+  array,
+  boolean,
+  mixed,
+  number,
+  ObjectSchema,
+  object,
+  string
+} from 'yup';
 
-import { AgentConfigurationForm, AgentType } from '../models';
+import { AgentType } from '../models';
 import {
   labelAddressInvalid,
   labelAtLeastOneConnexionMode,
@@ -25,7 +33,7 @@ const validCertificateExtensionRegex = /\.(crt|cert|cer)$/;
 const validFileExtensionRegex = /\.key$/;
 const relativePathRegex = /^\.{1,2}\//;
 
-export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
+export const useValidationSchema = (): ObjectSchema<object> => {
   const { t } = useTranslation();
 
   const requiredString = useMemo(() => string().required(t(labelRequired)), []);
@@ -86,15 +94,22 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
               message: t(labelAddressInvalid),
               name: 'is-dns-ip-valid',
               test: (address) =>
-                address?.match(ipAddressRegex) || address?.match(urlRegex)
+                Boolean(
+                  address?.match(ipAddressRegex) || address?.match(urlRegex)
+                )
             })
             .required(t(labelRequired)),
           pollerCaCertificate: certificateValidation(),
           pollerCaName: string().nullable(),
           port: portValidation,
           token: object().when(['$type', '$configuration'], {
-            is: (type, configuration) =>
-              configuration?.pollerInitiated && equals(type?.id, AgentType.CMA),
+            is: (
+              type: { id: string } | null | undefined,
+              configuration: unknown
+            ) =>
+              (configuration as { pollerInitiated?: boolean })
+                ?.pollerInitiated &&
+              equals((type as { id?: string })?.id, AgentType.CMA),
             otherwise: (schema) => schema.nullable(),
             // biome-ignore lint/suspicious/noThenProperty: false positive
             then: (schema) =>
@@ -129,8 +144,8 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         then: (schema) => schema.required(t(labelRequired))
       }),
     tokens: array().when(['$type', 'agentInitiated'], {
-      is: (type, agentInitiated) =>
-        agentInitiated && equals(type?.id, AgentType.CMA),
+      is: (type: { id: string } | null | undefined, agentInitiated: unknown) =>
+        agentInitiated && equals((type as { id?: string })?.id, AgentType.CMA),
       otherwise: (schema) => schema.nullable(),
       // biome-ignore lint/suspicious/noThenProperty: false positive
       then: (schema) =>
@@ -147,9 +162,10 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     })
   };
 
-  return object<AgentConfigurationForm>({
+  return object({
     configuration: object().when('type', {
-      is: (type) => equals(type?.id, AgentType.Telegraf),
+      is: (type: { id: string } | null | undefined) =>
+        equals((type as { id?: string })?.id, AgentType.Telegraf),
       otherwise: (schema) =>
         schema.shape(CMAConfigurationSchema).test({
           message: t(labelAtLeastOneConnexionMode),

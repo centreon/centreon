@@ -511,7 +511,9 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
         $aclQuery = '';
         $accessGroupsBindValues = [];
         $hostGroupAcl = '';
+        $hostGroupAclSubquery = '';
         $hostCategoriesAcl = '';
+        $hostCategoriesAclSubquery = '';
         $hostSeveritiesAcl = '';
         $monitoringServersAcl = '';
         if ($accessGroups !== []) {
@@ -540,10 +542,39 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 )
                 SQL;
 
+            $hostGroupAclSubquery = <<<SQL
+
+                AND hgr_sub.hostgroup_hg_id IN (
+                    SELECT aclhgr.hg_hg_id AS id
+                    FROM `:db`.acl_resources_hg_relations aclhgr
+                    INNER JOIN `:db`.acl_resources aclr
+                        ON aclr.acl_res_id = aclhgr.acl_res_id
+                    INNER JOIN `:db`.acl_res_group_relations aclrgr
+                        ON aclrgr.acl_res_id = aclr.acl_res_id
+                        AND aclrgr.acl_group_id IN ({$accessGroupIdsQuery})
+                )
+                SQL;
+
             if ($this->hasHostCategoriesFilter($accessGroupIdsQuery, $accessGroupsBindValues)) {
                 $hostCategoriesAcl = <<<SQL
 
                     AND hc.hc_id IN (
+                        SELECT hc.hc_id AS id
+                        FROM `:db`.hostcategories hc
+                        INNER JOIN `:db`.acl_resources_hc_relations aclhcr_hc
+                            ON aclhcr_hc.hc_id = hc.hc_id
+                        INNER JOIN `:db`.acl_resources aclr_hc
+                            ON aclr_hc.acl_res_id = aclhcr_hc.acl_res_id
+                        INNER JOIN `:db`.acl_res_group_relations aclrgr_hc
+                            ON aclrgr_hc.acl_res_id = aclr_hc.acl_res_id
+                            AND aclrgr_hc.acl_group_id IN ({$accessGroupIdsQuery})
+                        WHERE hc.level IS NULL
+                    )
+                    SQL;
+
+                $hostCategoriesAclSubquery = <<<SQL
+
+                    AND hc_sub.hc_id IN (
                         SELECT hc.hc_id AS id
                         FROM `:db`.hostcategories hc
                         INNER JOIN `:db`.acl_resources_hc_relations aclhcr_hc
@@ -625,8 +656,19 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
                 ) AS severity_name,
                 ns.id AS monitoring_server_id,
                 ns.name AS monitoring_server_name,
-                GROUP_CONCAT(DISTINCT hc.hc_id) AS category_ids,
-                GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS hostgroup_ids,
+                (
+                    SELECT GROUP_CONCAT(DISTINCT hcr_sub.hostcategories_hc_id)
+                    FROM `:db`.hostcategories_relation hcr_sub
+                    INNER JOIN `:db`.hostcategories hc_sub
+                        ON hc_sub.hc_id = hcr_sub.hostcategories_hc_id
+                    WHERE hcr_sub.host_host_id = h.host_id
+                        AND hc_sub.level IS NULL {$hostCategoriesAclSubquery}
+                ) AS category_ids,
+                (
+                    SELECT GROUP_CONCAT(DISTINCT hgr_sub.hostgroup_hg_id)
+                    FROM `:db`.hostgroup_relation hgr_sub
+                    WHERE hgr_sub.host_host_id = h.host_id {$hostGroupAclSubquery}
+                ) AS hostgroup_ids,
                 GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids
             FROM `:db`.host h {$aclQuery}
             LEFT JOIN `:db`.hostcategories_relation hcr

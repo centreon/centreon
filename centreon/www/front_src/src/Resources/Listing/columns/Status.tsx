@@ -56,7 +56,7 @@ const useStyles = makeStyles<StylesProps>()((theme, { data }) => ({
 }));
 
 type StatusColumnProps = {
-  actions;
+  actions: Record<string, (row: unknown) => void>;
 } & Pick<ComponentColumnProps, 'row'>;
 
 const StatusColumnOnHover = ({
@@ -90,7 +90,13 @@ const StatusColumnOnHover = ({
   const disableDowntime = !isDowntimePermitted;
   const disableForcedCheck = !isForcedCheckPermitted;
 
-  const getActionTitle = ({ labelAction, isActionPermitted }): string => {
+  const getActionTitle = ({
+    labelAction,
+    isActionPermitted
+  }: {
+    isActionPermitted: boolean;
+    labelAction: string;
+  }): string => {
     const translatedLabelAction = t(labelAction);
 
     return isActionPermitted
@@ -139,7 +145,7 @@ const StatusColumnOnHover = ({
             ['links', 'endpoints', 'forced_check'],
             row
           );
-          setForcedCheckInlineEndpoint(forcedCheckEndpoint);
+          setForcedCheckInlineEndpoint(forcedCheckEndpoint as string);
 
           actions.onCheck(row);
         }}
@@ -166,7 +172,10 @@ const StatusColumn = ({
       data: dataStyle.statusColumnChip
     });
 
-    const statusName = row.status.name;
+    const typedRow = row as unknown as {
+      status: { name: string; severity_code: SeverityCode };
+    };
+    const statusName = typedRow.status.name;
 
     const label = equals(SeverityCode[5], statusName)
       ? t(statusName)
@@ -180,7 +189,7 @@ const StatusColumn = ({
           <StatusChip
             className={classes.statusColumnChip}
             label={label}
-            severityCode={row.status.severity_code}
+            severityCode={typedRow.status.severity_code}
           />
         )}
       </div>

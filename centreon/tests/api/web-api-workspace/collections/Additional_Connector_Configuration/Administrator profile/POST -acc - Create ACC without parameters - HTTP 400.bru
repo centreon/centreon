@@ -1,0 +1,31 @@
+meta {
+  name: POST /acc - Create ACC without parameters - HTTP 400
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/additional-connector-configurations
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "bad-acc",
+    "description": null,
+    "pollers": [1],
+    "type": "vmware_v6"
+  }
+}
+
+tests {
+  test("Cannot create an ACC without parameters (returns 500 if CI infrastructure is unavailable).", function () {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

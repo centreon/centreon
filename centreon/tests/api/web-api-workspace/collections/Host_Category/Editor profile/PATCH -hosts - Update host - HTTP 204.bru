@@ -1,0 +1,33 @@
+meta {
+  name: PATCH /hosts - Update host - HTTP 204
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrlWeb}}/configuration/hosts/{{Host2Id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "categories": [ {{HostCategory2Id}} ],
+    "groups": [ {{HostGroup1Id}}, {{HostGroup2Id}} ]
+  }
+}
+
+assert {
+  res.status: eq 204
+}
+
+tests {
+  test("The host '{{Host2Name}}' has been successfully updated with both host groups.", function () {
+    expect(res.getBody()).to.be.empty;
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

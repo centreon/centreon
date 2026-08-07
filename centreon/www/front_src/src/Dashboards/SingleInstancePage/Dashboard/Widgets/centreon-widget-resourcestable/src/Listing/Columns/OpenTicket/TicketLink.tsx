@@ -1,4 +1,12 @@
-export const TicketLink = ({ row }) => {
+interface TicketLinkProps {
+  row: {
+    extra?: {
+      open_tickets?: { tickets?: { id?: string | number; link?: string } };
+    };
+  };
+}
+
+export const TicketLink = ({ row }: TicketLinkProps) => {
   return (
     <a
       href={row.extra?.open_tickets?.tickets?.link}

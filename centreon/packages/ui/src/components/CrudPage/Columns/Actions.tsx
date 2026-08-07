@@ -17,7 +17,7 @@ import {
 interface Props<TData> {
   row: TData & {
     internalListingParentId?: number;
-    internalListingParentRow: TData;
+    internalListingParentRow: TData & { id: number };
   };
 }
 
@@ -64,7 +64,7 @@ const Actions = <TData extends { id: number; name: string }>({
         <IconButton
           data-testid={
             row.internalListingParentRow
-              ? `edit-${row.internalListingParentRow.id}-${row.id}`
+              ? `edit-${(row.internalListingParentRow as TData & { id: number }).id}-${row.id}`
               : `edit-${row.id}`
           }
           icon={<EditOutlined color="primary" fontSize="small" />}

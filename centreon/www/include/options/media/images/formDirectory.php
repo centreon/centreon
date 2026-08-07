@@ -202,6 +202,7 @@ $redirect->setValue($o);
 // # Form Rules
 //
 $form->applyFilter('__ALL__', 'myTrim');
+$form->addRule('dir_name', _('Invalid directory name. Only alphanumeric characters, hyphens and underscores are allowed.'), 'regex', '/^[a-zA-Z0-9_-]+$/');
 if ($o == IMAGE_MODIFY_DIRECTORY && $directoryId) {
     $form->addRule('dir_name', _('Compulsory Name'), 'required');
     $form->setRequiredNote(_('Required Field'));
@@ -219,12 +220,12 @@ foreach ($help as $key => $text) {
 $tpl->assign('helptext', $helptext);
 
 if ($o == IMAGE_MOVE) {
-    $subM = $form->addElement('submit', 'submitM', _('Apply'));
+    $subM = $form->addElement('submit', 'submitM', _('Apply'), ['class' => 'btc bt_success']);
     $res = $form->addElement(
         'button',
         'cancel',
         _('Cancel'),
-        ['onClick' => "javascript:window.location.href='?p={$p}'"]
+        ['class' => 'btc bt_default', 'onClick' => "javascript:window.location.href='?p={$p}'"]
     );
 } elseif ($o == IMAGE_MODIFY_DIRECTORY) {
     $confirm = isset($dir['dir_imgs']) ? implode(',', $dir['dir_imgs']) : '';

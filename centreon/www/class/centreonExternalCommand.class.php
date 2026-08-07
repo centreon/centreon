@@ -638,8 +638,12 @@ class CentreonExternalCommand
      */
     private function getDowntimeTimestampFromDate($date = 'now', $timezone = '', $start = true)
     {
-        $inputDate = new DateTime($date . ' GMT');
-        $dateTime = new DateTime($date, new DateTimeZone($timezone));
+        try {
+            $inputDate = new DateTime($date . ' GMT');
+            $dateTime = new DateTime($date, new DateTimeZone($timezone));
+        } catch (Exception $e) {
+            throw new InvalidArgumentException(sprintf('Invalid date format: %s', $date), 0, $e);
+        }
 
         // Winter to summer dst
         $dateTime2 = clone $dateTime;

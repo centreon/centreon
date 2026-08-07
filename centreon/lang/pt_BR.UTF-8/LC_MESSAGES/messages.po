@@ -3211,6 +3211,10 @@ msgstr ""
 msgid "Command copied to clipboard"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Command copied!"
+msgstr ""
+
 #: centreon/www/include/monitoring/external_cmd/functions.php
 msgid "Command execution problem"
 msgstr "Problema de execução de comando"
@@ -3795,6 +3799,10 @@ msgstr "Copia link de auto-autenticação"
 
 #: centreon/www/install/front_translate.php
 msgid "Copy breadcrumb"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Copy command"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5431,6 +5439,14 @@ msgstr "Indisponível (Tempo Médio)"
 msgid "Down status hosts"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Download"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Download the script"
+msgstr ""
+
 #: centreon/src/Core/Metric/Application/Exception/MetricException.php
 msgid "Downloading the performance metrics is not allowed"
 msgstr ""
@@ -6511,6 +6527,10 @@ msgstr ""
 msgid "Error while deleting a host template"
 msgstr ""
 
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while deleting a media"
+msgstr ""
+
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while deleting a notification configuration"
 msgstr ""
@@ -6675,6 +6695,10 @@ msgstr ""
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "Error while retrieving a host template"
+msgstr ""
+
+#: centreon/src/Core/Media/Application/Exception/MediaException.php
+msgid "Error while retrieving a media"
 msgstr ""
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
@@ -7161,6 +7185,10 @@ msgid "Execute special command"
 msgstr "Executar comando especial"
 
 #: centreon/www/install/front_translate.php
+msgid "Execute the script"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Execute this script as root on the central."
 msgstr ""
 
@@ -7394,6 +7422,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to copy link"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Failed to copy the command!"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -8090,6 +8122,10 @@ msgstr ""
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Generate trap database "
 msgstr "Gerar banco de dados de trap"
+
+#: centreon/www/install/front_translate.php
+msgid "Generate your CMA installation command"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
@@ -9598,6 +9634,13 @@ msgstr ""
 msgid "Invalid coordinates values specified"
 msgstr ""
 
+#: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
+msgid ""
+"Invalid directory name. Only alphanumeric characters, hyphens and "
+"underscores are allowed."
+msgstr ""
+
 #: centreon/src/Core/Domain/Configuration/Notification/Exception/NotificationException.php
 #, php-format
 msgid "Invalid event provided (%s)"
@@ -10157,6 +10200,12 @@ msgstr "Legenda"
 msgid "Legend Name"
 msgstr "Nome da Legenda"
 
+#: centreon/www/include/views/componentTemplates/formComponentTemplate.php
+msgid ""
+"Legend is disabled for the default template because it cannot be displayed "
+"in the graph. Metric name will be displayed by default."
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Less"
 msgstr ""
@@ -10337,6 +10386,10 @@ msgstr "Associações"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Links Management"
 msgstr "Gestão de Associações"
+
+#: centreon/www/install/front_translate.php
+msgid "Linux"
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configResources/formResources.php
@@ -11344,7 +11397,7 @@ msgid "Modify Vendor"
 msgstr "Modificar Fabricante"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
+msgid "Modify a host category"
 msgstr "Modifica uma categoria de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -13236,13 +13289,17 @@ msgstr ""
 #: centreon/www/install/step_upgrade/step4.php
 #, php-format
 msgid ""
-"Please check the \"upgrade.log\" and the \"sql-error.log\" located in \"%s\" "
+"Please check the \"prod.upgrade.log\" and the \"prod.web.log\" located in \"%s\" "
 "for more details"
 msgstr ""
 
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #, php-format
 msgid "Please choose a date before %d"
+msgstr ""
+
+#: centreon/www/include/monitoring/downtime/AddDowntime.php
+msgid "Invalid date format"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -14536,6 +14593,11 @@ msgstr ""
 msgid "Run monitoring engine debug (-v)"
 msgstr "Executa depuração do motor de monitoramento (-v)"
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"Run the following command on each host you want to monitor with the agent."
+msgstr ""
+
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 msgid "Running debug mode"
 msgstr "Executando modo de depuração"
@@ -15058,6 +15120,10 @@ msgid "Select pages"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select poller"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select poller(s)"
 msgstr ""
 
@@ -15088,6 +15154,10 @@ msgid "Select service severities"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Select the poller that will monitor your hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Select time format"
 msgstr ""
 
@@ -15105,6 +15175,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Select users"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Select your hosts' operating system"
 msgstr ""
 
 #: centreon/www/class/centreonConfigCentreonBroker.php
@@ -16781,6 +16855,12 @@ msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The command format is invalid"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid ""
+"The command is only valid for hosts with an agent-initiated connection to "
+"this poller."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Engine/EngineService.php
@@ -19005,6 +19085,10 @@ msgstr "Largura"
 msgid "Wiki page defined"
 msgstr "Página Wiki definida"
 
+#: centreon/www/install/front_translate.php
+msgid "Windows"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 msgid "Workhours"
 msgstr ""
@@ -19179,6 +19263,10 @@ msgstr ""
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 msgid "You are not allowed to access host templates"
+msgstr ""
+
+#: centreon/src/Core/Host/Application/Exception/HostException.php
+msgid "You are not allowed to access hosts"
 msgstr ""
 
 #: centreon/src/Core/Host/Application/Exception/HostException.php
@@ -20300,6 +20388,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "the community"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "then copy the script to each host you want to monitor."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -23865,3 +23957,112 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "More than 1,000 resources match your search. Click to continue."
+msgstr ""
+
+#: packages/ui/src/Listing/translatedLabels.ts
+msgid "Loading..."
+msgstr ""
+
+#: unknown
+# msgid "Create new poller"
+# msgstr ""
+
+#: unknown
+# msgid "Enter your poller's name and address"
+# msgstr ""
+
+#: unknown
+# msgid "Select your poller's environment"
+# msgstr ""
+
+#: unknown
+# msgid "VM or physical"
+# msgstr ""
+
+#: unknown
+# msgid "Docker compose"
+# msgstr ""
+
+#: unknown
+# msgid "Select token"
+# msgstr ""
+
+# msgid "Generate installation command"
+# msgstr ""
+
+#: unknown
+# msgid "The command is being generated…"
+# msgstr ""
+
+#: unknown
+# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+# msgstr ""
+
+#: unknown
+# msgid "Generating..."
+# msgstr ""
+
+#: unknown
+# msgid "Copy the following command and run it on your poller to register it."
+# msgstr ""
+
+#: unknown
+# msgid "Failed to create poller"
+# msgstr ""
+
+#: unknown
+# msgid "Enter your poller information"
+# msgstr ""
+
+#: unknown
+# msgid "Poller name"
+# msgstr ""
+
+#: unknown
+# msgid "Poller address"
+# msgstr ""
+
+#: unknown
+# msgid "Centreon Central address, as seen by this poller"
+# msgstr ""
+
+# Host categories - modernized listing/form (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr "Duplicar categoria de host"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Duplicar categorias de host"
+
+#: unknown
+msgid "Delete host category"
+msgstr "Excluir categoria de host"
+
+#: unknown
+msgid "Delete host categories"
+msgstr "Excluir categorias de host"
+
+#: unknown
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr "Agrupe os hosts em categorias para organizar e filtrar sua configuração."
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} categorias de host</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a categoria de host <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} categorias de host</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
+

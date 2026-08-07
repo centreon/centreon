@@ -33,6 +33,7 @@ import {
   labelInformation,
   labelLastCheck,
   labelMonitoringServer,
+  labelNotes,
   labelOpenedOn,
   labelParent,
   labelParentAlias,
@@ -57,6 +58,8 @@ import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
+import ActionUrlColumn from './Url/Action';
+import NotesUrlColumn from './Url/Notes';
 
 interface ColumnProps {
   displayType?: DisplayType;
@@ -67,7 +70,20 @@ interface ColumnsState {
   defaultSelectedColumnIds: Array<string>;
 }
 
-const getTicketInformations = (row) =>
+const getTicketInformations = (row: {
+  extra?: {
+    open_tickets?: {
+      tickets?: { subject?: string; created_at?: string };
+    };
+  };
+  parent?: {
+    extra?: {
+      open_tickets?: {
+        tickets?: { subject?: string; created_at?: string };
+      };
+    };
+  };
+}) =>
   row?.extra?.open_tickets?.tickets ||
   row?.parent?.extra?.open_tickets?.tickets;
 
@@ -118,7 +134,7 @@ const useColumns = ({
     isOpenTicketColumnsVisible && equals(displayResources, 'withTicket');
 
   const defaultSelectedColumnIds = [
-    'status',
+    ...(equals(displayType, DisplayType.Host) ? [] : ['status']),
     'resource',
     'parent_resource',
     ...(isOpenTicketActionColumnVisible ? ['open_ticket'] : []),
@@ -191,17 +207,20 @@ const useColumns = ({
             type: ColumnType.component
           },
           {
-            getFormattedString: (row): string =>
-              getTicketInformations(row)?.subject,
+            getFormattedString: (
+              row: Parameters<typeof getTicketInformations>[0]
+            ): string => getTicketInformations(row)?.subject as string,
             id: 'ticket_subject',
             label: t(labelTicketSubject),
             type: ColumnType.string
           },
           {
-            getFormattedString: (row): string =>
+            getFormattedString: (
+              row: Parameters<typeof getTicketInformations>[0]
+            ): string =>
               getTicketInformations(row)?.created_at
                 ? format({
-                    date: getTicketInformations(row)?.created_at,
+                    date: getTicketInformations(row)?.created_at as string,
                     formatString: 'L'
                   })
                 : '',
@@ -212,7 +231,8 @@ const useColumns = ({
         ]
       : []),
     {
-      getFormattedString: ({ duration }): string => duration,
+      getFormattedString: ({ duration }: { duration: string }): string =>
+        duration,
       id: 'duration',
       label: t(labelDuration),
       sortable: true,
@@ -220,14 +240,15 @@ const useColumns = ({
       type: ColumnType.string
     },
     {
-      getFormattedString: ({ tries }): string => tries,
+      getFormattedString: ({ tries }: { tries: string }): string => tries,
       id: 'tries',
       label: t(labelTries),
       sortable: true,
       type: ColumnType.string
     },
     {
-      getFormattedString: ({ last_check }): string => last_check,
+      getFormattedString: ({ last_check }: { last_check: string }): string =>
+        last_check,
       id: 'last_check',
       label: t(labelLastCheck),
       sortable: true,
@@ -239,7 +260,7 @@ const useColumns = ({
         split('\n'),
         head,
         (information: string) => truncate({ content: information })
-      ) as (row) => string,
+      ) as (row: unknown) => string,
       id: 'information',
       label: t(labelInformation),
       rowMemoProps: ['information'],
@@ -259,6 +280,26 @@ const useColumns = ({
       width: 'minmax(50px, auto)'
     },
     {
+      Component: NotesUrlColumn,
+      getRenderComponentOnRowUpdateCondition: T,
+      id: 'notes_url',
+      label: t(labelNotes),
+      rowMemoProps: ['links'],
+      shortLabel: 'N',
+      sortable: false,
+      type: ColumnType.component
+    },
+    {
+      Component: ActionUrlColumn,
+      getRenderComponentOnRowUpdateCondition: T,
+      id: 'action_url',
+      label: t(labelAction),
+      rowMemoProps: ['links'],
+      shortLabel: 'A',
+      sortable: false,
+      type: ColumnType.component
+    },
+    {
       Component: StateColumn,
       getRenderComponentOnRowUpdateCondition: T,
       id: 'state',
@@ -268,7 +309,7 @@ const useColumns = ({
       type: ColumnType.component
     },
     {
-      getFormattedString: ({ alias }): string => alias,
+      getFormattedString: ({ alias }: { alias: string }): string => alias,
       id: 'alias',
       label: t(labelAlias),
       sortable: true,
@@ -276,7 +317,11 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ parent }): string => parent?.alias,
+      getFormattedString: ({
+        parent
+      }: {
+        parent?: { alias?: string };
+      }): string => parent?.alias as string,
       id: 'parent_alias',
       label: t(labelParentAlias),
       rowMemoProps: ['parent'],
@@ -286,7 +331,7 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ fqdn }): string => fqdn,
+      getFormattedString: ({ fqdn }: { fqdn: string }): string => fqdn,
       id: 'fqdn',
       label: t(labelFqdn),
       sortable: true,
@@ -294,8 +339,11 @@ const useColumns = ({
       width: 'max-content'
     },
     {
-      getFormattedString: ({ monitoring_server_name }): string =>
-        monitoring_server_name,
+      getFormattedString: ({
+        monitoring_server_name
+      }: {
+        monitoring_server_name: string;
+      }): string => monitoring_server_name,
       id: 'monitoring_server_name',
       label: t(labelMonitoringServer),
       sortable: true,
@@ -316,6 +364,9 @@ const useColumns = ({
       : [])
   ];
 
-  return { columns, defaultSelectedColumnIds };
+  return {
+    columns: columns as unknown as Array<Column>,
+    defaultSelectedColumnIds
+  };
 };
 export default useColumns;

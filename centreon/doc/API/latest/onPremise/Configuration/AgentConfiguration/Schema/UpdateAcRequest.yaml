@@ -1,21 +1,10 @@
 type: object
-required: ["name", "type", "pollerIds", "configuration"]
+required: ["name", "pollerIds", "configuration"]
 properties:
   name:
     type: string
     description: Configuration name.
     example: my-cfg-name
-
-  type:
-    type: string
-    description: |
-      Type of agent configuration.
-
-      Supported values:
-        - telegraf
-        - centreon-agent
-    enum: [telegraf, centreon-agent]
-    example: centreon-agent
 
   connection_mode:
     type: string
@@ -71,7 +60,8 @@ properties:
           description: Whether to automatically create host (in agent initiated mode).
           example: false
         otel_public_certificate:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Path to the public certificate.
 
@@ -81,7 +71,8 @@ properties:
           example: otel-cert.crt
 
         otel_ca_certificate:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Path to the CA certificate.
 
@@ -91,7 +82,8 @@ properties:
           example: ca-cert.cer
 
         otel_private_key:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Path to the private key.
 
@@ -141,15 +133,18 @@ properties:
                 description: Port number for host connection.
                 example: 1443
               poller_ca_certificate:
-                type: [string, null]
+                type: string
+                nullable: true
                 description: Path to poller's CA certificate.
                 example: poller-ca.crt
               poller_ca_name:
-                type: [string, null]
+                type: string
+                nullable: true
                 description: CA name expected by the host.
                 example: CentreonCA
               token:
-                type: [object, null]
+                type: object
+                nullable: true
                 description: Token used for this host.
                 properties:
                   name:
@@ -200,7 +195,8 @@ properties:
         - conf_private_key
       properties:
         otel_public_certificate:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Path to the public certificate.
 
@@ -210,7 +206,8 @@ properties:
           example: otel-cert.crt
 
         otel_ca_certificate:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Path to the CA certificate.
 
@@ -220,7 +217,8 @@ properties:
           example: telegraf-ca.crt
 
         otel_private_key:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Path to the private key.
 
@@ -235,7 +233,8 @@ properties:
           example: 1443
 
         conf_certificate:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Server certificate path.
 
@@ -245,7 +244,8 @@ properties:
           example: conf-cert.crt
 
         conf_private_key:
-          type: [string, null]
+          type: string
+          nullable: true
           description: |
             Server private key path.
 

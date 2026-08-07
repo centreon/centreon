@@ -20,7 +20,7 @@ interface ActionsType {
     muiName: string;
   };
   label: string;
-  onClick?: (e?) => void;
+  onClick?: (e?: React.MouseEvent) => void;
   secondaryLabel?: string;
   variant?: ActionVariants;
 }

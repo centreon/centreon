@@ -59,7 +59,7 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function existsByAccessGroups(int $serviceId, array $accessGroups): bool
+    public function existsByAccessGroups(int $serviceId, array $accessGroups, ?int $hostId = null): bool
     {
         throw RepositoryException::notYetImplemented();
     }

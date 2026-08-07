@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/commands/command.json';
@@ -12,43 +13,43 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/commands?page=*'
+    url: `${INTERCEPTORS.api.commands_configuration}?page=*`
   }).as('getCommandsList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/global-macros?*'
+    url: `${INTERCEPTORS.api.global_macros_configuration}?*`
   }).as('getGlobalMacros');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/standard-macros?page=*'
+    url: `${INTERCEPTORS.api.standard_macros_configuration}?page=*`
   }).as('getStandardMacros');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/plugins?page=*'
+    url: `${INTERCEPTORS.api.plugins_configuration}?page=*`
   }).as('getPlugins');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/connectors?page=*'
+    url: `${INTERCEPTORS.api.plugins_configuration}?page=*`
   }).as('getConnectors');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/commands/*'
+    url: `${INTERCEPTORS.api.commands_configuration}/*`
   }).as('getCommandDetails');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/configuration/commands/_duplicate*'
+    url: `${INTERCEPTORS.api.commands_configuration}/_duplicate*`
   }).as('duplicateCommand');
   cy.intercept({
     method: 'DELETE',
-    url: '/centreon/api/latest/configuration/commands/*'
+    url: `${INTERCEPTORS.api.commands_configuration}/*`
   }).as('deleteCommand');
 });
 

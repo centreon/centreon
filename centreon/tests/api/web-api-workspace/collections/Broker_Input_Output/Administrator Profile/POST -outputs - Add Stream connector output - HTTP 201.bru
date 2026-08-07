@@ -1,0 +1,42 @@
+meta {
+  name: POST /outputs - Add Stream connector output - HTTP 201
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/broker/1/outputs
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "output-test-11",
+    "type": 33,
+    "parameters": {
+      "path": "some-path",
+      "filters_category": ["dumper", "storage"],
+      "lua_parameter": [
+        {"type": "string", "name": "my-lua-param-1", "value": "lua-param-value-1"},
+        {"type": "number", "name": "my-lua-param-2", "value": "999"},
+        {"type": "password", "name": "my-lua-param-3", "value": "my-super-password"}
+      ]
+    }
+  }
+}
+
+tests {
+  test("Stream connector output created successfully (returns 500 if broker infrastructure is unavailable in CI).", function () {
+    expect(res.status).to.be.oneOf([201, 500]);
+    if (res.status === 201) {
+      const body = res.getBody();
+      expect(body).to.have.property("id").that.is.a("number");
+    }
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,33 +1,14 @@
 import { Button, List, ListItem, Typography } from '@mui/material';
 
+import { platformFeaturesAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
+import { ReactElement } from 'react';
 
 import FederatedComponent from '../../../components/FederatedComponents';
+import CloudInstallCommand from './CloudInstallCommand/CloudInstallCommand';
 import ExportConfiguration from './ExportConfiguration';
-
-const useStyles = makeStyles()((theme) => ({
-  link: {
-    textDecoration: 'none'
-  },
-  list: {
-    minWidth: theme.spacing(27),
-    padding: 0
-  },
-  listItem: {
-    '&:not(:last-child)': {
-      borderBottom: `1px solid ${theme.palette.divider}`
-    },
-    padding: theme.spacing(1)
-  },
-  pollerDetailRow: {
-    display: 'flex',
-    justifyContent: 'space-between'
-  },
-  pollerDetailTitle: {
-    flexGrow: 1
-  }
-}));
 
 export interface PollerSubMenuProps {
   allPollerLabel: string;
@@ -57,20 +38,20 @@ export const PollerSubMenu = ({
   pollerConfig,
   exportConfig,
   displayPollerButton
-}: PollerSubMenuProps): JSX.Element => {
-  const { classes, cx } = useStyles();
+}: PollerSubMenuProps): ReactElement => {
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
 
   return (
-    <List className={classes.list} data-testid="poller-menu">
+    <List className="min-w-[216px] p-0" data-testid="poller-menu">
       {!isEmpty(issues) ? (
         issues.map(({ text, total, key }) => {
           return (
             <ListItem
-              className={cx(classes.listItem, classes.pollerDetailRow)}
+              className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider flex justify-between"
               data-testid="pollerIssues"
               key={key}
             >
-              <Typography className={classes.pollerDetailTitle} variant="body2">
+              <Typography className="grow" variant="body2">
                 {text}
               </Typography>
               <Typography variant="body2">{total}</Typography>
@@ -78,13 +59,16 @@ export const PollerSubMenu = ({
           );
         })
       ) : (
-        <ListItem className={cx(classes.listItem, classes.pollerDetailRow)}>
+        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider flex justify-between">
           <Typography variant="body2">{allPollerLabel}</Typography>
           <Typography variant="body2">{pollerCount as number}</Typography>
         </ListItem>
       )}
       {displayPollerButton && (
-        <ListItem className={classes.listItem} onClick={closeSubMenu}>
+        <ListItem
+          className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider"
+          onClick={closeSubMenu}
+        >
           <Button
             data-testid={pollerConfig.testId}
             fullWidth
@@ -97,13 +81,22 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
       {exportConfig.isExportButtonEnabled && (
-        <ListItem className={classes.listItem}>
+        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <ExportConfiguration closeSubMenu={closeSubMenu} />
         </ListItem>
       )}
-      <ListItem className={classes.listItem}>
-        <FederatedComponent path="/cloud-extensions" />
-      </ListItem>
+
+      {platformFeatures?.isCloudPlatform && (
+        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
+          <FederatedComponent path="/cloud-extensions" />
+        </ListItem>
+      )}
+
+      {false && (
+        <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
+          <CloudInstallCommand closeSubMenu={closeSubMenu} />
+        </ListItem>
+      )}
     </List>
   );
 };

@@ -73,4 +73,4 @@ rpm:
 deb:
   compression: zstd
   predepends:
-    - php8.2-cli
+    - php${PHP_MIN_VERSION}-cli

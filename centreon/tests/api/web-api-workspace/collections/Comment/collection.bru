@@ -1,0 +1,20 @@
+meta {
+  name: Comment
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-AUTH-TOKEN
+  value: {{authToken}}
+  placement: header
+}
+vars:pre-request {
+  CommandId:
+  HostTemplate1Id:
+  ServiceTemplate1Id:
+  Host1Id:
+  Service1Id:
+}

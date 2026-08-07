@@ -14,7 +14,7 @@ import type { Parameters } from '../api/buildListingEndpoint/models';
 import type { Listing } from '../api/models';
 
 interface UseInfiniteScrollListing<T> {
-  elementRef: (node) => void;
+  elementRef: (node: Element | null) => void;
   elements: Array<T>;
   isLoading: boolean;
   total?: number;
@@ -110,7 +110,7 @@ export const useInfiniteScrollListing = <T>({
     }
 
     prefetchNextPage({
-      getPrefetchQueryKey: (newPage) => ['dashboards', newPage],
+      getPrefetchQueryKey: (newPage: number) => ['dashboards', newPage],
       page
     });
   }, [data, limit, page, prefetchNextPage]);

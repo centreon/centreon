@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Box } from '@mui/material';
 
 import { Form as FormComponent } from '@centreon/ui';

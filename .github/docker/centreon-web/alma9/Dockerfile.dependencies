@@ -1,14 +1,11 @@
-ARG MAJOR_VERSION
-
 FROM almalinux:9 AS web_dependencies
 
 ARG MAJOR_VERSION
+ARG PHP_VERSION=8.4
 ARG IS_CLOUD
 ARG STABILITY
 
-RUN --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_USERNAME \
-    --mount=type=secret,id=ARTIFACTORY_INTERNAL_REPO_PASSWORD \
-    bash -e <<EOF
+RUN bash -e <<EOF
 
 ######################################
 # install and configure repositories #
@@ -24,8 +21,7 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${MAJOR_VERSION}-internal.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
 else
   dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
 fi
@@ -90,7 +86,12 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf module enable -y php:8.2
+if [[ "${PHP_VERSION}" == "8.2" ]]; then
+  dnf module enable -y php:8.2
+else
+  dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm
+  dnf module -y switch-to php:remi-${PHP_VERSION}/common
+fi
 dnf install -y \
   php-common \
   php-cli \
@@ -125,6 +126,8 @@ dnf clean all --enablerepo=*
 
 EOF
 
+ENV PHP_VERSION=${PHP_VERSION}
+
 COPY --chmod=755 ./.github/docker/centreon-web/init/systemctl /usr/bin/systemctl
 COPY --chmod=755 ./.github/docker/centreon-web/init/journalctl /usr/bin/journalctl
 
@@ -143,16 +146,22 @@ RUN bash -e <<EOF
 if [[ "$STABILITY" == "stable" ]]; then
   dnf install -y \
     centreon-common-${MAJOR_VERSION}.${COMMON_MINOR_VERSION} \
+    centreon-gorgone-centreon-config-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
     centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
     centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-graphite-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-influxdb-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
     centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
 else
   dnf install -y \
     centreon-common \
+    centreon-gorgone-centreon-config \
     centreon-gorgone \
     centreon-engine \
     centreon-broker-cbd \
+    centreon-broker-graphite \
+    centreon-broker-influxdb \
     centreon-connector
 fi
 

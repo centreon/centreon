@@ -1,7 +1,7 @@
-ARG REGISTRY_URL=docker.centreon.com/centreon
-ARG FROM_IMAGE_VERSION=develop
+ARG REGISTRY_URL=ghcr.io/centreon/centreon
+ARG FROM_IMAGE_VERSION=develop-alma9
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma9:${FROM_IMAGE_VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
 ARG MAJOR_VERSION
@@ -36,8 +36,8 @@ fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
-touch /var/log/php-fpm/centreon-error.log
-chown apache:apache /var/log/php-fpm/centreon-error.log
+touch /var/log/centreon/prod.web.log
+chown apache:apache /var/log/centreon/prod.web.log
 
 # Tune php-fpm for CI: ondemand mode to avoid spawning idle workers at startup
 sed -i 's/^pm = .*/pm = ondemand/' /etc/php-fpm.d/*.conf
@@ -54,9 +54,9 @@ systemctl stop cbd
 systemctl stop httpd
 systemctl stop php-fpm
 systemctl stop snmpd
+systemctl stop crond
 
 dnf clean all
-rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 

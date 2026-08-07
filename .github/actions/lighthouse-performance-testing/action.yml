@@ -26,16 +26,22 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+    - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
       with:
         version: 10
         run_install: false
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: |
+        pnpm install \
+          --frozen-lockfile \
+          --config.trustPolicy=no-downgrade \
+          --config.minimumReleaseAge=2880 \
+          --config.blockExoticSubdeps=true
       shell: bash
-      working-directory: ${{ inputs.path }}
+      working-directory: ${{ env.PATH_INPUT }}
       env:
+        PATH_INPUT: ${{ inputs.path }}
         CYPRESS_INSTALL_BINARY: "0"
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
@@ -78,6 +84,7 @@ runs:
       env:
         WEB_IMAGE: ${{ inputs.image }}:${{ inputs.image_version }}
         MYSQL_IMAGE: ${{ inputs.database_image }}
+        PATH_INPUT: ${{ inputs.path }}
       run: pnpm run:lighthouse
       shell: bash
-      working-directory: ${{ inputs.path }}
+      working-directory: ${{ env.PATH_INPUT }}

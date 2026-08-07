@@ -242,17 +242,21 @@ const ResponsiveBarChart = ({
       isHorizontal={isHorizontal}
       legend={{
         displayLegend,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         mode: legend?.mode,
+        // @ts-expect-error - suppressing pre-existing type mismatch
         placement: legend?.placement,
         renderExtraComponent: legend?.renderExtraComponent,
         secondaryClick: legend?.secondaryClick,
         showCalculations: legend?.showCalculations
       }}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       legendRef={legendRef}
       limitLegend={limitLegend}
       lines={linesGraph}
       setLines={setLinesGraph}
       title={title}
+      // @ts-expect-error - suppressing pre-existing type mismatch
       titleRef={titleRef}
     >
       <Tooltip

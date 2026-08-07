@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { Contact, columnsFromLabels, durationMap, Token } from '../common';
@@ -50,15 +51,15 @@ beforeEach(() => {
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: 'centreon/api/latest/administration/tokens?*'
+    url: `${INTERCEPTORS.api.administration_tokens}?page=*`
   }).as('getTokens');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/configuration/users?page=1*'
+    url: `${INTERCEPTORS.api.users_configuration}?page=1*`
   }).as('getUsers');
 
   cy.fixture('api-token/users.json').then((users: Record<string, Contact>) => {
@@ -206,7 +207,7 @@ Then(
                       break;
                     case 'Creator':
                       allPromisesResolved.push(
-                        value === tokensToSearch.creator
+                        tokensToSearch.creator.includes(value.trim())
                       );
                       break;
                     default:

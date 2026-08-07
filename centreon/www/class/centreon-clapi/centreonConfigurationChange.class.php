@@ -193,9 +193,11 @@ class CentreonConfigurationChange
             return [];
         }
 
+        // Re-index on a sequential integer so the placeholder names that are
+        // concatenated into the IN (...) list cannot be influenced by array keys.
         $bindedParams = [];
-        foreach ($hostIds as $key => $hostId) {
-            $bindedParams[':host_id_' . $key] = $hostId;
+        foreach (array_values($hostIds) as $index => $hostId) {
+            $bindedParams[':host_id_' . $index] = (int) $hostId;
         }
 
         if ($shouldHostBeEnabled) {

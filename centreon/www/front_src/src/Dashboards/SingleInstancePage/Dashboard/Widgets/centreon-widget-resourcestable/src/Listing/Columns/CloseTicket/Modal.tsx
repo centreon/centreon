@@ -5,7 +5,7 @@ import { Button, Modal } from '@centreon/ui/components';
 
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useCallback } from 'react';
+import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { closeTicketEndpoint } from '../../../api/endpoints';
@@ -14,6 +14,7 @@ import {
   labelCancel,
   labelCloseATicket,
   labelConfirm,
+  labelFailedToCloseTicket,
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../../translatedLabels';
@@ -22,7 +23,7 @@ interface Props {
   providerID?: number;
 }
 
-const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
+const CloseTicketModal = ({ providerID }: Props): ReactElement => {
   const [resourcesToCloseTicket, setResourcesToCloseTicket] = useAtom(
     resourcesToCloseTicketAtom
   );
@@ -33,12 +34,17 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
     baseEndpoint: '',
     getEndpoint: () => closeTicketEndpoint,
     method: Method.POST,
+    onError: () => {
+      showErrorMessage(t(labelFailedToCloseTicket));
+    },
     onMutate: () => {
       setResourcesToCloseTicket([]);
     },
-    onSuccess: (data) => {
+    onSuccess: (rawData) => {
+      const data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+
       if (!equals(data?.code, 0)) {
-        showErrorMessage(data?.msg);
+        showErrorMessage(data?.msg || t(labelFailedToCloseTicket));
         return;
       }
       showSuccessMessage(t(labelTicketClosed));

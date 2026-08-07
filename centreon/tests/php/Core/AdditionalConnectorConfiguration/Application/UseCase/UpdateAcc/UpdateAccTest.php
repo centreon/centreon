@@ -41,11 +41,14 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 
 beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
@@ -60,9 +63,13 @@ beforeEach(function (): void {
         $this->factory = $this->createMock(AccFactory::class),
         $this->dataStorageEngine = $this->createMock(DataStorageEngineInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
-        $this->flags = new FeatureFlags(false, ''),
+        $this->vaultEligibilityService = new VaultEligibilityService(
+            new FeatureFlags(false, ''),
+            $this->createMock(ReadVaultConfigurationRepositoryInterface::class),
+        ),
         $this->writeVaultAccRepositories = new \ArrayIterator([]),
-        $this->readVaultAccRepositories = new \ArrayIterator([])
+        $this->readVaultAccRepositories = new \ArrayIterator([]),
+        $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
     );
 
     $this->request = new UpdateAccRequest();
@@ -212,7 +219,7 @@ it(
 );
 
 it(
-    'should present a UpdateAccResponse when no error occurs',
+    'should notify all linked pollers when parameters change and pollers are unchanged',
     function (): void {
         $this->user
             ->expects($this->once())
@@ -226,6 +233,11 @@ it(
 
         $this->user
             ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
             ->method('getId')
             ->willReturn($this->accCreatedBy);
 
@@ -233,13 +245,202 @@ it(
             ->expects($this->once())
             ->method('validateRequestOrFail');
 
+        $previousParameters = $this->createMock(AccParametersInterface::class);
+        $previousParameters->method('getDecryptedData')->willReturn(['port' => '4242']);
+        $previousAcc = new Acc(
+            id: $this->accId,
+            name: $this->accName,
+            type: $this->accType,
+            createdBy: $this->accCreatedBy,
+            updatedBy: $this->accUpdatedBy,
+            createdAt: $this->accCreatedAt,
+            updatedAt: $this->accUpdatedAt,
+            description: 'some-description',
+            parameters: $previousParameters,
+        );
+        $updatedParameters = $this->createMock(AccParametersInterface::class);
+        $updatedParameters->method('getDecryptedData')->willReturn(['port' => '5555']);
+        $updatedAcc = new Acc(
+            id: $this->accId,
+            name: $this->accName,
+            type: $this->accType,
+            createdBy: $this->accCreatedBy,
+            updatedBy: $this->accUpdatedBy,
+            createdAt: $this->accCreatedAt,
+            updatedAt: $this->accUpdatedAt,
+            description: 'some-description',
+            parameters: $updatedParameters,
+        );
+
         $this->factory
             ->expects($this->once())
-            ->method('updateAcc');
+            ->method('createAcc')
+            ->willReturn($previousAcc);
+
+        $this->factory
+            ->expects($this->once())
+            ->method('updateAcc')
+            ->willReturn($updatedAcc);
 
         $this->writeAccRepository
             ->expects($this->once())
             ->method('update');
+
+        $this->readAccRepository
+            ->expects($this->once())
+            ->method('findPollersByAccId')
+            ->with($this->accId)
+            ->willReturn([$this->poller]);
+
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyVmwareConfigurationChange')
+            ->with(...$this->request->pollers);
+
+        ($this->useCase)($this->request, $this->presenter);
+
+        expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should not notify any poller when neither parameters nor pollers change',
+    function (): void {
+        $this->user
+            ->expects($this->once())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->readAccRepository
+            ->expects($this->once())
+            ->method('find')
+            ->willReturn($this->acc);
+
+        $this->user
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
+            ->method('getId')
+            ->willReturn($this->accCreatedBy);
+
+        $this->validator
+            ->expects($this->once())
+            ->method('validateRequestOrFail');
+
+        $sharedParameters = $this->createMock(AccParametersInterface::class);
+        $sharedParameters->method('getDecryptedData')->willReturn(['port' => '4242']);
+        $sameAcc = new Acc(
+            id: $this->accId,
+            name: $this->accName,
+            type: $this->accType,
+            createdBy: $this->accCreatedBy,
+            updatedBy: $this->accUpdatedBy,
+            createdAt: $this->accCreatedAt,
+            updatedAt: $this->accUpdatedAt,
+            description: 'some-description',
+            parameters: $sharedParameters,
+        );
+
+        $this->factory
+            ->expects($this->once())
+            ->method('createAcc')
+            ->willReturn($sameAcc);
+
+        $this->factory
+            ->expects($this->once())
+            ->method('updateAcc')
+            ->willReturn($sameAcc);
+
+        $this->writeAccRepository
+            ->expects($this->once())
+            ->method('update');
+
+        $this->readAccRepository
+            ->expects($this->once())
+            ->method('findPollersByAccId')
+            ->with($this->accId)
+            ->willReturn([$this->poller]);
+
+        $this->writeMonitoringServerRepository
+            ->expects($this->never())
+            ->method('notifyVmwareConfigurationChange');
+
+        ($this->useCase)($this->request, $this->presenter);
+
+        expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
+    }
+);
+
+it(
+    'should notify only added or removed pollers when parameters are unchanged',
+    function (): void {
+        $this->user
+            ->expects($this->once())
+            ->method('hasTopologyRole')
+            ->willReturn(true);
+
+        $this->readAccRepository
+            ->expects($this->once())
+            ->method('find')
+            ->willReturn($this->acc);
+
+        $this->user
+            ->expects($this->any())
+            ->method('isAdmin')
+            ->willReturn(true);
+
+        $this->user
+            ->expects($this->any())
+            ->method('getId')
+            ->willReturn($this->accCreatedBy);
+
+        $this->validator
+            ->expects($this->once())
+            ->method('validateRequestOrFail');
+
+        $sharedParameters = $this->createMock(AccParametersInterface::class);
+        $sharedParameters->method('getDecryptedData')->willReturn(['port' => '4242']);
+        $sameAcc = new Acc(
+            id: $this->accId,
+            name: $this->accName,
+            type: $this->accType,
+            createdBy: $this->accCreatedBy,
+            updatedBy: $this->accUpdatedBy,
+            createdAt: $this->accCreatedAt,
+            updatedAt: $this->accUpdatedAt,
+            description: 'some-description',
+            parameters: $sharedParameters,
+        );
+
+        $this->factory
+            ->expects($this->once())
+            ->method('createAcc')
+            ->willReturn($sameAcc);
+
+        $this->factory
+            ->expects($this->once())
+            ->method('updateAcc')
+            ->willReturn($sameAcc);
+
+        $this->writeAccRepository
+            ->expects($this->once())
+            ->method('update');
+
+        // previously linked pollers: [1, 2] / new linked pollers: [2, 3] → diff symmetric: [3, 1]
+        $this->request->pollers = [2, 3];
+        $this->readAccRepository
+            ->expects($this->once())
+            ->method('findPollersByAccId')
+            ->with($this->accId)
+            ->willReturn([new Poller(1, 'p1'), new Poller(2, 'p2')]);
+
+        $this->writeMonitoringServerRepository
+            ->expects($this->once())
+            ->method('notifyVmwareConfigurationChange')
+            ->with(3, 1);
 
         ($this->useCase)($this->request, $this->presenter);
 

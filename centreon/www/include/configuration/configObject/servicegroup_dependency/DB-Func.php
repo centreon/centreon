@@ -88,16 +88,7 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB, $oreon;
     $selectStmt = $pearDB->prepare(
-        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                notification_failure_criteria, dep_comment
-        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO dependency
-        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-         notification_failure_criteria, dep_comment)
-        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-         :notification_failure_criteria, :dep_comment)'
+        'SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1'
     );
     $selectParentStmt = $pearDB->prepare(
         'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupParent_relation '
@@ -123,19 +114,26 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+        unset($row['dep_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+        $originalName = $row['dep_name'];
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $dep_name = $row['dep_name'] . '_' . $i;
+            $dep_name = $originalName . '_' . $i;
             $fields = [];
             foreach ($row as $key2 => $value2) {
                 $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
             }
             if (testServiceGroupDependencyExistence($dep_name)) {
-                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
+                $row['dep_name'] = $dep_name;
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
                 if ($lastId > 0) {

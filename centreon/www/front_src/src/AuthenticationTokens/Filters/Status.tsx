@@ -17,8 +17,8 @@ const Status = (): JSX.Element => {
   const [filters, setFilters] = useAtom(filtersAtom);
 
   const change =
-    (key) =>
-    (event): void => {
+    (key: string) =>
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
       setFilters({ ...filters, [key]: event.target.checked });
     };
 

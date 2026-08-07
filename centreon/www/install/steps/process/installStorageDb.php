@@ -19,6 +19,8 @@
  *
  */
 
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
+
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
@@ -34,7 +36,8 @@ try {
     $db = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
-        $parameters['root_password']
+        $parameters['root_password'],
+        DatabaseTLSResolver::getTLSOptions()
     );
 } catch (PDOException $e) {
     $return['msg'] = $e->getMessage();

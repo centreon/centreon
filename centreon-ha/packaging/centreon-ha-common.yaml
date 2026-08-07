@@ -82,6 +82,7 @@ scripts:
 overrides:
   rpm:
     depends:
+      - bc
       - perl-common-sense
       - perl-Linux-Inotify2
       - rsync
@@ -91,9 +92,16 @@ overrides:
 
   deb:
     depends:
+      - bc
       - libcommon-sense-perl
       - liblinux-inotify2-perl
       - rsync
       - systemd
     recommends:
       - logrotate
+
+rpm:
+  summary: Centreon HA common files for database and central nodes
+  signature:
+    key_file: ${RPM_SIGNING_KEY_FILE}
+    key_id: ${RPM_SIGNING_KEY_ID}

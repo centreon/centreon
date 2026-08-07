@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkMetricsAreMonitored,
@@ -40,7 +41,9 @@ const AllColumns = [
   'FQDN / Address',
   'Monitoring server',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const UpdatedColumns = [
@@ -56,7 +59,9 @@ const UpdatedColumns = [
   'Action',
   'FQDN / Address',
   'Notif',
-  'Check'
+  'Check',
+  'Host ID',
+  'Service ID'
 ];
 
 const downloadsFolder = Cypress.config('downloadsFolder');
@@ -64,23 +69,46 @@ const downloadsFolder = Cypress.config('downloadsFolder');
 const normalize = (text: string) =>
   text.trim().replace(/^"|"$/g, '').replace(/\\"/g, '').replace(/"/g, '');
 
+// Host ID / Service ID values are runtime-generated, so instead of comparing
+// them against a static fixture we assert the type-based contract on every row:
+// a host has only Host ID, a service has both identifiers.
+const assertIdentifierContract = (
+  rows: Array<Record<string, string>>
+): void => {
+  rows.forEach((row, index) => {
+    const type = (row['Resource Type'] ?? '').replace(/"/g, '');
+    const hostId = (row['Host ID'] ?? '').replace(/"/g, '');
+    const serviceId = (row['Service ID'] ?? '').replace(/"/g, '');
+
+    if (type === 'Service') {
+      expect(hostId, `Row ${index + 1} (service) Host ID`).to.match(/^\d+$/);
+      expect(serviceId, `Row ${index + 1} (service) Service ID`).to.match(
+        /^\d+$/
+      );
+    } else if (type === 'Host') {
+      expect(hostId, `Row ${index + 1} (host) Host ID`).to.match(/^\d+$/);
+      expect(serviceId, `Row ${index + 1} (host) Service ID`).to.equal('');
+    }
+  });
+};
+
 before(() => {
   cy.intercept({
     method: 'POST',
-    url: '/centreon/api/latest/authentication/providers/configurations/local'
+    url: INTERCEPTORS.api.local_authentication
   }).as('postLocalAuthentication');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
 
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/latest/users/filters/events-view?page=1&limit=100'
+    url: `${INTERCEPTORS.api.events_view_users}?page=1&limit=100`
   }).as('getFilters');
 
-  cy.intercept('/centreon/api/latest/monitoring/resources*').as(
+  cy.intercept(`${INTERCEPTORS.api.monitor_resources}*`).as(
     'monitoringEndpoint'
   );
 
@@ -288,6 +316,8 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
+        assertIdentifierContract(rowObjects);
+
         const firstTwoRows = rowObjects.slice(0, 2);
 
         cy.fixture('resources/csvFIleWithAllPagesAndColumns.json').then(
@@ -381,6 +411,8 @@ Then(
         cy.log(
           `Formatted JSON from CSV:\n${JSON.stringify(rowObjects, null, 2)}`
         );
+        assertIdentifierContract(rowObjects);
+
         const firstTwoRows = rowObjects.slice(0, 2);
 
         cy.fixture('resources/csvFIleWithOnlyVisiblePagesAndColumns.json').then(
@@ -390,7 +422,11 @@ Then(
               const expectedRow = firstTwoExpected[index];
 
               UpdatedColumns.forEach((key) => {
-                if (key === 'Last Check') return;
+                // Last Check is time-dependent; Host ID / Service ID are
+                // runtime-generated, so their values are not compared against
+                // the static fixture (their presence is asserted via the header).
+                if (['Last Check', 'Host ID', 'Service ID'].includes(key))
+                  return;
                 expect(
                   actualRow[key],
                   `Line ${index + 1} - Key: ${key}`

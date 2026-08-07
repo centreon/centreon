@@ -119,6 +119,9 @@ const interceptRequestsAndMountBeforeEach = (
     path: '**/resources?*',
     response: responseForToListingTable
   });
+  cy.window().then((win) =>
+    win.history.pushState({}, '', win.location.pathname)
+  );
   cy.mount({
     Component: (
       <Router>

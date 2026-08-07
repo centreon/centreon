@@ -24,9 +24,12 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
 use App\Kernel;
+use App\MonitoringConfiguration\Infrastructure\Service\SnowflakePollerUidGenerator;
+use App\Shared\Infrastructure\Database\DatabaseTLSResolver;
 use CentreonModule\ServiceProvider;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
+use Godruoyi\Snowflake\Snowflake;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
 
@@ -39,7 +42,8 @@ try {
     $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
-        $parameters['root_password']
+        $parameters['root_password'],
+        DatabaseTLSResolver::getTLSOptions()
     );
 } catch (PDOException $e) {
     $return['msg'] = $e->getMessage();
@@ -70,6 +74,13 @@ try {
     $utils->executeSqlFile(__DIR__ . '/../../insertCommands.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTimeperiods.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-engine.sql', $macros);
+
+    $snowflake = new Snowflake(0, 0);
+    $snowflake->setStartTimeStamp(SnowflakePollerUidGenerator::CUSTOM_EPOCH_MS);
+    $stmt = $link->prepare('UPDATE `nagios_server` SET `uid` = :uid WHERE `id` = 1');
+    $stmt->bindValue(':uid', (int) $snowflake->id(), PDO::PARAM_INT);
+    $stmt->execute();
+
     $utils->executeSqlFile(__DIR__ . '/../../var/baseconf/centreon-broker.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertTopology.sql', $macros);
     $utils->executeSqlFile(__DIR__ . '/../../insertBaseConf.sql', $macros);
@@ -98,6 +109,7 @@ if ($row = $centralServerQuery->fetch()) {
     $stmt = $link->prepare("
         INSERT INTO `platform_topology` (
             `address`,
+            `central_address`,
             `hostname`,
             `name`,
             `type`,
@@ -105,6 +117,7 @@ if ($row = $centralServerQuery->fetch()) {
             `server_id`,
             `pending`
         ) VALUES (
+            :centralAddress,
             :centralAddress,
             :hostname,
             :name,
@@ -144,6 +157,27 @@ if ($row = $centralServerQuery->fetch()) {
             exception: $ex
         );
     }
+}
+
+// Create default poller token
+try {
+    $tokenStatement = $link->prepare(
+        <<<'SQL'
+            INSERT INTO `authentication_tokens`
+                (`token_string`, `token_name`, `creator_id`, `creator_name`, `encoding_key`, `is_revoked`, `creation_date`, `expiration_date`, `type`)
+            VALUES
+                (:token_string, 'poller-default', 1, 'admin', NULL, 0, :creation_date, NULL, 'poller')
+            SQL
+    );
+    $tokenStatement->bindValue(':token_string', Security\Encryption::generateRandomString());
+    $tokenStatement->bindValue(':creation_date', time());
+    $tokenStatement->execute();
+} catch (Throwable $ex) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'An error occurred while creating the default poller token, skipping.',
+        exception: $ex
+    );
 }
 
 // Manage timezone

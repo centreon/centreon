@@ -43,13 +43,19 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: List of specs
         id: list-specs
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          SPECS_PATH: ${{ inputs.specs_path }}
+          SPEC_EXTENSION: ${{ inputs.spec_extension }}
         run: |
-          cd ${{ inputs.module_name }}
-          echo "specs=$(find ${{ inputs.specs_path }} -type f -name "*${{ inputs.spec_extension }}" -exec basename {} \; | sed -e "s/${{ inputs.spec_extension }}//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          cd "$MODULE_NAME"
+          # SPECS_PATH is a glob pattern (e.g. "src/**", "www/**") that must be expanded by the
+          # shell before being passed to find, so it is intentionally left unquoted here.
+          echo "specs=$(find $SPECS_PATH -type f -name "*$SPEC_EXTENSION" -exec basename {} \; | sed -e "s/$SPEC_EXTENSION//" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-component-test-run:
     needs: [cypress-component-test-list]
@@ -60,24 +66,32 @@ jobs:
         spec: ${{ fromJson(needs.cypress-component-test-list.outputs.specs) }}
     name: ${{ matrix.spec }}
 
+    env:
+      MODULE_NAME: ${{ inputs.module_name }}
+
     steps:
       - name: Checkout sources
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:
           version: 10
           run_install: false
 
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
           cache-dependency-path: ${{ inputs.dependencies_lock_file }}
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: ${{ inputs.module_name }}
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
+        working-directory: ${{ env.MODULE_NAME }}
         shell: bash
         env:
           CYPRESS_INSTALL_BINARY: "0"
@@ -85,40 +99,43 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Install Cypress binary
-        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_seconds: 120
           max_attempts: 10
           retry_wait_seconds: 30
           retry_on: error
-          command: cd ${{ inputs.module_name }} && pnpm cypress install --force
+          command: cd "$MODULE_NAME" && pnpm cypress install --force
 
       - name: Cypress web component testing
-        uses: cypress-io/github-action@2ad32e649e4db26c07674ebae31a297601dbcbaf # v6.10.8
+        uses: cypress-io/github-action@c495c3ddffba403ba11be95fffb67e25203b3799 # v7.1.10
         with:
           browser: chrome
           component: true
           install: false
           cache-key: cypress-cache-${{ runner.os }}-${{ hashFiles(inputs.dependencies_lock_file) }}
-          working-directory: ${{ inputs.module_name }}
+          working-directory: ${{ env.MODULE_NAME }}
           spec: ./**/${{ matrix.spec }}${{ inputs.spec_extension }}
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
       - name: Move retries.json to reports directory and display warnings
         if: ${{ ! cancelled() }}
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          SPEC: ${{ matrix.spec }}
         run: |
-          retriesFile="${{ inputs.module_name }}/cypress/results/retries.json"
+          retriesFile="$MODULE_NAME/cypress/results/retries.json"
           if [ -f "$retriesFile" ]; then
-            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
-              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+            jq 'to_entries | .[].key' "$retriesFile" | while read -r testName; do
+              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" "$retriesFile"))"
             done
-            mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
+            mv "$retriesFile" "$MODULE_NAME/cypress/results/$SPEC-retries.json"
           fi
         shell: bash
 
       - name: Archive test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ failure() }}
         with:
           name: ${{ inputs.name }}-component-test-results-${{ matrix.spec }}
@@ -130,18 +147,21 @@ jobs:
 
       - name: Archive test reports
         if: ${{ ! cancelled() }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/cypress/results/*.json
           retention-days: 1
 
       - name: Change coverage report name
-        run: mv ${{ inputs.module_name }}/coverage/coverage-final.json ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          SPEC: ${{ matrix.spec }}
+        run: mv "$MODULE_NAME/coverage/coverage-final.json" "$MODULE_NAME/coverage/$SPEC-out.json"
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
@@ -151,24 +171,25 @@ jobs:
     needs: [cypress-component-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      github.event.pull_request.head.repo.fork != true
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:
           version: 10
 
       - name: Download coverage reports
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: ${{ inputs.name }}-component-test-coverage-*
           path: coverage/
           merge-multiple: true
 
-      - uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+      - uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
         with:
           aws-region: eu-west-1
@@ -194,31 +215,29 @@ jobs:
 
       - name: Format title
         id: title
+        env:
+          MODULE_NAME_INPUT: ${{ inputs.module_name }}
         run: |
-          MODULE_NAME=`echo "${{ inputs.module_name }}" | sed -e "s#/#-#g"`
+          MODULE_NAME=$(echo "$MODULE_NAME_INPUT" | sed -e "s#/#-#g")
           echo "replaced=$MODULE_NAME" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Install action dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
         working-directory: ./.github/actions/code-coverage-gate-keeper
         shell: bash
 
       - name: Archive HTML code coverage
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
           path: coverage/lcov-report
           retention-days: 1
-
-      - name: Publish code coverage to PR
-        uses: romeovs/lcov-reporter-action@87a815f34ec27a5826abba44ce09bbc688da58fd # v0.4.0
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          title: Code coverage report for ${{ steps.title.outputs.replaced }} ${{ inputs.name }} 🚀
-          delete-old-comments: true
-          filter-changed-files: true
 
       - name: Check Code coverage
         id: checkCodeCoverage
@@ -245,25 +264,27 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+      - uses: pnpm/action-setup@26f6d4f2c533a43e6b5da0b4a5dd983f98f7b49a # v6.0.4
         with:
           version: 10
 
       - name: Download Artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: ${{ inputs.name }}-component-test-reports-*
           path: ${{ inputs.name }}-json-reports
           merge-multiple: true
 
       - name: Merge reports
+        env:
+          NAME: ${{ inputs.name }}
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+          pnpx mochawesome-merge "$NAME-json-reports/**/*-report.json" > mochawesome.json
 
-          if ls ${{ inputs.name }}-json-reports/**/*retries.json 1> /dev/null 2>&1; then
-            cat ${{ inputs.name }}-json-reports/**/*retries.json | jq -s add > retries.json
+          if ls "$NAME-json-reports/"**/*retries.json 1> /dev/null 2>&1; then
+            cat "$NAME-json-reports/"**/*retries.json | jq -s add > retries.json
           else
             echo "{}" > retries.json
           fi
@@ -278,7 +299,7 @@ jobs:
           format: cypress
 
       - name: Display retries summary
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const fs = require('fs');
@@ -319,7 +340,7 @@ jobs:
         type_of_report: [test-results, test-reports, test-coverage]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: |
           (needs.cypress-component-test-run.result == 'failure' && contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
           matrix.type_of_report == 'test-coverage'
@@ -333,7 +354,7 @@ jobs:
         if: |
           needs.cypress-component-test-run.result == 'success' ||
           matrix.type_of_report != 'test-coverage'
-        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
+        uses: geekyeggo/delete-artifact@176a747ab7e287e3ff4787bf8a148716375ca118 # v6.0.0
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false

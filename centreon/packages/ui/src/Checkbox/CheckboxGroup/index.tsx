@@ -15,7 +15,7 @@ interface Props {
   formGroupProps?: FormGroupProps;
   labelPlacement?: LabelPlacement;
   labelProps?: TypographyProps;
-  onChange?: (e) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: Array<string>;
   values: Array<string>;
 }

@@ -71,10 +71,10 @@
           "reporting": "/centreon/main.php?p=30702\u0026period=yesterday\u0026start=\u0026end=\u0026host_id=14\u0026item=19"
         },
         "externals": {
-          "action_url": "",
+          "action_url": "https://example.com/action",
           "notes": {
-            "label": "",
-            "url": ""
+            "label": "Restart me",
+            "url": "https://example.com/restart"
           }
         }
       }
@@ -143,7 +143,7 @@
         "externals": {
           "action_url": "",
           "notes": {
-            "label": "",
+            "label": "Maintenance info",
             "url": ""
           }
         }
@@ -214,7 +214,7 @@
           "action_url": "",
           "notes": {
             "label": "",
-            "url": ""
+            "url": "https://example.com/manual"
           }
         }
       }

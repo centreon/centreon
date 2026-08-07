@@ -47,11 +47,11 @@ const IconPopoverMultiAutocomplete = ({
   const theme = useTheme();
   const { classes } = useStyles();
   const { t } = useTranslation();
-  const [anchorEl, setAnchorEl] = useState();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
 
   const isOpen = Boolean(anchorEl);
 
-  const close = (reason?): void => {
+  const close = (reason?: { type?: string }): void => {
     const isClosedByInputClick = reason?.type === 'mousedown';
 
     if (isClosedByInputClick) {
@@ -60,14 +60,14 @@ const IconPopoverMultiAutocomplete = ({
     setAnchorEl(undefined);
   };
 
-  const toggle = (event): void => {
+  const toggle = (event: React.MouseEvent): void => {
     if (isOpen) {
       close();
 
       return;
     }
 
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget as HTMLElement);
   };
 
   const isSelected = (id: number | string): boolean => {
@@ -89,7 +89,10 @@ const IconPopoverMultiAutocomplete = ({
       <div>
         <IconButton
           ariaLabel={title}
-          onClick={toggle}
+          onClick={
+            toggle as ((event: React.MouseEvent) => void) &
+              React.MouseEventHandler<HTMLButtonElement>
+          }
           size="large"
           title={title}
         >
@@ -97,9 +100,6 @@ const IconPopoverMultiAutocomplete = ({
         </IconButton>
         <Popper
           anchorEl={anchorEl}
-          nonce={undefined}
-          onResize={(): undefined => undefined}
-          onResizeCapture={(): undefined => undefined}
           open={isOpen}
           placement={popperPlacement}
           style={{ zIndex: theme.zIndex.tooltip }}

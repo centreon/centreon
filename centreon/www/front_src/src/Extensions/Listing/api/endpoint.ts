@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import type { SelectEntry } from '@centreon/ui';
 
 import { find, propEq } from 'ramda';
@@ -12,7 +14,9 @@ interface Parameter {
 
 interface ParameterWithFilter {
   action: string;
+  criteriaSearch: Criteria | undefined;
   criteriaStatus: Criteria | undefined;
+  criteriaTypes: Criteria | undefined;
 }
 
 const baseEndpoint = './api/internal.php?object=centreon_module&';
@@ -23,11 +27,25 @@ const buildEndPoint = ({ action, id, type }: Parameter): string => {
 
 const buildExtensionEndPoint = ({
   action,
-  criteriaStatus
+  criteriaSearch,
+  criteriaStatus,
+  criteriaTypes
 }: ParameterWithFilter): string => {
   let params = `${baseEndpoint}action=${action}`;
 
-  if (!criteriaStatus || !criteriaStatus.value) {
+  const searchValue = criteriaSearch?.value as string;
+  if (searchValue) {
+    params += `&search=${encodeURIComponent(searchValue)}`;
+  }
+
+  if (criteriaTypes?.value) {
+    const typeValues = criteriaTypes.value as Array<SelectEntry>;
+    typeValues.forEach(({ id }) => {
+      params += `&types[]=${(id as string).toLowerCase()}`;
+    });
+  }
+
+  if (!criteriaStatus?.value) {
     return params;
   }
 

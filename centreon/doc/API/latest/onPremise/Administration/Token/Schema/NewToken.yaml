@@ -6,10 +6,16 @@ properties:
     example: "my-api-token"
   user_id:
     type: integer
-    description: "User ID linked to the API authentication token"
+    description: "User ID linked to the authentication token (mandatory for type API)"
     example: 23
   expiration_date:
     type: string
-    description: "Expiration date of the API authentication token"
+    description: "Expiration date of the authentication token"
     format: date-time
     example: '2023-08-31T15:46:00+02:00'
+    nullable: true
+  type:
+    type: string
+    enum: ["cma", "api", "poller"]
+    description: "Type of the token"
+    example: "cma"

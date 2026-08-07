@@ -2,14 +2,15 @@ name: get-docker-from-image-version
 description: |
   Resolves the Docker image tag to use as FROM in a dockerize job.
   Resolution order:
-    1. current_tag (e.g. develop-26.10 or branch name) if it exists in the registry
-    2. major_version if the current branch is dev-XX.YY.x
-    3. develop-<major_version> if it exists in the registry (feature branches)
-    4. develop (fallback)
+    1. current_tag if it exists in the registry
+    2. major_version on a maintenance branch (dev-XX.YY.x)
+    3. otherwise probe the base branch tag (develop-<major> cloud, dev-<major>.x on-prem)
+    4. fallback: develop (cloud) or major_version (on-prem)
+  Each resolved tag has tag_suffix appended (e.g. -alma9) when provided.
 
 inputs:
   from_image:
-    description: "Image name to check (e.g. centreon-web-alma9)"
+    description: "Image name to check (e.g. centreon-web-dependencies-collect)"
     required: true
   current_tag:
     description: "Primary tag to check first (output of compute-image-tag)"
@@ -17,9 +18,17 @@ inputs:
   major_version:
     description: "Major version (e.g. 26.10)"
     required: true
+  is_cloud:
+    description: "Whether the build context is cloud ('true') or on-prem ('false'). Drives the default/fallback FROM tag."
+    required: false
+    default: "true"
   registry_url:
     description: "Docker registry URL (e.g. harbor.example.com)"
     required: true
+  tag_suffix:
+    description: "Optional suffix appended to every resolved tag (e.g. -alma9)"
+    required: false
+    default: ""
 
 outputs:
   from_image_version:
@@ -36,29 +45,36 @@ runs:
         FROM_IMAGE: ${{ inputs.from_image }}
         CURRENT_TAG: ${{ inputs.current_tag }}
         MAJOR_VERSION: ${{ inputs.major_version }}
+        IS_CLOUD: ${{ inputs.is_cloud }}
         REGISTRY: ${{ inputs.registry_url }}
+        TAG_SUFFIX: ${{ inputs.tag_suffix }}
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       run: |
-        FROM_IMAGE_VERSION="develop"
-
-        IMAGE_TAG_EXISTS=$(docker manifest inspect ${REGISTRY}/${FROM_IMAGE}:${CURRENT_TAG} >/dev/null 2>&1 && echo yes || echo no)
-        if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-          FROM_IMAGE_VERSION="${CURRENT_TAG}"
-          echo "::notice::FROM image ${FROM_IMAGE}:${FROM_IMAGE_VERSION} will be used."
-        elif [[ "$BRANCH_NAME" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
-          FROM_IMAGE_VERSION="${MAJOR_VERSION}"
-          echo "::notice::FROM image ${FROM_IMAGE}:${FROM_IMAGE_VERSION} will be used."
-        elif [[ "$BRANCH_NAME" != "develop" ]]; then
-          DEVELOP_VERSION_TAG="develop-${MAJOR_VERSION}"
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ${REGISTRY}/${FROM_IMAGE}:${DEVELOP_VERSION_TAG} >/dev/null 2>&1 && echo yes || echo no)
-          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-            FROM_IMAGE_VERSION="${DEVELOP_VERSION_TAG}"
-            echo "::notice::FROM image ${FROM_IMAGE}:${FROM_IMAGE_VERSION} will be used."
-          else
-            echo "::notice::FROM image ${FROM_IMAGE}:develop will be used."
-          fi
+        # Fallback tag: develop for cloud, major_version (e.g. 26.05) for on-prem.
+        if [[ "$IS_CLOUD" == "true" ]]; then
+          FROM_IMAGE_VERSION="develop${TAG_SUFFIX}"
         else
-          echo "::notice::FROM image ${FROM_IMAGE}:develop will be used."
+          FROM_IMAGE_VERSION="${MAJOR_VERSION}${TAG_SUFFIX}"
         fi
 
+        IMAGE_TAG_EXISTS=$(docker manifest inspect ${REGISTRY}/${FROM_IMAGE}:${CURRENT_TAG}${TAG_SUFFIX} >/dev/null 2>&1 && echo yes || echo no)
+        if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+          FROM_IMAGE_VERSION="${CURRENT_TAG}${TAG_SUFFIX}"
+        elif [[ "$BRANCH_NAME" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
+          FROM_IMAGE_VERSION="${MAJOR_VERSION}${TAG_SUFFIX}"
+        elif [[ "$BRANCH_NAME" != "develop" ]]; then
+          # Probe the base maintenance branch tag (dev-<major>.x on-prem,
+          # develop-<major> cloud) and use it only if it exists.
+          if [[ "$IS_CLOUD" == "true" ]]; then
+            CANDIDATE_TAG="develop-${MAJOR_VERSION}${TAG_SUFFIX}"
+          else
+            CANDIDATE_TAG="dev-${MAJOR_VERSION}.x${TAG_SUFFIX}"
+          fi
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${REGISTRY}/${FROM_IMAGE}:${CANDIDATE_TAG} >/dev/null 2>&1 && echo yes || echo no)
+          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+            FROM_IMAGE_VERSION="${CANDIDATE_TAG}"
+          fi
+        fi
+
+        echo "::notice::FROM image ${FROM_IMAGE}:${FROM_IMAGE_VERSION} will be used."
         echo "from_image_version=${FROM_IMAGE_VERSION}" >> $GITHUB_OUTPUT

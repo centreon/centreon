@@ -24,11 +24,30 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\StandardMacroResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class ListStandardMacrosProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/latest/configuration/standard-macros';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $macros = [
+            [1, '$HOSTNAME$'],
+            [2, '$HOSTALIAS$'],
+            [3, '$HOSTADDRESS$'],
+            [4, '$SERVICENAME$'],
+            [5, '$SERVICEALIAS$'],
+        ];
+        foreach ($macros as [$macroId, $name]) {
+            $connection->insert('nagios_macro', ['macro_id' => $macroId, 'macro_name' => $name]);
+        }
+    }
 
     public function testItFindStandardMacros(): void
     {
@@ -46,7 +65,7 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
         );
         self::assertJsonContains(
             [
-                'totalItems' => 110,
+                'totalItems' => 5,
             ]
         );
     }
@@ -57,7 +76,7 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => ['ALIAS', 'NAME']]]]);
         self::assertResponseIsSuccessful();
-        $this->assertCount(10, (array) $response->toArray()['member']);
+        $this->assertCount(4, (array) $response->toArray()['member']);
         self::assertJsonContains(
             [
                 'member' => [
@@ -96,11 +115,11 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['page' => '2', 'itemsPerPage' => '10']]);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['page' => '1', 'itemsPerPage' => '2']]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(StandardMacroResource::class);
-        $this->assertCount(10, (array) $response->toArray()['member']);
-        $this->assertEquals(110, $response->toArray()['totalItems']);
+        $this->assertCount(2, (array) $response->toArray()['member']);
+        $this->assertEquals(5, $response->toArray()['totalItems']);
     }
 
     public function testIfFindAllGlobalMacrosWithPaginationAndAnOperator(): void
@@ -114,7 +133,7 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(StandardMacroResource::class);
         $this->assertCount(2, (array) $response->toArray()['member']);
-        $this->assertEquals(10, $response->toArray()['totalItems']);
+        $this->assertEquals(4, $response->toArray()['totalItems']);
     }
 
     public function testItShouldIgnoreUnknownOperator(): void
@@ -129,6 +148,6 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
             ]
         );
         self::assertResponseIsSuccessful();
-        $this->assertCount(5, (array) $response->toArray()['member']);
+        $this->assertCount(2, (array) $response->toArray()['member']);
     }
 }

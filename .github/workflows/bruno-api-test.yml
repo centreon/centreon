@@ -1,0 +1,378 @@
+name: Bruno API Tests
+
+on:
+  workflow_call:
+    inputs:
+      collection_path:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      operating_system:
+        required: true
+        type: string
+      database_image:
+        required: true
+        type: string
+      major_version:
+        required: true
+        type: string
+      stability:
+        required: true
+        type: string
+      working_directory:
+        required: true
+        type: string
+      server_healthcheck_endpoint:
+        required: false
+        type: string
+      component-name:
+        required: true
+        type: string
+      xray_keys_and_ids:
+        description: "The test execution and the test plan keys and ids (legacy flow)"
+        required: false
+        type: string
+      jira_test_plan_key:
+        description: "Jira Test Plan key; when set, results are imported and linked to it"
+        required: false
+        type: string
+      minor_version:
+        required: false
+        type: string
+      database_name:
+        required: false
+        type: string
+      module_name:
+        description: "Jira component (e.g. centreon-web, centreon-awie)"
+        required: false
+        type: string
+      upload_artifacts:
+        description: "Whether to upload deprecation logs artifacts"
+        required: false
+        default: "false"
+        type: string
+    secrets:
+      registry_username:
+        required: true
+      registry_password:
+        required: true
+      client_id:
+        required: true
+      client_secret:
+        required: true
+      jira_user:
+        required: true
+      jira_token_test:
+        required: true
+
+jobs:
+  bruno-test-list-collections-workspace:
+    runs-on: ubuntu-24.04
+
+    outputs:
+      collections: ${{ steps.set_collections.outputs.collections }}
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: List Bruno collections by workspace
+        id: set_collections
+        env:
+          COLLECTIONS_DIR: ${{ inputs.collection_path }}
+        run: |
+          node .github/scripts/bruno-test-api/bruno-collections-list.js
+          echo "collections=$(cat collections.json)" >> $GITHUB_OUTPUT
+
+  bruno-run-collection:
+    needs: bruno-test-list-collections-workspace
+    if: ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        feature: ${{ fromJson(needs.bruno-test-list-collections-workspace.outputs.collections) }}
+    name: ${{ matrix.feature }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKING_DIRECTORY }}
+    env:
+      WORKING_DIRECTORY: ${{ inputs.working_directory }}
+      IMAGE_NAME: ${{ inputs.image_name }}-${{ inputs.operating_system }}
+      # WEB_IMAGE is set on the container-startup step below, from the sanitized
+      # tag produced by the "Compute image tag" step (a Docker tag cannot contain
+      # '/', so the raw branch ref must be sanitized like the dockerize job does).
+      FEATURE: ${{ matrix.feature }}
+      BRUNO_GITHUB_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts/bruno-test-api
+      # Disable system proxy detection in Bruno CLI on Linux runners (no proxy configured).
+      # Setting HTTP(S)_PROXY to empty prevents LinuxProxyResolver from attempting to read
+      # system proxy config; NO_PROXY=* ensures all requests bypass any accidental proxy.
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      NO_PROXY: "*"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Same tag computation as the dockerize job and cypress-e2e-parallelization:
+      # a Docker tag cannot contain '/', so the raw branch ref (feature/foo) must
+      # be sanitized to match the tag dockerize pushed (feature-foo). Using the
+      # raw ref referenced a non-existent tag and failed `docker compose up --wait`.
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: Install yq
+        shell: bash
+        run: |
+          sudo curl -fsSL \
+            https://github.com/mikefarah/yq/releases/download/v4.50.1/yq_linux_amd64 \
+            -o /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+          yq --version
+
+      # Install Dependencies for tests/api
+      - name: Install Dependencies for tests/api
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
+        shell: bash
+
+      # Login to docker registry
+      - name: Login to registry
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
+
+      # Start Centreon web and database containers and adding custom setup environment if exists
+      - name: Start Centreon Web and database containers with specific setup if exists
+        env:
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-${{ inputs.operating_system }}:${{ steps.image_tag.outputs.tag }}
+          MYSQL_IMAGE: ${{ inputs.database_image }}
+          UPLOAD_ARTIFACTS: ${{ inputs.upload_artifacts }}
+          OS_INPUT: ${{ inputs.operating_system }}
+        run: |
+          COLLECTION_DIRECTORY="collections/$FEATURE"
+          echo "COLLECTION_DIRECTORY=${COLLECTION_DIRECTORY}/"
+          ls -la ${COLLECTION_DIRECTORY}
+
+          if [[ -f "${COLLECTION_DIRECTORY}/.env" ]]; then
+            echo "Using environment file ${COLLECTION_DIRECTORY}/.env"
+            cat ${COLLECTION_DIRECTORY}/.env >> ../../../../.github/docker/.env
+          fi
+
+          docker compose --profile web -f ../../../../.github/docker/docker-compose.yml up -d --wait
+
+          if [[ "$UPLOAD_ARTIFACTS" == "true" ]]; then
+            if [[ "$OS_INPUT" == "alma9" ]]; then
+              WEB_USER="apache"
+            else
+              WEB_USER="www-data"
+            fi
+
+            # Necessary for collecting deprecation logs
+            docker compose -f ../../../../.github/docker/docker-compose.yml exec web \
+              bash -c "mkdir -p /var/log/centreon && chown ${WEB_USER}:${WEB_USER} /var/log/centreon"
+
+            docker compose -f ../../../../.github/docker/docker-compose.yml exec -e OS_INPUT="$OS_INPUT" web \
+              bash -c '
+                if [[ "$OS_INPUT" == "alma9" ]]; then
+                  PHP_INI="/etc/php.ini"
+                else
+                  PHP_INI=$(find /etc/php -name "php.ini" -path "*/fpm/*" 2>/dev/null | head -1)
+                fi
+                if [[ -z "$PHP_INI" ]] || [[ ! -f "$PHP_INI" ]]; then
+                  echo "WARNING: Could not locate PHP FPM ini file; skipping error_reporting update"
+                elif grep -q "^error_reporting" "$PHP_INI"; then
+                  sed -i "s/^error_reporting[[:space:]]*=.*/error_reporting = E_ALL/" "$PHP_INI"
+                else
+                  echo "error_reporting = E_ALL" >> "$PHP_INI"
+                fi
+              '
+
+            docker compose -f ../../../../.github/docker/docker-compose.yml exec web \
+              bash -c '
+                PHP_FPM_UNIT=$(systemctl list-units --type=service --state=loaded --full --no-legend 2>/dev/null \
+                  | awk '"'"'{print $1}'"'"' | grep -E "^php[0-9.]*-fpm\.service$" | head -1 | sed "s/\.service$//")
+                [[ -z "$PHP_FPM_UNIT" ]] && PHP_FPM_UNIT="php-fpm"
+                echo "Restarting PHP-FPM unit: ${PHP_FPM_UNIT}"
+                systemctl restart "${PHP_FPM_UNIT}"
+              '
+          fi
+
+          if [[ -f "./global-setup.sh" ]]; then
+            echo "Running script ./global-setup.sh ..."
+            bash -ex ./global-setup.sh "$FEATURE"
+          fi
+
+          if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
+            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
+            bash -ex ${COLLECTION_DIRECTORY}/setup.sh "$FEATURE"
+          fi
+
+          if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
+            echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh ..."
+            docker compose -f ../../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
+            docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -ex /tmp/setup-web.sh "$FEATURE"
+          fi
+        shell: bash
+
+      # Wait for server to be ready
+      - name: Wait for server to Start
+        if: ${{ inputs.server_healthcheck_endpoint != '' }}
+        env:
+          SERVER_HEALTHCHECK_ENDPOINT: ${{ inputs.server_healthcheck_endpoint }}
+        run: pnpx wait-on "$SERVER_HEALTHCHECK_ENDPOINT" --timeout 100000
+
+      - name: Debug execution context
+        run: |
+          echo "PWD = $(pwd)"
+          echo "Workspace = $GITHUB_WORKSPACE"
+          echo "Collection = $FEATURE"
+
+      # Run Bruno CLI Tests
+      - name: Run Bruno collection tests on matrix feature
+        run: |
+          if [[ -f "scripts/refresh-token.sh" ]]; then
+            echo "Running script scripts/refresh-token.sh ..."
+            bash -ex "scripts/refresh-token.sh"
+          fi
+
+          node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-collections-run-workspace.js" "$FEATURE"
+
+      - name: Upload Bruno reports (JSON + HTML)
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: bruno-report-${{ env.FEATURE }}
+          path: |
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.json
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*.html
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/${{ env.FEATURE }}-merged.json
+            ${{ env.WORKING_DIRECTORY }}/artifacts/${{ env.FEATURE }}/*-junit.xml
+
+      - name: Generate GitHub Summary
+        if: always()
+        run: |
+          node "$BRUNO_GITHUB_SCRIPTS_PATH/bruno-github-summary.js" "$FEATURE" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Display container logs
+        if: failure()
+        run: |
+          echo "::group::docker compose logs"
+          docker compose -f ../../../../.github/docker/docker-compose.yml logs
+          echo "::endgroup::"
+
+          echo "::group::prod.web.log"
+          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/prod.web.log 2>/dev/null || echo 'prod.web.log does not exist'"
+          echo "::endgroup::"
+
+          echo "::group::prod.access.log"
+          docker compose -f ../../../../.github/docker/docker-compose.yml exec web bash -c "cat /var/log/centreon/prod.access.log 2>/dev/null || echo 'prod.access.log does not exist'"
+          echo "::endgroup::"
+        shell: bash
+
+      - name: Gather symfony deprecation logs
+        id: deprecation-logs
+        if: ${{ ! cancelled() && inputs.upload_artifacts == 'true' }}
+        run: |
+          deprecation_file_for_archive="$FEATURE-deprecation.log"
+          found=false
+          deprecation_file_container=$(docker compose -f ../../../../.github/docker/docker-compose.yml exec -T web bash -c "find /var/log/centreon/ -maxdepth 1 -regex \".*deprecations.*\" 2>/dev/null | head -1" | tr -d '\r')
+          if [[ -n "$deprecation_file_container" ]]; then
+            docker compose -f ../../../../.github/docker/docker-compose.yml exec -T web cat "$deprecation_file_container" >> ./$deprecation_file_for_archive
+            echo "Appended deprecation log from $deprecation_file_container"
+            found=true
+          fi
+          if [[ "$found" == "false" ]]; then
+            echo "No deprecation log found in container, skipping copy."
+          fi
+          echo "deprecation_file_for_archive=$deprecation_file_for_archive" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Upload deprecation logs
+        if: ${{ steps.deprecation-logs.conclusion != 'skipped' }}
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: bruno-${{ inputs.operating_system }}-${{ matrix.feature }}-deprecation-logs
+          path: "${{ env.WORKING_DIRECTORY }}/*-deprecation.log"
+          retention-days: 1
+          if-no-files-found: ignore
+
+  regroup-artifacts:
+    needs: [bruno-run-collection]
+    if: ${{ ! cancelled() && inputs.upload_artifacts == 'true' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Merge deprecation logs
+        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ inputs.upload_artifacts == 'true' }}
+        continue-on-error: true
+        with:
+          name: bruno-${{ inputs.operating_system }}-deprecation-logs
+          pattern: bruno-${{ inputs.operating_system }}-*-deprecation-logs
+          retention-days: 1
+          delete-merged: true
+
+  # Import the JUnit results into Xray and link them to the Test Plan. Skipped for
+  # callers still on the legacy flow (those that do not pass jira_test_plan_key).
+  xray-api-import-results:
+    needs: [bruno-run-collection]
+    if: ${{ ! cancelled() && inputs.jira_test_plan_key != '' }}
+    uses: ./.github/workflows/xray-api-import-results.yml
+    with:
+      jira_test_plan_key: ${{ inputs.jira_test_plan_key }}
+      report_path: bruno-junit-results
+      environment: ${{ inputs.operating_system }}
+      operating_system: ${{ inputs.operating_system }}
+      database_name: ${{ inputs.database_name }}
+      major_version: ${{ inputs.major_version }}
+      minor_version: ${{ inputs.minor_version }}
+      module_name: ${{ inputs.module_name }}
+      type_test_execution: api
+      result_format: junit
+      enrich_tests: true
+      artifact_pattern: "bruno-report-*"
+    secrets:
+      XRAY_CLIENT_ID: ${{ secrets.client_id }}
+      XRAY_CLIENT_SECRET: ${{ secrets.client_secret }}
+      XRAY_JIRA_USER_EMAIL: ${{ secrets.jira_user }}
+      XRAY_JIRA_TOKEN: ${{ secrets.jira_token_test }}

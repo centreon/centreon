@@ -52,7 +52,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
             new Model\Parameter(
                 name: 'type',
                 in: 'query',
-                description: 'Filter commands by type',
+                description: 'Filter commands by type. Multiple values can be provided using type[]=Check&type[]=Notification',
                 required: false,
                 schema: [
                     'type' => 'array',

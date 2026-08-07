@@ -33,8 +33,8 @@ $constants = [
     '_CENTREON_LOG_' => '@CENTREON_LOG@',
     '_CENTREON_CACHEDIR_' => '@CENTREON_CACHEDIR@',
     '_CENTREON_VARLIB_' => '@CENTREON_VARLIB@',
-    '_CENTREON_PHP_VERSION_' => '8.2',
-    '_CENTREON_MARIA_DB_MIN_VERSION_' => '10.5',
+    '_CENTREON_PHP_VERSION_' => '8.4',
+    '_CENTREON_MARIA_DB_MIN_VERSION_' => '11.8',
 ];
 
 $createVaultConfiguration  = function(): VaultConfiguration
@@ -102,6 +102,12 @@ foreach ($constants as $name => $value) {
     if (!defined($name)) {
         define($name, $value);
     }
+    // Also expose as environment variable so Symfony's %env()% parameter resolution can read them.
+    // TODO: once all legacy config is migrated to proper env vars set by install scripts,
+    //       this putenv() block can be removed.
+    if (getenv($name) === false) {
+        putenv($name . '=' . $value);
+    }
 }
 
 if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
@@ -117,9 +123,7 @@ if (file_exists(_CENTREON_ETC_ . '/centreon.conf.php')) {
 
 
     if (
-        ! defined('user')
-        && ! defined('password')
-        && file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')
+        file_exists(_CENTREON_VARLIB_ . '/vault/vault.json')
         && str_starts_with($conf_centreon['user'], 'secret::')
         && str_starts_with($conf_centreon['password'], 'secret::')
     ) {

@@ -1,0 +1,20 @@
+meta {
+  name: DELETE /services - Delete service 2 - HTTP 204
+  type: http
+  seq: 25
+}
+
+delete {
+  url: {{baseUrlWeb}}/configuration/services/{{Service2Id}}
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 204
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

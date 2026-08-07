@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   addCustomView,
@@ -26,19 +27,19 @@ before(() => {
 beforeEach(() => {
   cy.intercept({
     method: 'GET',
-    url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
+    url: INTERCEPTORS.api.navigation_list
   }).as('getNavigationList');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/common/userTimezone.php'
+    url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
   cy.intercept({
     method: 'GET',
-    url: '/centreon/include/home/customViews/views.php?currentView=*'
+    url: `${INTERCEPTORS.pages.customViews_views}?currentView=*`
   }).as('getViews');
   cy.intercept({
     method: 'POST',
-    url: '/centreon/include/home/customViews/action.php'
+    url: INTERCEPTORS.pages.customViews_action
   }).as('action');
 });
 

@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Api;
 
-use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -36,17 +37,16 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class InternalApiClient
 {
-    private const DEFAULT_LOCAL_HOST = '127.0.0.1';
-    private const DEFAULT_LOCAL_SCHEME = 'http';
+    private readonly ?string $internalApiBaseUrl;
 
-    private HttpClientInterface $httpClient;
-
-    /**
-     * @param HttpClientInterface|null $httpClient HTTP client (defaults to CurlHttpClient with SSL verification disabled)
-     */
-    public function __construct(?HttpClientInterface $httpClient = null)
-    {
-        $this->httpClient = $httpClient ?? new CurlHttpClient([
+    public function __construct(
+        #[Autowire('%env(CENTREON_INTERNAL_API_BASE_URL)%')]
+        string $internalApiBaseUrl,
+        private readonly RequestStack $requestStack,
+        private HttpClientInterface $httpClient,
+    ) {
+        $this->internalApiBaseUrl = $internalApiBaseUrl ?: null;
+        $this->httpClient = $httpClient->withOptions([
             'verify_peer' => false,
             'verify_host' => false,
         ]);
@@ -76,8 +76,14 @@ final class InternalApiClient
         array $payload = [],
         array $additionalHeaders = [],
     ): array {
-        $localUrl = self::convertToLocalUrl($url);
-
+        $request = $this->requestStack->getCurrentRequest();
+        $url = self::convertToLocalUrl(
+            $url,
+            $this->internalApiBaseUrl,
+            $request?->server->get('REQUEST_SCHEME'),
+            $request?->server->get('SERVER_ADDR'),
+            $request?->server->getInt('SERVER_PORT') ?: null,
+        );
         $headers = array_merge(
             [
                 'Content-Type' => 'application/json',
@@ -92,7 +98,7 @@ final class InternalApiClient
             $options['body'] = json_encode($payload, JSON_THROW_ON_ERROR);
         }
 
-        $response = $this->httpClient->request($httpMethod, $localUrl, $options);
+        $response = $this->httpClient->request($httpMethod, $url, $options);
 
         return [
             'status_code' => $response->getStatusCode(),
@@ -105,22 +111,79 @@ final class InternalApiClient
      * This ensures the request stays on the local server and doesn't go through
      * proxies, load balancers, or external network infrastructure.
      *
+     * When $internalApiBaseUrl explicitly defines a scheme (e.g. "http://host"), that
+     * scheme is honored; otherwise the request scheme is used. This allows an internal
+     * HTTPS -> HTTP redirection even when the external request is HTTPS.
+     *
      * @param string $url The original URL (may contain external hostname)
+     *
+     * @throws \RuntimeException When required parameters are null and cannot be resolved from the URL
      *
      * @return string The localhost URL
      */
-    public static function convertToLocalUrl(string $url): string
-    {
+    public static function convertToLocalUrl(
+        string $url,
+        ?string $internalApiBaseUrl = null,
+        ?string $requestScheme = null,
+        ?string $serverAddress = null,
+        ?int $serverPort = null,
+    ): string {
+        if (str_contains($url, '://')) {
+            $scheme = parse_url($url, PHP_URL_SCHEME);
+            if (! is_string($scheme) || filter_var($url, FILTER_VALIDATE_URL) === false) {
+                return $url;
+            }
+            $requestScheme = $scheme;
+        } elseif (! str_starts_with($url, '/')) {
+            $url = '/' . $url;
+        }
+
         $parsedUrl = parse_url($url);
 
         if ($parsedUrl === false) {
             return $url;
         }
 
-        $scheme = (isset($parsedUrl['scheme']) && in_array($parsedUrl['scheme'], ['http', 'https'], true))
-            ? $parsedUrl['scheme']
-            : self::DEFAULT_LOCAL_SCHEME;
-        $localUrl = $scheme . '://' . self::DEFAULT_LOCAL_HOST;
+        $localUrl = null;
+        if (! empty($internalApiBaseUrl)) {
+            $localUrl = self::generateUrlWithoutScheme($internalApiBaseUrl);
+            if ($localUrl !== null) {
+                if ($serverPort !== null && ! str_contains($localUrl, ':')) {
+                    $localUrl .= ':' . $serverPort;
+                }
+                // Honor the scheme explicitly defined in the base URL so an internal
+                // HTTPS -> HTTP redirection stays possible even when the external request
+                // is HTTPS (e.g. behind a TLS-terminating proxy). Fall back to the request
+                // scheme when the base URL does not define one.
+                $baseScheme = str_contains($internalApiBaseUrl, '://')
+                    ? parse_url($internalApiBaseUrl, PHP_URL_SCHEME)
+                    : null;
+                if (is_string($baseScheme) && $baseScheme !== '') {
+                    $requestScheme = $baseScheme;
+                }
+                if ($requestScheme === null) {
+                    throw new \RuntimeException(
+                        'Cannot build local URL: request scheme is null.'
+                    );
+                }
+                $localUrl = $requestScheme . '://' . $localUrl;
+            }
+        }
+
+        if ($localUrl === null) {
+            if ($requestScheme === null) {
+                throw new \RuntimeException(
+                    'Cannot build local URL: request scheme is null.'
+                );
+            }
+            if ($serverAddress === null) {
+                throw new \RuntimeException(
+                    'Cannot build local URL: server address is null.'
+                );
+            }
+            $portSuffix = ($serverPort !== null) ? ':' . $serverPort : '';
+            $localUrl = $requestScheme . '://' . $serverAddress . $portSuffix;
+        }
 
         // Add path
         if (isset($parsedUrl['path'])) {
@@ -138,5 +201,31 @@ final class InternalApiClient
         }
 
         return $localUrl;
+    }
+
+    private static function generateUrlWithoutScheme(string $url): ?string
+    {
+        if (str_contains($url, '://')) {
+            $parsed = parse_url($url);
+            if ($parsed === false || ! isset($parsed['host'])) {
+                return null;
+            }
+            $host = $parsed['host'];
+            $port = $parsed['port'] ?? null;
+        } else {
+            $parts = explode(':', $url, 2);
+            $host = $parts[0];
+            $port = isset($parts[1]) ? (int) $parts[1] : null;
+        }
+
+        if (empty($host)) {
+            return null;
+        }
+
+        if ($port !== null && ($port < 1 || $port > 65535)) {
+            return null;
+        }
+
+        return $port !== null ? $host . ':' . $port : $host;
     }
 }

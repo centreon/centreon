@@ -21,10 +21,22 @@
 
 namespace CentreonRemote\Application\Webservice;
 
+use App\Kernel;
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Centreon\Domain\Entity\Task;
+use Centreon\Domain\Gorgone\Command\NodesSync;
+use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Centreon\Domain\PlatformTopology\Model\PlatformPending;
+use CentreonLog;
 use CentreonRemote\Application\Validator\WizardConfigurationRequestValidator;
+use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
+use CentreonRemote\Domain\Service\ConfigurationWizard\{
+    PollerConnectionConfigurationService,
+    RemoteConnectionConfigurationService
+};
 use CentreonRemote\Domain\Value\ServerWizardIdentity;
+use Throwable;
+use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * @OA\Tag(name="centreon_configuration_remote", description="")
@@ -310,6 +322,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              description="if the connection should be made with open broker flow"
      *          ),
      *          @OA\Property(
+     *              property="gorgone_pull_wss",
+     *              type="boolean",
+     *              description="if true, provision the poller with gorgone_communication_type=pullwss and gorgone_port=8086 (poller wizard only)"
+     *          ),
+     *          @OA\Property(
      *              property="db_user",
      *              type="string",
      *              description="database username"
@@ -319,6 +336,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *              type="string",
      *              description="database password"
      *          ),
+     *          @OA\Property(
+     *               property="db_host",
+     *               type="string",
+     *               description="database host"
+     *           ),
      *          @OA\Property(
      *              property="server_type",
      *              type="string",
@@ -382,6 +404,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $noProxy = isset($this->arguments['no_proxy']) && $this->arguments['no_proxy'] === true;
         $serverWizardIdentity = new ServerWizardIdentity();
         $isRemoteConnection = $serverWizardIdentity->requestConfigurationIsRemote();
+
         $configurationServiceName = $isRemoteConnection
             ? 'centreon_remote.remote_connection_service'
             : 'centreon_remote.poller_connection_service';
@@ -390,6 +413,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         WizardConfigurationRequestValidator::validate();
 
         $pollerConfigurationService = $this->getDi()['centreon_remote.poller_config_service'];
+        /**
+         * @var RemoteConnectionConfigurationService|PollerConnectionConfigurationService $serverConfigurationService
+         */
         $serverConfigurationService = $this->getDi()[$configurationServiceName];
         $pollerConfigurationBridge = $this->getDi()['centreon_remote.poller_config_bridge'];
 
@@ -397,11 +423,9 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverIP = parse_url($this->arguments['server_ip'], PHP_URL_HOST) ?: $this->arguments['server_ip'];
         $serverName = substr($this->arguments['server_name'], 0, 40);
 
-        // Check IPv6, IPv4 and FQDN format
-        if (
-            ! filter_var($serverIP, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
-            && ! filter_var($serverIP, FILTER_VALIDATE_IP)
-        ) {
+        try {
+            CentreonAssert::ipOrHostname($serverIP);
+        } catch (InvalidArgumentException) {
             return ['error' => true, 'message' => 'Invalid IP address'];
         }
         $dbAdapter = $this->getDi()['centreon.db-manager']->getAdapter('configuration_db');
@@ -438,6 +462,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         $serverConfigurationService->setName($serverName);
         $serverConfigurationService->setOnePeerRetention($openBrokerFlow);
 
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            $serverConfigurationService->setGorgoneCommunicationType(NagiosServer::PULLWSS);
+            $serverConfigurationService->setGorgonePort(NagiosServer::PULLWSS_GORGONE_PORT);
+        }
+
         // set linked pollers
         $pollerConfigurationBridge->collectDataFromRequest();
         // set additional Remote Servers
@@ -447,6 +476,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         if ($isRemoteConnection) {
             $serverConfigurationService->setDbUser($this->arguments['db_user']);
             $serverConfigurationService->setDbPassword($this->arguments['db_password']);
+            $serverConfigurationService->setDbHost($this->arguments['db_host'] ?? 'localhost');
             if (
                 $serverWizardIdentity->checkBamOnRemoteServer(
                     $httpMethod . '://' . $serverIP . ':' . $httpPort . '/' . trim($centreonPath, '/'),
@@ -517,6 +547,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
                 'children_pollers' => $pollers ?? null,
             ]);
             // if it is poller wizard and poller is linked to another poller/remote server (instead of central)
@@ -532,6 +563,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
                 'parent' => $parentPoller->getId(),
             ]);
         } else {
@@ -540,7 +572,24 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
             ]);
+        }
+
+        if (! $isRemoteConnection && ($this->arguments['gorgone_pull_wss'] ?? false) === true) {
+            try {
+                Kernel::createForWeb()
+                    ->getContainer()
+                    ->get(GorgoneServiceInterface::class)
+                    ->send(new NodesSync());
+            } catch (Throwable $exception) {
+                CentreonLog::create()->warning(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    'Failed to trigger Gorgone nodes sync',
+                    ['source' => 'poller_wizard', 'poller_id' => $serverId],
+                    $exception,
+                );
+            }
         }
 
         // Update session to reload ACL
@@ -712,22 +761,25 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             $statement = $this->pearDB->prepare(
                 "UPDATE `platform_topology` SET
                 `name` = :name,
+                `central_address` = :centralAddress,
                 parent_id = :parentId,
                 server_id = :nagiosId,
                 pending = '0'
                 WHERE id = :topologyId"
             );
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
+            $statement->bindValue(':centralAddress', $topologyInformation['central_address'], \PDO::PARAM_STR);
             $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);
             $statement->bindValue(':nagiosId', $topologyInformation['nagios_id'], \PDO::PARAM_INT);
             $statement->bindValue(':topologyId', (int) $server['id'], \PDO::PARAM_INT);
             $statement->execute();
         } else {
             $statement = $this->pearDB->prepare(
-                "INSERT INTO `platform_topology` (`address`,`name`,`type`,`parent_id`,`server_id`, `pending`)
-                VALUES (:address, :name, :type, :parentId, :serverId, '0')"
+                "INSERT INTO `platform_topology` (`address`,`central_address`,`name`,`type`,`parent_id`,`server_id`, `pending`)
+                VALUES (:address, :centralAddress, :name, :type, :parentId, :serverId, '0')"
             );
             $statement->bindValue(':address', $topologyInformation['address'], \PDO::PARAM_STR);
+            $statement->bindValue(':centralAddress', $topologyInformation['central_address'], \PDO::PARAM_STR);
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
             $statement->bindValue(':type', $topologyInformation['type'], \PDO::PARAM_STR);
             $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);

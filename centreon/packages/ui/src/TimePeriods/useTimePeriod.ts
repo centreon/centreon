@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import type { WrapperTimePeriodProps } from './models';
 import {
   adjustTimePeriodDerivedAtom,
-  customTimePeriodAtom,
   errorTimePeriodAtom,
   getDatesDerivedAtom,
   selectedTimePeriodAtom
@@ -16,7 +15,6 @@ const useTimePeriod = ({
   adjustTimePeriodData
 }: Omit<WrapperTimePeriodProps, 'extraTimePeriods' | 'disabled'>): void => {
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const _customTimePeriod = useAtomValue(customTimePeriodAtom);
   const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);
   const errorTimePeriod = useAtomValue(errorTimePeriodAtom);
   const adjustTimeTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);

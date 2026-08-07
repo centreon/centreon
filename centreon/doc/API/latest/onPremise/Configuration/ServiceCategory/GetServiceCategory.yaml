@@ -1,6 +1,6 @@
 get:
   tags:
-    - Service category
+    - Service Category
   summary: "Get a service category"
   description: |
     Get an existing service category.

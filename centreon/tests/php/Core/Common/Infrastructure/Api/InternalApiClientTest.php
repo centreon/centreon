@@ -24,7 +24,11 @@ declare(strict_types=1);
 namespace Tests\Core\Common\Infrastructure\Api;
 
 use Core\Common\Infrastructure\Api\InternalApiClient;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -36,14 +40,25 @@ class InternalApiClientTest extends TestCase
     private const TEST_SESSION_COOKIE = 'PHPSESSID=test-session-id-12345';
 
     /**
-     * @dataProvider provideUrlsToConvert
-     *
      * @param string $inputUrl The original URL
      * @param string $expectedUrl The expected localhost URL
+     * @param array{
+     *     'CENTREON_INTERNAL_API_BASE_URL': ?string,
+     *     'requestScheme': ?string,
+     *     'serverAddress': ?string,
+     *     'serverPort': ?int,
+     * } $env
      */
-    public function testConvertToLocalUrl(string $inputUrl, string $expectedUrl): void
+    #[DataProvider('provideUrlsToConvert')]
+    public function testConvertToLocalUrl(string $inputUrl, string $expectedUrl, array $env): void
     {
-        $result = InternalApiClient::convertToLocalUrl($inputUrl);
+        $result = InternalApiClient::convertToLocalUrl(
+            $inputUrl,
+            $env['CENTREON_INTERNAL_API_BASE_URL'] ?? null,
+            $env['requestScheme'] ?? null,
+            $env['serverAddress'] ?? null,
+            $env['serverPort'] ?? null,
+        );
 
         $this->assertSame($expectedUrl, $result);
     }
@@ -56,71 +71,242 @@ class InternalApiClientTest extends TestCase
         yield 'simple HTTPS URL' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'simple HTTP URL' => [
             'inputUrl' => 'http://centreon.example.com/centreon/api/latest/hosts',
             'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'URL with query string' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts?limit=10&page=1',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts?limit=10&page=1',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'URL with fragment' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts#section',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts#section',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'URL with query string and fragment' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts?id=5#details',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts?id=5#details',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
-        yield 'URL with port number' => [
-            'inputUrl' => 'https://centreon.example.com:8443/centreon/api/latest/hosts',
-            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
+        yield 'CENTREON_INTERNAL_API_BASE_URL contains host with port' => [
+            'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
+            'expectedUrl' => 'https://127.0.0.1:8443/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1:8443'],
         ];
 
-        yield 'localhost URL should remain localhost' => [
+        yield 'localhost hostname converted to 127.0.0.1' => [
             'inputUrl' => 'http://localhost/centreon/api/latest/hosts',
             'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
-        yield '127.0.0.1 URL should remain unchanged' => [
-            'inputUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+        yield 'server address and port used when CENTREON_INTERNAL_API_BASE_URL is null' => [
+            'inputUrl' => 'http://127.0.1.1/centreon/api/latest/hosts',
+            'expectedUrl' => 'http://127.0.1.1:80/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => null, 'serverAddress' => '127.0.1.1', 'serverPort' => 80],
         ];
 
         yield 'URL with IP address' => [
             'inputUrl' => 'https://192.168.1.100/centreon/api/latest/hosts',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'URL with subdomain' => [
             'inputUrl' => 'https://monitoring.centreon.example.com/centreon/api/latest/hosts',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'URL with complex path' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/configuration/hosts/123/templates',
             'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/configuration/hosts/123/templates',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
-        yield 'URL without path' => [
+        yield 'URL without port and path' => [
             'inputUrl' => 'https://centreon.example.com',
             'expectedUrl' => 'https://127.0.0.1',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
+        ];
+
+        yield 'URL with port and without path' => [
+            'inputUrl' => 'https://centreon.example.com:8080',
+            'expectedUrl' => 'https://127.0.0.1',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
+        ];
+
+        yield 'URL with port different of CENTREON_INTERNAL_API_BASE_URL and without path' => [
+            'inputUrl' => 'https://centreon.example.com:8080',
+            'expectedUrl' => 'https://127.0.0.1:4000',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1:4000'],
         ];
 
         yield 'URL with only query string' => [
             'inputUrl' => 'https://centreon.example.com?search=test',
             'expectedUrl' => 'https://127.0.0.1?search=test',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
         ];
 
         yield 'URL with encoded characters in query' => [
             'inputUrl' => 'https://centreon.example.com/api/hosts?name=host%20name&filter=%7B%22id%22%3A1%7D',
             'expectedUrl' => 'https://127.0.0.1/api/hosts?name=host%20name&filter=%7B%22id%22%3A1%7D',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1'],
+        ];
+
+        yield 'Relative URL without leading slash at start' => [
+            'inputUrl' => 'api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:8080/api/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1', 'requestScheme' => 'https', 'serverPort' => 8080],
+        ];
+
+        yield 'Relative URL with leading slash' => [
+            'inputUrl' => '/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:80/api/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1', 'requestScheme' => 'https', 'serverPort' => 80],
+        ];
+
+        yield 'empty CENTREON_INTERNAL_API_BASE_URL falls back to server address and port' => [
+            'inputUrl' => 'https://centreon.example.com/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:80/api/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '', 'serverAddress' => '127.0.0.1', 'serverPort' => 80],
+        ];
+
+        yield 'serverPort ignored when CENTREON_INTERNAL_API_BASE_URL already contains a port' => [
+            'inputUrl' => 'https://centreon.example.com/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:9000/api/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1:9000', 'serverPort' => 8080],
+        ];
+
+        yield 'CENTREON_INTERNAL_API_BASE_URL https scheme is honored (matches request scheme)' => [
+            'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => 'https://127.0.0.1'],
+        ];
+
+        yield 'CENTREON_INTERNAL_API_BASE_URL http scheme is honored over an https request' => [
+            'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
+            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => 'http://127.0.0.1', 'requestScheme' => 'https'],
+        ];
+
+        yield 'Relative URL with leading slash and base URL with port ignores serverPort' => [
+            'inputUrl' => '/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:9000/api/hosts',
+            'env' => ['CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1:9000', 'requestScheme' => 'https', 'serverPort' => 8080],
+        ];
+
+        yield 'Relative URL without CENTREON_INTERNAL_API_BASE_URL' => [
+            'inputUrl' => '/api/hosts',
+            'expectedUrl' => 'http://localhost:8080/api/hosts',
+            'env' => ['requestScheme' => 'http', 'serverAddress' => 'localhost', 'serverPort' => 8080],
+        ];
+
+        yield 'Absolute URL using scheme and port of CENTREON_INTERNAL_API_BASE_URL' => [
+            'inputUrl' => 'http://localhost/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:9000/api/hosts',
+            'env' => [
+                'CENTREON_INTERNAL_API_BASE_URL' => 'https://127.0.0.1:9000',
+                'requestScheme' => 'http',
+                'serverAddress' => 'localhost',
+                'serverPort' => 8080,
+            ],
+        ];
+
+        yield 'Absolute URL using scheme of CENTREON_INTERNAL_API_BASE_URL' => [
+            'inputUrl' => 'http://localhost/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:8080/api/hosts',
+            'env' => [
+                'CENTREON_INTERNAL_API_BASE_URL' => 'https://127.0.0.1',
+                'requestScheme' => 'http',
+                'serverAddress' => 'localhost',
+                'serverPort' => 8080,
+            ],
+        ];
+
+        yield 'Schemeless CENTREON_INTERNAL_API_BASE_URL falls back to the request scheme' => [
+            'inputUrl' => '/api/hosts',
+            'expectedUrl' => 'https://127.0.0.1:8080/api/hosts',
+            'env' => [
+                'CENTREON_INTERNAL_API_BASE_URL' => '127.0.0.1',
+                'requestScheme' => 'https',
+                'serverAddress' => 'localhost',
+                'serverPort' => 8080,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideConvertToLocalUrlExceptionCases
+     */
+    public function testConvertToLocalUrlThrowsRuntimeException(
+        string $url,
+        ?string $internalApiBaseUrl,
+        ?string $requestScheme,
+        ?string $serverAddress,
+        ?int $serverPort,
+        string $expectedMessage,
+    ): void {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($expectedMessage);
+
+        InternalApiClient::convertToLocalUrl($url, $internalApiBaseUrl, $requestScheme, $serverAddress, $serverPort);
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: ?string, 2: ?string, 3: ?string, 4: ?int, 5: string}>
+     */
+    public static function provideConvertToLocalUrlExceptionCases(): iterable
+    {
+        // Path 1: valid internalApiBaseUrl + null requestScheme
+        // generateUrlWithoutScheme returns non-null but the scheme is missing
+        yield 'relative URL with valid base URL and null request scheme' => [
+            '/api/hosts', '127.0.0.1', null, null, null,
+            'Cannot build local URL: request scheme is null.',
+        ];
+
+        yield 'relative URL without leading slash, valid base URL and null request scheme' => [
+            'api/hosts', '127.0.0.1', null, null, null,
+            'Cannot build local URL: request scheme is null.',
+        ];
+
+        // Path 2: $localUrl is null (empty or null internalApiBaseUrl) + null requestScheme
+        yield 'relative URL with null base URL and null request scheme' => [
+            '/api/hosts', null, null, null, null,
+            'Cannot build local URL: request scheme is null.',
+        ];
+
+        yield 'relative URL with empty base URL and null request scheme' => [
+            '/api/hosts', '', null, null, null,
+            'Cannot build local URL: request scheme is null.',
+        ];
+
+        // Path 2 (variant): generateUrlWithoutScheme returns null + null requestScheme
+        yield 'relative URL with invalid base URL causing null host and null request scheme' => [
+            '/api/hosts', 'http://', null, '127.0.0.1', null,
+            'Cannot build local URL: request scheme is null.',
+        ];
+
+        // Path 3: $localUrl is null + defined requestScheme + null serverAddress
+        yield 'relative URL with null base URL, defined request scheme and null server address' => [
+            '/api/hosts', null, 'https', null, null,
+            'Cannot build local URL: server address is null.',
+        ];
+
+        // Path 3 (variant): absolute URL (scheme extracted from the URL) + null internalApiBaseUrl + null serverAddress
+        yield 'absolute URL with null base URL and null server address' => [
+            'https://example.com/api', null, null, null, null,
+            'Cannot build local URL: server address is null.',
         ];
     }
 
@@ -141,7 +327,7 @@ class InternalApiClientTest extends TestCase
     {
         $externalUrl = 'https://external-server.example.com/api/test';
 
-        $result = InternalApiClient::convertToLocalUrl($externalUrl);
+        $result = InternalApiClient::convertToLocalUrl($externalUrl, null, 'https', '127.0.0.1');
 
         $this->assertStringContainsString('127.0.0.1', $result);
         $this->assertStringNotContainsString('external-server.example.com', $result);
@@ -151,7 +337,7 @@ class InternalApiClientTest extends TestCase
     {
         $url = 'https://example.com/centreon/api/latest/configuration/hosts/42';
 
-        $result = InternalApiClient::convertToLocalUrl($url);
+        $result = InternalApiClient::convertToLocalUrl($url, null, 'https', '127.0.0.1', 80);
 
         $this->assertStringContainsString('/centreon/api/latest/configuration/hosts/42', $result);
     }
@@ -160,7 +346,7 @@ class InternalApiClientTest extends TestCase
     {
         $url = 'https://example.com/api?param1=value1&param2=value2&param3=value3';
 
-        $result = InternalApiClient::convertToLocalUrl($url);
+        $result = InternalApiClient::convertToLocalUrl($url, null, 'https', '127.0.0.1', 80);
 
         $this->assertStringContainsString('param1=value1', $result);
         $this->assertStringContainsString('param2=value2', $result);
@@ -168,10 +354,85 @@ class InternalApiClientTest extends TestCase
     }
 
     // =========================================================================
+    // Tests for generateUrlWithoutScheme() method
+    // =========================================================================
+
+    /**
+     * @dataProvider provideUrlsForGenerateUrlWithoutScheme
+     */
+    public function testGenerateUrlWithoutScheme(string $input, ?string $expected): void
+    {
+        $method = new \ReflectionMethod(InternalApiClient::class, 'generateUrlWithoutScheme');
+        $result = $method->invoke(null, $input);
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string|null}>
+     */
+    public static function provideUrlsForGenerateUrlWithoutScheme(): iterable
+    {
+        yield 'host:port without scheme' => ['127.0.0.1:8080', '127.0.0.1:8080'];
+
+        yield 'host only without scheme' => ['127.0.0.1', '127.0.0.1'];
+
+        yield 'hostname:port without scheme' => ['myhost:9090', 'myhost:9090'];
+
+        yield 'hostname only without scheme' => ['myhost', 'myhost'];
+
+        yield 'http scheme with host and port' => ['http://127.0.0.1:8080', '127.0.0.1:8080'];
+
+        yield 'https scheme with host and port' => ['https://127.0.0.1:443', '127.0.0.1:443'];
+
+        yield 'http scheme with host only' => ['http://127.0.0.1', '127.0.0.1'];
+
+        yield 'https scheme with host only' => ['https://myhost', 'myhost'];
+
+        yield 'scheme with no host' => ['http://', null];
+
+        yield 'scheme with empty host and port' => ['http://:8080', null];
+
+        yield 'scheme empty' => ['', null];
+
+        yield 'host and port empty' => [':', null];
+
+        yield 'empty host with port without scheme' => [':8080', null];
+
+        yield 'port 0 is invalid without scheme' => ['127.0.0.1:0', null];
+
+        yield 'port 1 is the minimum valid port without scheme' => ['127.0.0.1:1', '127.0.0.1:1'];
+
+        yield 'port 65535 is the maximum valid port without scheme' => ['127.0.0.1:65535', '127.0.0.1:65535'];
+
+        yield 'port 65536 exceeds maximum without scheme' => ['127.0.0.1:65536', null];
+
+        yield 'port 0 is invalid with scheme' => ['http://127.0.0.1:0', null];
+
+        yield 'port 1 is the minimum valid port with scheme' => ['http://127.0.0.1:1', '127.0.0.1:1'];
+
+        yield 'port 65535 is the maximum valid port with scheme' => ['https://127.0.0.1:65535', '127.0.0.1:65535'];
+
+        yield 'port 65536 exceeds maximum with scheme' => ['http://127.0.0.1:65536', null];
+
+        yield 'non-numeric port without scheme casts to 0 and is invalid' => ['myhost:notaport', null];
+
+        yield 'negative port without scheme is invalid' => ['127.0.0.1:-5', null];
+
+        yield 'url with path and query is stripped leaving host and port only' => ['http://myhost:8080/some/path?q=1', 'myhost:8080'];
+
+        yield 'url with path and query and no port is stripped leaving host only' => ['https://myhost/path?query=value', 'myhost'];
+
+        yield 'IPv6 address without port preserves brackets from parse_url' => ['http://[::1]', '[::1]'];
+
+        yield 'IPv6 address with port preserves brackets from parse_url' => ['http://[::1]:8080', '[::1]:8080'];
+    }
+
+    // =========================================================================
     // Tests for request() method
     // =========================================================================
 
-    public function testRequestConvertsUrlToLocalhost(): void
+    public function testRequestConvertsUrlToLocalhostWithRelativeUrl(): void
     {
         $mockResponse = $this->createMock(ResponseInterface::class);
         $mockResponse->method('getStatusCode')->willReturn(200);
@@ -182,13 +443,13 @@ class InternalApiClientTest extends TestCase
             ->method('request')
             ->with(
                 'GET',
-                $this->callback(fn ($url) => str_contains($url, '127.0.0.1')),
+                $this->callback(fn ($url) => str_contains($url, 'localhost:80')),
                 $this->anything()
             )
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
-        $result = $client->request('https://external.example.com/api/test', 'GET', self::TEST_SESSION_COOKIE);
+        $client = $this->createClient($mockHttpClient);
+        $result = $client->request('/api/test', 'GET', self::TEST_SESSION_COOKIE);
 
         $this->assertEquals(200, $result['status_code']);
         $this->assertEquals(['success' => true], $result['content']);
@@ -210,7 +471,7 @@ class InternalApiClientTest extends TestCase
             )
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/test', 'POST', self::TEST_SESSION_COOKIE);
 
         $this->assertEquals(201, $result['status_code']);
@@ -234,7 +495,7 @@ class InternalApiClientTest extends TestCase
             )
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $client->request('http://localhost/api/test', 'POST', self::TEST_SESSION_COOKIE, $payload);
     }
 
@@ -254,7 +515,7 @@ class InternalApiClientTest extends TestCase
             )
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $client->request('http://localhost/api/test', 'GET', self::TEST_SESSION_COOKIE);
     }
 
@@ -275,7 +536,7 @@ class InternalApiClientTest extends TestCase
             )
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $client->request('http://localhost/api/test', 'GET', self::TEST_SESSION_COOKIE);
     }
 
@@ -296,7 +557,7 @@ class InternalApiClientTest extends TestCase
             )
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $client->request('http://localhost/api/test', 'GET', self::TEST_SESSION_COOKIE);
     }
 
@@ -311,7 +572,7 @@ class InternalApiClientTest extends TestCase
         $mockHttpClient = $this->createMock(HttpClientInterface::class);
         $mockHttpClient->method('request')->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/test', 'GET', self::TEST_SESSION_COOKIE);
 
         $this->assertEquals($responseData, $result['content']);
@@ -328,7 +589,7 @@ class InternalApiClientTest extends TestCase
         $mockHttpClient = $this->createMock(HttpClientInterface::class);
         $mockHttpClient->method('request')->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/test', 'GET', self::TEST_SESSION_COOKIE);
 
         // json_decode returns null for invalid JSON
@@ -347,7 +608,7 @@ class InternalApiClientTest extends TestCase
             ->with('DELETE', $this->anything(), $this->anything())
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/hosts/42', 'DELETE', self::TEST_SESSION_COOKIE);
 
         $this->assertEquals(204, $result['status_code']);
@@ -365,7 +626,7 @@ class InternalApiClientTest extends TestCase
             ->with('PATCH', $this->anything(), $this->anything())
             ->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/hosts/42', 'PATCH', self::TEST_SESSION_COOKIE, ['name' => 'new-name']);
 
         $this->assertEquals(200, $result['status_code']);
@@ -384,7 +645,7 @@ class InternalApiClientTest extends TestCase
         $mockHttpClient = $this->createMock(HttpClientInterface::class);
         $mockHttpClient->method('request')->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/hosts/9999', 'GET', self::TEST_SESSION_COOKIE);
 
         $this->assertEquals(404, $result['status_code']);
@@ -400,9 +661,39 @@ class InternalApiClientTest extends TestCase
         $mockHttpClient = $this->createMock(HttpClientInterface::class);
         $mockHttpClient->method('request')->willReturn($mockResponse);
 
-        $client = new InternalApiClient($mockHttpClient);
+        $client = $this->createClient($mockHttpClient);
         $result = $client->request('http://localhost/api/test', 'POST', self::TEST_SESSION_COOKIE);
 
         $this->assertEquals(500, $result['status_code']);
+    }
+
+    private function createRequestStack(
+        string $scheme = 'http',
+        string $serverAddr = 'localhost',
+        int $port = 80,
+    ): RequestStack {
+        $request = new Request([], [], [], [], [], [
+            'REQUEST_SCHEME' => $scheme,
+            'SERVER_ADDR' => $serverAddr,
+            'SERVER_PORT' => (string) $port,
+        ]);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        return $requestStack;
+    }
+
+    private function createClient(
+        HttpClientInterface&MockObject $httpClient,
+        string $internalApiBaseUrl = '',
+        ?RequestStack $requestStack = null,
+    ): InternalApiClient {
+        $httpClient->method('withOptions')->willReturnSelf();
+
+        return new InternalApiClient(
+            $internalApiBaseUrl,
+            $requestStack ?? $this->createRequestStack(),
+            $httpClient,
+        );
     }
 }

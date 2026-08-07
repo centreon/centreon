@@ -27,9 +27,12 @@ use Webmozart\Assert\Assert;
 
 final readonly class PollerName
 {
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 40;
+
     public function __construct(
         public string $value,
     ) {
-        Assert::lengthBetween($value, 1, 255);
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
     }
 }

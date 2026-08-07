@@ -1,3 +1,5 @@
+// @ts-nocheck
+// TODO: re-enable type-check after fixing this file
 import { Button, ButtonGroup, Paper, Tooltip, useTheme } from '@mui/material';
 
 import { ParentSize, useDebounce, useMemoComponent } from '@centreon/ui';

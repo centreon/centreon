@@ -17,6 +17,7 @@
       unit: parseInterval[2]
     };
     this.ids = {};
+    this.tickness = {};
     this.toggleAction = 'hide';
 
     if ($elem.attr('id') === undefined) {
@@ -95,7 +96,7 @@
         this.settings.period.startTime = start;
       }
       if (end !== null && end !== undefined ) {
-        this.settings.period.startTime = end;
+        this.settings.period.endTime = end;
       }
       if (interval !== null && interval !== undefined) {
         this.setInterval(interval, false);
@@ -230,6 +231,9 @@
         regions: self.buildRegions(data),
         legend: {
           show: false
+        },
+        onrendered: function () {
+          self.applyLineThickness();
         }
       });
 
@@ -324,6 +328,7 @@
       for (i = 0; i < dataRaw.metrics.length; i++) {
         name = 'data' + (i + 1);
         this.ids[dataRaw.metrics[i].legend] = name;
+        this.tickness[name] = Number(dataRaw.metrics[i].ds_data.ds_tickness) || 1;
         column = dataRaw.metrics[i].data;
         column.unshift(name);
         data.columns.push(column);
@@ -399,6 +404,18 @@
         data: data,
         axis: axis
       };
+    },
+    /**
+     * Apply each curve's configured thickness to its rendered line/area path.
+     * c3.js has no built-in per-series line-width option, so the value captured
+     * in this.tickness (from ds_data.ds_tickness) is applied as an inline style
+     * after each render, which takes precedence over the default c3 CSS rule.
+     */
+    applyLineThickness: function () {
+      var self = this;
+      Object.keys(this.tickness).forEach(function (name) {
+        self.$elem.find('.c3-line-' + name).css('stroke-width', self.tickness[name] + 'px');
+      });
     },
     /**
      * Build data for status graph
@@ -531,8 +548,13 @@
         }
 
 
-        start = moment.tz(myStart, "YYYY-MM-DD HH:mm", this.timezone);
-        end = moment.tz(myEnd, "YYYY-MM-DD HH:mm", this.timezone);
+        if (typeof myStart === "number" && typeof myEnd === "number") {
+          start = moment.tz(myStart, this.timezone);
+          end = moment.tz(myEnd, this.timezone);
+        } else {
+          start = moment.tz(myStart, "YYYY-MM-DD HH:mm", this.timezone);
+          end = moment.tz(myEnd, "YYYY-MM-DD HH:mm", this.timezone);
+        }
       }
 
       return {

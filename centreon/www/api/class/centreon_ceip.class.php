@@ -55,6 +55,9 @@ class CentreonCeip extends CentreonWebService
     /** @var FeatureFlags */
     private FeatureFlags $featureFlags;
 
+    /** @var CentreonDB */
+    private $pearDBO;
+
     /**
      * CentreonCeip constructor
      *
@@ -64,6 +67,8 @@ class CentreonCeip extends CentreonWebService
      */
     public function __construct()
     {
+        $this->pearDBO = new CentreonDB('centstorage');
+
         parent::__construct();
 
         global $centreon;
@@ -117,11 +122,10 @@ class CentreonCeip extends CentreonWebService
         try {
             $query = <<<'SQL'
                     SELECT `poller_id`, `enabled`, `infos`
-                    FROM `centreon_storage`.`agent_information`
+                    FROM `agent_information`
                 SQL;
-            $statement = $this->pearDB->executeStatement($query);
 
-            $rows = $this->pearDB->fetchAllAssociative($statement);
+            $rows = $this->pearDBO->fetchAllAssociative($query);
             foreach ($rows as $row) {
                 /** @var array{poller_id:int,enabled:int,infos:string} $row */
                 if ((bool) $row['enabled'] === false) {

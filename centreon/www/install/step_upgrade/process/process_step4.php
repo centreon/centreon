@@ -24,10 +24,10 @@ require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../steps/functions.php';
 
+use Adaptation\Log\LoggerUpgrade;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
 use Core\Platform\Application\Repository\WriteUpdateRepositoryInterface;
-use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsException;
 
 $current = $_POST['current'];
 $next = $_POST['next'];
@@ -38,15 +38,22 @@ $kernel = App\Kernel::createForWeb();
 $updateLockerRepository = $kernel->getContainer()->get(UpdateLockerRepositoryInterface::class);
 $updateWriteRepository = $kernel->getContainer()->get(WriteUpdateRepositoryInterface::class);
 
+$startedAt = microtime(true);
+LoggerUpgrade::create()->start($current, $next);
+
 try {
     if (! $updateLockerRepository->lock()) {
-        throw UpdateVersionsException::updateAlreadyInProgress();
+        throw new RuntimeException('Update already in progress.');
     }
 
     $updateWriteRepository->runUpdate($next);
 
     $updateLockerRepository->unlock();
+
+    $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
+    LoggerUpgrade::create()->success($current, $next, $durationMs);
 } catch (Throwable $e) {
+    LoggerUpgrade::create()->failure($current, $next, $e->getMessage(), $e);
     exitUpgradeProcess(1, $current, $next, $e->getMessage());
 }
 
