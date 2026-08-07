@@ -19,46 +19,74 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-// Query
-$searchCond = '';
-$searchParams = [];
+$conditions = [];
+$parameters = [];
+
 if ($search !== '') {
-    $searchCond = 'WHERE tp_name LIKE :search ';
-    $searchParams[':search'] = '%' . $search . '%';
+    $conditions[] = 'tp_name LIKE :search';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS tp_id, tp_name, tp_alias'
-    . ' FROM timeperiod ' . $searchCond
-    . ' ORDER BY tp_name LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
+$whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
+
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM timeperiod
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT tp_id, tp_name, tp_alias
+    FROM timeperiod
+    {$whereClause}
+    ORDER BY tp_name
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $timeperiods = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
+    );
+
+    $rows = [];
+    foreach ($timeperiods as $timeperiod) {
+        $rows[] = [
+            'id'    => (int) $timeperiod['tp_id'],
+            'name'  => $timeperiod['tp_name'],
+            'alias' => $timeperiod['tp_alias'],
+        ];
+    }
+
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch time periods',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
-
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-$rows = [];
-while ($tp = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'    => (int) $tp['tp_id'],
-        'name'  => $tp['tp_name'],
-        'alias' => $tp['tp_alias'],
-    ];
-}
-
-$helper->jsonResponse($rows, $total, $num, $limit);

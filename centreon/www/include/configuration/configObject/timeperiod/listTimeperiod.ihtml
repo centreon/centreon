@@ -1,3 +1,4 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
 <link href="./include/common/form/form.css" rel="stylesheet" type="text/css" />
 {literal}
