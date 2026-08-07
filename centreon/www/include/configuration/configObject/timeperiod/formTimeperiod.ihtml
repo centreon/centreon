@@ -1,111 +1,166 @@
 {$form.javascript}
+
 <form {$form.attributes}>
-<div class="headerTabContainer">
-    <ul id="mainnav">
-        <li class="a" id='c1'><a href="#" onclick="javascript:montre('1');">{t}General Information{/t}</a></li>
-        <li class="b" id='c2'><a href="#" onclick="javascript:montre('2');">{t}Time Range Exceptions{/t}</a></li>    
-    </ul>
-    <div id="validFormTop">
-    {if $o == "a" || $o == "c"}
-        <p class="oreonbutton">
-      {if isset($form.submitC)}
-          {$form.submitC.html}
-      {else}
-          {$form.submitA.html}
-      {/if}
-      &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-    {else if $o == "w"}
-        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-    {/if}
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-timeperiods" class="active" onclick="cfScrollTo('cf-sec-timeperiods', this); return false;">{t}General Information{/t}</a>
+        <a href="#cf-sec-basic" onclick="cfScrollTo('cf-sec-basic', this); return false;">{t}Basic Settings{/t}</a>
+        <a href="#cf-sec-advanced" onclick="cfScrollTo('cf-sec-advanced', this); return false;">{t}Advanced settings{/t}</a>
+        <a href="#cf-sec-exceptions" onclick="cfScrollTo('cf-sec-exceptions', this); return false;">{t}Time Range Exceptions{/t}</a>
     </div>
-</div>
-<div id='tab1' class='tab'>
-    <table class="formTable table">
-        <tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-        <tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{t}Timeperiods{/t}</h4>
-          </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="timeperiod_name"> {$form.tp_name.label}</td><td class="FormRowValue">{$form.tp_name.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="alias"> {$form.tp_alias.label}</td><td class="FormRowValue">{$form.tp_alias.html}</td></tr>
-        <tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{t}Basic Settings{/t}</h4>
-          </td>
-        </tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_sunday.label}</td><td class="FormRowValue">{$form.tp_sunday.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_monday.label}</td><td class="FormRowValue">{$form.tp_monday.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_tuesday.label}</td><td class="FormRowValue">{$form.tp_tuesday.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_wednesday.label}</td><td class="FormRowValue">{$form.tp_wednesday.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_thursday.label}</td><td class="FormRowValue">{$form.tp_thursday.html}</td></tr>
-        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_friday.label}</td><td class="FormRowValue">{$form.tp_friday.html}</td></tr>
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="weekday"> {$form.tp_saturday.label}</td><td class="FormRowValue">{$form.tp_saturday.html}</td></tr>
-        <tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{t}Advanced settings{/t}</h4>
-          </td>
-        </tr>           
-        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="include"> {$form.tp_include.label}</td><td class="FormRowValue">{$form.tp_include.html}</td></tr>
-     </table>
-</div>
-<div id="tab2" class="tab"> 
-    <table class="formTable table">
-        <tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-        <tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{t}Time Range exceptions{/t}</h4>
-          </td>
-        </tr>
-        <tr class="list_two">
-            <td class='FormRowField'><img class="helpTooltip" name="exception"> {$exceptionLabel}<input type="hidden" name="nbOfExceptions" id="hiddenExInput" style='display:none'></td>
-            <td class='FormRowValue'>
-            {if $o != "w"}
-                <span style='cursor:pointer' onClick="javascript:addBlankInput();">+ {t}Add new entry{/t}</span>
-            {/if}
-                <table id="exceptionTable" class="ListTableSmall" style='padding-top:0px' width="400px">
-                    <tr class="ListColHeader">
-                        <td class="ListColLeft" with='45%'>{$tRDay}</td>
-                        <td class="ListColLeft" with='45%'>{$tRHours}</td>
-                        <td class="ListColLeft">&nbsp;</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        {if $o == "a" || $o == "c"}
-            <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
-                {if isset($form.required)}
-                    {$form.required._note}
+
+    <!-- ================================================================ -->
+    <!-- All sections in a single scrollable page                         -->
+    <!-- ================================================================ -->
+    <div id="cf-tab-general">
+
+        <!-- Section: Timeperiods -->
+        <div class="cf-section" id="cf-sec-timeperiods">
+            <div class="cf-section-header" onclick="cfToggleSection(this)">
+                {t}Timeperiods{/t}
+                <span class="cf-section-chevron">&#9660;</span>
+            </div>
+            <div class="cf-section-body">
+                <div class="cf-row-inline">
+                    <div class="cf-field">
+                        {$form.tp_name.html}
+                        <label class="cf-label-float">{$form.tp_name.label}</label>
+                        <img class="helpTooltip" name="timeperiod_name">
+                    </div>
+                    <div class="cf-field">
+                        {$form.tp_alias.html}
+                        <label class="cf-label-float">{$form.tp_alias.label}</label>
+                        <img class="helpTooltip" name="alias">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Basic Settings (weekdays) -->
+        <div class="cf-section" id="cf-sec-basic">
+            <div class="cf-section-header" onclick="cfToggleSection(this)">
+                {t}Basic Settings{/t}
+                <span class="cf-section-chevron">&#9660;</span>
+            </div>
+            <div class="cf-section-body">
+                <div class="cf-row-inline">
+                    <div class="cf-field">
+                        {$form.tp_sunday.html}
+                        <label>{$form.tp_sunday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                    <div class="cf-field">
+                        {$form.tp_monday.html}
+                        <label>{$form.tp_monday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                </div>
+                <div class="cf-row-inline">
+                    <div class="cf-field">
+                        {$form.tp_tuesday.html}
+                        <label>{$form.tp_tuesday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                    <div class="cf-field">
+                        {$form.tp_wednesday.html}
+                        <label>{$form.tp_wednesday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                </div>
+                <div class="cf-row-inline">
+                    <div class="cf-field">
+                        {$form.tp_thursday.html}
+                        <label>{$form.tp_thursday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                    <div class="cf-field">
+                        {$form.tp_friday.html}
+                        <label>{$form.tp_friday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                </div>
+                <div class="cf-row-inline">
+                    <div class="cf-field">
+                        {$form.tp_saturday.html}
+                        <label>{$form.tp_saturday.label}</label>
+                        <img class="helpTooltip" name="weekday">
+                    </div>
+                    <div class="cf-field">
+                        <!-- spacer -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Advanced Settings -->
+        <div class="cf-section" id="cf-sec-advanced">
+            <div class="cf-section-header" onclick="cfToggleSection(this)">
+                {t}Advanced settings{/t}
+                <span class="cf-section-chevron">&#9660;</span>
+            </div>
+            <div class="cf-section-body">
+                <div class="cf-row">
+                    <div class="cf-field">
+                        {$form.tp_include.html}
+                        <label class="cf-label-float">{$form.tp_include.label}</label>
+                        <img class="helpTooltip" name="include">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Time Range Exceptions -->
+        <div class="cf-section" id="cf-sec-exceptions">
+            <div class="cf-section-header" onclick="cfToggleSection(this)">
+                {t}Time Range exceptions{/t}
+                <span class="cf-section-chevron">&#9660;</span>
+            </div>
+            <div class="cf-section-body">
+                <input type="hidden" name="nbOfExceptions" id="hiddenExInput">
+
+                <div id="exceptionTable" class="cf-dynamic-list">
+                    <!-- Dynamic exception rows inserted here by JS -->
+                </div>
+
+                {if $o != "w"}
+                <span class="cf-add-entry" onclick="addBlankInput();">+ {t}Add new entry{/t}</span>
                 {/if}
-            </td></tr>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
         {/if}
-    </table>
+    </div>
+
 </div>
-<div id="validForm">
-{if $o == "a" || $o == "c"}
-    <p class="oreonbutton">
-      {if isset($form.submitC)}
-          {$form.submitC.html}
-      {else}
-          {$form.submitA.html}
-      {/if}
-      &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-{else if $o == "w"}
-    <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-{/if}
-</div>
+
 {$form.hidden}
 </form>
 {$helptext}
 
+{literal}
 <script type="text/javascript">
-  displayExistingExceptions({$countExceptions});
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+});
+</script>
+{/literal}
+
+<script type="text/javascript">
+    displayExistingExceptions({$countExceptions});
 </script>

@@ -25,152 +25,112 @@
 <script type="text/javascript">
 
     /*
-     *  This second block is the javascript code for the multi exception creation
+     *  Add a blank exception row
      */
     function addBlankInput() {
-        var tabElem = document.getElementById('exceptionTable');
+        var container = document.getElementById('exceptionTable');
+        var row = document.createElement('div');
+        row.className = 'cf-dynamic-entry';
+        row.id = 'trExceptionInput_' + globalj;
+
         var keyElem = document.createElement('input');
-        var valueElem = document.createElement('input');
-        var imgElem = document.createElement('img');
-        var trElem = document.createElement('tr');
-        var tbodyElem = document.createElement('tbody');
-
-        trElem.id = "trElem_" + globalj;
-        if (trExceptionClassFlag) {
-            trElem.className = "list_one";
-            trExceptionClassFlag = 0;
-        } else {
-            trElem.className = "list_two";
-            trExceptionClassFlag = 1;
-        }
-
-        trElem.id = "trExceptionInput_" + globalj;
-        var tdElem1 = document.createElement('td');
-        tdElem1.className = "ListColLeft";
-        var tdElem2 = document.createElement('td');
-        tdElem2.className = "ListColLeft";
-        var tdElem3 = document.createElement('td');
-        tdElem3.className = "ListColCenter";
         keyElem.id = 'exceptionInput_' + globalj;
         keyElem.name = 'exceptionInput_' + globalj;
         keyElem.value = '';
+        keyElem.placeholder = '<?php echo _('Day range'); ?>';
         keyElem.className = 'v_required v_regex';
         keyElem.setAttribute('data-validator', '^((([0-9]{4}-[0-9]{2}-[0-9]{2})|(day ([0-9]{1,2}|-[0-9]{1,2})( - ([0-9]{1,2}|-[0-9]{1,2}))?)|((sunday|monday|tuesday|wednesday|thursday|friday|saturday) ([0-9]{1,2}|-[0-9]{1,2})( (january|february|march|april|may|june|july|august|september|october|november|december))?)|((january|february|march|april|may|june|july|august|september|october|november|december) ([0-9]{1,2}|-[0-9]{1,2})( - ([0-9]{1,2}|-[0-9]{1,2}))?))( - )?( \/ [0-9]{1,2})?)+$');
-        tdElem1.appendChild(keyElem);
 
+        var valueElem = document.createElement('input');
         valueElem.id = 'exceptionTimerange_' + globalj;
         valueElem.name = 'exceptionTimerange_' + globalj;
-        valueElem.value = "";
+        valueElem.value = '';
+        valueElem.placeholder = '<?php echo _('Time range (HH:MM-HH:MM)'); ?>';
         valueElem.className = 'v_required v_regex';
         valueElem.setAttribute('data-validator', '^([0-9]{2}:[0-9]{2}-[0-9]{2}:[0-9]{2}(,)?)+$');
-        tdElem2.appendChild(valueElem);
 
-        imgElem.src = "./img/icons/circle-cross.png";
-        imgElem.class = 'ico-14';
-        imgElem.id = globalj;
-        imgElem.onclick = function () {
-            var response = window.confirm('<?php echo _('Do you confirm this deletion?'); ?>');
-            if (response) {
-                if (navigator.appName == "Microsoft Internet Explorer") {
-                    document.getElementById('trExceptionInput_' + this.id).innerText = "";
-                } else {
-                    document.getElementById('trExceptionInput_' + this.id).innerHTML = "";
-                }
+        var deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'cf-dynamic-delete';
+        deleteBtn.innerHTML = '&#128465;';
+        deleteBtn.title = '<?php echo _('Delete'); ?>';
+        var btnId = globalj;
+        deleteBtn.onclick = function () {
+            if (window.confirm('<?php echo _('Do you confirm this deletion?'); ?>')) {
+                document.getElementById('trExceptionInput_' + btnId).remove();
             }
-        }
-        tdElem3.appendChild(imgElem);
-        trElem.appendChild(tdElem1);
-        trElem.appendChild(tdElem2);
-        trElem.appendChild(tdElem3);
-        tbodyElem.appendChild(trElem);
-        tabElem.appendChild(tbodyElem);
+        };
+
+        row.appendChild(keyElem);
+        row.appendChild(valueElem);
+        row.appendChild(deleteBtn);
+        container.appendChild(row);
+
         globalj++;
         document.getElementById('hiddenExInput').value = globalj;
     }
 
-
     /*
-     * Function for displaying existing exceptions
+     * Display existing exceptions on page load
      */
     function displayExistingExceptions(max) {
+        var _o = '<?php echo $o; ?>';
+
         for (var i = 0; i < max; i++) {
+            var container = document.getElementById('exceptionTable');
+            var row = document.createElement('div');
+            row.className = 'cf-dynamic-entry';
+            row.id = 'trExceptionInput_' + globalj;
+
             var keyElem = document.createElement('input');
-            var valueElem = document.createElement('input');
-            var imgElem = document.createElement('img');
-            var tabElem = document.getElementById('exceptionTable');
-            var trElem = document.createElement('tr');
-            var tbodyElem = document.createElement('tbody');
-            var _o = '<?php echo $o; ?>';
-
-
-            trElem.id = "trElem_" + globalj;
-            if (trExceptionClassFlag) {
-                trElem.className = "list_one";
-                trExceptionClassFlag = 0;
-            } else {
-                trElem.className = "list_two";
-                trExceptionClassFlag = 1;
-            }
-            trElem.id = "trExceptionInput_" + globalj;
-
-            var tdElem1 = document.createElement('td');
-            tdElem1.className = "ListColLeft";
-            var tdElem2 = document.createElement('td');
-            tdElem2.className = "ListColLeft";
-            var tdElem3 = document.createElement('td');
-            tdElem3.className = "ListColCenter";
-
             keyElem.id = 'exceptionInput_' + globalj;
             keyElem.name = 'exceptionInput_' + globalj;
             keyElem.value = globalExceptionTabName[globalj];
-            tdElem1.appendChild(keyElem);
+            keyElem.placeholder = '<?php echo _('Day range'); ?>';
 
+            var valueElem = document.createElement('input');
             valueElem.id = 'exceptionTimerange_' + globalj;
             valueElem.name = 'exceptionTimerange_' + globalj;
             valueElem.value = globalExceptionTabTimerange[globalj];
-            tdElem2.appendChild(valueElem);
+            valueElem.placeholder = '<?php echo _('Time range (HH:MM-HH:MM)'); ?>';
 
             if (_o == "w") {
                 keyElem.disabled = true;
                 valueElem.disabled = true;
             }
 
-            imgElem.src = "./img/icons/circle-cross.png";
-            imgElem.class = 'ico-14';
-            imgElem.id = globalj;
-            imgElem.onclick = function () {
-                var response = window.confirm('<?php echo _('Do you confirm this deletion?'); ?>');
-                if (response) {
-                    if (navigator.appName == "Microsoft Internet Explorer") {
-                        document.getElementById('trExceptionInput_' + this.id).innerText = "";
-                    }
-                    else {
-                        document.getElementById('trExceptionInput_' + this.id).innerHTML = "";
-                    }
-                }
-            }
-            tdElem3.appendChild(imgElem);
-            trElem.appendChild(tdElem1);
-            trElem.appendChild(tdElem2);
+            row.appendChild(keyElem);
+            row.appendChild(valueElem);
 
             if (_o != "w") {
-                trElem.appendChild(tdElem3);
+                var deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.className = 'cf-dynamic-delete';
+                deleteBtn.innerHTML = '&#128465;';
+                deleteBtn.title = '<?php echo _('Delete'); ?>';
+                var btnId = globalj;
+                deleteBtn.onclick = function () {
+                    if (window.confirm('<?php echo _('Do you confirm this deletion?'); ?>')) {
+                        document.getElementById('trExceptionInput_' + this.dataset.rowId).remove();
+                    }
+                };
+                deleteBtn.dataset.rowId = globalj;
+                row.appendChild(deleteBtn);
             }
 
+            container.appendChild(row);
             globalj++;
-            tbodyElem.appendChild(trElem);
-            tabElem.appendChild(tbodyElem);
         }
         document.getElementById('hiddenExInput').value = globalj;
     }
 
     /*
-     * Dynamic validation of Time range exceptions fileds
+     * Validation
      */
     function purgeHideInput(tab) {
-        jQuery('.tab').each(function(idx, el){
-            if (el.id != tab) {
-                jQuery(el).find(':input').each(function(idx, input){
+        jQuery('.cf-tab-content').each(function(idx, el) {
+            if (jQuery(el).css('display') === 'none') {
+                jQuery(el).find(':input').each(function(idx, input) {
                     jQuery(input).qtip('destroy');
                 });
             }
@@ -182,9 +142,8 @@
         jQuery('#Form').centreonValidate('validate');
 
         if (jQuery('#Form').centreonValidate('hasError')) {
-            var activeTab = jQuery('.tab').filter(function(index) { return jQuery(this).css('display') === 'block'; })[0];
-            purgeHideInput(activeTab.id);
-
+            var visibleTab = jQuery('.cf-tab-content').filter(function() { return jQuery(this).css('display') !== 'none'; })[0];
+            purgeHideInput(visibleTab ? visibleTab.id : '');
             return false;
         }
 
@@ -194,7 +153,6 @@
     /*
      * Global variables
      */
-
     var globalj = 0;
     var trExceptionClassFlag = 1;
     var globalExceptionTabId = new Array();
