@@ -23,10 +23,10 @@ if (! isset($centreon)) {
     exit();
 }
 
-include_once './include/common/autoNumLimit.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
@@ -71,8 +71,10 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 // Contact group filter (select2 AJAX)
 $contactGrRoute = './api/internal.php?object=centreon_configuration_contactgroup&action=list';
-$attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactGrRoute, 'multiple' => false, 'linkedObject' => 'centreonContactgroup', 'allowClear' => false];
-$form->addElement('select2', 'contactGroup', '', [], $attrContactgroups);
+// No linkedObject / defaultDataset here: the filter must start empty, and the
+// listing restores the chosen value and its label from its own session state.
+$attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactGrRoute, 'multiple' => false];
+$form->addElement('select2', 'contactGroup', _('Select'), [], $attrContactgroups);
 
 $tpl->assign(
     'msg',
@@ -87,24 +89,27 @@ $tpl->assign(
 </script>
 <?php
 
-foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3 || "
-        . "this.form.elements['" . $option . "'].selectedIndex == 4 || "
-        . "this.form.elements['" . $option . "'].selectedIndex == 5) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+foreach (['o1'] as $option) {
+    // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
+    // the native confirm()/alert(); messages passed as data-* attributes so the
+    // handler stays locale-independent (keyed on the option value).
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete contact'),
+        'data-title-delete-many' => _('Delete contacts'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> contact. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} contacts.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate-one' => _('Duplicate contact'),
+        'data-title-duplicate-many' => _('Duplicate contacts'),
+        'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> contact. Do you want to duplicate it?'),
+        'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} contacts.</strong> Do you want to duplicate them?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
 
-    $formOptions = [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')];
+    $formOptions = [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')];
 
     $form->addElement('select', $option, null, $formOptions, $attrs);
     $form->setDefaults([$option => null]);
@@ -113,7 +118,6 @@ foreach (['o1', 'o2'] as $option) {
     $el->setSelected(null);
 }
 
-$tpl->assign('limit', $limit);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
