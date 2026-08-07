@@ -23,7 +23,6 @@ if (! isset($centreon)) {
     exit();
 }
 
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('centreon_path', _CENTREON_PATH_);
@@ -97,7 +96,6 @@ foreach (['o1'] as $option) {
     $el->setValue(null);
     $el->setSelected(null);
 }
-
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
