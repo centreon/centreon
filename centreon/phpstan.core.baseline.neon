@@ -637,6 +637,12 @@ parameters:
 			path: src/Core/Security/Vault/Application/UseCase/MigrateAllCredentials/Migrator/VmWareV6CredentialMigrator.php
 
 		-
+			message: '#^Strict comparison using \=\=\= between Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type and Core\\AdditionalConnectorConfiguration\\Domain\\Model\\Type\:\:VMWARE_V6 will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: src/Core/Security/Vault/Application/UseCase/RevertAllCredentials/Reverter/VmWareV6CredentialReverter.php
+
+		-
 			message: '#^Method Core\\Security\\Vault\\Domain\\Model\\NewVaultConfiguration\:\:getRoleId\(\) has Exception in PHPDoc @throws tag but it''s not thrown\.$#'
 			identifier: throws.unusedType
 			count: 1
@@ -929,12 +935,6 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: src/Core/Severity/RealTime/Infrastructure/Repository/DbReadSeverityRepository.php
-
-		-
-			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Core/Tag/RealTime/Infrastructure/Repository/Tag/DbReadTagRepository.php
 
 		-
 			message: '#^Parameter \#1 \$extraTimePeriods of method Core\\TimePeriod\\Domain\\Model\\TimePeriod\:\:setExtraTimePeriods\(\) expects list\<Core\\TimePeriod\\Domain\\Model\\ExtraTimePeriod\>, array\<Core\\TimePeriod\\Domain\\Model\\ExtraTimePeriod\> given\.$#'

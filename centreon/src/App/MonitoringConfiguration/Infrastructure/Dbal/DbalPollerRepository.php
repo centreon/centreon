@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
@@ -53,7 +54,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2',
+ *   gorgone_communication_type: '1'|'2'|'3'|'4',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -71,6 +72,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonconnector_path: string|null,
  *   init_script_centreontrapd: string|null,
  *   snmp_trapd_path_conf: string|null,
+ *   central_address: string|null,
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
@@ -81,7 +83,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2',
+ *   gorgone_communication_type: '1'|'2'|'3'|'4',
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -99,6 +101,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   centreonconnector_path: string|null,
  *   init_script_centreontrapd: string|null,
  *   snmp_trapd_path_conf: string|null,
+ *   central_address: string|null,
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -173,17 +176,17 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
                 ->setParameter('uid', $poller->uid->value)
-                ->setParameter('gorgone_communication_type', $poller->gorgoneConfiguration->communicationType->value)
+                ->setParameter('gorgone_communication_type', $this->communicationTypeToDatabase($poller->gorgoneConfiguration->communicationType))
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
                 ->setParameter('remote_server_use_as_proxy', $poller->gorgoneConfiguration->useRemoteServerAsProxy ? '1' : '0')
-                ->setParameter('engine_start_command', $poller->engineConfiguration->startCommand)
-                ->setParameter('engine_stop_command', $poller->engineConfiguration->stopCommand)
-                ->setParameter('engine_restart_command', $poller->engineConfiguration->restartCommand)
-                ->setParameter('engine_reload_command', $poller->engineConfiguration->reloadCommand)
-                ->setParameter('nagios_bin', $poller->engineConfiguration->binaryPath)
-                ->setParameter('nagiostats_bin', $poller->engineConfiguration->statisticsBinaryPath)
-                ->setParameter('nagios_perfdata', $poller->engineConfiguration->perfdataFilePath)
+                ->setParameter('engine_start_command', $poller->engineInformation->startCommand)
+                ->setParameter('engine_stop_command', $poller->engineInformation->stopCommand)
+                ->setParameter('engine_restart_command', $poller->engineInformation->restartCommand)
+                ->setParameter('engine_reload_command', $poller->engineInformation->reloadCommand)
+                ->setParameter('nagios_bin', $poller->engineInformation->binaryPath)
+                ->setParameter('nagiostats_bin', $poller->engineInformation->statisticsBinaryPath)
+                ->setParameter('nagios_perfdata', $poller->engineInformation->perfdataFilePath)
                 ->setParameter('broker_reload_command', $poller->brokerConfiguration->reloadCommand)
                 ->setParameter('centreonbroker_cfg_path', $poller->brokerConfiguration->configurationPath)
                 ->setParameter('centreonbroker_module_path', $poller->brokerConfiguration->modulesPath)
@@ -207,6 +210,33 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         $this->setId($poller, new PollerId($pollerId));
+        $this->linkGlobalMacros($poller);
+
+        $centralTopologyId = $this->connection->createQueryBuilder()
+            ->select('id')
+            ->from('platform_topology')
+            ->where("type = 'central'")
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        $this->connection->createQueryBuilder()
+            ->insert('platform_topology')
+            ->values([
+                'address' => ':address',
+                'central_address' => ':centralAddress',
+                'name' => ':name',
+                'type' => "'poller'",
+                'parent_id' => ':parentId',
+                'server_id' => ':serverId',
+                'pending' => "'0'",
+            ])
+            ->setParameter('address', $poller->address->value)
+            ->setParameter('centralAddress', $poller->centralAddress?->value)
+            ->setParameter('name', $poller->name->value)
+            ->setParameter('parentId', is_int($centralTopologyId) || is_string($centralTopologyId) ? (int) $centralTopologyId : null)
+            ->setParameter('serverId', $pollerId)
+            ->executeStatement();
     }
 
     public function findOneByName(PollerName $name): ?Poller
@@ -214,7 +244,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.name = :name')
             ->setParameter('name', $name->value)
             ->setMaxResults(1);
@@ -234,7 +266,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.ns_ip_address = :address')
             ->setParameter('address', $address->value)
             ->setMaxResults(1);
@@ -253,8 +287,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns(), ...DbalGlobalMacroRepository::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::GLOBAL_MACRO_JOIN_TABLE_NAME, 'pg1')
             ->innerJoin('pg1', self::TABLE_NAME, 'p', 'p.id = pg1.instance_id')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->leftJoin('p', self::GLOBAL_MACRO_JOIN_TABLE_NAME, 'pg2', 'pg2.instance_id = p.id')
             ->leftJoin('pg2', DbalGlobalMacroRepository::TABLE_NAME, 'gm', 'gm.resource_id = pg2.resource_id') // ensures still filter on relevant pollers
             ->where('pg1.resource_id = :resource_id')
@@ -295,7 +331,9 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
+            ->addSelect('pt.central_address AS central_address')
             ->from(self::TABLE_NAME, 'p')
+            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->where('p.id = :poller_id')
             ->setParameter('poller_id', $pollerId->value);
 
@@ -368,8 +406,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         $qb = $this->realTimeConnection->createQueryBuilder();
         $qb->select('i.cma_certificate_sha AS certificate_sha', 'i.cma_certificate_cn  AS certificate_cn')
             ->from('instances', 'i')
-            ->where('i.instance_id = :poller_id')
-            ->setParameter('poller_id', $poller->id()->value);
+            ->where('i.instance_id = :poller_uid')
+            ->setParameter('poller_uid', $poller->uid->value);
 
         $row = $qb->executeQuery()->fetchAssociative() ?: [];
         $certSha = ($row['certificate_sha'] ?? '') !== '' ? $row['certificate_sha'] : null;
@@ -459,5 +497,34 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         );
 
         return $poller;
+    }
+
+    private function linkGlobalMacros(Poller $poller): void
+    {
+        /** @var PollerId $pollerId */
+        $pollerId = $poller->id();
+
+        foreach ($poller->globalMacros as $globalMacro) {
+            $this->connection->executeStatement(
+                <<<'SQL'
+                    INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                    VALUES (:resource_id, :instance_id)
+                    SQL,
+                [
+                    'resource_id' => $globalMacro->id()->value,
+                    'instance_id' => $pollerId->value,
+                ],
+            );
+        }
+    }
+
+    private function communicationTypeToDatabase(GorgoneCommunicationTypeEnum $communicationType): string
+    {
+        return match ($communicationType) {
+            GorgoneCommunicationTypeEnum::ZMQ => '1',
+            GorgoneCommunicationTypeEnum::SSH => '2',
+            GorgoneCommunicationTypeEnum::Pull => '3',
+            GorgoneCommunicationTypeEnum::PullWss => '4',
+        };
     }
 }

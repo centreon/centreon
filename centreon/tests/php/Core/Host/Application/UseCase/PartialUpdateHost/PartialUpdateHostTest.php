@@ -40,6 +40,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
@@ -91,6 +92,7 @@ beforeEach(function (): void {
         validation: $this->validation = $this->createMock(PartialUpdateHostValidation::class),
         writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        vaultEligibilityService: $this->vaultEligibilityService = $this->createMock(VaultEligibilityService::class),
         readCommandRepository:  $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         writeAccessGroupRepository: $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
         adminResolver: $this->adminResolver = $this->createMock(AdminResolver::class),

@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -46,6 +46,7 @@ use PHPUnit\Framework\TestCase;
 final class InstallationCommandFactoryTest extends TestCase
 {
     private const PLATFORM_VERSION = '24.10.0';
+    private const EXPECTED_URL_VERSION = '24.10';
     private const DEFAULT_PORT = 4317;
     private const POLLER_ADDRESS = '192.168.1.100';
 
@@ -64,7 +65,7 @@ final class InstallationCommandFactoryTest extends TestCase
         $command = $factory->generateCommandForLinux();
 
         self::assertStringContainsString('install_cma.sh', $command);
-        self::assertStringContainsString(self::PLATFORM_VERSION, $command);
+        self::assertStringContainsString(self::EXPECTED_URL_VERSION . '-latest', $command);
         self::assertStringContainsString(self::POLLER_ADDRESS . ':' . self::DEFAULT_PORT, $command);
         self::assertStringNotContainsString('-f ', $command);
         self::assertStringNotContainsString('-N ', $command);
@@ -85,7 +86,7 @@ final class InstallationCommandFactoryTest extends TestCase
         $command = $factory->generateCommandForWindows();
 
         self::assertStringContainsString('install_cma.ps1', $command);
-        self::assertStringContainsString(self::PLATFORM_VERSION, $command);
+        self::assertStringContainsString(self::EXPECTED_URL_VERSION . '-latest', $command);
         self::assertStringContainsString(self::POLLER_ADDRESS . ':' . self::DEFAULT_PORT, $command);
         self::assertStringNotContainsString('-fingerprint ', $command);
         self::assertStringNotContainsString('-commonname ', $command);
@@ -224,7 +225,7 @@ final class InstallationCommandFactoryTest extends TestCase
         $command = $factory->generateCommandForLinux();
 
         self::assertStringContainsString('engine-' . $site . '-' . $organisation . '.euwest1.centreon.cloud:443', $command);
-        self::assertStringContainsString(self::PLATFORM_VERSION, $command);
+        self::assertStringContainsString(self::EXPECTED_URL_VERSION . '-latest', $command);
         self::assertStringNotContainsString(self::POLLER_ADDRESS, $command);
     }
 
@@ -246,7 +247,7 @@ final class InstallationCommandFactoryTest extends TestCase
 
         self::assertStringContainsString('engine-' . $site . '-' . $organisation . '.euwest1.centreon.cloud:443', $command);
         self::assertStringContainsString('powershell -ExecutionPolicy Bypass -File', $command);
-        self::assertStringContainsString(self::PLATFORM_VERSION, $command);
+        self::assertStringContainsString(self::EXPECTED_URL_VERSION . '-latest', $command);
         self::assertStringNotContainsString(self::POLLER_ADDRESS, $command);
     }
 
@@ -326,8 +327,8 @@ final class InstallationCommandFactoryTest extends TestCase
         $linuxCommand = $factory->generateCommandForLinux();
         $windowsCommand = $factory->generateCommandForWindows();
 
-        self::assertStringContainsString($version . '-latest', $linuxCommand);
-        self::assertStringContainsString($version . '-latest', $windowsCommand);
+        self::assertStringContainsString('25.04-latest', $linuxCommand);
+        self::assertStringContainsString('25.04-latest', $windowsCommand);
     }
 
     public function testLinuxCommandContainsCorrectScriptUrl(): void
@@ -400,8 +401,10 @@ final class InstallationCommandFactoryTest extends TestCase
 
         $command = $factory->generateCommandForWindows();
 
+        self::assertStringNotContainsString('-fsSL', $command);
+        self::assertStringContainsString('curl ', $command);
         self::assertStringContainsString('-o install_cma.ps1', $command);
-        self::assertStringContainsString('.\\install_cma.ps1 -endpoint', $command);
+        self::assertStringContainsString('powershell -ExecutionPolicy Bypass -File .\\install_cma.ps1 -endpoint', $command);
     }
 
     private function createPoller(bool $isCentral, ?string $sha = null, ?string $certificateCn = null): Poller
@@ -428,7 +431,7 @@ final class InstallationCommandFactoryTest extends TestCase
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
-            engineConfiguration: new EngineConfiguration(),
+            engineInformation: new EngineInformation(),
             gorgoneConfiguration: new GorgoneConfiguration(),
             cmaCertificates: $cmaCertificates,
         );

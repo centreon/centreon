@@ -4,7 +4,7 @@ services:
     env_file:
       - .env
     image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
-    ports: ["4000:80"]
+    ports: ["4000:80", "5669:5669", "8086:8086"]
     depends_on:
       db:
         condition: service_healthy
@@ -15,9 +15,13 @@ services:
       OPENID_HOST: sso-proxy
       SAML_HOST: saml
       LDAP_HOST: openldap
+      GRAPHITE_HOST: graphite
+      INFLUXDB_HOST: influxdb
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
       DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
+      MYSQL_DB_CONFIGURATION: ${MYSQL_DB_CONFIGURATION:-centreon}
+      MYSQL_DB_STORAGE: ${MYSQL_DB_STORAGE:-centreon_storage}
       DEBUG: ${DEBUG:-0}
       CENTREON_INTERNAL_API_BASE_URL: ${CENTREON_INTERNAL_API_BASE_URL:-127.0.0.1:80}
     healthcheck:
@@ -30,7 +34,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
     ports: ["3306"]
     environment:
       MARIADB_EXTRA_FLAGS: "--skip-ssl"
@@ -74,7 +78,7 @@ services:
     image: "${VAULT_IMAGE:-ghcr.io/centreon/centreon/vault:26.05}"
     env_file:
       - .env
-    ports: ["8200"]
+    ports: ["127.0.0.1:8200:8200"]
     profiles: ["vault"]
 
   openid:
@@ -95,6 +99,21 @@ services:
     image: "${LDAP_IMAGE:-ghcr.io/centreon/centreon/ldap:26.05}"
     ports: ["389"]
     profiles: ["openldap", "ldap"]
+
+  # Receivers for the Broker outputs (independent "graphite"/"influxdb" profiles).
+  # InfluxDB 1.8 speaks the 1.x line protocol the Broker output uses; INFLUXDB_DB
+  # pre-creates the target db.
+  graphite:
+    image: "${GRAPHITE_IMAGE:-graphiteapp/graphite-statsd:1.1.10-5}"
+    ports: ["2003", "80"]
+    profiles: ["graphite"]
+
+  influxdb:
+    image: "${INFLUXDB_IMAGE:-influxdb:1.8}"
+    environment:
+      INFLUXDB_DB: centreon
+    ports: ["8086"]
+    profiles: ["influxdb"]
 
   squid-simple:
     image: docker.centreon.com/centreon/mon-squid-simple:latest
@@ -144,7 +163,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
     ports: ["3306"]
     profiles: ["remote-server"]
     environment:

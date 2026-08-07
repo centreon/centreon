@@ -498,9 +498,7 @@ $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-if (isset($expirationMessage)) {
-    $tpl->assign('expirationMessage', $expirationMessage);
-}
+$tpl->assign('expirationMessage', $expirationMessage ?? '');
 $tpl->assign('cct', $cct);
 $tpl->assign('o', $o);
 $tpl->assign('featuresFlipping', (count($features) > 0));

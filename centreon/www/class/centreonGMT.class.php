@@ -522,7 +522,10 @@ class CentreonGMT
             return $this->pollerLocations;
         }
 
-        $query = 'SELECT ns.id, t.timezone_name '
+        // pollerLocations is matched against hosts.instance_id (centreon_storage), which usually
+        // holds the Snowflake UID (nagios_server.uid). Legacy pollers unaware of the Snowflake UID
+        // still report nagios_server.id as instance_id, so key by both uid and id.
+        $query = 'SELECT ns.uid, ns.id, t.timezone_name '
             . 'FROM cfg_nagios cfgn, nagios_server ns, timezone t '
             . 'WHERE cfgn.nagios_activate = "1" '
             . 'AND cfgn.nagios_server_id = ns.id '
@@ -530,6 +533,7 @@ class CentreonGMT
         try {
             $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
             while ($row = $res->fetchRow()) {
+                $this->pollerLocations[$row['uid']] = $row['timezone_name'];
                 $this->pollerLocations[$row['id']] = $row['timezone_name'];
             }
         } catch (Exception $e) {

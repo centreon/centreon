@@ -1,0 +1,9 @@
+# Mutation to set the Xray Test Type of a Test issue.
+mutation UpdateTestType($id: String!, $t: String!) {
+  updateTestType(issueId: $id, testType: { name: $t }) {
+    issueId
+    testType {
+      name
+    }
+  }
+}

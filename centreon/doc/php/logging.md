@@ -1,9 +1,6 @@
-# Logging pipeline — Messenger bus, Monolog and MON-151077
+# Logging pipeline — Messenger bus and Monolog
 
-This document describes the platform pipeline that captures logs emitted by the Symfony Messenger buses (`command.bus`, `query.bus`), enriches each record with HTTP / security context and routes it to `prod.web.log`. References: [MON-199096] (platform-side middleware migration), [MON-151077] (file layout, channel exclusions, RFC3339 format).
-
-[MON-199096]: https://centreon.atlassian.net/browse/MON-199096
-[MON-151077]: https://centreon.atlassian.net/browse/MON-151077
+This document describes the platform pipeline that captures logs emitted by the Symfony Messenger buses (`command.bus`, `query.bus`), enriches each record with HTTP / security context and routes it to `prod.web.log`.
 
 ---
 
@@ -56,7 +53,7 @@ flowchart LR
     class File out
 ```
 
-Every component lives under `App\Shared\Infrastructure\…` and is wired declaratively in `config.new/packages/messenger.yaml` (middleware) and `config.new/services/shared.php` (processors + formatter).
+Every component lives under `App\Shared\Infrastructure\…` and is wired declaratively in `config.new/packages/messenger.yaml` (middleware) and `config.new/services/monolog.php` (processors + formatter).
 
 ---
 
@@ -165,7 +162,7 @@ The middleware emits a record on the Monolog `app` channel (Symfony default) for
 - **`handler_message`**: FQCN of the **message** dispatched (the Command / Query / Event class). The name avoids collision with Monolog's `%message%` (the human-readable log message) and with `context.exception.message` on error — a single ambiguous `message` in the record carried a risk of reader and parser confusion.
 - **`handlers`** (Handled only): list of `HandledStamp::getHandlerName()` produced by the handlers that ran. On a single-handler command/query bus, the list has one element; on an event bus with several subscribers, it has several. Empty list if no handler ran (short-circuit). Distinct from the `handler_message` field, which names the **message** class dispatched.
 - **`duration_ms`** (Handled and Failed): dispatch duration in milliseconds, measured with `hrtime(true)` (monotonic clock, immune to NTP / DST jumps). Rounded to 3 decimals. Not present on the Dispatching log, which serves as the t0 reference.
-- **`payload`**: the message turned into a log-safe array by `App\Shared\Infrastructure\Logging\LogPayloadNormalizer` — a dedicated service that wraps the platform `NormalizerInterface` and applies the constraints needed for a log line: keys containing `password`, `token`, `secret`, `api_key`, `authorization`, `credential` masked as `***`, string values truncated at 1024 characters. No runtime depth cap is enforced: the input is always a strongly-typed Messenger message whose class graph already bounds the depth statically. If normalisation fails or does not produce an array, the payload falls back to `['__class' => $message::class]` and a `warning` is emitted on the `app` channel. Defense-in-depth for values that remain an object after normalisation (no dedicated normaliser for that type): `\BackedEnum` rendered via `->value`, `\UnitEnum` via `->name`, `\DateTimeInterface` via `format(ATOM)`, `\Stringable` via string cast + truncation, and any other plain object rendered as a placeholder `{ClassName}` — no `(array)` cast on objects, to avoid exposing their private properties.
+- **`payload`**: the message turned into a log-safe array by `App\Shared\Infrastructure\Logging\LogPayloadNormalizer` — a dedicated service that performs a bounded reflective walk of the message object graph. It reads the public or public-getter-backed properties (`get`/`is`/`has`/`can` accessors) via reflection — getters are never invoked, so a getter returning a fresh instance cannot drive the walk. Safety bounds mirror Monolog's `NormalizerFormatter`: depth capped at 9, per-collection items at 1 000, global node budget at 10 000, string values truncated at 1 024 characters, and object-identity tracking so a cycle or shared reference renders once. Keys matching `SensitiveKeywordDenylist` (see the class for the canonical list) are masked as `***`. Leaf objects are rendered as readable scalars: `\BackedEnum` via `->value`, `\UnitEnum` via `->name`, `\DateTimeInterface` via `format(ATOM)`, `\Throwable` as `{ClassName: message}` (prevents stack-trace leakage through `\Stringable`), `\Stringable` via string cast + truncation, and any other opaque object as `{ClassName}`. If normalisation fails, the payload falls back to `['__class' => $message::class]` and a `warning` is emitted on the `app` channel.
 - **Failure level**: a `\InvalidArgumentException` (Centreon's `AssertionException` extends it — a value-object / domain rejection that maps to a 4xx) is logged at `warning`; any other throwable is an unexpected server-side failure (DB down, OOM, bug → 5xx) and is logged at `critical`. This mirrors the `CRITICAL`-vs-`WARNING` split of `LegacyHttpExceptionListener`, so alerting can ignore expected client errors without muting real incidents.
 
   **Intentionally permissive masking.** Sensitive keywords are matched with `str_contains` after `mb_strtolower`, not exact match. Consequence: any field name that *contains* a keyword is masked, including when the field itself is not sensitive. False-positive examples:
@@ -174,7 +171,7 @@ The middleware emits a record on the Monolog `app` channel (Symfony default) for
   - `tokenize_input` (bool flag) → masked (contains `token`)
   - `credential_check_id` (reference id) → masked (contains `credential`)
 
-  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). For the opposite cases — a real secret carrying an unlisted name, or keyword noise on a given Command — the explicit, type-safe complement is the `#[Sensitive]` attribute (implemented under [MON-199097](https://centreon.atlassian.net/browse/MON-199097), see [§10](#10-masking-sensitive-fields-with-sensitive)). It is preferred over broadening the keyword list or switching to exact match, which would open the door to forgotten variants.
+  This *"over-mask rather than under-mask"* default is intentional: we'd rather lose a bit of debug info than miss a real secret carried by an unlisted variant (e.g. `passwords_v2`, `customer_token_id`). For the opposite cases — a real secret carrying an unlisted name, or keyword noise on a given Command — the explicit, type-safe complement is the `#[Sensitive]` attribute (see [§10](#10-masking-sensitive-fields-with-sensitive)). It is preferred over broadening the keyword list or switching to exact match, which would open the door to forgotten variants.
 - **`exception`**: produced by `ExceptionFormatter::format()` (see [§5](#5-exceptionformatter-and-exceptionformatterprocessor)).
 
 ---
@@ -236,7 +233,7 @@ Being global, it guarantees a **uniform exception shape** on every channel (catc
 
 ## 6. HTTP / security processors (Web, Route, Token)
 
-`Symfony\Bridge\Monolog\Processor\WebProcessor`, `RouteProcessor` and `TokenProcessor` are registered in `config.new/services/shared.php` and tagged `monolog.processor` **globally** — same scope as `ExceptionFormatterProcessor` and `UidProcessor`, so every channel carries the same enriched shape.
+`Symfony\Bridge\Monolog\Processor\WebProcessor`, `RouteProcessor` and `TokenProcessor` are registered in `config.new/services/monolog.php` and tagged `monolog.processor` **globally** — same scope as `ExceptionFormatterProcessor` and `UidProcessor`, so every channel carries the same enriched shape.
 
 | Processor | Adds to `extra` |
 |-----------|-----------------|
@@ -249,7 +246,7 @@ Being global, it guarantees a **uniform exception shape** on every channel (catc
 
 ### `UidProcessor` — cross-channel correlation
 
-`Monolog\Processor\UidProcessor` is registered in `config.new/services/shared.php` **with no channel tag** — it therefore applies to **every logger** (request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
+`Monolog\Processor\UidProcessor` is registered in `config.new/services/monolog.php` **with no channel tag** — it therefore applies to **every logger** (request, app, deprecation, authentication, token, password, upgrade, plugin-pack-manager). It generates **a single 7-character hex id per process** and stamps it under `extra.uid` on every record:
 
 ```php
 $services->set('monolog.processor.uid', UidProcessor::class)
@@ -276,7 +273,7 @@ prod.token.log
 […] token.INFO Token refreshed for user 42                          {"uid":"89796c2",…}
 ```
 
-An operator runs `grep "uid\":\"89796c2\"" /var/log/centreon/*.log` and gets the full chronology of the request, **including what landed in the MON-151077 dedicated files**.
+An operator runs `grep "uid\":\"89796c2\"" /var/log/centreon/*.log` and gets the full chronology of the request, **including what landed in the dedicated files**.
 
 ---
 
@@ -451,7 +448,7 @@ when@dev:
                 # ... (same path, formatter, date_format)
 ```
 
-**RFC3339 driven at the service level.** `config.new/services/shared.php` overrides the `monolog.formatter.line` service with `dateFormat: RFC3339`:
+**RFC3339 driven at the service level.** `config.new/services/monolog.php` overrides the `monolog.formatter.line` service with `dateFormat: RFC3339`:
 
 ```php
 $services->set('monolog.formatter.line', LineFormatter::class)
@@ -462,15 +459,15 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 
 **Why not `date_format:` at the handler level on `rotating_file`?** On a `rotating_file` handler, the Symfony Monolog Bundle's `date_format:` key is passed to the **`RotatingFileHandler` constructor** where it configures the **filename** date suffix (`Y-m-d` by default). Setting RFC3339 there throws `InvalidArgumentException` at boot. For other types (`stream`, `console`…) the key applies to the formatter — but we choose the single-service approach to stay DRY.
 
-**Exclusive filter (MON-151077 alignment).** Rather than a whitelist `[request, app]`, we use a blacklist of channels that have their own file or that are noise. Everything else — `request`, `app` (Symfony default), `main`, `security`, `http_client`, etc. — lands in `prod.web.log`.
+**Exclusive filter.** Rather than a whitelist `[request, app]`, we use a blacklist of channels that have their own file or that are noise. Everything else — `request`, `app` (Symfony default), `main`, `security`, `http_client`, etc. — lands in `prod.web.log`.
 
 | Excluded channel | Reason |
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
-| `deprecation` | MON-151077 → dedicated file `prod.deprecations.log`. |
-| `authentication` | MON-151077 → merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
-| `token` | MON-151077 → dedicated file `prod.token.log`. |
-| `password`, `plugin-pack-manager`, `upgrade` | MON-151077 → dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
+| `deprecation` | disabled in prod by default (Monolog `NullHandler` — records discarded). In dev, written to `dev.deprecations.log` via a `rotating_file` handler. To re-enable in prod, override the `deprecation` handler in a local `monolog.yaml`; `logrotate/centreon` still declares `prod.deprecations.log` so the override path inherits the standard rotation policy. |
+| `authentication` | merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
+| `token` | dedicated file `prod.token.log`. |
+| `password`, `plugin-pack-manager`, `upgrade` | dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
 
 > **Backward compatibility — `login.log` is intentionally kept.** Authentication events now flow to the `authentication` channel (`prod.access.log`). To avoid breaking external consumers that parse the historical `/var/log/centreon/login.log` — most notably **fail2ban** jails matching the `Authentication failed for …` line with the client IP — login events are still mirrored to `login.log` in the original pipe-delimited format (`date|uid|page|option|message`) by **two** writers: `LoggerAuthentication::mirrorToLegacyLoginLog()` for events emitted on the new-kernel path (the OpenID/SAML/WebSSO logins routed through the `Login` use case, and the legacy local/LDAP success/failure now routed through the facade), and `CentreonUserLog::insertLog()` for `TYPE_LOGIN` events still flowing through the legacy code path (e.g. `LoginLogger`). The facade writer is try/catch protected so a mirror failure can never break a login; the legacy `CentreonUserLog` writer is not. This duplicate write is **transitional**: it is kept on purpose for client compatibility and will be removed in a future release once consumers have migrated to the Monolog access log (cleanup tracked in a dedicated ticket). `login.log` remains covered by `logrotate/centreon`.
 
@@ -479,23 +476,23 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | `type: fingers_crossed` + `action_level: error` | On success, `INFO`/`DEBUG` records are buffered in RAM and discarded at the end of the request — zero disk I/O. On the first `ERROR`, the entire buffer plus the triggering record are flushed to the nested handler. |
 | `excluded_http_codes: [404, 405]` | The `HttpCodeActivationStrategy` wraps the activation: if the current request returns a 404 or 405, an `ERROR` does not trigger the flush. Prevents bot scans (`/wp-admin`, `/.env`, `/phpinfo`…) from flooding `prod.web.log`. Aligned with the default Symfony recipe. |
 | `stop_buffering: true` | After the triggering flush, the handler stops buffering — the rest of the request writes directly. |
-| `buffer_size: 50` | Memory cap of the buffer. Beyond that, the `FingersCrossedHandler` **drops the oldest records**. 50 is the MON-151077 target value. |
+| `buffer_size: 50` | Memory cap of the buffer. Beyond that, the `FingersCrossedHandler` **drops the oldest records**. 50 is the chosen target value. |
 | `bubble: false` | **The record stops after our handler.** Consequence: HTTP exceptions caught by Symfony's `ErrorListener` (`request` channel) **no longer** bubble up to the host's `main` handler (`var/log/{env}.log`). They live only in `var/log/{env}.web.log`. |
 | `priority: 255` | Our handler is executed first in the channel's Monolog stack — combined with `bubble: false`, this guarantees effective isolation. |
 | `path: ...{env}.web.log` | In prod, a fixed `prod.web.log` file (rotation is delegated to `logrotate` on production hosts, cf. `logrotate/centreon`). In dev, the handler is `rotating_file` with a daily suffix. |
-| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `shared.php` with `dateFormat: RFC3339`. Timestamp format mandated by MON-151077 (e.g. `2025-09-08T15:38:41+02:00`). |
+| `formatter: monolog.formatter.line` | Standard Symfony Monolog Bundle service, redefined in `monolog.php` with `dateFormat: RFC3339`. Timestamp format standardised across the platform (e.g. `2025-09-08T15:38:41+02:00`). |
 
 ### File rotation
 
-In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The MON-151077 files listed:
+In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The files listed:
 
 - `prod.web.log` (catch-all)
-- `prod.deprecations.log`
 - `prod.access.log` (authentication)
 - `prod.token.log`
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
+- `prod.deprecations.log` — file is not created in the default configuration (`NullHandler`); the entry is retained so operators who override the `deprecation` handler locally inherit rotation. `missingok` in the shared block covers the absent-file case.
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
@@ -568,11 +565,13 @@ When such an object flows through the logging pipeline, the annotated values are
 | --- | --- |
 | `…\Domain\Logging\Attribute\Sensitive` | the marker placed on properties, accessor methods, and classes |
 | `…\Infrastructure\Logging\Attribute\SensitivityScanner` | reflects a class, collects its `#[Sensitive]` properties and accessor keys, honours class-level sensitive types, and **recurses into nested class-typed properties**, so a secret nested in a sub-object is found too |
-| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`), falls back to the keyword denylist for raw array keys, and truncates string values at `MAX_VALUE_LENGTH` (1024) |
+| `…\Infrastructure\Logging\PayloadSanitizer` | stateless walker that masks the `#[Sensitive]` values of a payload given its owning class (`contextClass`), falls back to the keyword denylist for raw array keys, **redacts secrets carried in a URL query string** (parameters whose name matches the denylist, e.g. in `extra.url`), and truncates string values at `MAX_VALUE_LENGTH` (1024) |
 | `…\Infrastructure\Logging\SensitiveKeywordDenylist` | single source of truth for the keyword net (`password`, `token`, …) shared by `LogPayloadNormalizer` and `PayloadSanitizer`, so both nets mask the same field names |
-| `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record |
+| `…\Infrastructure\Logging\SanitizingProcessor` | Monolog processor that applies the sanitizer to every record's `context` (full masking) and `extra` (URL-query masking only — see below). Registered to run **last**, after the processors that fill `extra` |
 
 The owning class is the **context** the sanitizer needs in order to know which keys are sensitive. On the command/query bus, `LoggingMiddleware` provides the dispatched message class, so `#[Sensitive]` on a Command / Query / DTO is honoured automatically. A **raw array** (`['secret' => $x]`) carries no class context, so the attribute layer cannot reflect it — but as the cross-channel net, `PayloadSanitizer` still applies the shared keyword denylist to its keys, so a `['password' => $x]` is masked everywhere it is logged. To get the explicit, type-safe attribute masking outside the bus, pass a typed object rather than a raw array.
+
+`extra` is sanitised too, but with keyword-key masking **off**: its keys are produced by platform processors (`WebProcessor`, `TokenProcessor`, …), not by callers, and must stay readable for auditing (e.g. `extra.token` is `TokenProcessor`'s audit descriptor of the authenticated user — authenticated flag, roles, identifier — not a credential). There, only the sensitive query-string parameters of URL-like values are redacted (best-effort, query component only), covering a token passed in a request URL (`extra.url`). Because Monolog applies processors in reverse registration order and the MonologBundle **ignores the tag `priority`** for processors, the sanitizer is registered first (in `config.new/services/monolog.php`, and pushed first by `MonologAdapter`) so that it executes last — after `WebProcessor` has populated `extra`.
 
 ### Why not the native `#[\SensitiveParameter]`?
 
@@ -587,7 +586,7 @@ A property-level attribute is therefore the right tool for reflection-based **pa
 
 ## 11. Legacy bridge — `Adaptation\Log\Logger`
 
-The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the MON-151077 layout.
+The platform pipeline described above runs under `App\Shared\Infrastructure\Symfony\Kernel`. Legacy entry points (procedural `www/` code, classes wired through `App\Kernel`) cannot autowire Monolog services directly; they go through a thin façade so every record still lands on the same platform layout.
 
 ```mermaid
 flowchart LR
@@ -617,7 +616,61 @@ flowchart LR
 | `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
 | `WEB` | `web` | `web` | `prod.web.log` |
 
-Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file (cf. MON-151077).
+Only `AUTHENTICATION` carries a different slug — login/ldap/openid/saml records all converge in the shared `access.log` file.
+
+### Module channels — `LogChannelInterface` and `ModuleLogChannel`
+
+`LogChannelEnum` is a **closed** enum: it lists only the core platform channels, and a module (living in a separate repository, or under `centreon-dsm/`, `centreon-open-tickets/`, …) cannot add a case to it. To let a module own a **dedicated** log file that still flows through the unified pipeline (secret masking, exception formatting, `extra.uid`, web context), the channel is opened behind an interface:
+
+```php
+interface LogChannelInterface
+{
+    public function getChannelName(): string;               // Monolog channel tag
+    public function getLogFileName(string $appEnv): string;  // file name, no directory
+}
+```
+
+Two implementations:
+
+| Implementation | `getChannelName()` | `getLogFileName($appEnv)` | Example file |
+|---|---|---|---|
+| `LogChannelEnum` (core) | the enum `value` | `{appEnv}.{slug}.log` | `prod.web.log` |
+| `ModuleLogChannel` (modules) | the validated slug | the **literal historical name** (no `appEnv` prefix) | `license-manager.log` |
+
+`MonologAdapter` depends on `LogChannelInterface` and **delegates the file name to the channel** (`getLogFileFromChannel()` no longer hard-codes `sprintf('%s/%s.%s.log', …)`), so a module channel gets the exact same platform processor stack as a core channel.
+
+#### Historical file names are preserved
+
+External consumers — ops runbooks, SIEM parsers, monitoring — watch some module logs **by their exact path**. A `ModuleLogChannel` therefore returns the **literal** historical file name, with **no `prod.` / env prefix**:
+
+- `license-manager.log` (License Manager + PP Manager) — restored as a real dedicated file instead of being misrouted into `prod.upgrade.log`.
+- `autodiscovery_job.log` (Auto Discovery).
+
+> Only the **file name** is preserved. The **line format** necessarily changes to the platform one (`LineFormatter`, RFC3339 timestamp + JSON `context` / `extra`). If byte-for-byte format compatibility is required for a specific consumer of a given file, flag it explicitly.
+
+These module files are **not** added to `centreon/logrotate/centreon` — that config covers the core `prod.*.log` files (see [§9](#9-routing-and-output-file)). Each module keeps whatever log rotation its own module / packaging already provides; the unified pipeline only changes where the records are routed and how they are formatted, not who rotates the file.
+
+#### `ModuleLogChannel`
+
+`Adaptation\Log\Channel\ModuleLogChannel` is a `final readonly` value object that validates its slug **once at construction**, so every instance is guaranteed valid and immutable:
+
+```php
+use Adaptation\Log\Channel\ModuleLogChannel;
+use Adaptation\Log\Logger;
+
+Logger::create(new ModuleLogChannel('license-manager'))->error(
+    'IMP API call failed',
+    ['exception' => $e],
+);
+```
+
+The slug is constrained to `^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$/D` (lowercase alphanumerics, `-` / `_` separators, no leading/trailing separator). Since the slug becomes a file-name component, anything that could escape the log directory (`/`, `.`, `..`) or forge a log line (a newline — blocked by the `D` modifier) is rejected. An invalid slug throws `LoggerException`; a call site that builds a channel from a non-constant value must contain it (see `CentreonRestHttp` below).
+
+The `ModuleLogChannel::fromLogFileName('license-manager.log')` factory strips a trailing `.log` then validates the result, so a legacy caller that passes a historical **file name** keeps working.
+
+#### `CentreonRestHttp`
+
+`CentreonRestHttp`'s second constructor argument accepts `string|LoggerInterface` (for backward compatibility): a historical caller passing `'license-manager.log'` is routed to a `ModuleLogChannel` automatically, while new code injects an explicit `Logger::create(new ModuleLogChannel(...))`. A malformed name never breaks the HTTP client — it degrades to a `NullLogger` and reports the rejected name (control characters stripped) through `error_log`.
 
 ### `Adaptation\Log\Logger`
 
@@ -645,11 +698,11 @@ To mirror the platform pipeline as closely as possible without booting the Symfo
 | `Monolog\Processor\WebProcessor` | Monolog vendor | `extra.url`, `extra.ip`, `extra.http_method`, `extra.server`, `extra.referrer` — sourced from `$_SERVER` directly (the Symfony bridge variant is bypassed because its data is populated by a kernel-request listener that does not run from legacy code paths). |
 | `App\Shared\Infrastructure\Logging\ExceptionFormatterProcessor` | platform | Unwraps `context.exception` through `ExceptionFormatter::format()`, producing the same nested-exception layout used on `prod.web.log` (cf. §5). |
 
-`RouteProcessor` and `TokenProcessor` are **not** wired here: they depend on the Symfony `RequestStack` / `TokenStorage` services and would be empty in the legacy stack. Records emitted via `Adaptation\Log\Logger` therefore do **not** carry `extra.controller`, `extra.route` or `extra.token`. Call sites that need those fields should write through the new-kernel pipeline (the catch-all `app` / `request` channels and every dedicated channel) where the full processor stack is wired globally by `config.new/services/shared.php`.
+`RouteProcessor` and `TokenProcessor` are **not** wired here: they depend on the Symfony `RequestStack` / `TokenStorage` services and would be empty in the legacy stack. Records emitted via `Adaptation\Log\Logger` therefore do **not** carry `extra.controller`, `extra.route` or `extra.token`. Call sites that need those fields should write through the new-kernel pipeline (the catch-all `app` / `request` channels and every dedicated channel) where the full processor stack is wired globally by `config.new/services/monolog.php`.
 
 #### Format alignment — no more `{custom, exception, default}` wrap
 
-Before MON-151077, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
+Before the legacy-logging migration, both `CentreonLog::log()` and `Centreon\Domain\Log\LoggerTrait::executeLog()` reshaped the `context` array before handing it to Monolog:
 
 - `CentreonLog::buildContext()` pre-formatted the `Throwable` with `ExceptionLogFormatter` (legacy) and added `context.request_infos`.
 - `LoggerTrait::normalizeContext()` rewrapped everything as `{custom, exception, default: {request_infos}}` — and **moved** the `Throwable` out of `context.exception` so `ExceptionFormatterProcessor` never saw it.
@@ -699,7 +752,7 @@ Both classes are tagged `@deprecated`. The DI/Application code that still autowi
 
 ### `Centreon\Domain\Log\LoggerTrait`
 
-`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The pre-MON-151077 `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
+`LoggerTrait` (~389 callers) keeps providing the PSR-3 helper shape used by Domain services that autowire a `LoggerInterface` via `#[Required]`. The former `ContactForDebug` gate is gone — `canBeLogged()` now only checks that a logger has been injected. The trait carries a descriptive note but no formal `@deprecated` tag, because `Symfony\Component\ErrorHandler\DebugClassLoader` would otherwise cascade the deprecation onto every class still using the trait during the transition.
 
 ### Symfony-side configuration
 
@@ -906,7 +959,7 @@ use Adaptation\Log\LoggerUpgrade;
 LoggerUpgrade::create()->info($version, "Adding column X to table Y");
 LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
 
-LoggerUpgrade::create()->stepFailure($message, $version, $stepName, $exception);
+LoggerUpgrade::create()->stepFailure($version, $stepName, $message, $exception);
 LoggerUpgrade::create()->step($version, $stepName, $message);
 ```
 
@@ -914,21 +967,21 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 |---|---|---|
 | `start($from, $to)` | `INFO` | Begin of the global upgrade flow (emitted by `UpdateCommandHandler` / `process_step4.php`, **not** by individual scripts). |
 | `success($from, $to, $durationMs)` | `INFO` | End of the global upgrade flow, with measured duration. |
-| `failure($message, $from, $to, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). |
+| `failure($from, $to, $message, $e)` | `ERROR` | Global upgrade aborted (catch-all in the handler). Emitted only once `start` has been emitted, so the lifecycle stays balanced; a failure raised **before** `start` (validation / lock / version read) is reported as an `upgrade.error` instead, never a dangling `failure`. |
 | `step($version, $stepName, $message)` | `INFO` | Sub-step **start** / progress (`monitoring_sql`, `php_script`, …). `status: running`. Emitted by the repositories; rarely needed inside an upgrade script. |
 | `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
-| `stepFailure($message, $version, $stepName, $e)` | `ERROR` | A bracketed step threw. Primarily emitted by the repositories / handler; also used inside an upgrade script's catch block with the `php_script` step name (or `php_script_rollback` when the rollback itself fails). |
+| `stepFailure($version, $stepName, $message, $e)` | `ERROR` | A bracketed step threw. Emitted by the step bracket itself (e.g. `UpdateCommandHandler::runStep`, `DbWriteUpdateRepository::executeStep`, or `process_step5.php` for `post_update`). An upgrade script must **not** re-emit it for `php_script` (the bracket already logs the re-thrown exception); a script only emits it for `php_script_rollback`, when the rollback itself fails. |
 | **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
 | **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
 
 ### Recommended pattern
 
-Copy `www/install/php/Update-next.php.tpl` — it is the canonical skeleton and is kept in sync with the flow. Its shape:
+Start from `www/install/php/Update-next.php.tpl` — the canonical skeleton, kept in sync with the flow (its `try/catch`, transaction guard and rollback handling are ready to use). It is intentionally a bare skeleton; for a complete worked example of the points below, read the latest shipped script, e.g. `www/install/php/Update-26.07.0.php`. The shape:
 
-- **Wrap each business action in its own callable** and set `$errorMessage` to a human description **before** running it, so the catch-all `stepFailure` reports which action failed.
+- **Wrap each business action in its own callable** and set `$errorMessage` to a human description **before** running it — including immediately before `startTransaction()` and `commitTransaction()`, which are themselves distinct actions — so the final failure message reports which action actually failed.
 - **Trace intent and outcome** with `info($version, …)`; log skip branches too — they prove the script is safely re-entrant.
 - **Run DML inside a transaction** guarded by `isTransactionActive()`, and log "Rolling back…" only inside the `if` that actually rolls back.
-- **On failure, call `stepFailure(...)`** with the `php_script` step name (`php_script_rollback` if the rollback itself fails), then **re-throw**: the global flow (`UpdateCommandHandler` / `process_step4.php`) catches it and writes the final `failure`. A silent return breaks that chain.
+- **On failure, just re-throw**, chaining the root cause as `previous`. The surrounding step bracket (`UpdateCommandHandler::runStep` / `DbWriteUpdateRepository::executeStep`) already logs the `php_script` `stepFailure` from the re-thrown exception, and the global flow (`UpdateCommandHandler` / `process_step4.php`) then writes the final `failure`. Do **not** emit a `php_script` `stepFailure` from the script — that double-logs the step. The only `stepFailure` a script emits itself is `php_script_rollback`, when the rollback fails. A silent return breaks the chain.
 
 ### Sample output (`prod.upgrade.log`)
 
@@ -945,7 +998,7 @@ upgrade.INFO: Upgrade from 25.10.0 to 25.11.0 completed successfully
   {"event":"upgrade.success","status":"success","from_version":"25.10.0","to_version":"25.11.0","duration_ms":4242}
 ```
 
-On failure, the failing action writes `upgrade.step_failure` (ERROR) and the global flow writes a final `upgrade.failure` carrying the from→to versions and the wrapped exception.
+On failure, the step bracket writes `upgrade.step_failure` (ERROR) and the global flow writes a final `upgrade.failure` carrying the from→to versions and the wrapped exception.
 
 ### Best practices
 

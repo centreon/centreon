@@ -28,17 +28,19 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -401,10 +403,8 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     $selectHostStatement = $pearDB->prepare('SELECT * FROM host WHERE host_id = :hostId LIMIT 1');
     foreach ($hosts as $key => $value) {
         if (false === ($key = filter_var($key, FILTER_VALIDATE_INT))) {
@@ -731,7 +731,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         && str_starts_with(VaultConfiguration::VAULT_PATH_PATTERN, $row['host_snmp_community'])
                         || $macroPasswords !== []
                     ) {
-                        if ($vaultConfiguration !== null) {
+                        if ($vaultEligibilityService->shouldUseVault()) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -843,8 +843,8 @@ function updateHostInDB_MC($hostId = null)
     updateHost_MC($hostId);
 
     if ($isCloudPlatform) {
-        resetHostHostParent($hostId);
-        resetHostHostChild($hostId);
+        // Parent/child host relations are managed on the add/modify form only (not massive change),
+        // so they must be left untouched here to avoid wiping existing relationships.
         resetHostContactGroup($hostId);
         resetHostContact($hostId);
     }
@@ -987,7 +987,6 @@ function resetUnwantedParameters(array $bindParams): array
 {
     $paramsToReset = [
         'timeperiod_tp_id2',
-        'host_freshness_threshold',
         'host_low_flap_threshold',
         'host_high_flap_threshold',
         'host_notification_interval',
@@ -999,7 +998,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_comment',
         'host_checks_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1021,7 +1019,6 @@ function resetUnwantedParameters(array $bindParams): array
         'host_passive_checks_enabled',
         'host_notifications_enabled',
         'host_obsess_over_host',
-        'host_check_freshness',
         'host_flap_detection_enabled',
         'host_retain_status_information',
         'host_retain_nonstatus_information',
@@ -1204,14 +1201,12 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1359,7 +1354,7 @@ function updateHost($hostId = null, $isMassiveChange = false, $configuration = n
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -1407,14 +1402,12 @@ function updateHost_MC($hostId = null)
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveHostVaultPathFromDatabase($pearDB, $hostId);
     }
 
@@ -1525,7 +1518,7 @@ function updateHost_MC($hostId = null)
     }
 
     // If there is a vault configuration write into vault.
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -2757,11 +2750,12 @@ function insertHostInAPI(array $formData): int|false
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2846,6 +2840,34 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     return $response['content']['id'] ?? null;
 }
 
+function getHostRelationsSnapshot(int $hostId): array
+{
+    global $pearDB;
+
+    $queryParameters = QueryParameters::create([QueryParameter::int('hostId', $hostId)]);
+
+    $queries = [
+        'groups' => 'SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostId',
+        'categories' => 'SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = :hostId',
+        'templates' => 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :hostId ORDER BY `order`',
+        'parents' => 'SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId',
+        'children' => 'SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = :hostId',
+        'contactGroups' => 'SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = :hostId',
+        'contacts' => 'SELECT contact_id FROM contact_host_relation WHERE host_host_id = :hostId',
+    ];
+
+    $snapshot = [];
+    foreach ($queries as $key => $sql) {
+        $ids = array_map('intval', $pearDB->fetchFirstColumn($sql, $queryParameters));
+        if ($key !== 'templates') {
+            sort($ids);
+        }
+        $snapshot[$key] = $ids;
+    }
+
+    return $snapshot;
+}
+
 /**
  * @param int $hostId
  * @param array $formData
@@ -2859,6 +2881,19 @@ function updateHostInAPI(int $hostId, array $formData): bool
     try {
         $isTemplate = (int) $formData['host_register'] === 0;
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
+        $relationsBefore = null;
+        try {
+            $relationsBefore = getHostRelationsSnapshot($hostId);
+        } catch (Throwable $ex) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Failed to snapshot host relations before update',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+        }
 
         updateByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
 
@@ -2866,11 +2901,12 @@ function updateHostInAPI(int $hostId, array $formData): bool
             updateHostTemplateService($hostId);
         }
 
+        if (! $isTemplate) {
+            updateHostHostParent($hostId, $formData);
+            updateHostHostChild($hostId);
+        }
+
         if (! $isCloudPlatform) {
-            if (! $isTemplate) {
-                updateHostHostParent($hostId, $formData);
-                updateHostHostChild($hostId);
-            }
             updateHostContactGroup($hostId, $formData);
             updateHostContact($hostId, $formData);
         }
@@ -2880,6 +2916,27 @@ function updateHostInAPI(int $hostId, array $formData): bool
             || $isCloudPlatform === true
         ) {
             createHostTemplateService($hostId);
+        }
+
+        try {
+            if ($relationsBefore !== null && getHostRelationsSnapshot($hostId) !== $relationsBefore) {
+                $centreon->CentreonLogAction->insertLog(
+                    object_type: ActionLog::OBJECT_TYPE_HOST,
+                    object_id: $hostId,
+                    object_name: (string) ($formData['host_name'] ?? ''),
+                    action_type: ActionLog::ACTION_TYPE_CHANGE,
+                    fields: CentreonLogAction::prepareChanges($formData),
+                );
+            }
+        } catch (Throwable $ex) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Failed to record host relation-change action log',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
         }
 
         // Update conf change flag for poller
@@ -3061,6 +3118,12 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
@@ -3203,6 +3266,12 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             $formData['macroInput'] ?? [],
             $formData['macroValue'] ?? []
         ),
+        'freshness_checked' => isset($formData['host_check_freshness']['host_check_freshness'])
+            ? (int) $formData['host_check_freshness']['host_check_freshness']
+            : null,
+        'freshness_threshold' => isset($formData['host_freshness_threshold']) && $formData['host_freshness_threshold'] !== ''
+            ? (int) $formData['host_freshness_threshold']
+            : null,
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,

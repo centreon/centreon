@@ -4,8 +4,9 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+import { platformFeaturesAtom } from '@centreon/ui-context';
 
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -14,9 +15,13 @@ import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
+export const webUrl = {
+  get: (): string => window.location.href
+};
+
 interface PollerResponse {
   id: number;
-  command: string;
+  installation_command: string;
 }
 
 interface UseInstallCommandState {
@@ -30,6 +35,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
   const [isOpen, setIsOpen] = useAtom(isModalOpenAtom);
   const setGeneratedCommand = useSetAtom(generatedCommandAtom);
   const setPollerId = useSetAtom(pollerIdAtom);
+  const platformFeatures = useAtomValue(platformFeaturesAtom);
 
   const { showErrorMessage } = useSnackbar();
 
@@ -45,12 +51,17 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
   const submit = useCallback(async (values: CloudInstallCommandFormValues) => {
     try {
+      const centralAddress = platformFeatures?.isCloudPlatform
+        ? webUrl.get()
+        : values?.centralAddress?.trim();
+
       const pollerResponse = await createPoller({
         payload: {
           address: values.pollerAddress.trim(),
+          central_address: centralAddress,
           name: values.pollerName.trim(),
-          poller_type: values.environment,
-          token: values?.token?.name
+          poller_token_name: values?.token?.name,
+          poller_type: values.environment
         }
       });
 
@@ -66,7 +77,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
       setPollerId(pollerId);
 
       const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (response?.command || '')
+      const command = (response?.installation_command || '')
         .split('<CENTRAL_URL>')
         .join(centralUrl);
 

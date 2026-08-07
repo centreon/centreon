@@ -6,6 +6,7 @@
 
 **/config/                              @centreon/owners-php
 **/composer.*                           @centreon/owners-php
+**/tests/api/                           @centreon/owners-php
 **/tests/php/                           @centreon/owners-php
 **/tests/clapi_export/                  @centreon/owners-php
 **/www/                                 @centreon/owners-php
@@ -37,11 +38,9 @@ tsconfig.json                           @centreon/owners-react
 *.pm                                    @centreon/owners-perl
 *.pl                                    @centreon/owners-perl
 
-**/tests/api/**                         @centreon/owners-api-testing
 **/tests/e2e/**                         @centreon/owners-cypress-e2e
 **/cypress/e2e/**                       @centreon/owners-cypress-e2e
-
-*.feature                               @centreon/owners-gherkin
+**/tests/api/**                         @centreon/owners-api-testing
 
 *.py                                    @centreon/owners-python
 
@@ -57,7 +56,12 @@ dependencies/**                         @centreon/owners-pipelines
 **/config/features.json                 @centreon/release-management
 
 # Security Codeowners rules
-.gitleaks.toml                @centreon/owners-security
-.gitleaksignore               @centreon/owners-security
-.githooks/pre-commit          @centreon/owners-security
-**/secu-*.yml                 @centreon/owners-security
+.githooks/pre-commit                 @centreon/owners-security
+.githooks/pre-commit.d/*_gitleaks.sh @centreon/owners-security
+.githooks/pre-push                   @centreon/owners-security
+.githooks/pre-push.d/*_gitleaks.sh   @centreon/owners-security
+.gitleaks.toml                       @centreon/owners-security
+.gitleaksignore                      @centreon/owners-security
+**/dependency-analysis.yml           @centreon/owners-security
+**/gitleaks-analysis.yml             @centreon/owners-security
+**/secu-*.yml                        @centreon/owners-security

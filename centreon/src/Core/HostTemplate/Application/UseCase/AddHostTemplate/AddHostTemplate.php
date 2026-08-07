@@ -42,6 +42,7 @@ use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\InheritanceManager;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -79,6 +80,7 @@ final class AddHostTemplate
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
+        private readonly VaultEligibilityService $vaultEligibilityService,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -177,7 +179,7 @@ final class AddHostTemplate
             ? (int) ($inheritanceMode[0])->getValue()
             : 0;
 
-        if ($this->writeVaultRepository->isVaultConfigured() === true && $request->snmpCommunity !== '') {
+        if ($this->vaultEligibilityService->shouldUseVault() && $request->snmpCommunity !== '') {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 null,
                 [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $request->snmpCommunity]
@@ -310,7 +312,7 @@ final class AddHostTemplate
                 );
             }
 
-            if ($this->writeVaultRepository->isVaultConfigured() === true && $macro->isPassword() === true) {
+            if ($this->vaultEligibilityService->shouldUseVault() && $macro->isPassword() === true) {
                 $vaultPaths = $this->writeVaultRepository->upsert(
                     $this->uuid ?? null,
                     ['_HOST' . $macro->getName() => $macro->getValue()],
@@ -369,7 +371,7 @@ final class AddHostTemplate
         }
 
         return [
-            $this->writeVaultRepository->isVaultConfigured()
+            $this->vaultEligibilityService->shouldUseVault()
                 ? $this->retrieveMacrosVaultValues($inheritedMacros)
                 : $inheritedMacros,
             $commandMacros,

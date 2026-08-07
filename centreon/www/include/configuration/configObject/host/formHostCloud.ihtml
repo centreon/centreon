@@ -168,6 +168,17 @@
 				<td class="FormRowValue">{$form.host_retry_check_interval.html} {$time_unit}</td>
 			</tr>
 			<tr class="list_lvl_1">
+				<td class="ListColLvl1_name" colspan="2"><h4>{$form.header.treatment}</h4></td>
+			</tr>
+			<tr class="list_one">
+				<td class="FormRowField"><img class="helpTooltip" name="check_freshness"> {$form.host_check_freshness.label}</td>
+				<td class="FormRowValue">{$form.host_check_freshness.html}</td>
+			</tr>
+			<tr class="list_two">
+				<td class="FormRowField"><img class="helpTooltip" name="freshness_threshold"> {$form.host_freshness_threshold.label}</td>
+				<td class="FormRowValue">{$form.host_freshness_threshold.html}&nbsp;{$seconds}</td>
+			</tr>
+			<tr class="list_lvl_1">
 				<td class="ListColLvl1_name" colspan="2">
 					<h4>{$form.header.classification}</h4>
 				</td>
@@ -195,6 +206,16 @@
 				<tr class="list_two">
 					<td class="FormRowField"><img class="helpTooltip" name="hostcategories"> {$form.host_hcs.label}</td>
 					<td class="FormRowValue">{$form.host_hcs.html} </td>
+				</tr>
+				<!-- PARENT HOSTS RELATIONS -->
+				<tr class="list_one">
+					<td class="FormRowField"><img class="helpTooltip" name="parents"> {$form.host_parents.label}</td>
+					<td class="FormRowValue">{$form.host_parents.html} </td>
+				</tr>
+				<!-- CHILD HOSTS RELATIONS -->
+				<tr class="list_two">
+					<td class="FormRowField"><img class="helpTooltip" name="child_hosts"> {$form.host_childs.label}</td>
+					<td class="FormRowValue">{$form.host_childs.html} </td>
 				</tr>
 			{else}
 				<!-- HOST CATEGORIE RELATIONS -->

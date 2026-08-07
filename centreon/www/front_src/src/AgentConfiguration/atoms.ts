@@ -45,7 +45,7 @@ export const changeSortAtom = atom(
 
 interface ChangeFilterProps {
   field: string;
-  newEntries: Array<SelectEntry>;
+  newEntries: Array<SelectEntry> | string;
 }
 
 export const changeFilterAtom = atom(

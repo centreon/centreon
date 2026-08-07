@@ -1,0 +1,20 @@
+meta {
+  name: GET /pollers/installation-command - Non-existent poller - HTTP 404
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrlWeb}}/configuration/pollers/installation-command/999999
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

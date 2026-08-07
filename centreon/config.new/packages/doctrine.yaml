@@ -1,5 +1,5 @@
 parameters:
-    env(DATABASE_SERVER_VERSION): 'mariadb-10.11.0'
+    env(DATABASE_SERVER_VERSION): 'mariadb-11.8.0'
     env(hostCentreon): ''
     env(hostCentstorage): ''
     env(user): ''
