@@ -1,0 +1,43 @@
+meta {
+  name: POST /pollers - Create Docker poller returns installation command - HTTP 201
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrlWeb}}/configuration/pollers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "{{PollerNameDocker}}",
+    "address": "{{PollerAddress}}",
+    "poller_type": "docker",
+    "poller_token_name": "{{PollerTokenName}}",
+    "central_address": "{{CentralAddress}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+tests {
+  test("Docker poller is created and returns a non-null installation command", function () {
+    const body = res.getBody();
+    expect(body.name).to.eql(bru.getEnvVar("PollerNameDocker"));
+    expect(body.poller_type).to.eql("docker");
+    expect(body.installation_command).to.be.a("string");
+    expect(body.installation_command).to.include("curl -fsSL");
+    expect(body.installation_command).to.include("--type docker");
+    expect(body.central_address).to.eql(bru.getEnvVar("CentralAddress"));
+    expect(body.installation_command).to.include(bru.getEnvVar("CentralAddress"));
+  });
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

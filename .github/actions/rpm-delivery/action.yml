@@ -70,21 +70,23 @@ runs:
               --arg major_version "$major_version" \
               --arg repo_type "feature" \
               --arg feature_ticket "$feature_ticket" \
+              --arg target "jfrog" \
               '{
                 event_type: "create-feature-repositories",
                 client_payload: {
                   major_version: $major_version,
                   repo_type: $repo_type,
-                  feature_ticket: $feature_ticket
+                  feature_ticket: $feature_ticket,
+                  target: $target
                 }
               }'
             )"
 
         attempt=0
         count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
-        until [[ $count -eq 2 || $attempt -ge 40 ]]; do
+        until [[ $count -eq 3 || $attempt -ge 40 ]]; do
           attempt=$((attempt+1))
-          echo "[INFO] Checking is the feature repository has been created... [ATTEMPT $attempt]"
+          echo "[INFO] Checking if the feature repository has been created... [ATTEMPT $attempt]"
           sleep 15
           count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
         done
@@ -157,7 +159,7 @@ runs:
         done
 
         if [[ "$DELIVERY_TYPE" == "feature" ]]; then
-          ROOT_REPO_PATH="rpm-standard-feature-$(echo "$GH_HEAD_REF" | grep -oP '^.*MON-[0-9]+')"
+          ROOT_REPO_PATH="rpm-standard-feature/$(echo "$GH_HEAD_REF" | grep -oP '^.*MON-[0-9]+')"
         elif [[ "$IS_CLOUD" == "true" ]]; then
           ROOT_REPO_PATH="rpm-standard-internal"
         else

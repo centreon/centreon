@@ -110,6 +110,39 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
     <link href="./include/common/javascript/jquery/plugins/colorbox/colorbox.css" rel="stylesheet" type="text/css"/>
     <link href="./include/common/javascript/jquery/plugins/qtip/jquery-qtip.css" rel="stylesheet" type="text/css"/>
 
+    <!-- Modern listing styles and JS module -->
+    <link href="./include/common/listing/listing.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="./include/common/listing/listing.js<?php echo $versionParam; ?>"></script>
+
+    <!-- Modern form styles -->
+    <link href="./include/common/form/form.css<?php echo $versionParam; ?>" rel="stylesheet" type="text/css" />
+
+    <!-- The translated strings consumed by listing.js / form.js (window.clI18n)
+         used to be dumped here, loading on every legacy page. They now live in
+         the shared Smarty partial www/include/common/templates/clI18n.ihtml
+         (standard {t} gettext), included only by the templates that instantiate
+         the listing / form framework. -->
+
+    <!-- Unsaved-changes tracking for the side panel's "discard changes?"
+         guard (see listing.js wireSidePanelDirtyGuard). Deliberately placed
+         here rather than as a step in CentreonForm.initFormPage(): not
+         every form page actually calls that shared initializer (some,
+         e.g. the Host form, predate it and still have their own hand-rolled
+         JS), so this needs to run on every page unconditionally to be
+         reliable regardless of which pattern that particular form uses. -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            window.cfFormDirty = false;
+            document.querySelectorAll('form').forEach(function (form) {
+                ['input', 'change'].forEach(function (type) {
+                    form.addEventListener(type, function (e) {
+                        if (e.isTrusted) window.cfFormDirty = true;
+                    });
+                });
+            });
+        });
+    </script>
+
     <!-- graph css -->
     <link href="./include/common/javascript/charts/c3.min.css" type="text/css" rel="stylesheet" />
     <link href="./include/views/graphs/javascript/centreon-status-chart.css" type="text/css" rel="stylesheet" />
@@ -134,6 +167,8 @@ if ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 if (! isset($_REQUEST['iframe']) || (isset($_REQUEST['iframe']) && $_REQUEST['iframe'] != 1)) {
     ?>
     <script type="text/javascript" src="./include/common/javascript/jquery/jquery.min.js"></script>
+    <!-- Modern form JS (must load after jQuery) -->
+    <script type="text/javascript" src="./include/common/form/form.js<?php echo $versionParam; ?>"></script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/toggleClick/jquery.toggleClick.js">
     </script>
     <script type="text/javascript" src="./include/common/javascript/jquery/plugins/select2/js/select2.full.min.js">
@@ -243,9 +278,9 @@ $tM = $centreon->optGen['AjaxTimeReloadMonitoring'] * 1000;
         jQuery(function () {
             <?php
         $res = null;
-$query = "SELECT DISTINCT PathName_js, init FROM topology_JS WHERE id_page = '"
-    . $p . "' AND (o = '" . $o . "' OR o IS NULL)";
-$DBRESULT = $pearDB->query($query);
+$query = 'SELECT DISTINCT PathName_js, init FROM topology_JS WHERE id_page = ? AND (o = ? OR o IS NULL)';
+$DBRESULT = $pearDB->prepare($query);
+$DBRESULT->execute([$p, $o]);
 while ($topology_js = $DBRESULT->fetch()) {
     if ($topology_js['init'] == 'initM') {
         if ($o != 'hd' && $o != 'svcd') {
@@ -253,10 +288,17 @@ while ($topology_js = $DBRESULT->fetch()) {
             if (isset($_GET['problem'])) {
                 $obis .= '_pb';
             }
-            if (isset($_GET['acknowledge'])) {
-                $obis .= '_ack_' . $_GET['acknowledge'];
+            if (
+                isset($_GET['acknowledge'])
+                && is_scalar($_GET['acknowledge'])
+                && in_array((string) $_GET['acknowledge'], ['0', '1'], true)
+            ) {
+                $obis .= '_ack_' . (string) $_GET['acknowledge'];
             }
-            echo "\tsetTimeout('initM({$tM}, \"{$obis}\")', 0);";
+            echo "\tsetTimeout(function () { initM("
+                . (int) $tM . ', '
+                . json_encode($obis, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP)
+                . '); }, 0);';
         }
     } elseif ($topology_js['init']) {
         echo 'if (typeof ' . $topology_js['init'] . " == 'function') {";

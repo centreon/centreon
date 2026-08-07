@@ -31,10 +31,10 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Application\VaultEligibilityService;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
-use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
@@ -347,6 +347,194 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
 }
 
 /**
+ * Form rule for the service "Mass Change": forbids moving one or several services onto a
+ * host (or hostgroup) that already holds another service with the same description, and also
+ * catches the case where two selected services sharing the same description are moved onto the
+ * same host/hostgroup within the same mass change.
+ *
+ * @param array $fields submitted form values
+ *
+ * @return array|bool true when valid, otherwise an [elementName => errorMessage] array
+ */
+function checkServiceMassiveChangeExistence(array $fields): array|bool
+{
+    if (empty($fields['select'])) {
+        return true;
+    }
+
+    $targetHosts = is_array($fields['service_hPars'] ?? null) ? $fields['service_hPars'] : [];
+    $targetHostGroups = is_array($fields['service_hgPars'] ?? null) ? $fields['service_hgPars'] : [];
+
+    if ($targetHosts === [] && $targetHostGroups === []) {
+        return true;
+    }
+
+    $serviceIds = array_filter(array_map('intval', explode(',', (string) $fields['select'])));
+
+    // Descriptions already claimed on each target relation within this mass change,
+    // so two selected services with the same description cannot land on the same host.
+    $seenOnHost = [];
+    $seenOnHostGroup = [];
+
+    foreach ($serviceIds as $serviceId) {
+        $description = getServiceDescriptionById($serviceId);
+        if ($description === null) {
+            continue;
+        }
+
+        // Only newly created relations can introduce a duplicate: like the incremental
+        // mass change, skip the hosts/hostgroups the service is already linked to.
+        $currentRelations = getServiceLinkedRelations($serviceId);
+
+        foreach ($targetHosts as $hostId) {
+            $hostId = (int) $hostId;
+            if (isset($currentRelations['hosts'][$hostId])) {
+                continue;
+            }
+            if (
+                serviceDescriptionExistsOnHost($description, $hostId, $serviceId)
+                || isset($seenOnHost[$hostId][$description])
+            ) {
+                return ['service_hPars' => _(
+                    'One or more of the selected services cannot be moved: '
+                    . 'a service with the same description already exists on the target host(s).'
+                )];
+            }
+            $seenOnHost[$hostId][$description] = true;
+        }
+
+        foreach ($targetHostGroups as $hostGroupId) {
+            $hostGroupId = (int) $hostGroupId;
+            if (isset($currentRelations['hostGroups'][$hostGroupId])) {
+                continue;
+            }
+            if (
+                serviceDescriptionExistsOnHostGroup($description, $hostGroupId, $serviceId)
+                || isset($seenOnHostGroup[$hostGroupId][$description])
+            ) {
+                return ['service_hgPars' => _(
+                    'One or more of the selected services cannot be moved: '
+                    . 'a service with the same description already exists on the target host group(s).'
+                )];
+            }
+            $seenOnHostGroup[$hostGroupId][$description] = true;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * @param int $serviceId
+ *
+ * @return string|null the service description, or null when the service does not exist
+ */
+function getServiceDescriptionById(int $serviceId): ?string
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        'SELECT service_description FROM service WHERE service_id = :service_id'
+    );
+    $statement->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+    $statement->execute();
+    $description = $statement->fetchColumn();
+
+    return $description === false ? null : $description;
+}
+
+/**
+ * Returns the hosts and hostgroups a service is currently linked to.
+ *
+ * @param int $serviceId
+ *
+ * @return array{hosts: array<int, true>, hostGroups: array<int, true>} id-keyed sets of current relations
+ */
+function getServiceLinkedRelations(int $serviceId): array
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        'SELECT host_host_id, hostgroup_hg_id FROM host_service_relation WHERE service_service_id = :service_id'
+    );
+    $statement->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
+    $statement->execute();
+
+    $hosts = [];
+    $hostGroups = [];
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        if (! empty($row['host_host_id'])) {
+            $hosts[(int) $row['host_host_id']] = true;
+        }
+        if (! empty($row['hostgroup_hg_id'])) {
+            $hostGroups[(int) $row['hostgroup_hg_id']] = true;
+        }
+    }
+
+    return ['hosts' => $hosts, 'hostGroups' => $hostGroups];
+}
+
+/**
+ * @param string $description
+ * @param int $hostId
+ * @param int $excludeServiceId service to exclude from the lookup (the one being moved)
+ *
+ * @return bool true when another service with the same description is already linked to the host
+ */
+function serviceDescriptionExistsOnHost(string $description, int $hostId, int $excludeServiceId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT 1
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            WHERE hsr.host_host_id = :host_id
+                AND service.service_description = :service_description
+                AND service.service_id != :service_id
+            SQL
+    );
+    $statement->bindValue(':host_id', $hostId, PDO::PARAM_INT);
+    $statement->bindValue(':service_description', $description, PDO::PARAM_STR);
+    $statement->bindValue(':service_id', $excludeServiceId, PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
+/**
+ * @param string $description
+ * @param int $hostGroupId
+ * @param int $excludeServiceId service to exclude from the lookup (the one being moved)
+ *
+ * @return bool true when another service with the same description is already linked to the hostgroup
+ */
+function serviceDescriptionExistsOnHostGroup(string $description, int $hostGroupId, int $excludeServiceId): bool
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare(
+        <<<'SQL'
+            SELECT 1
+            FROM service
+            INNER JOIN host_service_relation hsr
+                ON hsr.service_service_id = service.service_id
+            WHERE hsr.hostgroup_hg_id = :hostgroup_hg_id
+                AND service.service_description = :service_description
+                AND service.service_id != :service_id
+            SQL
+    );
+    $statement->bindValue(':hostgroup_hg_id', $hostGroupId, PDO::PARAM_INT);
+    $statement->bindValue(':service_description', $description, PDO::PARAM_STR);
+    $statement->bindValue(':service_id', $excludeServiceId, PDO::PARAM_INT);
+    $statement->execute();
+
+    return (bool) $statement->fetchColumn();
+}
+
+/**
  * Get service id by combination of host or hostgroup relations
  *
  * @param string $serviceDescription
@@ -470,13 +658,11 @@ function deleteServiceInDB(array $services = []): void
 
     $serviceIds = array_keys($services);
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     /** @var WriteVaultRepositoryInterface $writeVaultRepository */
     $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         deleteResourceSecretsInVault($writeVaultRepository, [], $serviceIds);
     }
 
@@ -704,10 +890,8 @@ function multipleServiceInDB(
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     $selectServiceStatement = $pearDB->prepare('SELECT * FROM service WHERE service_id = :serviceId LIMIT 1');
     foreach ($services as $key => $value) {
         if (filter_var($key, FILTER_VALIDATE_INT) === false) {
@@ -1032,7 +1216,7 @@ function multipleServiceInDB(
                             }
                         }
 
-                        if ($macroPasswords !== [] && $vaultConfiguration !== null) {
+                        if ($macroPasswords !== [] && $vaultEligibilityService->shouldUseVault()) {
                             /** @var ReadVaultRepositoryInterface $readVaultRepository */
                             $readVaultRepository = $kernel->getContainer()->get(
                                 ReadVaultRepositoryInterface::class
@@ -1122,13 +1306,11 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // Retrieve vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
@@ -1245,7 +1427,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $deleteMacroStatement->execute();
     }
 
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -1300,13 +1482,11 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     $uuidGenerator = $kernel->getContainer()->get(UUIDGeneratorInterface::class);
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // Retrieve UUID for vault path before updating values in database.
     $uuid = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
@@ -1447,15 +1627,26 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
+            $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
+
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
+            $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
+
+            $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
+                return $macro['macroPassword'] === '1'
+                    && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
+            });
             updateServiceSecretsInVaultFromMC(
-                $vaultConfiguration,
+                $readVaultRepository,
+                $writeVaultRepository,
                 $logger,
-                $uuidGenerator,
                 $uuid,
                 (int) $serviceId,
-                $service->getFormattedMacros()
+                $updatedPasswordMacros
             );
         } catch (Throwable $ex) {
             error_log((string) $ex);
@@ -2163,12 +2354,10 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         return $macro['macro_password'] === '1';
     });
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && $passwordMacros !== []) {
+    if ($vaultEligibilityService->shouldUseVault() && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -2400,12 +2589,10 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         return $macro['macroPassword'] === '1';
     });
     $kernel = Kernel::createForWeb();
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // If there is a vault configuration  and macros write into vault
-    if ($vaultConfiguration !== null && $passwordMacros !== []) {
+    if ($vaultEligibilityService->shouldUseVault() && $passwordMacros !== []) {
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
@@ -2502,13 +2689,11 @@ function updateService($service_id = null, $from_MC = false, $params = [])
     $kernel = Kernel::createForWeb();
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
     // Retrieve vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
@@ -2681,7 +2866,7 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         $statement->execute();
     }
 
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
 
@@ -2735,14 +2920,12 @@ function updateService_MC($service_id = null, $params = [])
     /** @var Logger $logger */
     $logger = $kernel->getContainer()->get(Logger::class);
     $isServiceTemplate = isset($ret['service_register']) && $ret['service_register'] === '0';
-    $readVaultConfigurationRepository = $kernel->getContainer()->get(
-        ReadVaultConfigurationRepositoryInterface::class
-    );
-    $vaultConfiguration = $readVaultConfigurationRepository->find();
+    /** @var VaultEligibilityService $vaultEligibilityService */
+    $vaultEligibilityService = $kernel->getContainer()->get(VaultEligibilityService::class);
 
     // Retrieve UUID for vault path before updating values in database.
     $vaultPath = null;
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
@@ -2963,7 +3146,7 @@ function updateService_MC($service_id = null, $params = [])
     }
 
     // If there is a vault configuration write into vault
-    if ($vaultConfiguration !== null) {
+    if ($vaultEligibilityService->shouldUseVault()) {
         try {
             /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
@@ -4322,6 +4505,13 @@ function getServiceTemplatePayload(
         'service_categories' => isset($submittedValues['service_categories'])
             ? array_map('intval', $submittedValues['service_categories'])
             : CentreonUtils::mergeWithInitialValues($form, 'service_categories'),
+        'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
+            && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
+                ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
+                : 2,
+        'freshness_threshold' => $submittedValues['service_freshness_threshold']
+            ? (int) $submittedValues['service_freshness_threshold']
+            : null,
     ];
 
     if (! $isCloudPlatform) {
@@ -4343,13 +4533,6 @@ function getServiceTemplatePayload(
                 && $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'] != 2
                     ? (int) $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled']
                     : 2,
-            'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
-                && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
-                    ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
-                    : 2,
-            'freshness_threshold' => $submittedValues['service_freshness_threshold']
-                ? (int) $submittedValues['service_freshness_threshold']
-                : null,
             'low_flap_threshold' => $submittedValues['service_low_flap_threshold']
                 ? (int) $submittedValues['service_low_flap_threshold']
                 : null,

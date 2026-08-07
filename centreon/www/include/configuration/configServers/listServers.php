@@ -41,9 +41,11 @@ if (! is_null($search)) {
 }
 
 $LCASearch = '';
+$searchBind = null;
 if (! is_null($search)) {
     $search = HtmlSanitizer::createFromString($search)->sanitize()->getString();
-    $LCASearch .= " name LIKE '%{$search}%'";
+    $LCASearch .= ' name LIKE :search';
+    $searchBind = '%' . $search . '%';
 }
 
 // Get Authorized Actions
@@ -116,8 +118,14 @@ $ACLString = $centreon->user->access->queryBuilder('WHERE', 'id', $pollerstring)
 $query = 'SELECT SQL_CALC_FOUND_ROWS id, name, ns_activate, ns_ip_address, localhost, is_default, updated '
     . ', gorgone_communication_type, uid FROM `nagios_server` ' . $ACLString . ' '
     . ($LCASearch != '' ? ($ACLString != '' ? 'AND ' : 'WHERE ') . $LCASearch : '')
-    . ' ORDER BY name LIMIT ' . $num * $limit . ', ' . $limit;
-$dbResult = $pearDB->query($query);
+    . ' ORDER BY name LIMIT :offset, :limit';
+$dbResult = $pearDB->prepare($query);
+if (! is_null($searchBind)) {
+    $dbResult->bindValue(':search', $searchBind, PDO::PARAM_STR);
+}
+$dbResult->bindValue(':offset', (int) ($num * $limit), PDO::PARAM_INT);
+$dbResult->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
+$dbResult->execute();
 
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
@@ -163,8 +171,14 @@ foreach ($servers as $config) {
         . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
         . "name='dupNbr[" . $config['id'] . "]' />";
 
-    if (! isset($nagiosInfo[$config['uid']]['is_currently_running'])) {
-        $nagiosInfo[$config['uid']]['is_currently_running'] = 0;
+    // instances.instance_id holds the Snowflake uid for up-to-date pollers; legacy pollers
+    // (older Engine/Broker) still report their config id as instance_id. Resolve the runtime
+    // row by uid, then fall back to the config id so a mixed-version platform shows the real
+    // running state.
+    $runtimeKey = isset($nagiosInfo[$config['uid']]) ? $config['uid'] : $config['id'];
+
+    if (! isset($nagiosInfo[$runtimeKey]['is_currently_running'])) {
+        $nagiosInfo[$runtimeKey]['is_currently_running'] = 0;
     }
 
     // Manage flag for changes
@@ -175,9 +189,9 @@ foreach ($servers as $config) {
 
     // Manage flag for update time
     $lastUpdateTimeFlag = 0;
-    if (! isset($nagiosInfo[$config['uid']]['last_alive'])) {
+    if (! isset($nagiosInfo[$runtimeKey]['last_alive'])) {
         $lastUpdateTimeFlag = 0;
-    } elseif (time() - $nagiosInfo[$config['uid']]['last_alive'] > 10 * 60) {
+    } elseif (time() - $nagiosInfo[$runtimeKey]['last_alive'] > 10 * 60) {
         $lastUpdateTimeFlag = 1;
     }
 
@@ -189,14 +203,14 @@ foreach ($servers as $config) {
     $cfg_id = $dbResult2->rowCount() ? $dbResult2->fetch() : -1;
 
     $uptime = '-';
-    $isRunning = (isset($nagiosInfo[$config['uid']]['is_currently_running'])
-        && $nagiosInfo[$config['uid']]['is_currently_running'] == 1)
+    $isRunning = (isset($nagiosInfo[$runtimeKey]['is_currently_running'])
+        && $nagiosInfo[$runtimeKey]['is_currently_running'] == 1)
         ? true
         : false;
-    $version = $nagiosInfo[$config['uid']]['version'] ?? _('N/A');
-    $updateTime = (isset($nagiosInfo[$config['uid']]['last_alive'])
-        && $nagiosInfo[$config['uid']]['last_alive'])
-        ? $nagiosInfo[$config['uid']]['last_alive']
+    $version = $nagiosInfo[$runtimeKey]['version'] ?? _('N/A');
+    $updateTime = (isset($nagiosInfo[$runtimeKey]['last_alive'])
+        && $nagiosInfo[$runtimeKey]['last_alive'])
+        ? $nagiosInfo[$runtimeKey]['last_alive']
         : '-';
     $serverType = $config['localhost'] ? _('Central') : _('Poller');
     $serverType = in_array($config['ns_ip_address'], $remotesServerIPs)
@@ -204,11 +218,11 @@ foreach ($servers as $config) {
         : $serverType;
 
     if (
-        isset($nagiosInfo[$config['uid']]['is_currently_running'])
-        && $nagiosInfo[$config['uid']]['is_currently_running'] == 1
+        isset($nagiosInfo[$runtimeKey]['is_currently_running'])
+        && $nagiosInfo[$runtimeKey]['is_currently_running'] == 1
     ) {
         $now = new DateTime();
-        $startDate = (new DateTime())->setTimestamp($nagiosInfo[$config['uid']]['program_start_time']);
+        $startDate = (new DateTime())->setTimestamp($nagiosInfo[$runtimeKey]['program_start_time']);
         $interval = date_diff($now, $startDate);
         if (intval($interval->format('%a')) >= 2) {
             $uptime = $interval->format('%a days');
@@ -224,7 +238,7 @@ foreach ($servers as $config) {
     }
 
     $pollerProcessId = $isRunning
-        ? $nagiosInfo[$config['uid']]['process_id']
+        ? $nagiosInfo[$runtimeKey]['process_id']
         : '-';
 
     // Manage different styles between each line
@@ -244,7 +258,7 @@ foreach ($servers as $config) {
         'RowMenu_link' => $serverLink,
         'RowMenu_type' => $serverType,
         'RowMenu_is_running' => $isRunning ? _('Yes') : _('No'),
-        'RowMenu_is_runningFlag' => $nagiosInfo[$config['uid']]['is_currently_running'],
+        'RowMenu_is_runningFlag' => $nagiosInfo[$runtimeKey]['is_currently_running'],
         'RowMenu_is_default' => $config['is_default'] ? _('Yes') : _('No'),
         'RowMenu_hasChanged' => $confChangedMessage,
         'RowMenu_pid' => $pollerProcessId,

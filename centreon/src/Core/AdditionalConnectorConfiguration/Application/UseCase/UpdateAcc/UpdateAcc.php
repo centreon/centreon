@@ -42,7 +42,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\Common\Infrastructure\FeatureFlags;
+use Core\Common\Application\VaultEligibilityService;
 use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -66,7 +66,7 @@ final class UpdateAcc
      * @param AccFactory $factory
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param ContactInterface $user
-     * @param FeatureFlags $flags
+     * @param VaultEligibilityService $vaultEligibilityService
      * @param \Traversable<WriteVaultAccRepositoryInterface> $writeVaultAccRepositories
      * @param \Traversable<ReadVaultAccRepositoryInterface> $readVaultAccRepositories
      * @param WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository
@@ -80,7 +80,7 @@ final class UpdateAcc
         private readonly AccFactory $factory,
         private readonly DataStorageEngineInterface $dataStorageEngine,
         private readonly ContactInterface $user,
-        private readonly FeatureFlags $flags,
+        private readonly VaultEligibilityService $vaultEligibilityService,
         \Traversable $writeVaultAccRepositories,
         \Traversable $readVaultAccRepositories,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
@@ -130,7 +130,7 @@ final class UpdateAcc
             $parametersChanged = $decryptedPreviousAcc->getParameters()->getDecryptedData()
                 !== $updatedAcc->getParameters()->getDecryptedData();
 
-            if ($this->flags->isEnabled('vault_gorgone')) {
+            if ($this->vaultEligibilityService->shouldUseVault('vault_gorgone')) {
                 $parameters = $updatedAcc->getParameters();
 
                 foreach ($this->writeVaultAccRepositories as $repository) {

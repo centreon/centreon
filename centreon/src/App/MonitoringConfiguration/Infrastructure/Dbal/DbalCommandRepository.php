@@ -36,6 +36,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -326,7 +327,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
             foreach ($nameCriteria as $operator => $names) {
                 if ($operator === CommandCriteria::OPERATOR_LIKE) {
                     $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (string $name): string => $qb->expr()->like('cm.command_name', '"%' . $name . '%"'),
+                        static fn (string $name): string => $qb->expr()->like(
+                            'cm.command_name',
+                            $qb->createNamedParameter('%' . $name . '%')
+                        ),
                         $names
                     )));
 
@@ -334,7 +338,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
                 }
                 $qb->andWhere($qb->expr()->in(
                     'cm.command_name',
-                    array_map(static fn (string $name): string => '"' . $name . '"', $names)
+                    $qb->createNamedParameter($names, ArrayParameterType::STRING)
                 ));
             }
         }
@@ -342,7 +346,10 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         if ($criteria->getTypes() !== []) {
             $qb->andWhere($qb->expr()->in(
                 'cm.command_type',
-                array_map(static fn (CommandTypeEnum $type): string => '"' . $type->value . '"', $criteria->getTypes())
+                $qb->createNamedParameter(
+                    array_map(static fn (CommandTypeEnum $type): int => $type->value, $criteria->getTypes()),
+                    ArrayParameterType::INTEGER
+                )
             ));
         }
 
@@ -354,7 +361,7 @@ final readonly class DbalCommandRepository extends DbalRepository implements Com
         if ($criteria->getIds() !== []) {
             $qb->andWhere($qb->expr()->in(
                 'cm.command_id',
-                array_map(static fn (int $id): string => '"' . $id . '"', $criteria->getIds())
+                $qb->createNamedParameter($criteria->getIds(), ArrayParameterType::INTEGER)
             ));
         }
 

@@ -26,12 +26,13 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
+use App\MonitoringConfiguration\Domain\Repository\GlobalMacroRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Service\PollerUidGenerator;
 use App\Shared\Application\Command\AsCommandHandler;
@@ -45,6 +46,7 @@ final readonly class CreatePollerCommandHandler
         private PollerRepository $repository,
         private EventBus $eventBus,
         private PollerUidGenerator $uidGenerator,
+        private GlobalMacroRepository $globalMacroRepository,
     ) {
     }
 
@@ -62,13 +64,25 @@ final readonly class CreatePollerCommandHandler
             pollerType: $command->pollerType,
             uid: $uid,
             globalMacros: new Collection([], GlobalMacro::class),
-            gorgoneConfiguration: new GorgoneConfiguration(),
-            engineConfiguration: new EngineConfiguration(),
+            gorgoneConfiguration: new GorgoneConfiguration(
+                communicationType: $command->gorgoneCommunicationType,
+            ),
+            engineInformation: new EngineInformation(),
             brokerConfiguration: new BrokerConfiguration(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: $command->centralAddress,
         );
+
+        $seenMacroNames = [];
+        foreach ($this->globalMacroRepository->findAll() as $globalMacro) {
+            if (isset($seenMacroNames[$globalMacro->name->value])) {
+                continue;
+            }
+            $seenMacroNames[$globalMacro->name->value] = true;
+            $poller->addGlobalMacro($globalMacro);
+        }
 
         $this->repository->add($poller);
 

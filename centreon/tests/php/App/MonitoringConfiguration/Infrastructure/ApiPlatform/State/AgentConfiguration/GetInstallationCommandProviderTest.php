@@ -47,7 +47,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(InstallationCommandResource::class);
 
-        $version = $this->getPlatformVersion();
+        $version = $this->getPlatformMajorMinorVersion();
         $data = $response->toArray();
         $expectedLinux = sprintf(
             'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "%s:%d" -f "%s" -N "%s"',
@@ -58,7 +58,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             self::CERTIFICATE_CN
         );
         $expectedWindows = sprintf(
-            'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "%s:%d" -fingerprint "%s" -commonname "%s"',
+            'curl https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "%s:%d" -fingerprint "%s" -commonname "%s"',
             $version,
             self::POLLER_ADDRESS,
             self::AGENT_PORT,
@@ -80,7 +80,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
         $response = $this->request('GET', sprintf('%s/%d', self::BASE_ENDPOINT, $pollerId));
         self::assertResponseIsSuccessful();
 
-        $version = $this->getPlatformVersion();
+        $version = $this->getPlatformMajorMinorVersion();
         $data = $response->toArray();
         $expectedLinux = sprintf(
             'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "%s:%d"',
@@ -89,7 +89,7 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             self::AGENT_PORT,
         );
         $expectedWindows = sprintf(
-            'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "%s:%d"',
+            'curl https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/%s-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; powershell -ExecutionPolicy Bypass -File .\install_cma.ps1 -endpoint "%s:%d"',
             $version,
             self::POLLER_ADDRESS,
             self::AGENT_PORT,
@@ -156,14 +156,15 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
         ];
     }
 
-    private function getPlatformVersion(): string
+    private function getPlatformMajorMinorVersion(): string
     {
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
 
         $version = $connection->fetchOne("SELECT `value` FROM `informations` WHERE `key` = 'version'");
+        $parts = explode('.', is_string($version) ? $version : '');
 
-        return is_string($version) ? $version : '';
+        return $parts[0] . '.' . ($parts[1] ?? '0');
     }
 
     private function insertPoller(string $name): int
@@ -203,10 +204,16 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
     private function insertInstance(int $pollerId, ?string $certificateSha, ?string $certificateCn): void
     {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        // instances.instance_id holds the Snowflake UID (nagios_server.uid), not the poller config id.
+        $uid = $connection->fetchOne('SELECT uid FROM nagios_server WHERE id = ?', [$pollerId]);
+        $instanceId = is_numeric($uid) ? (int) $uid : 0;
+
         /** @var Connection $realtimeConnection */
         $realtimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
         $realtimeConnection->insert('instances', [
-            'instance_id' => $pollerId,
+            'instance_id' => $instanceId,
             'name' => 'test-instance-' . $pollerId,
             'cma_certificate_sha' => $certificateSha,
             'cma_certificate_cn' => $certificateCn,

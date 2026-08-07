@@ -25,12 +25,44 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Pol
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\CreatePollerResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreatePollerProcessorTest extends ApiTestCase
 {
+    private string $tokenName;
+
+    private string $tokenString;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->tokenName = 'test-poller-token-' . bin2hex(random_bytes(8));
+        $this->tokenString = bin2hex(random_bytes(16));
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->insert('authentication_tokens', [
+            'token_name' => $this->tokenName,
+            'token_string' => $this->tokenString,
+            'type' => 'poller',
+            'is_revoked' => 0,
+            'expiration_date' => null,
+            'creation_date' => time(),
+        ]);
+    }
+
+    protected function tearDown(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $connection->delete('authentication_tokens', ['token_string' => $this->tokenString]);
+
+        parent::tearDown();
+    }
+
     public function testCreatePoller(): void
     {
         /** @var PollerRepository $repository */
@@ -49,11 +81,13 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $name,
                 'poller_type' => 'vm',
                 'address' => $address,
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertMatchesResourceItemJsonSchema(CreatePollerResource::class);
+        self::assertMatchesResourceItemJsonSchema(PollerResource::class);
         self::assertJsonContains([
             'name' => $name,
             'poller_type' => 'vm',
@@ -64,6 +98,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertArrayHasKey('id', $responseData);
         self::assertArrayHasKey('uid', $responseData);
         self::assertNotNull($responseData['uid']);
+        self::assertArrayHasKey('installation_command', $responseData);
+        self::assertNotNull($responseData['installation_command']);
 
         $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);
@@ -80,6 +116,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $name,
                 'poller_type' => 'vm',
                 'address' => $address,
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -99,6 +137,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $this->uniqueName('Docker'),
                 'poller_type' => 'docker',
                 'address' => '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254),
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -118,6 +158,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $name,
                 'poller_type' => 'vm',
                 'address' => '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254),
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
         self::assertResponseIsSuccessful();
@@ -127,9 +169,11 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $name,
                 'poller_type' => 'vm',
                 'address' => '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254),
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(409);
     }
 
     public function testCannotCreatePollerWithInvalidType(): void
@@ -141,6 +185,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $this->uniqueName('Invalid'),
                 'poller_type' => 'invalid',
                 'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -156,6 +202,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => '',
                 'poller_type' => 'vm',
                 'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -171,6 +219,41 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => str_repeat('a', 41),
                 'poller_type' => 'vm',
                 'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithoutPollerTokenName(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('NoToken'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'central_address' => '192.168.1.254',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithUnknownPollerTokenName(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('UnknownToken'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => 'non-existent-token-' . bin2hex(random_bytes(4)),
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -184,6 +267,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $this->uniqueName('Unauth'),
                 'poller_type' => 'vm',
                 'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -208,6 +293,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $name,
                 'poller_type' => 'vm',
                 'address' => '10.' . mt_rand(0, 255) . '.' . mt_rand(0, 255) . '.' . mt_rand(1, 254),
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -231,6 +318,8 @@ final class CreatePollerProcessorTest extends ApiTestCase
                 'name' => $this->uniqueName('Forbidden'),
                 'poller_type' => 'vm',
                 'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
             ],
         ]);
 
@@ -238,6 +327,73 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertJsonContains([
             'message' => 'You are not allowed to create pollers',
         ]);
+    }
+
+    public function testCannotCreatePollerWithoutCentralAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('NoCentral'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithEmptyCentralAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('EmptyCentral'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithWhitespaceCentralAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('WsCentral'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '   ',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithCentralAddressTooLong(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('LongCentral'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => str_repeat('a', 256),
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
     }
 
     private function uniqueName(string $prefix = 'Poller'): string

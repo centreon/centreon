@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "26.07",
+  "version": "26.09",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -10,8 +10,7 @@
     "ext-pdo": "*"
   },
   "require-dev": {
-    "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-master"
+    "centreon/centreon": "@dev"
   },
   "repositories": [
     {
@@ -23,7 +22,7 @@
     "secure-http": false,
     "sort-packages": true,
     "platform": {
-      "php": "8.4"
+      "php": "8.4.1"
     },
     "preferred-install": {
       "*": "dist"
@@ -73,7 +72,7 @@
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "7.4.*"
+      "require": "8.1.*"
     }
   }
 }

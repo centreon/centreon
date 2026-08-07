@@ -61,9 +61,9 @@ final class LoggerUpgrade
     }
 
     public function failure(
-        string $message,
         ?string $fromVersion,
         ?string $toVersion,
+        string $message,
         ?\Throwable $exception = null,
     ): void {
         $this->write(
@@ -99,9 +99,9 @@ final class LoggerUpgrade
     }
 
     public function stepFailure(
-        string $message,
         string $version,
         string $stepName,
+        string $message,
         ?\Throwable $exception = null,
     ): void {
         $context = $this->versionContext('upgrade.step_failure', 'failure', $version, $exception);

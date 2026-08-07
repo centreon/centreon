@@ -1,0 +1,19 @@
+name: gorgoned-__SERVERNAME__
+description: Configuration for poller __SERVERNAME__
+gorgone:
+  gorgonecore:
+    id: __SERVERID__
+    authorized_clients: __THUMBPRINT__
+    privkey: "/var/lib/centreon-gorgone/.keys/rsakey.priv.pem"
+    pubkey: "/var/lib/centreon-gorgone/.keys/rsakey.pub.pem"
+  modules:
+    - name: engine
+      package: gorgone::modules::centreon::engine::hooks
+      enable: true
+      command_file: "__COMMAND__"
+
+    - name: pull
+      package: "gorgone::modules::core::pull::hooks"
+      enable: true
+      target_type: tcp
+      target_path: "__CENTRALADDRESS__:__GORGONEPORT__"

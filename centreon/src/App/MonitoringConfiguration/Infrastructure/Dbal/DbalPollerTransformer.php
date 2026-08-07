@@ -26,7 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
@@ -60,13 +60,14 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             uid: new PollerUid((int) $from['poller_uid']),
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: is_string($from['central_address'] ?? null) ? new PollerAddress($from['central_address']) : null,
             brokerConfiguration: new BrokerConfiguration(
                 reloadCommand: $from['broker_reload_command'],
                 configurationPath: $from['centreonbroker_cfg_path'],
                 modulesPath: $from['centreonbroker_module_path'],
                 logsPath: $from['centreonbroker_logs_path'],
             ),
-            engineConfiguration: new EngineConfiguration(
+            engineInformation: new EngineInformation(
                 startCommand: $from['engine_start_command'],
                 stopCommand: $from['engine_stop_command'],
                 restartCommand: $from['engine_restart_command'],
@@ -83,12 +84,23 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 snmpTrapPathConf: $from['snmp_trapd_path_conf'],
             ),
             gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: GorgoneCommunicationTypeEnum::from((int) $from['gorgone_communication_type']),
+                communicationType: $this->communicationTypeFromDatabase($from['gorgone_communication_type']),
                 gorgonePort: (int) ($from['gorgone_port'] ?? 5556),
                 sshPort: (int) ($from['ssh_port'] ?? 22),
                 useRemoteServerAsProxy: $from['remote_server_use_as_proxy'] === '1',
             ),
             cmaCertificates: null,
         );
+    }
+
+    private function communicationTypeFromDatabase(string $value): GorgoneCommunicationTypeEnum
+    {
+        return match ($value) {
+            '1' => GorgoneCommunicationTypeEnum::ZMQ,
+            '2' => GorgoneCommunicationTypeEnum::SSH,
+            '3' => GorgoneCommunicationTypeEnum::Pull,
+            '4' => GorgoneCommunicationTypeEnum::PullWss,
+            default => throw new \ValueError("Invalid gorgone_communication_type: {$value}"),
+        };
     }
 }

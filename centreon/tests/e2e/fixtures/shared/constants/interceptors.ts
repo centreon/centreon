@@ -14,6 +14,7 @@ export const INTERCEPTORS = {
     events_view_users: '/centreon/api/latest/users/filters/events-view',
     monitor_event_view: '/monitor/api/latest/users/filters/events-view',
     monitor_resources: '/centreon/api/latest/monitoring/resources',
+    realtime_monitoring_servers: '/centreon/api/latest/monitoring/servers',
     authentication_provider: '/centreon/api/latest/administration/authentication/providers',
     local_authentication: '/centreon/api/latest/authentication/providers/configurations/local',
     contacts_templates: '/centreon/api/latest/configuration/contacts/templates',
@@ -67,5 +68,8 @@ export const INTERCEPTORS = {
   },
   static: {
     pendo: 'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
+  },
+  ajax: {
+    host_categories_toggle: '**/ajaxHostCategoriesToggle.php'
   }
 };

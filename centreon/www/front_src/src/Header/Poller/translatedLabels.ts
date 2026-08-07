@@ -29,11 +29,6 @@ export const labelConfigurePollers = 'Configure pollers';
 export const labelAllPollers = 'All pollers:';
 export const labelPollers = 'Pollers';
 
-export const labelCreateNewPoller = 'Create new poller';
-export const labelEnterPollerNameAndAddress =
-  "Enter your poller's name and address";
-export const labelPollerName = 'Name';
-export const labelPollerAddress = 'Address';
 export const labelSelectPollerEnvironment = "Select your poller's environment";
 export const labelVMOrPhysical = 'VM or physical';
 export const labelDockerCompose = 'Docker compose';
@@ -48,3 +43,10 @@ export const labelCopyTheFollowingCommand =
   'Copy the following command and run it on your poller to register it.';
 export const labelFailedToCreatePoller = 'Failed to create poller';
 export const labelPleaseWait = 'Please wait...';
+
+export const labelCreateNewPoller = 'Create new poller';
+export const labelEnterPollerNameAndAddress = "Enter your poller's information";
+export const labelPollerName = 'Poller name';
+export const labelPollerAddress = 'Poller adress';
+export const labelCentralAddress =
+  'Centreon Central adress, as seen by this poller';
