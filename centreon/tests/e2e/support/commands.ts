@@ -130,6 +130,59 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
+/**
+ * Body of the form side panel, which the modernized listings open instead of
+ * navigating to a full page. It is an iframe nested inside #main-content, so
+ * getIframeBody() alone cannot reach it.
+ */
+Cypress.Commands.add('getSidePanelBody', (): Cypress.Chainable => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .then(cy.wrap);
+});
+
+/**
+ * Tick a row's checkbox on a modernized listing. The real input sits behind its
+ * md-checkbox label and is not visible, hence the forced click.
+ */
+Cypress.Commands.add(
+  'checkListingRow',
+  (rowLabel: string): Cypress.Chainable => {
+    return cy
+      .getIframeBody()
+      .find('#clTableBody')
+      .contains('tr', rowLabel)
+      .find('.cl-col-picker input[type="checkbox"]')
+      .click({ force: true });
+  }
+);
+
+/**
+ * Run a "More actions" bulk action on a modernized listing. The native select is
+ * display:none (the custom .cl-more-actions menu replaces it) and its onchange
+ * opens the confirmation modal, so the test drives the submit path directly.
+ */
+Cypress.Commands.add(
+  'runListingBulkAction',
+  (action: string): Cypress.Chainable => {
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .invoke(
+        'attr',
+        'onchange',
+        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+      );
+
+    return cy
+      .getIframeBody()
+      .find('select[name="o1"]')
+      .select(action, { force: true });
+  }
+);
+
 Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
   cy.getIframeBody()
   .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
@@ -169,6 +222,9 @@ declare global {
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
+      getSidePanelBody: () => Cypress.Chainable;
+      checkListingRow: (rowLabel: string) => Cypress.Chainable;
+      runListingBulkAction: (action: string) => Cypress.Chainable;
     }
   }
 }

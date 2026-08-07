@@ -3,8 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   navigateToTimePeriodsAndInitiateAddition,
+  searchTimePeriod,
   setTimePeriod,
-  submitForm
+  submitForm,
+  visitTimePeriodsListing,
+  waitForListingRefresh
 } from '../common';
 
 beforeEach(() => {
@@ -17,10 +20,26 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxTimeperiodListing.php*'
+  }).as('getTimePeriodListing');
 });
 
 Given('a user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
+});
+
+Given('several time periods exist', () => {
+  // The default install already ships 24x7 and nonworkhours.
+  cy.addTimePeriod({
+    alias: 'Test TP Alpha',
+    name: 'tp_test_alpha'
+  });
+  cy.addTimePeriod({
+    alias: 'Test TP Beta',
+    name: 'tp_test_beta'
+  });
 });
 
 When(
@@ -37,23 +56,23 @@ Then('all properties of my time period are saved', () => {
 
 When('a user creates a time period with a range of dates to exclude', () => {
   navigateToTimePeriodsAndInitiateAddition();
-  cy.getIframeBody().find('input[name="tp_name"]').type('timePeriodName');
-  cy.getIframeBody().find('input[name="tp_alias"]').type('timePeriodAlias');
-  cy.getIframeBody().find('input[name="tp_sunday"]').type('14:00-16:00');
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('input[name="tp_name"]').type('timePeriodName');
+  cy.getSidePanelBody().find('input[name="tp_alias"]').type('timePeriodAlias');
+  cy.getSidePanelBody().find('input[name="tp_sunday"]').type('14:00-16:00');
+  cy.getSidePanelBody()
     .find('input[name="tp_monday"]')
     .type('07:00-12:00,13:00-18:00');
-  cy.getIframeBody().find('input[name="tp_tuesday"]').type('07:00-18:00');
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('input[name="tp_tuesday"]').type('07:00-18:00');
+  cy.getSidePanelBody()
     .find('input[name="tp_wednesday"]')
     .type('07:00-12:00,13:00-17:00');
-  cy.getIframeBody().find('input[name="tp_thursday"]').type('14:00-16:00');
-  cy.getIframeBody().find('input[name="tp_friday"]').type('07:00-18:00');
-  cy.getIframeBody().find('input[name="tp_saturday"]').type('10:00-16:00');
-  cy.getIframeBody().find('li#c2').click();
-  cy.getIframeBody().contains('+ Add new entry').click();
-  cy.getIframeBody().find('input#exceptionInput_0').type('august 1 - 31');
-  cy.getIframeBody().find('input#exceptionTimerange_0').type('00:00-24:00');
+  cy.getSidePanelBody().find('input[name="tp_thursday"]').type('14:00-16:00');
+  cy.getSidePanelBody().find('input[name="tp_friday"]').type('07:00-18:00');
+  cy.getSidePanelBody().find('input[name="tp_saturday"]').type('10:00-16:00');
+  cy.getSidePanelBody().find('li#c2').click();
+  cy.getSidePanelBody().contains('+ Add new entry').click();
+  cy.getSidePanelBody().find('input#exceptionInput_0').type('august 1 - 31');
+  cy.getSidePanelBody().find('input#exceptionTimerange_0').type('00:00-24:00');
 });
 
 Then('all properties of my time period are saved with the exclusions', () => {
@@ -67,132 +86,112 @@ Given('an existing time period', () => {
 });
 
 When('a user duplicates the time period', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
-  cy.enterIframe('iframe#main-content')
-    .find('tr[class*="list_"]')
-    .each((row) => {
-      cy.wrap(row)
-        .find('td.ListColLeft')
-        .then((td) => {
-          if (td.text().includes('timePeriodName')) {
-            cy.wrap(row)
-              .find('td.ListColPicker')
-              .find('div.md-checkbox')
-              .click();
-          }
-        });
-    });
-
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('tr.ToolbarTR')
-    .eq(1)
-    .find('select')
-    .contains('More actions...')
-    .parent()
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('tr.ToolbarTR')
-    .eq(1)
-    .find('select')
-    .contains('More actions...')
-    .parent()
-    .select('Duplicate');
+  visitTimePeriodsListing();
+  cy.checkListingRow('timePeriodName');
+  cy.runListingBulkAction('Duplicate');
 });
 
 Then(
   'a new time period is created with identical properties except the name',
   () => {
-    cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
-    cy.enterIframe('iframe#main-content')
-      .find('table.ListTable')
-      .find('tr.list_one')
-      .find('td.ListColLeft')
-      .contains('timePeriodName_1')
+    visitTimePeriodsListing();
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', 'timePeriodName_1')
       .click();
-    cy.waitForElementInIframe('#main-content', 'input[name="tp_name"]');
-    cy.getIframeBody()
-      .find('input[name="tp_name"]')
-      .should('have.value', 'timePeriodName_1');
-    cy.getIframeBody()
-      .find('input[name="tp_alias"]')
-      .should('have.value', 'timePeriodAlias');
-    cy.getIframeBody()
-      .find('input[name="tp_sunday"]')
-      .should('have.value', '14:00-16:00');
-    cy.getIframeBody()
-      .find('input[name="tp_monday"]')
-      .should('have.value', '07:00-12:00,13:00-18:00');
-    cy.getIframeBody()
-      .find('input[name="tp_tuesday"]')
-      .should('have.value', '07:00-18:00');
-    cy.getIframeBody()
-      .find('input[name="tp_wednesday"]')
-      .should('have.value', '07:00-12:00,13:00-17:00');
-    cy.getIframeBody()
-      .find('input[name="tp_thursday"]')
-      .should('have.value', '14:00-16:00');
-    cy.getIframeBody()
-      .find('input[name="tp_friday"]')
-      .should('have.value', '07:00-18:00');
-    cy.getIframeBody()
-      .find('input[name="tp_saturday"]')
-      .should('have.value', '10:00-16:00');
+    cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+
+    const expectedValues = {
+      tp_alias: 'timePeriodAlias',
+      tp_friday: '07:00-18:00',
+      tp_monday: '07:00-12:00,13:00-18:00',
+      tp_name: 'timePeriodName_1',
+      tp_saturday: '10:00-16:00',
+      tp_sunday: '14:00-16:00',
+      tp_thursday: '14:00-16:00',
+      tp_tuesday: '07:00-18:00',
+      tp_wednesday: '07:00-12:00,13:00-17:00'
+    };
+
+    Object.entries(expectedValues).forEach(([field, value]) => {
+      cy.getSidePanelBody()
+        .find(`input[name="${field}"]`)
+        .should('have.value', value);
+    });
   }
 );
 
 When('a user deletes the time period', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
-  cy.getIframeBody()
-    .find('tr[class*="list_"]')
-    .each((row) => {
-      cy.wrap(row)
-        .find('td.ListColLeft')
-        .then((td) => {
-          if (td.text().includes('timePeriodName')) {
-            cy.wrap(row)
-              .find('td.ListColPicker')
-              .find('div.md-checkbox')
-              .click();
-          }
-        });
-    });
-
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('tr.ToolbarTR')
-    .eq(1)
-    .find('select')
-    .contains('More actions...')
-    .parent()
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('tr.ToolbarTR')
-    .eq(1)
-    .find('select')
-    .contains('More actions...')
-    .parent()
-    .select('Delete');
+  visitTimePeriodsListing();
+  cy.checkListingRow('timePeriodName');
+  cy.runListingBulkAction('Delete');
 });
 
 Then('the time period disappears from the time periods list', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_one')
-    .find('td.ListColLeft')
+  visitTimePeriodsListing();
+  cy.getIframeBody()
+    .find('#clTableBody')
     .contains('timePeriodName')
     .should('not.exist');
+});
+
+When('the user navigates to the time periods listing', () => {
+  visitTimePeriodsListing();
+});
+
+Then('the listing table is displayed with time period rows', () => {
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('tp_test_alpha')
+    .should('exist');
+});
+
+When('the user searches for a specific time period', () => {
+  searchTimePeriod('tp_test_alpha');
+});
+
+Then('only the matching time period is displayed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('tp_test_alpha')
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('tp_test_beta')
+    .should('not.exist');
+});
+
+Then('the pagination info shows the total count', () => {
+  cy.getIframeBody()
+    .find('#clPaginationTop .cl-page-info')
+    .invoke('text')
+    .should('match', /\d+-\d+ of \d+/);
+});
+
+When('the user clicks on a time period name', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'tp_test_alpha')
+    .click();
+});
+
+Then('the time period form opens in the side panel', () => {
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
+    .find('input[name="tp_name"]')
+    .should('have.value', 'tp_test_alpha');
+});
+
+When('the user navigates back to the time periods listing', () => {
+  visitTimePeriodsListing();
+  waitForListingRefresh();
+});
+
+Then('the search field still contains the search term', () => {
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', 'tp_test_alpha');
 });
 
 afterEach(() => {
