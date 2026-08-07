@@ -370,7 +370,7 @@ Then('the form of this contact is displayed in READ ONLY mode', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Modernized listing (MON-200035)
+// Modernized listing
 // ---------------------------------------------------------------------------
 
 Given('test contacts exist', () => {

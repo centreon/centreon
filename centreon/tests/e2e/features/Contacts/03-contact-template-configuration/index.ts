@@ -219,7 +219,7 @@ Then(
 );
 
 // ---------------------------------------------------------------------------
-// Modernized listing (MON-200035)
+// Modernized listing
 // ---------------------------------------------------------------------------
 
 When('the user displays the contact templates listing', () => {
