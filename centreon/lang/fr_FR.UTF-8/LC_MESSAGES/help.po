@@ -10,8 +10,8 @@ msgstr ""
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
 "PO-Revision-Date: 2026-05-04 13:18+0000\n"
 "Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
-"Language-Team: French <https://translate.apps.centreon.com/projects/"
-"centreon-infra-monitoring/develop/web-help/fr/>\n"
+"Language-Team: French <https://translate.apps.centreon.com/projects/centreon-"
+"infra-monitoring/develop/web-help/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1280,8 +1280,11 @@ msgid "Destination directory."
 msgstr "Répertoire de destination."
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
-msgstr "Répertoire des fichiers journaux."
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -1757,11 +1760,9 @@ msgstr "Protocole de communication Gorgone (ZMQ, PullWSS, SSH ou Pull)"
 
 #: centreon/www/include/configuration/configServers/help.php
 msgid ""
-"Gorgone port of the remote poller (by default: 5556 for ZMQ, 22 for SSH, 5556 "
-"for Pull and 8086 for PullWSS)"
+"Gorgone port of the remote poller (by default: 5556 in ZMQ, 22 in SSH, 5556 "
+"in Pull and 8086 in PullWSS)"
 msgstr ""
-"Port Gorgone du collecteur distant (par défaut : 5556 en ZMQ, 22 en SSH, "
-"5556 en Pull et 8086 en PullWSS)"
 
 #: centreon/www/include/views/graphTemplates/help.php
 msgid "Height of grid. Used to export the chart."
@@ -2239,9 +2240,8 @@ msgid ""
 "MySQL configuration file path (e.g. /etc/my.cnf.d/centreon.cnf); leave empty "
 "to use the default value."
 msgstr ""
-"Chemin du fichier de configuration MySQL "
-"(par exemple, /etc/my.cnf.d/centreon.cnf). Laissez vide pour utiliser la "
-"valeur par défaut."
+"Chemin du fichier de configuration MySQL (par exemple, /etc/my.cnf.d/"
+"centreon.cnf). Laissez vide pour utiliser la valeur par défaut."
 
 #: centreon/www/include/options/accessLists/groupsACL/help.php
 msgid "Name of access group."
@@ -2998,14 +2998,6 @@ msgstr "Modèle de graphe par défaut."
 msgid "Set the domain for search the service"
 msgstr "Configure le domaine pour la recherche du service"
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-"Définit le niveau de log le plus bas : Debug => Info => Notice => Warning => "
-"Error => Critical => Alert => Emergency."
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Les criticités sont définies au niveau des catégories d'objets."
@@ -3013,13 +3005,10 @@ msgstr "Les criticités sont définies au niveau des catégories d'objets."
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
 msgstr ""
-"Niveau de gravité, doit être un nombre. Les éléments affichés seront triées "
-"par ordre croissant. Ainsi la criticité le plus basse est considérée comme "
-"de la plus prioritaire."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Short description of configuration"
@@ -6548,6 +6537,10 @@ msgstr ""
 "Compatible uniquement avec Centreon Engine >=1.3."
 
 #: unknown
+msgid "Directory of log files."
+msgstr "Répertoire des fichiers journaux."
+
+#: unknown
 msgid "Directory of trap configuration files."
 msgstr ""
 "Répertoire contenant les fichiers permettant à SNMPTT de traduire les "
@@ -6729,6 +6722,14 @@ msgstr ""
 "Coordonnées géographiques permettant à Centreon MAP de positionner le "
 "groupe d’hôtes sur une vue géographique. Format : Latitude,Longitude. Par "
 "exemple pour Paris, saisir : 48.51,2.20"
+
+#: unknown
+msgid ""
+"Gorgone port of the remote poller (by default: 5556 for ZMQ, 22 for SSH, "
+"5556 for Pull and 8086 for PullWSS)"
+msgstr ""
+"Port Gorgone du collecteur distant (par défaut : 5556 en ZMQ, 22 en SSH, "
+"5556 en Pull et 8086 en PullWSS)"
 
 #: unknown
 msgid "Grid background color."
@@ -7132,6 +7133,14 @@ msgid "Service WARNING Color."
 msgstr "Couleur des services en statut d'alerte."
 
 #: unknown
+msgid ""
+"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
+"Critical => Alert => Emergency"
+msgstr ""
+"Définit le niveau de log le plus bas : Debug => Info => Notice => Warning "
+"=> Error => Critical => Alert => Emergency."
+
+#: unknown
 msgid "Severity level"
 msgstr "Niveau de criticité configurable dans le menu \"Catégories\"."
 
@@ -7143,6 +7152,16 @@ msgstr ""
 #: unknown
 msgid "Severity level, must be a number. "
 msgstr "Niveau de sévérité, doit être un nombre. "
+
+#: unknown
+msgid ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+msgstr ""
+"Niveau de gravité, doit être un nombre. Les éléments affichés seront "
+"triées par ordre croissant. Ainsi la criticité le plus basse est "
+"considérée comme de la plus prioritaire."
 
 #: unknown
 msgid ""
@@ -7195,12 +7214,12 @@ msgid ""
 "notification features based on host inheritance will not work if the "
 "hosts are not monitored by the same poller."
 msgstr ""
-"Spécifiez un ou plusieurs modèles de service, qui doivent être liés à ce modèle. "
-"Un hôte qui utilise ce modèle d'hôte viendra compléter la relation d'hôte "
-"manquante et aboutira à une définition de service complète. Notez que "
-"les fonctionnalités de notification basées sur l'héritage d'hôte ne "
-"fonctionneront pas si les hôtes ne sont pas supervisés par le même "
-"collecteur."
+"Spécifiez un ou plusieurs modèles de service, qui doivent être liés à ce "
+"modèle. Un hôte qui utilise ce modèle d'hôte viendra compléter la "
+"relation d'hôte manquante et aboutira à une définition de service "
+"complète. Notez que les fonctionnalités de notification basées sur "
+"l'héritage d'hôte ne fonctionneront pas si les hôtes ne sont pas "
+"supervisés par le même collecteur."
 
 #: unknown
 msgid ""
