@@ -229,6 +229,65 @@ interface HostGroupDependency {
   comment: string;
 }
 
+// ---------------------------------------------------------------------------
+// Host categories commands
+// ---------------------------------------------------------------------------
+
+Cypress.Commands.add('openHostCategoriesListing', () => {
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
+});
+
+Cypress.Commands.add('getHostCategorySidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openHostCategoryForm', (name: string) => {
+  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+
+  cy.getHostCategorySidePanelBody()
+    .find('input[name="hc_name"]', { timeout: 20000 })
+    .should('be.visible');
+});
+
+Cypress.Commands.add(
+  'selectHostCategoryFieldOption',
+  (label: string, option: string) => {
+    cy.getHostCategorySidePanelBody()
+      .contains('.cf-field', label)
+      .find('.select2-selection')
+      .click({ force: true });
+
+    cy.getHostCategorySidePanelBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .contains(option)
+      .click({ force: true });
+  }
+);
+
+Cypress.Commands.add('createHostCategory', (body: Record<string, unknown>) => {
+  cy.request({
+    body,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    url: '/centreon/api/beta/configuration/hosts/categories'
+  }).then((response) => {
+    expect(response.status).to.eq(201);
+  });
+});
+
 declare global {
   // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
@@ -250,6 +309,14 @@ declare global {
       ) => Cypress.Chainable;
       lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
       visitHostsListingPage: () => Cypress.Chainable;
+      openHostCategoriesListing(): Chainable<void>;
+      getHostCategorySidePanelBody(): Chainable<JQuery<HTMLElement>>;
+      openHostCategoryForm(name: string): Chainable<void>;
+      selectHostCategoryFieldOption(
+        label: string,
+        option: string
+      ): Chainable<void>;
+      createHostCategory(body: Record<string, unknown>): Chainable<void>;
     }
   }
 }

@@ -9967,6 +9967,9 @@ components:
           minLength: 1
           maxLength: 255
           type: string
+        central_address:
+          type: string
+          nullable: true
         id:
           type: integer
           nullable: true
@@ -9986,6 +9989,10 @@ components:
             - docker
           type: string
         address:
+          minLength: 1
+          maxLength: 255
+          type: string
+        central_address:
           minLength: 1
           maxLength: 255
           type: string
@@ -10009,6 +10016,9 @@ components:
               minLength: 1
               maxLength: 255
               type: string
+            central_address:
+              type: string
+              nullable: true
             id:
               type: integer
               nullable: true
@@ -10054,6 +10064,9 @@ components:
           type: string
         address:
           type: string
+        central_address:
+          type: string
+          nullable: true
         id:
           type: integer
           nullable: true
@@ -10084,8 +10097,13 @@ components:
           minLength: 1
           maxLength: 255
           type: string
+        central_address:
+          minLength: 1
+          maxLength: 255
+          type: string
       required:
         - poller_token_name
+        - central_address
     Poller.InstallationCommandResource:
       type: object
       properties:
@@ -10117,6 +10135,9 @@ components:
               type: string
             address:
               type: string
+            central_address:
+              type: string
+              nullable: true
             id:
               type: integer
               nullable: true

@@ -80,6 +80,7 @@ abstract class AbstractObjectJSON
                 throw new RuntimeException('/etc/centreon/engine-context.json does not exists or is empty');
             }
             $engineContext = json_decode($engineContext, true, flags: JSON_THROW_ON_ERROR);
+            $this->engineContextEncryption->setFirstKey($engineContext['app_secret']);
             $this->engineContextEncryption->setSecondKey($engineContext['salt']);
         } catch (JsonException|RuntimeException $ex) {
             CentreonLog::create()->error(

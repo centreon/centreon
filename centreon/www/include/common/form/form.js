@@ -970,6 +970,23 @@ var CentreonForm = (function () {
             // removes stay visible. Visibility is driven by CSS through the
             // classes toggled here.
             if (field) field.classList.add('cf-multi-clearable');
+            // The plugin drops its clear-all eraser as a flex sibling pulled over
+            // the select2 box by a negative margin, so a press on the overlap
+            // lands on select2 (no clear) instead of the eraser — it only works on
+            // part of the icon. Move it inside the positioned container and guard
+            // its mousedown, exactly like the single-select eraser.
+            if ($ && field) {
+                var s2Container = field.querySelector('.select2-container');
+                var multiEraser = field.querySelector('.clearAllSelect2:not(.cf-single-clear)');
+                if (s2Container && multiEraser && multiEraser.parentNode !== s2Container) {
+                    multiEraser.classList.add('cf-multi-clear');
+                    multiEraser.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                    s2Container.appendChild(multiEraser);
+                }
+            }
             var mIsOpen = false;
             function setMultiActive(on) { if (field) field.classList.toggle('cf-select-active', on); }
             function syncMultiFilled() {
@@ -1412,6 +1429,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (e.isTrusted) window.cfFormDirty = true;
             });
         });
+        // select2 mutates its <select> through a jQuery-triggered (untrusted)
+        // change, so the isTrusted guard above never sees add/remove/clear on a
+        // select2 field. Its own user-driven events are the reliable signal.
+        if (window.jQuery) {
+            window.jQuery(form).on(
+                'select2:select select2:unselect select2:clear',
+                function () { window.cfFormDirty = true; }
+            );
+            // A native reset restores the underlying <select> values, but select2
+            // does not re-render on its own, so its chips/selection stay stale.
+            // Re-sync every select2 on the next tick, once the browser has applied
+            // the reset.
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    window.jQuery(form).find('select').trigger('change');
+                }, 0);
+            });
+        }
     });
 });
 var cfMakeToggle    = CentreonForm.makeToggle;
