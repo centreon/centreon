@@ -3244,7 +3244,7 @@ class CentreonACL
                     if (is_array($value) && count($value)) {
                         $db = CentreonDBInstance::getDbCentreonInstance();
                         $inValues = implode("','", array_map(
-                            fn($v) => $db->escape($v),
+                            fn($v) => trim($db->quoteString((string) $v), "'"),
                             $value
                         ));
                     }
