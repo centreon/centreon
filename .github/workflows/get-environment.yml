@@ -740,14 +740,14 @@ jobs:
               "db_id": "mariadb-11.8",
               "test_tags": "not @ignore"
             };
-            const alma9_mysql_8_4 = {
-              "operating_system": "alma9",
+            const alma10_mysql_8_4 = {
+              "operating_system": "alma10",
               "database": "mysql:8.4",
               "db_id": "mysql-8.4",
               "test_tags": "not @ignore"
             };
-            const alma10_mysql_8_4 = {
-              "operating_system": "alma10",
+            const alma9_mysql_8_4 = {
+              "operating_system": "alma9",
               "database": "mysql:8.4",
               "db_id": "mysql-8.4",
               "test_tags": "not @ignore"
@@ -860,7 +860,7 @@ jobs:
               ...info,
             }));
 
-            const cloudDistrib = allDistribs.find(d => d.operating_system === 'alma10');
+            const cloudDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
             const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
             const result = isCloudTestingOrStable ? [cloudDistrib] : isFullRun ? allDistribs : isCloud ? [cloudDistrib] : [onPremMainDistrib];
