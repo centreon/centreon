@@ -45,11 +45,19 @@ if ($search !== '') {
     $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-// ACL filtering: a non-admin only sees the contact groups granted by its access groups.
+// The configuration page lists local contact groups only; LDAP-imported ones are
+// not editable here, and the legacy page scoped them the same way.
+$conditions[] = "cg.cg_type = 'local'";
+
+// ACL filtering: a non-admin only sees the contact groups granted by its access
+// groups, and the member count is scoped to the contacts they may see.
+$countAclClause      = '';
+$countAclParameters  = [];
+
 if (! $helper->isAdmin()) {
     $acl   = $helper->getAcl();
     $cgAcl = $acl !== null
-        ? $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']], false)
+        ? $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']])
         : [];
 
     if ($cgAcl === []) {
@@ -63,6 +71,23 @@ if (! $helper->isAdmin()) {
         $parameters[]   = QueryParameter::int($placeholder, (int) $cgId);
     }
     $conditions[] = 'cg.cg_id IN (' . implode(', ', $placeholders) . ')';
+
+    $contactAcl = $acl !== null
+        ? $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']])
+        : [];
+
+    if ($contactAcl === []) {
+        // No visible contact: every group counts zero rather than its full membership.
+        $countAclClause = ' AND 1 = 0';
+    } else {
+        $contactPlaceholders = [];
+        foreach (array_keys($contactAcl) as $index => $contactId) {
+            $placeholder           = 'acl_ct' . $index;
+            $contactPlaceholders[] = ':' . $placeholder;
+            $countAclParameters[]  = QueryParameter::int($placeholder, (int) $contactId);
+        }
+        $countAclClause = ' AND ccr.contact_contact_id IN (' . implode(', ', $contactPlaceholders) . ')';
+    }
 }
 
 $whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
@@ -80,9 +105,9 @@ $dataQuery = <<<SQL
         cg.cg_alias,
         cg.cg_activate,
         (
-            SELECT COUNT(*)
+            SELECT COUNT(DISTINCT ccr.contact_contact_id)
             FROM contactgroup_contact_relation ccr
-            WHERE ccr.contactgroup_cg_id = cg.cg_id
+            WHERE ccr.contactgroup_cg_id = cg.cg_id{$countAclClause}
         ) AS contact_count
     FROM contactgroup cg
     {$whereClause}
@@ -97,6 +122,7 @@ try {
         $dataQuery,
         QueryParameters::create([
             ...$parameters,
+            ...$countAclParameters,
             QueryParameter::int('offset', $num * $limit),
             QueryParameter::int('limit', $limit),
         ])

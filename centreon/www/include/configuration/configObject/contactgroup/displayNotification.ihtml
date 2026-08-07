@@ -3,14 +3,14 @@
 
 {literal}
 <style>
-    body { background: #fff; margin: 0; }
+    body { background: var(--body-background, #fff); margin: 0; }
     .dn-wrap { padding: 16px 18px; }
     .dn-title { font-size: 16px; font-weight: 600; color: var(--c-text-primary, #255891); margin: 0 0 14px; }
     .dn-filter { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
     .dn-filter label { font-size: 13px; font-weight: 600; color: var(--c-text-secondary, #6b7280); white-space: nowrap; }
-    .dn-filter select { flex: 1; min-width: 0; height: 38px; border: 1px solid var(--c-stroke, #d0d5dd); border-radius: 6px; padding: 0 10px; background: #fff; font-size: 14px; }
+    .dn-filter select { flex: 1; min-width: 0; height: 38px; border: 1px solid var(--c-stroke, #d0d5dd); border-radius: 6px; padding: 0 10px; background: var(--body-background, #fff); font-size: 14px; }
     .dn-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-    .dn-chip { display: inline-block; padding: 4px 12px; border-radius: 14px; background: rgba(46,104,170,.10); color: #255891; font-size: 12px; font-weight: 600; text-decoration: none; }
+    .dn-chip { display: inline-block; padding: 4px 12px; border-radius: 14px; background: rgba(46,104,170,.10); color: var(--bt-info-background-color, #2E68AA); font-size: 12px; font-weight: 600; text-decoration: none; }
     .dn-chip:hover { background: rgba(46,104,170,.20); }
     .dn-table-wrap { margin-bottom: 20px; }
     .dn-host-ico { color: var(--bt-info-background-color, #2E68AA); vertical-align: middle; margin-right: 8px; }

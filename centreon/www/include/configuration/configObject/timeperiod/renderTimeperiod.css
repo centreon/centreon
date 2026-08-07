@@ -40,7 +40,7 @@
 td.unset, td.included, td.excluded, td.warning {
     border: 0; padding: 0; margin: 0; height: 14px; border-radius: 2px;
 }
-.unset    { background-color: #e3e7ec; }
+.unset    { background-color: var(--color-divider, #e3e3e3); }
 .included { background-color: var(--color-success, #88B922); }
 .excluded { background-color: var(--color-danger, #FF4A4A); }
 .warning  { background-color: var(--color-warning, #FD9B27); }

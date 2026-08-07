@@ -121,7 +121,7 @@ var contactListing = new CentreonListing({
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
             var icon = row.admin ? './img/icons/admin.svg' : './img/icons/user.svg';
-            var title = row.admin ? '{/literal}{t}Administrator{/t}{literal}' : '{/literal}{t}User{/t}{literal}';
+            var title = row.admin ? '{/literal}{t escape='js'}Administrator{/t}{literal}' : '{/literal}{t escape='js'}User{/t}{literal}';
             return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
@@ -134,13 +134,13 @@ var contactListing = new CentreonListing({
         { id:'lang', align:'center' },
         { id:'access', align:'center', render: function(row) {
             return row.access
-                ? '<span class="cl-tag cl-tag--success">Enabled</span>'
-                : '<span class="cl-tag cl-tag--neutral">Disabled</span>';
+                ? '<span class="cl-tag cl-tag--success">{/literal}{t escape='js'}Enabled{/t}{literal}</span>'
+                : '<span class="cl-tag cl-tag--neutral">{/literal}{t escape='js'}Disabled{/t}{literal}</span>';
         }},
         { id:'admin', align:'center', render: function(row) {
             return row.admin
-                ? '<span class="cl-tag cl-tag--info">Yes</span>'
-                : '<span class="cl-tag cl-tag--neutral">No</span>';
+                ? '<span class="cl-tag cl-tag--info">{/literal}{t escape='js'}Yes{/t}{literal}</span>'
+                : '<span class="cl-tag cl-tag--neutral">{/literal}{t escape='js'}No{/t}{literal}</span>';
         }}
     ],
     renderOptions: function(row, l) {

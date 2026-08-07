@@ -44,7 +44,7 @@
                 <td>
                     <table style="width:360px;"><tr style="border:0px;">
                         {foreach name=times from=$dtl item=time}
-                        <td class="{$time.style}" style="border:0px; width:{$time.size}px;" onmouseover="showTip(event,'{$time.From}')" onmouseout="hideTip()"></td>
+                        <td class="{$time.style}" style="border:0px; width:{$time.size}px;" onmouseover="showTip(event,'{$time.From|escape:'javascript'|escape}')" onmouseout="hideTip()"></td>
                         {/foreach}
                     </tr></table>
                 </td>

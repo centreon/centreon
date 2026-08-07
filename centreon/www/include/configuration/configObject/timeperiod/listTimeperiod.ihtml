@@ -46,9 +46,7 @@ CentreonForm.detectSidePanelClose();
                     </th>
                     <th>{$headerMenu_name}</th>
                     <th>{$headerMenu_desc}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{t}Actions{/t}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">
