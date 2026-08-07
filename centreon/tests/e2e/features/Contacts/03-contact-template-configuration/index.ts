@@ -5,18 +5,23 @@ import contactTemplates from '../../../fixtures/users/contact.json';
 import {
   contactTemplatesPage,
   expectRowToggleUnchecked,
+  listingAlias,
   searchListing,
   toggleListingRow,
   visitListing,
-  waitForListingRefresh
+  waitForListingXhr
 } from '../common';
 
 const checkContactTemplateFromListing = (contactTemplateName: string) => {
-  visitListing(contactTemplatesPage);
+  visitListing(contactTemplatesPage, listingAlias.contactTemplates);
   cy.checkListingRow(contactTemplateName);
 };
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactTemplateListing.php*'
+  }).as('getContactTemplateListing');
   cy.startContainers();
   cy.intercept({
     method: 'POST',
@@ -52,7 +57,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact template is configured', () => {
-  visitListing(contactTemplatesPage);
+  visitListing(contactTemplatesPage, listingAlias.contactTemplates);
   cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addOrUpdateContactTemplate({
     ...contactTemplates.defaultTemplate,
@@ -64,7 +69,7 @@ When('a contact template is configured', () => {
 When(
   'the user updates the properties of the configured contact template',
   () => {
-    waitForListingRefresh();
+    waitForListingXhr(listingAlias.contactTemplates);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains('a', contactTemplates.defaultTemplate.alias)
@@ -78,7 +83,7 @@ When(
 );
 
 Then('the properties are updated', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contactTemplates);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', contactTemplates.templateForUpdate.alias)
@@ -148,7 +153,7 @@ When('the user duplicates the configured contact template', () => {
 });
 
 Then('a new contact template is created with identical properties', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contactTemplates);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', `${contactTemplates.defaultTemplate.alias}_1`)
@@ -210,7 +215,7 @@ When('the user deletes the configured contact template', () => {
 Then(
   'the deleted contact template is not visible anymore on the contact template page',
   () => {
-    waitForListingRefresh();
+    waitForListingXhr(listingAlias.contactTemplates);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains(contactTemplates.defaultTemplate.alias)
@@ -223,7 +228,7 @@ Then(
 // ---------------------------------------------------------------------------
 
 When('the user displays the contact templates listing', () => {
-  visitListing(contactTemplatesPage);
+  visitListing(contactTemplatesPage, listingAlias.contactTemplates);
 });
 
 Then('the listing table is displayed with contact template rows', () => {
@@ -235,7 +240,10 @@ Then('the listing table is displayed with contact template rows', () => {
 });
 
 When('the user searches for the configured contact template', () => {
-  searchListing(contactTemplates.defaultTemplate.alias);
+  searchListing(
+    contactTemplates.defaultTemplate.alias,
+    listingAlias.contactTemplates
+  );
 });
 
 Then('only the matching contact template is displayed', () => {

@@ -1,7 +1,6 @@
-
-
 import 'cypress-wait-until';
 import '../../../packages/js-config/cypress/e2e/commands';
+
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/ACLs/commands';
 import '../features/Api-Token/commands';
@@ -22,7 +21,6 @@ import '../features/Additional-connectors/commands';
 import '../features/Macros/commands';
 
 import type { ActionClapi } from '../commons';
-
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -101,24 +99,23 @@ interface Serviceparams {
 }
 
 Cypress.Commands.add(
-  "setServiceParameters",
+  'setServiceParameters',
   ({ name, paramName, paramValue }: Serviceparams): Cypress.Chainable => {
     return cy.executeActionViaClapi({
       bodyContent: {
-        action: "SETPARAM",
-        object: "HOST",
-        values: `${name};${paramName};${paramValue}`,
-      },
+        action: 'SETPARAM',
+        object: 'HOST',
+        values: `${name};${paramName};${paramValue}`
+      }
     });
   }
 );
 
-Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
-  return cy.get(iframeSelector)
-    .its("0.contentDocument");
+Cypress.Commands.add('enterIframe', (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector).its('0.contentDocument');
 });
 
-Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
+Cypress.Commands.add('checkFirstRowFromListing', (waitElt) => {
   cy.waitForElementInIframe('#main-content', `input[name=${waitElt}]`);
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -183,22 +180,25 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
+Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
   cy.getIframeBody()
-  .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
-  .clear()
-  .type(body.valueOrIndex);
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .clear()
+    .type(body.valueOrIndex);
 });
 
-Cypress.Commands.add('clickOnFieldInIframe',(body: HtmlElt)=> {
-  cy.getIframeBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
+Cypress.Commands.add('clickOnFieldInIframe', (body: HtmlElt) => {
+  cy.getIframeBody()
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .eq(Number(body.valueOrIndex))
+    .click();
 });
 
 interface HtmlElt {
-  tag: string,
-  attribut: string,
-  attributValue: string,
-  valueOrIndex: string
+  tag: string;
+  attribut: string;
+  attributValue: string;
+  valueOrIndex: string;
 }
 
 declare global {
@@ -216,7 +216,7 @@ declare global {
       setServiceParameters: ({
         name,
         paramName,
-        paramValue,
+        paramValue
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;

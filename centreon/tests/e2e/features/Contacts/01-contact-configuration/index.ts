@@ -5,25 +5,27 @@ import contacts from '../../../fixtures/users/contact.json';
 import {
   contactsPage,
   expectRowToggleUnchecked,
+  listingAlias,
   searchListing,
   toggleListingRow,
   visitListing,
-  waitForListingRefresh
+  waitForListingXhr
 } from '../common';
 
+const listingTestContacts = ['test_contact_alpha', 'test_contact_beta'];
 let isAdmin = true;
 let contactPageIndex = 3;
 let accessGroup = 'user-ACLGROUP';
 const checkContactFromListing = () => {
   cy.visitContactsPage(contactPageIndex);
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.checkListingRow(contacts.default.alias);
 };
 
 /** Close the form side panel and come back to the listing. */
 const closeSidePanel = () => {
   cy.getIframeBody().find('button.cf-side-panel-close').click();
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
 };
 
 before(() => {
@@ -31,6 +33,10 @@ before(() => {
 });
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactListing.php*'
+  }).as('getContactListing');
   cy.setUserTokenApiV1()
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/contacts-management-acl-user.json'
@@ -80,6 +86,18 @@ afterEach(() => {
       });
     }
   }
+  for (const alias of listingTestContacts) {
+    for (const contactAlias of [alias, `${alias}_1`]) {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'DEL',
+          object: 'CONTACT',
+          values: contactAlias
+        },
+        failOnError: false
+      });
+    }
+  }
   cy.logoutViaAPI({ failOnError: false });
 });
 
@@ -98,7 +116,7 @@ Given('a {string} user is logged in a Centreon server', (user: string) => {
 
 When('a contact is configured', () => {
   cy.visitContactsPage(contactPageIndex);
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addOrUpdateContact(contacts.default);
   if (!isAdmin) {
@@ -122,7 +140,7 @@ When('a contact is configured', () => {
 });
 
 When('the user updates some contact properties', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', contacts.default.alias)
@@ -137,7 +155,7 @@ When('the user updates some contact properties', () => {
 });
 
 Then('these properties are updated', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', contacts.contactForUpdate.alias)
@@ -168,7 +186,7 @@ When('the user duplicates the configured contact', () => {
 });
 
 Then('a new contact is created with identical properties', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', `${contacts.default.alias}_1`)
@@ -199,7 +217,7 @@ When('the user deletes the configured contact', () => {
 });
 
 Then('the deleted contact is not visible anymore on the contact page', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains(contacts.default.name)
@@ -211,7 +229,7 @@ Given('the contact configuration page is displayed', () => {
 });
 
 When('the user clicks on the contact creation button', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody().find('a.cl-btn-add').click();
 });
 
@@ -275,7 +293,7 @@ Then('the contact is not created', () => {
 });
 
 When('the {string} user clicks on a this contact', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', contacts.default.alias)
@@ -341,7 +359,7 @@ When(
   'the non-admin user with READ ONLY rights displays contacts configuration',
   () => {
     cy.visitContactsPage(contactPageIndex);
-    waitForListingRefresh();
+    waitForListingXhr(listingAlias.contacts);
     // Check that the page is on READ ONLY mod
     cy.getIframeBody().find('a.cl-btn-add').should('not.exist');
   }
@@ -350,7 +368,7 @@ When(
 When(
   'the non-admin user with READ ONLY rights clicks on the configured contact',
   () => {
-    waitForListingRefresh();
+    waitForListingXhr(listingAlias.contacts);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains('a', contacts.default.alias)
@@ -389,11 +407,11 @@ Given('test contacts exist', () => {
 });
 
 When('the user displays the contacts listing', () => {
-  visitListing(contactsPage);
+  visitListing(contactsPage, listingAlias.contacts);
 });
 
 When('the user displays the contacts listing again', () => {
-  visitListing(contactsPage);
+  visitListing(contactsPage, listingAlias.contacts);
 });
 
 Then('the listing table is displayed with contact rows', () => {
@@ -405,7 +423,7 @@ Then('the listing table is displayed with contact rows', () => {
 });
 
 When('the user searches for a specific contact', () => {
-  searchListing('test_contact_alpha');
+  searchListing('test_contact_alpha', listingAlias.contacts);
 });
 
 Then('only the matching contact is displayed', () => {
@@ -438,7 +456,8 @@ Then('the toggle response is successful', () => {
 Then('the admin user toggle is disabled', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('tr', 'admin')
+    .contains('a', 'admin')
+    .parents('tr')
     .find('.cl-toggle input[type="checkbox"]')
     .should('be.disabled');
 });

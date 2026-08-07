@@ -2,9 +2,18 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import contacts from '../../../fixtures/users/contact.json';
-import { contactsPage, visitListing, waitForListingRefresh } from '../common';
+import {
+  contactsPage,
+  listingAlias,
+  visitListing,
+  waitForListingXhr
+} from '../common';
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactListing.php*'
+  }).as('getContactListing');
   cy.startContainers();
   cy.intercept({
     method: 'GET',
@@ -36,7 +45,7 @@ When('one non admin contact has been created', () => {
 When(
   'the user has changed the contact alias by adding a special character',
   () => {
-    visitListing(contactsPage);
+    visitListing(contactsPage, listingAlias.contacts);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains('a', 'user-with-access-to-allmodules')
@@ -54,7 +63,7 @@ When(
 Then(
   'the new record is displayed in the users list with the new alias value',
   () => {
-    waitForListingRefresh();
+    waitForListingXhr(listingAlias.contacts);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains('a', contacts.contactWithSpecialAlias.alias)
@@ -68,7 +77,7 @@ Then(
 );
 
 Given('the contact alias contains an accent', () => {
-  visitListing(contactsPage);
+  visitListing(contactsPage, listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', 'user-with-access-to-allmodules')

@@ -4,18 +4,31 @@ const contactsPage = PAGES.configuration.contactsUsersLegacy;
 const contactTemplatesPage = PAGES.configuration.contactTemplatesLegacy;
 const contactGroupsPage = PAGES.configuration.contactGroupsLegacy;
 
-/** Wait for a modernized listing to swap its loading row for real rows. */
-function waitForListingRefresh(): void {
+/**
+ * Aliases of the listing XHR, registered in each spec's beforeEach. Waiting on
+ * the request is the only reliable synchronisation: the "Loading..." row is
+ * rendered on the first load only, and closing the side panel refetches
+ * silently, so a DOM-only wait passes against stale rows.
+ */
+const listingAlias = {
+  contactGroups: '@getContactGroupListing',
+  contacts: '@getContactListing',
+  contactTemplates: '@getContactTemplateListing'
+};
+
+/** Wait for a listing fetch to land and its rows to be rendered. */
+function waitForListingXhr(alias: string): void {
+  cy.wait(alias);
   cy.getIframeBody()
     .find('#clTableBody tr td')
     .should('not.contain', 'Loading');
 }
 
 /** Open a modernized listing and wait for its first AJAX page. */
-function visitListing(page: string): void {
+function visitListing(page: string, alias: string): void {
   cy.visit(page);
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForListingRefresh();
+  waitForListingXhr(alias);
   cy.getIframeBody()
     .find('#clTableBody .cl-col-picker input[type="checkbox"]')
     .should('have.length.greaterThan', 0);
@@ -26,9 +39,9 @@ function visitListing(page: string): void {
  * is debounced on input; only the contacts listing renders a Search button, so
  * no step may rely on one.
  */
-function searchListing(term: string): void {
+function searchListing(term: string, alias: string): void {
   cy.getIframeBody().find('#clSearchInput').clear().type(term);
-  waitForListingRefresh();
+  waitForListingXhr(alias);
 }
 
 /**
@@ -57,8 +70,9 @@ export {
   contactTemplatesPage,
   contactsPage,
   expectRowToggleUnchecked,
+  listingAlias,
   searchListing,
   toggleListingRow,
   visitListing,
-  waitForListingRefresh
+  waitForListingXhr
 };

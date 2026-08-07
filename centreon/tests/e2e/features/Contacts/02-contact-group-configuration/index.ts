@@ -5,18 +5,23 @@ import groups from '../../../fixtures/users/contact.json';
 import {
   contactGroupsPage,
   expectRowToggleUnchecked,
+  listingAlias,
   searchListing,
   toggleListingRow,
   visitListing,
-  waitForListingRefresh
+  waitForListingXhr
 } from '../common';
 
 const checkFirstContactGroupFromListing = () => {
-  visitListing(contactGroupsPage);
+  visitListing(contactGroupsPage, listingAlias.contactGroups);
   cy.checkListingRow(groups.defaultGroup.name);
 };
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactGroupListing.php*'
+  }).as('getContactGroupListing');
   cy.startContainers();
   cy.intercept({
     method: 'GET',
@@ -52,13 +57,13 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact group is configured', () => {
-  visitListing(contactGroupsPage);
+  visitListing(contactGroupsPage, listingAlias.contactGroups);
   cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addOrUpdateContactGroup(groups.defaultGroup);
 });
 
 When('the user updates the properties of the configured contact group', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contactGroups);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', groups.defaultGroup.name)
@@ -67,7 +72,7 @@ When('the user updates the properties of the configured contact group', () => {
 });
 
 Then('the properties are updated', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contactGroups);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', groups.GroupForUpdate.name)
@@ -115,7 +120,7 @@ When('the user duplicates the configured contact group', () => {
 });
 
 Then('a new contact group is created with identical properties', () => {
-  waitForListingRefresh();
+  waitForListingXhr(listingAlias.contactGroups);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', `${groups.defaultGroup.name}_1`)
@@ -164,7 +169,7 @@ When('the user deletes the configured contact group', () => {
 Then(
   'the deleted contact group is not visible anymore on the contact group page',
   () => {
-    waitForListingRefresh();
+    waitForListingXhr(listingAlias.contactGroups);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains(groups.defaultGroup.name)
@@ -177,7 +182,7 @@ Then(
 // ---------------------------------------------------------------------------
 
 When('the user displays the contact groups listing', () => {
-  visitListing(contactGroupsPage);
+  visitListing(contactGroupsPage, listingAlias.contactGroups);
 });
 
 Then('the listing table is displayed with contact group rows', () => {
@@ -189,15 +194,17 @@ Then('the listing table is displayed with contact group rows', () => {
 });
 
 When('the user searches for the configured contact group', () => {
-  searchListing(groups.defaultGroup.name);
+  searchListing(groups.defaultGroup.name, listingAlias.contactGroups);
 });
 
 Then('only the matching contact group is displayed', () => {
+  // A retried length assertion, not .each(): .each() snapshots the row list and
+  // would iterate the pre-search rows.
+  cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
   cy.getIframeBody()
-    .find('#clTableBody tr')
-    .each(($row) => {
-      cy.wrap($row).invoke('text').should('include', groups.defaultGroup.name);
-    });
+    .find('#clTableBody')
+    .contains(groups.defaultGroup.name)
+    .should('exist');
 });
 
 When('the user clicks the toggle to disable the contact group', () => {

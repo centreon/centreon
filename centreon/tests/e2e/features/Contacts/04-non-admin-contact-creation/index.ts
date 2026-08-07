@@ -1,9 +1,13 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import { contactsPage, visitListing } from '../common';
+import { contactsPage, listingAlias, visitListing } from '../common';
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactListing.php*'
+  }).as('getContactListing');
   cy.startContainers();
   cy.intercept({
     method: 'GET',
@@ -20,7 +24,7 @@ afterEach(() => {
 });
 
 const checkCreatedContactFromListing = () => {
-  visitListing(contactsPage);
+  visitListing(contactsPage, listingAlias.contacts);
   cy.checkListingRow('user-with-access-to-allmodules');
 };
 
