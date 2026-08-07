@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import contacts from '../../../fixtures/users/contact.json';
+import { contactsPage, visitListing, waitForListingRefresh } from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -36,10 +36,13 @@ When('one non admin contact has been created', () => {
 When(
   'the user has changed the contact alias by adding a special character',
   () => {
-    cy.visit(PAGES.configuration.contactsUsersLegacy);
-    cy.getIframeBody().contains('user-with-access-to-allmodules').click();
-    cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+    visitListing(contactsPage);
     cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', 'user-with-access-to-allmodules')
+      .click();
+    cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+    cy.getSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
       .eq(0)
       .click();
@@ -51,22 +54,30 @@ When(
 Then(
   'the new record is displayed in the users list with the new alias value',
   () => {
+    waitForListingRefresh();
     cy.getIframeBody()
-      .contains(contacts.contactWithSpecialAlias.alias)
-      .should('be.visible');
-    cy.getIframeBody().contains(contacts.contactWithSpecialAlias.alias).click();
-    cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
-    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', contacts.contactWithSpecialAlias.alias)
+      .should('be.visible')
+      .click();
+    cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+    cy.getSidePanelBody()
       .find('input[id="contact_alias"]')
       .should('have.value', contacts.contactWithSpecialAlias.alias);
   }
 );
 
 Given('the contact alias contains an accent', () => {
-  cy.visit(PAGES.configuration.contactsUsersLegacy);
-  cy.getIframeBody().contains('user-with-access-to-allmodules').click();
+  visitListing(contactsPage);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'user-with-access-to-allmodules')
+    .click();
   cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(0)
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
   cy.logout();

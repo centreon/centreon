@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
+
+import { contactsPage, visitListing } from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -19,16 +20,8 @@ afterEach(() => {
 });
 
 const checkCreatedContactFromListing = () => {
-  cy.visit(PAGES.configuration.contactsUsersLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(5).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
+  visitListing(contactsPage);
+  cy.checkListingRow('user-with-access-to-allmodules');
 };
 
 Given('an admin user is logged in a Centreon server', () => {
@@ -46,7 +39,7 @@ When('the admin user creates a non admin contact', () => {
 
 When('the admin user duplicates the newly created non-admin contact', () => {
   checkCreatedContactFromListing();
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.runListingBulkAction('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -54,7 +47,7 @@ When('the admin user duplicates the newly created non-admin contact', () => {
 When('the admin user deletes the original non-admin contact', () => {
   cy.reload();
   checkCreatedContactFromListing();
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.runListingBulkAction('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });

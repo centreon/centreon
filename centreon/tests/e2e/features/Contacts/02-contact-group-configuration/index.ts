@@ -1,20 +1,19 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import groups from '../../../fixtures/users/contact.json';
+import {
+  contactGroupsPage,
+  expectRowToggleUnchecked,
+  searchListing,
+  toggleListingRow,
+  visitListing,
+  waitForListingRefresh
+} from '../common';
 
 const checkFirstContactGroupFromListing = () => {
-  cy.visit(PAGES.configuration.contactGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
+  visitListing(contactGroupsPage);
+  cy.checkListingRow(groups.defaultGroup.name);
 };
 
 beforeEach(() => {
@@ -35,6 +34,10 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.pages.centreon_administration_aclgroup}*`
   }).as('getACLGroups');
+  cy.intercept({
+    method: 'POST',
+    url: '**/ajaxContactGroupToggle.php'
+  }).as('toggleContactGroup');
 });
 
 afterEach(() => {
@@ -49,29 +52,35 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact group is configured', () => {
-  cy.visit(PAGES.configuration.contactGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('a', 'Add').click();
+  visitListing(contactGroupsPage);
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addOrUpdateContactGroup(groups.defaultGroup);
 });
 
 When('the user updates the properties of the configured contact group', () => {
-  cy.getIframeBody().contains(groups.defaultGroup.name).click();
+  waitForListingRefresh();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', groups.defaultGroup.name)
+    .click();
   cy.addOrUpdateContactGroup(groups.GroupForUpdate);
 });
 
 Then('the properties are updated', () => {
-  cy.getIframeBody().contains(groups.GroupForUpdate.name).should('exist');
-  cy.getIframeBody().contains(groups.GroupForUpdate.name).click();
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="cg_name"]');
+  waitForListingRefresh();
   cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', groups.GroupForUpdate.name)
+    .click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="cg_name"]')
     .should('have.value', groups.GroupForUpdate.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="cg_alias"]')
     .should('have.value', groups.GroupForUpdate.alias);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_contacts')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -83,7 +92,7 @@ Then('the properties are updated', () => {
         groups.GroupForUpdate.linkedContact
       ]);
     });
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_acl_groups')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -93,30 +102,33 @@ Then('the properties are updated', () => {
       expect(selectedTexts).to.include.members(['ALL']);
     });
   cy.checkLegacyRadioButton(groups.GroupForUpdate.status);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .should('have.value', groups.GroupForUpdate.comment);
 });
 
 When('the user duplicates the configured contact group', () => {
   checkFirstContactGroupFromListing();
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.runListingBulkAction('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('a new contact group is created with identical properties', () => {
-  cy.getIframeBody().contains(`${groups.defaultGroup.name}_1`).should('exist');
-  cy.getIframeBody().contains(`${groups.defaultGroup.name}_1`).click();
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="cg_name"]');
+  waitForListingRefresh();
   cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', `${groups.defaultGroup.name}_1`)
+    .click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="cg_name"]')
     .should('have.value', `${groups.defaultGroup.name}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="cg_alias"]')
     .should('have.value', groups.defaultGroup.alias);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_contacts')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -127,7 +139,7 @@ Then('a new contact group is created with identical properties', () => {
         groups.defaultGroup.linkedContact
       ]);
     });
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_acl_groups')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -137,14 +149,14 @@ Then('a new contact group is created with identical properties', () => {
       expect(selectedTexts).to.include.members(['ALL']);
     });
   cy.checkLegacyRadioButton(groups.defaultGroup.status);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .should('have.value', groups.defaultGroup.comment);
 });
 
 When('the user deletes the configured contact group', () => {
   checkFirstContactGroupFromListing();
-  cy.getIframeBody().find('select[name="o1"').select('Delete');
+  cy.runListingBulkAction('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -152,6 +164,48 @@ When('the user deletes the configured contact group', () => {
 Then(
   'the deleted contact group is not visible anymore on the contact group page',
   () => {
-    cy.getIframeBody().contains(groups.defaultGroup.name).should('not.exist');
+    waitForListingRefresh();
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(groups.defaultGroup.name)
+      .should('not.exist');
   }
 );
+
+// ---------------------------------------------------------------------------
+// Modernized listing (MON-200035)
+// ---------------------------------------------------------------------------
+
+When('the user displays the contact groups listing', () => {
+  visitListing(contactGroupsPage);
+});
+
+Then('the listing table is displayed with contact group rows', () => {
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(groups.defaultGroup.name)
+    .should('exist');
+});
+
+When('the user searches for the configured contact group', () => {
+  searchListing(groups.defaultGroup.name);
+});
+
+Then('only the matching contact group is displayed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .each(($row) => {
+      cy.wrap($row).invoke('text').should('include', groups.defaultGroup.name);
+    });
+});
+
+When('the user clicks the toggle to disable the contact group', () => {
+  toggleListingRow(groups.defaultGroup.name);
+  cy.wait('@toggleContactGroup');
+});
+
+Then('the contact group toggle switches to disabled', () => {
+  cy.get('@toggleContactGroup').its('response.statusCode').should('eq', 200);
+  expectRowToggleUnchecked(groups.defaultGroup.name);
+});

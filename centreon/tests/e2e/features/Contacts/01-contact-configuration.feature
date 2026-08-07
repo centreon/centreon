@@ -81,3 +81,42 @@ Feature: ContactConfiguration
     And the non-admin user with READ ONLY rights displays contacts configuration
     And the non-admin user with READ ONLY rights clicks on the configured contact
     Then the form of this contact is displayed in READ ONLY mode
+
+  @MON-200035
+  Scenario: The contacts listing loads its rows over AJAX
+    Given a "admin" user is logged in a Centreon server
+    And test contacts exist
+    When the user displays the contacts listing
+    Then the listing table is displayed with contact rows
+
+  @MON-200035
+  Scenario: Searching filters the contacts listing
+    Given a "admin" user is logged in a Centreon server
+    And test contacts exist
+    When the user displays the contacts listing
+    And the user searches for a specific contact
+    Then only the matching contact is displayed
+
+  @MON-200035
+  Scenario: Toggling a contact disables it
+    Given a "admin" user is logged in a Centreon server
+    And test contacts exist
+    When the user displays the contacts listing
+    And the user clicks the toggle to disable a contact
+    Then the contact toggle switches to disabled
+    And the toggle response is successful
+
+  @MON-200035
+  Scenario: A user cannot toggle their own account
+    Given a "admin" user is logged in a Centreon server
+    When the user displays the contacts listing
+    Then the admin user toggle is disabled
+
+  @MON-200035
+  Scenario: The contacts search term survives navigating away and back
+    Given a "admin" user is logged in a Centreon server
+    And test contacts exist
+    When the user displays the contacts listing
+    And the user searches for a specific contact
+    And the user displays the contacts listing again
+    Then the contacts search field still contains the search term

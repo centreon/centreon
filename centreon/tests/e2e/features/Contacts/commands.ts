@@ -29,8 +29,8 @@ interface ContactTemplate {
 
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
-  cy.getIframeBody().within(() => {
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody().within(() => {
     cy.get('input[id="contact_alias"]').type(
       `{selectAll}{backspace}${body.alias}`
     );
@@ -50,64 +50,85 @@ Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
 
 Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="cg_name"]');
-  cy.getIframeBody().find('input[name="cg_name"]').clear().type(body.name);
-  cy.getIframeBody().find('input[name="cg_alias"]').clear().type(body.alias);
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody().find('input[name="cg_name"]').clear().type(body.name);
+  cy.getSidePanelBody().find('input[name="cg_alias"]').clear().type(body.alias);
 
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getSidePanelBody()
+    .find('input[class="select2-search__field"]')
+    .eq(0)
+    .click();
   cy.wait('@getContacts');
-  cy.getIframeBody().contains('div', body.linkedContact).click();
+  cy.getSidePanelBody().contains('div', body.linkedContact).click();
 
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click();
+  cy.getSidePanelBody()
+    .find('input[class="select2-search__field"]')
+    .eq(1)
+    .click();
   cy.wait('@getACLGroups');
-  cy.getIframeBody().contains('div', 'ALL').click();
+  cy.getSidePanelBody().contains('div', 'ALL').click();
 
-  cy.getIframeBody().contains(body.status).click();
+  cy.getSidePanelBody().contains(body.status).click();
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .clear()
     .type(body.comment);
 
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(1)
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Cypress.Commands.add('addOrUpdateContactTemplate', (body: ContactTemplate) => {
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
-  cy.getIframeBody()
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="contact_alias"]')
     .clear()
     .type(body.alias);
-  cy.getIframeBody().find('input[name="contact_name"]').clear().type(body.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
+    .find('input[name="contact_name"]')
+    .clear()
+    .type(body.name);
+  cy.getSidePanelBody()
     .find('select[name="contact_template_id"]')
     .select(body.usedContactTemplate);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="default_page"]')
     .select(body.defaultPage);
-  cy.getIframeBody().contains('label', body.isNotEnabled).click();
-  cy.getIframeBody().find('label[for="hDown"]').click();
-  cy.getIframeBody()
+  cy.getSidePanelBody().contains('label', body.isNotEnabled).click();
+  cy.getSidePanelBody().find('label[for="hDown"]').click();
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .click();
   cy.wait('@getTimePeriods');
-  cy.getIframeBody().find(`div[title="${body.timePeriod}"]`).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getSidePanelBody().find(`div[title="${body.timePeriod}"]`).click();
+  cy.getSidePanelBody()
+    .find('input[class="select2-search__field"]')
+    .eq(0)
+    .click();
   cy.wait('@getNotCommands');
-  cy.getIframeBody().find(`div[title="${body.notCommands}"]`).click();
-  cy.getIframeBody().find('label[for="sWarning"]').click();
-  cy.getIframeBody()
+  cy.getSidePanelBody().find(`div[title="${body.notCommands}"]`).click();
+  cy.getSidePanelBody().find('label[for="sWarning"]').click();
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id2-container"]')
     .click();
   cy.wait('@getTimePeriods');
-  cy.getIframeBody().find(`div[title="${body.timePeriod}"]`).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click();
+  cy.getSidePanelBody().find(`div[title="${body.timePeriod}"]`).click();
+  cy.getSidePanelBody()
+    .find('input[class="select2-search__field"]')
+    .eq(1)
+    .click();
   cy.wait('@getNotCommands');
-  cy.getIframeBody().find(`div[title="${body.notCommands}"]`).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  cy.getSidePanelBody().find(`div[title="${body.notCommands}"]`).click();
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(1)
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
