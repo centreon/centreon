@@ -8,7 +8,7 @@ import {
   labelStartFreeTrial
 } from '../translatedLabels';
 
-const editionsUrl = 'https://www.centreon.com/editions/';
+const freeTrialUrl = 'https://www.centreon.com/free-trial/';
 
 const EditionsUpsell = (): JSX.Element => {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ const EditionsUpsell = (): JSX.Element => {
       </p>
       <a
         className="relative shrink-0 rounded bg-primary-light px-4.5 py-2.5 font-medium whitespace-nowrap text-primary-main no-underline"
-        href={editionsUrl}
+        href={freeTrialUrl}
         rel="noreferrer noopener"
         target="_blank"
       >

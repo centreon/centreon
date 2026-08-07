@@ -24,7 +24,7 @@ import ResourceCard from './ResourceCard';
 
 const links = {
   docs: 'https://docs.centreon.com',
-  editions: 'https://www.centreon.com/editions/',
+  editions: 'https://www.centreon.com/pricing-centreon-infra-monitoring/',
   github: 'https://github.com/centreon/centreon',
   watch: 'https://thewatch.centreon.com'
 };
