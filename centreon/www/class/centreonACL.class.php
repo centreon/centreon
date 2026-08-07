@@ -3242,11 +3242,7 @@ class CentreonACL
                 if ($op == 'IN') {
                     $inValues = '';
                     if (is_array($value) && count($value)) {
-                        $db = CentreonDBInstance::getDbCentreonInstance();
-                        $inValues = implode("','", array_map(
-                            fn($v) => trim($db->quoteString((string) $v), "'"),
-                            $value
-                        ));
+                        $inValues = implode("','", $value);
                     }
                     $requests['conditions'] .= $clause . ' ' . $key . ' ' . $op . " ('" . $inValues . "') ";
                 } else {
