@@ -25492,3 +25492,131 @@ msgstr "Está a punto de duplicar <strong>{{ count }} categorías de host</stron
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
 
+
+#: unknown
+msgid "Delete contact"
+msgstr "Eliminar contacto"
+
+#: unknown
+msgid "Delete contacts"
+msgstr "Eliminar contactos"
+
+#: unknown
+msgid "Duplicate contact"
+msgstr "Duplicar contacto"
+
+#: unknown
+msgid "Duplicate contacts"
+msgstr "Duplicar contactos"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> contact. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar el contacto <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} contacts.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} contactos</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlos?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> contact. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar el contacto <strong>{{ name }}</strong>. ¿Desea duplicarlo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} contacts.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} contactos</strong>. ¿Desea duplicarlos?"
+
+#: unknown
+msgid "Delete contact template"
+msgstr "Eliminar plantilla de contacto"
+
+#: unknown
+msgid "Delete contact templates"
+msgstr "Eliminar plantillas de contacto"
+
+#: unknown
+msgid "Duplicate contact template"
+msgstr "Duplicar plantilla de contacto"
+
+#: unknown
+msgid "Duplicate contact templates"
+msgstr "Duplicar plantillas de contacto"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> contact template. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar la plantilla de contacto <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarla?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} contact templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} plantillas de contacto</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlas?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> contact template. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar la plantilla de contacto <strong>{{ name }}</strong>. ¿Desea duplicarla?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} contact templates.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} plantillas de contacto</strong>. ¿Desea duplicarlas?"
+
+#: unknown
+msgid "Delete contact group"
+msgstr "Eliminar grupo de contactos"
+
+#: unknown
+msgid "Delete contact groups"
+msgstr "Eliminar grupos de contactos"
+
+#: unknown
+msgid "Duplicate contact group"
+msgstr "Duplicar grupo de contactos"
+
+#: unknown
+msgid "Duplicate contact groups"
+msgstr "Duplicar grupos de contactos"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> contact group. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar el grupo de contactos <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} contact groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} grupos de contactos</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlos?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> contact group. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar el grupo de contactos <strong>{{ name }}</strong>. ¿Desea duplicarlo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} contact groups.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} grupos de contactos</strong>. ¿Desea duplicarlos?"
+
+#: unknown
+msgid "Delete time period"
+msgstr "Eliminar periodo de tiempo"
+
+#: unknown
+msgid "Delete time periods"
+msgstr "Eliminar periodos de tiempo"
+
+#: unknown
+msgid "Duplicate time period"
+msgstr "Duplicar periodo de tiempo"
+
+#: unknown
+msgid "Duplicate time periods"
+msgstr "Duplicar periodos de tiempo"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> time period. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar el periodo de tiempo <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} time periods.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} periodos de tiempo</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlos?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> time period. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar el periodo de tiempo <strong>{{ name }}</strong>. ¿Desea duplicarlo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} periodos de tiempo</strong>. ¿Desea duplicarlos?"
