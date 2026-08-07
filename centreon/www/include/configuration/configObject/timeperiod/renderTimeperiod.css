@@ -15,7 +15,7 @@
 .tp-switch select {
     height: 36px; min-width: 240px;
     border: 1px solid var(--c-stroke, #d0d5dd); border-radius: 6px;
-    padding: 0 10px; background: #fff; font-size: 14px;
+    padding: 0 10px; background: var(--body-background, #fff); font-size: 14px;
 }
 
 .tp-section-title {
@@ -23,7 +23,7 @@
     font-size: 13px; font-weight: 600;
     color: var(--c-text-primary, #255891);
     margin: 20px 0 8px; padding-bottom: 4px;
-    border-bottom: 1px solid var(--c-divider, #e8e8e8);
+    border-bottom: 1px solid var(--color-divider, #e3e3e3);
 }
 .tp-section-title svg { color: var(--bt-info-background-color, #2E68AA); }
 
@@ -42,8 +42,8 @@ td.unset, td.included, td.excluded, td.warning {
 }
 .unset    { background-color: #e3e7ec; }
 .included { background-color: var(--color-success, #88B922); }
-.excluded { background-color: #FF4A4A; }
-.warning  { background-color: #FFA600; }
+.excluded { background-color: var(--color-danger, #FF4A4A); }
+.warning  { background-color: var(--color-warning, #FD9B27); }
 
 /* Legend */
 .tp-legend { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
