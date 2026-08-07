@@ -19,78 +19,105 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-// ACL: use getContactGroupAclConf for non-admin
+$conditions = [];
+$parameters = [];
+
+if ($search !== '') {
+    $conditions[] = '(cg.cg_name LIKE :search OR cg.cg_alias LIKE :search)';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
+}
+
+// ACL filtering: a non-admin only sees the contact groups granted by its access groups.
 if (! $helper->isAdmin()) {
-    $acl = $helper->getAcl();
-    $cgAcl = $acl->getContactGroupAclConf(
-        ['fields' => ['cg_id', 'cg_name', 'cg_alias', 'cg_activate'], 'keys' => ['cg_id'], 'order' => ['cg_name']],
-        false
+    $acl   = $helper->getAcl();
+    $cgAcl = $acl !== null
+        ? $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']], false)
+        : [];
+
+    if ($cgAcl === []) {
+        $helper->jsonResponse([], 0, $num, $limit);
+    }
+
+    $placeholders = [];
+    foreach (array_keys($cgAcl) as $index => $cgId) {
+        $placeholder    = 'acl_cg' . $index;
+        $placeholders[] = ':' . $placeholder;
+        $parameters[]   = QueryParameter::int($placeholder, (int) $cgId);
+    }
+    $conditions[] = 'cg.cg_id IN (' . implode(', ', $placeholders) . ')';
+}
+
+$whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
+
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM contactgroup cg
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT
+        cg.cg_id,
+        cg.cg_name,
+        cg.cg_alias,
+        cg.cg_activate,
+        (
+            SELECT COUNT(*)
+            FROM contactgroup_contact_relation ccr
+            WHERE ccr.contactgroup_cg_id = cg.cg_id
+        ) AS contact_count
+    FROM contactgroup cg
+    {$whereClause}
+    ORDER BY cg.cg_name
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $contactGroups = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
     );
 
-    if (empty($cgAcl)) {
-        $helper->jsonResponse([], 0, 0, $limit);
+    $rows = [];
+    foreach ($contactGroups as $contactGroup) {
+        $rows[] = [
+            'id'            => (int) $contactGroup['cg_id'],
+            'name'          => $contactGroup['cg_name'],
+            'alias'         => $contactGroup['cg_alias'],
+            'activate'      => (int) $contactGroup['cg_activate'],
+            'contact_count' => (int) $contactGroup['contact_count'],
+        ];
     }
 
-    $cgIds = array_keys($cgAcl);
-    $cgStrParams = [];
-    foreach ($cgIds as $index => $cgId) {
-        $cgStrParams[':cg_' . $index] = (int) $cgId;
-    }
-    $aclIn = implode(',', array_keys($cgStrParams));
-    $aclCond = $search !== ''
-        ? 'AND cg.cg_id IN (' . $aclIn . ')'
-        : 'WHERE cg.cg_id IN (' . $aclIn . ')';
-} else {
-    $cgStrParams = [];
-    $aclCond = '';
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch contact groups',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
-
-// Query
-$searchCond = '';
-$searchParams = [];
-if ($search !== '') {
-    $searchCond = 'WHERE (cg.cg_name LIKE :search OR cg.cg_alias LIKE :search) ';
-    $searchParams[':search'] = '%' . $search . '%';
-}
-
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS cg.cg_id, cg.cg_name, cg.cg_alias, cg.cg_activate,'
-    . ' (SELECT COUNT(*) FROM contactgroup_contact_relation ccr WHERE ccr.contactgroup_cg_id = cg.cg_id) AS contact_count'
-    . ' FROM contactgroup cg ' . $searchCond . $aclCond
-    . ' ORDER BY cg.cg_name LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
-}
-foreach ($cgStrParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_INT);
-}
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
-
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-$rows = [];
-while ($cg = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'            => (int) $cg['cg_id'],
-        'name'          => $cg['cg_name'],
-        'alias'         => $cg['cg_alias'],
-        'activate'      => (int) $cg['cg_activate'],
-        'contact_count' => (int) $cg['contact_count'],
-    ];
-}
-
-$helper->jsonResponse($rows, $total, $num, $limit);
