@@ -21742,3 +21742,23 @@ msgstr "Sie sind dabei, den Zeitraum <strong>{{ name }}</strong> zu duplizieren.
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
 msgstr "Sie sind dabei, <strong>{{ count }} Zeiträume</strong> zu duplizieren. Möchten Sie sie duplizieren?"
+
+#: unknown
+msgid "Add a Contact Template"
+msgstr "Kontakt-Template hinzufügen"
+
+#: unknown
+msgid "Modify a Contact"
+msgstr "Kontakt bearbeiten"
+
+#: unknown
+msgid "Modify a Contact Template"
+msgstr "Kontakt-Template bearbeiten"
+
+#: unknown
+msgid "View notifications"
+msgstr "Benachrichtigungen anzeigen"
+
+#: unknown
+msgid "Graphical view"
+msgstr "Grafische Ansicht"

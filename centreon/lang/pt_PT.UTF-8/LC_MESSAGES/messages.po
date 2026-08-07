@@ -24068,3 +24068,23 @@ msgstr "Está prestes a duplicar o período de tempo <strong>{{ name }}</strong>
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
 msgstr "Está prestes a duplicar <strong>{{ count }} períodos de tempo</strong>. Deseja duplicá-los?"
+
+#: unknown
+msgid "Add a Contact Template"
+msgstr "Adicionar Modelo de Contacto"
+
+#: unknown
+msgid "Modify a Contact"
+msgstr "Modificar Contacto"
+
+#: unknown
+msgid "Modify a Contact Template"
+msgstr "Modificar Modelo de Contacto"
+
+#: unknown
+msgid "View notifications"
+msgstr "Ver notificações"
+
+#: unknown
+msgid "Graphical view"
+msgstr "Vista gráfica"

@@ -17,7 +17,7 @@ CentreonForm.detectSidePanelClose();
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$ctPage}&o=a', '{t}Add a Contact Template{/t}'); return false;">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$ctPage}&o=a" data-panel-title="{t}Add a Contact Template{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
@@ -26,7 +26,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchCT" value="{$searchCT|escape}" class="cl-search-simple" placeholder="{t}Search contact templates{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchCT" value="{$searchCT|escape}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
                 </div>
             </div>
             <div class="cl-toolbar-right">
@@ -57,7 +57,7 @@ CentreonForm.detectSidePanelClose();
 
     </div>
 
-<input type='hidden' name='o' id='o' value='42'>
+<input type='hidden' name='o' id='o' value=''>
 <input type='hidden' id='limit' name='limit' value=''>
 {$form.hidden}
 </form>
@@ -86,20 +86,17 @@ var ctListing = new CentreonListing({
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'ct_listing_limit',
-    emptyMessage:  'No contact templates found',
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',
     columns: [
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
-            var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(title)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="Contact template" />'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact Template{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="./img/icons/user-template.svg" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="{/literal}{t}Contact template{/t}{literal}" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$ctPage}{literal}&o=c&contact_id=' + row.id;
-            var title = '{/literal}{t}Modify a Contact Template{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(title)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact Template{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'host_notif_tp', align:'center', render: function(row, l) { return row.host_notif_tp ? l.escape(row.host_notif_tp) : '-'; }},
         { id:'svc_notif_tp', align:'center', render: function(row, l) { return row.svc_notif_tp ? l.escape(row.svc_notif_tp) : '-'; }}

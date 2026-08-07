@@ -20229,3 +20229,23 @@ msgstr "You are about to duplicate the <strong>{{ name }}</strong> time period. 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
 msgstr "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
+
+#: unknown
+msgid "Add a Contact Template"
+msgstr "Add a Contact Template"
+
+#: unknown
+msgid "Modify a Contact"
+msgstr "Modify a Contact"
+
+#: unknown
+msgid "Modify a Contact Template"
+msgstr "Modify a Contact Template"
+
+#: unknown
+msgid "View notifications"
+msgstr "View notifications"
+
+#: unknown
+msgid "Graphical view"
+msgstr "Graphical view"

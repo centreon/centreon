@@ -17,7 +17,7 @@ CentreonForm.detectSidePanelClose();
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$contactPage}&o=a', '{t}Add a Contact{/t}'); return false;">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$contactPage}&o=a" data-panel-title="{t}Add a contact{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="cl-btn-secondary">{$msg.ldap_importT}</a>{/if}
                 {$form.o1.html}
             </div>
@@ -27,7 +27,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--with-adv">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC|escape}" class="cl-search-simple" placeholder="{t}Search contacts{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC|escape}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
                     <button type="button" class="cl-adv-icon-btn" data-cl-adv-panel="clAdvPanel" onclick="clToggleAdvancedFilters(this)" title="{t}Advanced filters{/t}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
                         <span class="cl-adv-badge"></span>
@@ -84,7 +84,7 @@ CentreonForm.detectSidePanelClose();
 
     </div>
 
-<input type='hidden' name='o' id='o' value='42'>
+<input type='hidden' name='o' id='o' value=''>
 <input type='hidden' id='limit' name='limit' value=''>
 {$form.hidden}
 </form>
@@ -113,7 +113,6 @@ var contactListing = new CentreonListing({
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'contact_listing_limit',
-    emptyMessage:  'No contacts found',
     extraParams:   function() { var cg = jQuery('#contactGroup').val(); return (cg && cg !== '') ? { contactGroup: cg } : {}; },
     autoRefresh:   30000,
     liveSearch:    true,
@@ -121,15 +120,13 @@ var contactListing = new CentreonListing({
     columns: [
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
-            var ptitle = '{/literal}{t}Modify a Contact{/t}{literal} - ' + (row.alias || row.name);
             var icon = row.admin ? './img/icons/admin.svg' : './img/icons/user.svg';
-            var title = row.admin ? 'Administrator' : 'User';
-            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(ptitle)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
+            var title = row.admin ? '{/literal}{t}Administrator{/t}{literal}' : '{/literal}{t}User{/t}{literal}';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
         }},
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
-            var ptitle = '{/literal}{t}Modify a Contact{/t}{literal} - ' + (row.alias || row.name);
-            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(ptitle)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'email', align:'center' },
         { id:'host_notif', align:'center', render: function(row, l) { return row.host_notif ? l.escape(row.host_notif) : '-'; }},
@@ -152,7 +149,7 @@ var contactListing = new CentreonListing({
         // Unblock action for locked users (admin only); full reload after the action.
         var unblock = '';
         if (row.blocked) {
-            unblock = '<a href="main.get.php?p={/literal}{$contactPage}{literal}&o=un&contact_id=' + row.id + '&centreon_token={/literal}{$centreonToken}{literal}" title="Unblock user" class="cl-unblock" style="margin-right:8px;" onclick="return confirm(\'Do you really want to unblock this user?\');"><img src="./img/icons/lock_closed.png" class="ico-14"/></a>';
+            unblock = '<a href="main.get.php?p={/literal}{$contactPage}{literal}&o=un&contact_id=' + row.id + '&centreon_token={/literal}{$centreonToken}{literal}" title="{/literal}{t}Unblock{/t}{literal}" class="cl-unblock" style="margin-right:8px;" onclick="return confirm(\'{/literal}{t escape='js'}Do you really want to unblock this user?{/t}{literal}\');"><img src="./img/icons/lock_closed.png" class="ico-14"/></a>';
         }
         var dup = '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
         if (row.is_current_user) {

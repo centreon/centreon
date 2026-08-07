@@ -17,7 +17,7 @@ CentreonForm.detectSidePanelClose();
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$tpPage}&o=a', '{t}Add a Time Period{/t}'); return false;">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$tpPage}&o=a" data-panel-title="{t}Add a Time Period{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
 
                 {$form.o1.html}
             </div>
@@ -27,7 +27,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchTP" value="{$searchTP}" class="cl-search-simple" placeholder="{t}Search time periods{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchTP" value="{$searchTP|escape}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
                 </div>
             </div>
             <div class="cl-toolbar-right">
@@ -58,7 +58,7 @@ CentreonForm.detectSidePanelClose();
 
     </div>
 
-<input type='hidden' name='o' id='o' value='42'>
+<input type='hidden' name='o' id='o' value=''>
 <input type='hidden' id='limit' name='limit' value=''>
 {$form.hidden}
 </form>
@@ -86,24 +86,21 @@ var tpListing = new CentreonListing({
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'tp_listing_limit',
-    emptyMessage:  'No time periods found',
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$tpPage}{literal}&o=c&tp_id=' + row.id;
-            var title = '{/literal}{t}Modify Time Period{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Time Period{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$tpPage}{literal}&o=c&tp_id=' + row.id;
-            var title = '{/literal}{t}Modify Time Period{/t}{literal} - ' + row.name;
-            return '<a href="#" onclick="cfOpenPanel(\''+editUrl+'\', \''+clEscapeAttr(title)+'\'); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Time Period{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.alias||'')+'</a>';
         }}
     ],
     renderOptions: function(row, l) {
-        var view = '<a href="#" title="Graphical view" class="cl-icon-action" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);" onclick="cfOpenPanel(\'main.get.php?p={/literal}{$tpPage}{literal}&o=s&tp_id=' + row.id + '\', \'' + clEscapeAttr((row.name || '') + ' - Graphical view') + '\'); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a>';
+        var view = '<a href="#" title="{/literal}{t}Graphical view{/t}{literal}" class="cl-icon-action" style="margin-right:8px;color:var(--c-primary-main,#2E68AA);" data-panel-url="main.get.php?p={/literal}{$tpPage}{literal}&o=s&tp_id=' + row.id + '" data-panel-title="{/literal}{t}Graphical view{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a>';
         return view + '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }
 });
