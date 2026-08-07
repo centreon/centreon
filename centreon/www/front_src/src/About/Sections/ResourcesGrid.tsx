@@ -1,0 +1,76 @@
+import GitHubIcon from '@mui/icons-material/GitHub';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+
+import { useTranslation } from 'react-i18next';
+
+import HelpCircleIcon from '../Icons/HelpCircleIcon';
+import TheWatchIcon from '../Icons/TheWatchIcon';
+import {
+  labelBrowseTheDocs,
+  labelCompareEditions,
+  labelContributeOnGithub,
+  labelContributeOnGithubDescription,
+  labelDocumentationAndGuides,
+  labelDocumentationAndGuidesDescription,
+  labelEditionsAndCloud,
+  labelEditionsAndCloudDescription,
+  labelGetMoreFromCentreon,
+  labelJoinTheWatch,
+  labelOpenTheRepository,
+  labelTheWatchCommunity,
+  labelTheWatchCommunityDescription
+} from '../translatedLabels';
+import ResourceCard from './ResourceCard';
+
+const links = {
+  docs: 'https://docs.centreon.com',
+  editions: 'https://www.centreon.com/editions/',
+  github: 'https://github.com/centreon/centreon',
+  watch: 'https://thewatch.centreon.com'
+};
+
+const ResourcesGrid = (): JSX.Element => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="border-t border-divider pt-3">
+      <p className="mb-2 font-medium text-[#131D5A]">
+        {t(labelGetMoreFromCentreon)}
+      </p>
+      <div className="grid grid-cols-1 gap-x-1.5 gap-y-1.5 md:grid-cols-2">
+        <ResourceCard
+          actionLabel={labelBrowseTheDocs}
+          description={labelDocumentationAndGuidesDescription}
+          href={links.docs}
+          Icon={HelpCircleIcon}
+          title={labelDocumentationAndGuides}
+        />
+        <ResourceCard
+          actionLabel={labelJoinTheWatch}
+          description={labelTheWatchCommunityDescription}
+          href={links.watch}
+          Icon={TheWatchIcon}
+          title={labelTheWatchCommunity}
+        />
+        <ResourceCard
+          actionLabel={labelOpenTheRepository}
+          description={labelContributeOnGithubDescription}
+          href={links.github}
+          Icon={GitHubIcon}
+          title={labelContributeOnGithub}
+          tone="navy"
+        />
+        <ResourceCard
+          actionLabel={labelCompareEditions}
+          description={labelEditionsAndCloudDescription}
+          href={links.editions}
+          Icon={RocketLaunchIcon}
+          title={labelEditionsAndCloud}
+          tone="navy"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default ResourcesGrid;

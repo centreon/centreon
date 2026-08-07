@@ -1,18 +1,11 @@
-import { Typography } from '@mui/material';
-
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { makeStyles } from 'tss-react/mui';
+import { useTranslation } from 'react-i18next';
 
-const useStyles = makeStyles()({
-  copyright: {
-    alignItems: 'center',
-    display: 'flex'
-  }
-});
+import { labelMadeWithCare } from '../translatedLabels';
 
 const Copyright = (): JSX.Element => {
-  const { classes } = useStyles();
+  const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
 
   const year = format({
@@ -21,9 +14,10 @@ const Copyright = (): JSX.Element => {
   });
 
   return (
-    <Typography className={classes.copyright} variant="body2">
-      Copyright © 2005 - {year}
-    </Typography>
+    <div className="mt-[22px] flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary">
+      <p>Copyright © 2005 - {year} Centreon</p>
+      <p>{t(labelMadeWithCare)}</p>
+    </div>
   );
 };
 
