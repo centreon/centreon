@@ -71,7 +71,7 @@ download_testing_package() {
   local sha256=$1 arch=$2 dest=$3 filename
   filename=$(
     content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
-      awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i } }'
+      awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }'
   )
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
@@ -326,15 +326,14 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   LEGACY_REF_AFTER=$(lookup_prcs "$LEGACY_REF_STABLE_HREF" | sort)
   STABLE_RC_SET=$(comm -13 <(echo "$LEGACY_REF_BEFORE") <(echo "$LEGACY_REF_AFTER") | grep . || true)
   if [[ $(echo "$STABLE_RC_SET" | grep -c .) -ne 1 ]]; then
-    # rerun where the diff is empty: any association on stable's latest
-    # version is the release component, since stable only ever gets stable associations
     refresh_pulp_token
     STABLE_LATEST=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.latest_version_href')
     STABLE_RC_SET=$(
       curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" \
-        "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/?$(
-          printf 'repository_version=%s&limit=1' "$(jq -rn --arg v "$STABLE_LATEST" '$v | @uri')"
-        )" | jq -r '.results[0].release_component // empty'
+        "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/release_components/?$(
+          printf 'repository_version=%s&distribution=%s&component=main&limit=1' \
+            "$(jq -rn --arg v "$STABLE_LATEST" '$v | @uri')" "$(jq -rn --arg v "$STABLE_SUITE" '$v | @uri')"
+        )" | jq -r '.results[0].pulp_href // empty'
     )
   fi
   STABLE_RC=$(echo "$STABLE_RC_SET" | grep . | head -1)

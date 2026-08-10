@@ -221,7 +221,12 @@ for ARCH in noarch x86_64; do
       echo "::error::Re-upload into the stable domain failed for $(echo "${PKG_ROWS[$i]}" | jq -r '.name') ($ARCH), see the worker error above"
       exit 1
     fi
-    NEW_HREFS+=("$(resolve_promoted_content "$(cat "$UPLOAD_DIR/$i.task")" "$(echo "${PKG_ROWS[$i]}" | jq -r '.sha256')")")
+    new_href=$(resolve_promoted_content "$(cat "$UPLOAD_DIR/$i.task")" "$(echo "${PKG_ROWS[$i]}" | jq -r '.sha256')") || new_href=""
+    if [[ -z "$new_href" ]]; then
+      echo "::error::Cannot resolve the promoted content for $(echo "${PKG_ROWS[$i]}" | jq -r '.name') ($ARCH)"
+      exit 1
+    fi
+    NEW_HREFS+=("$new_href")
   done
   rm -rf "$DOWNLOAD_DIR" "$UPLOAD_DIR"
   rm -f "$TESTING_PRIMARY_XML"
