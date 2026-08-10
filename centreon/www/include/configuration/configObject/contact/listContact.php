@@ -23,6 +23,13 @@ if (! isset($centreon)) {
     exit();
 }
 
+// Single-contact LDAP synchronization request (admin only), kept from the
+// legacy page: reachable as ?o=sync&selectedContact=<id>.
+$selectedContact = filter_var($_GET['selectedContact'] ?? null, FILTER_VALIDATE_INT);
+if ($centreon->user->admin && $selectedContact && $o === 'sync') {
+    synchronizeContactWithLdap([$selectedContact => 1]);
+}
+
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('centreon_path', _CENTREON_PATH_);
@@ -41,6 +48,19 @@ $tpl->assign('headerMenu_access', _('Access'));
 $tpl->assign('headerMenu_admin', _('Admin'));
 $tpl->assign('headerMenu_options', _('Options'));
 $tpl->assign('isAdmin', $centreon->user->admin);
+
+// Per-row LDAP synchronization column, shown to admins only
+$tpl->assign('headerMenu_refreshLdap', _('Refresh'));
+$tpl->assign(
+    'headerMenu_refreshLdapTitleTooltip',
+    _('To manually request a LDAP synchronization of a contact')
+);
+$tpl->assign('refreshLdapHelpNone', _("This user isn't linked to a LDAP"));
+$tpl->assign('refreshLdapHelpAvailable', _('Manually request to synchronize this contact with his LDAP'));
+$tpl->assign(
+    'refreshLdapHelpRequested',
+    _('Already requested, please wait the CRON execution or for the user to login')
+);
 
 $tpl->assign('contactPage', $p);
 
@@ -61,6 +81,14 @@ $row = $res->fetch();
 if ($row['count_ldap'] > 0) {
     $tpl->assign('ldap', '1');
 }
+
+// The Unblock bulk action is offered only when at least one contact is blocked.
+// The listing is AJAX now, so the count no longer falls out of the page query.
+$blockedContactsCount = (int) $pearDB->fetchOne(
+    <<<'SQL'
+        SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL
+        SQL
+);
 
 // Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
@@ -84,6 +112,26 @@ $tpl->assign(
 <script type="text/javascript">
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
+    }
+
+    // ask for confirmation when requesting to resynchronize contact data from the LDAP
+    function submitSync(p, contactId) {
+        // msg = localized message to be displayed in the confirmation popup
+        let msg = "<?= _('If the contact is connected, all his instances will be closed. Are you sure you want to '
+            . 'request a data synchronization at the next login of this Contact ?'); ?>";
+        if (confirm(msg)) {
+            $.ajax({
+                url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
+                type: 'POST',
+                async: false,
+                data: {contactId: contactId},
+                success: function(data) {
+                    if (data === true) {
+                        window.location.href = "?p=" + p;
+                    }
+                }
+            });
+        }
     }
 </script>
 <?php
@@ -109,6 +157,14 @@ foreach (['o1'] as $option) {
     ];
 
     $formOptions = [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')];
+    // adding a specific option available only for admin users
+    if ($centreon->user->admin) {
+        $formOptions['sync'] = _('Synchronize LDAP');
+    }
+    // adding a specific option available only for admin users and if at least one user is blocked
+    if ($centreon->user->admin && $blockedContactsCount) {
+        $formOptions['mun'] = _('Unblock');
+    }
 
     $form->addElement('select', $option, null, $formOptions, $attrs);
     $form->setDefaults([$option => null]);

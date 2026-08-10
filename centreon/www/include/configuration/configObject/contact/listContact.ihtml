@@ -74,11 +74,14 @@ CentreonForm.detectSidePanelClose();
                     <th class="cl-col-center">{$headerMenu_lang}</th>
                     <th class="cl-col-center">{$headerMenu_access}</th>
                     <th class="cl-col-center">{$headerMenu_admin}</th>
+                    { if $isAdmin }
+                    <th class="cl-col-center" title="{$headerMenu_refreshLdapTitleTooltip}">{$headerMenu_refreshLdap}</th>
+                    { /if }
                     <th class="cl-col-right">{t}Actions{/t}</th>
                 </tr>
             </thead>
             <tbody id="clTableBody">
-                <tr><td colspan="10" class="cl-loading">{t}Loading...{/t}</td></tr>
+                <tr><td colspan="11" class="cl-loading">{t}Loading...{/t}</td></tr>
             </tbody>
         </table>
 
@@ -142,6 +145,22 @@ var contactListing = new CentreonListing({
                 ? '<span class="cl-tag cl-tag--info">{/literal}{t escape='js'}Yes{/t}{literal}</span>'
                 : '<span class="cl-tag cl-tag--neutral">{/literal}{t escape='js'}No{/t}{literal}</span>';
         }}
+        {/literal}{if $isAdmin}{literal},
+        // LDAP synchronization, admin only — the header cell is gated on the
+        // same condition, so the row and the header keep the same column count.
+        { id:'ldap_sync', align:'center', render: function(row) {
+            if (row.auth_type !== 'ldap') {
+                return '<span title="{/literal}{$refreshLdapHelpNone|escape}{literal}">-</span>';
+            }
+            if (row.ldap_sync === '1') {
+                return '<span class="ico-18" style="opacity:.4;" title="{/literal}{$refreshLdapHelpRequested|escape}{literal}">'
+                    + '<img src="./img/icons/refresh.svg" width="18" height="18" alt="" /></span>';
+            }
+            return '<span class="ico-18" style="cursor:pointer;" title="{/literal}{$refreshLdapHelpAvailable|escape}{literal}"'
+                + ' onclick="submitSync({/literal}{$contactPage}{literal}, ' + parseInt(row.id, 10) + ');">'
+                + '<img src="./img/icons/refresh.svg" width="18" height="18" alt="" /></span>';
+        }}
+        {/literal}{/if}{literal}
     ],
     renderOptions: function(row, l) {
         // Cannot toggle yourself
