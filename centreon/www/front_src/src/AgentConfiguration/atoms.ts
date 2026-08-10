@@ -38,6 +38,11 @@ export const changeSortAtom = atom(
   }
 );
 
+export const changeSearchAtom = atom(null, (_get, set, search: string) => {
+  set(searchAtom, search);
+  set(pageAtom, 0);
+});
+
 interface ChangeFilterProps {
   field: string;
   newEntries: Array<SelectEntry>;

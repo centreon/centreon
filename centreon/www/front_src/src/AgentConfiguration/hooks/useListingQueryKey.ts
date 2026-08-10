@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai';
+import { pluck } from 'ramda';
 import {
   filtersAtom,
   limitAtom,
@@ -23,7 +24,7 @@ export const useListingQueryKey = (): Array<string | number> => {
     search,
     sortField,
     sortOrder,
-    `agentTypes-${filters.agentTypes}`,
-    `pollers-${filters.pollers}`
+    `agentTypes-${pluck('id', filters.agentTypes).join(',')}`,
+    `pollers-${pluck('id', filters.pollers).join(',')}`
   ];
 };
