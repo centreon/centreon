@@ -25,3 +25,8 @@ overrides:
 
 # 7 days
 minimumReleaseAge: 10080
+
+allowBuilds:
+  '@badeball/cypress-cucumber-preprocessor': set this to true or false
+  msw: set this to true or false
+  protobufjs: set this to true or false
