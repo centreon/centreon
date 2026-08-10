@@ -247,13 +247,13 @@ When('the user searches for the configured contact template', () => {
 });
 
 Then('only the matching contact template is displayed', () => {
+  // A retried length assertion, not .each(): .each() snapshots the row list and
+  // would iterate the pre-search rows.
+  cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
   cy.getIframeBody()
-    .find('#clTableBody tr')
-    .each(($row) => {
-      cy.wrap($row)
-        .invoke('text')
-        .should('include', contactTemplates.defaultTemplate.alias);
-    });
+    .find('#clTableBody')
+    .contains(contactTemplates.defaultTemplate.alias)
+    .should('exist');
 });
 
 When('the user clicks the toggle to disable the contact template', () => {

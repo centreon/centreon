@@ -9,7 +9,7 @@ CentreonForm.detectSidePanelClose();
 
 <form name='form' method='POST'>
     <div class="cl-page-header">
-        <h1 class="cl-page-title">{t}Time periods{/t}</h1>
+        <h1 class="cl-page-title">{t}Time Periods{/t}</h1>
         <span class="cl-page-title-sep"></span>
         <p class="cl-page-desc">{t}Define time ranges used to schedule checks and notifications.{/t}</p>
     </div>

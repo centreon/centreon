@@ -118,6 +118,55 @@ $tpl->assign(
         document.forms['form'].elements['o'].value = _i;
     }
 
+    // The shared modal only confirms Delete and Duplicate. The legacy page also
+    // confirmed the two admin bulk actions — one of them disconnects every
+    // session of the selected contacts — so they keep their prompt here rather
+    // than in the framework.
+    function clContactMoreAction(select) {
+        var prompts = {
+            sync: ['data-title-sync', 'data-msg-sync'],
+            mun: ['data-title-unblock', 'data-msg-unblock']
+        };
+        var value = select.value;
+        if (!prompts[value]) {
+            clMoreAction(select);
+
+            return;
+        }
+        var attr = function (name, fallback) { return select.getAttribute(name) || fallback; };
+        var form = select.form;
+        var scope = form || document;
+        var checked = scope.querySelectorAll('.cl-col-picker input[type="checkbox"][name^="select["]:checked');
+        if (checked.length === 0) {
+            clShowConfirmModal({
+                alert: true,
+                title: '',
+                message: attr('data-msg-select', 'Please select one or more items')
+            });
+            select.selectedIndex = 0;
+
+            return;
+        }
+        clShowConfirmModal({
+            title: attr(prompts[value][0], ''),
+            message: attr(prompts[value][1], ''),
+            confirmLabel: attr(prompts[value][0], ''),
+            cancelLabel: attr('data-label-cancel', 'Cancel')
+        }, function (confirmed) {
+            if (!confirmed) {
+                select.selectedIndex = 0;
+
+                return;
+            }
+            if (typeof window.setO === 'function') {
+                window.setO(value);
+            }
+            if (form) {
+                HTMLFormElement.prototype.submit.call(form);
+            }
+        });
+    }
+
     // ask for confirmation when requesting to resynchronize contact data from the LDAP
     function submitSync(p, contactId) {
         // msg = localized message to be displayed in the confirmation popup
@@ -145,7 +194,7 @@ foreach (['o1'] as $option) {
     // the native confirm()/alert(); messages passed as data-* attributes so the
     // handler stays locale-independent (keyed on the option value).
     $attrs = [
-        'onchange' => 'clMoreAction(this);',
+        'onchange' => 'clContactMoreAction(this);',
         'data-msg-select' => _('Please select one or more items'),
         'data-title-delete-one' => _('Delete contact'),
         'data-title-delete-many' => _('Delete contacts'),
@@ -158,6 +207,10 @@ foreach (['o1'] as $option) {
         'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} contacts.</strong> Do you want to duplicate them?'),
         'data-label-duplicate' => _('Duplicate'),
         'data-label-cancel' => _('Cancel'),
+        'data-title-sync' => _('Synchronize LDAP'),
+        'data-msg-sync' => _('The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request ?'),
+        'data-title-unblock' => _('Unblock'),
+        'data-msg-unblock' => _('The user(s) will be unblocked. Do you confirm the request?'),
     ];
 
     $formOptions = [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')];

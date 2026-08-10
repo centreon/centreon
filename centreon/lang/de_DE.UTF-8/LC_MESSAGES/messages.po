@@ -16852,7 +16852,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "The user(s) will be unblocked. Do you confirm the request?"
-msgstr ""
+msgstr "Die Benutzer werden entsperrt. Bestätigen Sie die Anfrage?"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
@@ -21762,3 +21762,51 @@ msgstr "Benachrichtigungen anzeigen"
 #: unknown
 msgid "Graphical view"
 msgstr "Grafische Ansicht"
+
+#: unknown
+msgid "API Access"
+msgstr "API-Zugriff"
+
+#: unknown
+msgid "Access Restriction"
+msgstr "Zugriffsbeschränkung"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Erweiterte Filter"
+
+#: unknown
+msgid "Autologin"
+msgstr "Automatische Anmeldung"
+
+#: unknown
+msgid "Configure the users and notification contacts of your platform."
+msgstr "Konfigurieren Sie die Benutzer und Benachrichtigungskontakte Ihrer Plattform."
+
+#: unknown
+msgid "Day range"
+msgstr "Tagesbereich"
+
+#: unknown
+msgid "Define reusable contact configurations to apply across your users."
+msgstr "Definieren Sie wiederverwendbare Kontaktkonfigurationen für Ihre Benutzer."
+
+#: unknown
+msgid "Define time ranges used to schedule checks and notifications."
+msgstr "Definieren Sie Zeitbereiche für die Planung von Prüfungen und Benachrichtigungen."
+
+#: unknown
+msgid "Global Access Right"
+msgstr "Globales Zugriffsrecht"
+
+#: unknown
+msgid "Group contacts together to manage notifications collectively."
+msgstr "Fassen Sie Kontakte zusammen, um Benachrichtigungen gemeinsam zu verwalten."
+
+#: unknown
+msgid "Select"
+msgstr "Auswählen"
+
+#: unknown
+msgid "Time range (HH:MM-HH:MM)"
+msgstr "Zeitbereich (HH:MM-HH:MM)"

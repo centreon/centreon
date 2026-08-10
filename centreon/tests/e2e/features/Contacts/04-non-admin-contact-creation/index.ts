@@ -66,13 +66,11 @@ Then('the deleted contact should not be visible in the user list', () => {
   cy.getIframeBody()
     .contains('a', 'user-with-access-to-allmodules_1')
     .should('be.visible');
+  // contact_id now lives in data-panel-url, not in href: the old selector
+  // matched nothing and the assertion passed unconditionally.
   cy.getIframeBody()
-    .find('a[href*="contact_id"]')
-    .filter((_index, element) => {
-      return (
-        Cypress.$(element).text().trim() === 'user-with-access-to-allmodules'
-      );
-    })
+    .find('#clTableBody')
+    .contains('a', /^user-with-access-to-allmodules$/)
     .should('not.exist');
 });
 

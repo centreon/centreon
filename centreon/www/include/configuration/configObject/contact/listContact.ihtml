@@ -81,7 +81,7 @@ CentreonForm.detectSidePanelClose();
                 </tr>
             </thead>
             <tbody id="clTableBody">
-                <tr><td colspan="11" class="cl-loading">{t}Loading...{/t}</td></tr>
+                <tr><td colspan="{if $isAdmin}11{else}10{/if}" class="cl-loading">{t}Loading...{/t}</td></tr>
             </tbody>
         </table>
 
@@ -120,6 +120,9 @@ var contactListing = new CentreonListing({
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',
+    // The legacy page rendered the current user's selection checkbox disabled;
+    // without this a user can include themselves in a bulk delete.
+    lockedField:   'is_current_user',
     columns: [
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;

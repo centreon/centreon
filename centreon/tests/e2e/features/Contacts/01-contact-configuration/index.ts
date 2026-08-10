@@ -392,14 +392,16 @@ Then('the form of this contact is displayed in READ ONLY mode', () => {
 // ---------------------------------------------------------------------------
 
 Given('test contacts exist', () => {
+  // alias is what CLAPI resolves a DEL by, so keep it equal to the name:
+  // the afterEach cleanup below deletes these by the very same value.
   cy.addContact({
-    alias: 'Alpha Contact',
+    alias: 'test_contact_alpha',
     email: 'alpha@test.com',
     name: 'test_contact_alpha',
     password: 'Centreon!2021'
   });
   cy.addContact({
-    alias: 'Beta Contact',
+    alias: 'test_contact_beta',
     email: 'beta@test.com',
     name: 'test_contact_beta',
     password: 'Centreon!2021'

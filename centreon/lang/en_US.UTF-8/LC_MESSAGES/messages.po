@@ -20249,3 +20249,55 @@ msgstr "View notifications"
 #: unknown
 msgid "Graphical view"
 msgstr "Graphical view"
+
+#: unknown
+msgid "API Access"
+msgstr "API Access"
+
+#: unknown
+msgid "Access Restriction"
+msgstr "Access Restriction"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Advanced filters"
+
+#: unknown
+msgid "Autologin"
+msgstr "Autologin"
+
+#: unknown
+msgid "Configure the users and notification contacts of your platform."
+msgstr "Configure the users and notification contacts of your platform."
+
+#: unknown
+msgid "Contact Templates"
+msgstr "Contact Templates"
+
+#: unknown
+msgid "Day range"
+msgstr "Day range"
+
+#: unknown
+msgid "Define reusable contact configurations to apply across your users."
+msgstr "Define reusable contact configurations to apply across your users."
+
+#: unknown
+msgid "Define time ranges used to schedule checks and notifications."
+msgstr "Define time ranges used to schedule checks and notifications."
+
+#: unknown
+msgid "Global Access Right"
+msgstr "Global Access Right"
+
+#: unknown
+msgid "Group contacts together to manage notifications collectively."
+msgstr "Group contacts together to manage notifications collectively."
+
+#: unknown
+msgid "Select"
+msgstr "Select"
+
+#: unknown
+msgid "Time range (HH:MM-HH:MM)"
+msgstr "Time range (HH:MM-HH:MM)"

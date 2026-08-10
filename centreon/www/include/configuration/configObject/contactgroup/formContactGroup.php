@@ -181,6 +181,9 @@ if ($valid) {
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
+    // The cosmetic toggle cannot read its state from a frozen QuickForm radio
+    // group, so the state is rendered server-side.
+    $tpl->assign('cgActivateOn', ($cg['cg_activate'] ?? '1') === '1');
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->display('formContactGroup.ihtml');

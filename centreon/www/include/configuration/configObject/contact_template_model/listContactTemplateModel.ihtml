@@ -9,7 +9,7 @@ CentreonForm.detectSidePanelClose();
 
 <form name='form' method='POST'>
     <div class="cl-page-header">
-        <h1 class="cl-page-title">{t}Contact templates{/t}</h1>
+        <h1 class="cl-page-title">{t}Contact Templates{/t}</h1>
         <span class="cl-page-title-sep"></span>
         <p class="cl-page-desc">{t}Define reusable contact configurations to apply across your users.{/t}</p>
     </div>

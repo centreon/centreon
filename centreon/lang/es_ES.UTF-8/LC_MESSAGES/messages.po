@@ -17896,7 +17896,7 @@ msgstr ""
 msgid ""
 "The chosen contact(s) will be disconnected. Do you confirm the LDAP "
 "synchronization request ?"
-msgstr ""
+msgstr "Los contactos seleccionados serán desconectados. ¿Confirma la solicitud de sincronización LDAP?"
 
 #: centreon/src/Centreon/Domain/Entity/EntityCreator.php
 #, php-format
@@ -18370,7 +18370,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "The user(s) will be unblocked. Do you confirm the request?"
-msgstr ""
+msgstr "Los usuarios serán desbloqueados. ¿Confirma la solicitud?"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
@@ -25640,3 +25640,51 @@ msgstr "Ver las notificaciones"
 #: unknown
 msgid "Graphical view"
 msgstr "Vista gráfica"
+
+#: unknown
+msgid "API Access"
+msgstr "Acceso API"
+
+#: unknown
+msgid "Access Restriction"
+msgstr "Restricción de acceso"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Filtros avanzados"
+
+#: unknown
+msgid "Autologin"
+msgstr "Inicio de sesión automático"
+
+#: unknown
+msgid "Configure the users and notification contacts of your platform."
+msgstr "Configure los usuarios y contactos de notificación de su plataforma."
+
+#: unknown
+msgid "Day range"
+msgstr "Rango de días"
+
+#: unknown
+msgid "Define reusable contact configurations to apply across your users."
+msgstr "Defina configuraciones de contacto reutilizables para aplicar a sus usuarios."
+
+#: unknown
+msgid "Define time ranges used to schedule checks and notifications."
+msgstr "Defina los rangos horarios utilizados para programar controles y notificaciones."
+
+#: unknown
+msgid "Global Access Right"
+msgstr "Derecho de acceso global"
+
+#: unknown
+msgid "Group contacts together to manage notifications collectively."
+msgstr "Agrupe contactos para gestionar las notificaciones de forma colectiva."
+
+#: unknown
+msgid "Select"
+msgstr "Seleccionar"
+
+#: unknown
+msgid "Time range (HH:MM-HH:MM)"
+msgstr "Rango horario (HH:MM-HH:MM)"

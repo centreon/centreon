@@ -70,7 +70,7 @@
             <tr>
                 <th>{t}Time period{/t}</th>
                 <th>{t}Day{/t}</th>
-                <th>{t}Time range{/t}</th>
+                <th>{t}Time Range{/t}</th>
             </tr>
         </thead>
         <tbody>

@@ -17120,7 +17120,7 @@ msgstr "L'utilisateur avec l'ID %d n'existe pas"
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "The user(s) will be unblocked. Do you confirm the request?"
-msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l\\'action ?"
+msgstr "Ces utilisateurs seront débloqués. Confirmez-vous l'action ?"
 
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 #, php-format
@@ -25364,3 +25364,47 @@ msgstr "Voir les notifications"
 #: unknown
 msgid "Graphical view"
 msgstr "Vue graphique"
+
+#: unknown
+msgid "API Access"
+msgstr "Accès API"
+
+#: unknown
+msgid "Access Restriction"
+msgstr "Restriction d'accès"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Filtres avancés"
+
+#: unknown
+msgid "Autologin"
+msgstr "Connexion automatique"
+
+#: unknown
+msgid "Configure the users and notification contacts of your platform."
+msgstr "Configurez les utilisateurs et les contacts de notification de votre plateforme."
+
+#: unknown
+msgid "Day range"
+msgstr "Plage de jours"
+
+#: unknown
+msgid "Define reusable contact configurations to apply across your users."
+msgstr "Définissez des configurations de contact réutilisables à appliquer à vos utilisateurs."
+
+#: unknown
+msgid "Define time ranges used to schedule checks and notifications."
+msgstr "Définissez les plages horaires utilisées pour planifier les contrôles et les notifications."
+
+#: unknown
+msgid "Global Access Right"
+msgstr "Droit d'accès global"
+
+#: unknown
+msgid "Group contacts together to manage notifications collectively."
+msgstr "Regroupez des contacts pour gérer les notifications collectivement."
+
+#: unknown
+msgid "Time range (HH:MM-HH:MM)"
+msgstr "Plage horaire (HH:MM-HH:MM)"
