@@ -12,9 +12,12 @@ PULP_DOMAIN="${PULP_DOMAIN:-default}"
 switch_pulp_domain() {
   PULP_DOMAIN="$1"
   if command -v pulp >/dev/null 2>&1; then
-    pulp config create --overwrite --base-url "$PULP_URL" --api-root "/" \
+    if ! pulp config create --overwrite --base-url "$PULP_URL" --api-root "/" \
       --domain "$PULP_DOMAIN" \
-      --header "Authorization:Bearer $PULP_TOKEN" --timeout 0 >/dev/null 2>&1 || true
+      --header "Authorization:Bearer $PULP_TOKEN" --timeout 0 >/dev/null 2>&1; then
+      echo "::error::Cannot switch the pulp-cli profile to domain $PULP_DOMAIN" >&2
+      return 1
+    fi
   fi
 }
 
