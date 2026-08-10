@@ -69,7 +69,7 @@ When('a user creates a time period with a range of dates to exclude', () => {
   cy.getSidePanelBody().find('input[name="tp_thursday"]').type('14:00-16:00');
   cy.getSidePanelBody().find('input[name="tp_friday"]').type('07:00-18:00');
   cy.getSidePanelBody().find('input[name="tp_saturday"]').type('10:00-16:00');
-  cy.getSidePanelBody().find('li#c2').click();
+  cy.getSidePanelBody().find('a[href="#cf-sec-exceptions"]').click();
   cy.getSidePanelBody().contains('+ Add new entry').click();
   cy.getSidePanelBody().find('input#exceptionInput_0').type('august 1 - 31');
   cy.getSidePanelBody().find('input#exceptionTimerange_0').type('00:00-24:00');
@@ -129,9 +129,11 @@ When('a user deletes the time period', () => {
 
 Then('the time period disappears from the time periods list', () => {
   visitTimePeriodsListing();
+  // Anchored: contains() is substring-based and 'timePeriodName' would still
+  // match the 'timePeriodName_1' left by the duplication scenario.
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('timePeriodName')
+    .contains(/^timePeriodName$/)
     .should('not.exist');
 });
 
@@ -195,5 +197,18 @@ Then('the search field still contains the search term', () => {
 });
 
 afterEach(() => {
+  // The scenarios create these; without an explicit cleanup the suite only
+  // stays green because the containers are recreated between runs.
+  for (const name of [
+    'tp_test_alpha',
+    'tp_test_beta',
+    'timePeriodName',
+    'timePeriodName_1'
+  ]) {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'DEL', object: 'TP', values: name },
+      failOnError: false
+    });
+  }
   cy.stopContainers();
 });

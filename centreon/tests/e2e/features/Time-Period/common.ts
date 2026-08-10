@@ -25,7 +25,9 @@ const setTimePeriod = (): Cypress.Chainable => {
   weekdays.forEach((day) => {
     cy.getSidePanelBody().find(`input[name="tp_${day}"]`).type(timeRanges[day]);
   });
-  cy.getSidePanelBody().find('li#c2').click();
+  // The legacy form rendered its tabs as li#c1, li#c2 …; the modernized form
+  // uses anchored sections in .cf-tab-nav.
+  cy.getSidePanelBody().find('a[href="#cf-sec-exceptions"]').click();
   cy.getSidePanelBody().contains('+ Add new entry').click();
   const exceptions = [
     { date: 'december 25', timeRange: '00:00-22:59,23:00-24:00' },
@@ -81,10 +83,11 @@ function navigateToTimePeriodsAndInitiateAddition() {
 }
 
 function submitForm() {
+  // The modernized form drops the legacy div#validForm / p.oreonbutton wrapper
+  // and renders the action bar directly; submitC on modify, submitA on create.
   cy.getSidePanelBody()
-    .find('div#validForm')
-    .find('p.oreonbutton')
-    .find('.btc.bt_success[name="submitA"]')
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
 }
 
