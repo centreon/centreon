@@ -23,13 +23,6 @@ if (! isset($centreon)) {
     exit();
 }
 
-// Single-contact LDAP synchronization request (admin only), kept from the
-// legacy page: reachable as ?o=sync&selectedContact=<id>.
-$selectedContact = filter_var($_GET['selectedContact'] ?? null, FILTER_VALIDATE_INT);
-if ($centreon->user->admin && $selectedContact && $o === 'sync') {
-    synchronizeContactWithLdap([$selectedContact => 1]);
-}
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('centreon_path', _CENTREON_PATH_);
@@ -84,11 +77,22 @@ if ($row['count_ldap'] > 0) {
 
 // The Unblock bulk action is offered only when at least one contact is blocked.
 // The listing is AJAX now, so the count no longer falls out of the page query.
-$blockedContactsCount = (int) $pearDB->fetchOne(
-    <<<'SQL'
-        SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL
-        SQL
-);
+// It only drives a menu entry for admins, so it must never abort the render.
+$blockedContactsCount = 0;
+if ($centreon->user->admin) {
+    try {
+        $blockedContactsCount = (int) $pearDB->fetchOne(
+            <<<'SQL'
+                SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL
+                SQL
+        );
+    } catch (Throwable $exception) {
+        Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->error(
+            'Contacts listing: failed to count blocked contacts',
+            ['exception' => $exception]
+        );
+    }
+}
 
 // Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);

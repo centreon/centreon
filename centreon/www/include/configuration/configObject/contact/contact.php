@@ -247,6 +247,15 @@ try {
                     EventDispatcher::EVENT_SYNCHRONIZE,
                     ['contact_ids' => $select]
                 );
+
+                // Single-contact variant kept from the legacy page, reachable as
+                // ?o=sync&selectedContact=<id>. It shares the bulk entry point's
+                // guard rather than running from the listing include, which is
+                // reached whether or not that guard passed.
+                $selectedContact = filter_var($_GET['selectedContact'] ?? null, FILTER_VALIDATE_INT);
+                if ($centreon->user->admin && $selectedContact) {
+                    synchronizeContactWithLdap([$selectedContact => 1]);
+                }
             }
             require_once $path . 'listContact.php';
             break;
