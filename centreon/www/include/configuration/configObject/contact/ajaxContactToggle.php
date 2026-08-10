@@ -52,10 +52,9 @@ $helper->requireWriteAccess(60301);
 // by their access groups. Page-level access alone would allow toggling any
 // contact by id (IDOR).
 if (! $helper->isAdmin()) {
-    $acl        = $helper->getAcl();
-    $contactAcl = $acl !== null
-        ? $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']])
-        : [];
+    $contactAcl = $helper->getAcl()->getContactAclConf(
+        ['fields' => ['contact_id'], 'keys' => ['contact_id']]
+    );
     if (! isset($contactAcl[$objId])) {
         AjaxListingHelper::jsonError('Access denied', 403);
     }

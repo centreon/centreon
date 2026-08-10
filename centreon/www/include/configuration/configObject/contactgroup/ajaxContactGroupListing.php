@@ -56,9 +56,7 @@ $countAclParameters  = [];
 
 if (! $helper->isAdmin()) {
     $acl   = $helper->getAcl();
-    $cgAcl = $acl !== null
-        ? $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']])
-        : [];
+    $cgAcl = $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
 
     if ($cgAcl === []) {
         $helper->jsonResponse([], 0, $num, $limit);
@@ -72,9 +70,7 @@ if (! $helper->isAdmin()) {
     }
     $conditions[] = 'cg.cg_id IN (' . implode(', ', $placeholders) . ')';
 
-    $contactAcl = $acl !== null
-        ? $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']])
-        : [];
+    $contactAcl = $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']]);
 
     if ($contactAcl === []) {
         // No visible contact: every group counts zero rather than its full membership.

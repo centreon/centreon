@@ -56,10 +56,9 @@ if ($contactGroup > 0) {
 
 // ACL filtering: a non-admin only sees the contacts granted by its access groups.
 if (! $helper->isAdmin()) {
-    $acl        = $helper->getAcl();
-    $contactAcl = $acl !== null
-        ? $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']])
-        : [];
+    $contactAcl = $helper->getAcl()->getContactAclConf(
+        ['fields' => ['contact_id'], 'keys' => ['contact_id']]
+    );
 
     if ($contactAcl === []) {
         $helper->jsonResponse([], 0, $num, $limit);
