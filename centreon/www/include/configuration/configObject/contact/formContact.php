@@ -297,6 +297,7 @@ $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // Auth type of the user connected
 $authTypeConnectedUser = $centreon->user->authType;

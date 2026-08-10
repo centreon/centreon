@@ -182,6 +182,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 if ($o == 'w') {
     // Just watch a Time Period information
