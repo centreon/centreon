@@ -32,6 +32,8 @@ use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
+use Psr\Log\LoggerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -44,6 +46,9 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        #[Autowire(service: 'monolog.logger.poller-install')]
+        private LoggerInterface $pollerInstallLogger,
+        private Security $security,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -76,6 +81,12 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $this->isCloudPlatform,
             $poller->centralAddress->value,
         );
+
+        $this->pollerInstallLogger->info('Poller installation command generated', [
+            'poller_id' => $pollerId->value,
+            'token_name' => is_string($tokenName) && $tokenName !== '' ? $tokenName : null,
+            'user' => $this->security->getUser()?->getUserIdentifier(),
+        ]);
 
         return new InstallationCommandResource(
             installationCommand: $factory->generate(),
