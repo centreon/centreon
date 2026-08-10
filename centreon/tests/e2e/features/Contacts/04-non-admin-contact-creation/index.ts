@@ -1,7 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import { contactsPage, listingAlias, visitListing } from '../common';
+import {
+  contactsPage,
+  listingAlias,
+  searchListing,
+  visitListing
+} from '../common';
 
 beforeEach(() => {
   cy.intercept({
@@ -20,11 +25,43 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // The suite creates this contact; without an explicit cleanup it only stays
+  // green because the containers are recreated between runs.
+  for (const alias of [
+    'user-with-access-to-allmodules',
+    'user-with-access-to-allmodules_1'
+  ]) {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'DEL', object: 'CONTACT', values: alias },
+      failOnError: false
+    });
+  }
+  // The fixture also creates an ACL menu and group, which would collide on the
+  // next run just as the contact does.
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'ACLMENU',
+      values: 'name-non-admin-ACLMENU'
+    },
+    failOnError: false
+  });
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'ACLGROUP',
+      values: 'name-non-admin-ACLGROUP'
+    },
+    failOnError: false
+  });
   cy.stopContainers();
 });
 
 const checkCreatedContactFromListing = () => {
   visitListing(contactsPage, listingAlias.contacts);
+  // The listing pages at 30 rows and this contact sorts past the first page,
+  // so narrow it down before ticking the row.
+  searchListing('user-with-access-to-allmodules', listingAlias.contacts);
   cy.checkListingRow('user-with-access-to-allmodules');
 };
 

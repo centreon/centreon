@@ -4,6 +4,7 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import groups from '../../../fixtures/users/contact.json';
 import {
   contactGroupsPage,
+  expectActivation,
   expectRowToggleUnchecked,
   listingAlias,
   searchListing,
@@ -46,6 +47,16 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // The scenarios create these; without an explicit cleanup the suite only
+  // stays green because the containers are recreated between runs.
+  for (const base of [groups.defaultGroup.name, groups.GroupForUpdate.name]) {
+    for (const name of [base, `${base}_1`, `${base}-1`]) {
+      cy.executeActionViaClapi({
+        bodyContent: { action: 'DEL', object: 'CG', values: name },
+        failOnError: false
+      });
+    }
+  }
   cy.stopContainers();
 });
 
@@ -106,7 +117,10 @@ Then('the properties are updated', () => {
       );
       expect(selectedTexts).to.include.members(['ALL']);
     });
-  cy.checkLegacyRadioButton(groups.GroupForUpdate.status);
+  expectActivation(
+    'cf-cg-activate-toggle',
+    groups.GroupForUpdate.status === 'Enabled'
+  );
   cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .should('have.value', groups.GroupForUpdate.comment);
@@ -153,7 +167,10 @@ Then('a new contact group is created with identical properties', () => {
       );
       expect(selectedTexts).to.include.members(['ALL']);
     });
-  cy.checkLegacyRadioButton(groups.defaultGroup.status);
+  expectActivation(
+    'cf-cg-activate-toggle',
+    groups.defaultGroup.status === 'Enabled'
+  );
   cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .should('have.value', groups.defaultGroup.comment);
@@ -170,9 +187,11 @@ Then(
   'the deleted contact group is not visible anymore on the contact group page',
   () => {
     waitForListingXhr(listingAlias.contactGroups);
+    // Anchored: contains() is substring-based and would still match the
+    // '<name>_1' left by the duplication scenario.
     cy.getIframeBody()
       .find('#clTableBody')
-      .contains(groups.defaultGroup.name)
+      .contains(new RegExp(`^${groups.defaultGroup.name}$`))
       .should('not.exist');
   }
 );

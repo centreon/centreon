@@ -65,8 +65,54 @@ function expectRowToggleUnchecked(rowLabel: string): void {
     .should('not.be.checked');
 }
 
+/**
+ * Assert the activation state. cy.checkLegacyRadioButton reads the QuickForm
+ * radio group in the listing frame; the modernized form hides that group behind
+ * a cl-toggle and renders it inside the side panel.
+ */
+function expectActivation(toggleId: string, enabled: boolean): void {
+  cy.getSidePanelBody()
+    .find(`#${toggleId}`)
+    .should(enabled ? 'be.checked' : 'not.be.checked');
+}
+
+/**
+ * form.js turns a Yes/No/Default radio group into a segmented control and hides
+ * the original radios, so the labels can no longer be clicked; the buttons it
+ * generates carry the choice and the active one is marked with .active.
+ */
+function setSegmentedChoice(radioName: string, label: string): void {
+  cy.getSidePanelBody()
+    .find(`.cf-segmented[data-radio-name="${radioName}"]`)
+    .contains('button', label)
+    .click();
+}
+
+function expectSegmentedChoice(radioName: string, label: string): void {
+  cy.getSidePanelBody()
+    .find(`.cf-segmented[data-radio-name="${radioName}"]`)
+    .contains('button', label)
+    .should('have.class', 'active');
+}
+
+/**
+ * form.js also turns checkbox option groups into clickable chips and hides the
+ * original checkboxes, so label[for=…] can no longer be clicked. Scope by the
+ * group label: host and service options share several chip names.
+ */
+function setOptionChip(groupLabel: string, chipLabel: string): void {
+  cy.getSidePanelBody()
+    .contains('.cf-chips', groupLabel)
+    .contains('.cf-chip', chipLabel)
+    .click();
+}
+
 export {
   contactGroupsPage,
+  expectActivation,
+  expectSegmentedChoice,
+  setOptionChip,
+  setSegmentedChoice,
   contactTemplatesPage,
   contactsPage,
   expectRowToggleUnchecked,

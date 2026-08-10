@@ -26,6 +26,17 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // The suite creates this contact; without an explicit cleanup it only stays
+  // green because the containers are recreated between runs.
+  for (const alias of [
+    'user-with-access-to-allmodules',
+    'user-with-access-to-allmodules_1'
+  ]) {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'DEL', object: 'CONTACT', values: alias },
+      failOnError: false
+    });
+  }
   cy.stopContainers();
 });
 

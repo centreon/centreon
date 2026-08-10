@@ -5,6 +5,7 @@ import contacts from '../../../fixtures/users/contact.json';
 import {
   contactsPage,
   expectRowToggleUnchecked,
+  expectSegmentedChoice,
   listingAlias,
   searchListing,
   toggleListingRow,
@@ -175,7 +176,10 @@ Then('these properties are updated', () => {
     .find('input[id="contact_pager"]')
     .should('have.value', contacts.contactForUpdate.pager);
   cy.getSidePanelBody().find('#contact_template_id').should('have.value', '19');
-  cy.checkLegacyRadioButton(contacts.contactForUpdate.isNotificationsEnabled);
+  expectSegmentedChoice(
+    'contact_enable_notifications',
+    contacts.contactForUpdate.isNotificationsEnabled
+  );
 });
 
 When('the user duplicates the configured contact', () => {
@@ -206,7 +210,10 @@ Then('a new contact is created with identical properties', () => {
     .find('input[name="contact_pager"]')
     .should('have.value', contacts.default.pager);
   cy.getSidePanelBody().find('#contact_template_id').should('have.value', '19');
-  cy.checkLegacyRadioButton(contacts.default.isNotificationsEnabled);
+  expectSegmentedChoice(
+    'contact_enable_notifications',
+    contacts.default.isNotificationsEnabled
+  );
 });
 
 When('the user deletes the configured contact', () => {

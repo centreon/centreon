@@ -5,6 +5,7 @@ import contactTemplates from '../../../fixtures/users/contact.json';
 import {
   contactTemplatesPage,
   expectRowToggleUnchecked,
+  expectSegmentedChoice,
   listingAlias,
   searchListing,
   toggleListingRow,
@@ -46,6 +47,19 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // The scenarios create these; without an explicit cleanup the suite only
+  // stays green because the containers are recreated between runs.
+  for (const base of [
+    contactTemplates.defaultTemplate.alias,
+    contactTemplates.templateForUpdate.alias
+  ]) {
+    for (const alias of [base, `${base}_1`, `${base}-1`]) {
+      cy.executeActionViaClapi({
+        bodyContent: { action: 'DEL', object: 'CONTACTTPL', values: alias },
+        failOnError: false
+      });
+    }
+  }
   cy.stopContainers();
 });
 
@@ -102,7 +116,10 @@ Then('the properties are updated', () => {
   cy.getSidePanelBody()
     .find('select[name="default_page"]')
     .should('have.value', contactTemplates.templateForUpdate.defaultPage);
-  cy.checkLegacyRadioButton(contactTemplates.templateForUpdate.isNotEnabled);
+  expectSegmentedChoice(
+    'contact_enable_notifications',
+    contactTemplates.templateForUpdate.isNotEnabled
+  );
   cy.getSidePanelBody().find('input[id="hDown"]').should('not.be.checked');
   cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
@@ -172,7 +189,10 @@ Then('a new contact template is created with identical properties', () => {
   cy.getSidePanelBody()
     .find('select[name="default_page"]')
     .should('have.value', contactTemplates.defaultTemplate.defaultPage);
-  cy.checkLegacyRadioButton(contactTemplates.defaultTemplate.isNotEnabled);
+  expectSegmentedChoice(
+    'contact_enable_notifications',
+    contactTemplates.defaultTemplate.isNotEnabled
+  );
   cy.getSidePanelBody().find('input[id="hDown"]').should('be.checked');
   cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
@@ -216,9 +236,11 @@ Then(
   'the deleted contact template is not visible anymore on the contact template page',
   () => {
     waitForListingXhr(listingAlias.contactTemplates);
+    // Anchored: contains() is substring-based and would still match the
+    // '<alias>_1' left by the duplication scenario.
     cy.getIframeBody()
       .find('#clTableBody')
-      .contains(contactTemplates.defaultTemplate.alias)
+      .contains(new RegExp(`^${contactTemplates.defaultTemplate.alias}$`))
       .should('not.exist');
   }
 );
@@ -235,13 +257,15 @@ Then('the listing table is displayed with contact template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains(contactTemplates.defaultTemplate.alias)
+    .contains(contactTemplates.defaultTemplate.name)
     .should('exist');
 });
 
 When('the user searches for the configured contact template', () => {
+  // The endpoint filters on contact_name, as the legacy page did — searching by
+  // alias would match nothing even though the alias is the first column.
   searchListing(
-    contactTemplates.defaultTemplate.alias,
+    contactTemplates.defaultTemplate.name,
     listingAlias.contactTemplates
   );
 });
@@ -252,7 +276,7 @@ Then('only the matching contact template is displayed', () => {
   cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains(contactTemplates.defaultTemplate.alias)
+    .contains(contactTemplates.defaultTemplate.name)
     .should('exist');
 });
 
