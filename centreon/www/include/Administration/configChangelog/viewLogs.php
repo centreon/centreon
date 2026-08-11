@@ -44,6 +44,10 @@ function getChangelogObjectTypeLabels(): array
 {
     return [
         ActionLog::OBJECT_TYPE_COMMAND => _('Command'),
+        // Command changes logged through the legacy path are stored under the
+        // plural 'commands' token (the Core writer uses the singular constant
+        // above). Map it too so both are labelled instead of shown raw.
+        'commands' => _('Command'),
         ActionLog::OBJECT_TYPE_TIMEPERIOD => _('Time period'),
         ActionLog::OBJECT_TYPE_CONTACT => _('Contact'),
         ActionLog::OBJECT_TYPE_CONTACTGROUP => _('Contact group'),
