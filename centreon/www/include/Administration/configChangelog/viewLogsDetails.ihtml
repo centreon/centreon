@@ -54,7 +54,7 @@
         <div class="cld-entry">
             <div class="cld-dot {$dotClass}"></div>
             <div class="cld-card">
-                <div class="cld-card-header" {if $canExpand}onclick="cldToggle(this)"{/if}>
+                <div class="cld-card-header"{if $canExpand} role="button" tabindex="0" aria-expanded="false" onclick="cldToggle(this)" onkeydown="cldToggleKey(event, this)"{/if}>
                     <span class="cld-card-toggle {if !$canExpand}no-expand{/if}">+</span>
                     <span class="cld-card-date isTimestamp">{$list.action_log_date|strtotime}</span>
                     {* Same labels as the "Modification type" column of the listing *}
@@ -117,10 +117,20 @@ function cldToggle(header) {
         panel.classList.remove('open');
         toggle.classList.remove('open');
         toggle.textContent = '+';
+        header.setAttribute('aria-expanded', 'false');
     } else {
         panel.classList.add('open');
         toggle.classList.add('open');
         toggle.textContent = '−';
+        header.setAttribute('aria-expanded', 'true');
+    }
+}
+
+// Keyboard activation for the card header (role="button"): Enter or Space.
+function cldToggleKey(event, header) {
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+        event.preventDefault();
+        cldToggle(header);
     }
 }
 

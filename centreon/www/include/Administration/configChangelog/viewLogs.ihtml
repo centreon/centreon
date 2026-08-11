@@ -4,11 +4,11 @@
 <div class="cl-scroll-wrapper">
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
-            <span class="cl-filter-label">{t}Object{/t}</span>
+            <label class="cl-filter-label" for="clSearchInput">{t}Object{/t}</label>
             <input type="text" id="clSearchInput" name="searchO" value="" placeholder="{t}Search{/t}" class="cl-search-input">
-            <span class="cl-filter-label">{t}User{/t}</span>
+            <label class="cl-filter-label" for="clSearchUser">{t}User{/t}</label>
             <input type="text" id="clSearchUser" name="searchU" value="" placeholder="{t}Search{/t}" class="cl-search-input">
-            <span class="cl-filter-label">{t}Type{/t}</span>
+            <label class="cl-filter-label" for="clSearchType">{t}Type{/t}</label>
             <select id="clSearchType" class="cl-search-input">
                 <option value="">{t}All{/t}</option>
                 {foreach key=objectType item=objectTypeLabel from=$objectTypes}

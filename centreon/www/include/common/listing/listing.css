@@ -1786,6 +1786,11 @@
     color: var(--bt-info-background-color, #2E68AA);
     text-decoration: none;
 }
+/* Keyboard focus ring: listing.css clears outlines elsewhere on the page. */
+.cld-back-btn:focus-visible {
+    outline: 2px solid var(--bt-info-background-color, #2E68AA);
+    outline-offset: 2px;
+}
 
 /* Timeline */
 .cld-timeline {
@@ -1848,6 +1853,11 @@
 }
 .cld-card-header:hover {
     background: rgba(0,0,0,0.015);
+}
+/* The header is a keyboard-operable toggle (role="button" tabindex="0"). */
+.cld-card-header:focus-visible {
+    outline: 2px solid var(--bt-info-background-color, #2E68AA);
+    outline-offset: -2px;
 }
 .cld-card-toggle {
     display: inline-flex;
