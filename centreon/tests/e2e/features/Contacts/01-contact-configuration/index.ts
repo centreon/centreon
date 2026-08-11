@@ -387,8 +387,12 @@ When(
 );
 
 Then('the form of this contact is displayed in READ ONLY mode', () => {
+  // #tab1 was the legacy tab container; the modernized form lays the same
+  // fields out in a cf-sec-* section. A frozen QuickForm renders its values as
+  // text and keeps only hidden persistence inputs.
   cy.getSidePanelBody()
-    .find('#tab1 input:not([class*="select"])')
+    .find('#cf-sec-info input:not([class*="select"])')
+    .should('exist')
     .each((input) => {
       cy.wrap(input).should('have.attr', 'type', 'hidden');
     });
