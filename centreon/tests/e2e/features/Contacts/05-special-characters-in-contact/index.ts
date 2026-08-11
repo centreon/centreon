@@ -5,6 +5,7 @@ import contacts from '../../../fixtures/users/contact.json';
 import {
   contactsPage,
   listingAlias,
+  searchListing,
   visitListing,
   waitForListingXhr
 } from '../common';
@@ -37,6 +38,22 @@ afterEach(() => {
       failOnError: false
     });
   }
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'ACLMENU',
+      values: 'name-non-admin-ACLMENU'
+    },
+    failOnError: false
+  });
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'ACLGROUP',
+      values: 'name-non-admin-ACLGROUP'
+    },
+    failOnError: false
+  });
   cy.stopContainers();
 });
 
@@ -57,6 +74,8 @@ When(
   'the user has changed the contact alias by adding a special character',
   () => {
     visitListing(contactsPage, listingAlias.contacts);
+    // The listing pages at 30 rows and this contact sorts past the first page.
+    searchListing('user-with-access-to-allmodules', listingAlias.contacts);
     cy.getIframeBody()
       .find('#clTableBody')
       .contains('a', 'user-with-access-to-allmodules')
@@ -74,7 +93,12 @@ When(
 Then(
   'the new record is displayed in the users list with the new alias value',
   () => {
-    waitForListingXhr(listingAlias.contacts);
+    // The contact was just renamed, so the listing is still filtered on the old
+    // alias; search again on the new one.
+    searchListing(
+      contacts.contactWithSpecialAlias.alias,
+      listingAlias.contacts
+    );
     cy.getIframeBody()
       .find('#clTableBody')
       .contains('a', contacts.contactWithSpecialAlias.alias)
@@ -89,6 +113,7 @@ Then(
 
 Given('the contact alias contains an accent', () => {
   visitListing(contactsPage, listingAlias.contacts);
+  searchListing('user-with-access-to-allmodules', listingAlias.contacts);
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', 'user-with-access-to-allmodules')
