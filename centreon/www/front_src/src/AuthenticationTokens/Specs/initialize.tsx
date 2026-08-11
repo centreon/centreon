@@ -9,8 +9,10 @@ import Page from '../Page';
 import { listTokensEndpoint } from '../api';
 import { listUsers } from '../api/endpoints';
 
-const interceptRequests = () => {
-  cy.fixture('authenticationTokens/listTokens').then((data) => {
+const defaultListTokensFixture = 'authenticationTokens/listTokens';
+
+const interceptRequests = (listTokensFixture: string) => {
+  cy.fixture(listTokensFixture).then((data) => {
     cy.interceptAPIRequest({
       alias: 'listToken',
       method: Method.GET,
@@ -61,7 +63,9 @@ const interceptRequests = () => {
   });
 };
 
-export const initilize = (): void => {
+export const initilize = (
+  listTokensFixture: string = defaultListTokensFixture
+): void => {
   i18next.use(initReactI18next).init({
     lng: 'en',
     resources: {}
@@ -80,7 +84,7 @@ export const initilize = (): void => {
     cy.stub(win.navigator.clipboard, 'writeText').as('writeText');
   });
 
-  interceptRequests();
+  interceptRequests(listTokensFixture);
 
   cy.mount({
     Component: (
