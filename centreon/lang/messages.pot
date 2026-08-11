@@ -494,7 +494,7 @@ msgstr ""
 msgid "Action URL"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Action access"
 msgstr ""
 
@@ -2124,7 +2124,7 @@ msgstr ""
 msgid "Breadcrumb copied"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Broker"
 msgstr ""
 
@@ -6319,7 +6319,7 @@ msgstr ""
 msgid "Ends at"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Engine"
 msgstr ""
 
@@ -9034,7 +9034,7 @@ msgstr ""
 msgid "Host group (%s) not found"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Host group dependency"
 msgstr ""
 
@@ -11590,7 +11590,7 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.ihtml
 msgid "Modification type"
 msgstr ""
 
@@ -15050,7 +15050,7 @@ msgstr ""
 msgid "Resource Type"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Resource access"
 msgstr ""
 
@@ -16330,7 +16330,7 @@ msgstr ""
 msgid "Service group"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Service group dependency"
 msgstr ""
 
@@ -21258,7 +21258,7 @@ msgstr ""
 msgid "centreon is not properly installed"
 msgstr ""
 
-#: unknown
+#: centreon/www/include/Administration/configChangelog/viewLogsDetails.ihtml
 msgid "changes recorded"
 msgstr ""
 
