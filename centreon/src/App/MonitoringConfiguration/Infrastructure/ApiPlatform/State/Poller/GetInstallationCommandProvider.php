@@ -63,7 +63,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             ? $this->pollerTokenRepository->getValidPollerTokenByName($tokenName)
             : $this->pollerTokenRepository->getFirstValidPollerToken();
 
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             $poller,
             $token,
             $this->engineSecretsRepository->getAppSecret(),
