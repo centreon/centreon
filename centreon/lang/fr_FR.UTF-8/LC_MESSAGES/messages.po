@@ -16480,6 +16480,11 @@ msgstr "Syslog"
 msgid "Syslog Logging Option"
 msgstr "Journalisation syslog"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.ihtml
+#: centreon/www/include/Administration/configChangelog/viewLogsDetails.ihtml
+msgid "System"
+msgstr "Système"
+
 #: centreon/www/install/menu_translation.php
 msgid "System Logs"
 msgstr "Evenements liés à la collecte des données"

@@ -16232,6 +16232,11 @@ msgstr "Syslog"
 msgid "Syslog Logging Option"
 msgstr "Protokollierungsoptionen für Syslog"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.ihtml
+#: centreon/www/include/Administration/configChangelog/viewLogsDetails.ihtml
+msgid "System"
+msgstr "System"
+
 #: centreon/www/install/menu_translation.php
 msgid "System Logs"
 msgstr "Systemprotokolle"
