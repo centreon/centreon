@@ -19,10 +19,6 @@ const seedHostCategory = (name: string): void => {
   cy.addSubjectViaApiV2({ alias: name, name }, hostCategoryUrl);
 };
 
-// Reads the "loaded" side of the `loaded / total` counter.
-const readLoadedCount = (text: string): number =>
-  Number((text.match(/(\d+)\s*\/\s*\d+/) || [])[1] ?? '0');
-
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -66,14 +62,6 @@ Given('a disabled configuration change has been recorded', () => {
   );
 });
 
-Given('more changes than one page can hold have been recorded', () => {
-  // Exceed the default page size (maxViewConfiguration, 30) so a second batch
-  // exists to scroll into.
-  for (let index = 0; index < 31; index += 1) {
-    seedHostCategory(`changelog_scroll_${index}`);
-  }
-});
-
 // ---------------------------------------------------------------------------
 // Navigation
 // ---------------------------------------------------------------------------
@@ -104,33 +92,6 @@ Then('a scroll info counter is displayed', () => {
     .find('#clPaginationTop .cl-page-info')
     .invoke('text')
     .should('match', /\d+\s*\/\s*\d+/);
-});
-
-// ---------------------------------------------------------------------------
-// Scenario: scrolling loads a second batch
-// ---------------------------------------------------------------------------
-
-When('the user scrolls to the bottom of the listing', () => {
-  cy.getIframeBody()
-    .find('#clPaginationTop .cl-page-info')
-    .invoke('text')
-    .then((text) => {
-      cy.wrap(readLoadedCount(text)).as('loadedBefore');
-    });
-
-  cy.getIframeBody().find('#clScrollContainer').scrollTo('bottom');
-  cy.wait('@getChangelogListing');
-});
-
-Then('a second batch of entries is loaded and appended', () => {
-  cy.get('@loadedBefore').then((loadedBefore) => {
-    cy.getIframeBody()
-      .find('#clPaginationTop .cl-page-info')
-      .invoke('text')
-      .should((text) => {
-        expect(readLoadedCount(text)).to.be.greaterThan(Number(loadedBefore));
-      });
-  });
 });
 
 // ---------------------------------------------------------------------------

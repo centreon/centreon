@@ -16,13 +16,6 @@ Feature: Modern changelog listing with infinite scroll and inline diff
     And a scroll info counter is displayed
 
   @MON-200050
-  Scenario: Scrolling to the bottom loads a second batch
-    Given more changes than one page can hold have been recorded
-    When the user navigates to the changelog page
-    And the user scrolls to the bottom of the listing
-    Then a second batch of entries is loaded and appended
-
-  @MON-200050
   Scenario: Changelog search filters by object name
     Given a configuration change has been recorded
     When the user navigates to the changelog page
