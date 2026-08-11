@@ -197,8 +197,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
         'mkdir -p /usr/lib/centreon-connector',
         `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
         `phpenmod -v ${phpVersion} timezone`,
-        `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
-        'service mysql start',
+        // upstream MariaDB packages only ship /etc/init.d/mariadb
+        'systemctl start mariadb',
         'mkdir -p /run/php',
         `systemctl restart php${phpVersion}-fpm`,
         'systemctl restart apache2',
