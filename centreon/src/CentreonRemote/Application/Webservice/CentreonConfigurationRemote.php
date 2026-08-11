@@ -547,6 +547,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
                 'children_pollers' => $pollers ?? null,
             ]);
             // if it is poller wizard and poller is linked to another poller/remote server (instead of central)
@@ -562,6 +563,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
                 'parent' => $parentPoller->getId(),
             ]);
         } else {
@@ -570,6 +572,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'server_name' => $serverName,
                 'nagios_id' => $serverId,
                 'address' => $serverIP,
+                'central_address' => $this->arguments['centreon_central_ip'],
             ]);
         }
 
@@ -758,22 +761,25 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             $statement = $this->pearDB->prepare(
                 "UPDATE `platform_topology` SET
                 `name` = :name,
+                `central_address` = :centralAddress,
                 parent_id = :parentId,
                 server_id = :nagiosId,
                 pending = '0'
                 WHERE id = :topologyId"
             );
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
+            $statement->bindValue(':centralAddress', $topologyInformation['central_address'], \PDO::PARAM_STR);
             $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);
             $statement->bindValue(':nagiosId', $topologyInformation['nagios_id'], \PDO::PARAM_INT);
             $statement->bindValue(':topologyId', (int) $server['id'], \PDO::PARAM_INT);
             $statement->execute();
         } else {
             $statement = $this->pearDB->prepare(
-                "INSERT INTO `platform_topology` (`address`,`name`,`type`,`parent_id`,`server_id`, `pending`)
-                VALUES (:address, :name, :type, :parentId, :serverId, '0')"
+                "INSERT INTO `platform_topology` (`address`,`central_address`,`name`,`type`,`parent_id`,`server_id`, `pending`)
+                VALUES (:address, :centralAddress, :name, :type, :parentId, :serverId, '0')"
             );
             $statement->bindValue(':address', $topologyInformation['address'], \PDO::PARAM_STR);
+            $statement->bindValue(':centralAddress', $topologyInformation['central_address'], \PDO::PARAM_STR);
             $statement->bindValue(':name', $topologyInformation['server_name'], \PDO::PARAM_STR);
             $statement->bindValue(':type', $topologyInformation['type'], \PDO::PARAM_STR);
             $statement->bindValue(':parentId', (int) $parent['id'], \PDO::PARAM_INT);

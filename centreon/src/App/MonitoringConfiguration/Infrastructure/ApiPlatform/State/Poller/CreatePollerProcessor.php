@@ -86,6 +86,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             pollerType: PollerTypeEnum::from($data->pollerType),
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
+            centralAddress: new PollerAddress($data->centralAddress),
             gorgoneCommunicationType: $this->isCloudPlatform
                 ? GorgoneCommunicationTypeEnum::PullWss
                 : GorgoneCommunicationTypeEnum::ZMQ,
@@ -98,12 +99,13 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             $model,
             $token,
             $appSecret,
             $salt,
             $this->isCloudPlatform,
+            $data->centralAddress,
         );
 
         $resource = $this->transformer->transform($model);

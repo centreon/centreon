@@ -894,6 +894,15 @@ jobs:
         run: rm -f centreon/packaging/*-selinux.yaml
         shell: bash
 
+      - name: Build install-poller script
+        env:
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
+        run: |
+          cd centreon/install-poller
+          bash build.sh "${MAJOR_VERSION}" "${MINOR_VERSION}"
+        shell: bash
+
       - name: Package Centreon
         uses: ./.github/actions/package-nfpm
         with:
