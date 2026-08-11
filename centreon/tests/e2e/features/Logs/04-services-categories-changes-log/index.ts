@@ -91,7 +91,11 @@ Then(
   'a new "DELETED" line of log is getting added to the page Administration > Log',
   () => {
     openChangelogListing();
-    assertLatestChangelogRow('service_critical', 'Deleted', 'Service Categories');
+    assertLatestChangelogRow(
+      'service_critical',
+      'Deleted',
+      'Service Categories'
+    );
   }
 );
 
@@ -125,7 +129,11 @@ Then(
   'a new "CHANGED" line of log is getting added to the page Administration > Logs',
   () => {
     openChangelogListing();
-    assertLatestChangelogRow('service_warning', 'Changed', 'Service Categories');
+    assertLatestChangelogRow(
+      'service_warning',
+      'Changed',
+      'Service Categories'
+    );
   }
 );
 
@@ -164,7 +172,11 @@ Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
     openChangelogListing();
-    assertLatestChangelogRow('service_critical', 'Disabled', 'Service Categories');
+    assertLatestChangelogRow(
+      'service_critical',
+      'Disabled',
+      'Service Categories'
+    );
   }
 );
 

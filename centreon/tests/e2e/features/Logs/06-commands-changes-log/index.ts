@@ -109,11 +109,7 @@ Then(
     cy.checkLogDetail('command_name', '', command.name);
     cy.checkLogDetail('command_type', '', commandTypeCode[type]);
     cy.checkLogDetail('command_line', '', `${command.command_line}`);
-    cy.checkLogDetail(
-      'enable_shell',
-      '',
-      command.is_shell_enabled ? '1' : '0'
-    );
+    cy.checkLogDetail('enable_shell', '', command.is_shell_enabled ? '1' : '0');
   }
 );
 

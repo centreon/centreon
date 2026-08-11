@@ -167,7 +167,11 @@ Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
     openChangelogListing();
-    assertLatestChangelogRow('service_critical', 'Disabled', 'Service severity');
+    assertLatestChangelogRow(
+      'service_critical',
+      'Disabled',
+      'Service severity'
+    );
   }
 );
 
