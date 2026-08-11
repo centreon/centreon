@@ -480,7 +480,7 @@ msgstr "URL de Ação"
 
 #: unknown
 msgid "Action access"
-msgstr "Acessos de Ação"
+msgstr "Acesso de Ação"
 
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
@@ -8800,7 +8800,7 @@ msgstr ""
 
 #: unknown
 msgid "Host group dependency"
-msgstr "Dependencia do Grupo de Host"
+msgstr "Dependência do Grupo de Host"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -14348,7 +14348,7 @@ msgstr ""
 
 #: unknown
 msgid "Resource access"
-msgstr "Acessos de Recurso"
+msgstr "Acesso de Recurso"
 
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
@@ -15502,7 +15502,7 @@ msgstr ""
 
 #: unknown
 msgid "Service group dependency"
-msgstr "Dependencia do Grupo de Serviço"
+msgstr "Dependência do Grupo de Serviço"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"

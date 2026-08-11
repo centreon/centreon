@@ -3,6 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import severities from '../../../fixtures/services/severity.json';
+import {
+  assertLatestChangelogRow,
+  openChangelogListing,
+  openObjectTimeline
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -50,57 +55,25 @@ Then(
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Added')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'serviceseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Added', 'Service severity');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to the endpoint',
   () => {
-    cy.getIframeBody().contains(severities.enabled_severity.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', severities.enabled_severity.name);
-    cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'sc_activate', '', '1');
-    cy.checkLogDetails(1, 2, 'sc_name', '', severities.enabled_severity.name);
-    cy.checkLogDetails(
-      1,
-      3,
-      'sc_description',
-      '',
-      severities.enabled_severity.alias
-    );
-    cy.checkLogDetails(
-      1,
-      4,
+    openObjectTimeline(severities.enabled_severity.name);
+    cy.expandTimelineCard('Added');
+    cy.checkLogDetail('sc_activate', '', '1');
+    cy.checkLogDetail('sc_name', '', severities.enabled_severity.name);
+    cy.checkLogDetail('sc_description', '', severities.enabled_severity.alias);
+    cy.checkLogDetail(
       'sc_severity_level',
       '',
       `${severities.enabled_severity.level}`
     );
-    cy.checkLogDetails(
-      1,
-      5,
+    cy.checkLogDetail(
       'sc_severity_icon',
       '',
       `${severities.enabled_severity.icon_id}`
@@ -127,21 +100,8 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Deleted')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'serviceseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Deleted', 'Service severity');
   }
 );
 
@@ -158,55 +118,27 @@ When(
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_warning"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_warning', 'Changed')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'serviceseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_warning', 'Changed', 'Service severity');
   }
 );
 
 Then(
   'the informations of the log are the same as those of the updated service severity',
   () => {
-    cy.getIframeBody().contains(severities.changed_severity.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', severities.changed_severity.name);
-    cy.getIframeBody().contains('td', 'Change by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
-      1,
-      1,
+    openObjectTimeline(severities.changed_severity.name);
+    cy.expandTimelineCard('Changed');
+    cy.checkLogDetail(
       'sc_name',
       severities.enabled_severity.name,
       severities.changed_severity.name
     );
-    cy.checkLogDetails(
-      1,
-      2,
+    cy.checkLogDetail(
       'sc_description',
       severities.enabled_severity.alias,
       severities.changed_severity.alias
     );
-    cy.checkLogDetails(
-      1,
-      3,
+    cy.checkLogDetail(
       'sc_severity_level',
       `${severities.enabled_severity.level}`,
       `${severities.changed_severity.level}`
@@ -234,21 +166,8 @@ When(
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Disabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'serviceseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Disabled', 'Service severity');
   }
 );
 
@@ -272,20 +191,7 @@ When(
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Enabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'serviceseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Enabled', 'Service severity');
   }
 );

@@ -3,6 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import severities from '../../../fixtures/host-categories/severity.json';
+import {
+  assertLatestChangelogRow,
+  openChangelogListing,
+  openObjectTimeline
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -47,55 +52,21 @@ Then('a new severity is displayed on the hosts severities page', () => {
 Then(
   'a new "ADDED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Added')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Added', 'Host severity');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to the endpoint',
   () => {
-    cy.getIframeBody().contains(severities.default.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', severities.default.name);
-    cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'hc_activate', '', '1');
-    cy.checkLogDetails(1, 2, 'hc_name', '', severities.default.name);
-    cy.checkLogDetails(1, 3, 'hc_alias', '', severities.default.alias);
-    cy.checkLogDetails(
-      1,
-      4,
-      'hc_severity_level',
-      '',
-      `${severities.default.level}`
-    );
-    cy.checkLogDetails(
-      1,
-      5,
-      'hc_severity_icon',
-      '',
-      `${severities.default.icon_id}`
-    );
+    openObjectTimeline(severities.default.name);
+    cy.expandTimelineCard('Added');
+    cy.checkLogDetail('hc_activate', '', '1');
+    cy.checkLogDetail('hc_name', '', severities.default.name);
+    cy.checkLogDetail('hc_alias', '', severities.default.alias);
+    cy.checkLogDetail('hc_severity_level', '', `${severities.default.level}`);
+    cy.checkLogDetail('hc_severity_icon', '', `${severities.default.icon_id}`);
   }
 );
 
@@ -115,21 +86,8 @@ When('an apiV2 call is made to "Delete" the configured host severity', () => {
 Then(
   'a new "DELETED" ligne of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Deleted')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Deleted', 'Host severity');
   }
 );
 
@@ -146,48 +104,22 @@ When(
 Then(
   'a new "CHANGED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_warning"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_warning', 'Changed')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_warning', 'Changed', 'Host severity');
   }
 );
 
 Then(
   'the informations of the log are the same as those of the updated host severity',
   () => {
-    cy.getIframeBody().contains(severities.changed_severity.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', severities.changed_severity.name);
-    cy.getIframeBody().contains('td', 'Change by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
-      1,
-      1,
+    openObjectTimeline(severities.changed_severity.name);
+    cy.expandTimelineCard('Changed');
+    cy.checkLogDetail(
       'hc_name',
       severities.default.name,
       severities.changed_severity.name
     );
-    cy.checkLogDetails(
-      1,
-      2,
+    cy.checkLogDetail(
       'hc_alias',
       severities.default.alias,
       severities.changed_severity.alias
@@ -212,21 +144,8 @@ When('an apiV2 call is made to "Disable" the configured host severity', () => {
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Disabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Disabled', 'Host severity');
   }
 );
 
@@ -247,20 +166,7 @@ When('an apiV2 call is made to "Enable" the configured host severity', () => {
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Enabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostseverity');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Enabled', 'Host severity');
   }
 );

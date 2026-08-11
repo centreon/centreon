@@ -3,6 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import categories from '../../../fixtures/host-categories/category.json';
+import {
+  assertLatestChangelogRow,
+  openChangelogListing,
+  openObjectTimeline
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -47,42 +52,20 @@ Then('a new host category is displayed on the host categories page', () => {
 Then(
   'a new "Added" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Added')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostcategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Added', 'Host Categories');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to the endpoint',
   () => {
-    cy.getIframeBody().contains(categories.default.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', categories.default.name);
-    cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'hc_activate', '', '1');
-    cy.checkLogDetails(1, 2, 'hc_comment', '', categories.default.comment);
-    cy.checkLogDetails(1, 3, 'hc_name', '', categories.default.name);
-    cy.checkLogDetails(1, 4, 'hc_alias', '', categories.default.alias);
+    openObjectTimeline(categories.default.name);
+    cy.expandTimelineCard('Added');
+    cy.checkLogDetail('hc_activate', '', '1');
+    cy.checkLogDetail('hc_comment', '', categories.default.comment);
+    cy.checkLogDetail('hc_name', '', categories.default.name);
+    cy.checkLogDetail('hc_alias', '', categories.default.alias);
   }
 );
 
@@ -102,21 +85,8 @@ When('an apiV2 call is made to "Delete" the configured host category', () => {
 Then(
   'a new "Deleted" line of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Deleted')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostcategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Deleted', 'Host Categories');
   }
 );
 
@@ -130,55 +100,27 @@ When('an APIv2 call is made to "Update" the configured host category', () => {
 Then(
   'a new "Changed" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_warning"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_warning', 'Changed')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostcategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_warning', 'Changed', 'Host Categories');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to te "PUT" api call',
   () => {
-    cy.getIframeBody().contains(categories.forTest.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', categories.forTest.name);
-    cy.getIframeBody().contains('td', 'Change by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
-      1,
-      1,
+    openObjectTimeline(categories.forTest.name);
+    cy.expandTimelineCard('Changed');
+    cy.checkLogDetail(
       'hc_comment',
       categories.default.comment,
       categories.forTest.comment
     );
-    cy.checkLogDetails(
-      1,
-      2,
+    cy.checkLogDetail(
       'hc_name',
       categories.default.name,
       categories.forTest.name
     );
-    cy.checkLogDetails(
-      1,
-      3,
+    cy.checkLogDetail(
       'hc_alias',
       categories.default.alias,
       categories.forTest.alias
@@ -203,21 +145,8 @@ When('an APIv2 call is made to "Disable" the configured host category', () => {
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Disabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostcategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Disabled', 'Host Categories');
   }
 );
 
@@ -238,20 +167,7 @@ When('an APIv2 call is made to "Enable" the disabled host category', () => {
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Enabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'hostcategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Enabled', 'Host Categories');
   }
 );

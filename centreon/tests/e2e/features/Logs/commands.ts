@@ -128,33 +128,47 @@ Cypress.Commands.add('deleteSubjectViaApiV2', (url: string) => {
   });
 });
 
+/**
+ * Open the object timeline (new detail page) by clicking the object name in the
+ * listing, then expand the card whose modification-type badge matches
+ * `badgeLabel` (Added / Changed / Deleted / ...). The card is aliased as
+ * `@timelineCard` so subsequent `checkLogDetail` calls scope to it.
+ */
+Cypress.Commands.add('expandTimelineCard', (badgeLabel: string) => {
+  cy.getIframeBody()
+    .find('.cld-timeline .cld-card')
+    .filter((_index, card) =>
+      Cypress.$(card).find('.cld-card-badge').text().includes(badgeLabel)
+    )
+    .first()
+    .as('timelineCard');
+
+  cy.get('@timelineCard').find('.cld-card-header').click();
+  cy.get('@timelineCard').find('.cld-diff-panel').should('have.class', 'open');
+});
+
+/**
+ * Assert a single field row inside the currently expanded `@timelineCard` diff
+ * table. Field-keyed (not row-indexed) so it is robust to field ordering and to
+ * the Added shape, which has no "Before" column — pass '' as `before` there.
+ */
 Cypress.Commands.add(
-  'checkLogDetails',
-  (
-    tableIndex: number,
-    trIndex: number,
-    firstTd: string,
-    secondTd: string,
-    thirdTd: string
-  ) => {
-    const findTableData = (): Cypress.Chainable => {
-      return cy
-        .getIframeBody()
-        .find('table.ListTable')
-        .eq(tableIndex)
-        .find('tbody tr')
-        .eq(trIndex)
-        .find('td')
-        .then(cy.wrap);
-    };
-
-    findTableData().should('have.length', 3);
-
-    findTableData().eq(0).invoke('text').should('include', firstTd);
-
-    findTableData().eq(1).invoke('text').should('include', secondTd);
-
-    findTableData().eq(2).invoke('text').should('include', thirdTd);
+  'checkLogDetail',
+  (fieldName: string, before: string, after: string) => {
+    cy.get('@timelineCard')
+      .find('.cld-diff-table tbody tr')
+      .filter(
+        (_index, row) =>
+          Cypress.$(row).find('td.cld-fname').text().trim() === fieldName
+      )
+      .first()
+      .within(() => {
+        cy.get('td.cld-fname').should('contain.text', fieldName);
+        if (before !== '') {
+          cy.get('td.cld-fbefore').should('contain.text', before);
+        }
+        cy.get('td.cld-fafter').should('contain.text', after);
+      });
   }
 );
 
@@ -168,12 +182,11 @@ declare global {
         body: TimePeriod
       ) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
-      checkLogDetails: (
-        tableIndex: number,
-        trIndex: number,
-        firstTd: string,
-        secondTd: string,
-        thirdTd: string
+      expandTimelineCard: (badgeLabel: string) => Cypress.Chainable;
+      checkLogDetail: (
+        fieldName: string,
+        before: string,
+        after: string
       ) => Cypress.Chainable;
       addSubjectViaApiV2: (
         payload: Record<string, unknown>,

@@ -1,6 +1,16 @@
 {include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 
 <div class="cld-wrapper">
+{* A crafted object_id / object_type pair can match no log row; render a clean
+   empty state with a Back button instead of a headerless "0 changes recorded". *}
+{if ($action|@count) == 0}
+    <div class="cld-header">
+        <div class="cld-header-info">
+            <div class="cld-header-text"><h2>{t}No results found{/t}</h2></div>
+        </div>
+        <a href="./main.php?p={$p|escape:'html'}" class="cld-back-btn">&larr; {t}Back{/t}</a>
+    </div>
+{else}
     <!-- Header -->
     <div class="cld-header">
         <div class="cld-header-info">
@@ -21,7 +31,7 @@
                 <div class="cld-subtitle">{$objectTypeLabel|escape:'html'} &middot; {$action|@count} {t}changes recorded{/t}</div>
             </div>
         </div>
-        <a href="./main.php?p={$p}" class="cld-back-btn">&larr; {t}Back{/t}</a>
+        <a href="./main.php?p={$p|escape:'html'}" class="cld-back-btn">&larr; {t}Back{/t}</a>
     </div>
 
     <!-- Timeline -->
@@ -57,7 +67,7 @@
                         {elseif $atype == 'Disable'}<span class="badge service_critical">{t}Disabled{/t}</span>
                         {else}<span class="badge service_warning">{$atype|escape:'html'}</span>{/if}
                     </span>
-                    <span class="cld-card-author">{$list.log_contact_id|escape:'html'}</span>
+                    <span class="cld-card-author">{if $list.log_contact_id == 'System'}{t}System{/t}{else}{$list.log_contact_id|escape:'html'}{/if}</span>
                 </div>
 
                 {if $canExpand}
@@ -93,6 +103,7 @@
         </div>
     {/foreach}
     </div>
+{/if}
 </div>
 
 {literal}

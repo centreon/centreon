@@ -3,6 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import categories from '../../../fixtures/services/category.json';
+import {
+  assertLatestChangelogRow,
+  openChangelogListing,
+  openObjectTimeline
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -50,41 +55,19 @@ Then(
 Then(
   'a new "ADDED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Added')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'servicecategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Added', 'Service Categories');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to the endpoint',
   () => {
-    cy.getIframeBody().contains(categories.default.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', categories.default.name);
-    cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'sc_activate', '', '1');
-    cy.checkLogDetails(1, 2, 'sc_name', '', categories.default.name);
-    cy.checkLogDetails(1, 3, 'sc_alias', '', categories.default.alias);
+    openObjectTimeline(categories.default.name);
+    cy.expandTimelineCard('Added');
+    cy.checkLogDetail('sc_activate', '', '1');
+    cy.checkLogDetail('sc_name', '', categories.default.name);
+    cy.checkLogDetail('sc_alias', '', categories.default.alias);
   }
 );
 
@@ -107,21 +90,8 @@ When(
 Then(
   'a new "DELETED" line of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Deleted')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'servicecategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Deleted', 'Service Categories');
   }
 );
 
@@ -154,43 +124,17 @@ When(
 Then(
   'a new "CHANGED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_warning"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_warning', 'Changed')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'servicecategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_warning', 'Changed', 'Service Categories');
   }
 );
 
 Then(
   'the informations of the log are the same as the changed properties',
   () => {
-    cy.getIframeBody()
-      .contains(categories['service-category-changed'].name)
-      .click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', categories['service-category-changed'].name);
-    cy.getIframeBody().contains('td', 'Change by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
-      1,
-      2,
+    openObjectTimeline(categories['service-category-changed'].name);
+    cy.expandTimelineCard('Changed');
+    cy.checkLogDetail(
       'sc_name',
       categories.default.name,
       categories['service-category-changed'].name
@@ -219,21 +163,8 @@ When('the user disables the configured service category from UI', () => {
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Disabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'servicecategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Disabled', 'Service Categories');
   }
 );
 
@@ -258,20 +189,7 @@ When('the user enables the configured service category from UI', () => {
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Enabled')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'servicecategories');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Enabled', 'Service Categories');
   }
 );

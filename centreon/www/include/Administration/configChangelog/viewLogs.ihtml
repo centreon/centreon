@@ -72,7 +72,7 @@
             empty: "{t escape='js'}No modification was made.{/t}"
         {rdelim},
         author: {ldelim}
-            system: "System",
+            system: "{t escape='js'}System{/t}",
             unknown: "{t escape='js'}unknown{/t}"
         {rdelim}
     {rdelim};
