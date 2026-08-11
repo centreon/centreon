@@ -99,7 +99,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             $model,
             $token,
             $appSecret,

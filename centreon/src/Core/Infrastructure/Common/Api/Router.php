@@ -105,8 +105,20 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
         $generatedRoute = $this->cleanPrefixUrl($generatedRoute);
 
-        // remove double identical prefixes due to progressive migration
-        $generatedRoute = str_replace($doubleBaseUri, $parameters['base_uri'], $generatedRoute);
+        // Anchored to path start or right after the authority so a short-name host
+        // matching the base path (https://centreon/centreon/...) is not consumed.
+        if ($doubleBaseUri !== '') {
+            $singleBaseUri = $parameters['base_uri'];
+            $generatedRoute = preg_replace_callback(
+                '#(^|://[^/]*)' . preg_quote($doubleBaseUri, '#') . '#',
+                static fn (array $matches): string => $matches[1] . $singleBaseUri,
+                $generatedRoute,
+                1
+            );
+            if ($generatedRoute === null) {
+                throw new \RuntimeException('Error occurred during regular expression search and replace.');
+            }
+        }
 
         // remove double slashes
         return $this->cleanPrefixUrl($generatedRoute);
