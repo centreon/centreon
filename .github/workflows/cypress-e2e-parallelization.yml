@@ -372,7 +372,7 @@ jobs:
       type_test_execution: e2e
       result_format: cucumber
       enrich_tests: true
-      artifact_pattern: "*-xray-reports-*"
+      artifact_pattern: "${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports*"
     secrets:
       XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
       XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
