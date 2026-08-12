@@ -664,7 +664,7 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         // Keep the freshest instances row per poller so a stale legacy row cannot
-        // override the fresh Snowflake-uid one after a 26.07 upgrade (MON-206900).
+        // override the fresh Snowflake-uid one after a 26.07 upgrade.
         $freshestByPoller = [];
         while ($row = $res->fetch()) {
             $pollerId = $uidToId[$row['instance_id']];
