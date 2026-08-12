@@ -145,6 +145,21 @@ jQuery(function() {
 document.addEventListener('DOMContentLoaded', function() {
     CentreonForm.initFormPage();
     CentreonForm.syncToggle('cf-sc-activate-toggle', 'sc_activate', '1', '0');
+
+    // Reset restores the hidden checkbox but not the toggle mirror; re-sync on next tick.
+    var sevToggle = document.getElementById('cf-sc-type-toggle');
+    var sevCheckbox = document.getElementById('sc_type');
+    if (sevToggle && sevCheckbox) {
+        var form = sevToggle.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    sevToggle.checked = sevCheckbox.checked;
+                    toggleSeverityFields();
+                }, 0);
+            });
+        }
+    }
 });
 </script>
 {/literal}
