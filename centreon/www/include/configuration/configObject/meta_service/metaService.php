@@ -70,8 +70,6 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
 }
 
 $acl = new CentreonACL($oreon->user->get_id(), $oreon->user->admin);
-$dbmon = new CentreonDB('centstorage');
-$aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
 $metaStr = $acl->getMetaServiceString();
 
 if (! $oreon->user->admin && $meta_id && ! str_contains($metaStr, "'" . $meta_id . "'")) {
@@ -127,10 +125,6 @@ switch ($o) {
                 is_array($select) ? $select : [],
                 is_array($dupNbr) ? $dupNbr : []
             );
-            // Update ACL and meta service string for the next listing
-            $acl = new CentreonACL($centreon->user->get_id(), $centreon->user->admin === '1');
-            $aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
-            $metaStr = $acl->getMetaServiceString();
         } else {
             unvalidFormMessage();
         }

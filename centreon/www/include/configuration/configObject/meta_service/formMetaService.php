@@ -332,10 +332,6 @@ if ($form->validate()) {
     $msObj = $form->getElement('meta_id');
     if ($form->getSubmitValue('submitA')) {
         $msObj->setValue(insertMetaServiceInDB());
-        // Update ACL and meta service string for the next listing
-        $acl = new CentreonACL($centreon->user->get_id(), $centreon->user->admin === '1');
-        $aclDbName = $acl->getNameDBAcl();
-        $metaStr = $acl->getMetaServiceString();
     } elseif ($form->getSubmitValue('submitC')) {
         updateMetaServiceInDB($msObj->getValue());
     }
