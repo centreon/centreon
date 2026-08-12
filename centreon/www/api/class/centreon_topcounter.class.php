@@ -692,7 +692,7 @@ class CentreonTopCounter extends CentreonWebService
             }
         }
         // Get latency
-        $query = 'SELECT 1 AS REALTIME, n.stat_value, i.instance_id, i.last_alive
+        $query = 'SELECT 1 AS REALTIME, n.stat_value, i.instance_id
             FROM nagios_stats n, instances i
             WHERE n.stat_label = "Service Check Latency"
                 AND n.stat_key = "Average"
@@ -706,19 +706,16 @@ class CentreonTopCounter extends CentreonWebService
             throw new RestInternalServerErrorException($e);
         }
 
-        // Same freshest-row protection as above (MON-206900).
-        $freshestLatencyByPoller = [];
         while ($row = $res->fetch()) {
             $pollerId = $uidToId[$row['instance_id']];
+            // Only trust the latency of the freshest instances row so a stale legacy
+            // row cannot raise a false latency alert (MON-206900).
             if (
-                ! isset($freshestLatencyByPoller[$pollerId])
-                || (int) $row['last_alive'] > (int) $freshestLatencyByPoller[$pollerId]['last_alive']
+                ! isset($freshestByPoller[$pollerId])
+                || $row['instance_id'] != $freshestByPoller[$pollerId]['instance_id']
             ) {
-                $freshestLatencyByPoller[$pollerId] = $row;
+                continue;
             }
-        }
-
-        foreach ($freshestLatencyByPoller as $pollerId => $row) {
             if ($row['stat_value'] >= 120) {
                 $listPoller[$pollerId]['latency']['state'] = 2;
                 $listPoller[$pollerId]['latency']['time'] = $row['stat_value'];

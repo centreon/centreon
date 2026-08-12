@@ -240,20 +240,34 @@ $softDeleteStaleLegacyInstances = function () use ($pearDB, $pearDBO, &$errorMes
         $legacyId = (int) $poller['id'];
         $uid = (int) $poller['uid'];
 
-        // Only when the fresh UID row is live, so we never remove a poller's only row.
-        $errorMessage = "Unable to check the fresh instances row for poller id={$legacyId}";
-        $freshRowExists = $pearDBO->fetchOne(
+        // Soft-delete the legacy row only when the UID row is strictly newer, so an
+        // active legacy row is never removed (e.g. a 26.07 -> legacy downgrade keeps a
+        // stale UID row alive) and a poller never loses its only live row (MON-206900).
+        $errorMessage = "Unable to read the instances last_alive for poller id={$legacyId}";
+        $uidLastAlive = $pearDBO->fetchOne(
             <<<'SQL'
-                SELECT 1
+                SELECT `last_alive`
                 FROM `instances`
                 WHERE `instance_id` = :uid AND `deleted` = 0
                 SQL,
-            QueryParameters::create([
-                QueryParameter::int('uid', $uid),
-            ])
+            QueryParameters::create([QueryParameter::int('uid', $uid)])
+        );
+        $legacyLastAlive = $pearDBO->fetchOne(
+            <<<'SQL'
+                SELECT `last_alive`
+                FROM `instances`
+                WHERE `instance_id` = :legacyId AND `deleted` = 0
+                SQL,
+            QueryParameters::create([QueryParameter::int('legacyId', $legacyId)])
         );
 
-        if (! $freshRowExists) {
+        if ($uidLastAlive === false || $uidLastAlive === null) {
+            continue;
+        }
+        if ($legacyLastAlive === false || $legacyLastAlive === null) {
+            continue;
+        }
+        if ((int) $uidLastAlive <= (int) $legacyLastAlive) {
             continue;
         }
 
