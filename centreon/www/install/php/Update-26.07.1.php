@@ -68,7 +68,7 @@ $softDeleteStaleLegacyInstances = function () use ($pearDB, $pearDBO, &$errorMes
         // Atomic soft-delete: remove the legacy row only when a live UID row is strictly
         // newer, evaluated at write time so a legacy heartbeat between check and update
         // cannot delete an active row. A downgrade (active legacy, stale UID) and a
-        // poller with no fresh UID row both yield a zero-row update (MON-206900).
+        // poller with no fresh UID row both yield a zero-row update.
         $errorMessage = "Unable to soft-delete the stale legacy instances row for poller id={$legacyId}";
         $softDeleted += $pearDBO->update(
             <<<'SQL'
