@@ -1,21 +1,38 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
+import {
+  formSections,
+  formSelectors,
+  getListingRow,
+  listingSelectors,
+  searchInListing,
+  segmentedButton,
+  segmentedRadio,
+  waitForListingRefresh
+} from '../common';
 
-const checkFirstHostTemplateFromListing = () => {
-  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-  cy.getIframeBody()
-    .find('select')
-    .eq(0)
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
+const secondTemplateName = 'host-template-second';
+// Active Checks is the switch the fixture flips from 0 (default template) to
+// 1 (edited template).
+const activeChecksRadio = 'host_active_checks_enabled';
+// Plain text fields on purpose: they are present in every form mode, so the same
+// selector reads back the saved value from the regular edit form.
+const massChangedMaxCheckAttempts = '7';
+const massChangedRetryInterval = '3';
+
+const createHostTemplate = (body: Record<string, unknown>): void => {
+  cy.request({
+    body,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    url: '/centreon/api/beta/configuration/hosts/templates'
+  }).then((response) => {
+    expect(response.status).to.eq(201);
+  });
 };
 
 beforeEach(() => {
@@ -28,6 +45,10 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_template_listing
+  }).as('getHostTemplateListing');
 });
 
 afterEach(() => {
@@ -42,185 +63,207 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a host template is configured', () => {
-  cy.request({
-    body: hostTemplates.defaultHostTemplate,
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    method: 'POST',
-    url: '/centreon/api/beta/configuration/hosts/templates'
-  }).then((response) => {
-    expect(response.status).to.eq(201);
+  createHostTemplate(hostTemplates.defaultHostTemplate);
+});
+
+Given('the configured host template is locked', () => {
+  // Nothing in the platform install ships a locked template, so make one.
+  cy.lockHostTemplateWithSql(hostTemplates.defaultHostTemplate.name);
+});
+
+Given('a second host template is configured', () => {
+  createHostTemplate({
+    ...hostTemplates.defaultHostTemplate,
+    alias: secondTemplateName,
+    name: secondTemplateName
   });
 });
 
 When('the user changes the properties of the configured host template', () => {
-  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains(hostTemplates.defaultHostTemplate.name).click();
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
+  cy.openHostTemplatesListing();
+  cy.openListingRowForm(hostTemplates.defaultHostTemplate.name);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_name"]')
     .clear()
     .type(hostTemplates.hostTemplate.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_alias"]')
     .clear()
     .type(hostTemplates.hostTemplate.alias);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_snmp_community"]')
     .clear()
     .type(hostTemplates.hostTemplate.snmp_community);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="host_snmp_version"]')
     .select(hostTemplates.hostTemplate.snmp_version);
 
-  cy.getIframeBody().find('span[id="select2-host_location-container"]').click();
+  cy.getSidePanelBody()
+    .find('span[id="select2-host_location-container"]')
+    .click();
+  cy.getSidePanelBody().find('div[title="Africa/Algiers"]').click();
 
-  cy.getIframeBody().find('div[title="Africa/Algiers"]').click();
-
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-command_command_id-container"]')
     .click();
-  cy.getIframeBody().find('div[title="check_http"]').click();
+  cy.getSidePanelBody().find('div[title="check_http"]').click();
 
-  cy.getIframeBody()
+  // Check Period, the three interval fields and the Active Checks switch all
+  // live in Scheduling, which the form ships collapsed.
+  cy.expandFormSection(formSections.scheduling);
+
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .click();
-  cy.getIframeBody().find('div[title="none"]').click();
+  cy.getSidePanelBody().find('div[title="none"]').click();
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_max_check_attempts"]')
     .clear()
     .type(hostTemplates.hostTemplate.max_check_attempts.toString());
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_check_interval"]')
     .clear()
     .type(hostTemplates.hostTemplate.normal_check_interval.toString());
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_retry_check_interval"]')
     .clear()
     .type(hostTemplates.hostTemplate.retry_check_interval.toString());
 
-  cy.getIframeBody().contains('label', 'Yes').eq(0).click();
+  // Yes/No/Default is a button group now, not a radio pair.
+  cy.getSidePanelBody().find(segmentedButton(activeChecksRadio, '1')).click();
 
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  cy.getSidePanelBody().find(formSelectors.saveButton).first().click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the properties are updated', () => {
-  cy.getIframeBody().contains(hostTemplates.hostTemplate.name).should('exist');
-  cy.getIframeBody().contains(hostTemplates.hostTemplate.name).click();
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
-
   cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains(hostTemplates.hostTemplate.name)
+    .should('exist');
+  cy.openListingRowForm(hostTemplates.hostTemplate.name);
+
+  cy.getSidePanelBody()
     .find('input[name="host_name"]')
     .should('have.value', hostTemplates.hostTemplate.name);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_alias"]')
     .should('have.value', hostTemplates.hostTemplate.alias);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="host_snmp_version"]')
     .should('have.value', '3');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-host_location-container"]')
     .should('have.attr', 'title', 'Africa/Algiers');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-command_command_id-container"]')
     .should('have.attr', 'title', 'check_http');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .should('have.attr', 'title', 'none');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_max_check_attempts"]')
     .should('have.value', hostTemplates.hostTemplate.max_check_attempts);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_check_interval"]')
     .should('have.value', hostTemplates.hostTemplate.normal_check_interval);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_retry_check_interval"]')
     .should('have.value', hostTemplates.hostTemplate.retry_check_interval);
 
-  cy.checkLegacyRadioButton('Yes');
+  // The hidden radio behind the switch is what the form submits.
+  cy.getSidePanelBody()
+    .find(segmentedRadio(activeChecksRadio, '1'))
+    .should('be.checked');
 });
 
 When('the user duplicates the configured host template', () => {
-  checkFirstHostTemplateFromListing();
-  cy.getIframeBody().find('select').eq(0).select('Duplicate');
+  cy.openHostTemplatesListing();
+  cy.runListingBulkAction(
+    hostTemplates.defaultHostTemplate.name,
+    'Duplicate',
+    'Duplicate'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('a new host template is created with identical properties', () => {
+  const duplicateName = `${hostTemplates.defaultHostTemplate.name}_1`;
+
   cy.getIframeBody()
-    .contains(`${hostTemplates.defaultHostTemplate.name}_1`)
+    .find(listingSelectors.tableBody)
+    .contains(duplicateName)
     .should('exist');
-  cy.getIframeBody()
-    .contains(`${hostTemplates.defaultHostTemplate.name}_1`)
-    .click();
+  cy.openListingRowForm(duplicateName);
 
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
-
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_name"]')
-    .should('have.value', `${hostTemplates.defaultHostTemplate.name}_1`);
+    .should('have.value', duplicateName);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_alias"]')
     .should('have.value', hostTemplates.defaultHostTemplate.alias);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="host_snmp_version"]')
     .should('have.value', hostTemplates.defaultHostTemplate.snmp_version);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-host_location-container"]')
     .should('have.attr', 'title', 'Africa/Abidjan');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-command_command_id-container"]')
     .should('have.attr', 'title', 'check_host_alive');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .should('have.attr', 'title', '24x7');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_max_check_attempts"]')
     .should('have.value', hostTemplates.defaultHostTemplate.max_check_attempts);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_check_interval"]')
     .should(
       'have.value',
       hostTemplates.defaultHostTemplate.normal_check_interval
     );
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_retry_check_interval"]')
     .should(
       'have.value',
       hostTemplates.defaultHostTemplate.retry_check_interval
     );
 
-  cy.checkLegacyRadioButton('No');
+  cy.getSidePanelBody()
+    .find(segmentedRadio(activeChecksRadio, '0'))
+    .should('be.checked');
 });
 
 When('the user deletes the configured host template', () => {
-  checkFirstHostTemplateFromListing();
-  cy.getIframeBody().find('select').eq(0).select('Delete');
+  cy.openHostTemplatesListing();
+  cy.runListingBulkAction(
+    hostTemplates.defaultHostTemplate.name,
+    'Delete',
+    'Delete'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -229,7 +272,131 @@ Then(
   'the deleted host template is not visible anymore on the host template page',
   () => {
     cy.getIframeBody()
-      .contains(hostTemplates.defaultHostTemplate.name)
-      .should('not.exist');
+      .find(listingSelectors.tableBody)
+      .should('not.contain', hostTemplates.defaultHostTemplate.name);
   }
 );
+
+When('the user applies a mass change on both host templates', () => {
+  cy.openHostTemplatesListing();
+  cy.tickListingRow(hostTemplates.defaultHostTemplate.name);
+  cy.tickListingRow(secondTemplateName);
+
+  cy.openListingMassChange();
+
+  // Both fields live in Scheduling, which the form ships collapsed.
+  cy.expandFormSection(formSections.scheduling);
+  cy.getSidePanelBody()
+    .find('input[name="host_max_check_attempts"]')
+    .clear()
+    .type(massChangedMaxCheckAttempts);
+  cy.getSidePanelBody()
+    .find('input[name="host_retry_check_interval"]')
+    .clear()
+    .type(massChangedRetryInterval);
+
+  cy.getSidePanelBody().find(formSelectors.massChangeSubmit).first().click();
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
+});
+
+Then('both host templates carry the mass changed values', () => {
+  [hostTemplates.defaultHostTemplate.name, secondTemplateName].forEach(
+    (name) => {
+      cy.openHostTemplatesListing();
+      cy.openListingRowForm(name);
+
+      cy.getSidePanelBody()
+        .find('input[name="host_max_check_attempts"]')
+        .should('have.value', massChangedMaxCheckAttempts);
+      cy.getSidePanelBody()
+        .find('input[name="host_retry_check_interval"]')
+        .should('have.value', massChangedRetryInterval);
+    }
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Modernized listing
+// ---------------------------------------------------------------------------
+
+When('the user opens the host templates listing', () => {
+  cy.openHostTemplatesListing();
+});
+
+Then(
+  'the AJAX listing table is displayed with the configured host template',
+  () => {
+    cy.getIframeBody().find(listingSelectors.table).should('exist');
+    cy.getIframeBody()
+      .find(listingSelectors.tableBody)
+      .contains(hostTemplates.defaultHostTemplate.name)
+      .should('exist');
+  }
+);
+
+When('the user searches the host templates for the first one', () => {
+  searchInListing(hostTemplates.defaultHostTemplate.name);
+});
+
+Then('only the matching host template is displayed', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains(hostTemplates.defaultHostTemplate.name)
+    .should('exist');
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .should('not.contain', secondTemplateName);
+});
+
+When('the user asks for the locked host templates', () => {
+  cy.getIframeBody().find(listingSelectors.advancedToggle).click();
+  cy.getIframeBody().find('#displayLocked').check({ force: true });
+  cy.getIframeBody().find(listingSelectors.advancedSearch).click();
+  waitForListingRefresh();
+});
+
+Then('the locked host template cannot be selected nor duplicated', () => {
+  // A locked row keeps its checkbox disabled and renders no duplication input.
+  getListingRow(hostTemplates.defaultHostTemplate.name)
+    .find(listingSelectors.rowCheckbox)
+    .should('be.disabled');
+  getListingRow(hostTemplates.defaultHostTemplate.name)
+    .find(listingSelectors.duplicateInput)
+    .should('not.exist');
+});
+
+Then(
+  'the pagination information shows the total count of host templates',
+  () => {
+    cy.getIframeBody()
+      .find(listingSelectors.pageInfo)
+      .invoke('text')
+      .should('match', /\d+-\d+ of \d+/);
+  }
+);
+
+When('the user sets the rows per page to 10', () => {
+  cy.getIframeBody().find(listingSelectors.limitSelect).select('10');
+  waitForListingRefresh();
+});
+
+Then('at most 10 host template rows are displayed', () => {
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} tr`)
+    .should('have.length.at.most', 10);
+});
+
+When(
+  'the user opens the host template form and comes back to the listing',
+  () => {
+    cy.openListingRowForm(hostTemplates.defaultHostTemplate.name);
+    cy.openHostTemplatesListing();
+  }
+);
+
+Then('the host templates search field still contains the search term', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.searchInput)
+    .should('have.value', hostTemplates.defaultHostTemplate.name);
+});

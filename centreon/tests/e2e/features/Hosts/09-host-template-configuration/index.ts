@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
+
+import { formSelectors } from '../common';
 
 const hostName = 'New-Host-Name';
 
@@ -37,53 +38,45 @@ When('a host inheriting from a host template', () => {
 });
 
 Then('the user configures the host', () => {
-  cy.visit(PAGES.configuration.hostsLegacy);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', `input[name="searchH"]`);
-  cy.getIframeBody().contains(`${hostName}`).click();
-  cy.waitForElementInIframe('#main-content', `input[name="host_name"]`);
+  cy.openHostsListing();
+  cy.openListingRowForm(hostName);
 });
 
 Then('the user can configure directly its parent template', () => {
-  cy.getIframeBody()
-    .find('img[title="Edit template"]')
-    .then((el) => {
-      cy.window().then((win) => {
-        // Get the hostId and build the correct URL
-        const hostId = el.siblings('select').val();
-        if (hostId !== '' && hostId !== undefined && hostId !== null) {
-          // Use relative URL to avoid hardcoding protocol and port
-          const baseUrl = win.location.origin;
-          const path = '/centreon/main.php';
-          const params = new URLSearchParams({
-            host_id: hostId.toString(),
-            min: '1',
-            o: 'c',
-            p: '60103'
-          });
+  // The affordance is an inline-SVG button in the template row's action group,
+  // and it opens the template in a popup window Cypress will not follow — so
+  // read the template id from the row's own select, like the button does, and
+  // navigate in place instead.
+  cy.getSidePanelBody()
+    .find('.cf-macro-action-btn[title="Modify"]')
+    .first()
+    .closest('.clone-cell')
+    .find('select')
+    .invoke('val')
+    .then((templateId) => {
+      if (
+        templateId === '' ||
+        templateId === undefined ||
+        templateId === null
+      ) {
+        throw new Error('No parent template found to edit');
+      }
 
-          // Perform redirection in the same tab
-          win.location.href = `${baseUrl}${path}?${params.toString()}`;
-        } else {
-          // Handle the case when no parent template is selected
-          cy.log('No parent template found to edit');
-          throw new Error('No parent template found to edit');
-        }
-      });
+      cy.visit(
+        `/centreon/main.php?p=60103&o=c&min=1&host_id=${templateId.toString()}`
+      );
     });
-  cy.waitForElementInIframe('#main-content', `input[name="host_name"]`);
+
+  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
   cy.getIframeBody().find('input[name="host_name"]').click();
-  cy.getIframeBody().find('input[name="submitC"]').first().click();
+  cy.getIframeBody().find(formSelectors.saveButton).first().click();
 });
 
 When('a host template inheriting from a host template', () => {
-  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
-  cy.wait('@getTimeZone');
+  cy.openHostTemplatesListing();
 });
 
 When('the user configures the host template', () => {
-  cy.waitForElementInIframe('#main-content', `input[name="searchHT"]`);
-  //parent host template already configured : generic-host
-  cy.getIframeBody().contains('Printers').click();
-  cy.waitForElementInIframe('#main-content', `input[name="host_name"]`);
+  // Parent host template already configured: generic-host.
+  cy.openListingRowForm('Printers');
 });

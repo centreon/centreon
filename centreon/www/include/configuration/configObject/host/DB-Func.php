@@ -437,7 +437,17 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['host_name'] = $hostName;
                 }
             }
-            if (hasHostNameNeverUsed($hostName)) {
+            // The name has to be free among BOTH hosts and templates, which is what
+            // the two forms enforce: formHost.php and formHostTemplateModel.php each
+            // apply the 'exist' (hasHostNameNeverUsed) and 'existTemplate'
+            // (hasHostTemplateNeverUsed) rules to host_name.
+            //
+            // Checking only the first one looked at host_register = '1'. Host
+            // templates duplicate through this same function — hostTemplateModel.php
+            // requires this file and calls multipleHostInDB() — and they carry
+            // host_register = '0', so the guard never saw the copy it had just made
+            // and inserted the same name again on every run.
+            if (hasHostNameNeverUsed($hostName) && hasHostTemplateNeverUsed($hostName)) {
                 $columns = array_keys($row);
                 $placeholders = array_map(fn ($col) => ':' . $col, $columns);
                 $insertHostQuery = 'INSERT INTO host (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';

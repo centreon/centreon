@@ -879,13 +879,17 @@ function myReplace()
 }
 
 $form->applyFilter('__ALL__', 'myTrim');
-$form->applyFilter('host_name', 'myReplace');
-$form->registerRule('existTemplate', 'callback', 'hasHostTemplateNeverUsed');
-$form->registerRule('exist', 'callback', 'hasHostNameNeverUsed');
-$form->addRule('host_name', _('Template name is already in use'), 'existTemplate');
-$form->addRule('host_name', _('Host name is already in use'), 'exist');
-$form->addRule('host_name', _('Compulsory Name'), 'required');
-$form->addRule('host_alias', _('Compulsory Alias'), 'required');
+// Name and alias are only part of the form outside of a mass change, so their
+// filter and rules must not be declared when the elements are absent.
+if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
+    $form->applyFilter('host_name', 'myReplace');
+    $form->registerRule('existTemplate', 'callback', 'hasHostTemplateNeverUsed');
+    $form->registerRule('exist', 'callback', 'hasHostNameNeverUsed');
+    $form->addRule('host_name', _('Template name is already in use'), 'existTemplate');
+    $form->addRule('host_name', _('Host name is already in use'), 'exist');
+    $form->addRule('host_name', _('Compulsory Name'), 'required');
+    $form->addRule('host_alias', _('Compulsory Alias'), 'required');
+}
 $form->registerRule('cg_group_exists', 'callback', 'testCg');
 $form->addRule(
     'host_cgs',
