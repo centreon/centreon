@@ -211,6 +211,71 @@ $populateCentralAddress = function () use ($pearDB, &$errorMessage, $version, $r
     LoggerUpgrade::create()->info($version, 'Successfully populated central_address for all platforms');
 };
 
+/**
+ * Soft-delete stale legacy centreon_storage.instances rows (deleted = 0, frozen last_alive)
+ * left after the 26.07 Snowflake UID migration, which make the poller "database updates"
+ * indicator turn red. Only when the fresh uid row exists, so it is safe and idempotent (MON-206900).
+ */
+$softDeleteStaleLegacyInstances = function () use ($pearDB, $pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fetch pollers for the stale instances cleanup';
+    $pollers = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT `id`, `uid`
+            FROM `nagios_server`
+            WHERE `uid` IS NOT NULL AND `uid` <> `id`
+            SQL
+    );
+
+    if ($pollers === []) {
+        LoggerUpgrade::create()->info(
+            $version,
+            'No poller with a distinct Snowflake UID, skipping stale instances cleanup'
+        );
+
+        return;
+    }
+
+    $softDeleted = 0;
+    foreach ($pollers as $poller) {
+        $legacyId = (int) $poller['id'];
+        $uid = (int) $poller['uid'];
+
+        // Only when the fresh UID row is live, so we never remove a poller's only row.
+        $errorMessage = "Unable to check the fresh instances row for poller id={$legacyId}";
+        $freshRowExists = $pearDBO->fetchOne(
+            <<<'SQL'
+                SELECT 1
+                FROM `instances`
+                WHERE `instance_id` = :uid AND `deleted` = 0
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('uid', $uid),
+            ])
+        );
+
+        if (! $freshRowExists) {
+            continue;
+        }
+
+        $errorMessage = "Unable to soft-delete the stale legacy instances row for poller id={$legacyId}";
+        $softDeleted += $pearDBO->update(
+            <<<'SQL'
+                UPDATE `instances`
+                SET `deleted` = 1
+                WHERE `instance_id` = :legacyId AND `deleted` = 0
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('legacyId', $legacyId),
+            ])
+        );
+    }
+
+    LoggerUpgrade::create()->info(
+        $version,
+        "Stale legacy instances cleanup completed, {$softDeleted} row(s) soft-deleted"
+    );
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -225,6 +290,9 @@ try {
 
     $errorMessage = 'Unable to commit the configuration database transaction';
     $pearDB->commitTransaction();
+
+    // Realtime (centreon_storage) cleanup, run outside the configuration DB transaction.
+    $softDeleteStaleLegacyInstances();
 
     LoggerUpgrade::create()->info($version, "Upgrade script for version {$version} completed");
 
