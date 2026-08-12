@@ -238,6 +238,17 @@
 document.addEventListener('DOMContentLoaded', function() {
     CentreonForm.initFormPage();
     CentreonForm.syncToggle('cf-meta-activate-toggle', 'meta_activate', '1', '0');
+
+    // Reset restores the radios but not the visibility flip; re-run on next tick.
+    var form = document.forms['Form'];
+    if (form) {
+        form.addEventListener('reset', function () {
+            setTimeout(function () {
+                var checked = document.querySelector('input[name="meta_select_mode[meta_select_mode]"]:checked');
+                if (checked) { checked.dispatchEvent(new Event('change')); }
+            }, 0);
+        });
+    }
 });
 </script>
 {/literal}
