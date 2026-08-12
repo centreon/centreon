@@ -71,6 +71,7 @@ export const INTERCEPTORS = {
   },
   ajax: {
     host_categories_toggle: '**/ajaxHostCategoriesToggle.php',
+    meta_service_toggle: '**/ajaxMetaServiceToggle.php',
     service_categories_toggle: '**/ajaxServiceCategoriesToggle.php'
   }
 };

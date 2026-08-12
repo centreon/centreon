@@ -209,14 +209,19 @@ Cypress.Commands.add('checkFieldsOfVm', (body: VirtualMetric) => {
 });
 
 Cypress.Commands.add('addMetaService', (body: MetaService) => {
-  cy.getIframeBody().find('a.bt_success').contains('Add').click();
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="meta_name"]');
-  cy.getIframeBody().find('input[name="meta_name"]').type(body.name);
-  cy.getIframeBody()
+  // The listing must already be open; Add opens the modernized side panel.
+  cy.getIframeBody().find('.cl-btn-add').click();
+  cy.getMetaServiceSidePanelBody()
+    .find('input[name="meta_name"]', { timeout: 20_000 })
+    .should('be.visible')
+    .type(body.name);
+  cy.getMetaServiceSidePanelBody()
     .find('input[name="max_check_attempts"]')
     .type(body.maxCheckAttempts);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getMetaServiceSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
 });
 
@@ -659,6 +664,55 @@ Cypress.Commands.add(
 );
 
 // ---------------------------------------------------------------------------
+// Meta services commands (modernized AJAX listing + side-panel form)
+// ---------------------------------------------------------------------------
+
+Cypress.Commands.add('openMetaServicesListing', () => {
+  cy.visit(PAGES.configuration.metaServicesLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
+});
+
+Cypress.Commands.add('getMetaServiceSidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openMetaServiceForm', (name: string) => {
+  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  cy.getMetaServiceSidePanelBody()
+    .find('input[name="meta_name"]', { timeout: 20_000 })
+    .should('be.visible');
+});
+
+Cypress.Commands.add(
+  'selectMetaServiceRowAndRunBulkAction',
+  (name: string, action: string) => {
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(name)
+      .parents('tr')
+      .find('.cl-col-picker input[type="checkbox"]')
+      .click({ force: true });
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .invoke(
+        'attr',
+        'onchange',
+        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+      );
+    cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+  }
+);
+
+// ---------------------------------------------------------------------------
 // Service categories commands (modernized AJAX listing + side-panel form)
 // ---------------------------------------------------------------------------
 
@@ -714,6 +768,13 @@ declare global {
   // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
+      openMetaServicesListing(): Chainable<void>;
+      getMetaServiceSidePanelBody(): Chainable<JQuery<HTMLElement>>;
+      openMetaServiceForm(name: string): Chainable<void>;
+      selectMetaServiceRowAndRunBulkAction(
+        name: string,
+        action: string
+      ): Chainable<void>;
       openServiceCategoriesListing(): Chainable<void>;
       getServiceCategorySidePanelBody(): Chainable<JQuery<HTMLElement>>;
       openServiceCategoryForm(name: string): Chainable<void>;
