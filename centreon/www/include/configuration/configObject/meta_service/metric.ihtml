@@ -19,7 +19,7 @@
                     {$form.host_id.html}
                     <label class="cf-label-float">{$form.host_id.label}</label>
                 </div>
-                <div class="cf-toggle-row" style="flex:0;white-space:nowrap;">
+                <div class="cf-toggle-row">
                     <label class="cl-toggle"><input type="checkbox" id="cf-activate-toggle"><span class="cl-toggle-slider"></span></label>
                     <span>{$form.activate.label}</span>
                     <span style="display:none;">{$form.activate.html}</span>
