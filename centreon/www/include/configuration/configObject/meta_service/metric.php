@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 // Database retrieve information
 require_once './class/centreonDB.class.php';
 
@@ -26,25 +29,30 @@ $pearDBO = new CentreonDB('centstorage');
 
 $metric = [];
 if (($o == 'cs') && $msr_id) {
-    // Set base value
-    $DBRESULT = $pearDB->prepare('SELECT * FROM meta_service_relation WHERE msr_id = :msr_id');
-    $DBRESULT->bindValue(':msr_id', $msr_id, PDO::PARAM_INT);
-    $DBRESULT->execute();
-
-    // Set base value
-    $metric1 = array_map('myDecode', $DBRESULT->fetchRow());
-    if ($host_id === false || $metric1['host_id'] == $host_id) {
-        $DBRESULT = $pearDBO->prepare(
-            'SELECT * FROM metrics, index_data
-            WHERE metric_id = :metric_id and metrics.index_id = index_data.id'
-        );
-        $DBRESULT->bindValue(':metric_id', $metric1['metric_id'], PDO::PARAM_INT);
-        $DBRESULT->execute();
-        $metric2 = array_map('myDecode', $DBRESULT->fetchRow());
-        $metric = array_merge($metric1, $metric2);
-        $host_id = (int) $metric1['host_id'];
-        $metric['metric_sel'][0] = getMyServiceID($metric['service_description'], $metric['host_id']);
-        $metric['metric_sel'][1] = $metric['metric_id'];
+    $metric1 = $pearDB->fetchAssociative(
+        <<<'SQL'
+            SELECT * FROM meta_service_relation WHERE msr_id = :msr_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('msr_id', (int) $msr_id)])
+    );
+    if ($metric1) {
+        $metric1 = array_map('myDecode', $metric1);
+        if ($host_id === false || $metric1['host_id'] == $host_id) {
+            $metric2 = $pearDBO->fetchAssociative(
+                <<<'SQL'
+                    SELECT * FROM metrics, index_data
+                    WHERE metric_id = :metric_id AND metrics.index_id = index_data.id
+                    SQL,
+                QueryParameters::create([QueryParameter::int('metric_id', (int) $metric1['metric_id'])])
+            );
+            if ($metric2) {
+                $metric2 = array_map('myDecode', $metric2);
+                $metric = array_merge($metric1, $metric2);
+                $host_id = (int) $metric1['host_id'];
+                $metric['metric_sel'][0] = getMyServiceID($metric['service_description'], $metric['host_id']);
+                $metric['metric_sel'][1] = $metric['metric_id'];
+            }
+        }
     }
 }
 
@@ -70,22 +78,30 @@ if ($host_id !== false) {
             ['fields' => ['s.service_id', 's.service_description'], 'keys' => ['service_id'], 'get_row' => 'service_description', 'order' => ['service_description']]
         );
 
+    $hostName = (string) getMyHostName($host_id);
     foreach ($services as $key => $value) {
-        $DBRESULT = $pearDBO->query("SELECT DISTINCT metric_name, metric_id, unit_name
-									 FROM metrics m, index_data i
-									 WHERE i.host_name = '" . $pearDBO->escape(getMyHostName($host_id)) . "'
-									 AND i.service_description = '" . $pearDBO->escape($value) . "'
-									 AND i.id = m.index_id
-									 ORDER BY metric_name, unit_name");
-
-        while ($metricSV = $DBRESULT->fetchRow()) {
+        foreach (
+            $pearDBO->fetchAllAssociative(
+                <<<'SQL'
+                    SELECT DISTINCT metric_name, metric_id, unit_name
+                    FROM metrics m, index_data i
+                    WHERE i.host_name = :host_name
+                    AND i.service_description = :service_description
+                    AND i.id = m.index_id
+                    ORDER BY metric_name, unit_name
+                    SQL,
+                QueryParameters::create([
+                    QueryParameter::string('host_name', $hostName),
+                    QueryParameter::string('service_description', (string) $value),
+                ])
+            ) as $metricSV
+        ) {
             $services1[$key] = $value;
             $metricSV['metric_name'] = str_replace('#S#', '/', $metricSV['metric_name']);
             $metricSV['metric_name'] = str_replace('#BS#', '\\', $metricSV['metric_name']);
             $services2[$key][$metricSV['metric_id']] = $metricSV['metric_name'] . '  (' . $metricSV['unit_name'] . ')';
         }
     }
-    $DBRESULT->closeCursor();
 }
 
 $debug = 0;
