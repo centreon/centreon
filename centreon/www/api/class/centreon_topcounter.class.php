@@ -709,7 +709,7 @@ class CentreonTopCounter extends CentreonWebService
         while ($row = $res->fetch()) {
             $pollerId = $uidToId[$row['instance_id']];
             // Only trust the latency of the freshest instances row so a stale legacy
-            // row cannot raise a false latency alert (MON-206900).
+            // row cannot raise a false latency alert.
             if (
                 ! isset($freshestByPoller[$pollerId])
                 || $row['instance_id'] != $freshestByPoller[$pollerId]['instance_id']
