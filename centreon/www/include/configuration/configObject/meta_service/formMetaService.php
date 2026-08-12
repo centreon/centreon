@@ -89,13 +89,17 @@ $calType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' =
 // Data source type
 $dsType = [0 => 'GAUGE', 1 => 'COUNTER', 2 => 'DERIVE', 3 => 'ABSOLUTE'];
 
-// Graphs Template comes from DB -> Store in $graphTpls Array
 $graphTpls = [null => null];
-$DBRESULT = $pearDB->query('SELECT graph_id, name FROM giv_graphs_template ORDER BY name');
-while ($graphTpl = $DBRESULT->fetchRow()) {
+foreach (
+    $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT graph_id, name FROM giv_graphs_template ORDER BY name
+            SQL,
+        QueryParameters::create([])
+    ) as $graphTpl
+) {
     $graphTpls[$graphTpl['graph_id']] = $graphTpl['name'];
 }
-$DBRESULT->closeCursor();
 
 // Init Styles
 $attrsText = ['size' => '30'];
