@@ -78,7 +78,7 @@ Given('a user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
-Then('a meta service is configured', () => {
+Given('a meta service is configured', () => {
   cy.openMetaServicesListing();
   cy.getIframeBody().find('.cl-btn-add').click();
   cy.getMetaServiceSidePanelBody()
