@@ -240,46 +240,24 @@ $softDeleteStaleLegacyInstances = function () use ($pearDB, $pearDBO, &$errorMes
         $legacyId = (int) $poller['id'];
         $uid = (int) $poller['uid'];
 
-        // Soft-delete the legacy row only when the UID row is strictly newer, so an
-        // active legacy row is never removed (e.g. a 26.07 -> legacy downgrade keeps a
-        // stale UID row alive) and a poller never loses its only live row (MON-206900).
-        $errorMessage = "Unable to read the instances last_alive for poller id={$legacyId}";
-        $uidLastAlive = $pearDBO->fetchOne(
-            <<<'SQL'
-                SELECT `last_alive`
-                FROM `instances`
-                WHERE `instance_id` = :uid AND `deleted` = 0
-                SQL,
-            QueryParameters::create([QueryParameter::int('uid', $uid)])
-        );
-        $legacyLastAlive = $pearDBO->fetchOne(
-            <<<'SQL'
-                SELECT `last_alive`
-                FROM `instances`
-                WHERE `instance_id` = :legacyId AND `deleted` = 0
-                SQL,
-            QueryParameters::create([QueryParameter::int('legacyId', $legacyId)])
-        );
-
-        if ($uidLastAlive === false || $uidLastAlive === null) {
-            continue;
-        }
-        if ($legacyLastAlive === false || $legacyLastAlive === null) {
-            continue;
-        }
-        if ((int) $uidLastAlive <= (int) $legacyLastAlive) {
-            continue;
-        }
-
+        // Atomic soft-delete: remove the legacy row only when a live UID row is strictly
+        // newer, evaluated at write time so a legacy heartbeat between check and update
+        // cannot delete an active row. A downgrade (active legacy, stale UID) and a
+        // poller with no fresh UID row both yield a zero-row update (MON-206900).
         $errorMessage = "Unable to soft-delete the stale legacy instances row for poller id={$legacyId}";
         $softDeleted += $pearDBO->update(
             <<<'SQL'
-                UPDATE `instances`
-                SET `deleted` = 1
-                WHERE `instance_id` = :legacyId AND `deleted` = 0
+                UPDATE `instances` AS legacy
+                INNER JOIN `instances` AS fresh
+                    ON fresh.`instance_id` = :uid AND fresh.`deleted` = 0
+                SET legacy.`deleted` = 1
+                WHERE legacy.`instance_id` = :legacyId
+                    AND legacy.`deleted` = 0
+                    AND fresh.`last_alive` > legacy.`last_alive`
                 SQL,
             QueryParameters::create([
                 QueryParameter::int('legacyId', $legacyId),
+                QueryParameter::int('uid', $uid),
             ])
         );
     }
