@@ -36,12 +36,12 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field" style="max-width:200px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.warning.html}
                     <label class="cf-label-float">{$form.warning.label}</label>
                     <img class="helpTooltip" name="warning">
                 </div>
-                <div class="cf-field" style="max-width:200px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.critical.html}
                     <label class="cf-label-float">{$form.critical.label}</label>
                     <img class="helpTooltip" name="critical">
@@ -96,20 +96,20 @@
                     <label class="cf-label-float">{$form.check_period.label}</label>
                     <img class="helpTooltip" name="check_period">
                 </div>
-                <div class="cf-field" style="max-width:180px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.max_check_attempts.html}
                     <label class="cf-label-float">{$form.max_check_attempts.label}</label>
                     <img class="helpTooltip" name="max_check_attempts">
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field" style="max-width:260px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.normal_check_interval.html}
                     <label class="cf-label-float">{$form.normal_check_interval.label}</label>
                     <small class="cf-unit">{$time_unit}</small>
                     <img class="helpTooltip" name="check_interval">
                 </div>
-                <div class="cf-field" style="max-width:260px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.retry_check_interval.html}
                     <label class="cf-label-float">{$form.retry_check_interval.label}</label>
                     <small class="cf-unit">{$time_unit}</small>
@@ -149,7 +149,7 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field" style="max-width:260px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.notification_interval.html}
                     <label class="cf-label-float">{$form.notification_interval.label}</label>
                     <small class="cf-unit">{$time_unit}</small>
