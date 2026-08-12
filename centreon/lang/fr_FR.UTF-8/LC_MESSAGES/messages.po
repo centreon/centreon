@@ -25460,3 +25460,7 @@ msgstr "Délai de notification"
 #: unknown
 msgid "Reset to template value"
 msgstr "Réinitialiser à la valeur du modèle"
+
+#: www/include/configuration/configServers/listServers.ihtml
+msgid "Copy installation command"
+msgstr "Copier la commande d'installation"
