@@ -1,6 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/services/meta_service.json';
 
@@ -187,10 +186,7 @@ Then(
 );
 
 When('the user searches for the first meta service', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .clear()
-    .type(data.default.name);
+  cy.getIframeBody().find('#clSearchInput').clear().type(data.default.name);
   cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
 });
 
@@ -215,9 +211,17 @@ When('the user changes the properties of a meta service', () => {
     .find('input[name="meta_display"]')
     .clear()
     .type('metaServiceOutputFormatChanged');
-  cy.getMetaServiceSidePanelBody().find('input[name="warning"]').clear().type('50');
-  cy.getMetaServiceSidePanelBody().find('input[name="critical"]').clear().type('75');
-  cy.getMetaServiceSidePanelBody().find('select[name="calcul_type"]').select('Max');
+  cy.getMetaServiceSidePanelBody()
+    .find('input[name="warning"]')
+    .clear()
+    .type('50');
+  cy.getMetaServiceSidePanelBody()
+    .find('input[name="critical"]')
+    .clear()
+    .type('75');
+  cy.getMetaServiceSidePanelBody()
+    .find('select[name="calcul_type"]')
+    .select('Max');
   cy.getMetaServiceSidePanelBody()
     .find('select[name="data_source_type"]')
     .select('COUNTER');
@@ -273,7 +277,9 @@ When('the user changes the properties of a meta service', () => {
     .find('input[name="geo_coords"]')
     .clear()
     .type(data.default.geo_coordinates);
-  cy.getMetaServiceSidePanelBody().find('select[name="graph_id"]').select('Memory');
+  cy.getMetaServiceSidePanelBody()
+    .find('select[name="graph_id"]')
+    .select('Memory');
   cy.getMetaServiceSidePanelBody()
     .find('textarea[name="meta_comment"]')
     .clear()

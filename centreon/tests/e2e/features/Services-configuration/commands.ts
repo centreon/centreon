@@ -708,7 +708,9 @@ Cypress.Commands.add(
         'onchange',
         "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
       );
-    cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .select(action, { force: true });
   }
 );
 
@@ -760,7 +762,9 @@ Cypress.Commands.add(
       );
     // The native o1 select is hidden (replaced by the .cl-more-actions menu);
     // the overridden onchange turns a value change into setO + submit.
-    cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .select(action, { force: true });
   }
 );
 
@@ -816,5 +820,3 @@ declare global {
     }
   }
 }
-
-export {};

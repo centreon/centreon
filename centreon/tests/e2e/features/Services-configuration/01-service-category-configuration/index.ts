@@ -4,7 +4,8 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import serviceCategories from '../../../fixtures/services/category.json';
 
 const secondCategoryName = 'service-category-second';
-const serviceCategoriesApi = '/centreon/api/latest/configuration/services/categories';
+const serviceCategoriesApi =
+  '/centreon/api/latest/configuration/services/categories';
 
 beforeEach(() => {
   cy.startContainers();
@@ -107,7 +108,9 @@ Then('the properties are updated', () => {
     .find('#clTableBody')
     .contains(serviceCategories['service-category-changed'].name)
     .should('exist');
-  cy.openServiceCategoryForm(serviceCategories['service-category-changed'].name);
+  cy.openServiceCategoryForm(
+    serviceCategories['service-category-changed'].name
+  );
   cy.getServiceCategorySidePanelBody()
     .find('input[name="sc_name"]')
     .should('have.value', serviceCategories['service-category-changed'].name);
