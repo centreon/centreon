@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 interface Dependency {
   name: string;
   description: string;
@@ -656,10 +658,69 @@ Cypress.Commands.add(
   }
 );
 
+// ---------------------------------------------------------------------------
+// Service categories commands (modernized AJAX listing + side-panel form)
+// ---------------------------------------------------------------------------
+
+Cypress.Commands.add('openServiceCategoriesListing', () => {
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
+});
+
+Cypress.Commands.add('getServiceCategorySidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openServiceCategoryForm', (name: string) => {
+  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  cy.getServiceCategorySidePanelBody()
+    .find('input[name="sc_name"]', { timeout: 20000 })
+    .should('be.visible');
+});
+
+Cypress.Commands.add(
+  'selectServiceCategoryRowAndRunBulkAction',
+  (name: string, action: string) => {
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(name)
+      .parents('tr')
+      // The row checkbox is visibility:hidden behind its md-checkbox label.
+      .find('.cl-col-picker input[type="checkbox"]')
+      .click({ force: true });
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .invoke(
+        'attr',
+        'onchange',
+        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+      );
+    // The native o1 select is hidden (replaced by the .cl-more-actions menu);
+    // the overridden onchange turns a value change into setO + submit.
+    cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+  }
+);
+
 declare global {
   // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
+      openServiceCategoriesListing(): Chainable<void>;
+      getServiceCategorySidePanelBody(): Chainable<JQuery<HTMLElement>>;
+      openServiceCategoryForm(name: string): Chainable<void>;
+      selectServiceCategoryRowAndRunBulkAction(
+        name: string,
+        action: string
+      ): Chainable<void>;
       addOrUpdateVirtualMetric: (
         body: VirtualMetric,
         showGraph: boolean
