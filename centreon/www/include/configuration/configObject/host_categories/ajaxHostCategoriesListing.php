@@ -44,7 +44,10 @@ $countAclParameters = [];
 
 if ($search !== '') {
     $conditions[] = '(hc.hc_name LIKE :search OR hc.hc_alias LIKE :search)';
-    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
+    $parameters[] = QueryParameter::string(
+        'search',
+        '%' . AjaxListingHelper::escapeLikeWildcards($search) . '%'
+    );
 }
 
 // ACL filtering: a non-admin only sees the host categories granted by its ACL.
