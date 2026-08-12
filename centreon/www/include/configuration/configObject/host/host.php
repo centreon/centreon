@@ -89,7 +89,7 @@ if (
 
 $acl = $centreon->user->access;
 $dbmon = new CentreonDB('centstorage');
-$aclDbName = $acl->getNameDBAcl('broker');
+$aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
 $hgs = $acl->getHostGroupAclConf(null, 'broker');
 $aclHostString = $acl->getHostsString('ID', $dbmon);
 $aclPollerString = $acl->getPollerString();

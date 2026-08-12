@@ -60,6 +60,14 @@ class AjaxListingHelper
     /** Cached configured default page size (options.maxViewConfiguration). */
     private ?int $defaultLimit = null;
 
+    /**
+     * CSRF token minted by validateCsrfToken(), attached to every subsequent
+     * response — including error ones. Static because jsonError() is static and
+     * is also reached from requireWriteAccess() and from the endpoints' catch
+     * blocks, all of which run after the submitted token has been consumed.
+     */
+    private static ?string $rotatedCsrfToken = null;
+
     private function __construct(CentreonDB $db, mixed $centreon)
     {
         $this->db = $db;
@@ -215,7 +223,7 @@ class AjaxListingHelper
         $key = array_search($token, $_SESSION['x-centreon-token'], true);
         unset($_SESSION['x-centreon-token'][$key], $_SESSION['x-centreon-token-generated-at'][$token]);
 
-        return createCSRFToken();
+        return self::$rotatedCsrfToken = createCSRFToken();
     }
 
     /**
@@ -299,9 +307,54 @@ class AjaxListingHelper
     public static function jsonError(string $message, int $httpCode = 400): void
     {
         http_response_code($httpCode);
-        echo json_encode(['error' => $message]);
+
+        $payload = ['error' => $message];
+        // The submitted CSRF token is consumed by validateCsrfToken() before the
+        // write is attempted, so a failure here would otherwise leave the client
+        // holding a dead token: the next call would 403 on "invalid CSRF token"
+        // and mask the real cause. Hand the rotated token back on error too.
+        if (self::$rotatedCsrfToken !== null) {
+            $payload['centreon_token'] = self::$rotatedCsrfToken;
+        }
+
+        echo json_encode($payload);
 
         exit;
+    }
+
+    /**
+     * Escape the LIKE wildcards of a user-supplied search term.
+     *
+     * Bound parameters keep the query safe from injection, but they do not stop
+     * `%`, `_` or `\` from being read as pattern syntax: without this, searching
+     * for `foo_bar` also matches `fooXbar`, and a lone `%` matches everything.
+     * Backslash first, so the escapes added below are not escaped again.
+     */
+    public static function escapeLikeWildcards(string $search): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+    }
+
+    /**
+     * Build a bound `IN (...)` clause for a list of integer ids, so a set of
+     * rows can be fetched in one query instead of one query per row.
+     *
+     * @param int[] $ids Must not be empty (an empty `IN ()` is a syntax error)
+     * @param string $prefix Placeholder prefix, unique within the query
+     *
+     * @return array{clause: string, parameters: QueryParameter[]}
+     */
+    public static function buildIntInClause(array $ids, string $prefix): array
+    {
+        $placeholders = [];
+        $parameters   = [];
+        foreach (array_values($ids) as $index => $id) {
+            $placeholder    = $prefix . $index;
+            $placeholders[] = ':' . $placeholder;
+            $parameters[]   = QueryParameter::int($placeholder, $id);
+        }
+
+        return ['clause' => implode(', ', $placeholders), 'parameters' => $parameters];
     }
 
     /**

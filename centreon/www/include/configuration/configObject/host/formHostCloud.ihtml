@@ -1,323 +1,461 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 {$form.javascript}{$javascript}
 <div id="popin"><p id="msg-wrapper"></p></div>
 <form {$form.attributes}>
     {if $inheritance !="1" }
-		<!-- notification inheritance option -->
-		<div style='visibility: hidden'>
-			{if isset($form.contact_additive_inheritance) && isset($form.cg_additive_inheritance)}
-				{$form.contact_additive_inheritance.html}
-				{$form.cg_additive_inheritance.html}
-			{/if}
-		</div>
+    <div style='visibility: hidden'>
+		{if isset($form.contact_additive_inheritance) && isset($form.cg_additive_inheritance)}
+			{$form.contact_additive_inheritance.html}
+			{$form.cg_additive_inheritance.html}
+		{/if}
+    </div>
     {/if}
-	<div id="validFormTop">
-		{if $o == "a" || $o == "c" || $o == "mc"}
-			<p class="oreonbutton">
-				{if isset($form.submitC)}
-					{$form.submitC.html}
-				{elseif isset($form.submitMC)}
-					{$form.submitMC.html}
-				{else}
-					{$form.submitA.html}
-				{/if}
-				&nbsp;&nbsp;&nbsp;{$form.reset.html}
-			</p>
-		{else if $o == "w"}
-			<p class="oreonbutton">
-				{if isset($form.change)}
-					{$form.change.html}
-				{/if}
-			</p>
-		{/if}
-	</div>
-     <div id='tab1' class='tab'>
-        <table class="formTable table">
-	        <tr class="ListHeader">
-	            <td class="FormHeader"><h3>| {$form.header.title}</h3></td>
-	             <td style="text-align:right;">
-	                <a
-						href="./main.php?p={$p}&min=1&doc=1&page=configobject.html"
-						target="_blank"
-						style='cursor:help'
-						{if isset($topdoc)}
-							alt='{$topdoc}'
-						{/if}
-					>
-	             </td>
-	        </tr>
- 	        <tr class="list_lvl_1">
- 	            <td class="ListColLvl1_name" colspan="2"><h4>{$form.header.information}</h4></td>
- 	        </tr>
-	    	{if $o != "mc"}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="host_name">{$form.host_name.label}</td>
-					<td class="FormRowValue">{$form.host_name.html}</td>
-				</tr>
-				<tr class="list_two">
-					<td class="FormRowField"><img class="helpTooltip" name="alias"> {$form.host_alias.label}</td>
-					<td class="FormRowValue">{$form.host_alias.html}</td>
-				</tr>
-				{if ! $isTemplate}
-					<tr class="list_one">
-						<td class="FormRowField"><img class="helpTooltip" name="address"> {$form.host_address.label}</td>
-						<td class="FormRowValue">{$form.host_address.html}</td>
-					</tr>
-				{/if}
-			{/if}
-			{if $o == "mc"}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_tplp.label}</td>
-					<td class="FormRowValue">{$form.mc_mod_tplp.html}</td>
-				</tr>
-			{/if}
-			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="use"> {$form.host_parallel_template.label}<p
-						class="description">{$form.tplTextParallel.label}
-					<p>
-				</td>
-	<td class="FormRowValue" id="parallelTemplate">{include file="file:$centreon_path/www/include/common/templates/cloneHost.ihtml" cloneId="template" cloneSet=$cloneSetTemplate}</td>
-			</tr>
-			{if $isTemplate}
-				{if $o == "mc"}
-					<tr class="list_one">
-						<td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_htpl.label}</td>
-						<td class="FormRowValue">{$form.mc_mod_htpl.html}</td>
-					</tr>
-				{/if}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="service_templates"> {$form.host_svTpls.label}</td>
-					<td class="FormRowValue">{$form.host_svTpls.html} </td>
-				</tr>
-			{else}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="host_activate">{$form.host_activate.label}</td>
-					<td class="FormRowValue">{$form.host_activate.html}</td>
-				</tr>
-			{/if}
 
+<div class="cf-form-wrapper">
 
-			<tr class="list_lvl_1">
-				<td class="ListColLvl1_name" colspan="2">
-					<h4>{$form.header.monitoringSettings}</h4>
-				</td>
-			</tr>
-			{if isset($form.nagios_server_id.label)}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="poller"> {$form.nagios_server_id.label}</td>
-					<td class="FormRowValue">{$form.nagios_server_id.html}</td>
-				</tr>
-			{/if}
-		    <tr class="list_two">
-		        <td class="FormRowField"><img class="helpTooltip" name="snmp_options"> {$form.host_snmp_community.label} & {$form.host_snmp_version.label}</td>
-		        <td class="FormRowValue">{$form.host_snmp_community.html}&nbsp;&nbsp;{$form.host_snmp_version.html}</td>
-		    </tr>
-			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="check_period"> {$form.timeperiod_tp_id.label}</td>
-				<td class="FormRowValue">{$form.timeperiod_tp_id.html} </td>
-			</tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="host_location"> {$form.host_location.label}</td>
-				<td class="FormRowValue">{$form.host_location.html}</td>
-			</tr>
+    <h1 class="cf-page-title">{$form.header.title}</h1>
 
-			<tr class="list_lvl_1">
-			    <td class="ListColLvl1_name" colspan="2"><h4>{t}Host check options{/t}</h4></td>
-			</tr>
-		 	<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="check_command"> {$form.command_command_id.label}</td>
-				<td class="FormRowValue">
-					{$form.command_command_id.html}
-					{if $o == "a" || $o == "c"}
-					<span style="cursor:help; margin-left: 4px;">
-						<img src='./img/icons/info.png' class='ico-14' style='vertical-align:middle;' onclick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id'].options[document.Form.elements['command_command_id'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=200');">
-					</span>
-					{/if}
-				</td>
-			</tr>
-			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="check_command_args"> {$form.command_command_id_arg1.label}</td>
-				<td class="FormRowValue">
-					{$form.command_command_id_arg1.html}
-					{if $o == "a" || $o == "c"}
-						<img src="./img/icons/arrow-left.png" style='cursor:pointer;margin: 0 6px;vertical-align: middle;' alt="*" class="ico-14" onclick="set_arg('example1','command_command_id_arg1');"><input type="text" name="example1" disabled>
-					{/if}
-				</td>
-			</tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="macro"> {$custom_macro_label} <br>
-					<div class="macro_legend">
-						<p><span class="state_badge" style="background-color: var(--custom-macros-template-background-color);"></span>{$template_inheritance}</p>
-						<p><span class="state_badge" style="background-color: var(--custom-macros-command-background-color);"></span>{$command_inheritance}</p>
-					</div>
-				</td>
-				<td class="FormRowValue">{include file="file:$centreon_path/www/include/common/templates/cloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}</td>
-			</tr>
-			<tr class="list_lvl_1">
-			    <td class="ListColLvl1_name" colspan="2"><h4>{t}Scheduling options{/t}</h4></td>
-			</tr>
-		 	<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="max_check_attempts"> {$form.host_max_check_attempts.label}</td>
-				<td class="FormRowValue">{$form.host_max_check_attempts.html}</td>
-			</tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="check_interval"> {$form.host_check_interval.label}</td>
-				<td class="FormRowValue">{$form.host_check_interval.html} {$time_unit}</td>
-			</tr>
-			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="retry_interval"> {$form.host_retry_check_interval.label}</td>
-				<td class="FormRowValue">{$form.host_retry_check_interval.html} {$time_unit}</td>
-			</tr>
-			<tr class="list_lvl_1">
-				<td class="ListColLvl1_name" colspan="2"><h4>{$form.header.treatment}</h4></td>
-			</tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="check_freshness"> {$form.host_check_freshness.label}</td>
-				<td class="FormRowValue">{$form.host_check_freshness.html}</td>
-			</tr>
-			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="freshness_threshold"> {$form.host_freshness_threshold.label}</td>
-				<td class="FormRowValue">{$form.host_freshness_threshold.html}&nbsp;{$seconds}</td>
-			</tr>
-			<tr class="list_lvl_1">
-				<td class="ListColLvl1_name" colspan="2">
-					<h4>{$form.header.classification}</h4>
-				</td>
-			</tr>
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-basic" class="active" onclick="cfScrollTo('cf-sec-basic', this); return false;">{$form.header.information}</a>
+        <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{$form.header.classification}</a>
+        <a href="#cf-sec-data" onclick="cfScrollTo('cf-sec-data', this); return false;">{$Event_Handler}</a>
+        <a href="#cf-sec-extended" onclick="cfScrollTo('cf-sec-extended', this); return false;">{$form.header.furtherInfos}</a>
+    </div>
 
+    <!-- ================================================================ -->
+    <!-- Section 1: Host Configuration                                     -->
+    <!-- ================================================================ -->
+    <div class="cf-section" id="cf-sec-basic">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Host basic information{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+		{if $o != "mc"}
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.host_name.html}
+                    <label class="cf-label-float">{$form.host_name.label}</label>
+                    <img class="helpTooltip" name="host_name">
+                </div>
+                <div class="cf-field">
+                    {$form.host_alias.html}
+                    <label class="cf-label-float">{$form.host_alias.label}</label>
+                    <img class="helpTooltip" name="alias">
+                </div>
+			    {if !$isTemplate}
+                <div class="cf-toggle-row">
+                    <span>{t}Status{/t}</span>
+                    <label class="cl-toggle">
+                        <input type="checkbox" id="cf-toggle-host-activate" />
+                        <span class="cl-toggle-slider"></span>
+                    </label>
+                    <span style="display:none;">{$form.host_activate.html}</span>
+                </div>
+			    {/if}
+            </div>
 			{if !$isTemplate}
-				<!-- HOST GROUP RELATIONS -->
-				{if $o == "mc"}
-					<tr class="list_one">
-						<td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_hhg.label}</td>
-						<td class="FormRowValue">{$form.mc_mod_hhg.html}</td>
-					</tr>
-				{/if}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="hostgroups"> {$form.host_hgs.label}</td>
-					<td class="FormRowValue">{$form.host_hgs.html} </td>
-				</tr>
-				<!-- HOST CATEGORIE RELATIONS -->
-				{if $o == "mc"}
-					<tr class="list_two">
-						<td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_hhc.label}</td>
-						<td class="FormRowValue">{$form.mc_mod_hhc.html}</td>
-					</tr>
-				{/if}
-				<tr class="list_two">
-					<td class="FormRowField"><img class="helpTooltip" name="hostcategories"> {$form.host_hcs.label}</td>
-					<td class="FormRowValue">{$form.host_hcs.html} </td>
-				</tr>
-				<!-- PARENT HOSTS RELATIONS -->
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="parents"> {$form.host_parents.label}</td>
-					<td class="FormRowValue">{$form.host_parents.html} </td>
-				</tr>
-				<!-- CHILD HOSTS RELATIONS -->
-				<tr class="list_two">
-					<td class="FormRowField"><img class="helpTooltip" name="child_hosts"> {$form.host_childs.label}</td>
-					<td class="FormRowValue">{$form.host_childs.html} </td>
-				</tr>
-			{else}
-				<!-- HOST CATEGORIE RELATIONS -->
-				{if $o == "mc"}
-					<tr class="list_one">
-						<td class="FormRowField"><img class="helpTooltip" name="mc_update"> {$form.mc_mod_hhc.label}</td>
-						<td class="FormRowValue">{$form.mc_mod_hhc.html}</td>
-					</tr>
-				{/if}
-				<tr class="list_one">
-					<td class="FormRowField"><img class="helpTooltip" name="hostcategories"> {$form.host_hcs.label}</td>
-					<td class="FormRowValue">{$form.host_hcs.html} </td>
-				</tr>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="flex:2;">
+                    {$form.host_address.html}
+                    <label class="cf-label-float">{$form.host_address.label}</label>
+                    <img class="helpTooltip" name="address">
+                </div>
+            </div>
 			{/if}
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="criticality_id"> {$form.criticality_id.label}</td>
-				<td class="FormRowValue">{$form.criticality_id.html}</td>
-			</tr>
-
-            <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
-                  <h4>{$Event_Handler}</h4>
-            </td></tr>
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="event_handler_enabled"> {$form.host_event_handler_enabled.label}</td><td class="FormRowValue">{$form.host_event_handler_enabled.html}</td></tr>
-            <tr class="list_one">
-                <td class="FormRowField"><img class="helpTooltip" name="event_handler"> {$form.command_command_id2.label}</td>
-                <td class="FormRowValue">
-                    {$form.command_command_id2.html}
-                    {if $o == "a" || $o == "c"}
-                        &nbsp;<img class="ico-14" src='./img/icons/info.png' style='cursor:help;vertical-align:middle;' onclick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id2'].options[document.Form.elements['command_command_id2'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=1000, height=200');">
-                    {/if}
-                </td>
-            </tr>
-            {if $o == "a" || $o == "c"}
-                <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
-                    {if isset($required.note)}
-                        {$form.required_note}
-                    {/if}
-                </td></tr>
+		{/if}
+            <div class="cf-row-inline">
+            {if isset($form.nagios_server_id.label)}
+                <div class="cf-field">
+                    {$form.nagios_server_id.html}
+                    <label class="cf-label-float">{$form.nagios_server_id.label}</label>
+                    <img class="helpTooltip" name="poller">
+                </div>
             {/if}
-			<tr class="list_lvl_1">
-				<td class="ListColLvl1_name" colspan="2">
-					<h4>{$form.header.furtherInfos}</h4>
-				</td>
-			</tr>
-            <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="icon_image"> {$form.ehi_icon_image.label}</td><td class="FormRowValue">{$form.ehi_icon_image.html}&nbsp;&nbsp;<img id='ehi_icon_image_img' class="img_box" src='./img/blank.gif'></td></tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="notes"> {$form.ehi_notes.label}</td>
-				<td class="FormRowValue">{$form.ehi_notes.html}</td>
-			</tr>
-			<tr class="list_two">
-				<td class="FormRowField"><img class="helpTooltip" name="notes_url"> {$form.ehi_notes_url.label}</td>
-				<td class="FormRowValue">{$form.ehi_notes_url.html}</td>
-			</tr>
-			<tr class="list_one">
-				<td class="FormRowField"><img class="helpTooltip" name="action_url"> {$form.ehi_action_url.label}</td>
-				<td class="FormRowValue">{$form.ehi_action_url.html}</td>
-			</tr>
-			{if isset($form.geo_coords.label)}
-				<tr class="list_two">
-					<td class="FormRowField"><img class="helpTooltip" name="geo_coords"> {$form.geo_coords.label}</td>
-					<td class="FormRowValue">{$form.geo_coords.html}</td>
-				</tr>
-			{/if}
+                <div class="cf-field" style="flex:0 1 240px;">
+                    {$form.host_location.html}
+                    <label class="cf-label-float">{$form.host_location.label}</label>
+                    <img class="helpTooltip" name="host_location">
+                </div>
+                {if isset($form.geo_coords.label)}
+                <div class="cf-field" style="flex:0 1 240px;">
+                    {$form.geo_coords.html}
+                    <label class="cf-label-float">{$form.geo_coords.label}</label>
+                    <img class="helpTooltip" name="geo_coords">
+                </div>
+                {/if}
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:250px;">
+                    {$form.host_snmp_community.html}
+                    <label class="cf-label-float">{t}SNMP Community{/t}</label>
+                    <img class="helpTooltip" name="snmp_options">
+                </div>
+                <div class="cf-field" style="max-width:150px;">
+                    {$form.host_snmp_version.html}
+                    <label class="cf-label-float">{$form.host_snmp_version.label}</label>
+                </div>
+            </div>
+            <div class="cf-row" style="background:var(--body-background,#f8f9fa);border:1px solid var(--color-divider,#e3e3e3);border-radius:6px;padding:12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:13px;font-weight:600;color:var(--list-color,#333);">{$form.host_parallel_template.label}</span>
+                        <img class="helpTooltip" name="use">
+                    </div>
+                    <div id="template_controls">
+                        <div id="template_add">
+                            <span class="add-new-entry">
+                                {assign var=isTemplateFrozen value=0}
+                                {foreach from=$cloneSetTemplate item=v}
+                                    {if $v->isFrozen()}{assign var=isTemplateFrozen value=1}{/if}
+                                {/foreach}
+                                {if $isTemplateFrozen == 0}{t} + Add a new entry{/t}{/if}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {if isset($form.tplTextParallel.label)}
+                <p style="font-size:12px;color:var(--input-placeholder-font-color,#666);margin:0 0 8px 0;">{$form.tplTextParallel.label}</p>
+                {/if}
+                <div id="parallelTemplate" style="max-width:60%;">{include file="file:$centreon_path/www/include/common/templates/cloneHost.ihtml" cloneId="template" cloneSet=$cloneSetTemplate}</div>
+                {* Update mode closes the card, after the list it governs — stating
+                   it before the list read as a modifier of the block's header. *}
+                {if $o == "mc"}
+                <div class="cf-field cf-mc-mode" style="margin-top:8px;">{$form.mc_mod_tplp.label} {$form.mc_mod_tplp.html} <img class="helpTooltip" name="mc_update"></div>
+                {/if}
+            </div>
+        </div>
+    </div>
 
-			{if $o == "a" || $o == "c"}
-			<tr class="list_lvl_2">
-				<td class="ListColLvl2_name" colspan="2">
-					{if isset($required.note)}
-						{$form.required_note}
-					{/if}
-				</td>
-			</tr>
-			{/if}
+    <div class="cf-section" id="cf-sec-check">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Host check options{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.command_command_id.html}
+                    <label class="cf-label-float">{$form.command_command_id.label}</label>
+                    <img class="helpTooltip" name="check_command">
+                    {if $o == "a" || $o == "c"}
+                    <span style="cursor:help;margin-left:4px;">
+                        <img src='./img/icons/info.png' class='ico-14' style='vertical-align:middle;' onclick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id'].options[document.Form.elements['command_command_id'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=500, height=200');">
+                    </span>
+                    {/if}
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.command_command_id_arg1.html}
+                    <label class="cf-label-float">{$form.command_command_id_arg1.label}</label>
+                    <img class="helpTooltip" name="check_command_args">
+                    {if $o == "a" || $o == "c"}
+                        <img src="./img/icons/arrow-left.png" style='cursor:pointer;margin:0 6px;vertical-align:middle;' class="ico-14" onclick="set_arg('example1','command_command_id_arg1');"><input type="text" name="example1" disabled>
+                    {/if}
+                </div>
+            </div>
+            <div class="cf-row" style="background:var(--body-background,#f8f9fa);border:1px solid var(--color-divider,#e3e3e3);border-radius:6px;padding:12px;">
+                {include file="file:$centreon_path/www/include/common/templates/cfCloneMacro.ihtml" cloneId="macro" cloneSet=$cloneSetMacro}
+            </div>
+        </div>
+    </div>
 
-		<!-- <tbody> -->
-	</table>
+    <div class="cf-section collapsed" id="cf-sec-scheduling">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Scheduling options{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.timeperiod_tp_id.html}
+                    <label class="cf-label-float">{$form.timeperiod_tp_id.label}</label>
+                    <img class="helpTooltip" name="check_period">
+                </div>
+            </div>
+            <!-- 300px each: enough for the translated labels ("Nombre de contrôles
+                 avant validation de l'état", "Intervalle non-régulier de contrôle")
+                 to fit on one line above their input. -->
+            <div class="cf-row-inline">
+                <div class="cf-field" style="flex:0 1 300px;">
+                    {$form.host_max_check_attempts.html}
+                    <label class="cf-label-float">{$form.host_max_check_attempts.label}</label>
+                    <img class="helpTooltip" name="max_check_attempts">
+                </div>
+                <div class="cf-field" style="flex:0 1 300px;">
+                    {$form.host_check_interval.html}
+                    <label class="cf-label-float">{$form.host_check_interval.label}</label>
+                    <img class="helpTooltip" name="check_interval">
+                </div>
+                <div class="cf-field" style="flex:0 1 300px;">
+                    {$form.host_retry_check_interval.html}
+                    <label class="cf-label-float">{$form.host_retry_check_interval.label}</label>
+                    <img class="helpTooltip" name="retry_interval">
+                </div>
+            </div>
+            {* Freshness check: declared in formHost.php with no platform guard, so
+               it exists on Cloud too and the legacy Cloud form renders it here,
+               right after the retry interval. The switch keeps its own row and the
+               threshold it drives the next one. *}
+            <div class="cf-row">
+                <div class="cf-segmented-row">
+                    <span>{$form.host_check_freshness.label}</span>
+                    <div class="cf-segmented" data-radio-name="host_check_freshness">
+                        <button type="button" data-value="1">{t}Yes{/t}</button>
+                        <button type="button" data-value="0">{t}No{/t}</button>
+                        <button type="button" data-value="2">{t}Default{/t}</button>
+                    </div>
+                    <span style="display:none;">{$form.host_check_freshness.html}</span>
+                    <img class="helpTooltip" name="check_freshness">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="flex:0 1 300px;">
+                    {$form.host_freshness_threshold.html}
+                    <label class="cf-label-float">{$form.host_freshness_threshold.label}</label>
+                    <img class="helpTooltip" name="freshness_threshold">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 2: Classification                                         -->
+    <!-- ================================================================ -->
+    <div class="cf-section collapsed" id="cf-sec-relations">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.classification}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+	{if !$isTemplate}
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.host_hgs.html}
+                    <label class="cf-label-float">{$form.host_hgs.label}</label>
+                    <img class="helpTooltip" name="hostgroups">
+                </div>
+		{if $o == "mc"}
+                <div class="cf-field cf-mc-mode">{$form.mc_mod_hhg.label} {$form.mc_mod_hhg.html} <img class="helpTooltip" name="mc_update"></div>
+		{/if}
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.host_hcs.html}
+                    <label class="cf-label-float">{$form.host_hcs.label}</label>
+                    <img class="helpTooltip" name="hostcategories">
+                </div>
+        {if $o == "mc"}
+                <div class="cf-field cf-mc-mode">{$form.mc_mod_hhc.label} {$form.mc_mod_hhc.html} <img class="helpTooltip" name="mc_update"></div>
+		{/if}
+            </div>
+            {* Parent / child hosts: on Cloud formHost.php declares them only outside
+               Mass Change, hence the isset() guard — no mc_mod_* pair here, the Cloud
+               form has none for them. *}
+            {if isset($form.host_parents.label)}
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.host_parents.html}
+                    <label class="cf-label-float">{$form.host_parents.label}</label>
+                    <img class="helpTooltip" name="parents">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.host_childs.html}
+                    <label class="cf-label-float">{$form.host_childs.label}</label>
+                    <img class="helpTooltip" name="child_hosts">
+                </div>
+            </div>
+            {/if}
+	{else}
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.host_svTpls.html}
+                    <label class="cf-label-float">{$form.host_svTpls.label}</label>
+                    <img class="helpTooltip" name="service_templates">
+                </div>
+		{if $o == "mc"}
+                <div class="cf-field cf-mc-mode">{$form.mc_mod_htpl.label} {$form.mc_mod_htpl.html} <img class="helpTooltip" name="mc_update"></div>
+		{/if}
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.host_hcs.html}
+                    <label class="cf-label-float">{$form.host_hcs.label}</label>
+                    <img class="helpTooltip" name="hostcategories">
+                </div>
+		{if $o == "mc"}
+                <div class="cf-field cf-mc-mode">{$form.mc_mod_hhc.label} {$form.mc_mod_hhc.html} <img class="helpTooltip" name="mc_update"></div>
+		{/if}
+            </div>
+	{/if}
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 3: Event Handler — collapsed by default                   -->
+    <!-- ================================================================ -->
+    <div class="cf-section collapsed" id="cf-sec-data">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$Event_Handler}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-segmented-row">
+                    <span>{t}Event Handler{/t}</span>
+                    <div class="cf-segmented" data-radio-name="host_event_handler_enabled">
+                        <button type="button" data-value="1">{t}Yes{/t}</button>
+                        <button type="button" data-value="0">{t}No{/t}</button>
+                        <button type="button" data-value="2">{t}Default{/t}</button>
+                    </div>
+                    <span style="display:none;">{$form.host_event_handler_enabled.html}</span>
+                    <img class="helpTooltip" name="event_handler_enabled">
+                </div>
+            </div>
+            <div id="cf-event-handler-fields">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.command_command_id2.html}
+                    <label class="cf-label-float">{$form.command_command_id2.label}</label>
+                    <img class="helpTooltip" name="event_handler">
+                    {if $o == "a" || $o == "c"}
+                    <img class="ico-14" src='./img/icons/info.png' style='cursor:help;vertical-align:middle;' onclick="window.open('main.php?p=608&command_id='+ document.Form.elements['command_command_id2'].options[document.Form.elements['command_command_id2'].selectedIndex].value + '&min=1','','toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes,copyhistory=no, width=1000, height=200');">
+                    {/if}
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 4: Extended Information — collapsed                       -->
+    <!-- ================================================================ -->
+    <div class="cf-section collapsed" id="cf-sec-extended">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.furtherInfos}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.ehi_notes.html}
+                    <label class="cf-label-float">{$form.ehi_notes.label}</label>
+                    <img class="helpTooltip" name="notes">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.ehi_notes_url.html}
+                    <label class="cf-label-float">{$form.ehi_notes_url.label}</label>
+                    <img class="helpTooltip" name="notes_url">
+                </div>
+                <div class="cf-field">
+                    {$form.ehi_action_url.html}
+                    <label class="cf-label-float">{$form.ehi_action_url.label}</label>
+                    <img class="helpTooltip" name="action_url">
+                </div>
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field">
+                    {$form.ehi_icon_image.html}
+                    <label class="cf-label-float">{$form.ehi_icon_image.label}</label>
+                    <img class="helpTooltip" name="icon_image">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field" style="max-width:50%;">
+                    {$form.criticality_id.html}
+                    <label class="cf-label-float">{$form.criticality_id.label}</label>
+                    <img class="helpTooltip" name="criticality_id">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c" || $o == "mc"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {elseif isset($form.submitMC)}
+                {$form.submitMC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
 </div>
 
-
-<div id="validForm">
-{if $o == "a" || $o == "c" || $o == "mc"}
-	<p class="oreonbutton">
-		{if isset($form.submitC)}
-			{$form.submitC.html}
-		{elseif isset($form.submitMC)}
-			{$form.submitMC.html}
-		{else}
-			{$form.submitA.html}
-		{/if}
-		&nbsp;&nbsp;&nbsp;{$form.reset.html}
-	</p>
-{else if $o == "w"}
-	<p class="oreonbutton">
-		{if isset($form.change)}
-			{$form.change.html}
-		{/if}
-	</p>
-{/if}
-</div>
 {$form.hidden}
 </form>
 {$helptext}
+
+{literal}
+<script type="text/javascript">
+// Media pickers: render each image option with a 16x16 thumbnail, matching
+// the host category severity-icon picker.
+function cfIconOption(state) {
+    if (!state.id || String(state.id).indexOf('REP') === 0 || isNaN(parseInt(state.id, 10))) {
+        return state.text; // directory header or empty option
+    }
+    var url = './include/common/getHiddenImage.php?id=' + state.id + '&logo=1';
+    var label = String(state.text).replace(/^[\s ]+/, '');
+    // Build the label as a text node so a media name containing markup cannot
+    // inject HTML (state.id is numeric here, so the interpolated url is safe).
+    return jQuery('<span>')
+        .append(jQuery('<img>').attr('src', url).css({
+            width: '16px', height: '16px', 'vertical-align': 'middle',
+            'margin-right': '6px', 'object-fit': 'contain'
+        }))
+        .append(document.createTextNode(label));
+}
+function cfInitImageSelects(ids) {
+    ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el || el.disabled) return;
+        jQuery(el).select2({ templateResult: cfIconOption, templateSelection: cfIconOption, width: '100%' });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage({ macros: true, geo: true });
+    cfInitImageSelects(['ehi_icon_image']);
+    CentreonForm.syncToggle('cf-toggle-host-activate', 'host_activate', '1', '0');
+
+    // Grey out event handler fields when disabled — host_event_handler_enabled
+    // is a segmented button (Default/Yes/No radio group), not a plain
+    // checkbox, so this doesn't fit the shared data-cf-disables mechanism
+    // (checkbox-trigger only) without extending it.
+    function cfUpdateEventHandlerFields() {
+        var container = document.getElementById('cf-event-handler-fields');
+        if (!container) return;
+        var radio = document.querySelector('input[name="host_event_handler_enabled[host_event_handler_enabled]"][value="0"]:checked')
+            || document.querySelector('input[name="host_event_handler_enabled"][value="0"]:checked');
+        if (radio) {
+            container.style.opacity = '0.4';
+            container.style.pointerEvents = 'none';
+        } else {
+            container.style.opacity = '1';
+            container.style.pointerEvents = '';
+        }
+    }
+    cfUpdateEventHandlerFields();
+    document.querySelectorAll('.cf-segmented[data-radio-name="host_event_handler_enabled"] button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            setTimeout(cfUpdateEventHandlerFields, 50);
+        });
+    });
+});
+</script>
+{/literal}
+
 <script>
 	var alert_max_length_exceeded = null;
 	{ if isset($alert_max_length_exceeded)}
@@ -342,7 +480,7 @@ $('input[name=ehi_notes]').change(function () {
 jQuery(function() {
 	{/literal}{if isset($form.command_command_id)}{literal}
 	setListener(jQuery('select[name=command_command_id]'));
-	{ /literal}{/if } { literal }
+	{/literal}{/if}{literal}
 
     sheepIt = jQuery("#macro").sheepIt({
         separator: '',
@@ -360,13 +498,8 @@ jQuery(function() {
 
     });
 
-    /**
-     * Mechanism to clear the password input field when it gets focus
-     * and recover its previous value when it lost focus if no new value has been defined.
-     */
     jQuery('ul#macro').find('input[id^=\'macroValue_\']').on('click', function () {
-        if (jQuery(this).closest('div').find('input[type=\'checkbox\']:checked').val() === '1') {
-            // It's a password input
+        if (jQuery(this).closest('.onemacro').find('input[type=\'checkbox\']:checked').val() === '1') {
             const actualValue = jQuery(this).val();
             jQuery(this).val('');
             jQuery(this).one('focusout', function() {
@@ -388,24 +521,26 @@ jQuery(function() {
             jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-command-background-color)',border : '1px solid var(--custom-macros-command-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
         }
 
-        // Set a 'Macro value' field as password field, on edit mode
         if (jQuery(elem).find("input[id^='macroPassword_']").is(':checked')) {
             jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
         }
 
         {/literal}{if $form.frozen == false}{literal}
-        // Display undo button on template macro
         if (typeof jQuery(elem).find("input[name^='macroTplValToDisplay']") != 'undefined'){
             if (jQuery(elem).find("input[name^='macroTplValToDisplay']").val() == "1"){
                 var tplValueField = jQuery(elem).find("input[name^='macroTplValue']");
                 var tplValue = tplValueField.val();
 
-                tplValueField.after(jQuery('<img/>',{src : './img/icons/undo.png', class : 'ico-14', style : 'vertical-align : middle;'}).on('click',function(){
-                    jQuery(elem).find("input[name^='macroValue']").val(tplValue);
-                    jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
-                    jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                    jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                }));
+                jQuery(elem).find('.cf-macro-reset-slot')
+                    .removeClass('cf-macro-action-slot')
+                    .addClass('cf-macro-reset-icon')
+                    .attr('title', '{/literal}{t}Reset to default value{/t}{literal}')
+                    .on('click',function() {
+                        jQuery(elem).find("input[name^='macroValue']").val(tplValue);
+                        jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
+                        jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                        jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                    });
             }
         }
         {/literal}{/if}{literal}
@@ -546,7 +681,6 @@ function clonerefreshListener(el){
                         }
 
                         {/literal}{if $form.frozen == false}{literal}
-                        // Display undo button on template macro
                         if (typeof jQuery(elem).find("input[name^='macroTplValToDisplay']") != 'undefined'){
                             if (jQuery(elem).find("input[name^='macroTplValToDisplay']").val() == "1"){
                                 var tplValueField = jQuery(elem).find("input[name^='macroTplValue']");
@@ -555,13 +689,17 @@ function clonerefreshListener(el){
                                 var tplInputField = jQuery(elem).find("input[name^='macroInput']");
                                 var tplInput = tplInputField.val();
 
-                                tplValueField.after(jQuery('<img/>',{src : './img/icons/undo.png', class : 'ico-14', style : 'vertical-align : middle;'}).on('click',function(){
-                                    jQuery(elem).find("input[name^='macroValue']").val(tplValue);
-                                    jQuery(elem).find("input[name^='macroInput']").val(tplInput);
-                                    jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
-                                    jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                                    jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
-                                }));
+                                jQuery(elem).find('.cf-macro-reset-slot')
+                                    .removeClass('cf-macro-action-slot')
+                                    .addClass('cf-macro-reset-icon')
+                                    .attr('title', '{/literal}{t}Reset to default value{/t}{literal}')
+                                    .on('click',function() {
+                                        jQuery(elem).find("input[name^='macroValue']").val(tplValue);
+                                        jQuery(elem).find("input[name^='macroInput']").val(tplInput);
+                                        jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
+                                        jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                                        jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
+                                    });
                             }
                         }
                         {/literal}{/if}{literal}
@@ -591,11 +729,11 @@ function clonerefreshListener(el){
                         });
 
                         if (jQuery(elem).find("input[id^='macroPassword_']").is(':checked')) {
-                        	jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
+                            jQuery(elem).find("input[name^='macroValue']").prop('type', 'password');
                             jQuery(elem).find("input[id^='macroPassword_']").closest('span').hide();
-							jQuery(elem).find("input[id^='macroValue_']").val('**********');
-							jQuery(elem).find("input[id^='macroOldValue_']").val('**********');
-							jQuery(elem).find("input[id^='macroTplValue_']").val('**********');
+                            jQuery(elem).find("input[id^='macroValue_']").val('**********');
+                            jQuery(elem).find("input[id^='macroOldValue_']").val('**********');
+                            jQuery(elem).find("input[id^='macroTplValue_']").val('**********');
                     	}
                     });
                 },

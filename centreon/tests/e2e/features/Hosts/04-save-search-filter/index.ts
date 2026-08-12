@@ -2,6 +2,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+import { listingSelectors, waitForListingRefresh } from '../common';
+
 const searchWordOnHostTemplate = 'generic-host';
 const searchWordOnTraps = 'ccm';
 
@@ -29,13 +31,14 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a search on the host template listing', () => {
-  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchHT"]');
+  // The modernized listing searches as you type — there is no submit button to
+  // click, and the term is what gets stored in the session.
+  cy.openHostTemplatesListing();
   cy.getIframeBody()
-    .find('input[name="searchHT"]')
+    .find(listingSelectors.searchInput)
     .clear()
     .type(searchWordOnHostTemplate);
-  cy.getIframeBody().find('input[value="Search"]').click();
+  waitForListingRefresh();
 });
 
 When('the user changes page', () => {
@@ -49,9 +52,9 @@ When('the user goes back to the host template listing', () => {
 Then(
   'the search on the host template page is filled with the previous search',
   () => {
-    cy.waitForElementInIframe('#main-content', 'input[name="searchHT"]');
+    cy.waitForElementInIframe('#main-content', listingSelectors.searchInput);
     cy.getIframeBody()
-      .find('input[name="searchHT"]')
+      .find(listingSelectors.searchInput)
       .should('have.value', searchWordOnHostTemplate);
   }
 );

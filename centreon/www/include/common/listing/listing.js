@@ -25,14 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // click is handled by the backdrop created in clSetAdvBackdrop).
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
-        document.querySelectorAll('.cl-adv-panel--popover.open').forEach(function (panel) {
-            panel.classList.remove('open');
-            var toggleBtn = document.querySelector('[data-cl-adv-panel="' + panel.id + '"]');
-            if (toggleBtn) toggleBtn.classList.remove('active');
-            var backdrop = document.getElementById('clAdvBackdrop_' + panel.id);
-            if (backdrop) backdrop.remove();
-            clStopAdvPoll(panel);
-        });
+        document.querySelectorAll('.cl-adv-panel--popover.open').forEach(clCloseAdvPanel);
     });
 
     document.querySelectorAll('.cl-adv-panel--popover').forEach(function (panel) {
@@ -80,14 +73,65 @@ function clInitAdvSelectClear() {
 
         var $ = window.jQuery;
         var isOpen = false;
+        function isEmpty() { return selectEl.value === '' || selectEl.value == null; }
         function syncFilled() {
-            field.classList.toggle('cl-adv-filled', selectEl.value !== '' && selectEl.value != null);
+            field.classList.toggle('cl-adv-filled', !isEmpty());
         }
         function setActive(on) { field.classList.toggle('cl-adv-active', on); }
+
+        // Clearing a filter must not survive a reload. The applied filters are
+        // persisted to sessionStorage on fetch, and the restore step re-appends
+        // the saved option as selected — so a field cleared WITHOUT a refetch came
+        // back on the next page load. That happens with every clear control that
+        // does not go through the panel's Search button: centreon-select2's eraser
+        // (it only blanks the <select>, and for an AJAX source drops its options),
+        // select2's own cross, or any programmatic reset.
+        //
+        // Rather than special-casing one control, drop the key from the persisted
+        // state as soon as the field goes empty. Path-agnostic, and it never
+        // fetches, so it cannot double-fetch with a Search click.
+        var wasEmpty = isEmpty();
+        function forgetPersistedFilter() {
+            var name = selectEl.id || selectEl.name;
+            if (!name) return;
+            for (var i = 0; i < sessionStorage.length; i++) {
+                var key = sessionStorage.key(i);
+                if (!key || key.indexOf('cl_state_') !== 0) continue;
+                try {
+                    var state = JSON.parse(sessionStorage.getItem(key) || 'null');
+                    if (!state) continue;
+                    var touched = false;
+                    if (state.extra && state.extra[name] !== undefined) { delete state.extra[name]; touched = true; }
+                    if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
+                    if (touched) sessionStorage.setItem(key, JSON.stringify(state));
+                } catch (e) {}
+            }
+        }
+
+        // The eraser additionally re-runs the search, so the rows stop showing a
+        // filter the field no longer displays. It is told apart from a normal
+        // selection by the extra argument it passes to trigger('change', values):
+        // select2 picks and the panel's Clear button (which re-runs the search
+        // itself) pass none, so neither double-fetches here.
+        function onFilterChange(e, clearedValues) {
+            var nowEmpty = isEmpty();
+            if (nowEmpty && !wasEmpty) {
+                forgetPersistedFilter();
+            }
+            wasEmpty = nowEmpty;
+
+            if (clearedValues === undefined || clearedValues === null || clearedValues.length === 0) {
+                return;
+            }
+            var panel = field.closest('.cl-adv-panel');
+            var searchBtn = panel && panel.querySelector('.cl-adv-search');
+            if (searchBtn) searchBtn.click();
+        }
 
         syncFilled();
         if ($) {
             $(selectEl).on('change', syncFilled);
+            $(selectEl).on('change', onFilterChange);
             $(selectEl).on('select2:open', function () { isOpen = true; setActive(true); });
             $(selectEl).on('select2:close', function () {
                 isOpen = false;
@@ -95,6 +139,7 @@ function clInitAdvSelectClear() {
             });
         } else {
             selectEl.addEventListener('change', syncFilled);
+            selectEl.addEventListener('change', onFilterChange);
         }
         // While the dropdown is open select2 moves focus to a search field in
         // <body>, so focusout must not deactivate then.
@@ -458,9 +503,16 @@ function CentreonListing(config) {
         // carried them via POST.
         function openMassChangePanel(label) {
             var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
-            var onclickAttr = (addBtn && addBtn.getAttribute('onclick')) || '';
-            var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec(onclickAttr);
-            if (!urlMatch || typeof window.cfOpenPanel !== 'function') return false;
+            // Aligned pages carry the URL in data-panel-url — building the
+            // onclick with the title inline in a JS string breaks on an
+            // apostrophe. Reading the attribute is only a fallback for a page
+            // still on the old inline form.
+            var addUrl = (addBtn && addBtn.getAttribute('data-panel-url')) || '';
+            if (!addUrl) {
+                var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec((addBtn && addBtn.getAttribute('onclick')) || '');
+                addUrl = urlMatch ? urlMatch[1] : '';
+            }
+            if (!addUrl || typeof window.cfOpenPanel !== 'function') return false;
 
             var ids = [];
             jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').each(function () {
@@ -470,7 +522,7 @@ function CentreonListing(config) {
             });
             if (!ids.length) return false;
 
-            var url = urlMatch[1].replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
+            var url = addUrl.replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
             window.cfOpenPanel(url, label);
             return true;
         }
@@ -864,6 +916,13 @@ function CentreonListing(config) {
                 toggle.disabled = false;
             },
             error: function (xhr, status, err) {
+                // The endpoint consumes the submitted token before attempting the
+                // write, so it hands the rotated one back even when it fails —
+                // without this, the next toggle would 403 on a dead token and
+                // hide the real error.
+                if (xhr && xhr.responseJSON && xhr.responseJSON.centreon_token) {
+                    csrfToken = xhr.responseJSON.centreon_token;
+                }
                 // Revert the optimistic switch and re-enable it (kept), but tell
                 // the user instead of leaving a silently-reverted toggle.
                 toggle.checked = !isChecked;
@@ -939,8 +998,18 @@ function CentreonListing(config) {
             }
         };
 
-        // Search button (present on pages with an advanced filters panel)
-        jQuery('#' + cfg.searchBtnId).on('click', self.applySearch);
+        // Search button (present on pages with an advanced filters panel).
+        // Applying the filters dismisses the popover it lives in: the user asked
+        // to see the results, and leaving the panel — hence its full-page
+        // backdrop — up would block every click on the rows behind it.
+        jQuery('#' + cfg.searchBtnId).on('click', function () {
+            var btn = document.getElementById(cfg.searchBtnId);
+            var panel = btn && btn.closest('.cl-adv-panel--popover');
+            if (panel) {
+                clCloseAdvPanel(panel);
+            }
+            self.applySearch();
+        });
 
         // Search on Enter key
         jQuery('#' + cfg.searchInputId).on('keypress', function (e) {
@@ -1141,6 +1210,28 @@ function clToggleAdvancedFilters(btn) {
     }
 }
 
+// Single close path for the popover variant, shared by every way out of it: the
+// toggle button, an outside click on the backdrop, Escape, and the panel's own
+// Search button. It must always take the backdrop down with the panel — a
+// leftover .cl-adv-backdrop spans the page and silently swallows the next click
+// on the listing (a row link, a toggle), which reads as "the listing is dead".
+// Idempotent, so it is safe to call on an already-closed panel.
+function clCloseAdvPanel(panel) {
+    if (!panel) return;
+    panel.classList.remove('open');
+    var toggleBtn = document.querySelector('[data-cl-adv-panel="' + panel.id + '"]');
+    if (toggleBtn) {
+        toggleBtn.classList.remove('active');
+        // Restore the "show" wording on pages whose toggle carries a label.
+        var labelEl = toggleBtn.querySelector('.cl-adv-label');
+        var show = toggleBtn.getAttribute('data-cl-label-show');
+        if (labelEl && show) labelEl.textContent = show;
+    }
+    var backdrop = document.getElementById('clAdvBackdrop_' + panel.id);
+    if (backdrop) backdrop.remove();
+    clStopAdvPoll(panel);
+}
+
 // Popover variant: close on outside click via a dedicated full-page backdrop
 // rather than a document click listener — a listener depending on event
 // bubbling/capturing can be swallowed by unrelated handlers elsewhere on the
@@ -1154,12 +1245,7 @@ function clSetAdvBackdrop(panel, btn, open) {
         backdrop = document.createElement('div');
         backdrop.id = backdropId;
         backdrop.className = 'cl-adv-backdrop';
-        backdrop.addEventListener('click', function () {
-            panel.classList.remove('open');
-            btn.classList.remove('active');
-            backdrop.remove();
-            clStopAdvPoll(panel);
-        });
+        backdrop.addEventListener('click', function () { clCloseAdvPanel(panel); });
         document.body.appendChild(backdrop);
     } else {
         clStopAdvPoll(panel);

@@ -1,5 +1,26 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+/**
+ * Body of the form currently on screen.
+ *
+ * The host and host template forms open in the side panel — an iframe nested
+ * inside the page iframe — while the service and service template forms are
+ * still rendered full-page in #main-content. Resolving this per call is what
+ * lets the macro commands below serve both without a flag at every call site.
+ *
+ * Keyed on `#cfSidePanel.open` rather than on the frame existing: the
+ * modernized listings always ship `#cfSidePanelFrame` in their markup and only
+ * set its src and add the open class when a panel is actually opened.
+ */
+const getFormBody = (): Cypress.Chainable<JQuery<HTMLElement>> =>
+  cy
+    .getIframeBody()
+    .then(($body) =>
+      $body.find('#cfSidePanel.open').length > 0
+        ? cy.getSidePanelBody()
+        : cy.wrap($body)
+    );
+
 Cypress.Commands.add('visitHostTemplatesListing', () => {
   cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
@@ -18,17 +39,17 @@ Cypress.Commands.add(
   'fillMacros',
   (isUpdate: boolean, normalMacro: Macro, passMacro: Macro) => {
     if (!isUpdate) {
-      cy.getIframeBody().find('#macro_add').click();
-      cy.getIframeBody().find('#macro_add').click();
-      cy.getIframeBody().find('#macroInput_0').clear().type(normalMacro.name);
-      cy.getIframeBody().find('#macroInput_1').clear().type(passMacro.name);
+      getFormBody().find('#macro_add').click();
+      getFormBody().find('#macro_add').click();
+      getFormBody().find('#macroInput_0').clear().type(normalMacro.name);
+      getFormBody().find('#macroInput_1').clear().type(passMacro.name);
     }
     // Add/Update a normal macro
-    cy.getIframeBody().find('#macroValue_0').clear().type(normalMacro.value);
+    getFormBody().find('#macroValue_0').clear().type(normalMacro.value);
     // Add/Update a macro of type password
-    cy.getIframeBody().find('#macroValue_1').clear().type(passMacro.value);
+    getFormBody().find('#macroValue_1').clear().type(passMacro.value);
     if (!isUpdate) {
-      cy.getIframeBody().find('#macroPassword_1').click({ force: true });
+      getFormBody().find('#macroPassword_1').click({ force: true });
     }
   }
 );
@@ -37,18 +58,12 @@ Cypress.Commands.add(
   'checkMacrosFieldsValues',
   (normalMacro: Macro, passMacro: Macro) => {
     // Verify the save of the macros
-    cy.getIframeBody()
-      .find('#macroInput_0')
-      .should('have.value', normalMacro.name);
-    cy.getIframeBody()
-      .find('#macroValue_0')
-      .should('have.value', normalMacro.value);
+    getFormBody().find('#macroInput_0').should('have.value', normalMacro.name);
+    getFormBody().find('#macroValue_0').should('have.value', normalMacro.value);
 
-    cy.getIframeBody()
-      .find('#macroInput_1')
-      .should('have.value', passMacro.name);
+    getFormBody().find('#macroInput_1').should('have.value', passMacro.name);
     // Check that the value of the password macro contains just *
-    cy.getIframeBody()
+    getFormBody()
       .find('#macroValue_1')
       .invoke('val')
       .then((value) => {
@@ -59,8 +74,8 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('fillHostBasicsInfos', (name: string, alias: string) => {
-  cy.getIframeBody().find('input[name="host_name"]').clear().type(name);
-  cy.getIframeBody().find('input[name="host_alias"]').clear().type(alias);
+  getFormBody().find('input[name="host_name"]').clear().type(name);
+  getFormBody().find('input[name="host_alias"]').clear().type(alias);
 });
 
 Cypress.Commands.add(
@@ -107,6 +122,8 @@ Cypress.Commands.add(
     cy.getIframeBody().contains('div', cmd).click();
   }
 );
+
+export { getFormBody };
 
 interface Macro {
   name: string;

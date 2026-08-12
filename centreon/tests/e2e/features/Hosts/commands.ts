@@ -1,5 +1,12 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+import {
+  confirmModalSelectors,
+  formSelectors,
+  getListingRow,
+  listingSelectors
+} from './common';
+
 Cypress.Commands.add(
   'waitForElementInIframe',
   (iframeSelector, elementSelector) => {
@@ -181,6 +188,141 @@ Cypress.Commands.add('visitHostsListingPage', () => {
   cy.wait('@getTimeZone');
 });
 
+// ---------------------------------------------------------------------------
+// Modernized listing commands (hosts and host templates)
+// ---------------------------------------------------------------------------
+
+const openListing = (url: string): void => {
+  cy.visit(url);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', listingSelectors.table);
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} tr`)
+    .should('have.length.greaterThan', 0);
+};
+
+Cypress.Commands.add('openHostsListing', () => {
+  openListing(PAGES.configuration.hostsLegacy);
+});
+
+Cypress.Commands.add('openHostTemplatesListing', () => {
+  openListing(PAGES.configuration.hostsTemplatesLegacy);
+});
+
+/**
+ * The add/edit form opens in a side panel, which is an iframe nested inside the
+ * page iframe — getIframeBody() alone stops at the outer one.
+ */
+Cypress.Commands.add('getSidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find(formSelectors.sidePanelFrame)
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openListingRowForm', (name: string) => {
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains('a', name)
+    .click();
+
+  // `exist`, not `be.visible`: a locked object opens the form frozen, and
+  // QuickForm renders a frozen text element as `<input type="hidden">`. Asserting
+  // visibility passes on an editable form and fails on every read-only one —
+  // which is precisely the case the freeze feature exists for.
+  cy.getSidePanelBody()
+    .find('input[name="host_name"]', { timeout: 20_000 })
+    .should('exist');
+});
+
+/**
+ * Expands a collapsible form section by id (see formSections in common.ts).
+ *
+ * The migrated form ships its secondary sections with the `collapsed` class, so
+ * their body is display:none and Cypress refuses to type into a field inside
+ * one. Idempotent — an already-open section is left alone, so a step can call
+ * this without knowing the current state.
+ */
+Cypress.Commands.add('expandFormSection', (sectionId: string) => {
+  cy.getSidePanelBody()
+    .find(`#${sectionId}`)
+    .then(($section) => {
+      if ($section.hasClass('collapsed')) {
+        cy.wrap($section).find('.cf-section-header').click();
+      }
+    });
+
+  cy.getSidePanelBody()
+    .find(`#${sectionId}`)
+    .should('not.have.class', 'collapsed');
+});
+
+/**
+ * The row checkbox is hidden behind its md-checkbox label, so it only takes a
+ * forced click. Scoped through getListingRow so the name is matched in the name
+ * column and not in a templates column that happens to quote it.
+ */
+Cypress.Commands.add('tickListingRow', (name: string) => {
+  getListingRow(name).find(listingSelectors.rowCheckbox).click({ force: true });
+});
+
+/**
+ * Opens the Mass Change side panel on the rows ticked so far. Unlike Delete and
+ * Duplicate, Mass Change is not gated by the confirmation modal — picking the
+ * menu item submits straight through.
+ *
+ * The panel cannot be awaited on `input[name="host_name"]` the way the edit form
+ * is: name and alias are deliberately absent in mass change. A QuickForm rule
+ * left declared on either of them fatals the whole panel, so assert the error
+ * text is absent first — otherwise the failure reads as a timeout on the submit
+ * button and says nothing about the cause.
+ */
+Cypress.Commands.add('openListingMassChange', () => {
+  cy.getIframeBody().find(listingSelectors.moreActionsButton).click();
+  cy.getIframeBody()
+    .find(listingSelectors.moreActionsItem)
+    .contains('Mass Change')
+    .click({ force: true });
+
+  cy.getSidePanelBody().should('not.contain', 'does not exist');
+  cy.getSidePanelBody()
+    .find(formSelectors.massChangeSubmit, { timeout: 20_000 })
+    .should('be.visible');
+});
+
+/**
+ * Runs a bulk action the way a user does: tick the row, open the custom
+ * "More actions" menu, then confirm in the modal. Delete and Duplicate are
+ * gated by that modal — re-wiring the hidden select's onchange would submit
+ * straight through and leave the modal untested.
+ */
+Cypress.Commands.add(
+  'runListingBulkAction',
+  (name: string, action: string, expectedTitle: string) => {
+    cy.tickListingRow(name);
+
+    cy.getIframeBody().find(listingSelectors.moreActionsButton).click();
+    cy.getIframeBody()
+      .find(listingSelectors.moreActionsItem)
+      .contains(action)
+      .click({ force: true });
+
+    cy.getIframeBody()
+      .find(confirmModalSelectors.modal, { timeout: 10_000 })
+      .should('be.visible');
+    cy.getIframeBody()
+      .find(confirmModalSelectors.title)
+      .should('contain', expectedTitle);
+    // The name (single selection) is interpolated into the message in bold.
+    cy.getIframeBody()
+      .find(`${confirmModalSelectors.body} strong`)
+      .should('contain', name);
+    cy.getIframeBody().find(confirmModalSelectors.confirm).click();
+  }
+);
+
 interface HostGroup {
   name: string;
   alias: string;
@@ -309,6 +451,18 @@ declare global {
       ) => Cypress.Chainable;
       lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
       visitHostsListingPage: () => Cypress.Chainable;
+      openHostsListing(): Chainable<void>;
+      openHostTemplatesListing(): Chainable<void>;
+      getSidePanelBody(): Chainable<JQuery<HTMLElement>>;
+      openListingRowForm(name: string): Chainable<void>;
+      expandFormSection(sectionId: string): Chainable<void>;
+      tickListingRow(name: string): Chainable<void>;
+      openListingMassChange(): Chainable<void>;
+      runListingBulkAction(
+        name: string,
+        action: string,
+        expectedTitle: string
+      ): Chainable<void>;
       openHostCategoriesListing(): Chainable<void>;
       getHostCategorySidePanelBody(): Chainable<JQuery<HTMLElement>>;
       openHostCategoryForm(name: string): Chainable<void>;

@@ -34,7 +34,7 @@
 .cf-page-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--cl-link-color, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
     margin: 0 0 8px;
 }
 
@@ -78,10 +78,10 @@
 }
 
 .cf-tab-nav a.active {
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
     /* Active underline as an inset shadow at the tab's bottom edge, overlapping
        the nav's divider — no negative margin that overflow would clip. */
-    box-shadow: inset 0 -2px 0 var(--color-primary-light, #2E68AA);
+    box-shadow: inset 0 -2px 0 var(--bt-info-background-color, #2E68AA);
     font-weight: 600;
 }
 
@@ -146,14 +146,36 @@
     margin-bottom: 16px;
 }
 
+/* Wraps rather than squeezes: a row that no longer fits (narrow window, side
+   panel, long translated labels) drops its trailing items onto a new line
+   instead of crushing them — a crushed field hides its floating label behind
+   its own input, and a crushed segmented control clips its last button. */
 .cf-row-inline {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     margin-bottom: 16px;
 }
 
 .cf-row-inline > .cf-field {
     flex: 1;
+}
+
+/* Mass Change "update mode" control: sits on the same row as the field it drives,
+   pushed to the right edge, so which field each mode applies to is readable at a
+   glance. Stated on the row rather than above it because a standalone modifier row
+   gives no clue which of the fields around it it governs.
+   flex:0 0 auto keeps it at its content width — the row's flex-wrap drops it onto
+   the next line when the form is too narrow, rather than squeezing the field. */
+.cf-row-inline > .cf-field.cf-mc-mode {
+    flex: 0 0 auto;
+    margin-left: auto;
+    gap: 8px;
+    /* Sit on the first line of the field it labels. Without this it centres
+       against the field's full height, which floats it between the two lines of a
+       multi-line control — the six notification options, or any field that wraps. */
+    align-self: flex-start;
+    min-height: 40px;
 }
 
 /* ==========================================================================
@@ -164,7 +186,13 @@
     position: relative;
 }
 
-.cf-field label {
+/* Direct children only. A QuickForm radio or checkbox group renders its own
+   <label> per option, nested inside .md-radio / .md-checkbox — absolutely
+   positioning those stacked every option label at the same 12px/12px, one on top
+   of the other, and pointer-events:none made them unclickable as well. Only the
+   field's own floating label, which the templates put directly inside .cf-field,
+   is meant to be positioned. */
+.cf-field > label {
     position: absolute;
     left: 12px;
     top: 12px;
@@ -177,16 +205,36 @@
     z-index: 1;
 }
 
-.cf-field label.cf-label-float {
+.cf-field > label.cf-label-float {
     top: -8px;
     left: 10px;
     font-size: 11px;
     color: var(--body-color, #757575);
     background: var(--body-background, #fff);
     font-weight: 500;
+    /* Stay on ONE line, inside the field's own width. A floated label is
+       absolutely positioned over the field's top border: left to itself, a label
+       longer than its field (easily the case once translated — "Nombre de
+       contrôles avant validation de l'état") wraps, and the extra lines land
+       inside the input. Ellipsis is the graceful fallback; the field's help (?)
+       icon carries the full wording. Widen the field when it clips. */
+    max-width: calc(100% - 20px);
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.cf-field input,
+/* Text-entry controls only. Radios and checkboxes must be excluded: a bare
+   QuickForm radio group inside a .cf-field (every "Update mode"
+   Incremental/Replacement pair of the Mass Change form) was otherwise given
+   width:100% + 10px padding + a border, so each radio rendered as a full-width
+   empty box with its label stranded underneath.
+   select2's internal search field is excluded for the same reason: it sits in
+   li.select2-search--inline inside .cf-field, so a border + full-width padded
+   box makes it overflow that li. select2 styles that field itself
+   (border: none, transparent, auto height) — let it. */
+.cf-field input:not([type="radio"]):not([type="checkbox"]):not(.select2-search__field),
 .cf-field textarea {
     width: 100%;
     padding: 10px;
@@ -202,7 +250,7 @@
 
 .cf-field input:focus,
 .cf-field textarea:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
 }
 
 .cf-field input::placeholder,
@@ -213,6 +261,17 @@
 .cf-field textarea {
     min-height: 80px;
     resize: vertical;
+}
+
+/* Text inputs carry the same 40px box as .cf-field select and the select2
+   single selection below, so a row mixing a text field and a dropdown reads as
+   one control height instead of a 36/40 stagger (review feedback on the PR).
+   Vertical padding goes to 0 — the fixed height centres a single line of text on
+   its own; the textarea above is deliberately excluded and keeps its padding. */
+.cf-field input:not([type="radio"]):not([type="checkbox"]):not(.select2-search__field) {
+    height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 /* Required indicator — QuickForm already adds * in the label text */
@@ -244,7 +303,9 @@
     gap: 6px;
 }
 
-.cf-field input,
+/* Same exclusion as above: a radio/checkbox must keep its intrinsic size and
+   sit inline with its label, not stretch to fill the row. */
+.cf-field input:not([type="radio"]):not([type="checkbox"]),
 .cf-field textarea,
 .cf-field select,
 .cf-field .select2-container {
@@ -258,6 +319,9 @@
 
 .cf-segmented {
     display: inline-flex;
+    /* Never shrink: overflow:hidden below would cut the last button's label
+       ("Default" → "Defau") instead of the group getting narrower. */
+    flex-shrink: 0;
     border: 1px solid var(--color-divider, #d0d0d0);
     border-radius: 6px;
     overflow: hidden;
@@ -284,8 +348,8 @@
 }
 
 .cf-segmented button.active {
-    background: var(--color-primary-light, #2E68AA);
-    color: #fff;
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
 }
 
 .cf-segmented-row {
@@ -476,7 +540,7 @@
 
 .cf-macro-name input:focus,
 .cf-macro-value input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
     outline: none;
 }
 
@@ -510,7 +574,7 @@
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
-    min-width: 90px;
+    min-width: 58px;
     margin-left: 4px;
 }
 
@@ -528,16 +592,50 @@
 
 .cf-macro-action-btn:hover {
     color: var(--list-color, #333);
-    background: rgba(0, 0, 0, 0.06);
+    /* background-color (not the shorthand) so the eraser's background-image
+       below is preserved on hover. */
+    background-color: rgba(128, 128, 128, 0.16);
+}
+
+/* Delete (×) — neutral by default, red affordance on hover (works on both
+   light and dark grounds). */
+.cf-macro-action-btn--danger:hover {
+    color: #d9534f;
+    background-color: rgba(217, 83, 79, 0.14);
+}
+
+/* Eraser — same grey eraser artwork as the select2 clear button
+   (.clearAllSelect2), for a consistent "clear this field" affordance. Fixed
+   greys read fine on both light and dark grounds (same as the select2 one). */
+.cf-macro-erase {
+    opacity: 0.55;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg transform='rotate(-45 12 12)'%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='%23999'/%3E%3Crect x='4' y='8' width='16' height='4' rx='2' fill='%23bbb'/%3E%3Crect x='4' y='8' width='16' height='10' rx='2' fill='none' stroke='%23777' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+}
+
+.cf-macro-erase:hover {
+    opacity: 1;
 }
 
 /* Drag handle — sits in front of the row (name/value/actions), instead of
    grouped with the description/delete buttons at the end, so the standard
    6-dot grip reads as "grab to reorder" rather than another click action. */
 .cf-macro-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    flex-shrink: 0;
+    margin-right: 2px;
     color: var(--body-color, #999);
     cursor: grab;
-    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+.cf-macro-drag-handle:hover {
+    color: var(--list-color, #333);
 }
 
 .cf-macro-drag-handle:active {
@@ -569,8 +667,8 @@
     padding: 5px 14px;
     font-size: 12px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
     border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
@@ -578,7 +676,7 @@
 }
 
 .cf-form-wrapper .add-new-entry:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--bt-info-hover-background-color, #255891);
     text-decoration: none;
 }
 
@@ -617,6 +715,23 @@
     margin-right: 6px;
 }
 
+/* Transparent by default: the chips stay direct flex children of .cf-chips and
+   flow on a single line exactly as they did before the wrapper existed. */
+.cf-chips-group {
+    display: contents;
+}
+
+/* Mass Change only, where the update mode shares the row: fixed three per line,
+   so a six-option group is always two lines tall. A plain flex wrap would re-break
+   at a different point in every locale, since the chip widths follow the
+   translated option names. max-content keeps each column as wide as its own widest
+   chip rather than stretching them to equal thirds. */
+.cf-chips-group--grid {
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    gap: 6px 8px;
+}
+
 .cf-chip {
     display: inline-flex;
     align-items: center;
@@ -633,13 +748,13 @@
 }
 
 .cf-chip:hover {
-    border-color: var(--color-primary-light, #2E68AA);
-    color: var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
 }
 
 .cf-chip.active {
-    background: var(--color-primary-light, #2E68AA);
-    border-color: var(--color-primary-light, #2E68AA);
+    background: var(--bt-info-background-color, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
     color: #fff;
 }
 
@@ -666,7 +781,7 @@
 }
 
 .cf-field select:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
 }
 
 .cf-field .select2-container {
@@ -713,7 +828,7 @@
 }
 
 .cf-field .select2-container--focus .select2-selection {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
 }
 
 /* Select2 clear button — HEAD's eraser icon, sitting inside the field's right
@@ -1143,7 +1258,7 @@
 }
 
 .cf-dynamic-entry input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
 }
 
 .cf-dynamic-delete {
@@ -1166,7 +1281,7 @@
     align-items: center;
     gap: 4px;
     font-size: 13px;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
     cursor: pointer;
     padding: 4px 0;
     font-weight: 500;
@@ -1209,7 +1324,7 @@
 }
 
 .cf-btn-primary {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--bt-info-background-color, #2E68AA);
     color: #fff;
 }
 
@@ -1237,10 +1352,13 @@
     min-width: 100px;
     font-size: 14px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
-    border: none;
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
+    /* 1px transparent border so Save (no visible border) and Reset (1px
+       outlined) end up the exact same height. */
+    border: 1px solid transparent;
     border-radius: 4px;
+    box-sizing: border-box;
     cursor: pointer;
     white-space: nowrap;
     transition: background-color 0.15s ease;
@@ -1248,7 +1366,7 @@
 
 .cf-actions input[type="submit"]:hover,
 .cf-actions button:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--bt-info-hover-background-color, #255891);
 }
 
 /* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
@@ -1350,7 +1468,7 @@
     font-weight: 600;
     /* Centreon blue, like .cf-page-title — resolves to the light-theme primary
        blue in light and to --color-malibu-2 in Centreon-Dark. */
-    color: var(--cl-link-color, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
 }
 
 .cf-side-panel-close {
@@ -1396,7 +1514,7 @@
 
 .cf-side-panel-resize:hover,
 .cf-side-panel-resize.active {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--bt-info-background-color, #2E68AA);
 }
 
 /* Ensure wz_tooltip inside side panel doesn't overflow */
@@ -1427,7 +1545,7 @@
 
 /* Advanced (just under the poller field) */
 .gen-adv { margin: 8px 0 4px; }
-.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #2E68AA); font-weight: 500; }
+.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--bt-info-background-color, #2E68AA); font-weight: 500; }
 .gen-adv .gen-adv-body {
     padding: 12px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px;
     background: #f7f8fa; border: 1px solid var(--color-divider, #e6e8ec); border-radius: 6px;
@@ -1444,8 +1562,8 @@
     display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
     transition: background .2s;
 }
-.gen-step.active { color: var(--color-primary-light, #2E68AA); }
-.gen-step.active .dot { background: var(--color-primary-light, #2E68AA); }
+.gen-step.active { color: var(--bt-info-background-color, #2E68AA); }
+.gen-step.active .dot { background: var(--bt-info-background-color, #2E68AA); }
 .gen-step.done { color: var(--color-success, #88B922); }
 .gen-step.done .dot { background: var(--color-success, #88B922); }
 .gen-step.err { color: #FF4A4A; }
@@ -1466,9 +1584,9 @@
     color: var(--body-color, #666); border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
 .gen-tab:hover { color: var(--list-color, #333); }
-.gen-tab.active { color: var(--color-primary-light, #2E68AA); border-bottom-color: var(--color-primary-light, #2E68AA); font-weight: 600; }
+.gen-tab.active { color: var(--bt-info-background-color, #2E68AA); border-bottom-color: var(--bt-info-background-color, #2E68AA); font-weight: 600; }
 .gen-tab .st { width: 9px; height: 9px; border-radius: 50%; background: #cfd6df; flex-shrink: 0; }
-.gen-tab.run .st { background: var(--color-primary-light, #2E68AA); animation: genpulse 1s infinite; }
+.gen-tab.run .st { background: var(--bt-info-background-color, #2E68AA); animation: genpulse 1s infinite; }
 .gen-tab.ok  .st { background: var(--color-success, #88B922); }
 .gen-tab.err .st { background: #FF4A4A; }
 @keyframes genpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
@@ -1498,12 +1616,26 @@
    ========================================================================== */
 
 /* --- Selection box (single & multiple). !important beats the Generic-theme
-       rules that force border-radius:0 on select2. --- */
+       rules that force border-radius:0 on select2.
+       4px is the field radius everywhere else — .cf-field input, .cf-field
+       select, and the listing's own .cl-search-input / .cl-dup-input — so
+       select2 was the one field shape that did not match its neighbours. --- */
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple {
-    border: 1px solid var(--color-divider, #c2c7ce) !important;
-    border-radius: 8px !important;
-    min-height: 40px;
+    /* Same token as .cf-field input / select / textarea. This rule carries
+       !important — it has to beat the Generic-theme rules forcing border-radius:0
+       on select2 — so it was also overriding the matching colour set further up,
+       leaving select2 on --color-divider while every other field sat on
+       --input-border-color. Different colours in both themes, further apart in
+       dark, where --input-border-color resolves through --body-color. */
+    border: 1px solid var(--input-border-color, #c2c7cc) !important;
+    border-radius: 4px !important;
+    /* !important is required for the multiple variant: the base theme sets
+       `.select2-container .select2-selection--multiple { min-height: auto
+       !important }` (Themes/Generic-theme/style.css), which otherwise drops the
+       box to its content height (~37px) and breaks the 40px row alignment
+       shared with text inputs and the single-select box. */
+    min-height: 40px !important;
     /* Dark-aware box/text (base wires the single-selection bg to a var that
        isn't overridden in dark, so force it here). Light = #fff, unchanged. */
     background: var(--body-background, #fff) !important;
@@ -1515,8 +1647,8 @@
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--focus .select2-selection--multiple,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--single,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--multiple {
-    border-color: var(--color-primary-light, #2E68AA) !important;
-    box-shadow: 0 0 0 1px var(--color-primary-light, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA) !important;
+    box-shadow: 0 0 0 1px var(--bt-info-background-color, #2E68AA);
 }
 
 /* --- Single select: vertically center the chosen text --- */
@@ -1578,8 +1710,8 @@
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: #fff !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
     border: none !important;
     border-radius: 10px 0 0 10px !important;
     padding: 0 4px 0 12px !important;
@@ -1592,8 +1724,8 @@
     justify-content: center;
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: rgba(255, 255, 255, 0.7) !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
     border: none !important;
     border-radius: 0 10px 10px 0 !important;
     padding: 0 10px 0 4px !important;
@@ -1602,8 +1734,8 @@
     line-height: 20px !important;
 }
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: #fff !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
 }
 
 /* --- Multi-select single-row collapse. Chips are kept on one line; overflowing
@@ -1657,7 +1789,7 @@
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
@@ -1672,17 +1804,18 @@
 
 /* --- Dropdown panel. select2 appends it to <body> (out of the wrapper's
        reach), so it is scoped by the .cf-select2-dropdown marker the
-       centreonSelect2 plugin adds to the dropdown only in the new context. --- */
+       centreonSelect2 plugin adds to the dropdown only in the new context.
+       Same 4px as the selection box it hangs off, and as every other field. --- */
 .select2-dropdown.cf-select2-dropdown {
-    border: 1px solid var(--color-divider, #c2c7ce) !important;
-    border-radius: 8px !important;
+    border: 1px solid var(--input-border-color, #c2c7cc) !important;
+    border-radius: 4px !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     overflow: hidden;
     background: var(--body-background, #fff);
     color: var(--body-color, #333);
 }
 .cf-select2-dropdown .select2-search--dropdown .select2-search__field {
-    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border: 1px solid var(--input-border-color, #c2c7cc) !important;
     border-radius: 6px !important;
     padding: 6px 10px;
     outline: none;
@@ -1690,7 +1823,7 @@
     color: var(--body-color, #333);
 }
 .cf-select2-dropdown .select2-search--dropdown .select2-search__field:focus {
-    border-color: var(--color-primary-light, #2E68AA) !important;
+    border-color: var(--bt-info-background-color, #2E68AA) !important;
 }
 /* Placeholder (single selection + multi inline search) — greyed like inputs.
    Both live in the in-page selection box, so they scope under the wrapper. */
@@ -1706,10 +1839,10 @@
 }
 .cf-select2-dropdown .select2-results__option--highlighted[aria-selected] {
     background-color: var(--color-listing-hover, #E6EDF5) !important;
-    color: var(--cl-link-color, #2E68AA) !important;
+    color: var(--bt-info-background-color, #2E68AA) !important;
 }
 .cf-select2-dropdown .select2-results__option[aria-selected=true] {
     background-color: rgba(46, 104, 170, 0.08) !important;
-    color: var(--cl-link-color, #2E68AA) !important;
+    color: var(--bt-info-background-color, #2E68AA) !important;
     font-weight: 500;
 }

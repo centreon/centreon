@@ -112,18 +112,20 @@ Then(
     cy.wait('@getTimeZone');
     // Wait until the 'Name' search field is visible in the DOM page
     cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
-    // Click on the host to open its details
+    // Click on the host to open its details. The modernized listing opens the
+    // form in a side panel, which is an iframe nested inside the page iframe —
+    // everything below therefore runs against that nested document.
     cy.getIframeBody().contains('a', services.serviceOk.host).click();
-    // Wait until the tab 'Host Extended Infos' is visible
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a:contains("Host Extended Infos")'
-    );
-    cy.getIframeBody().contains('a', 'Host Extended Infos').click();
+    // Wait until the tab 'Host Extended Infos' is visible, then click it: the
+    // section it points at ships collapsed and the anchor expands it.
+    cy.getSidePanelBody()
+      .contains('a', 'Host Extended Infos', { timeout: 20_000 })
+      .should('be.visible')
+      .click();
     // Click outside the form
     cy.get('body').click(0, 0);
     // Check that the 'Note URL' contains the url of the mediawiki
-    cy.getIframeBody()
+    cy.getSidePanelBody()
       .find('input[name="ehi_notes_url"]')
       .should('have.value', hostNoteUrl);
   }

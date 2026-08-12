@@ -424,8 +424,19 @@ var CentreonForm = (function () {
         wrapper.querySelectorAll('.md-radio input[type="radio"]').forEach(function (input) {
             var mdRadio = input.closest('.md-radio');
             if (!mdRadio) return;
-            // Skip hidden radios (host explicit segments, activate toggles, hidden tabs)
-            if (mdRadio.offsetParent === null) return;
+            // Skip radios the page hides on purpose: the host form's explicit
+            // segmented controls and its activate toggles keep their QuickForm
+            // group in a `style="display:none"` holder and drive it from a
+            // hand-authored .cf-segmented, so converting it again would produce a
+            // second control.
+            //
+            // Deliberately NOT an offsetParent check: that also skips everything
+            // inside a `.cf-section.collapsed`, which is display:none until the
+            // user opens it. Four of the host form's sections are collapsed at
+            // load (scheduling, relations, data, extended), so their radio groups
+            // were left raw while the open sections got segmented controls — the
+            // same field rendering two different ways depending on the section.
+            if (input.closest('[style*="display:none"], [style*="display: none"]')) return;
             var field = input.closest('.cf-field') || input.closest('.cf-segmented-row');
             if (!field || field.classList.contains('cf-segmented-row')) return;
             if (field.querySelector('.cf-segmented')) return;
@@ -499,6 +510,19 @@ var CentreonForm = (function () {
                     if (!floatLabel && !l.closest('.md-radio')) floatLabel = l;
                 });
                 var labelText = floatLabel ? floatLabel.textContent.trim() : '';
+
+                // Fall back to the field's own leading text. A row that states its
+                // label as plain text rather than a floating one — every "Update
+                // mode" row of the Mass Change form does — otherwise produced a
+                // segmented control with no label at all, leaving the reader to
+                // guess what Incremental / Replacement applied to.
+                if (!labelText) {
+                    Array.prototype.forEach.call(g.field.childNodes, function (node) {
+                        if (labelText || node.nodeType !== 3) return;
+                        var text = node.textContent.replace(/ /g, ' ').trim();
+                        if (text) labelText = text;
+                    });
+                }
                 var help = g.field.querySelector('img.helpTooltip');
                 var row = document.createElement('div');
                 row.className = 'cf-segmented-row';
@@ -735,6 +759,19 @@ var CentreonForm = (function () {
             checkbox.checked = toggle.checked;
             if (onChange) onChange(checkbox);
         });
+
+        // A native reset restores the hidden checkbox but not this toggle, so
+        // re-read it on the next tick (once the reset is applied), same as
+        // syncToggle does for the radio-pair case.
+        var form = toggle.form || checkbox.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    toggle.checked = checkbox.checked;
+                    if (onChange) onChange(checkbox);
+                }, 0);
+            });
+        }
     }
 
     // =========================================================================
@@ -754,6 +791,24 @@ var CentreonForm = (function () {
      */
     function initMacroCleanup() {
         _cleanMacroRows();
+
+        // Eraser (.cf-macro-erase): clear the row's macro value field. Bound
+        // once, delegated on document so it also covers rows sheepIt clones later.
+        if (!document._cfMacroEraseBound) {
+            document._cfMacroEraseBound = true;
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('.cf-macro-erase') : null;
+                if (!btn) return;
+                var row = btn.closest('.onemacro');
+                var val = row && row.querySelector('input[name^="macroValue"]');
+                if (val) {
+                    val.value = '';
+                    // Trigger input so the row is marked as a direct (non-inherited) value.
+                    val.dispatchEvent(new Event('input', { bubbles: true }));
+                    val.focus();
+                }
+            });
+        }
 
         // Watch for sheepIt adding new rows
         var macroList = document.querySelector('ul.macroclone');
@@ -887,7 +942,13 @@ var CentreonForm = (function () {
                 var searchField = sel.querySelector('.select2-search__field');
                 if (!searchField) return;
                 var hasChips = !!sel.querySelector('.select2-selection__choice');
-                searchField.setAttribute('placeholder', hasChips ? '' : phText);
+                // Idempotent: only rewrite when it actually differs, so the
+                // observer below (which watches this very attribute) can re-apply
+                // our placeholder after select2 resets it, without looping.
+                var target = hasChips ? '' : phText;
+                if (searchField.getAttribute('placeholder') !== target) {
+                    searchField.setAttribute('placeholder', target);
+                }
             }
 
             var more = document.createElement('span');
@@ -958,7 +1019,11 @@ var CentreonForm = (function () {
                 new MutationObserver(function () {
                     syncPlaceholder();
                     if (!sel.classList.contains('cf-chips-expanded')) recount();
-                }).observe(rendered, { childList: true, subtree: true });
+                    // attributes/placeholder: select2 rewrites the inline-search
+                    // placeholder (to its own configured value) on (re)render and
+                    // async default-data load, so re-apply "Search" without a
+                    // user having to open/close the field first.
+                }).observe(rendered, { childList: true, subtree: true, attributes: true, attributeFilter: ['placeholder'] });
             }
             window.addEventListener('resize', recount);
 

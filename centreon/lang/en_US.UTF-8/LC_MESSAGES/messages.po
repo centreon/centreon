@@ -10898,7 +10898,7 @@ msgstr "Modify Vendor"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Modify a host category"
-msgstr "Modify a  host category"
+msgstr "Modify a host category"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
@@ -19999,7 +19999,7 @@ msgstr ""
 
 #: packages/ui/src/Listing/translatedLabels.ts
 msgid "Loading..."
-msgstr ""
+msgstr "Loading..."
 #: unknown
 # msgid "Create new poller"
 # msgstr ""
@@ -20101,3 +20101,103 @@ msgstr "You are about to duplicate <strong>{{ count }} host categories.</strong>
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 
+
+# Host / host template listing - modernized UX (UX/UI migration)
+#: unknown
+msgid "Configure the hosts monitored by your platform."
+msgstr "Configure the hosts monitored by your platform."
+
+#: unknown
+msgid "Define reusable configurations to apply shared settings across your hosts."
+msgstr "Define reusable configurations to apply shared settings across your hosts."
+
+#: unknown
+msgid "Host templates"
+msgstr "Host templates"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Advanced filters"
+
+
+#: unknown
+msgid "IP / DNS"
+msgstr "IP / DNS"
+
+#: unknown
+msgid "Modify Host"
+msgstr "Modify Host"
+
+#: unknown
+msgid "Modify Host Template"
+msgstr "Modify Host Template"
+
+
+# Host / host template listing - more-actions confirmation modal (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Delete host"
+msgstr "Delete host"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Delete hosts"
+msgstr "Delete hosts"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to delete the <strong>{{ name }}</strong> host. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> host. This action cannot be undone. Do you want to delete it?"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to delete <strong>{{ count }} hosts.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} hosts.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Duplicate host"
+msgstr "Duplicate host"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Duplicate hosts"
+msgstr "Duplicate hosts"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> host. Do you want to duplicate it?"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to duplicate <strong>{{ count }} hosts.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} hosts.</strong> Do you want to duplicate them?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Delete host template"
+msgstr "Delete host template"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Delete host templates"
+msgstr "Delete host templates"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Duplicate host template"
+msgstr "Duplicate host template"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Duplicate host templates"
+msgstr "Duplicate host templates"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host template. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> host template. Do you want to duplicate it?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to duplicate <strong>{{ count }} host templates.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} host templates.</strong> Do you want to duplicate them?"
+
+#: unknown
+msgid "Select"
+msgstr "Select"

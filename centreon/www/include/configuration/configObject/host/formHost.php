@@ -900,8 +900,6 @@ if (! $isCloudPlatform) {
 
 $form->addElement('select', 'ehi_icon_image', _('Icon'), $extImg, [
     'id' => 'ehi_icon_image',
-    'onChange' => "showLogo('ehi_icon_image_img',this.value)",
-    'onkeyup' => 'this.blur();this.focus();',
 ]);
 
 // Sort 4 - Extended Infos
@@ -1211,8 +1209,6 @@ if ($valid) {
     }
     ?>
     <script type="text/javascript">
-        showLogo('ehi_icon_image_img', document.getElementById('ehi_icon_image').value);
-
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {
                 document.getElementById('notifD').checked = false;

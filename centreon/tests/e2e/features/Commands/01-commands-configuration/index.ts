@@ -233,7 +233,13 @@ When('the admin user selects a check command on the host form', () => {
   // visit the host listing page
   cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostId}`);
   cy.waitForElementInIframe('#main-content', '#command_command_id');
-  cy.getIframeBody().find('span[title="Check Command"]').click();
+  // Target the select2 by id rather than by title: the modernized host form
+  // moved the label out of the widget into a floating label, so the container's
+  // title is the selected value, not "Check Command". The service form below is
+  // still the legacy one and keeps the title-based selector.
+  cy.getIframeBody()
+    .find('span[id="select2-command_command_id-container"]')
+    .click();
   cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();
 });
 

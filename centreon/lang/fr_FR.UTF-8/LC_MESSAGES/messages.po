@@ -25220,3 +25220,100 @@ msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 #: www/include/configuration/configServers/listServers.ihtml
 msgid "Copy installation command"
 msgstr "Copier la commande d'installation"
+
+# Host / host template listing - modernized UX (UX/UI migration)
+#: unknown
+msgid "Configure the hosts monitored by your platform."
+msgstr "Configurez les hôtes supervisés par votre plateforme."
+
+#: unknown
+msgid "Define reusable configurations to apply shared settings across your hosts."
+msgstr "Définissez des configurations réutilisables pour appliquer des réglages communs à vos hôtes."
+
+#: unknown
+msgid "Host templates"
+msgstr "Modèles d'hôtes"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Filtres avancés"
+
+
+#: unknown
+msgid "IP / DNS"
+msgstr "IP / DNS"
+
+#: unknown
+msgid "Modify Host"
+msgstr "Modifier l'hôte"
+
+#: unknown
+msgid "Modify Host Template"
+msgstr "Modifier le modèle d'hôte"
+
+
+# Host / host template listing - more-actions confirmation modal (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Delete host"
+msgstr "Supprimer l'hôte"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Delete hosts"
+msgstr "Supprimer les hôtes"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to delete the <strong>{{ name }}</strong> host. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer l'hôte <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to delete <strong>{{ count }} hosts.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} hôtes.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Duplicate host"
+msgstr "Dupliquer l'hôte"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "Duplicate hosts"
+msgstr "Dupliquer les hôtes"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host. Do you want to duplicate it?"
+msgstr "Vous êtes sur le point de dupliquer l'hôte <strong>{{ name }}</strong>. Voulez-vous le dupliquer ?"
+
+#: centreon/www/include/configuration/configObject/host/listHost.php
+msgid "You are about to duplicate <strong>{{ count }} hosts.</strong> Do you want to duplicate them?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} hôtes.</strong> Voulez-vous les dupliquer ?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Delete host template"
+msgstr "Supprimer le modèle d'hôte"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Delete host templates"
+msgstr "Supprimer les modèles d'hôtes"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to delete the <strong>{{ name }}</strong> host template. This action cannot be undone. Do you want to delete it?"
+msgstr "Vous êtes sur le point de supprimer le modèle d'hôte <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous le supprimer ?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to delete <strong>{{ count }} host templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} modèles d'hôtes.</strong> Cette action est irréversible. Voulez-vous les supprimer ?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Duplicate host template"
+msgstr "Dupliquer le modèle d'hôte"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "Duplicate host templates"
+msgstr "Dupliquer les modèles d'hôtes"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host template. Do you want to duplicate it?"
+msgstr "Vous êtes sur le point de dupliquer le modèle d'hôte <strong>{{ name }}</strong>. Voulez-vous le dupliquer ?"
+
+#: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
+msgid "You are about to duplicate <strong>{{ count }} host templates.</strong> Do you want to duplicate them?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} modèles d'hôtes.</strong> Voulez-vous les dupliquer ?"
+
