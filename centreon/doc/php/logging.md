@@ -464,7 +464,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | Excluded channel | Reason |
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
-| `deprecation` | dedicated file `prod.deprecations.log`. |
+| `deprecation` | disabled in prod by default (Monolog `NullHandler` — records discarded). In dev, written to `dev.deprecations.log` via a `rotating_file` handler. To re-enable in prod, override the `deprecation` handler in a local `monolog.yaml`; `logrotate/centreon` still declares `prod.deprecations.log` so the override path inherits the standard rotation policy. |
 | `authentication` | merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
 | `token` | dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
@@ -487,12 +487,12 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The files listed:
 
 - `prod.web.log` (catch-all)
-- `prod.deprecations.log`
 - `prod.access.log` (authentication)
 - `prod.token.log`
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
+- `prod.deprecations.log` — file is not created in the default configuration (`NullHandler`); the entry is retained so operators who override the `deprecation` handler locally inherit rotation. `missingok` in the shared block covers the absent-file case.
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
