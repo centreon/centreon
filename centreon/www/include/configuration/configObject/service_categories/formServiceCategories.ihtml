@@ -125,7 +125,13 @@ function cfIconOption(state) {
     }
     var url = './include/common/getHiddenImage.php?id=' + state.id + '&logo=1';
     var label = String(state.text).replace(/^[\s ]+/, '');
-    return jQuery('<span><img src="' + url + '" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;object-fit:contain;">' + label + '</span>');
+    // state.text is a media name; append it as text so it cannot inject markup.
+    return jQuery('<span>')
+        .append(jQuery('<img>').attr('src', url).css({
+            width: '16px', height: '16px', 'vertical-align': 'middle',
+            'margin-right': '6px', 'object-fit': 'contain'
+        }))
+        .append(document.createTextNode(label));
 }
 
 jQuery(function() {
