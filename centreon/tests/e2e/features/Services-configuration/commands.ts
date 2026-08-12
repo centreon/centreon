@@ -209,7 +209,9 @@ Cypress.Commands.add('checkFieldsOfVm', (body: VirtualMetric) => {
 });
 
 Cypress.Commands.add('addMetaService', (body: MetaService) => {
-  // The listing must already be open; Add opens the modernized side panel.
+  // Wait for the modernized listing so external callers (which visit the page
+  // but don't wait for it) don't race the .cl-btn-add click.
+  cy.waitForElementInIframe('#main-content', '.cl-btn-add');
   cy.getIframeBody().find('.cl-btn-add').click();
   cy.getMetaServiceSidePanelBody()
     .find('input[name="meta_name"]', { timeout: 20_000 })
