@@ -39,7 +39,7 @@ $errorMessage = '';
  * Soft-delete stale legacy centreon_storage.instances rows (deleted = 0, frozen last_alive)
  * left after the 26.07 Snowflake UID migration, which make the poller "database updates"
  * indicator turn red. Only when the fresh uid row is strictly newer, so it is safe and
- * idempotent for platforms already upgraded (MON-206900).
+ * idempotent for platforms already upgraded.
  */
 $softDeleteStaleLegacyInstances = function () use ($pearDB, $pearDBO, &$errorMessage, $version): void {
     $errorMessage = 'Unable to fetch pollers for the stale instances cleanup';
