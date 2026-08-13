@@ -6,8 +6,7 @@ import {
   searchTimePeriod,
   setTimePeriod,
   submitForm,
-  visitTimePeriodsListing,
-  waitForListingRefresh
+  visitTimePeriodsListing
 } from '../common';
 
 beforeEach(() => {
@@ -186,8 +185,8 @@ Then('the time period form opens in the side panel', () => {
 });
 
 When('the user navigates back to the time periods listing', () => {
+  // visitTimePeriodsListing already waits for the listing fetch.
   visitTimePeriodsListing();
-  waitForListingRefresh();
 });
 
 Then('the search field still contains the search term', () => {

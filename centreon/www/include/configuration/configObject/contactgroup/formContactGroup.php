@@ -183,8 +183,10 @@ if ($valid) {
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
     // The cosmetic toggle cannot read its state from a frozen QuickForm radio
-    // group, so the state is rendered server-side.
-    $tpl->assign('cgActivateOn', ($cg['cg_activate'] ?? '1') === '1');
+    // group, so the state is rendered server-side. The submitted value comes
+    // first, otherwise a failed validation redisplays the persisted state and
+    // the toggle contradicts the hidden radio QuickForm just repopulated.
+    $tpl->assign('cgActivateOn', ($form->getSubmitValue('cg_activate') ?? $cg['cg_activate'] ?? '1') === '1');
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->display('formContactGroup.ihtml');

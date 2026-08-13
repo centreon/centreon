@@ -59,8 +59,17 @@ function visitTimePeriodsListing() {
   waitForListingRefresh();
 }
 
-/** Wait for the listing to swap its loading row for real rows. */
+/** Alias of the listing XHR, registered in the spec's beforeEach. */
+const listingAlias = '@getTimePeriodListing';
+
+/**
+ * Wait for a listing fetch to land, then for its rows. Waiting on the request
+ * is the only reliable synchronisation: the "Loading..." row is rendered on the
+ * first load only, and closing the side panel refetches silently, so a DOM-only
+ * wait passes against stale rows.
+ */
 function waitForListingRefresh() {
+  cy.wait(listingAlias);
   cy.getIframeBody()
     .find('#clTableBody tr td')
     .should('not.contain', 'Loading');
@@ -96,6 +105,5 @@ export {
   searchTimePeriod,
   setTimePeriod,
   submitForm,
-  visitTimePeriodsListing,
-  waitForListingRefresh
+  visitTimePeriodsListing
 };

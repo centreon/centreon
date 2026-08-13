@@ -61,7 +61,6 @@
                 <div class="cf-field">
                     {$form.contact_template_id.html}
                     <label class="cf-label-float">{$form.contact_template_id.label}</label>
-                    <img class="helpTooltip" name="pager">
                 </div>
             </div>
 
@@ -85,7 +84,7 @@
             {if $o != "mc" and isset($ldapGroups)}
             <div class="cf-row">
                 <div class="cf-field">
-                    <div>{foreach item=group from=$ldapGroups}&nbsp;{$group}<br/>{/foreach}</div>
+                    <div>{foreach item=group from=$ldapGroups}&nbsp;{$group|escape}<br/>{/foreach}</div>
                     <label class="cf-label-float">{$ldap_group}</label>
                     <img class="helpTooltip" name="ldap_group">
                 </div>

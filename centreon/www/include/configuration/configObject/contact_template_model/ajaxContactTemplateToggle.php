@@ -60,7 +60,8 @@ try {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            UPDATE contact SET contact_activate = :activate WHERE contact_id = :id
+            UPDATE contact SET contact_activate = :activate
+            WHERE contact_id = :id AND contact_register = '0'
             SQL,
         QueryParameters::create([
             QueryParameter::string('activate', $activate),

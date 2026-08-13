@@ -37,7 +37,7 @@
         keyElem.id = 'exceptionInput_' + globalj;
         keyElem.name = 'exceptionInput_' + globalj;
         keyElem.value = '';
-        keyElem.placeholder = '<?php echo _('Day range'); ?>';
+        keyElem.placeholder = <?php echo json_encode(_('Day range'), JSON_THROW_ON_ERROR); ?>;
         keyElem.className = 'v_required v_regex';
         keyElem.setAttribute('data-validator', '^((([0-9]{4}-[0-9]{2}-[0-9]{2})|(day ([0-9]{1,2}|-[0-9]{1,2})( - ([0-9]{1,2}|-[0-9]{1,2}))?)|((sunday|monday|tuesday|wednesday|thursday|friday|saturday) ([0-9]{1,2}|-[0-9]{1,2})( (january|february|march|april|may|june|july|august|september|october|november|december))?)|((january|february|march|april|may|june|july|august|september|october|november|december) ([0-9]{1,2}|-[0-9]{1,2})( - ([0-9]{1,2}|-[0-9]{1,2}))?))( - )?( \/ [0-9]{1,2})?)+$');
 
@@ -45,7 +45,7 @@
         valueElem.id = 'exceptionTimerange_' + globalj;
         valueElem.name = 'exceptionTimerange_' + globalj;
         valueElem.value = '';
-        valueElem.placeholder = '<?php echo _('Time range (HH:MM-HH:MM)'); ?>';
+        valueElem.placeholder = <?php echo json_encode(_('Time range (HH:MM-HH:MM)'), JSON_THROW_ON_ERROR); ?>;
         valueElem.className = 'v_required v_regex';
         valueElem.setAttribute('data-validator', '^([0-9]{2}:[0-9]{2}-[0-9]{2}:[0-9]{2}(,)?)+$');
 
@@ -53,10 +53,10 @@
         deleteBtn.type = 'button';
         deleteBtn.className = 'cf-dynamic-delete';
         deleteBtn.innerHTML = '&#128465;';
-        deleteBtn.title = '<?php echo _('Delete'); ?>';
+        deleteBtn.title = <?php echo json_encode(_('Delete'), JSON_THROW_ON_ERROR); ?>;
         var btnId = globalj;
         deleteBtn.onclick = function () {
-            if (window.confirm('<?php echo _('Do you confirm this deletion?'); ?>')) {
+            if (window.confirm(<?php echo json_encode(_('Do you confirm this deletion?'), JSON_THROW_ON_ERROR); ?>)) {
                 document.getElementById('trExceptionInput_' + btnId).remove();
             }
         };
@@ -74,7 +74,7 @@
      * Display existing exceptions on page load
      */
     function displayExistingExceptions(max) {
-        var _o = '<?php echo $o; ?>';
+        var _o = <?php echo json_encode((string) $o, JSON_THROW_ON_ERROR); ?>;
 
         for (var i = 0; i < max; i++) {
             var container = document.getElementById('exceptionTable');
@@ -86,13 +86,13 @@
             keyElem.id = 'exceptionInput_' + globalj;
             keyElem.name = 'exceptionInput_' + globalj;
             keyElem.value = globalExceptionTabName[globalj];
-            keyElem.placeholder = '<?php echo _('Day range'); ?>';
+            keyElem.placeholder = <?php echo json_encode(_('Day range'), JSON_THROW_ON_ERROR); ?>;
 
             var valueElem = document.createElement('input');
             valueElem.id = 'exceptionTimerange_' + globalj;
             valueElem.name = 'exceptionTimerange_' + globalj;
             valueElem.value = globalExceptionTabTimerange[globalj];
-            valueElem.placeholder = '<?php echo _('Time range (HH:MM-HH:MM)'); ?>';
+            valueElem.placeholder = <?php echo json_encode(_('Time range (HH:MM-HH:MM)'), JSON_THROW_ON_ERROR); ?>;
 
             if (_o == "w") {
                 keyElem.disabled = true;
@@ -107,10 +107,10 @@
                 deleteBtn.type = 'button';
                 deleteBtn.className = 'cf-dynamic-delete';
                 deleteBtn.innerHTML = '&#128465;';
-                deleteBtn.title = '<?php echo _('Delete'); ?>';
+                deleteBtn.title = <?php echo json_encode(_('Delete'), JSON_THROW_ON_ERROR); ?>;
                 var btnId = globalj;
                 deleteBtn.onclick = function () {
-                    if (window.confirm('<?php echo _('Do you confirm this deletion?'); ?>')) {
+                    if (window.confirm(<?php echo json_encode(_('Do you confirm this deletion?'), JSON_THROW_ON_ERROR); ?>)) {
                         document.getElementById('trExceptionInput_' + this.dataset.rowId).remove();
                     }
                 };

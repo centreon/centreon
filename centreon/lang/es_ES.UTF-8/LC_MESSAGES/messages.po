@@ -25623,7 +25623,7 @@ msgstr "Está a punto de duplicar <strong>{{ count }} periodos de tiempo</strong
 
 #: unknown
 msgid "Add a Contact Template"
-msgstr "Agregar un modelo de contacto"
+msgstr "Agregar una plantilla de contacto"
 
 #: unknown
 msgid "Modify a Contact"
@@ -25631,7 +25631,7 @@ msgstr "Editar un contacto"
 
 #: unknown
 msgid "Modify a Contact Template"
-msgstr "Editar un modelo de contacto"
+msgstr "Editar una plantilla de contacto"
 
 #: unknown
 msgid "View notifications"
