@@ -121,16 +121,8 @@ try {
         $normalInterval = (int) getMyServiceField($svcId, 'service_normal_check_interval') * $intervalLength;
         $retryInterval  = (int) getMyServiceField($svcId, 'service_retry_check_interval') * $intervalLength;
 
-        if ($normalInterval % 60 === 0) {
-            $normalStr = ($normalInterval / 60) . ' min';
-        } else {
-            $normalStr = $normalInterval . ' sec';
-        }
-        if ($retryInterval % 60 === 0) {
-            $retryStr = ($retryInterval / 60) . ' min';
-        } else {
-            $retryStr = $retryInterval . ' sec';
-        }
+        $normalStr = $normalInterval % 60 === 0 ? ($normalInterval / 60) . ' min' : $normalInterval . ' sec';
+        $retryStr = $retryInterval % 60 === 0 ? ($retryInterval / 60) . ' min' : $retryInterval . ' sec';
 
         // Template chain
         $tplArr = getMyServiceTemplateModels($svc['service_template_model_stm_id']);

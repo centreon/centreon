@@ -76,7 +76,7 @@ try {
     if (! $helper->isAdmin()) {
         $acl = $helper->getAcl();
         $aclGroupIds = array_keys($acl->getAccessGroups());
-        if (! empty($aclGroupIds)) {
+        if ($aclGroupIds !== []) {
             $aclDbName = $pearDB->getConnectionConfig()->getDatabaseNameRealTime();
             $aclPlaceholders = [];
             foreach ($aclGroupIds as $idx => $gid) {

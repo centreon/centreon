@@ -73,7 +73,7 @@ try {
     if (! $helper->isAdmin()) {
         $acl = $helper->getAcl();
         $aclGroupIds = array_keys($acl->getAccessGroups());
-        if (! empty($aclGroupIds)) {
+        if ($aclGroupIds !== []) {
             $aclDbName = $pearDB->getConnectionConfig()->getDatabaseNameRealTime();
             $aclPlaceholders = [];
             foreach ($aclGroupIds as $idx => $gid) {
@@ -166,7 +166,7 @@ try {
     if (! empty($results)) {
         // The current page's host ids scope the real-time lookup
         $hostIds = array_unique(array_map(static function ($r) { return (int) $r['host_id']; }, $results));
-        if (! empty($hostIds)) {
+        if ($hostIds !== []) {
             $rtmPlaceholders = [];
             $rtmParameters = [];
             foreach (array_values($hostIds) as $index => $hostIdValue) {
