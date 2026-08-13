@@ -809,11 +809,8 @@ jobs:
               return {};
             }
 
-            // Fall back to the first packaged configuration when the preferred
-            // operating system is not part of the package matrix
-            const cloud = configs.find(c => c.operating_system === 'alma10') ?? configs[0];
-
-            let main = configs.find(c => c.operating_system === 'alma10') ?? configs[0];
+            const cloud = alma10_mysql_8_4;
+            let main = isCloud ? cloud : alma10_mariadb_11_8;
             if (process.env.IS_CLOUD === 'true') {
               main = cloud;
             }
