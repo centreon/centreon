@@ -191,11 +191,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
     }
 
     const packageVersionSuffix = `${version}${packageDistribPrefix}${packageDistribName}`;
+    // centreon-perl-libs is left to apt: it follows the gorgone release cadence
     const packagesToInstall = [
       `centreon-poller='${packageVersionSuffix}'`,
       `centreon-web='${packageVersionSuffix}'`,
-      `centreon-trap='${packageVersionSuffix}'`,
-      `centreon-perl-libs='${packageVersionSuffix}'`
+      `centreon-trap='${packageVersionSuffix}'`
     ];
     if (
       Number(versionMatches[1]) < 24 ||
@@ -223,8 +223,8 @@ const installCentreon = (version: string): Cypress.Chainable => {
         'mkdir -p /usr/lib/centreon-connector',
         `echo "date.timezone = Europe/Paris" > /etc/php/${phpVersion}/mods-available/timezone.ini`,
         `phpenmod -v ${phpVersion} timezone`,
-        `sed -i 's#^datadir_set=#datadir_set=1#' /etc/init.d/mysql`,
-        'service mysql start',
+        // upstream MariaDB packages only ship /etc/init.d/mariadb
+        'systemctl start mariadb',
         'mkdir -p /run/php',
         `systemctl restart php${phpVersion}-fpm`,
         'systemctl restart apache2',
@@ -412,9 +412,10 @@ const updatePlatformPackages = (): Cypress.Chainable => {
 };
 
 const checkPlatformVersion = (platformVersion: string): Cypress.Chainable => {
+  // stderr is merged into the output, drop the apt CLI stability warning
   const command = Cypress.env('WEB_IMAGE_OS').includes('alma')
     ? `rpm -qa | grep centreon-web | cut -d '-' -f3 | tr -d '\n'`
-    : `apt list --installed centreon-web | awk '{ print $2 }' | cut -d '-' -f1 | tr -d '\n'`;
+    : `apt list --installed centreon-web 2>/dev/null | awk '{ print $2 }' | cut -d '-' -f1 | tr -d '\n'`;
 
   return cy
     .execInContainer({

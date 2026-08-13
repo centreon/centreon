@@ -427,6 +427,13 @@ contents:
       group: "centreon"
       mode: 0775
 
+  - src: "../install-poller/install.sh"
+    dst: "/usr/share/centreon/www/poller/install.sh"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0644
+
 scripts:
   preinstall: ./scripts/centreon-web-preinstall.sh
   postinstall: ./scripts/centreon-web-postinstall.sh

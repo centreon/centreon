@@ -68,7 +68,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             throw new BadRequestHttpException(sprintf('No central address configured for poller #%d.', $pollerId->value));
         }
 
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             $poller,
             $token,
             $this->engineSecretsRepository->getAppSecret(),

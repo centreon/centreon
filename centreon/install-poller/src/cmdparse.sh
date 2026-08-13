@@ -13,29 +13,12 @@
 # limitations under the License.
 
 function cmdParse() {
-  local subcommand=""
-  if [ "${1:-}" = "install" ]; then
-    subcommand="install"
-    shift
-  elif [ $# -gt 0 ] && ! helpFlag "$@"; then
-    # The generated installation command (API) omits the "install" keyword
-    # and passes flags directly, e.g. `install.sh --type docker ...`.
-    subcommand="install"
-  fi
-
   if helpFlag "$@"; then
-    help "${subcommand}"
+    help
     return
   fi
 
-  case "${subcommand}" in
-  install)
-    installCommand "$@"
-    ;;
-  *)
-    help
-    ;;
-  esac
+  installCommand "$@"
 }
 
 function helpFlag() {

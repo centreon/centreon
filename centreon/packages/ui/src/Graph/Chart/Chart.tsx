@@ -119,6 +119,8 @@ const Chart = ({
   boundariesUnit
 }: Props): ReactElement => {
   const { classes } = useChartStyles();
+  const maxLeftAxisCharactersRef = useRef(0);
+  const maxRightAxisCharactersRef = useRef(0);
 
   const { title, timeSeries, baseAxis, lines } = graphData;
 
@@ -146,16 +148,6 @@ const Chart = ({
     [displayedLines]
   );
 
-  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
-    useComputeYAxisMaxCharacters({
-      axis,
-      firstUnit,
-      graphData,
-      secondUnit,
-      thresholds,
-      thresholdUnit
-    });
-
   const allUnits = getUnits(linesGraph);
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
@@ -165,7 +157,8 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      maxLeftAxisCharacters: maxLeftAxisCharactersRef.current,
+      maxRightAxisCharacters: maxRightAxisCharactersRef.current,
       title,
       units: allUnits,
       width
@@ -229,6 +222,21 @@ const Chart = ({
 
   const leftScale = yScalesPerUnit[fallbackLeftUnit];
   const rightScale = yScalesPerUnit[fallbackRightUnit];
+
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      base: baseAxis,
+      displayedLines,
+      graphHeight,
+      graphWidth,
+      isHorizontal: false,
+      leftScale,
+      rightScale
+    });
+
+  maxRightAxisCharactersRef.current = maxRightAxisCharacters;
+  maxLeftAxisCharactersRef.current = maxLeftAxisCharacters;
 
   const linesDisplayedAsLine = useMemo(
     () =>
@@ -325,9 +333,8 @@ const Chart = ({
                 graphHeight={graphHeight}
                 graphWidth={graphWidth}
                 gridLinesType={axis?.gridLinesType}
-                hasSecondUnit={hasSecondUnit}
                 leftScale={leftScale}
-                maxAxisCharacters={maxLeftAxisCharacters}
+                maxLeftAxisCharacters={maxLeftAxisCharacters}
                 rightScale={rightScale}
                 showGridLines={showGridLines}
                 svgRef={graphSvgRef}
@@ -388,7 +395,6 @@ const Chart = ({
                     xScale,
                     yScalesPerUnit
                   }}
-                  hasSecondUnit={hasSecondUnit}
                   maxLeftAxisCharacters={maxLeftAxisCharacters}
                   timeShiftZonesData={{
                     ...timeShiftZones,
