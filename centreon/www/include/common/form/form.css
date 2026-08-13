@@ -274,6 +274,43 @@
     padding-bottom: 0;
 }
 
+/* --- Read-only form (a locked host template, or read-only menu access, both of
+       which end in QuickForm's freeze()). --- */
+
+/* The segmented controls and chips are plain <button>/<span> driven by JS, so
+   freezing the form does not make them inert the way it does a real control.
+   Without this a locked template answers clicks, moving the highlight onto a
+   value it will never save. */
+.cf-form-wrapper--readonly .cf-segmented,
+.cf-form-wrapper--readonly .cf-chip {
+    pointer-events: none;
+}
+
+/* A frozen element renders as its value followed by a hidden input — never a
+   visible <input>/<select> — so the field loses the box its control's border was
+   providing: an empty one collapses to nothing, and .cf-label-float, absolutely
+   positioned over the field's top border, floats over empty space.
+
+   The box goes on .cf-readonly-value, the wrapper CentreonForm.initReadonlyFields()
+   puts around the value — deliberately not on .cf-field, which also holds the
+   floating label and the help (?) icon and would frame them too. This mirrors an
+   editable field exactly: the border belongs to the control (flex: 1) and the
+   icon is its sibling, outside on the right. */
+.cf-form-wrapper--readonly .cf-readonly-value {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: var(--list-color, #333);
+    background: var(--body-background, #fff);
+    border: 1px solid var(--input-border-color, #c2c7cc);
+    border-radius: 4px;
+}
+
 /* Required indicator — QuickForm already adds * in the label text */
 
 /* Custom form tooltip */

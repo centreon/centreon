@@ -11,7 +11,7 @@
     </div>
     {/if}
 
-<div class="cf-form-wrapper">
+<div class="cf-form-wrapper{if $form.frozen} cf-form-wrapper--readonly{/if}">
 
     <h1 class="cf-page-title">{$form.header.title}</h1>
 
@@ -133,17 +133,22 @@
                             <img class="helpTooltip" name="create_linked_services">
                         </div>
                         {/if}
+                        {* Derived before cloneHost.ihtml is included below: its row loop unfreezes the
+                           elements, so isFrozen() asked afterwards would always answer false. The whole
+                           control is dropped when frozen, not just its label — sheepIt derives its add
+                           selector from the list id (#template_add) and turns allowAdd off when it finds
+                           nothing, whereas an emptied wrapper left a bare styled pill behind. *}
+                        {assign var=isTemplateFrozen value=0}
+                        {foreach from=$cloneSetTemplate item=v}
+                            {if $v->isFrozen()}{assign var=isTemplateFrozen value=1}{/if}
+                        {/foreach}
+                        {if $isTemplateFrozen == 0}
                         <div id="template_controls">
                             <div id="template_add">
-                                <span class="add-new-entry">
-                                    {assign var=isTemplateFrozen value=0}
-                                    {foreach from=$cloneSetTemplate item=v}
-                                        {if $v->isFrozen()}{assign var=isTemplateFrozen value=1}{/if}
-                                    {/foreach}
-                                    {if $isTemplateFrozen == 0}{t} + Add a new entry{/t}{/if}
-                                </span>
+                                <span class="add-new-entry">{t} + Add a new entry{/t}</span>
                             </div>
                         </div>
+                        {/if}
                     </div>
                 </div>
                 {* Same descriptive line the legacy form and the Cloud template carry
@@ -309,7 +314,12 @@
                 <div class="cf-field cf-mc-mode">{$form.mc_cg_additive_inheritance.label} {$form.mc_cg_additive_inheritance.html} <img class="helpTooltip" name="mc_update"></div>
 			{/if}
             </div>
-            {if $o != "mc" && $inheritance =="1"}
+            {* Dropped on a read-only form, like the macro password cell: frozen,
+               a QuickForm checkbox renders as its <tt>[ ]</tt> / <tt>[x]</tt>
+               marker, which has no place in the modern layout. These two carry
+               their own inline text rather than a floating label, so there is
+               nothing left to box once the marker is gone. *}
+            {if $o != "mc" && $inheritance =="1" && ! $form.frozen}
             <div class="cf-row-inline">
                 <div class="cf-field">{$form.contact_additive_inheritance.html} <img class="helpTooltip" name="contact_additive_inheritance"></div>
                 <div class="cf-field">{$form.cg_additive_inheritance.html} <img class="helpTooltip" name="cg_additive_inheritance"></div>

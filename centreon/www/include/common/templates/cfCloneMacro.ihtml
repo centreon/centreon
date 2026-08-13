@@ -12,25 +12,32 @@
  * command_inheritance. The cloneSet order is [id, name, value, password, from];
  * cf_idx is the 0-based array key, so 1 = name, 2 = value, 3 = password.
  *}
+{* Derived before anything renders: the row loop below unfreezes its elements, so
+   isFrozen() asked after it would always answer false. *}
+{assign var=isFrozen value=0}
+{foreach from=$cloneSet item=v}
+    {if $v->isFrozen()}
+        {assign var=isFrozen value=1}
+    {/if}
+{/foreach}
 <div class="cf-macro-header">
     <div class="cf-macro-header-left">
         <span class="cf-macro-title">{$custom_macro_label}</span>
         <img class="helpTooltip" name="macro">
     </div>
     <div class="cf-macro-header-right">
+        {* The whole control goes, not just its label. sheepIt derives its add
+           selector from the list id (#<cloneId>_add) and turns allowAdd off when
+           it finds nothing, so a read-only form ends up with no add affordance
+           and no handler wired — where keeping the emptied wrapper left a bare
+           styled pill behind. *}
+        {if $isFrozen == 0}
         <div id="{$cloneId}_controls">
             <span id="{$cloneId}_add">
-                {assign var=isFrozen value=0}
-                {foreach from=$cloneSet item=v}
-                    {if $v->isFrozen()}
-                        {assign var=isFrozen value=1}
-                    {/if}
-                {/foreach}
-                {if $isFrozen == 0}
                 <span class="add-new-entry">{t} + Add a new entry{/t}</span>
-                {/if}
             </span>
         </div>
+        {/if}
     </div>
 </div>
 <div class="cf-macro-columns">
@@ -58,9 +65,16 @@
                     {$v->toHtml()}
                 </span>
             {elseif $cf_idx == 3}
+                {* Unlike the name and value cells above, this one is left frozen:
+                   a read-only form must not offer the password checkbox. Frozen,
+                   QuickForm renders a checkbox as its <tt>[ ]</tt> / <tt>[x]</tt>
+                   marker, which has no place in the modern row — and the cell has
+                   no width of its own, so dropping it costs nothing in alignment. *}
+                {if $isFrozen == 0}
                 <span class="cf-macro-password" title="{t}Password{/t}">
                     {$v->toHtml()}
                 </span>
+                {/if}
             {else}
                 {$v->toHtml()}
             {/if}

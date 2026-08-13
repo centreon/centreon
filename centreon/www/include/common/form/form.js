@@ -379,8 +379,9 @@ var CentreonForm = (function () {
                 // Find the matching radio button (try both naming patterns)
                 var radio = _findRadio(radioName, val);
 
-                // Set initial active state from the checked radio
-                if (radio && radio.checked) {
+                // Set initial active state from the selected radio (or, on a
+                // read-only form, from the hidden input QuickForm leaves behind).
+                if (_isSelected(radio)) {
                     btn.classList.add('active');
                 }
 
@@ -487,7 +488,7 @@ var CentreonForm = (function () {
                 Array.prototype.forEach.call(btns, function (btn) {
                     var v = btn.getAttribute('data-value');
                     var radio = _findRadio(base, v);
-                    if (radio && radio.checked) btn.classList.add('active');
+                    if (_isSelected(radio)) btn.classList.add('active');
                     btn.addEventListener('click', function () {
                         window.cfFormDirty = true; // user gesture → form is dirty
                         Array.prototype.forEach.call(btns, function (b) { b.classList.remove('active'); });
@@ -571,7 +572,7 @@ var CentreonForm = (function () {
             var cb = document.getElementById(cbId);
 
             // Set initial active state
-            if (cb && cb.checked) {
+            if (_isSelected(cb)) {
                 chip.classList.add('active');
             }
 
@@ -710,8 +711,9 @@ var CentreonForm = (function () {
 
         if (!toggle || !radioOn) return;
 
-        // Set initial state from the checked radio
-        toggle.checked = radioOn.checked;
+        // Set initial state from the selected radio — or, on a read-only form,
+        // from the hidden input QuickForm leaves in its place (see _isSelected).
+        toggle.checked = _isSelected(radioOn);
 
         // Update hidden radio on toggle change
         toggle.addEventListener('change', function () {
@@ -752,7 +754,7 @@ var CentreonForm = (function () {
 
         if (!toggle || !checkbox) return;
 
-        toggle.checked = checkbox.checked;
+        toggle.checked = _isSelected(checkbox);
         if (onChange) onChange(checkbox);
 
         toggle.addEventListener('change', function () {
@@ -1211,6 +1213,53 @@ var CentreonForm = (function () {
     }
 
     // =========================================================================
+    //  READ-ONLY FIELDS
+    //  Give a frozen field's value a box of its own, so a read-only form has the
+    //  same shape as an editable one.
+    // =========================================================================
+
+    /**
+     * On a read-only form QuickForm renders a frozen element as its value plus a
+     * hidden input — no <input>/<select> — so the field has nothing carrying the
+     * border that shapes it, and .cf-label-float ends up floating over empty
+     * space.
+     *
+     * The box cannot simply go on .cf-field: that element also holds the floating
+     * label and the help (?) icon, which would then sit *inside* the frame. In an
+     * editable field the border belongs to the control (flex: 1) and the icon is
+     * its sibling, outside on the right. So the value gets wrapped in its own
+     * element and that is what gets styled — same structure, same result.
+     *
+     * Idempotent: fields already wrapped are skipped via the marker class.
+     */
+    function initReadonlyFields() {
+        document.querySelectorAll('.cf-form-wrapper--readonly .cf-field').forEach(function (field) {
+            if (field.querySelector('.cf-readonly-value')) return;
+            // A field that still renders a real control keeps its own box.
+            if (field.querySelector('input:not([type="hidden"]), select, textarea, .select2-container, .cf-segmented, .cl-toggle')) {
+                return;
+            }
+
+            var value = document.createElement('span');
+            value.className = 'cf-readonly-value';
+
+            // Everything except the label and the help icon belongs in the box:
+            // the value text node, and the hidden inputs that carry it (they must
+            // stay in the DOM — the segmented controls and chips read their state
+            // from them).
+            Array.prototype.slice.call(field.childNodes).forEach(function (node) {
+                if (node.nodeType === 1) {
+                    var tag = node.tagName;
+                    if (tag === 'LABEL' || tag === 'SCRIPT' || node.classList.contains('helpTooltip')) return;
+                }
+                value.appendChild(node);
+            });
+
+            field.insertBefore(value, field.firstChild);
+        });
+    }
+
+    // =========================================================================
     //  CONVENIENCE INITIALIZERS
     // =========================================================================
 
@@ -1229,7 +1278,10 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
+        // initReadonlyFields runs last of the layout steps: it moves nodes around
+        // inside .cf-field, so everything that looks a field up by structure has
+        // already run by then.
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit, initReadonlyFields];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
 
@@ -1301,6 +1353,25 @@ var CentreonForm = (function () {
     function _findRadio(name, value) {
         return document.querySelector('input[name="' + name + '[' + name + ']"][value="' + value + '"]')
             || document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+    }
+
+    /**
+     * Is this the option the form currently holds?
+     *
+     * On an editable form that is the input's own checked state. On a read-only
+     * one there is no radio or checkbox left to ask: QuickForm renders a frozen
+     * element as its value plus a persistant hidden input, and emits that hidden
+     * input ONLY for the option that was selected. It keeps the element's id and
+     * name, so getElementById() and the [name][value] lookup still land on it —
+     * but .checked is false on a hidden input, which is why a read-only form used
+     * to show its segmented controls and chips with nothing selected.
+     *
+     * @private
+     * @param {HTMLInputElement|null} input
+     * @returns {boolean}
+     */
+    function _isSelected(input) {
+        return !!input && (input.checked || input.type === 'hidden');
     }
 
     // =========================================================================

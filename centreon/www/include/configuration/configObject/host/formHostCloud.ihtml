@@ -11,7 +11,7 @@
     </div>
     {/if}
 
-<div class="cf-form-wrapper">
+<div class="cf-form-wrapper{if $form.frozen} cf-form-wrapper--readonly{/if}">
 
     <h1 class="cf-page-title">{$form.header.title}</h1>
 
@@ -102,17 +102,22 @@
                         <span style="font-size:13px;font-weight:600;color:var(--list-color,#333);">{$form.host_parallel_template.label}</span>
                         <img class="helpTooltip" name="use">
                     </div>
+                    {* Derived before cloneHost.ihtml is included below: its row loop unfreezes the
+                       elements, so isFrozen() asked afterwards would always answer false. The whole
+                       control is dropped when frozen, not just its label — sheepIt derives its add
+                       selector from the list id (#template_add) and turns allowAdd off when it finds
+                       nothing, whereas an emptied wrapper left a bare styled pill behind. *}
+                    {assign var=isTemplateFrozen value=0}
+                    {foreach from=$cloneSetTemplate item=v}
+                        {if $v->isFrozen()}{assign var=isTemplateFrozen value=1}{/if}
+                    {/foreach}
+                    {if $isTemplateFrozen == 0}
                     <div id="template_controls">
                         <div id="template_add">
-                            <span class="add-new-entry">
-                                {assign var=isTemplateFrozen value=0}
-                                {foreach from=$cloneSetTemplate item=v}
-                                    {if $v->isFrozen()}{assign var=isTemplateFrozen value=1}{/if}
-                                {/foreach}
-                                {if $isTemplateFrozen == 0}{t} + Add a new entry{/t}{/if}
-                            </span>
+                            <span class="add-new-entry">{t} + Add a new entry{/t}</span>
                         </div>
                     </div>
+                    {/if}
                 </div>
                 {if isset($form.tplTextParallel.label)}
                 <p style="font-size:12px;color:var(--input-placeholder-font-color,#666);margin:0 0 8px 0;">{$form.tplTextParallel.label}</p>
