@@ -160,10 +160,15 @@ const installDatabase = (): void => {
       ];
     }
   } else if (isAlma()) {
-    command = [
-      `dnf module enable -y mariadb:${version}`,
-      'dnf install -y mariadb-server mariadb'
-    ];
+    // el10+ dropped DNF modules; MariaDB ships as versioned packages instead.
+    const almaMajor = Number(Cypress.env('WEB_IMAGE_OS').replace('alma', ''));
+    command =
+      almaMajor >= 10
+        ? [`dnf install -y mariadb${version}-server mariadb${version}`]
+        : [
+            `dnf module enable -y mariadb:${version}`,
+            'dnf install -y mariadb-server mariadb'
+          ];
   } else {
     const { osType, osVersion } = getDebianRepoTarget();
     command = [
