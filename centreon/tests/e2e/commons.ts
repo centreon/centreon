@@ -61,9 +61,12 @@ const getStatusTypeNumberFromString = (statusType: string): number => {
   throw new Error(`Status type ${statusType} does not exist`);
 };
 
-// Quote-aware CSV parser: the fields exported by the backend are enclosed in
-// double quotes as soon as they hold the delimiter, a quote or a line break, so
-// splitting on the raw delimiter shifts every following column of that record.
+// Splits CSV content into records of unquoted field values, header row first.
+// Enclosures have to be honoured: the exporter wraps in double quotes any field
+// holding the delimiter, a double quote (then doubled) or a line break, so a raw
+// split on the delimiter would cut such a field into several cells and shift
+// every column after it:
+//   Critical;"OK: 5% | cpu=5%;80;90";1/1 (H)   ->   3 fields, not 5
 const parseCsv = (content: string, delimiter = ';'): Array<Array<string>> => {
   const records: Array<Array<string>> = [];
   let fields: Array<string> = [];
