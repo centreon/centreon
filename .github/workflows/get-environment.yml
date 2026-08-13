@@ -752,10 +752,13 @@ jobs:
               ...info,
             }));
 
-            const cloudDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
+            // Need to be defined separately as their values used to diverge in the past and
+            // may diverge again in the future
+            const cloudMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
             const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
+
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? cloudDistrib : isFullRun ? allDistribs : isCloud ? cloudDistrib : onPremMainDistrib;
+            const result = isCloudTestingOrStable ? cloudMainDistrib : isFullRun ? allDistribs : isCloud ? cloudMainDistrib : onPremMainDistrib;
 
             console.log('package_matrix', result);
 
