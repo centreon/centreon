@@ -62,6 +62,53 @@ const getStatusTypeNumberFromString = (statusType: string): number => {
   throw new Error(`Status type ${statusType} does not exist`);
 };
 
+// Quote-aware CSV parser: the fields exported by the backend are enclosed in
+// double quotes as soon as they hold the delimiter, a quote or a line break, so
+// splitting on the raw delimiter shifts every following column of that record.
+const parseCsv = (content: string, delimiter = ';'): Array<Array<string>> => {
+  const records: Array<Array<string>> = [];
+  let fields: Array<string> = [];
+  let field = '';
+  let isQuoted = false;
+  let index = 0;
+
+  while (index < content.length) {
+    const character = content[index];
+    index += 1;
+
+    if (isQuoted) {
+      if (character !== '"') {
+        field += character;
+      } else if (content[index] === '"') {
+        // an escaped quote inside an enclosed field
+        field += '"';
+        index += 1;
+      } else {
+        isQuoted = false;
+      }
+    } else if (character === '"') {
+      isQuoted = true;
+    } else if (character === delimiter) {
+      fields.push(field);
+      field = '';
+    } else if (character === '\n') {
+      fields.push(field);
+      records.push(fields);
+      fields = [];
+      field = '';
+    } else if (character !== '\r') {
+      field += character;
+    }
+  }
+
+  if (field !== '' || fields.length > 0) {
+    fields.push(field);
+    records.push(fields);
+  }
+
+  return records;
+};
+
 interface MonitoredHost {
   name: string;
   output?: string;
@@ -477,6 +524,7 @@ export {
   checkServicesAreMonitored,
   getStatusNumberFromString,
   getStatusTypeNumberFromString,
+  parseCsv,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
