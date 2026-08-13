@@ -104,7 +104,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
 
         // Use the normalized value, not the raw input: the stored poller and the
         // returned command must match what GET /installation-command/{id} generates.
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             $model,
             $token,
             $appSecret,
