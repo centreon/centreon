@@ -810,10 +810,7 @@ jobs:
             }
 
             const cloud = alma10_mysql_8_4;
-            let main = isCloud ? cloud : alma10_mariadb_11_8;
-            if (process.env.IS_CLOUD === 'true') {
-              main = cloud;
-            }
+            let main = process.env.IS_CLOUD ? cloud : alma10_mariadb_11_8;
 
             let matrix = {
               "cloud": [cloud],
