@@ -90,8 +90,76 @@ function _vmInstallPowertools() {
   esac
 }
 
+# Mirrors uses_internal_repo() in centreon/unattended.sh.
+function _usesInternalRepo() {
+  [ "${major##*.}" != "10" ]
+}
+
+function _centreonRpmRepoUrl() {
+  if _usesInternalRepo; then
+    echo "https://packages.centreon.com/rpm-standard-internal/${major}/el${_EL_MAJOR:-9}/centreon-${major}-internal.repo"
+  else
+    echo "https://packages.centreon.com/rpm-standard/${major}/el${_EL_MAJOR:-9}/centreon-${major}.repo"
+  fi
+}
+
+# Safe to call repeatedly (e.g. re-run with an install.sh built for a
+# different stability).
+function _vmConfigureRepoChannels() {
+  consoleInfo "Configuring Centreon repository channel for stability: ${STABILITY}"
+  logInfo "Configuring repo channel for stability=${STABILITY}"
+
+  if [ "${_PKG_COMMAND}" = "dnf" ]; then
+    commandExitOnError "Cannot enable Centreon repositories" \
+      dnf config-manager --set-enabled 'centreon*'
+
+    case "${STABILITY}" in
+    testing)
+      commandExitOnError "Cannot disable unstable repository" \
+        dnf config-manager --set-disabled 'centreon*unstable*'
+      ;;
+    stable)
+      commandExitOnError "Cannot disable unstable/testing repositories" \
+        dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing*'
+      ;;
+    esac
+    # unstable: everything from --set-enabled 'centreon*' stays enabled.
+
+    # Plugins channel always pinned to stable.
+    commandExitOnError "Cannot pin plugins repository to stable" \
+      dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
+
+  else
+    local codename
+    codename=$(lsb_release -sc)
+    local apt_root="apt-standard"
+    _usesInternalRepo && apt_root="apt-standard-internal"
+
+    rm -f /etc/apt/sources.list.d/centreon-stable.list \
+          /etc/apt/sources.list.d/centreon-testing.list \
+          /etc/apt/sources.list.d/centreon-unstable.list
+
+    echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-stable main" \
+      | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
+
+    if [ "${STABILITY}" = "testing" ] || [ "${STABILITY}" = "unstable" ]; then
+      {
+        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-hotfix main"
+        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-release main"
+      } | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
+    fi
+
+    if [ "${STABILITY}" = "unstable" ]; then
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-unstable main" \
+        | tee /etc/apt/sources.list.d/centreon-unstable.list > /dev/null
+    fi
+
+    commandExitOnError "Cannot update apt repositories" apt update
+  fi
+}
+
 function _vmInstallRepo() {
-  logInfo "Adding Centreon ${major} repository"
+  logInfo "Adding Centreon ${major} repository (stability: ${STABILITY})"
 
   if [ "${_PKG_COMMAND}" = "apt" ]; then
     consoleInfo "Adding Centreon repository (Debian)"
@@ -104,20 +172,17 @@ function _vmInstallRepo() {
     commandExitOnError "Cannot import Centreon GPG key" \
       bash -c 'wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1'
 
-    local codename
-    codename=$(lsb_release -sc)
-    echo "deb https://packages.centreon.com/apt-standard/ ${codename}-${major}-stable main" \
-      | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
-    echo "deb https://packages.centreon.com/apt-plugins-stable/ ${codename} main" \
+    echo "deb https://packages.centreon.com/apt-plugins-stable/ $(lsb_release -sc) main" \
       | tee /etc/apt/sources.list.d/centreon-plugins.list > /dev/null
 
-    commandExitOnError "Cannot update apt repositories after adding Centreon repo" \
-      apt update
+    _vmConfigureRepoChannels
 
   elif [ "${_PKG_COMMAND}" = "dnf" ]; then
     consoleInfo "Adding Centreon repository (RPM/EL${_EL_MAJOR:-9})"
     commandExitOnError "Cannot add Centreon repository" \
-      dnf config-manager --add-repo "https://packages.centreon.com/rpm-standard/${major}/el${_EL_MAJOR:-9}/centreon-${major}.repo"
+      dnf config-manager --add-repo "$(_centreonRpmRepoUrl)"
+
+    _vmConfigureRepoChannels
   fi
 }
 
@@ -135,20 +200,16 @@ function _vmInstallPackages() {
 }
 
 function _vmUpdateRepo() {
-  consoleInfo "Updating Centreon repository to ${major}"
-  logInfo "Updating Centreon repository to ${major}"
+  consoleInfo "Updating Centreon repository to ${major} (stability: ${STABILITY})"
+  logInfo "Updating Centreon repository to ${major}, stability=${STABILITY}"
 
   if [ "${_PKG_COMMAND}" = "dnf" ]; then
     rm -f /etc/yum.repos.d/centreon-*.repo
     commandExitOnError "Cannot add Centreon ${major} repository" \
-      dnf config-manager --add-repo \
-        "https://packages.centreon.com/rpm-standard/${major}/el${_EL_MAJOR:-9}/centreon-${major}.repo"
+      dnf config-manager --add-repo "$(_centreonRpmRepoUrl)"
+    _vmConfigureRepoChannels
     dnf clean all
   else
-    local codename
-    codename=$(lsb_release -sc)
-    echo "deb https://packages.centreon.com/apt-standard/ ${codename}-${major}-stable main" \
-      | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
-    commandExitOnError "Cannot update apt repositories" apt update
+    _vmConfigureRepoChannels
   fi
 }
