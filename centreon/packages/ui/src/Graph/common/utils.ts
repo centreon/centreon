@@ -22,7 +22,6 @@ import {
 } from 'ramda';
 
 import type { BarStyle } from '../BarChart/models';
-import { margin } from '../Chart/common';
 import type { LineStyle } from '../Chart/models';
 import type { Threshold, Thresholds } from './models';
 import { formatMetricValueWithUnit } from './timeSeries';
@@ -263,16 +262,8 @@ export const getFormattedAxisValues = ({
     .filter((v) => v) as Array<string>;
 };
 
-interface ComputeGElementMarginLeftProps {
-  maxCharacters: number;
-  hasSecondUnit?: boolean;
-}
-
-export const computeGElementMarginLeft = ({
-  maxCharacters,
-  hasSecondUnit
-}: ComputeGElementMarginLeftProps): number =>
-  maxCharacters * 5 + (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6);
+export const computeGElementMarginLeft = (maxLeftCharacters: number): number =>
+  maxLeftCharacters * 5;
 
 export const computPixelsToShiftMouse = (
   xScale: import('d3-scale').ScaleTime<number, number>

@@ -1,0 +1,38 @@
+# Reverse-proxy overlay: run Centreon behind a TLS-terminating reverse proxy.
+#
+# Combine with the base compose and enable the `proxy` profile:
+#   docker compose -f docker-compose.yml -f docker-compose.proxy.yml --profile proxy up -d
+#
+# This overlay:
+#   - overrides the `web` service so apache trusts the X-Forwarded-Proto header
+#     sent by the proxy (apache snippet) — a no-op when no proxy is in front;
+#   - adds an `nginx-proxy` service terminating TLS on 4443 and forwarding to
+#     web:80 with X-Forwarded-Proto: https.
+#
+# Access the UI over HTTPS at: https://localhost:4443/centreon
+# The web container stays reachable directly over HTTP at http://localhost:4000/centreon
+# for comparison. See reverse-proxy/README.md for scenarios and verification.
+#
+# Per-scenario knobs (set as needed, not hard-coded here): e.g. an internal API
+# base URL with an explicit scheme —
+#   CENTREON_INTERNAL_API_BASE_URL=http://127.0.0.1:80 docker compose ... up -d
+services:
+  web:
+    volumes:
+      - ./reverse-proxy/apache-forwarded-proto.conf:/etc/httpd/conf.d/zz-forwarded-proto.conf:ro
+      # Diagnostic header (X-Effective-Scheme) so the wiring can be checked with
+      # curl alone — see reverse-proxy/verify.sh. Harmless extra response header.
+      - ./reverse-proxy/apache-debug-scheme.conf:/etc/httpd/conf.d/zz-debug-scheme.conf:ro
+
+  nginx-proxy:
+    image: nginx:stable-alpine
+    container_name: web-proxy
+    profiles: ["proxy"]
+    depends_on:
+      web:
+        condition: service_healthy
+    ports:
+      - "4443:443"
+    volumes:
+      - ./reverse-proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./reverse-proxy/certs:/etc/nginx/certs:ro

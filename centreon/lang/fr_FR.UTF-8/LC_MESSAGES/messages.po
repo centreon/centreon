@@ -25408,3 +25408,7 @@ msgstr "Regroupez des contacts pour gérer les notifications collectivement."
 #: unknown
 msgid "Time range (HH:MM-HH:MM)"
 msgstr "Plage horaire (HH:MM-HH:MM)"
+
+#: www/include/configuration/configServers/listServers.ihtml
+msgid "Copy installation command"
+msgstr "Copier la commande d'installation"

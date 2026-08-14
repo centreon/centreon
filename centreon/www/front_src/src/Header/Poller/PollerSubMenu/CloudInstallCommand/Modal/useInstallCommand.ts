@@ -15,8 +15,28 @@ import { labelFailedToCreatePoller } from '../../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from '../atoms';
 import type { CloudInstallCommandFormValues } from '../models';
 
-export const webUrl = {
-  get: (): string => window.location.href
+// On cloud, the whole application (including /poller/install.sh) is served
+// under the platform base path, and behind proxies/NAT only the browser knows
+// the client-reachable address — so the central address is host + <base href>,
+// never derived server-side.
+export const centralWebAddress = {
+  get: (): string => `${window.location.host}${centreonBaseURL}`
+};
+
+const normalizeAddress = (address?: string): string | undefined => {
+  const trimmed = address?.trim();
+
+  if (!trimmed?.includes('://')) {
+    return trimmed?.replace(/\/+$/, '');
+  }
+
+  try {
+    const url = new URL(trimmed);
+
+    return `${url.host}${url.pathname}`.replace(/\/+$/, '');
+  } catch {
+    return trimmed;
+  }
 };
 
 interface PollerResponse {
@@ -51,9 +71,11 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
   const submit = useCallback(async (values: CloudInstallCommandFormValues) => {
     try {
-      const centralAddress = platformFeatures?.isCloudPlatform
-        ? webUrl.get()
-        : values?.centralAddress?.trim();
+      const centralAddress = normalizeAddress(
+        platformFeatures?.isCloudPlatform
+          ? centralWebAddress.get()
+          : values?.centralAddress
+      );
 
       const pollerResponse = await createPoller({
         payload: {
@@ -76,12 +98,7 @@ export const useInstallCommand = (): UseInstallCommandState => {
 
       setPollerId(pollerId);
 
-      const centralUrl = `${window.location.origin}${centreonBaseURL}`;
-      const command = (response?.installation_command || '')
-        .split('<CENTRAL_URL>')
-        .join(centralUrl);
-
-      setGeneratedCommand(command);
+      setGeneratedCommand(response?.installation_command || '');
     } catch {
       showErrorMessage(t(labelFailedToCreatePoller));
     }
