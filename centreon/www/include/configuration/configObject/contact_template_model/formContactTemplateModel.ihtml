@@ -34,9 +34,9 @@
                     <img class="helpTooltip" name="contact_name">
                 </div>
                 <div class="cf-toggle-row">
-                    <span>{$form.contact_activate.label}</span>
+                    <span id="cf-contact-activate-label">{$form.contact_activate.label}</span>
                     <label class="cl-toggle">
-                        <input type="checkbox" id="cf-contact-activate-toggle"{if $contactActivateOn} checked{/if}{if $o == "w"} disabled{/if} />
+                        <input type="checkbox" id="cf-contact-activate-toggle" aria-labelledby="cf-contact-activate-label"{if $contactActivateOn} checked{/if}{if $o == "w"} disabled{/if} />
                         <span class="cl-toggle-slider"></span>
                     </label>
                     <span style="display:none;">{$form.contact_activate.html}</span>

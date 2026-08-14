@@ -72,6 +72,12 @@ var CentreonForm = (function () {
         }
 
         titleEl.textContent = title || '';
+        // Name the frame after what it actually holds — a form, the notification
+        // matrix, the graphical view — instead of leaving the markup fallback,
+        // which assistive technology would announce for every panel alike.
+        if (title) {
+            frameEl.title = title;
+        }
         frameEl.src = url;
         overlay.classList.add('open');
         panel.classList.add('open');
