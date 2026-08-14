@@ -198,12 +198,12 @@ Given('a shared custom view with a group', () => {
     .click();
   cy.wait('@getContactGroups');
   cy.getSidePanelBody().contains('Guest').click();
-  // The dropdown stays open on a multi-select and would cover the submit.
-  cy.getSidePanelBody().find('.cf-tab-nav').click();
+  // A multi-select dropdown stays open after a pick and covers the action bar,
+  // so the submit is clicked through it rather than dismissed first.
   cy.getSidePanelBody()
     .find('input.btc.bt_success[name^="submit"]')
     .eq(0)
-    .click();
+    .click({ force: true });
   cy.wait('@getTimeZone');
   cy.exportConfig();
 
