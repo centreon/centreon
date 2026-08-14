@@ -62,6 +62,56 @@ const getStatusTypeNumberFromString = (statusType: string): number => {
   throw new Error(`Status type ${statusType} does not exist`);
 };
 
+// Splits CSV content into records of unquoted field values, header row first.
+// Enclosures have to be honoured: the exporter wraps in double quotes any field
+// holding the delimiter, a double quote (then doubled) or a line break, so a raw
+// split on the delimiter would cut such a field into several cells and shift
+// every column after it:
+//   Critical;"OK: 5% | cpu=5%;80;90";1/1 (H)   ->   3 fields, not 5
+const parseCsv = (content: string, delimiter = ';'): Array<Array<string>> => {
+  const records: Array<Array<string>> = [];
+  let fields: Array<string> = [];
+  let field = '';
+  let isQuoted = false;
+  let index = 0;
+
+  while (index < content.length) {
+    const character = content[index];
+    index += 1;
+
+    if (isQuoted) {
+      if (character !== '"') {
+        field += character;
+      } else if (content[index] === '"') {
+        // an escaped quote inside an enclosed field
+        field += '"';
+        index += 1;
+      } else {
+        isQuoted = false;
+      }
+    } else if (character === '"') {
+      isQuoted = true;
+    } else if (character === delimiter) {
+      fields.push(field);
+      field = '';
+    } else if (character === '\n') {
+      fields.push(field);
+      records.push(fields);
+      fields = [];
+      field = '';
+    } else if (character !== '\r') {
+      field += character;
+    }
+  }
+
+  if (field !== '' || fields.length > 0) {
+    fields.push(field);
+    records.push(fields);
+  }
+
+  return records;
+};
+
 interface MonitoredHost {
   name: string;
   output?: string;
@@ -477,6 +527,7 @@ export {
   checkServicesAreMonitored,
   getStatusNumberFromString,
   getStatusTypeNumberFromString,
+  parseCsv,
   submitResultsViaClapi,
   updateFixturesResult,
   apiBase,
