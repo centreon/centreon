@@ -230,11 +230,13 @@ const installCentreon = (version: string): Cypress.Chainable => {
     });
   } else {
     const packageVersionSuffix = `${version}-1*`;
-    // centreon-perl-libs is left to apt: it follows the gorgone release cadence
+    // on this series centreon-web requires centreon-perl-libs at strict
+    // equality, so pinning it is what allows apt to downgrade it
     const packagesToInstall = [
       `centreon-poller='${packageVersionSuffix}'`,
       `centreon-web='${packageVersionSuffix}'`,
-      `centreon-trap='${packageVersionSuffix}'`
+      `centreon-trap='${packageVersionSuffix}'`,
+      `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (
       Number(versionMatches[1]) < 24 ||
