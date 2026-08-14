@@ -9,7 +9,7 @@ const useStyles = makeStyles()((theme) => ({
   container: {
     alignItems: 'center',
     display: 'flex',
-    gap: theme.spacing(0.5),
+    gap: theme.spacing(1),
     listStyle: 'none',
     margin: 0,
     padding: 0

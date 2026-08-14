@@ -87,15 +87,6 @@ const Header = (): JSX.Element => {
       ref={headerRef}
     >
       <div className={classes.leftContainer}>
-        {/* MON-204219: the ticket flags moving the breadcrumb into the top banner
-            as "to confirm - this ticket or a follow-up". Confirm with
-            product/design that this is in scope before merging. */}
-        <div className={classes.breadcrumbItem}>
-          <Breadcrumbs />
-        </div>
-
-        <div className={classes.divider} />
-
         <div className={classes.item}>
           <Poller />
         </div>
@@ -114,6 +105,14 @@ const Header = (): JSX.Element => {
       </div>
 
       <div className={classes.rigthContainer}>
+        {/* MON-200619: breadcrumb lives on the right side of the top banner.
+            Confirm final placement with product/design before merging. */}
+        <div className={classes.breadcrumbItem}>
+          <Breadcrumbs />
+        </div>
+
+        <div className={classes.divider} />
+
         <div className={classes.platformName}>
           <FederatedComponent path="/it-edition-extensions/header/platformName" />
         </div>

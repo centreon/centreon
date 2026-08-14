@@ -31,12 +31,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
     },
     dot: {
       backgroundColor: statusColors?.backgroundColor ?? theme.palette.divider,
-      // Spec (MON-204219 top banner redesign) calls for a "square + clip-path"
-      // status pastille rather than a circle, but doesn't give an exact clip-path
-      // shape. Using a softly-rounded square as a placeholder — verify the
-      // intended shape with the design team before this ships.
-      clipPath:
-        'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+      borderRadius: '50%',
       flexShrink: 0,
       height: '9px',
       width: '9px'

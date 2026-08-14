@@ -303,7 +303,7 @@ export const lightPalette: PaletteOptions = {
     secondary: '#666666'
   },
   tile: {
-    background: '#F8F8F8',
+    background: '#FFFFFF',
     border: '#E3E3E3',
     borderHover: '#CCCCCC'
   },
