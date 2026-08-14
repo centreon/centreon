@@ -19,6 +19,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$contactPage}&o=a" data-panel-title="{t}Add a contact{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="cl-btn-secondary">{$msg.ldap_importT}</a>{/if}
+                <a href="#" class="cl-btn-secondary" data-panel-url="main.get.php?p={$contactPage}&o=dn&min=1" data-panel-title="{$msg.view_notif|escape}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.view_notif}</a>
                 {$form.o1.html}
             </div>
             { else }
