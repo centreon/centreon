@@ -389,9 +389,11 @@ When(
 Then('the form of this contact is displayed in READ ONLY mode', () => {
   // #tab1 was the legacy tab container; the modernized form lays the same
   // fields out in a cf-sec-* section. A frozen QuickForm renders its values as
-  // text and keeps only hidden persistence inputs.
+  // text and keeps only hidden persistence inputs. Scoped to named inputs: the
+  // status toggle is a cosmetic checkbox with no name, mirroring a hidden radio
+  // group, so it is not one of the fields this assertion is about.
   cy.getSidePanelBody()
-    .find('#cf-sec-info input:not([class*="select"])')
+    .find('#cf-sec-info input[name]:not([class*="select"])')
     .should('exist')
     .each((input) => {
       cy.wrap(input).should('have.attr', 'type', 'hidden');

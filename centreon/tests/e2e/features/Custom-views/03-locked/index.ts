@@ -181,13 +181,24 @@ Given('a custom view shared in read only with a group', () => {
   cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'custom-view-acl-user').click();
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
-  cy.getIframeBody()
+  // The contact form now opens in the side panel, a nested iframe, so the fields
+  // are no longer part of the #main-content document.
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody().find('input[name="contact_alias"]').should('exist');
+  // The redesigned dropdown puts a "Select all" header over the inline search
+  // input, so the selection container is what can actually be clicked.
+  cy.getSidePanelBody()
     .find('input[placeholder="Linked to Contact Groups"]')
+    .closest('.select2-selection--multiple')
     .click();
   cy.wait('@getContactGroups');
-  cy.getIframeBody().contains('Guest').click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getSidePanelBody().contains('Guest').click();
+  // The dropdown stays open on a multi-select and would cover the submit.
+  cy.getSidePanelBody().find('.cf-tab-nav').click();
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(0)
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 

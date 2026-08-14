@@ -159,18 +159,12 @@ Then(
       );
     });
 
-    cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
-      cy.executeActionOnIframe(
-        originalAclGroup.name,
-        (body) => {
-          cy.wrap(body)
-            .find('select[name="cg_acl_groups[]"]')
-            .contains(originalAclGroup.name);
-        },
-        3,
-        3000
-      );
-    });
+    // The contact group form now opens in the side panel, a nested iframe, so
+    // its ACL group select is no longer part of the #main-content document.
+    cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+    cy.getSidePanelBody()
+      .find('select[name="cg_acl_groups[]"]')
+      .contains(originalAclGroup.name);
   }
 );
 
