@@ -188,15 +188,16 @@ class AjaxListingHelper
      * Admins always pass.
      *
      * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     * @param string|null $csrfToken Fresh token to hand back when the caller already consumed one
      */
-    public function requireWriteAccess(int $pageId): void
+    public function requireWriteAccess(int $pageId, ?string $csrfToken = null): void
     {
         if ($this->isAdmin()) {
             return;
         }
         $acl = $this->getAcl();
         if (! $acl || $acl->page($pageId) !== 1) {
-            self::jsonError('Write access denied', 403);
+            self::jsonError('Write access denied', 403, $csrfToken);
         }
     }
 
@@ -295,11 +296,19 @@ class AjaxListingHelper
 
     /**
      * Send a JSON error response and exit.
+     *
+     * Callers that already consumed the CSRF token pass the fresh one back, so
+     * the client can keep acting after an error instead of holding a token the
+     * session no longer accepts.
      */
-    public static function jsonError(string $message, int $httpCode = 400): void
+    public static function jsonError(string $message, int $httpCode = 400, ?string $csrfToken = null): void
     {
         http_response_code($httpCode);
-        echo json_encode(['error' => $message]);
+        $payload = ['error' => $message];
+        if ($csrfToken !== null) {
+            $payload['centreon_token'] = $csrfToken;
+        }
+        echo json_encode($payload);
 
         exit;
     }

@@ -41,7 +41,7 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
 
 $newToken = $helper->validateCsrfToken();
 
-$helper->requireWriteAccess(60306);
+$helper->requireWriteAccess(60306, $newToken);
 
 $activate = ($action === 's') ? '1' : '0';
 
@@ -55,7 +55,7 @@ try {
     );
 
     if ($objName === false) {
-        AjaxListingHelper::jsonError('Object not found', 404);
+        AjaxListingHelper::jsonError('Object not found', 404, $newToken);
     }
 
     $pearDB->executeStatement(
@@ -77,7 +77,7 @@ try {
         'AJAX toggle: failed to update contact template activation',
         ['exception' => $exception]
     );
-    AjaxListingHelper::jsonError('Internal error', 500);
+    AjaxListingHelper::jsonError('Internal error', 500, $newToken);
 }
 
 exit;

@@ -459,18 +459,17 @@
         block.style.display = (val === 'local') ? '' : 'none';
     }
 
-    // Grey out the ACL access list when the contact is an admin (admin = full access)
+    // Grey out the ACL access list when the contact is an admin (admin = full
+    // access). The control is left submittable on purpose: a disabled select is
+    // not posted, and updateAccessGroupLinks() then rewrites
+    // acl_group_contacts_relations from an empty list, dropping the links the
+    // contact would get back when it stops being an admin.
     function cfToggleAclByAdmin() {
         var yes = document.getElementById('contact_admin_yes');
         var isAdmin = !!(yes && yes.checked);
         var acl = document.getElementById('contact_acl_groups');
         if (!acl) return;
-        if (window.jQuery) {
-            jQuery(acl).prop('disabled', isAdmin);
-            if (jQuery(acl).data('select2')) { jQuery(acl).trigger('change.select2'); }
-        } else {
-            acl.disabled = isAdmin;
-        }
+        acl.setAttribute('aria-disabled', isAdmin ? 'true' : 'false');
         var wrap = acl.closest('.cf-field') || acl.parentElement;
         if (wrap) {
             wrap.style.opacity = isAdmin ? '0.5' : '';

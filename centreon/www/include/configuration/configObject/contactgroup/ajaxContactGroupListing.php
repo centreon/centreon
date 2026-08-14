@@ -70,19 +70,44 @@ if (! $helper->isAdmin()) {
     }
     $conditions[] = 'cg.cg_id IN (' . implode(', ', $placeholders) . ')';
 
-    $contactAcl = $acl->getContactAclConf(['fields' => ['contact_id'], 'keys' => ['contact_id']]);
+    // The visible contacts are resolved in SQL rather than materialized in PHP:
+    // binding one parameter per contact grows with the ACL scope, and a wide
+    // scope would send thousands of them on every listing request. The subquery
+    // mirrors CentreonACL::getContactAclConf() for a non-admin user, so only the
+    // access group ids are bound.
+    $aclGroupIds = array_values(array_filter(array_map('intval', array_keys($acl->getAccessGroups()))));
 
-    if ($contactAcl === []) {
-        // No visible contact: every group counts zero rather than its full membership.
+    if ($aclGroupIds === []) {
+        // No access group: every group counts zero rather than its full membership.
         $countAclClause = ' AND 1 = 0';
     } else {
-        $contactPlaceholders = [];
-        foreach (array_keys($contactAcl) as $index => $contactId) {
-            $placeholder           = 'acl_ct' . $index;
-            $contactPlaceholders[] = ':' . $placeholder;
-            $countAclParameters[]  = QueryParameter::int($placeholder, (int) $contactId);
+        // Two sets of placeholders for the same ids: a named placeholder cannot
+        // be reused across both branches of the UNION.
+        $directPlaceholders = [];
+        $throughGroupPlaceholders = [];
+        foreach ($aclGroupIds as $index => $aclGroupId) {
+            $directPlaceholders[] = ':acl_ga' . $index;
+            $throughGroupPlaceholders[] = ':acl_gb' . $index;
+            $countAclParameters[] = QueryParameter::int('acl_ga' . $index, $aclGroupId);
+            $countAclParameters[] = QueryParameter::int('acl_gb' . $index, $aclGroupId);
         }
-        $countAclClause = ' AND ccr.contact_contact_id IN (' . implode(', ', $contactPlaceholders) . ')';
+        $directList = implode(', ', $directPlaceholders);
+        $throughGroupList = implode(', ', $throughGroupPlaceholders);
+
+        $visibleContactsQuery = <<<SQL
+            SELECT agcr.contact_contact_id
+            FROM acl_group_contacts_relations agcr
+            INNER JOIN contact c ON c.contact_id = agcr.contact_contact_id
+            WHERE c.contact_register = '1' AND agcr.acl_group_id IN ({$directList})
+            UNION
+            SELECT aclCcr.contact_contact_id
+            FROM acl_group_contactgroups_relations agccgr
+            INNER JOIN contactgroup_contact_relation aclCcr ON aclCcr.contactgroup_cg_id = agccgr.cg_cg_id
+            INNER JOIN contact aclC ON aclC.contact_id = aclCcr.contact_contact_id
+            WHERE aclC.contact_register = '1' AND agccgr.acl_group_id IN ({$throughGroupList})
+            SQL;
+
+        $countAclClause = ' AND ccr.contact_contact_id IN (' . $visibleContactsQuery . ')';
     }
 }
 

@@ -46,7 +46,7 @@ if ($objId === (int) $centreon->user->get_id()) {
 
 $newToken = $helper->validateCsrfToken();
 
-$helper->requireWriteAccess(60301);
+$helper->requireWriteAccess(60301, $newToken);
 
 // ACL: at the resource level, a non-admin user may only toggle contacts covered
 // by their access groups. Page-level access alone would allow toggling any
@@ -56,7 +56,7 @@ if (! $helper->isAdmin()) {
         ['fields' => ['contact_id'], 'keys' => ['contact_id']]
     );
     if (! isset($contactAcl[$objId])) {
-        AjaxListingHelper::jsonError('Access denied', 403);
+        AjaxListingHelper::jsonError('Access denied', 403, $newToken);
     }
 }
 
@@ -72,7 +72,7 @@ try {
     );
 
     if ($objName === false) {
-        AjaxListingHelper::jsonError('Object not found', 404);
+        AjaxListingHelper::jsonError('Object not found', 404, $newToken);
     }
 
     $pearDB->executeStatement(
@@ -93,7 +93,7 @@ try {
         'AJAX toggle: failed to update contact activation',
         ['exception' => $exception]
     );
-    AjaxListingHelper::jsonError('Internal error', 500);
+    AjaxListingHelper::jsonError('Internal error', 500, $newToken);
 }
 
 exit;

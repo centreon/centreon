@@ -868,6 +868,12 @@ function CentreonListing(config) {
                 // the user instead of leaving a silently-reverted toggle.
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
+                // The endpoint consumes the token before it can fail, so an error
+                // response carries the rotated one; without this the next toggle
+                // would be rejected too.
+                if (xhr && xhr.responseJSON && xhr.responseJSON.centreon_token) {
+                    csrfToken = xhr.responseJSON.centreon_token;
+                }
                 if (window.console) {
                     console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
                 }

@@ -41,7 +41,7 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
 
 $newToken = $helper->validateCsrfToken();
 
-$helper->requireWriteAccess(60302);
+$helper->requireWriteAccess(60302, $newToken);
 
 // ACL: at the resource level, a non-admin user may only toggle contact groups
 // covered by their access groups. Page-level access alone would allow toggling
@@ -49,7 +49,7 @@ $helper->requireWriteAccess(60302);
 if (! $helper->isAdmin()) {
     $cgAcl = $helper->getAcl()->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
     if (! isset($cgAcl[$objId])) {
-        AjaxListingHelper::jsonError('Access denied', 403);
+        AjaxListingHelper::jsonError('Access denied', 403, $newToken);
     }
 }
 
@@ -65,7 +65,7 @@ try {
     );
 
     if ($objName === false) {
-        AjaxListingHelper::jsonError('Object not found', 404);
+        AjaxListingHelper::jsonError('Object not found', 404, $newToken);
     }
 
     $pearDB->executeStatement(
@@ -86,7 +86,7 @@ try {
         'AJAX toggle: failed to update contact group activation',
         ['exception' => $exception]
     );
-    AjaxListingHelper::jsonError('Internal error', 500);
+    AjaxListingHelper::jsonError('Internal error', 500, $newToken);
 }
 
 exit;
