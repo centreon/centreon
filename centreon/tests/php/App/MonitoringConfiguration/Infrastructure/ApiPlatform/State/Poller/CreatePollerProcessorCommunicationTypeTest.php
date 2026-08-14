@@ -85,6 +85,20 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame(GorgoneCommunicationTypeEnum::ZMQ, $capturedCommand->gorgoneCommunicationType);
     }
 
+    public function testCentralAddressIsPassedToCommand(): void
+    {
+        $capturedCommand = null;
+        $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
+
+        $processor->process(
+            $this->buildInput(),
+            new Post(),
+        );
+
+        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
+        self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
+    }
+
     private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
     {
         $poller = new Poller(
@@ -103,6 +117,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: new PollerAddress('192.168.1.254'),
         );
 
         $commandBus = $this->createMock(CommandBus::class);
@@ -156,6 +171,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerType: 'vm',
             address: '192.168.1.1',
             pollerTokenName: 'test-token',
+            centralAddress: '192.168.1.254',
         );
     }
 }

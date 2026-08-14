@@ -60,6 +60,8 @@ final class PollerResource
 
         public string $address,
 
+        public ?string $centralAddress,
+
         #[ApiProperty(identifier: true)]
         public int $id,
 
