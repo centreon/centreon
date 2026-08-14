@@ -86,6 +86,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             pollerType: PollerTypeEnum::from($data->pollerType),
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
+            centralAddress: new PollerAddress($data->centralAddress),
             gorgoneCommunicationType: $this->isCloudPlatform
                 ? GorgoneCommunicationTypeEnum::PullWss
                 : GorgoneCommunicationTypeEnum::ZMQ,
@@ -104,6 +105,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $appSecret,
             $salt,
             $this->isCloudPlatform,
+            $data->centralAddress,
         );
 
         $resource = $this->transformer->transform($model);

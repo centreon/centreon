@@ -60,6 +60,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             uid: new PollerUid((int) $from['poller_uid']),
             globalMacros: new Collection([], GlobalMacro::class),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: is_string($from['central_address'] ?? null) ? new PollerAddress($from['central_address']) : null,
             brokerConfiguration: new BrokerConfiguration(
                 reloadCommand: $from['broker_reload_command'],
                 configurationPath: $from['centreonbroker_cfg_path'],
