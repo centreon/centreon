@@ -65,5 +65,5 @@ Feature: Check permissions on Agent Configuration
   Scenario: Delete an agent configuration with a non-admin user with filters on Pollers
     Given a non-admin user is in the Agents Configuration page
     And an already existing agent configuration is displayed
-    When the user deletes the Agents Configuration
-    Then the first Agents Configuration is no longer displayed in the listing page
+    When the non-admin user deletes an Agent Configuration
+    Then the deleted agent Configuration is no longer displayed in the listing page
