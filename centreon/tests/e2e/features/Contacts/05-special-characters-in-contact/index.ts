@@ -6,8 +6,7 @@ import {
   contactsPage,
   listingAlias,
   searchListing,
-  visitListing,
-  waitForListingXhr
+  visitListing
 } from '../common';
 
 beforeEach(() => {

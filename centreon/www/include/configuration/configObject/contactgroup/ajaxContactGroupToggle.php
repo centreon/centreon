@@ -59,7 +59,7 @@ try {
     // Fetch the name (also acts as the existence check) then flip the activation flag.
     $objName = $pearDB->fetchOne(
         <<<'SQL'
-            SELECT cg_name FROM contactgroup WHERE cg_id = :id
+            SELECT cg_name FROM contactgroup WHERE cg_id = :id AND cg_type = 'local'
             SQL,
         QueryParameters::create([QueryParameter::int('id', $objId)])
     );
@@ -70,7 +70,7 @@ try {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            UPDATE contactgroup SET cg_activate = :activate WHERE cg_id = :id
+            UPDATE contactgroup SET cg_activate = :activate WHERE cg_id = :id AND cg_type = 'local'
             SQL,
         QueryParameters::create([
             QueryParameter::string('activate', $activate),
