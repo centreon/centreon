@@ -3,7 +3,8 @@ import { INTERCEPTORS } from 'e2e/fixtures/shared/constants/interceptors';
 
 import {
   checkMetricsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  parseCsv
 } from '../../../commons';
 
 const serviceOk = 'service_test_ok';
@@ -61,9 +62,6 @@ const UPDATED_COLUMNS = [
 ];
 
 const downloadsFolder = Cypress.config('downloadsFolder');
-
-const normalize = (text: string) =>
-  text.trim().replace(/^"|"$/g, '').replace(/\\"/g, '').replace(/"/g, '');
 
 before(() => {
   cy.intercept({
@@ -265,22 +263,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(ALL_COLUMNS);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
@@ -358,22 +349,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(UPDATED_COLUMNS);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
