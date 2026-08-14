@@ -3625,6 +3625,10 @@ msgstr "Copier le fil d'Ariane"
 msgid "Copy command"
 msgstr "Copier la commande"
 
+#: centreon/www/install/smarty_translate.php
+msgid "Copy installation command"
+msgstr "Copier la commande d'installation"
+
 #: centreon/www/install/front_translate.php
 msgid "Copy link"
 msgstr "Copier le lien"
