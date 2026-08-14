@@ -185,11 +185,13 @@ Given('a custom view shared in read only with a group', () => {
   // are no longer part of the #main-content document.
   cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
   cy.getSidePanelBody().find('input[name="contact_alias"]').should('exist');
-  // The redesigned dropdown puts a "Select all" header over the inline search
-  // input, so the selection container is what can actually be clicked.
+  // Anchored on the field: the modernized form labels it "Contact Groups" and
+  // the select2 no longer carries the QuickForm label as a placeholder. The
+  // selection container is the click target, its inline search input being
+  // covered by the "Select all" header.
   cy.getSidePanelBody()
-    .find('input[placeholder="Linked to Contact Groups"]')
-    .closest('.select2-selection--multiple')
+    .contains('.cf-field', 'Contact Groups')
+    .find('.select2-selection--multiple')
     .click();
   cy.wait('@getContactGroups');
   cy.getSidePanelBody().contains('Guest').click();
