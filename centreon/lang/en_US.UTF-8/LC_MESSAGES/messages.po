@@ -3565,6 +3565,10 @@ msgstr "Copy breadcrumb"
 msgid "Copy command"
 msgstr ""
 
+#: centreon/www/install/smarty_translate.php
+msgid "Copy installation command"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Copy link"
 msgstr "Copy link"
