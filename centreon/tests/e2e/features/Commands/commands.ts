@@ -115,103 +115,110 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('addConnectors', (body: Ctr) => {
-  // Wait for the "Connector Name" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="connector_name"]');
-  // Type a value on the "Connector Name" input
-  cy.getIframeBody().find('input[name="connector_name"]').type(body.name);
-  // Type a value on the "Connector Description" input
-  cy.getIframeBody()
-    .find('input[name="connector_description"]')
-    .type(body.description);
-  // Type a value on the "Command Line" textarea
-  cy.getIframeBody().find('textarea[id="command_line"]').type(body.commandLine);
-  // Type a value on the "Used by command" input
-  cy.getIframeBody()
-    .find('input[placeholder="Used by command"]')
-    .type(body.usedByCommand);
-  // Select the command used by the connector
-  cy.getIframeBody().find(`div[title="${body.usedByCommand}"]`).click();
-  // Enable if needed the connector (default value is disabled)
-  cy.getIframeBody()
-    .find('input[name="connector_status[connector_status]"][value="1"]')
-    .then(($val) => {
-      if (body.isEnabled === 1) {
-        cy.wrap($val).click({ force: true });
+/**
+ * Body of the connector form, which the modernized listing opens in a side
+ * panel: an iframe nested inside #main-content, out of reach of getIframeBody().
+ */
+Cypress.Commands.add('getConnectorSidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+/**
+ * Pick the command the connector is used by. The redesigned select2 hides its
+ * inline search input behind a "Select all" header, so the selection container
+ * is the reliable target.
+ */
+const selectUsedByCommand = (command: string): void => {
+  cy.getConnectorSidePanelBody()
+    .contains('.cf-field', 'Used by command')
+    .find('.select2-selection')
+    .click({ force: true });
+
+  cy.getConnectorSidePanelBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains(command)
+    .click({ force: true });
+};
+
+/**
+ * Activation is driven by a cosmetic toggle; the radio group it mirrors is
+ * hidden, so the real input sits behind the slider, hence the forced click.
+ */
+const setConnectorStatus = (isEnabled: number): void => {
+  cy.getConnectorSidePanelBody()
+    .find('#cf-connector-status-toggle')
+    .then(($toggle) => {
+      if ($toggle.prop('checked') !== (isEnabled === 1)) {
+        cy.wrap($toggle).click({ force: true });
       }
     });
+};
+
+Cypress.Commands.add('addConnectors', (body: Ctr) => {
+  cy.getConnectorSidePanelBody()
+    .find('input[name="connector_name"]', { timeout: 20_000 })
+    .should('be.visible')
+    .type(body.name);
+  cy.getConnectorSidePanelBody()
+    .find('input[name="connector_description"]')
+    .type(body.description);
+  cy.getConnectorSidePanelBody()
+    .find('textarea[id="command_line"]')
+    .type(body.commandLine);
+  selectUsedByCommand(body.usedByCommand);
+  setConnectorStatus(body.isEnabled);
 });
 
 Cypress.Commands.add('updateConnectors', (body: Ctr) => {
-  // Wait for the "Connector Name" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="connector_name"]');
-  // Update the value of the "Connector Name"
-  cy.getIframeBody()
-    .find('input[name="connector_name"]')
+  cy.getConnectorSidePanelBody()
+    .find('input[name="connector_name"]', { timeout: 20_000 })
+    .should('be.visible')
     .clear()
     .type(body.name);
-  // Update the value of the "Connector Description"
-  cy.getIframeBody()
+  cy.getConnectorSidePanelBody()
     .find('input[name="connector_description"]')
     .clear()
     .type(body.description);
-  // Update the value of the "Command Line"
-  cy.getIframeBody()
+  cy.getConnectorSidePanelBody()
     .find('textarea[id="command_line"]')
     .clear()
     .type(body.commandLine);
-  // Clear the value on the "Used by command" input
-  cy.getIframeBody().find('span[title="Clear field"]').click({ force: true });
-  // Update a value on the "Used by command" input
-  cy.getIframeBody()
-    .find('input[placeholder="Used by command"]')
-    .type(body.usedByCommand);
-  // Select the command used by the connector
-  cy.getIframeBody().find(`div[title="${body.usedByCommand}"]`).click();
-  // Update the value of the "Connector Status"
-  cy.getIframeBody()
-    .find('input[name="connector_status[connector_status]"][value="1"]')
-    .then(($val) => {
-      if (body.isEnabled === 1) {
-        cy.wrap($val).click({ force: true });
-      }
-    });
+  cy.getConnectorSidePanelBody()
+    .find('span[title="Clear field"]')
+    .click({ force: true });
+  selectUsedByCommand(body.usedByCommand);
+  setConnectorStatus(body.isEnabled);
 });
 
 Cypress.Commands.add('checkValuesOfConnectors', (name: string, body: Ctr) => {
-  // Wait for the "Connector Name" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="connector_name"]');
-  // Check that the "Connector Name" input contains right value
-  cy.getIframeBody()
-    .find('input[name="connector_name"]')
+  cy.getConnectorSidePanelBody()
+    .find('input[name="connector_name"]', { timeout: 20_000 })
     .should('have.value', `${name}`);
-  // Check that the "Connector Description" input contains right value
-  cy.getIframeBody()
+  cy.getConnectorSidePanelBody()
     .find('input[name="connector_description"]')
     .should('have.value', body.description);
-  // Check that the "Command Line" input contains right value
-  cy.getIframeBody()
+  cy.getConnectorSidePanelBody()
     .find('textarea[id="command_line"]')
     .should('have.value', body.commandLine);
-  // Check that the "Used by command" input contains right value
-  cy.getIframeBody()
+  cy.getConnectorSidePanelBody()
     .find('select[id="command_id"]')
     .then(($val) => {
-      // If the name of the connector ends with "_1", it means the connector is duplicated then the value should be empty
+      // A duplicated connector carries no command: the copy drops the relation.
       if (name.endsWith('_1')) {
         cy.wrap($val).should('have.text', '');
-      }
-      // Else, the value should be the one chose during the creation/update of the connector
-      else {
+      } else {
         cy.wrap($val).should('have.text', body.usedByCommand);
       }
     });
-  // Check that the "Connector Status" contains right value
-  cy.getIframeBody()
-    .find(
-      `input[name="connector_status[connector_status]"][value="${body.isEnabled}"]`
-    )
-    .should('be.checked');
+  // Assert the visible control rather than the hidden radio group it mirrors.
+  cy.getConnectorSidePanelBody()
+    .find('#cf-connector-status-toggle')
+    .should(body.isEnabled === 1 ? 'be.checked' : 'not.be.checked');
 });
 
 declare global {
@@ -234,6 +241,7 @@ declare global {
       addConnectors: (body: Ctr) => Cypress.Chainable;
       updateConnectors: (body: Ctr) => Cypress.Chainable;
       checkValuesOfConnectors: (name: string, body: Ctr) => Cypress.Chainable;
+      getConnectorSidePanelBody: () => Cypress.Chainable<JQuery<HTMLElement>>;
     }
   }
 }

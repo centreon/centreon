@@ -70,6 +70,8 @@ export const INTERCEPTORS = {
     pendo: 'https://guide.centreon.com/agent/static/b06b875d-4a10-4365-7edf-8efeaf53dfdd/pendo.js'
   },
   ajax: {
+    connector_listing: '**/ajaxConnectorListing.php*',
+    connector_toggle: '**/ajaxConnectorToggle.php',
     host_categories_toggle: '**/ajaxHostCategoriesToggle.php'
   }
 };

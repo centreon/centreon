@@ -17,11 +17,70 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.connector_listing
+  }).as('listConnectors');
+  cy.intercept({
+    method: 'POST',
+    url: INTERCEPTORS.ajax.connector_toggle
+  }).as('toggleConnector');
 });
 
 after(() => {
   cy.stopContainers();
 });
+
+/** The listing is AJAX-driven: wait for the table, not for the legacy markup. */
+const openConnectorsListing = (): void => {
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+};
+
+/** Both add and edit open the form in the side panel instead of navigating. */
+const openConnectorForm = (name: string): void => {
+  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  cy.getConnectorSidePanelBody()
+    .find('input[name="connector_name"]', { timeout: 20_000 })
+    .should('be.visible');
+};
+
+const submitConnectorForm = (): void => {
+  // A multi-select dropdown stays open after a pick and covers the action bar.
+  cy.getConnectorSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(0)
+    .click({ force: true });
+};
+
+const selectRowAndRunBulkAction = (name: string, action: string): void => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(name)
+    .parents('tr')
+    // Scoped to the picker: the row also holds the activation toggle checkbox.
+    .find('.cl-col-picker input[type="checkbox"]')
+    .click({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
+  // The native o1 select is hidden behind the .cl-more-actions menu; the
+  // overridden onchange turns a value change into setO + submit.
+  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+};
+
+const rowToggle = (name: string) =>
+  cy
+    .getIframeBody()
+    .find('#clTableBody')
+    .contains(name)
+    .parents('tr')
+    .find('.cl-toggle input[type="checkbox"]');
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
@@ -31,65 +90,42 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user creates a connector', () => {
-  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
-  cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
-  // Click on the "Add" button
-  cy.getIframeBody().contains('a', 'Add').click();
+  openConnectorsListing();
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addConnectors({
     ...data.connector,
     commandLine: data.connector.command_line,
     isEnabled: data.connector.is_enabled,
     usedByCommand: data.connector.used_by_command
   });
-  // Click on the first "Save" button
-  cy.getIframeBody()
-    .find('input[class="btc bt_success"][name^="submit"]')
-    .eq(0)
-    .click();
+  submitConnectorForm();
 });
 
 Then('the connector is displayed in the list', () => {
   cy.wait('@getTimeZone');
-  // Wait for the created connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connector.name}")`
-  );
-  cy.getIframeBody().contains(data.connector.name).should('exist');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', data.connector.name)
+    .should('exist');
 });
 
 When('the user changes the properties of a connector', () => {
-  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
-  // Wait for the created connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connector.name}")`
-  );
-  // Click on the connector
-  cy.getIframeBody().contains(data.connector.name).click();
+  openConnectorsListing();
+  openConnectorForm(data.connector.name);
   cy.updateConnectors({
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
     isEnabled: data.connectorUpdated.is_enabled,
     usedByCommand: data.connectorUpdated.used_by_command
   });
-  // Click on the first "Save" button
-  cy.getIframeBody()
-    .find('input[class="btc bt_success"][name^="submit"]')
-    .eq(0)
-    .click();
+  submitConnectorForm();
 });
 
 Then('the properties are updated', () => {
   cy.wait('@getTimeZone');
-  // Wait for the updated connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connectorUpdated.name}")`
-  );
-  cy.getIframeBody().contains(data.connectorUpdated.name).should('exist');
-  // Click on the connector
-  cy.getIframeBody().contains(data.connectorUpdated.name).click();
+  openConnectorsListing();
+  openConnectorForm(data.connectorUpdated.name);
   cy.checkValuesOfConnectors(data.connectorUpdated.name, {
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
@@ -99,39 +135,14 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a connector', () => {
-  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
-  // Wait for the updated connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connectorUpdated.name}")`
-  );
-  // Select the updated connector
-  cy.getIframeBody()
-    .contains(data.connectorUpdated.name)
-    .parents('tr')
-    .find('input[type="checkbox"]')
-    .check({ force: true });
-  // Authorize the duplication of the connector
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
-  // Click on the Duplicate option
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  openConnectorsListing();
+  selectRowAndRunBulkAction(data.connectorUpdated.name, 'Duplicate');
+  cy.wait('@getTimeZone');
 });
 
 Then('the new connector has the same properties', () => {
-  cy.wait('@getTimeZone');
-  // Wait for the duplicated connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connectorUpdated.name}_1")`
-  );
-  // Click on the duplicated connector
-  cy.getIframeBody().contains('a', `${data.connectorUpdated.name}_1`).click();
+  openConnectorsListing();
+  openConnectorForm(`${data.connectorUpdated.name}_1`);
   cy.checkValuesOfConnectors(`${data.connectorUpdated.name}_1`, {
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
@@ -143,100 +154,35 @@ Then('the new connector has the same properties', () => {
 When(
   'the user updates the status of a connector to {string}',
   (type: string) => {
-    cy.visit(PAGES.configuration.commandsConnectorsLegacy);
-    // Wait for the updated connector to be charged on the DOM
-    cy.waitForElementInIframe(
-      '#main-content',
-      `a:contains("${data.connectorUpdated.name}")`
-    );
-    switch (type) {
-      case 'Disabled':
-        // Click on the "Disabled" icon to disable the connector
-        cy.getIframeBody()
-          .contains(data.connectorUpdated.name)
-          .parents('tr')
-          .find('img[alt="Disabled"]')
-          .click({ force: true });
-        break;
-      case 'Enabled':
-        // Click on the "Enabled" icon to enable the connector
-        cy.getIframeBody()
-          .contains(data.connectorUpdated.name)
-          .parents('tr')
-          .find('img[alt="Enabled"]')
-          .click({ force: true });
-        break;
-    }
+    openConnectorsListing();
+    // The activation toggle posts to ajaxConnectorToggle.php; the previous
+    // enabled/disabled icons went through a full page reload.
+    rowToggle(data.connectorUpdated.name).click({ force: true });
+    cy.wait('@toggleConnector').then(({ response }) => {
+      expect(response?.statusCode).to.equal(200);
+      expect(response?.body).to.have.property('success', true);
+    });
+    cy.log(`connector switched to ${type}`);
   }
 );
 
 Then('the new connector is updated with {string} status', (type: string) => {
-  // Refresh the page
-  cy.reload();
-  cy.wait('@getTimeZone');
-  // Wait for the updated connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connectorUpdated.name}")`
+  openConnectorsListing();
+  rowToggle(data.connectorUpdated.name).should(
+    type === 'Enabled' ? 'be.checked' : 'not.be.checked'
   );
-  switch (type) {
-    case 'Disabled':
-      // Check if the icon is updated to "Enabled" icon
-      cy.getIframeBody()
-        .contains(data.connectorUpdated.name)
-        .parents('tr')
-        .find('img[alt="Enabled"]')
-        .should('exist');
-      // Check if the status is updated to "Disabled"
-      cy.getIframeBody()
-        .contains(data.connectorUpdated.name)
-        .parents('tr')
-        .find('span[class="badge service_critical"]')
-        .should('have.text', type);
-      break;
-    case 'Enabled':
-      // Check if the icon is updated to "Disabled" icon
-      cy.getIframeBody()
-        .contains(data.connectorUpdated.name)
-        .parents('tr')
-        .find('img[alt="Disabled"]')
-        .should('exist');
-      // Check if the status is updated to "Enabled"
-      cy.getIframeBody()
-        .contains(data.connectorUpdated.name)
-        .parents('tr')
-        .find('span[class="badge service_ok"]')
-        .should('have.text', type);
-      break;
-  }
 });
 
 When('the user deletes a connector', () => {
-  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
-  // Wait for the updated connector to be charged on the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.connectorUpdated.name}")`
-  );
-  // Select the updated connector
-  cy.getIframeBody()
-    .contains(data.connectorUpdated.name)
-    .parents('tr')
-    .find('input[type="checkbox"]')
-    .check({ force: true });
-  // Authorize the deletion of the connector
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
-  // Click on the Delete option
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  openConnectorsListing();
+  selectRowAndRunBulkAction(data.connectorUpdated.name, 'Delete');
+  cy.wait('@getTimeZone');
 });
 
 Then('the deleted connector is not displayed in the list', () => {
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().should('not.have.text', data.connectorUpdated.name);
+  openConnectorsListing();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.connectorUpdated.name)
+    .should('not.exist');
 });
