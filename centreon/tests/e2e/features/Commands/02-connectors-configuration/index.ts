@@ -83,7 +83,9 @@ const selectRowAndRunBulkAction = (
     .find(`.cl-more-actions-item[data-value="${action}"]`)
     .click();
 
-  cy.getIframeBody().find('.cl-confirm-title').should('have.text', expectedTitle);
+  cy.getIframeBody()
+    .find('.cl-confirm-title')
+    .should('have.text', expectedTitle);
   cy.getIframeBody().find('.cl-confirm-body').should('contain.text', name);
   cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
 };
@@ -205,7 +207,11 @@ Then('the new connector is updated with {string} status', (type: string) => {
 
 When('the user deletes a connector', () => {
   openConnectorsListing();
-  selectRowAndRunBulkAction(data.connectorUpdated.name, 'd', 'Delete connector');
+  selectRowAndRunBulkAction(
+    data.connectorUpdated.name,
+    'd',
+    'Delete connector'
+  );
 });
 
 Then('the deleted connector is not displayed in the list', () => {
