@@ -1,3 +1,4 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 {$form.javascript}
 
 <form {$form.attributes}>

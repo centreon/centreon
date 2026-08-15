@@ -27,6 +27,7 @@ include_once './class/centreonUtils.class.php';
 include './include/common/autoNumLimit.php';
 
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $tpl->assign('mode_access', $lvl_access);
 

@@ -22,6 +22,7 @@ require_once __DIR__ . '/formConnectorFunction.php';
 try {
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($path);
+    $tpl->assign('centreon_path', _CENTREON_PATH_);
 
     $cnt = [];
     if (($o == 'c' || $o == 'w') && isset($connector_id)) {
