@@ -26,7 +26,7 @@
                 </div>
                 <div class="cf-toggle-row">
                     <span id="cf-connector-status-label">{$form.connector_status.label}</span>
-                    <label class="cl-toggle">
+                    <label class="cl-toggle{if $o == "w"} cl-toggle--readonly{/if}">
                         <input type="checkbox" id="cf-connector-status-toggle" aria-labelledby="cf-connector-status-label"{if $connectorStatusOn} checked{/if}{if $o == "w"} disabled{/if} />
                         <span class="cl-toggle-slider"></span>
                     </label>

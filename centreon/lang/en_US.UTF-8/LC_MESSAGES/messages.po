@@ -20141,3 +20141,23 @@ msgstr "You are about to duplicate the <strong>{{ name }}</strong> connector. Do
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 msgid "You are about to duplicate <strong>{{ count }} connectors.</strong> Do you want to duplicate them?"
 msgstr "You are about to duplicate <strong>{{ count }} connectors.</strong> Do you want to duplicate them?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Define connectors used to speed up plugin execution on your pollers."
+msgstr "Define connectors used to speed up plugin execution on your pollers."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Search connectors"
+msgstr "Search connectors"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert resource macro"
+msgstr "Insert resource macro"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert connector"
+msgstr "Insert connector"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert macro"
+msgstr "Insert macro"

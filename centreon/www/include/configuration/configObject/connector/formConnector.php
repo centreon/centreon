@@ -168,7 +168,10 @@ try {
         // The cosmetic toggle mirrors a radio group that a frozen form renders as
         // text: syncToggle then finds nothing to read, so the state is rendered
         // server-side instead of being left unchecked in View mode.
-        $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '1') === '1');
+        // Mirrors the QuickForm default set above, which is '0' in Add mode:
+        // rendering the toggle on would make it flip once syncToggle reads the
+        // radio group at DOMContentLoaded.
+        $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '0') === '1');
         $tpl->assign(
             'helpattr',
             'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, "orange",'

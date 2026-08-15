@@ -31,11 +31,16 @@ after(() => {
   cy.stopContainers();
 });
 
-/** The listing is AJAX-driven: wait for the table, not for the legacy markup. */
+/**
+ * The listing is AJAX-driven: the table and its "Loading..." placeholder are
+ * server-rendered, so waiting on the table alone would let assertions run
+ * against an empty tbody — a negative assertion would pass on the placeholder.
+ */
 const openConnectorsListing = (): void => {
   cy.visit(PAGES.configuration.commandsConnectorsLegacy);
-  cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.wait('@listConnectors');
+  cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
 };
 
 /** Both add and edit open the form in the side panel instead of navigating. */
@@ -54,24 +59,33 @@ const submitConnectorForm = (): void => {
     .click({ force: true });
 };
 
-const selectRowAndRunBulkAction = (name: string, action: string): void => {
+/**
+ * Run a bulk action through the control the user actually clicks: the styled
+ * .cl-more-actions menu and the confirmation modal, whose wording comes from
+ * the translated data-* attributes of the o1 select. Driving the hidden native
+ * select instead would leave menu, modal and translations uncovered.
+ */
+const selectRowAndRunBulkAction = (
+  name: string,
+  action: 'm' | 'd',
+  expectedTitle: string
+): void => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains(name)
+    .contains('a', name)
     .parents('tr')
     // Scoped to the picker: the row also holds the activation toggle checkbox.
     .find('.cl-col-picker input[type="checkbox"]')
     .click({ force: true });
+
+  cy.getIframeBody().find('.cl-more-actions-btn').click();
   cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  // The native o1 select is hidden behind the .cl-more-actions menu; the
-  // overridden onchange turns a value change into setO + submit.
-  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+    .find(`.cl-more-actions-item[data-value="${action}"]`)
+    .click();
+
+  cy.getIframeBody().find('.cl-confirm-title').should('have.text', expectedTitle);
+  cy.getIframeBody().find('.cl-confirm-body').should('contain.text', name);
+  cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
 };
 
 const rowToggle = (name: string) =>
@@ -102,12 +116,18 @@ When('the user creates a connector', () => {
 });
 
 Then('the connector is displayed in the list', () => {
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  openConnectorsListing();
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', data.connector.name)
     .should('exist');
+  // The listing truncates the command line at 70 characters while the form
+  // keeps the full value; the fixture is longer than that on purpose.
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', data.connector.name)
+    .parents('tr')
+    .should('contain.text', `${data.connector.command_line.slice(0, 70)}...`);
 });
 
 When('the user changes the properties of a connector', () => {
@@ -136,8 +156,11 @@ Then('the properties are updated', () => {
 
 When('the user duplicates a connector', () => {
   openConnectorsListing();
-  selectRowAndRunBulkAction(data.connectorUpdated.name, 'Duplicate');
-  cy.wait('@getTimeZone');
+  selectRowAndRunBulkAction(
+    data.connectorUpdated.name,
+    'm',
+    'Duplicate connector'
+  );
 });
 
 Then('the new connector has the same properties', () => {
@@ -155,14 +178,21 @@ When(
   'the user updates the status of a connector to {string}',
   (type: string) => {
     openConnectorsListing();
-    // The activation toggle posts to ajaxConnectorToggle.php; the previous
-    // enabled/disabled icons went through a full page reload.
-    rowToggle(data.connectorUpdated.name).click({ force: true });
-    cy.wait('@toggleConnector').then(({ response }) => {
-      expect(response?.statusCode).to.equal(200);
-      expect(response?.body).to.have.property('success', true);
+    // Set the state the example asks for rather than blindly toggling, so both
+    // rows of the outline are independent of the order they run in.
+    const shouldBeEnabled = type === 'Enabled';
+    rowToggle(data.connectorUpdated.name).then(($toggle) => {
+      if ($toggle.prop('checked') === shouldBeEnabled) {
+        return;
+      }
+      // The activation toggle posts to ajaxConnectorToggle.php; the previous
+      // enabled/disabled icons went through a full page reload.
+      cy.wrap($toggle).click({ force: true });
+      cy.wait('@toggleConnector').then(({ response }) => {
+        expect(response?.statusCode).to.equal(200);
+        expect(response?.body).to.have.property('success', true);
+      });
     });
-    cy.log(`connector switched to ${type}`);
   }
 );
 
@@ -175,14 +205,15 @@ Then('the new connector is updated with {string} status', (type: string) => {
 
 When('the user deletes a connector', () => {
   openConnectorsListing();
-  selectRowAndRunBulkAction(data.connectorUpdated.name, 'Delete');
-  cy.wait('@getTimeZone');
+  selectRowAndRunBulkAction(data.connectorUpdated.name, 'd', 'Delete connector');
 });
 
 Then('the deleted connector is not displayed in the list', () => {
   openConnectorsListing();
+  // Anchored: contains() is substring-based and would still match the
+  // '<name>_1' left behind by the duplication scenario.
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains(data.connectorUpdated.name)
+    .contains('a', new RegExp(`^${data.connectorUpdated.name}$`))
     .should('not.exist');
 });

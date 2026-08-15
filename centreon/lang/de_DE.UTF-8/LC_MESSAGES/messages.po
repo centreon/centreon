@@ -21654,3 +21654,23 @@ msgstr "Sie sind dabei, den Konnektor <strong>{{ name }}</strong> zu duplizieren
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 msgid "You are about to duplicate <strong>{{ count }} connectors.</strong> Do you want to duplicate them?"
 msgstr "Sie sind dabei, <strong>{{ count }} Konnektoren</strong> zu duplizieren. Möchten Sie sie duplizieren?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Define connectors used to speed up plugin execution on your pollers."
+msgstr "Definieren Sie Konnektoren, um die Ausführung von Plugins auf Ihren Pollern zu beschleunigen."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Search connectors"
+msgstr "Konnektoren suchen"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert resource macro"
+msgstr "Ressourcen-Makro einfügen"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert connector"
+msgstr "Konnektor einfügen"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert macro"
+msgstr "Makro einfügen"

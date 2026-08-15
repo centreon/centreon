@@ -2,14 +2,14 @@
     "connector": {
         "name": "connector-1",
         "description": "description-1",
-        "command_line": "string",
+        "command_line": "/usr/lib/centreon-connector/centreon_connector_perl --log-file=/var/log/centreon-connector/connector-perl.log",
         "used_by_command": "check_centreon_cpu",
         "is_enabled": 1
     },
     "connectorUpdated": {
         "name": "connector-updated",
         "description": "description-updated",
-        "command_line": "string",
+        "command_line": "/usr/lib/centreon-connector/centreon_connector_ssh --log-file=/var/log/centreon-connector/connector-ssh.log",
         "used_by_command": "check_centreon_ping",
         "is_enabled": 1
     }
