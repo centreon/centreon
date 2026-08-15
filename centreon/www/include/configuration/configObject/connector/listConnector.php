@@ -23,9 +23,6 @@ if (! isset($centreon)) {
     exit();
 }
 
-include_once './class/centreonUtils.class.php';
-include './include/common/autoNumLimit.php';
-
 $tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('centreon_path', _CENTREON_PATH_);
 
@@ -34,7 +31,6 @@ $tpl->assign('mode_access', $lvl_access);
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_description', _('Description'));
 $tpl->assign('headerMenu_command_line', _('Command Line'));
-$tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('connPage', $p);
 
@@ -56,26 +52,32 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 </script>
 <?php
 
-// "More actions" dropdown (duplicate / delete) sitting next to the Add button
-$attrs = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "this.form.elements['o1'].selectedIndex = 0"];
+// "More actions" dropdown (duplicate / delete) sitting next to the Add button.
+// clMoreAction opens the styled confirmation modal and reads its wording from
+// the data-* attributes; the native confirm()/alert() flow is gone, along with
+// its isChecked() guard, which counted every checked box on the page — including
+// the per-row activation toggles.
+$attrs = [
+    'onchange' => 'clMoreAction(this);',
+    'data-msg-select' => _('Please select one or more items'),
+    'data-title-delete-one' => _('Delete connector'),
+    'data-title-delete-many' => _('Delete connectors'),
+    'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> connector. This action cannot be undone. Do you want to delete it?'),
+    'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} connectors.</strong> This action cannot be undone. Do you want to delete them?'),
+    'data-label-delete' => _('Delete'),
+    'data-title-duplicate-one' => _('Duplicate connector'),
+    'data-title-duplicate-many' => _('Duplicate connectors'),
+    'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> connector. Do you want to duplicate it?'),
+    'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} connectors.</strong> Do you want to duplicate them?'),
+    'data-label-duplicate' => _('Duplicate'),
+    'data-label-cancel' => _('Cancel'),
+];
 $form->addElement('select', 'o1', null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
 $form->setDefaults(['o1' => null]);
 $el = $form->getElement('o1');
 $el->setValue(null);
 $el->setSelected(null);
-
-$tpl->assign('limit', $limit);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);

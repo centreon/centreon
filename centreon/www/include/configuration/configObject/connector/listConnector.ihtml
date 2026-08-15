@@ -17,7 +17,7 @@ CentreonForm.detectSidePanelClose();
         <div class="cl-actions-bar cl-actions-bar--centered">
             { if $mode_access == 'w' }
             <div class="cl-actions-left">
-                <a href="#" class="cl-btn-add" onclick="cfOpenPanel('main.get.php?p={$connPage}&o=a', '{$msg.addT}'); return false;">{$msg.addT}</a>
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$connPage}&o=a" data-panel-title="{t}Add a connector{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
             { else }
@@ -56,7 +56,7 @@ CentreonForm.detectSidePanelClose();
 
     </div>
 
-<input type='hidden' name='o' id='o' value='42'>
+<input type='hidden' name='o' id='o' value=''>
 <input type='hidden' id='limit' name='limit' value=''>
 {$form.hidden}
 </form>
@@ -84,14 +84,17 @@ var connListing = new CentreonListing({
     writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
     defaultLimit:  {/literal}{$defaultLimit}{literal},
     storageKey:    'conn_listing_limit',
-    emptyMessage:  'No connectors found',
     autoRefresh:   30000,
     liveSearch:    true,
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
-            var link = 'main.get.php?p={/literal}{$connPage}{literal}&o=c&id=' + row.id;
-            return '<a href="#" onclick="cfOpenPanel(\''+link+'\', \''+clEscapeAttr(row.name||'')+'\'); return false;">'+l.escape(row.name)+'</a>';
+            // The panel target travels through data attributes: an inline handler
+            // is parsed as HTML before it is compiled as JS, so attribute
+            // escaping alone would not keep a quoted name inside its literal.
+            var editUrl = 'main.get.php?p={/literal}{$connPage}{literal}&o=c&id=' + row.id;
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a connector{/t}{literal}"'
+                + ' onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'description' },
         { id:'command_line' }

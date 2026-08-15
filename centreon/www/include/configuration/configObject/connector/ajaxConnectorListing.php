@@ -30,6 +30,9 @@ require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelpe
 
 $helper = AjaxListingHelper::boot();
 $helper->requireCentreon();
+// Connectors carry no per-object ACL, so page access is the only thing standing
+// between an authenticated user and the whole list.
+$helper->requireReadAccess(60806);
 $pearDB = $helper->getDb();
 $params = $helper->getParams();
 

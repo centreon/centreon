@@ -88,7 +88,7 @@ switch ($o) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
                 $duplicateNbr = $_REQUEST['dupNbr'] ?? $options ?? [];
-                $selectedConnectors = array_keys($select);
+                $selectedConnectors = array_keys($select ?? []);
                 foreach ($selectedConnectors as $connectorId) {
                     $nb = isset($duplicateNbr[$connectorId]) ? (int) $duplicateNbr[$connectorId] : 1;
                     $connectorObj->copy($connectorId, $nb);
@@ -104,7 +104,7 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
-                $selectedConnectors = array_keys($select);
+                $selectedConnectors = array_keys($select ?? []);
                 foreach ($selectedConnectors as $connectorId) {
                     $connectorObj->delete($connectorId);
                 }

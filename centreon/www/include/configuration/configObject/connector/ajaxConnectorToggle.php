@@ -43,7 +43,7 @@ $newToken = $helper->validateCsrfToken();
 
 $helper->requireWriteAccess(60806);
 
-$enabled = ($action === 's') ? '1' : '0';
+$enabled = ($action === 's') ? 1 : 0;
 
 try {
     // Fetch the name (also acts as the existence check) then flip the activation flag.
@@ -64,7 +64,7 @@ try {
             UPDATE connector SET enabled = :enabled, modified = :modified WHERE id = :id
             SQL,
         QueryParameters::create([
-            QueryParameter::string('enabled', $enabled),
+            QueryParameter::int('enabled', $enabled),
             QueryParameter::int('modified', time()),
             QueryParameter::int('id', $objId),
         ])

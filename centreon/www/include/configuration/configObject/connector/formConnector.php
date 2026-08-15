@@ -165,6 +165,10 @@ try {
         $form->accept($renderer);
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
+        // The cosmetic toggle mirrors a radio group that a frozen form renders as
+        // text: syncToggle then finds nothing to read, so the state is rendered
+        // server-side instead of being left unchecked in View mode.
+        $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '1') === '1');
         $tpl->assign(
             'helpattr',
             'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, "orange",'
