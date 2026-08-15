@@ -19,11 +19,18 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
 
 $objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
@@ -36,31 +43,42 @@ $newToken = $helper->validateCsrfToken();
 
 $helper->requireWriteAccess(60806);
 
-// Verify exists
-$checkStmt = $pearDB->prepare('SELECT id FROM connector WHERE id = :id');
-$checkStmt->bindValue(':id', $objId, PDO::PARAM_INT);
-$checkStmt->execute();
-if (! $checkStmt->fetch()) {
-    AjaxListingHelper::jsonError('Object not found', 404);
-}
-
-// Get name for logging
-$nameStmt = $pearDB->prepare('SELECT name FROM connector WHERE id = :id');
-$nameStmt->bindValue(':id', $objId, PDO::PARAM_INT);
-$nameStmt->execute();
-$objName = $nameStmt->fetchColumn() ?: '';
-
-// Perform enable/disable
 $enabled = ($action === 's') ? '1' : '0';
-$stmt = $pearDB->prepare('UPDATE connector SET enabled = :enabled, modified = :modified WHERE id = :id');
-$stmt->bindValue(':enabled', $enabled, PDO::PARAM_STR);
-$stmt->bindValue(':modified', time(), PDO::PARAM_INT);
-$stmt->bindValue(':id', $objId, PDO::PARAM_INT);
-$stmt->execute();
 
-// Audit log
-$helper->logToggleAction('connector', $objId, $objName, $action === 's' ? 'enable' : 'disable');
+try {
+    // Fetch the name (also acts as the existence check) then flip the activation flag.
+    $objName = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT name FROM connector WHERE id = :id
+            SQL,
+        QueryParameters::create([QueryParameter::int('id', $objId)])
+    );
 
-echo json_encode(['success' => true, 'centreon_token' => $newToken]);
+    if ($objName === false) {
+        AjaxListingHelper::jsonError('Object not found', 404);
+    }
+
+    // modified carries the last change timestamp, as the legacy page did.
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE connector SET enabled = :enabled, modified = :modified WHERE id = :id
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('enabled', $enabled),
+            QueryParameter::int('modified', time()),
+            QueryParameter::int('id', $objId),
+        ])
+    );
+
+    $helper->logToggleAction('connector', $objId, (string) $objName, $action === 's' ? 'enable' : 'disable');
+
+    echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX toggle: failed to update connector activation',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
+}
 
 exit;

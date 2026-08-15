@@ -37,8 +37,13 @@ if (isset($_POST['limit']) && $_POST['limit']) {
 } elseif (isset($_SESSION[$sessionLimitKey])) {
     $limit = $_SESSION[$sessionLimitKey];
 } else {
-    $optionKey = (($p >= 200 && $p < 300) || ($p >= 20000 && $p < 30000)) ? 'maxViewMonitoring' : 'maxViewConfiguration';
-    $limit = (int) ($centreon->optGen[$optionKey] ?? 30) ?: 30;
+    if (($p >= 200 && $p < 300) || ($p >= 20000 && $p < 30000)) {
+        $dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewMonitoring'");
+    } else {
+        $dbResult = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'maxViewConfiguration'");
+    }
+    $gopt = $dbResult->fetch();
+    $limit = (int) $gopt['value'] ?: 30;
 }
 
 $_SESSION[$sessionLimitKey] = $limit;
