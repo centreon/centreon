@@ -67,10 +67,10 @@ CentreonForm.detectSidePanelClose();
     <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
     <div class="cf-side-panel-header">
         <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
-        <button class="cf-side-panel-close" onclick="cfClosePanel();">&times;</button>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();" aria-label="{t}Close{/t}">&times;</button>
     </div>
     <div class="cf-side-panel-body">
-        <iframe id="cfSidePanelFrame" src="about:blank"></iframe>
+        <iframe id="cfSidePanelFrame" src="about:blank" title="{t}Form{/t}"></iframe>
     </div>
 </div>
 
