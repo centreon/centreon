@@ -25492,3 +25492,43 @@ msgstr "Está a punto de duplicar <strong>{{ count }} categorías de host</stron
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
 
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Add a connector"
+msgstr "Añadir un conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Modify a connector"
+msgstr "Editar un conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Delete connector"
+msgstr "Eliminar conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Delete connectors"
+msgstr "Eliminar conectores"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Duplicate connector"
+msgstr "Duplicar conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Duplicate connectors"
+msgstr "Duplicar conectores"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to delete the <strong>{{ name }}</strong> connector. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar el conector <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to delete <strong>{{ count }} connectors.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} conectores</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlos?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> connector. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar el conector <strong>{{ name }}</strong>. ¿Desea duplicarlo?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to duplicate <strong>{{ count }} connectors.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} conectores</strong>. ¿Desea duplicarlos?"
