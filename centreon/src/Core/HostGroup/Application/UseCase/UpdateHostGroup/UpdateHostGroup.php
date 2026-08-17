@@ -222,15 +222,26 @@ final class UpdateHostGroup
 
         sort($linkedBefore);
         sort($linkedAfter);
-        if ($linkedBefore !== $linkedAfter) {
-            $this->writeActionLogRepository->addAction(new ActionLog(
-                ActionLog::OBJECT_TYPE_HOSTGROUP,
-                $request->id,
-                $existingHostGroup->getName(),
-                ActionLog::ACTION_TYPE_CHANGE,
-                $this->user->getId(),
-            ));
+        if ($linkedBefore === $linkedAfter) {
+            return;
         }
+
+        $actionLog = new ActionLog(
+            ActionLog::OBJECT_TYPE_HOSTGROUP,
+            $request->id,
+            $existingHostGroup->getName(),
+            ActionLog::ACTION_TYPE_CHANGE,
+            $this->user->getId(),
+        );
+        $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+        $actionLog->setId($actionLogId);
+
+        $added = array_values(array_diff($linkedAfter, $linkedBefore));
+        $removed = array_values(array_diff($linkedBefore, $linkedAfter));
+        $this->writeActionLogRepository->addActionDetails($actionLog, [
+            'hosts_added' => implode(',', $added),
+            'hosts_removed' => implode(',', $removed),
+        ]);
     }
 
     /**
