@@ -61,6 +61,11 @@ function _installParseArguments() {
       CENTRAL_HOST=$(echo "${_url_no_scheme}" | cut -d: -f1 | cut -d/ -f1)
       # Explicit port only; the per-mode default is applied in _installDeriveCentral.
       CENTRAL_PORT=$(echo "${_url_no_scheme}" | cut -s -d: -f2 | cut -d/ -f1)
+      # Path segment of --central_url (e.g. "/centreon"), if any. The
+      # generated install one-liner always includes the real base_uri here,
+      # so an absent path legitimately means the app is mounted at "/".
+      CENTRAL_BASE_URI=$(echo "${_url_no_scheme}" | grep -o '/.*' || true)
+      CENTRAL_BASE_URI="${CENTRAL_BASE_URI%/}"
       ;;
     --appsecret)
       shift
@@ -150,7 +155,9 @@ function _installValidateArgs() {
 # Single source of truth for the gorgone connection parameters,
 # shared by both the docker and vm code paths.
 # Gorgone's poller-facing websocket is fronted by Apache (mod_proxy_wstunnel) on
-# the standard web port in both modes, not on a gorgone-specific port anymore.
+# the standard web port in both modes, not on a gorgone-specific port or
+# dedicated "gorgone-" endpoint anymore — cloud and on-prem both reach it
+# through the same central host, just at ${GORGONE_PULLWSS_CENTRAL_URI}.
 #
 # SSL is resolved in priority order: explicit --gorgone-ssl, then the
 # http(s):// scheme in --central_url, then the --cloud default (Cloud is
@@ -159,13 +166,15 @@ function _installValidateArgs() {
 # match whichever SSL value was resolved, unless explicitly set via
 # --central_url's host:port.
 function _installDeriveCentral() {
+  GORGONE_ADDRESS="${CENTRAL_HOST}"
+
   if [ "${CLOUD_MODE}" = "true" ]; then
-    GORGONE_ADDRESS="gorgone-centreon-${CENTRAL_HOST}"
     ENGINE_PORT="443"
   else
-    GORGONE_ADDRESS="${CENTRAL_HOST}"
     ENGINE_PORT="5669"
   fi
+
+  GORGONE_PULLWSS_CENTRAL_URI="${CENTRAL_BASE_URI}/gorgone/pullwss/websocket"
 
   if [ -z "${GORGONE_SSL}" ]; then
     if [ -n "${CENTRAL_URL_SSL}" ]; then

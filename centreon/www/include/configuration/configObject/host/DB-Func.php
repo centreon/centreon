@@ -28,6 +28,10 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger as AdaptationLogger;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -2838,6 +2842,34 @@ function insertByApi(array $formData, bool $isCloudPlatform, string $basePath, b
     return $response['content']['id'] ?? null;
 }
 
+function getHostRelationsSnapshot(int $hostId): array
+{
+    global $pearDB;
+
+    $queryParameters = QueryParameters::create([QueryParameter::int('hostId', $hostId)]);
+
+    $queries = [
+        'groups' => 'SELECT hostgroup_hg_id FROM hostgroup_relation WHERE host_host_id = :hostId',
+        'categories' => 'SELECT hostcategories_hc_id FROM hostcategories_relation WHERE host_host_id = :hostId',
+        'templates' => 'SELECT host_tpl_id FROM host_template_relation WHERE host_host_id = :hostId ORDER BY `order`',
+        'parents' => 'SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId',
+        'children' => 'SELECT host_host_id FROM host_hostparent_relation WHERE host_parent_hp_id = :hostId',
+        'contactGroups' => 'SELECT contactgroup_cg_id FROM contactgroup_host_relation WHERE host_host_id = :hostId',
+        'contacts' => 'SELECT contact_id FROM contact_host_relation WHERE host_host_id = :hostId',
+    ];
+
+    $snapshot = [];
+    foreach ($queries as $key => $sql) {
+        $ids = array_map('intval', $pearDB->fetchFirstColumn($sql, $queryParameters));
+        if ($key !== 'templates') {
+            sort($ids);
+        }
+        $snapshot[$key] = $ids;
+    }
+
+    return $snapshot;
+}
+
 /**
  * @param int $hostId
  * @param array $formData
@@ -2851,6 +2883,18 @@ function updateHostInAPI(int $hostId, array $formData): bool
     try {
         $isTemplate = (int) $formData['host_register'] === 0;
         $previousPollerIds = findPollersForConfigChangeFlagFromHostIds([$hostId]);
+        $relationsBefore = null;
+        try {
+            $relationsBefore = getHostRelationsSnapshot($hostId);
+        } catch (Throwable $ex) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->error(
+                'Failed to snapshot host relations before update',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
+        }
 
         updateByApi($formData, $isCloudPlatform, $basePath, $isTemplate);
 
@@ -2873,6 +2917,26 @@ function updateHostInAPI(int $hostId, array $formData): bool
             || $isCloudPlatform === true
         ) {
             createHostTemplateService($hostId);
+        }
+
+        try {
+            if ($relationsBefore !== null && getHostRelationsSnapshot($hostId) !== $relationsBefore) {
+                $centreon->CentreonLogAction->insertLog(
+                    object_type: ActionLog::OBJECT_TYPE_HOST,
+                    object_id: $hostId,
+                    object_name: (string) ($formData['host_name'] ?? ''),
+                    action_type: ActionLog::ACTION_TYPE_CHANGE,
+                    fields: CentreonLogAction::prepareChanges($formData),
+                );
+            }
+        } catch (Throwable $ex) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->error(
+                'Failed to record host relation-change action log',
+                [
+                    'hostId' => $hostId,
+                    'exception' => ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()],
+                ]
+            );
         }
 
         // Update conf change flag for poller

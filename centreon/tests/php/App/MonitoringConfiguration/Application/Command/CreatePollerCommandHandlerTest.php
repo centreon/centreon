@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpression;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -57,7 +58,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -86,7 +87,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
             gorgoneCommunicationType: GorgoneCommunicationTypeEnum::PullWss,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -107,7 +108,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::Docker,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         );
 
         $poller = $handler($command);
@@ -128,7 +129,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 42,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         ));
 
         $events = $eventBus->getDispatchedEvents(PollerCreated::class);
@@ -160,7 +161,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         ));
 
         self::assertCount(1, $poller->globalMacros);
@@ -209,7 +210,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         ));
 
         self::assertCount(3, $poller->globalMacros);
@@ -259,7 +260,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         ));
 
         self::assertCount(2, $poller->globalMacros);
@@ -281,7 +282,7 @@ final class CreatePollerCommandHandlerTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             address: new PollerAddress('192.168.1.1'),
             creatorId: 1,
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         ));
 
         self::assertNotNull($poller->centralAddress);

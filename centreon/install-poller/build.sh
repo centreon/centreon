@@ -45,6 +45,20 @@ if [ "${minor}" != "" ]; then
   full_version="${major}.${minor}"
 fi
 
+# Baked in at build time, no runtime switch.
+stability=$3
+if [ "${stability}" = "" ]; then
+  stability="stable"
+fi
+case "${stability}" in
+stable | testing | unstable) ;;
+*)
+  echo "[ERROR] invalid stability '${stability}'. Valid values: stable, testing, unstable."
+  exit 1
+  ;;
+esac
+echo "[INFO] building install.sh for stability: ${stability}"
+
 if [ "${target}" = "" ]; then
   target="install.sh"
 fi
@@ -53,9 +67,11 @@ cp -f main-head.sh "${target}"
 
 if [[ "$(uname)" == "Darwin" ]]; then
   sed -i '' "s/major=\"\"/major=\"$major\"/g" "${target}"
+  sed -i '' "s/STABILITY=\"\"/STABILITY=\"$stability\"/g" "${target}"
   sed -i '' "s/<VERSION>/${full_version}/g" "${target}"
 else
   sed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
+  sed -i "s/STABILITY=\"\"/STABILITY=\"$stability\"/g" "${target}"
   sed -i "s/<VERSION>/${full_version}/g" "${target}"
 fi
 
