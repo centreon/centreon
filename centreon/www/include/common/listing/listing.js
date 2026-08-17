@@ -458,9 +458,16 @@ function CentreonListing(config) {
         // carried them via POST.
         function openMassChangePanel(label) {
             var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
-            var onclickAttr = (addBtn && addBtn.getAttribute('onclick')) || '';
-            var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec(onclickAttr);
-            if (!urlMatch || typeof window.cfOpenPanel !== 'function') return false;
+            // The button carries its target in data-panel-url and its handler
+            // reads it back from the dataset, so there is no quoted literal in
+            // the onclick to scrape. The regex is kept for any page still
+            // interpolating the URL into the attribute.
+            var addUrl = (addBtn && addBtn.dataset && addBtn.dataset.panelUrl) || '';
+            if (!addUrl) {
+                var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec((addBtn && addBtn.getAttribute('onclick')) || '');
+                addUrl = urlMatch ? urlMatch[1] : '';
+            }
+            if (!addUrl || typeof window.cfOpenPanel !== 'function') return false;
 
             var ids = [];
             jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').each(function () {
@@ -470,7 +477,7 @@ function CentreonListing(config) {
             });
             if (!ids.length) return false;
 
-            var url = urlMatch[1].replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
+            var url = addUrl.replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
             window.cfOpenPanel(url, label);
             return true;
         }

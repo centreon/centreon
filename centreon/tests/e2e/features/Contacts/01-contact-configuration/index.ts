@@ -17,10 +17,9 @@ const listingTestContacts = ['test_contact_alpha', 'test_contact_beta'];
 let isAdmin = true;
 let contactPageIndex = 3;
 let accessGroup = 'user-ACLGROUP';
-const checkContactFromListing = () => {
+const visitContactsListing = () => {
   cy.visitContactsPage(contactPageIndex);
   waitForListingXhr(listingAlias.contacts);
-  cy.checkListingRow(contacts.default.alias);
 };
 
 /** Close the form side panel and come back to the listing. */
@@ -183,8 +182,12 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured contact', () => {
-  checkContactFromListing();
-  cy.runListingBulkAction('Duplicate');
+  visitContactsListing();
+  cy.runListingBulkAction(
+    contacts.default.alias,
+    'Duplicate',
+    'Duplicate contact'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -217,8 +220,8 @@ Then('a new contact is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact', () => {
-  checkContactFromListing();
-  cy.runListingBulkAction('Delete');
+  visitContactsListing();
+  cy.runListingBulkAction(contacts.default.alias, 'Delete', 'Delete contact');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });

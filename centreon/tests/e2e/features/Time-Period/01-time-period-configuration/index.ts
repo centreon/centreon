@@ -86,8 +86,11 @@ Given('an existing time period', () => {
 
 When('a user duplicates the time period', () => {
   visitTimePeriodsListing();
-  cy.checkListingRow('timePeriodName');
-  cy.runListingBulkAction('Duplicate');
+  cy.runListingBulkAction(
+    'timePeriodName',
+    'Duplicate',
+    'Duplicate time period'
+  );
 });
 
 Then(
@@ -122,8 +125,7 @@ Then(
 
 When('a user deletes the time period', () => {
   visitTimePeriodsListing();
-  cy.checkListingRow('timePeriodName');
-  cy.runListingBulkAction('Delete');
+  cy.runListingBulkAction('timePeriodName', 'Delete', 'Delete time period');
 });
 
 Then('the time period disappears from the time periods list', () => {

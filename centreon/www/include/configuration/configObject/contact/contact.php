@@ -241,7 +241,11 @@ try {
             require_once $path . 'displayNotification.php';
             break;
         case SYNC_LDAP_CONTACTS:
-            if ($handleCsrfOrFail()) {
+            // Synchronizing disconnects every session of the selected contacts,
+            // so it is reserved to administrators — as the single-contact variant
+            // below already was. The menu entry is hidden for everyone else, but
+            // the action was still reachable by POST.
+            if ($centreon->user->admin && $handleCsrfOrFail()) {
                 $eventDispatcher->notify(
                     'contact.form',
                     EventDispatcher::EVENT_SYNCHRONIZE,
@@ -253,7 +257,7 @@ try {
                 // guard rather than running from the listing include, which is
                 // reached whether or not that guard passed.
                 $selectedContact = filter_var($_GET['selectedContact'] ?? null, FILTER_VALIDATE_INT);
-                if ($centreon->user->admin && $selectedContact) {
+                if ($selectedContact) {
                     synchronizeContactWithLdap([$selectedContact => 1]);
                 }
             }

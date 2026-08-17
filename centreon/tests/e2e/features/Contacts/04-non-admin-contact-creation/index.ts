@@ -62,7 +62,6 @@ const checkCreatedContactFromListing = () => {
   // The listing pages at 30 rows and this contact sorts past the first page,
   // so narrow it down before ticking the row.
   searchListing('user-with-access-to-allmodules', listingAlias.contacts);
-  cy.checkListingRow('user-with-access-to-allmodules');
 };
 
 Given('an admin user is logged in a Centreon server', () => {
@@ -80,7 +79,11 @@ When('the admin user creates a non admin contact', () => {
 
 When('the admin user duplicates the newly created non-admin contact', () => {
   checkCreatedContactFromListing();
-  cy.runListingBulkAction('Duplicate');
+  cy.runListingBulkAction(
+    'user-with-access-to-allmodules',
+    'Duplicate',
+    'Duplicate contact'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -88,7 +91,11 @@ When('the admin user duplicates the newly created non-admin contact', () => {
 When('the admin user deletes the original non-admin contact', () => {
   cy.reload();
   checkCreatedContactFromListing();
-  cy.runListingBulkAction('Delete');
+  cy.runListingBulkAction(
+    'user-with-access-to-allmodules',
+    'Delete',
+    'Delete contact'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });

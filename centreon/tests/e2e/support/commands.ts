@@ -158,25 +158,34 @@ Cypress.Commands.add(
 );
 
 /**
- * Run a "More actions" bulk action on a modernized listing. The native select is
- * display:none (the custom .cl-more-actions menu replaces it) and its onchange
- * opens the confirmation modal, so the test drives the submit path directly.
+ * Run a "More actions" bulk action the way a user does: tick the row, open the
+ * styled .cl-more-actions menu, then confirm in the modal. The native select is
+ * display:none, and re-wiring its onchange would submit straight through and
+ * leave the menu, the modal and the translated data-* wording it renders
+ * untested.
  */
 Cypress.Commands.add(
   'runListingBulkAction',
-  (action: string): Cypress.Chainable => {
-    cy.getIframeBody()
-      .find('select[name="o1"]')
-      .invoke(
-        'attr',
-        'onchange',
-        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-      );
+  (name: string, action: string, expectedTitle: string): void => {
+    cy.checkListingRow(name);
 
-    return cy
-      .getIframeBody()
-      .find('select[name="o1"]')
-      .select(action, { force: true });
+    cy.getIframeBody().find('.cl-more-actions-btn').click();
+    cy.getIframeBody()
+      .find('.cl-more-actions-item')
+      .contains(action)
+      .click({ force: true });
+
+    cy.getIframeBody()
+      .find('.cl-confirm-modal', { timeout: 10_000 })
+      .should('be.visible');
+    cy.getIframeBody()
+      .find('.cl-confirm-title')
+      .should('have.text', expectedTitle);
+    // {{ name }} is interpolated in bold. Asserting the element carries content
+    // proves the translated message rendered, without pinning which column the
+    // framework reads the label from.
+    cy.getIframeBody().find('.cl-confirm-body strong').should('not.be.empty');
+    cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
   }
 );
 
@@ -224,7 +233,11 @@ declare global {
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       getSidePanelBody: () => Cypress.Chainable;
       checkListingRow: (rowLabel: string) => Cypress.Chainable;
-      runListingBulkAction: (action: string) => Cypress.Chainable;
+      runListingBulkAction: (
+        name: string,
+        action: string,
+        expectedTitle: string
+      ) => void;
     }
   }
 }

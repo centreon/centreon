@@ -30,6 +30,7 @@ require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelpe
 
 $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
+$helper->requireReadAccess(60301);
 $pearDB   = $helper->getDb();
 $params   = $helper->getParams();
 

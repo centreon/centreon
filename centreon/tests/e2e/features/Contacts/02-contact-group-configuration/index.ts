@@ -13,9 +13,8 @@ import {
   waitForListingXhr
 } from '../common';
 
-const checkFirstContactGroupFromListing = () => {
+const visitContactGroupsListing = () => {
   visitListing(contactGroupsPage, listingAlias.contactGroups);
-  cy.checkListingRow(groups.defaultGroup.name);
 };
 
 beforeEach(() => {
@@ -127,8 +126,12 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured contact group', () => {
-  checkFirstContactGroupFromListing();
-  cy.runListingBulkAction('Duplicate');
+  visitContactGroupsListing();
+  cy.runListingBulkAction(
+    groups.defaultGroup.name,
+    'Duplicate',
+    'Duplicate contact group'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -177,8 +180,12 @@ Then('a new contact group is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact group', () => {
-  checkFirstContactGroupFromListing();
-  cy.runListingBulkAction('Delete');
+  visitContactGroupsListing();
+  cy.runListingBulkAction(
+    groups.defaultGroup.name,
+    'Delete',
+    'Delete contact group'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });

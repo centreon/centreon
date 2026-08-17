@@ -81,10 +81,10 @@ if ($row['count_ldap'] > 0) {
 $blockedContactsCount = 0;
 if ($centreon->user->admin) {
     try {
+        // One quoted line rather than a heredoc: xgettext does not implement
+        // heredoc and never resynchronizes, so it would drop every _() below.
         $blockedContactsCount = (int) $pearDB->fetchOne(
-            <<<'SQL'
-                SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL
-                SQL
+            "SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL"
         );
     } catch (Throwable $exception) {
         Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->error(

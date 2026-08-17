@@ -1400,7 +1400,11 @@ if ($valid) {
     // group, so the state is rendered server-side. The submitted value comes
     // first, otherwise a failed validation redisplays the persisted state and
     // the toggle contradicts the hidden radio QuickForm just repopulated.
-    $tpl->assign('contactActivateOn', ($form->getSubmitValue('contact_activate') ?? $cct['contact_activate'] ?? '1') === '1');
+    // The radio group is registered with addGroup, so getSubmitValue()
+    // hands back an array keyed by the group name, never a scalar.
+    $submitted = $form->getSubmitValue('contact_activate');
+    $activate = is_array($submitted) ? ($submitted['contact_activate'] ?? null) : $submitted;
+    $tpl->assign('contactActivateOn', ($activate ?? $cct['contact_activate'] ?? '1') === '1');
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('displayAdminFlag', $centreon->user->admin);

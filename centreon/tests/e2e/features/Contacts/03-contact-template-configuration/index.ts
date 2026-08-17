@@ -13,9 +13,8 @@ import {
   waitForListingXhr
 } from '../common';
 
-const checkContactTemplateFromListing = (contactTemplateName: string) => {
+const visitContactTemplatesListing = () => {
   visitListing(contactTemplatesPage, listingAlias.contactTemplates);
-  cy.checkListingRow(contactTemplateName);
 };
 
 beforeEach(() => {
@@ -163,8 +162,12 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured contact template', () => {
-  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
-  cy.runListingBulkAction('Duplicate');
+  visitContactTemplatesListing();
+  cy.runListingBulkAction(
+    contactTemplates.defaultTemplate.alias,
+    'Duplicate',
+    'Duplicate contact template'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -226,8 +229,12 @@ Then('a new contact template is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact template', () => {
-  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
-  cy.runListingBulkAction('Delete');
+  visitContactTemplatesListing();
+  cy.runListingBulkAction(
+    contactTemplates.defaultTemplate.alias,
+    'Delete',
+    'Delete contact template'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
