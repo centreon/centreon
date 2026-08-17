@@ -1347,6 +1347,16 @@ div.oreonbutton{
     border-radius: 0;
 }
 
+#globalView {
+    /*
+     * The legacy breadcrumb (pathway) used to reserve vertical space at the top
+     * of every legacy page. It now lives in the React top banner, so reserve the
+     * equivalent space here to keep the absolutely-positioned edit-mode toggle
+     * (.toggleEdit, top: 12px) from overlapping the custom-view content below it.
+     */
+    padding-top: 40px;
+}
+
 .toggleEdit {
     position: absolute;
     right: 16px;
