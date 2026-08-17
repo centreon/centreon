@@ -268,6 +268,13 @@ if (! $centreon->user->showDiv('menu_2')) {
 ?>
     <section class="main section-expand" style="padding-top: 4px;">
 <?php
+// The legacy breadcrumb (pathway.php) used to initialize the global $basePath,
+// which legacy pages rely on when saving through the API (e.g. host update).
+// The breadcrumb now lives in the React top banner, so set $basePath here to
+// preserve that behavior.
+$basePath = '/' . trim(explode('main.get.php', $_SERVER['REQUEST_URI'])[0], '/');
+$basePath = htmlspecialchars($basePath, ENT_QUOTES, 'UTF-8');
+
 if (isset($url) && $url) {
     include_once $url;
 }
