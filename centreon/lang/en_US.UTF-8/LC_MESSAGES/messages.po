@@ -809,6 +809,7 @@ msgid "Add a host"
 msgstr "Add a host"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/install/smarty_translate.php
 msgid "Add a host category"
 msgstr "Add a host category"
 
@@ -2278,6 +2279,7 @@ msgstr ""
 msgid "Can't write in directory"
 msgstr "Can't write in directory"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 #: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
@@ -4356,6 +4358,14 @@ msgstr "Delete filter?"
 msgid "Delete graphs"
 msgstr "Delete graphs"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid "Delete host categories"
+msgstr "Delete host categories"
+
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid "Delete host category"
+msgstr "Delete host category"
+
 #: centreon/www/install/front_translate.php
 msgid "Delete multiple resource access rules"
 msgstr "Delete multiple resource access rules"
@@ -4691,7 +4701,6 @@ msgstr "Disable verify peer"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -5091,7 +5100,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -5131,7 +5139,6 @@ msgstr "Do you confirm the deletion ?"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -5383,6 +5390,47 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Duplicate dashboard"
 msgstr "Duplicate dashboard"
+
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Duplicate host categories"
+
+# msgid "Create new poller"
+# msgstr ""
+# msgid "Enter your poller's name and address"
+# msgstr ""
+# msgid "Select your poller's environment"
+# msgstr ""
+# msgid "VM or physical"
+# msgstr ""
+# msgid "Docker compose"
+# msgstr ""
+# msgid "Select token"
+# msgstr ""
+# msgid "Generate installation command"
+# msgstr ""
+# msgid "The command is being generated…"
+# msgstr ""
+# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+# msgstr ""
+# msgid "Generating..."
+# msgstr ""
+# msgid "Copy the following command and run it on your poller to register it."
+# msgstr ""
+# msgid "Failed to create poller"
+# msgstr ""
+# msgid "Enter your poller information"
+# msgstr ""
+# msgid "Poller name"
+# msgstr ""
+# msgid "Poller address"
+# msgstr ""
+# msgid "Centreon Central address, as seen by this poller"
+# msgstr ""
+# Host categories - modernized listing/form (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid "Duplicate host category"
+msgstr "Duplicate host category"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
@@ -5825,7 +5873,6 @@ msgstr "Enable/disable resource"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -8055,6 +8102,10 @@ msgstr "Group attribute"
 msgid "Group filter"
 msgstr "Group filter"
 
+#: centreon/www/install/smarty_translate.php
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr "Group hosts into categories to organize and filter your configuration."
+
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Group member attribute"
 msgstr "Group member attribute"
@@ -8296,6 +8347,7 @@ msgstr "Host Acknowledgement"
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/install/dashboard_widgets.php
+#: centreon/www/install/smarty_translate.php
 msgid "Host Categories"
 msgstr "Host Categories"
 
@@ -10187,6 +10239,7 @@ msgid "Loaded"
 msgstr "Loaded"
 
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/smarty_translate.php
 msgid "Loading..."
 msgstr ""
 
@@ -11013,10 +11066,6 @@ msgstr "Modify Image"
 msgid "Modify Vendor"
 msgstr "Modify Vendor"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a host category"
-msgstr "Modify a  host category"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
 msgstr "Modify a Centreon-Broker Configuration"
@@ -11121,6 +11170,11 @@ msgstr "Modify a downtime"
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "Modify a global macro"
 msgstr "Modify a global macro"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/install/smarty_translate.php
+msgid "Modify a host category"
+msgstr "Modify a  host category"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -11323,6 +11377,7 @@ msgstr "Months"
 msgid "More"
 msgstr "More"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/options/media/images/listImg.php
@@ -11343,7 +11398,6 @@ msgstr "More actions"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -12445,7 +12499,6 @@ msgstr "Option 2"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -13621,8 +13674,8 @@ msgstr "Refresh interval must be numeric"
 msgid "Regexp"
 msgstr "Regexp"
 
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
+#: centreon/www/install/smarty_translate.php
 msgid "Regular"
 msgstr "Regular"
 
@@ -15540,12 +15593,12 @@ msgid "Settings"
 msgstr "Settings"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/install/front_translate.php
+#: centreon/www/install/smarty_translate.php
 msgid "Severity"
 msgstr "Severity"
 
@@ -16003,7 +16056,6 @@ msgstr "Statistics"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -18338,10 +18390,6 @@ msgstr "View Image"
 msgid "View Vendor"
 msgstr "View Vendor"
 
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a  host category"
-msgstr "View a  host category"
-
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "View a Centreon-Broker Configuration"
 msgstr "View a Centreon-Broker Configuration"
@@ -18434,6 +18482,10 @@ msgstr "View a Virtual Metric"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "View a downtime"
 msgstr "View a downtime"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "View a host category"
+msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -18892,6 +18944,14 @@ msgstr "Yes"
 msgid "Yesterday"
 msgstr "Yesterday"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid ""
+"You are about to delete <strong>{{ count }} host categories.</strong> This "
+"action cannot be undone. Do you want to delete them?"
+msgstr ""
+"You are about to delete <strong>{{ count }} host categories.</strong> This "
+"action cannot be undone. Do you want to delete them?"
+
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid ""
 "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
@@ -18899,6 +18959,14 @@ msgid ""
 msgstr ""
 "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
 "\\nDo you confirm the deletion ?"
+
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> host category. This "
+"action cannot be undone. Do you want to delete it?"
+msgstr ""
+"You are about to delete the <strong>{{ name }}</strong> host category. This "
+"action cannot be undone. Do you want to delete it?"
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -18933,6 +19001,22 @@ msgstr ""
 #, php-format
 msgid "You are about to disable the selected %s. Do you want to continue?"
 msgstr ""
+
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid ""
+"You are about to duplicate <strong>{{ count }} host categories.</strong> Do "
+"you want to duplicate them?"
+msgstr ""
+"You are about to duplicate <strong>{{ count }} host categories.</strong> Do "
+"you want to duplicate them?"
+
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
+msgid ""
+"You are about to duplicate the <strong>{{ name }}</strong> host category. Do "
+"you want to duplicate it?"
+msgstr ""
+"You are about to duplicate the <strong>{{ name }}</strong> host category. Do "
+"you want to duplicate it?"
 
 #: centreon/www/install/smarty_translate.php
 #, php-format
@@ -20459,6 +20543,10 @@ msgid "Update already in progress"
 msgstr "Update already in progress"
 
 #: unknown
+msgid "View a  host category"
+msgstr "View a  host category"
+
+#: unknown
 msgid "View a Command"
 msgstr "View a Command"
 
@@ -20480,104 +20568,3 @@ msgid ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 msgstr ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
-
-#: unknown
-# msgid "Create new poller"
-# msgstr ""
-
-#: unknown
-# msgid "Enter your poller's name and address"
-# msgstr ""
-
-#: unknown
-# msgid "Select your poller's environment"
-# msgstr ""
-
-#: unknown
-# msgid "VM or physical"
-# msgstr ""
-
-#: unknown
-# msgid "Docker compose"
-# msgstr ""
-
-#: unknown
-# msgid "Select token"
-# msgstr ""
-
-#: unknown
-# msgid "Generate installation command"
-# msgstr ""
-
-#: unknown
-# msgid "The command is being generated…"
-# msgstr ""
-
-#: unknown
-# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
-# msgstr ""
-
-#: unknown
-# msgid "Generating..."
-# msgstr ""
-
-#: unknown
-# msgid "Copy the following command and run it on your poller to register it."
-# msgstr ""
-
-#: unknown
-# msgid "Failed to create poller"
-# msgstr ""
-
-#: unknown
-# msgid "Enter your poller information"
-# msgstr ""
-
-#: unknown
-# msgid "Poller name"
-# msgstr ""
-
-#: unknown
-# msgid "Poller address"
-# msgstr ""
-
-#: unknown
-# msgid "Centreon Central address, as seen by this poller"
-# msgstr ""
-
-# Host categories - modernized listing/form (UX/UI migration)
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host category"
-msgstr "Duplicate host category"
-
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host categories"
-msgstr "Duplicate host categories"
-
-#: unknown
-msgid "Delete host category"
-msgstr "Delete host category"
-
-#: unknown
-msgid "Delete host categories"
-msgstr "Delete host categories"
-
-#: unknown
-msgid "Group hosts into categories to organize and filter your configuration."
-msgstr "Group hosts into categories to organize and filter your configuration."
-
-#: unknown
-msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
-
-#: unknown
-msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
-msgstr "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
-
-#: unknown
-msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
-msgstr "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
-
-#: unknown
-msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
-msgstr "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
