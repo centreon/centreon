@@ -91,6 +91,7 @@ const BreadcrumbTrail = ({ breadcrumbsByPath, path }: Props): JSX.Element => {
 
   return (
     <Box
+      data-cy="breadcrumb"
       onMouseEnter={hover}
       onMouseLeave={leave}
       sx={{
