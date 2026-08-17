@@ -1075,7 +1075,6 @@ jobs:
             "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
           push: ${{ github.event.pull_request.head.repo.fork != true }}
-          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
