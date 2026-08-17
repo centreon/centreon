@@ -33,6 +33,32 @@ const pickAclResourceGroup = (): void => {
   getFormBody().find('.select2-container--open').should('not.exist');
 };
 
+/**
+ * Open a row's form in the side panel. Clicked through the name column, and
+ * retried while the panel is still closed: the listing auto-refreshes every 15s,
+ * so the anchor can be detached from under the click, and a click that lands on
+ * nothing is silent — the panel frame just stays on about:blank, which surfaces
+ * later as an empty body rather than as a failed click.
+ */
+const openRowForm = (name: string): void => {
+  const clickRowWhilePanelClosed = (): void => {
+    cy.getIframeBody().then(($body) => {
+      if ($body.find('#cfSidePanel.open').length > 0) {
+        return;
+      }
+      cy.getIframeBody()
+        .find('#clTableBody tr td:nth-child(2)')
+        .contains('a', name)
+        .click();
+    });
+  };
+
+  clickRowWhilePanelClosed();
+  clickRowWhilePanelClosed();
+  cy.getIframeBody().find('#cfSidePanel').should('have.class', 'open');
+  waitForHostForm();
+};
+
 const clickToAddHost = () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', 'Add').click();
@@ -110,8 +136,7 @@ Then('all the properties, including the macros, are successfully saved', () => {
     '#main-content',
     `a:contains(${hostMacros.default_host.name})`
   );
-  cy.getIframeBody().contains('a', hostMacros.default_host.name).click();
-  waitForHostForm();
+  openRowForm(hostMacros.default_host.name);
   getFormBody()
     .find('input[name="host_name"]')
     .should('have.value', hostMacros.default_host.name);
@@ -144,8 +169,7 @@ Given('an existing host with macros', () => {
 });
 
 When('the non-admin user opens the host for editing', () => {
-  cy.getIframeBody().contains('a', hostMacros.default_host.name).click();
-  waitForHostForm();
+  openRowForm(hostMacros.default_host.name);
 });
 
 When('the non-admin user updates the values of the existing macros', () => {
@@ -161,8 +185,7 @@ Then('the modified macros are saved successfully', () => {
     '#main-content',
     `a:contains(${hostMacros.updated_host.name})`
   );
-  cy.getIframeBody().contains('a', hostMacros.updated_host.name).click();
-  waitForHostForm();
+  openRowForm(hostMacros.updated_host.name);
   cy.checkMacrosFieldsValues(
     hostMacros.updated_host.normalMacro,
     hostMacros.updated_host.passMacro
@@ -177,8 +200,7 @@ Given('a configured host with macros', () => {
 });
 
 When('the non-admin user deletes the macros of the configured host', () => {
-  cy.getIframeBody().contains('a', hostMacros.updated_host.name).click();
-  waitForHostForm();
+  openRowForm(hostMacros.updated_host.name);
   // Remove the normal macro
   getFormBody().find('#macro_remove_current').eq(0).click();
   // Remove tha password macro
@@ -190,8 +212,7 @@ Then('the macros are deleted successfully', () => {
     '#main-content',
     `a:contains(${hostMacros.updated_host.name})`
   );
-  cy.getIframeBody().contains('a', hostMacros.updated_host.name).click();
-  waitForHostForm();
+  openRowForm(hostMacros.updated_host.name);
   // Check the non-existence of the Macros
   getFormBody()
     .contains(hostMacros.updated_host.normalMacro.name)
@@ -251,8 +272,7 @@ Given(
       '#main-content',
       `a:contains(${hostMacros.default_host.name})`
     );
-    cy.getIframeBody().contains('a', hostMacros.default_host.name).click();
-    waitForHostForm();
+    openRowForm(hostMacros.default_host.name);
     // Add the host template to the host
     getFormBody().find('#template_add').click();
     getFormBody().find('span[role="presentation"]').eq(1).click();
@@ -338,8 +358,7 @@ Then(
   'the normal macro value in {string} should be the modified value',
   (name: string) => {
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
-    cy.getIframeBody().contains('a', name).click();
-    waitForHostForm();
+    openRowForm(name);
     getFormBody()
       .find('#macroValue_0')
       .should('have.value', `${hostMacros.updated_host.normalMacro.value}`);
@@ -391,8 +410,7 @@ Then(
   (name: string) => {
     cy.visitHostTemplatesListing(0);
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
-    cy.getIframeBody().contains('a', name).click();
-    waitForHostForm();
+    openRowForm(name);
     getFormBody()
       .find('#macroValue_0')
       .should('have.value', `${hostMacros.default_host.normalMacro.value}`);
@@ -414,8 +432,7 @@ When('the normal macro value in the host should be the modified value', () => {
     '#main-content',
     `a:contains(${hostMacros.default_host.name})`
   );
-  cy.getIframeBody().contains('a', hostMacros.default_host.name).click();
-  waitForHostForm();
+  openRowForm(hostMacros.default_host.name);
   getFormBody()
     .find('#macroValue_0')
     .should('have.value', `${hostMacros.updated_host.normalMacro.value}`);
