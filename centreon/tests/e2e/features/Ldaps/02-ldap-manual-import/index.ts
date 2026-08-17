@@ -145,6 +145,12 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   // it pages, so driving it depends on platform state: an imported user already
   // carrying the group, or an "ALL" entry pushed off the first page, makes the
   // select find nothing. ADDCONTACT is idempotent, so this holds either way.
+  //
+  // The token CLAPI authenticates with lives in localStorage, and the previous
+  // scenario logged out to sign in as the LDAP user, which cleared it; the
+  // background then signs the admin back in through the UI only. Mint it again,
+  // otherwise the call goes out unauthenticated and answers 403.
+  cy.setUserTokenApiV1();
   cy.executeActionViaClapi({
     bodyContent: {
       action: 'ADDCONTACT',
