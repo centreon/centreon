@@ -41,6 +41,17 @@ const pickAclResourceGroup = (): void => {
  * later as an empty body rather than as a failed click.
  */
 const openRowForm = (name: string): void => {
+  // Close a panel the previous step left open first. Treating it as already
+  // opened would read the form of whichever object was in it, so an assertion
+  // would answer on the values the test itself typed a moment earlier.
+  cy.getIframeBody().then(($body) => {
+    if ($body.find('#cfSidePanel.open').length === 0) {
+      return;
+    }
+    cy.getIframeBody().find('button.cf-side-panel-close').click();
+    cy.getIframeBody().find('#cfSidePanel').should('not.have.class', 'open');
+  });
+
   const clickRowWhilePanelClosed = (): void => {
     cy.getIframeBody().then(($body) => {
       if ($body.find('#cfSidePanel.open').length > 0) {
