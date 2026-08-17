@@ -106,9 +106,11 @@ var CentreonForm = (function () {
         overlay.classList.remove('open');
         panel.classList.remove('open');
 
-        // Reset iframe after the CSS transition completes (300ms)
+        // Reset iframe after the CSS transition completes (300ms), unless the
+        // panel has been reopened since: closing and reopening within that delay
+        // is enough to blank the form that just loaded.
         setTimeout(function () {
-            if (frameEl) {
+            if (frameEl && !panel.classList.contains('open')) {
                 frameEl.src = 'about:blank';
             }
         }, 300);
