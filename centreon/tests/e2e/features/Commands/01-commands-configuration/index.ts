@@ -309,8 +309,22 @@ Then(
 );
 
 Given('a host is configured', () => {
-  cy.addNewHostAndReturnId().then((returnedHostId) => {
-    hostId = returnedHostId;
+  // "Display Host command arguments" already created generic-active-host earlier
+  // in this spec, and the containers are shared, so creating it again answers
+  // 409. Look it up, and only create it if this scenario runs on its own.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query:
+      "SELECT host_id FROM host WHERE host_name = 'generic-active-host' AND host_register = '1'"
+  }).then(([rows]) => {
+    if (rows.length > 0) {
+      hostId = rows[0].host_id;
+
+      return;
+    }
+    cy.addNewHostAndReturnId().then((returnedHostId) => {
+      hostId = returnedHostId;
+    });
   });
 });
 
