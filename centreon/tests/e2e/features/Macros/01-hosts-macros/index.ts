@@ -40,21 +40,53 @@ const pickAclResourceGroup = (): void => {
  * nothing is silent — the panel frame just stays on about:blank, which surfaces
  * later as an empty body rather than as a failed click.
  */
-const openRowForm = (name: string): void => {
-  // Close a panel the previous step left open first. Treating it as already
-  // opened would read the form of whichever object was in it, so an assertion
-  // would answer on the values the test itself typed a moment earlier.
-  cy.getIframeBody().then(($body) => {
-    if ($body.find('#cfSidePanel.open').length === 0) {
-      return;
-    }
-    cy.getIframeBody().find('button.cf-side-panel-close').click();
-    cy.getIframeBody().find('#cfSidePanel').should('not.have.class', 'open');
+/**
+ * The page iframe's document, read from a requeryable subject. Reading state off
+ * cy.getIframeBody() instead means chaining .find() on a wrapped body, which the
+ * listing detaches on every refetch — including the one closePanel triggers.
+ */
+const pageDocument = (): Cypress.Chainable<Document> =>
+  cy.get('#main-content', { timeout: 60_000 }).then(($frame) => {
+    const doc = ($frame[0] as HTMLIFrameElement).contentDocument;
+    expect(doc, 'page iframe document').to.not.be.null;
+
+    return doc as Document;
   });
 
+const isPanelOpen = (doc: Document): boolean =>
+  doc.querySelector('#cfSidePanel.open') !== null;
+
+/**
+ * Open a row's form in the side panel.
+ *
+ * Closes a panel the previous step left open first: reading the form of whichever
+ * object was still in it would answer on the values the test typed a moment
+ * earlier. Closing is driven through the page's own cfClosePanel rather than a
+ * click, so nothing is chained off a body that the ensuing refetch detaches.
+ *
+ * The click is then retried while the panel is still closed: the listing
+ * auto-refreshes every 15s, so the anchor can be detached from under it, and a
+ * click that lands on nothing is silent.
+ */
+const openRowForm = (name: string): void => {
+  pageDocument().then((doc) => {
+    if (!isPanelOpen(doc)) {
+      return;
+    }
+    (doc.defaultView as unknown as { cfClosePanel: () => void }).cfClosePanel();
+  });
+  pageDocument().should((doc) => {
+    expect(isPanelOpen(doc), 'panel closed before reopening').to.be.false;
+  });
+
+  // The close refetches the listing; wait for its rows before clicking one.
+  cy.getIframeBody()
+    .find('#clTableBody .cl-col-picker input[type="checkbox"]')
+    .should('have.length.greaterThan', 0);
+
   const clickRowWhilePanelClosed = (): void => {
-    cy.getIframeBody().then(($body) => {
-      if ($body.find('#cfSidePanel.open').length > 0) {
+    pageDocument().then((doc) => {
+      if (isPanelOpen(doc)) {
         return;
       }
       cy.getIframeBody()
@@ -66,7 +98,9 @@ const openRowForm = (name: string): void => {
 
   clickRowWhilePanelClosed();
   clickRowWhilePanelClosed();
-  cy.getIframeBody().find('#cfSidePanel').should('have.class', 'open');
+  pageDocument().should((doc) => {
+    expect(isPanelOpen(doc), 'panel opened').to.be.true;
+  });
   waitForHostForm();
 };
 
