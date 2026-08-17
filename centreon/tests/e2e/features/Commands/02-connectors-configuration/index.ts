@@ -43,6 +43,14 @@ const openConnectorsListing = (): void => {
   cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
 };
 
+/**
+ * Anchored on purpose: contains() is substring-based, so from the duplication
+ * scenario onward '<name>' would also match the '<name>_1' row and the step
+ * would only pick the right one because ORDER BY name happens to sort the
+ * shorter one first.
+ */
+const listingRowAnchor = (name: string): RegExp => new RegExp(`^${name}$`);
+
 /** Both add and edit open the form in the side panel instead of navigating. */
 const openConnectorForm = (name: string): void => {
   cy.getIframeBody().find('#clTableBody').contains('a', name).click();
@@ -55,8 +63,11 @@ const submitConnectorForm = (): void => {
   // A multi-select dropdown stays open after a pick and covers the action bar.
   cy.getConnectorSidePanelBody()
     .find('input.btc.bt_success[name^="submit"]')
-    .eq(0)
     .click({ force: true });
+  // The POST navigates the nested iframe, which Cypress does not track: without
+  // this the next cy.visit could cancel it. The re-rendered listing closes the
+  // panel from inside the frame, so losing the class is the round-trip landing.
+  cy.getIframeBody().find('#cfSidePanel').should('not.have.class', 'open');
 };
 
 /**
@@ -72,7 +83,7 @@ const selectRowAndRunBulkAction = (
 ): void => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('a', name)
+    .contains('a', listingRowAnchor(name))
     .parents('tr')
     // Scoped to the picker: the row also holds the activation toggle checkbox.
     .find('.cl-col-picker input[type="checkbox"]')
@@ -86,15 +97,20 @@ const selectRowAndRunBulkAction = (
   cy.getIframeBody()
     .find('.cl-confirm-title')
     .should('have.text', expectedTitle);
-  cy.getIframeBody().find('.cl-confirm-body').should('contain.text', name);
+  // The name is interpolated in bold from data-msg-*: asserting on <strong>
+  // proves the translated message rendered, and not merely that the row name
+  // appears somewhere in the modal.
+  cy.getIframeBody().find('.cl-confirm-body strong').should('have.text', name);
   cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
+  // The action submits the listing form; wait for the reloaded page's fetch.
+  cy.wait('@listConnectors');
 };
 
 const rowToggle = (name: string) =>
   cy
     .getIframeBody()
     .find('#clTableBody')
-    .contains(name)
+    .contains('a', listingRowAnchor(name))
     .parents('tr')
     .find('.cl-toggle input[type="checkbox"]');
 
@@ -145,7 +161,6 @@ When('the user changes the properties of a connector', () => {
 });
 
 Then('the properties are updated', () => {
-  cy.wait('@getTimeZone');
   openConnectorsListing();
   openConnectorForm(data.connectorUpdated.name);
   cy.checkValuesOfConnectors(data.connectorUpdated.name, {
@@ -216,10 +231,14 @@ When('the user deletes a connector', () => {
 
 Then('the deleted connector is not displayed in the list', () => {
   openConnectorsListing();
-  // Anchored: contains() is substring-based and would still match the
-  // '<name>_1' left behind by the duplication scenario.
+  // Pinned on the duplicate the previous scenario left behind, so the absence
+  // below is proven against a populated table rather than an empty or errored one.
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('a', new RegExp(`^${data.connectorUpdated.name}$`))
+    .contains('a', listingRowAnchor(`${data.connectorUpdated.name}_1`))
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', listingRowAnchor(data.connectorUpdated.name))
     .should('not.exist');
 });

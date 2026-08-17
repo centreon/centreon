@@ -165,12 +165,11 @@ try {
         $form->accept($renderer);
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
-        // The cosmetic toggle mirrors a radio group that a frozen form renders as
-        // text: syncToggle then finds nothing to read, so the state is rendered
-        // server-side instead of being left unchecked in View mode.
-        // Mirrors the QuickForm default set above, which is '0' in Add mode:
-        // rendering the toggle on would make it flip once syncToggle reads the
-        // radio group at DOMContentLoaded.
+        // The cosmetic toggle mirrors a hidden radio group, so it carries the
+        // state server-side for View mode, where the group is frozen. It must
+        // agree with the QuickForm default set above ('0' in Add mode): a
+        // disagreement makes the toggle flip once syncToggle reads the group at
+        // DOMContentLoaded.
         $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '0') === '1');
         $tpl->assign(
             'helpattr',

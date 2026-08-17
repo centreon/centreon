@@ -90,7 +90,9 @@ switch ($o) {
                 $duplicateNbr = $_REQUEST['dupNbr'] ?? $options ?? [];
                 $selectedConnectors = array_keys($select ?? []);
                 foreach ($selectedConnectors as $connectorId) {
-                    $nb = isset($duplicateNbr[$connectorId]) ? (int) $duplicateNbr[$connectorId] : 1;
+                    // An empty or non-numeric field casts to 0, which would copy
+                    // nothing and report nothing: duplicate once in that case.
+                    $nb = max(1, (int) ($duplicateNbr[$connectorId] ?? 1));
                     $connectorObj->copy($connectorId, $nb);
                 }
             }
