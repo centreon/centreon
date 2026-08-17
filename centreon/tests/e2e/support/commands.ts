@@ -130,6 +130,20 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
+Cypress.Commands.add('visitListingAndWait', (page: string): Cypress.Chainable => {
+  cy.visit(page);
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  return cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
+});
+
+Cypress.Commands.add('waitForListingRefresh', (): Cypress.Chainable => {
+  return cy.getIframeBody()
+    .find('#clTableBody tr td')
+    .should('not.contain', 'Loading');
+});
+
 Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
   cy.getIframeBody()
   .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
@@ -167,6 +181,8 @@ declare global {
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
+      visitListingAndWait: (page: string) => Cypress.Chainable;
+      waitForListingRefresh: () => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
     }

@@ -20,24 +20,6 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function visitAndWait(): void {
-  cy.visit(stPage);
-  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.greaterThan', 0);
-}
-
-function waitForAjaxRefresh(): void {
-  cy.getIframeBody()
-    .find('#clTableBody tr td')
-    .should('not.contain', 'Loading');
-}
-
-// ---------------------------------------------------------------------------
 // Background
 // ---------------------------------------------------------------------------
 
@@ -61,7 +43,7 @@ Given('several service templates exist', () => {
 // ---------------------------------------------------------------------------
 
 When('the user navigates to the service templates listing', () => {
-  visitAndWait();
+  cy.visitListingAndWait(stPage);
 });
 
 Then('the AJAX listing table is displayed with service template rows', () => {
@@ -79,7 +61,7 @@ Then('the AJAX listing table is displayed with service template rows', () => {
 When('the user searches for a specific service template', () => {
   cy.getIframeBody().find('#clSearchInput').clear().type('st_test_alpha');
   cy.getIframeBody().find('#clSearchBtn').click();
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('only the matching service template is displayed', () => {
@@ -142,7 +124,7 @@ When('the locked checkbox is checked', () => {
       if (!$cb.is(':checked')) {
         cy.wrap($cb).click();
         cy.getIframeBody().find('#clSearchBtn').click();
-        waitForAjaxRefresh();
+        cy.waitForListingRefresh();
       }
     });
 });
@@ -157,7 +139,7 @@ Then('locked service templates are visible', () => {
 When('the user unchecks the locked checkbox and searches', () => {
   cy.getIframeBody().find('#displayLocked').uncheck();
   cy.getIframeBody().find('#clSearchBtn').click();
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('locked service templates are hidden', () => {
@@ -210,7 +192,7 @@ When('the user changes the rows per page to 10', () => {
   cy.getIframeBody()
     .find('#clPaginationTop select.cl-limit-select')
     .select('10');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('at most 10 rows are displayed', () => {
@@ -240,7 +222,7 @@ When('the user selects a service template and duplicates it', () => {
 
 Then('a duplicated service template appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('st_test_alpha_1')
@@ -270,7 +252,7 @@ When('the user selects a service template and deletes it', () => {
 
 Then('the service template is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('st_test_beta')
@@ -305,7 +287,7 @@ Then('the service template edit form is displayed', () => {
 When('the user navigates back to the service templates listing', () => {
   cy.visit(stPage);
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('the search field still contains the search term', () => {

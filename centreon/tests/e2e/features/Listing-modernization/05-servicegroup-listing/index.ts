@@ -20,24 +20,6 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function visitAndWait(): void {
-  cy.visit(sgPage);
-  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.greaterThan', 0);
-}
-
-function waitForAjaxRefresh(): void {
-  cy.getIframeBody()
-    .find('#clTableBody tr td')
-    .should('not.contain', 'Loading');
-}
-
-// ---------------------------------------------------------------------------
 // Background
 // ---------------------------------------------------------------------------
 
@@ -61,7 +43,7 @@ Given('several service groups exist', () => {
 // ---------------------------------------------------------------------------
 
 When('the user navigates to the service groups listing', () => {
-  visitAndWait();
+  cy.visitListingAndWait(sgPage);
 });
 
 Then('the AJAX listing table is displayed with service group rows', () => {
@@ -77,7 +59,7 @@ Then('the AJAX listing table is displayed with service group rows', () => {
 When('the user searches for a specific service group', () => {
   cy.getIframeBody().find('#clSearchInput').clear().type('sg_alpha');
   cy.getIframeBody().find('#clSearchBtn').click();
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('only the matching service group is displayed', () => {
@@ -135,7 +117,7 @@ When('the service group is disabled', () => {
     query:
       "UPDATE servicegroup SET sg_activate = '0' WHERE sg_name = 'sg_alpha'"
   });
-  visitAndWait();
+  cy.visitListingAndWait(sgPage);
 });
 
 When('the user clicks the toggle to enable the service group', () => {
@@ -222,7 +204,7 @@ When('the user changes the rows per page to 10', () => {
   cy.getIframeBody()
     .find('#clPaginationTop select.cl-limit-select')
     .select('10');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('at most 10 rows are displayed', () => {
@@ -253,7 +235,7 @@ When('the user selects a service group and duplicates it', () => {
 
 Then('a duplicated service group appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('sg_alpha_1')
@@ -284,7 +266,7 @@ When('the user selects a service group and deletes it', () => {
 
 Then('the service group is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('sg_beta')
@@ -313,7 +295,7 @@ Then('the service group edit form is displayed', () => {
 When('the user navigates back to the service groups listing', () => {
   cy.visit(sgPage);
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  waitForAjaxRefresh();
+  cy.waitForListingRefresh();
 });
 
 Then('the search field still contains the search term', () => {
