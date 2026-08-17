@@ -1046,6 +1046,9 @@ jobs:
           mv *."$PACKAGE_EXTENSION" packages-centreon/
         shell: bash
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+
       - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Extract metadata (tags, labels) for Docker
@@ -1059,7 +1062,12 @@ jobs:
             type=raw,value=${{ steps.image_tag.outputs.tag }}
             type=raw,value=${{ steps.image_tag.outputs.additional_tag }},enable=${{ steps.image_tag.outputs.additional_tag != '' }}
 
-      - name: Build and push web image
+      # To circumvent the 'failed to build: docker exporter does not currently support exporting manifest lists' error,
+      # which happens because multi-arch manifests can't be loaded into the local Docker daemon that only supports
+      # a single platform per tag, we set up a multi-arch web image push and a local amd64 image push that we use later
+      # for tests as two separate builds.
+      - name: Build and push multi-arch web image
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
@@ -1068,7 +1076,7 @@ jobs:
         with:
           file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
           context: .
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64,linux/arm64
           build-args: |
             "REGISTRY_URL=ghcr.io/${{ github.repository }}"
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
@@ -1077,7 +1085,28 @@ jobs:
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
           pull: true
-          push: ${{ github.event.pull_request.head.repo.fork != true }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build web image locally
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          file: .github/docker/${{ env.project }}/${{ matrix.operating_system }}/Dockerfile
+          context: .
+          build-args: |
+            "REGISTRY_URL=ghcr.io/${{ github.repository }}"
+            "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
+            "STABILITY=${{ needs.get-environment.outputs.stability }}"
+            "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
+            "PHP_VERSION=${{ needs.get-environment.outputs.php_version }}"
+          pull: true
+          push: false
           load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
