@@ -134,6 +134,9 @@ jobs:
             com.centreon.stability=${{ needs.get-environment.outputs.stability }}
             com.centreon.version=${{ needs.get-environment.outputs.major_version }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+
       - uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
@@ -149,6 +152,7 @@ jobs:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies
           context: .
+          platforms: linux/amd64,linux/arm64
           build-args: |
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
@@ -172,6 +176,7 @@ jobs:
           file: .github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies_collect
           context: .
+          platforms: linux/amd64,linux/arm64
           build-args: |
             "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
