@@ -612,6 +612,7 @@ flowchart LR
 | `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
 | `PASSWORD` | `password` | `password` | `prod.password.log` |
 | `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `POLLER_INSTALL` | `poller-install` | `poller-install` | `prod.poller-install.log` |
 | `TOKEN` | `token` | `token` | `prod.token.log` |
 | `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
 | `WEB` | `web` | `web` | `prod.web.log` |
@@ -731,7 +732,7 @@ They exist for two reasons:
 1. **Downstream consumers expect a stable JSON schema** — fail2ban filters (auth), SIEM correlation (password, auth, token), upgrade observability dashboards (upgrade). Hard-coding the schema in the helper guarantees every caller emits the same shape (`event`, `status`, `user_id`, `provider`, `ip_address`, `from_version`, …).
 2. **OWASP-aligned semantics** — distinguishing a security event (`WARNING` for an attempted-but-refused login) from a technical crash (`ERROR` for an unhandled exception) is a domain concern; the helper enforces the right Monolog level for each method.
 
-For channels that carry **free-form messages with arbitrary context** (`web`, `plugin-pack-manager`), call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly — wrapping them in a helper adds no value over the PSR-3 facade.
+For channels that carry **free-form messages with arbitrary context** (`web`, `plugin-pack-manager`, `poller-install`), call sites use `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly — wrapping them in a helper adds no value over the PSR-3 facade.
 
 Decision rule for adding a new `Logger<Channel>` class: when the channel either feeds an automated consumer that requires a stable schema, **or** carries a well-defined lifecycle (`loginSuccess` / `loginFailure` / `logout`, or `start` / `step` / `success` / `failure`) that benefits from semantic method names. Otherwise, route through `Adaptation\Log\Logger::create(LogChannelEnum::*)` directly.
 
