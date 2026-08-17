@@ -192,6 +192,28 @@ class AjaxListingHelper
     }
 
     /**
+     * Require read access on a given topology page. Exits 403 when the page is
+     * outside the user's menu. Admins always pass.
+     *
+     * These endpoints are reachable directly, unlike the legacy pages they
+     * replace, which were only served through main.php and its topology check.
+     * Listings whose objects carry no per-object ACL rely on this alone.
+     *
+     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     */
+    public function requireReadAccess(int $pageId): void
+    {
+        if ($this->isAdmin()) {
+            return;
+        }
+        $acl = $this->getAcl();
+        // CentreonACL::page() returns 0 (no access), 1 (read/write) or 2 (read only).
+        if (! $acl || $acl->page($pageId) === 0) {
+            self::jsonError('Forbidden', 403);
+        }
+    }
+
+    /**
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *

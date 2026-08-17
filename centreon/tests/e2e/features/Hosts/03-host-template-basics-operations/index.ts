@@ -271,6 +271,9 @@ When('the user deletes the configured host template', () => {
 Then(
   'the deleted host template is not visible anymore on the host template page',
   () => {
+    // Reopen the listing: the delete submitted the page, and openHostTemplatesListing
+    // is what proves the rows are the fetched ones before asserting an absence.
+    cy.openHostTemplatesListing();
     cy.getIframeBody()
       .find(listingSelectors.tableBody)
       .should('not.contain', hostTemplates.defaultHostTemplate.name);
@@ -336,7 +339,10 @@ Then(
 );
 
 When('the user searches the host templates for the first one', () => {
-  searchInListing(hostTemplates.defaultHostTemplate.name);
+  searchInListing(
+    hostTemplates.defaultHostTemplate.name,
+    '@getHostTemplateListing'
+  );
 });
 
 Then('only the matching host template is displayed', () => {
@@ -353,7 +359,7 @@ When('the user asks for the locked host templates', () => {
   cy.getIframeBody().find(listingSelectors.advancedToggle).click();
   cy.getIframeBody().find('#displayLocked').check({ force: true });
   cy.getIframeBody().find(listingSelectors.advancedSearch).click();
-  waitForListingRefresh();
+  waitForListingRefresh('@getHostTemplateListing');
 });
 
 Then('the locked host template cannot be selected nor duplicated', () => {
@@ -378,7 +384,7 @@ Then(
 
 When('the user sets the rows per page to 10', () => {
   cy.getIframeBody().find(listingSelectors.limitSelect).select('10');
-  waitForListingRefresh();
+  waitForListingRefresh('@getHostTemplateListing');
 });
 
 Then('at most 10 host template rows are displayed', () => {

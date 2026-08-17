@@ -918,7 +918,6 @@ if (! $isCloudPlatform) {
     $form->addElement('text', 'ehi_icon_image_alt', _('Alt icon'), $attrsText);
     $form->addElement('select', 'ehi_statusmap_image', _('Status Map Image'), $extImgStatusmap, [
         'id' => 'ehi_statusmap_image',
-        'onChange' => "showLogo('ehi_statusmap_image_img',this.value)",
         'onkeyup' => 'this.blur();this.focus();',
     ]);
 }
@@ -1116,7 +1115,6 @@ if (! $isCloudPlatform) {
     $tpl->assign('accessgroups', _('Access groups'));
 }
 $tpl->assign('javascript', '
-            <script type="text/javascript" src="./include/common/javascript/showLogo.js"></script>
             <script type="text/javascript" src="./include/common/javascript/centreon/macroPasswordField.js"></script>
             <script type="text/javascript" src="./include/common/javascript/centreon/macroLoadDescription.js"></script>
         ');

@@ -17,6 +17,10 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_template_listing
+  }).as('getHostTemplateListing');
 });
 
 afterEach(() => {
@@ -38,7 +42,9 @@ Given('a search on the host template listing', () => {
     .find(listingSelectors.searchInput)
     .clear()
     .type(searchWordOnHostTemplate);
-  waitForListingRefresh();
+  // The term is only persisted from inside fetch(), behind a 300ms debounce, so
+  // the next navigation must not race it.
+  waitForListingRefresh('@getHostTemplateListing');
 });
 
 When('the user changes page', () => {

@@ -31,6 +31,7 @@ require_once realpath(__DIR__ . '/../../..') . '/common/listing/HostIconResolver
 
 $helper = AjaxListingHelper::boot();
 $helper->requireCentreon();
+$helper->requireReadAccess(60101);
 $pearDB = $helper->getDb();
 $params = $helper->getParams();
 

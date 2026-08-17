@@ -309,15 +309,18 @@ Then(
 );
 
 Given('a host is configured', () => {
-  cy.visit(PAGES.configuration.hostsLegacy);
-  cy.waitForElementInIframe(
-    '#main-content',
-    'a:contains("generic-active-host")'
-  );
+  cy.addNewHostAndReturnId().then((returnedHostId) => {
+    hostId = returnedHostId;
+  });
 });
 
 When('the admin user opens the host in edit mode', () => {
-  cy.getIframeBody().find('a:contains("generic-active-host")').eq(0).click();
+  // Straight to the form rather than through the listing: a row now opens the
+  // form in the side panel iframe, while the steps below — the select2 helper
+  // and the Save button — work on the page's own document. The row it used to
+  // click was 'generic-active-host', a template name that only ever appears in
+  // the Templates column of the hosts listing anyway.
+  cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostId}`);
   cy.waitForElementInIframe('#main-content', '#command_command_id');
 });
 

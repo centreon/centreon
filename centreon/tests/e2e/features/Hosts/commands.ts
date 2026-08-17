@@ -176,8 +176,11 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
   cy.requestOnDatabase({
     database: 'centreon',
     query: `UPDATE host SET host_locked = 1 WHERE host_name = "${name}"`
-  }).then(([rows]) => {
-    if (rows.length === 0) {
+  }).then(([result]) => {
+    // An UPDATE resolves to an OK packet, not a row array, so the previous check
+    // on .length could never fire: a typo in the name silently left the template
+    // unlocked and failed a later step for an unrelated reason.
+    if (!result || result.affectedRows === 0) {
       throw new Error(`Host template not found for template name ${name}`);
     }
   });
@@ -196,8 +199,12 @@ const openListing = (url: string): void => {
   cy.visit(url);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', listingSelectors.table);
+  // Row checkboxes, not rows: the table and its "Loading..." row are rendered
+  // server-side, so counting <tr> is satisfied before the fetch has landed —
+  // which would let a negative assertion pass against an empty table. Neither
+  // the placeholder nor the "No results found" row carries a checkbox.
   cy.getIframeBody()
-    .find(`${listingSelectors.tableBody} tr`)
+    .find(`${listingSelectors.tableBody} ${listingSelectors.rowCheckbox}`)
     .should('have.length.greaterThan', 0);
 };
 
@@ -223,8 +230,11 @@ Cypress.Commands.add('getSidePanelBody', () => {
 });
 
 Cypress.Commands.add('openListingRowForm', (name: string) => {
+  // Scoped to the name column, like getListingRow: the Templates column renders
+  // parent template names as links of their own, so an unscoped lookup can open
+  // the wrong object — and the host_name assertion below would still pass.
   cy.getIframeBody()
-    .find(listingSelectors.tableBody)
+    .find(`${listingSelectors.tableBody} tr td:nth-child(2)`)
     .contains('a', name)
     .click();
 

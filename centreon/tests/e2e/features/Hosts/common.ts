@@ -77,13 +77,21 @@ const segmentedButton = (radioName: string, value: string): string =>
   `.cf-segmented[data-radio-name="${radioName}"] button[data-value="${value}"]`;
 
 const segmentedRadio = (radioName: string, value: string): string =>
-  `input[name="${radioName}"][value="${value}"]`;
+  // QuickForm renames a group's children to "<group>[<group>]"; a plain radio
+  // keeps its own name. CentreonForm._findRadio tries both, so must we.
+  `input[name="${radioName}[${radioName}]"][value="${value}"], input[name="${radioName}"][value="${value}"]`;
 
 /**
- * The listing renders "Loading..." in a single cell while an AJAX page is in
- * flight; waiting on its absence is what tells us the rows are the new ones.
+ * Wait for a listing fetch to land. The "Loading..." row is only re-rendered on
+ * the very first fetch (listing.js gates it on firstLoad), so on any later one
+ * its absence is satisfied instantly by the rows already on screen — the XHR is
+ * the only reliable barrier. The row check is kept for the first load, where the
+ * placeholder is server-rendered.
  */
-const waitForListingRefresh = (): void => {
+const waitForListingRefresh = (alias?: string): void => {
+  if (alias) {
+    cy.wait(alias);
+  }
   cy.getIframeBody()
     .find(`${listingSelectors.tableBody} tr td`)
     .should('not.contain', 'Loading');
@@ -101,9 +109,9 @@ const getListingRow = (name: string): Cypress.Chainable =>
     .contains(name)
     .parents('tr');
 
-const searchInListing = (term: string): void => {
+const searchInListing = (term: string, alias?: string): void => {
   cy.getIframeBody().find(listingSelectors.searchInput).clear().type(term);
-  waitForListingRefresh();
+  waitForListingRefresh(alias);
 };
 
 export {

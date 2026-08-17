@@ -814,13 +814,11 @@ $form->addElement('text', 'ehi_notes_url', _('Note URL'), $attrsText);
 $form->addElement('text', 'ehi_action_url', _('Action URL'), $attrsText);
 $form->addElement('select', 'ehi_icon_image', _('Icon'), $extImg, [
     'id' => 'ehi_icon_image',
-    'onChange' => "showLogo('ehi_icon_image_img',this.value)",
     'onkeyup' => 'this.blur();this.focus();',
 ]);
 $form->addElement('text', 'ehi_icon_image_alt', _('Alt icon'), $attrsText);
 $form->addElement('select', 'ehi_statusmap_image', _('Status Map Image'), $extImgStatusmap, [
     'id' => 'ehi_statusmap_image',
-    'onChange' => "showLogo('ehi_statusmap_image_img',this.value)",
     'onkeyup' => 'this.blur();this.focus();',
 ]);
 
@@ -947,7 +945,6 @@ $tpl->assign('initJS', "<script type='text/javascript'>
 						initAutoComplete('Form','city_name','sub');
 						});</script>");
 $tpl->assign('javascript', '
-        <script type="text/javascript" src="./include/common/javascript/showLogo.js"></script>
         <script type="text/javascript" src="./include/common/javascript/centreon/macroPasswordField.js"></script>
         <script type="text/javascript" src="./include/common/javascript/centreon/macroLoadDescription.js"></script>
     ');
@@ -1033,8 +1030,6 @@ if ($valid) {
 
     ?>
     <script type="text/javascript">
-        showLogo('ehi_icon_image_img', document.getElementById('ehi_icon_image').value);
-
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {
                 document.getElementById('notifD').checked = false;

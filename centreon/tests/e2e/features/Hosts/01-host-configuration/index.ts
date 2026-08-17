@@ -268,7 +268,7 @@ Then('each host row carries its address and poller', () => {
 });
 
 When('the admin searches the hosts for {string}', (term: string) => {
-  searchInListing(term);
+  searchInListing(term, '@getHostListing');
 });
 
 Then('only the matching host is displayed in the hosts listing', () => {
@@ -299,7 +299,7 @@ When('the admin filters the listing on that hostgroup', () => {
     .contains(hostGroupName)
     .click({ force: true });
   cy.getIframeBody().find(listingSelectors.advancedSearch).click();
-  waitForListingRefresh();
+  waitForListingRefresh('@getHostListing');
 });
 
 Then('only the hosts of that hostgroup are displayed', () => {
@@ -317,7 +317,7 @@ When('the admin clears the advanced filters', () => {
   // template together — there is no per-filter clear control.
   cy.getIframeBody().find(listingSelectors.advancedToggle).click();
   cy.getIframeBody().find(listingSelectors.advancedClear).click();
-  waitForListingRefresh();
+  waitForListingRefresh('@getHostListing');
 });
 
 Then('all the hosts are displayed again', () => {
@@ -393,7 +393,10 @@ Then(
         return;
       }
 
-      expect($row.text()).to.contain('-');
+      // Third cell (picker, name, monitoring): the placeholder is scoped to
+      // that column, whereas a row-wide contain('-') is satisfied by the
+      // 'generic-host' every row of this suite carries in Templates.
+      expect($row.find('td').eq(2).text().trim()).to.equal('-');
     });
   }
 );
@@ -425,7 +428,7 @@ Then('the pagination information shows the total count of hosts', () => {
 
 When('the admin sets the rows per page to 10', () => {
   cy.getIframeBody().find(listingSelectors.limitSelect).select('10');
-  waitForListingRefresh();
+  waitForListingRefresh('@getHostListing');
 });
 
 Then('at most 10 host rows are displayed', () => {

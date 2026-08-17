@@ -108,8 +108,19 @@ Cypress.Commands.add(
   'addCommandToResource',
   (index: number, command: string) => {
     cy.getIframeBody().find('span[title="Clear field"]').eq(index).click();
-    // Click on the check command field in the form
-    cy.getIframeBody().find('span[title="Check Command"]').click();
+    // The modernized host form moved the label out of the widget into a floating
+    // label, so its select2 container carries the selected value as title, not
+    // "Check Command". The service form is still legacy and keeps the title.
+    cy.getIframeBody().then(($body) => {
+      if ($body.find('span[title="Check Command"]').length > 0) {
+        cy.getIframeBody().find('span[title="Check Command"]').click();
+
+        return;
+      }
+      cy.getIframeBody()
+        .find('span[id="select2-command_command_id-container"]')
+        .click();
+    });
     // Chose a check command
     cy.getIframeBody().find(`div[title="${command}"]`).click();
   }
