@@ -256,13 +256,20 @@ Cypress.Commands.add('openListingRowForm', (name: string) => {
  * this without knowing the current state.
  */
 Cypress.Commands.add('expandFormSection', (sectionId: string) => {
-  cy.getSidePanelBody()
-    .find(`#${sectionId}`)
-    .then(($section) => {
-      if ($section.hasClass('collapsed')) {
-        cy.wrap($section).find('.cf-section-header').click();
+  const clickHeaderWhileCollapsed = (): void => {
+    cy.getSidePanelBody().then(($body) => {
+      if ($body.find(`#${sectionId}.collapsed`).length === 0) {
+        return;
       }
+      cy.getSidePanelBody().find(`#${sectionId} .cf-section-header`).click();
     });
+  };
+
+  // Twice on purpose: a select2 left open by an earlier pick covers the form
+  // with its mask, which swallows the first click whole — the header never sees
+  // it and the section stays collapsed. Each call is a no-op once it is open.
+  clickHeaderWhileCollapsed();
+  clickHeaderWhileCollapsed();
 
   cy.getSidePanelBody()
     .find(`#${sectionId}`)

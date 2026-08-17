@@ -15,6 +15,24 @@ const waitForHostForm = () => {
     .should('exist');
 };
 
+/**
+ * A multi-select keeps its dropdown open after a pick, and its overlay swallows
+ * the next click — which is the one meant for the button underneath. Toggle the
+ * field closed, the way a user has to, before moving on.
+ */
+const pickAclResourceGroup = (): void => {
+  getFormBody()
+    .contains('.cf-field', 'ACL Resource Groups')
+    .find('.select2-selection')
+    .click();
+  getFormBody().contains('div', 'user-ACLGROUP').click();
+  getFormBody()
+    .contains('.cf-field', 'ACL Resource Groups')
+    .find('.select2-selection')
+    .click();
+  getFormBody().find('.select2-container--open').should('not.exist');
+};
+
 const clickToAddHost = () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', 'Add').click();
@@ -71,13 +89,7 @@ When('the non-admin user fills in all mandatory fields', () => {
     .find('input[name="host_address"]')
     .clear()
     .type(hostMacros.default_host.address);
-  // The multi-select's inline search carries the generic "Search" placeholder
-  // now that the label moved to the floating label, so open it via its .cf-field.
-  getFormBody()
-    .contains('.cf-field', 'ACL Resource Groups')
-    .find('.select2-selection')
-    .click();
-  getFormBody().contains('div', 'user-ACLGROUP').click();
+  pickAclResourceGroup();
 });
 
 When('the non-admin user adds one normal macro and one password macro', () => {
@@ -367,11 +379,7 @@ When(
       .find('input[name="host_address"]')
       .clear()
       .type(hostMacros.default_host.address);
-    getFormBody()
-      .contains('.cf-field', 'ACL Resource Groups')
-      .find('.select2-selection')
-      .click();
-    getFormBody().contains('div', 'user-ACLGROUP').click();
+    pickAclResourceGroup();
     getFormBody().find('#template_add').click();
     getFormBody().find('span[role="presentation"]').eq(1).click();
     getFormBody().find(`div[title="${hostTemplate}"]`).click();
