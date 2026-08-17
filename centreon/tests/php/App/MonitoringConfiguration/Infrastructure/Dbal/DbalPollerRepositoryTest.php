@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpressi
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -93,7 +94,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
-            centralAddress: new PollerAddress('10.0.0.1'),
+            centralAddress: new CentralAddress('10.0.0.1'),
         );
 
         $this->repository->add($poller);
