@@ -31,7 +31,7 @@ import {
 } from '../../translatedLabels';
 import { generatedCommandAtom, isModalOpenAtom, pollerIdAtom } from './atoms';
 import CloudInstallCommand from './CloudInstallCommand';
-import { webUrl } from './Modal/useInstallCommand';
+import { centralWebAddress } from './Modal/useInstallCommand';
 
 const createPollerSuccessResponse = {
   '@context': '/centreon/api/latest/contexts/Poller',
@@ -44,12 +44,6 @@ const createPollerSuccessResponse = {
   name: 'poller-docker_07',
   poller_type: 'docker',
   uuid: '019dcf18-bdb1-7f89-a61f-45b8fcfb27e6'
-};
-
-const createPollerResponseWithPlaceholder = {
-  ...createPollerSuccessResponse,
-  installation_command:
-    'installcma.ps /FINGERPRINT=lllllll /ENDPOINT=<CENTRAL_URL>/api/latest'
 };
 
 const initializeI18n = (): void => {
@@ -577,8 +571,8 @@ describe('CloudInstallCommand', () => {
       });
 
       it('sends a value of centreon central address based on the web url in the API payload if the enviromment is cloud', () => {
-        cy.stub(webUrl, 'get').returns(
-          'https://staging.euwest1.centreon.click/funky-donkey'
+        cy.stub(centralWebAddress, 'get').returns(
+          'staging.euwest1.centreon.click/funky-donkey'
         );
 
         initialize({ isCloudPlatform: true, isModalOpen: true });
@@ -596,20 +590,19 @@ describe('CloudInstallCommand', () => {
           expect(request.body.name).to.equal('my-poller');
           expect(request.body.address).to.equal('192.168.1.1');
           expect(request.body.central_address).to.equal(
-            'https://staging.euwest1.centreon.click/funky-donkey'
+            'staging.euwest1.centreon.click/funky-donkey'
           );
         });
       });
 
-      it('replaces <CENTRAL_URL> placeholder in the generated command with the actual central URL', () => {
-        initialize({
-          createPollerResponse: createPollerResponseWithPlaceholder,
-          isModalOpen: true
-        });
+      it('strips the protocol scheme but keeps the base path from the central address typed by the user', () => {
+        initialize({ isModalOpen: true });
 
         cy.findByLabelText(`${labelPollerName} *`).type('my-poller');
         cy.findByLabelText(`${labelPollerAddress} *`).type('192.168.1.1');
-        cy.findByLabelText(`${labelCentralAddress} *`).type('192.168.1.1');
+        cy.findByLabelText(`${labelCentralAddress} *`).type(
+          'https://central.example.com/centreon'
+        );
 
         cy.findByLabelText(labelSelectTokenPlaceholder).click();
         cy.waitForRequest('@getTokens');
@@ -617,17 +610,11 @@ describe('CloudInstallCommand', () => {
 
         cy.findByTestId('Install command').closest('button').click();
 
-        cy.waitForRequest('@createPoller');
-
-        const expectedUrl = `${window.location.origin}`;
-
-        cy.findByTestId('Command')
-          .scrollIntoView()
-          .should(
-            'contain.text',
-            `installcma.ps /FINGERPRINT=lllllll /ENDPOINT=${expectedUrl}/api/latest`
+        cy.waitForRequest('@createPoller').then(({ request }) => {
+          expect(request.body.central_address).to.equal(
+            'central.example.com/centreon'
           );
-        cy.findByTestId('Command').should('not.contain.text', '<CENTRAL_URL>');
+        });
       });
 
       it('submits with Docker environment when Docker is selected', () => {

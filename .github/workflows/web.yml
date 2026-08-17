@@ -96,6 +96,7 @@ jobs:
         "centreon/cron/**"
         "centreon/doc/API/**"
         "centreon/GPL_LIB/**"
+        "centreon/install-poller/**"
         "centreon/lib/**"
         "centreon/libinstall/**"
         "centreon/logrotate/**"
@@ -898,9 +899,15 @@ jobs:
         env:
           MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
           MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
+          # "canary" isn't a real channel; "testing" packages get promoted
+          # verbatim to stable, so bake "stable" now instead.
+          STABILITY_RAW: ${{ needs.get-environment.outputs.stability }}
         run: |
           cd centreon/install-poller
-          bash build.sh "${MAJOR_VERSION}" "${MINOR_VERSION}"
+          stability="${STABILITY_RAW}"
+          [ "${stability}" = "canary" ] && stability="unstable"
+          [ "${stability}" = "testing" ] && stability="stable"
+          bash build.sh "${MAJOR_VERSION}" "${MINOR_VERSION}" "${stability}"
         shell: bash
 
       - name: Package Centreon

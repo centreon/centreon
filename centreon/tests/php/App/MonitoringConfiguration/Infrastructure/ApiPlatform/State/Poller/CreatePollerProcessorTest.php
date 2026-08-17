@@ -396,6 +396,95 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
+    public function testCannotCreatePollerWithProtocolSchemeInCentralAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('SchemeCentral'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => 'https://central.example.com',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCannotCreatePollerWithProtocolSchemeInAddress(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('SchemeAddress'),
+                'poller_type' => 'vm',
+                'address' => 'http://192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.1',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testCreatePollerWithBasePathInCentralAddress(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('BasePath'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => 'staging.euwest1.centreon.click/funky-donkey',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+
+        $responseData = $response->toArray();
+        self::assertArrayHasKey('installation_command', $responseData);
+        self::assertIsString($responseData['installation_command']);
+        self::assertStringContainsString(
+            'https://staging.euwest1.centreon.click/funky-donkey/poller/install.sh',
+            $responseData['installation_command']
+        );
+    }
+
+    public function testCreatePollerWithTrailingSlashInCentralAddressUsesNormalizedValue(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('TrailingSlash'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => 'staging.euwest1.centreon.click/funky-donkey/',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+
+        $responseData = $response->toArray();
+        self::assertArrayHasKey('installation_command', $responseData);
+        self::assertIsString($responseData['installation_command']);
+        self::assertStringContainsString(
+            'https://staging.euwest1.centreon.click/funky-donkey/poller/install.sh',
+            $responseData['installation_command']
+        );
+        self::assertStringNotContainsString('funky-donkey//', $responseData['installation_command']);
+        self::assertStringContainsString(
+            '--central_url staging.euwest1.centreon.click/funky-donkey ',
+            $responseData['installation_command']
+        );
+    }
+
     private function uniqueName(string $prefix = 'Poller'): string
     {
         return $prefix . '_' . bin2hex(random_bytes(4));

@@ -20,6 +20,7 @@ function _vmConfigureGorgone() {
   local central_host="${GORGONE_ADDRESS}"
   local central_port="${CENTRAL_PORT}"
   local ssl_mode="${GORGONE_SSL}"
+  local central_uri="${GORGONE_PULLWSS_CENTRAL_URI}"
 
   mkdir -p /etc/centreon-gorgone/config.d
   local old_umask
@@ -47,6 +48,7 @@ gorgone:
       port: ${central_port}
       token: ${GORGONE_TOKEN}
       address: ${central_host}
+      central_uri: ${central_uri}
 EOF
   local ret=$?
   umask "${old_umask}"
