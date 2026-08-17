@@ -21,14 +21,15 @@ set -u
 major=""
 
 ## Configuration variable
-# Not BASH_SOURCE[0]-based: when run via `curl | bash`, the script has no file
-# on disk to locate. Use the current directory instead, same as docker.sh
-# already does for its generated .env/docker-compose.yaml.
+# curl | bash has no file on disk to locate via BASH_SOURCE[0]; use pwd instead.
 WORK_DIR="$(pwd)"
 LOG_FILE="${WORK_DIR}/log/install-poller.log"
 
 # Deployment type: docker | vm (required, no default)
 POLLER_TYPE=""
+
+# Baked in at build time by build.sh
+STABILITY=""
 
 # Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
 CLOUD_MODE="false"
@@ -42,12 +43,15 @@ CENTRAL_HOST=""
 CENTRAL_PORT=""
 # ssl inferred from the http(s):// scheme in --central_url, if any (empty = not specified)
 CENTRAL_URL_SSL=""
+# path segment of --central_url, if any (e.g. "/centreon"); empty means root-mounted
+CENTRAL_BASE_URI=""
 APP_SECRET=""
 SALT=""
 
 # Gorgone connection (derived from the args above)
 GORGONE_ADDRESS=""
 GORGONE_SSL=""
+GORGONE_PULLWSS_CENTRAL_URI=""
 
 # Engine broker connection port for the healthcheck (cloud: 443, on-prem: 5669)
 ENGINE_PORT=""

@@ -3,7 +3,8 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import {
   checkMetricsAreMonitored,
-  checkServicesAreMonitored
+  checkServicesAreMonitored,
+  parseCsv
 } from '../../../commons';
 
 const serviceOk = 'service_test_ok';
@@ -66,9 +67,6 @@ const UpdatedColumns = [
 
 const downloadsFolder = Cypress.config('downloadsFolder');
 
-const normalize = (text: string) =>
-  text.trim().replace(/^"|"$/g, '').replace(/\\"/g, '').replace(/"/g, '');
-
 // Host ID / Service ID values are runtime-generated, so instead of comparing
 // them against a static fixture we assert the type-based contract on every row:
 // a host has only Host ID, a service has both identifiers.
@@ -76,9 +74,9 @@ const assertIdentifierContract = (
   rows: Array<Record<string, string>>
 ): void => {
   rows.forEach((row, index) => {
-    const type = (row['Resource Type'] ?? '').replace(/"/g, '');
-    const hostId = (row['Host ID'] ?? '').replace(/"/g, '');
-    const serviceId = (row['Service ID'] ?? '').replace(/"/g, '');
+    const type = row['Resource Type'] ?? '';
+    const hostId = row['Host ID'] ?? '';
+    const serviceId = row['Service ID'] ?? '';
 
     if (type === 'Service') {
       expect(hostId, `Row ${index + 1} (service) Host ID`).to.match(/^\d+$/);
@@ -292,22 +290,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(AllColumns);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
@@ -387,22 +378,15 @@ Then(
   () => {
     cy.task('getExportedFile', { downloadsFolder }).then((filePath) => {
       cy.task('readCsvFile', { filePath }).then((csvContent) => {
-        const rows = (csvContent as string)
-          .trim()
-          .split('\n')
-          .map((row) => row.split(';').map((cell) => cell.trim()));
+        const [headers, ...dataRows] = parseCsv(csvContent as string);
 
-        const rawHeaders = rows[0];
-        const headers = rawHeaders.map(normalize);
-        cy.log('Normalized CSV Headers:', headers.join(' | '));
+        cy.log('CSV Headers:', headers.join(' | '));
         expect(headers).to.deep.equal(UpdatedColumns);
-
-        const dataRows = rows.slice(1);
 
         const rowObjects = dataRows.map((row) =>
           headers.reduce(
             (obj, header, i) => {
-              obj[header.replace(/"/g, '')] = row[i];
+              obj[header] = row[i];
               return obj;
             },
             {} as Record<string, string>
