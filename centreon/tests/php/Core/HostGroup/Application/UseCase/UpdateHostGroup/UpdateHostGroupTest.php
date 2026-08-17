@@ -362,7 +362,7 @@ it(
             ->method('updateDatasetResources');
 
         $response = ($this->useCase)($this->updateHostGroupRequest);
-        dump($response);
+
         expect($response)
             ->toBeInstanceOf(NoContentResponse::class);
     }
@@ -371,7 +371,7 @@ it(
 it(
     'should log a CHANGE action with added/removed host ids when links change',
     function (): void {
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -434,7 +434,7 @@ it(
 it(
     'should not log any action when the host links do not change',
     function (): void {
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -473,7 +473,7 @@ it(
 it(
     'should treat the same host ids in different order as unchanged',
     function (): void {
-        $this->adminResolver
+        $this->user
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
