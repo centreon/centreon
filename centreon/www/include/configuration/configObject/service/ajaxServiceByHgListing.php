@@ -230,6 +230,7 @@ try {
 
         $rows[] = [
             'id'        => $sid,
+            'key'       => $svc['hg_id'] . '_' . $sid,
             'hg_id'     => (int) $svc['hg_id'],
             'hg_name'   => $svc['hg_name'],
             'desc'      => $desc,

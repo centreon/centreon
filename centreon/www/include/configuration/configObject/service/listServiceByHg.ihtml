@@ -149,8 +149,11 @@ svcHgListing.renderRows = function(rows) {
     for (var i = 0; i < rows.length; i++) {
         var row = rows[i];
         var rid = row.id;
+        // DOM ids use the hgid_sid key (a service can appear under several
+        // hostgroups); the posted name keeps the service id the handlers expect.
+        var rkey = row.key || rid;
 
-        var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rid+'" name="select['+rid+']" value="1" /><label class="empty-label" for="select_'+rid+'"></label></div></td>';
+        var tr = '<tr><td class="cl-col-picker"><div class="md-checkbox md-checkbox-inline"><input type="checkbox" id="select_'+rkey+'" name="select['+rid+']" value="1" /><label class="empty-label" for="select_'+rkey+'"></label></div></td>';
 
         // Hostgroup (grouped) — plain text: linking here would boot the React SPA
         // and break the legacy listing context
