@@ -84,7 +84,7 @@ msgstr "1 Colonne"
 
 #: centreon/www/install/front_translate.php
 msgid "1 day"
-msgstr ""
+msgstr "1 jour"
 
 #: centreon/www/install/smarty_translate.php
 msgid "1 minute"
@@ -18504,7 +18504,7 @@ msgstr "Accès au coffre-fort"
 
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "Vault is not available"
-msgstr ""
+msgstr "Le coffre-fort n'est pas disponible"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/listMnftr.php
