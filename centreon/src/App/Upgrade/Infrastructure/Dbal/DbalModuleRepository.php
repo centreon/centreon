@@ -302,6 +302,7 @@ final class DbalModuleRepository implements ModuleRepository
             databaseNameRealTime: $this->connectionConfig->getDatabaseNameRealTime(),
             port: $this->connectionConfig->getPort(),
             charset: $this->connectionConfig->getCharset(),
+            driver: $this->connectionConfig->getDriver(),
         ));
         $centreon_path = $this->centreonPath;
 
