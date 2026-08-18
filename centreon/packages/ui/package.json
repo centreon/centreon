@@ -113,7 +113,7 @@
     "storybook-addon-mock": "^5.0.0",
     "storybook-dark-mode": "^4.0.2",
     "storybook-react-rsbuild": "^1.0.1",
-    "style-dictionary": "^4.3.3",
+    "style-dictionary": "^5.4.4",
     "tailwindcss": "^4.1.17",
     "ts-node": "^10.9.2",
     "use-resize-observer": "^9.1.0",
