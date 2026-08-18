@@ -363,7 +363,9 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
       - name: Check French translations completeness
-        if: github.event_name == 'pull_request'
+        if: |
+          github.event_name == 'pull_request' &&
+          needs.get-environment.outputs.is_targeting_feature_branch == 'false'
         run: bash .github/scripts/translation/check-french-translations.sh
         shell: bash
 
