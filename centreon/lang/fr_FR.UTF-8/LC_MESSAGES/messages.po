@@ -18504,7 +18504,7 @@ msgstr "Accès au coffre-fort"
 
 #: centreon/src/Core/Security/Vault/Application/Exceptions/VaultException.php
 msgid "Vault is not available"
-msgstr ""
+msgstr "Le coffre-fort n'est pas disponible"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 #: centreon/www/include/configuration/configObject/traps-manufacturer/listMnftr.php
