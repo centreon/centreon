@@ -44,8 +44,6 @@ final class DbalModuleRepository implements ModuleRepository
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private readonly Connection $configConnection,
-        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
-        private readonly Connection $realtimeConnection,
         #[Autowire(param: 'upgrade.modules_dir')]
         private readonly string $modulesDir,
         private readonly ConnectionConfig $connectionConfig,
@@ -294,7 +292,7 @@ final class DbalModuleRepository implements ModuleRepository
             return;
         }
 
-        // TODO: temporary bridge — replace with proper ConnectionInterface injection once module upgrade scripts are migrated (MON-206073)
+        // TODO: temporary bridge — replace with proper ConnectionInterface injection once module upgrade scripts are migrated
         $pearDB = new \CentreonDB(connectionConfig: $this->connectionConfig);
         $pearDBO = new \CentreonDB(connectionConfig: new ConnectionConfig(
             host: $this->connectionConfig->getHost(),
