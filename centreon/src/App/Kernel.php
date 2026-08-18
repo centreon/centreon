@@ -43,6 +43,9 @@ class Kernel extends BaseKernel
     /** @var string cache path */
     private string $cacheDir = '/var/cache/centreon/symfony';
 
+    /** @var string|null memoized config file set fingerprint */
+    private ?string $configFingerprint = null;
+
     /**
      * Kernel constructor.
      */
@@ -105,13 +108,32 @@ class Kernel extends BaseKernel
     #[\Override]
     public function getCacheDir(): string
     {
-        return $this->cacheDir;
+        return $this->cacheDir . '/' . $this->getConfigFingerprint();
     }
 
     #[\Override]
     public function getLogDir(): string
     {
         return defined('_CENTREON_LOG_') ? (string) _CENTREON_LOG_ : '/var/log/centreon';
+    }
+
+    /**
+     * Modules drop yaml files under config/routes and config/packages after the container
+     * may already have been compiled. Keying the cache directory on the config file set
+     * makes such a stale container unreachable instead of fatal.
+     */
+    private function getConfigFingerprint(): string
+    {
+        if ($this->configFingerprint === null) {
+            $files = glob($this->getProjectDir() . '/config/{routes,packages}/*.yaml', \GLOB_BRACE) ?: [];
+            $entries = array_map(
+                static fn (string $file): string => $file . ':' . (string) @filemtime($file),
+                $files
+            );
+            $this->configFingerprint = substr(md5(implode('|', $entries)), 0, 8);
+        }
+
+        return $this->configFingerprint;
     }
 
     protected function build(ContainerBuilder $container): void

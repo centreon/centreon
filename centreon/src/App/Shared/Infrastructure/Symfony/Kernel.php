@@ -36,9 +36,30 @@ final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+    private ?string $configFingerprint = null;
+
     public function getCacheDir(): string
     {
-        return '/var/cache/centreon/symfony.new';
+        return '/var/cache/centreon/symfony.new/' . $this->getConfigFingerprint();
+    }
+
+    /**
+     * Modules drop yaml/php files under config.new after the container may already have
+     * been compiled. Keying the cache directory on the config file set makes such a stale
+     * container unreachable instead of fatal.
+     */
+    private function getConfigFingerprint(): string
+    {
+        if ($this->configFingerprint === null) {
+            $files = glob($this->getConfigDir() . '/{routes,packages,services}/*.{yaml,php}', \GLOB_BRACE) ?: [];
+            $entries = array_map(
+                static fn (string $file): string => $file . ':' . (string) @filemtime($file),
+                $files
+            );
+            $this->configFingerprint = substr(md5(implode('|', $entries)), 0, 8);
+        }
+
+        return $this->configFingerprint;
     }
 
     public function getLogDir(): string
