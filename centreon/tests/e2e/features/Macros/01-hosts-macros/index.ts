@@ -104,6 +104,25 @@ const openRowForm = (name: string): void => {
   waitForHostForm();
 };
 
+/**
+ * Names currently held by the macro rows of the open panel, read inside the
+ * assertion callback so each retry sees the live DOM. Chaining .find() off the
+ * panel body instead dies the moment sheepIt re-renders the rows.
+ */
+const expectPanelMacroNames = (
+  assertNames: (names: Array<string>) => void
+): void => {
+  pageDocument().should((doc) => {
+    const frame = doc.querySelector('#cfSidePanelFrame') as HTMLIFrameElement;
+    const inputs = Array.from(
+      frame.contentDocument?.querySelectorAll(
+        '#macro input[id^="macroInput"]'
+      ) ?? []
+    );
+    assertNames(inputs.map((el) => (el as HTMLInputElement).value));
+  });
+};
+
 const clickToAddHost = () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', 'Add').click();
@@ -246,10 +265,13 @@ Given('a configured host with macros', () => {
 
 When('the non-admin user deletes the macros of the configured host', () => {
   openRowForm(hostMacros.updated_host.name);
-  // Remove the normal macro
-  getFormBody().find('#macro_remove_current').eq(0).click();
-  // Remove tha password macro
-  getFormBody().find('#macro_remove_current').eq(0).click();
+  // One row at a time, waiting for the list to settle in between: removing a row
+  // makes sheepIt re-render, which detaches the subject of a chained lookup.
+  expectPanelMacroNames((names) => expect(names).to.have.length(2));
+  getFormBody().find('#macro_remove_current').first().click();
+  expectPanelMacroNames((names) => expect(names).to.have.length(1));
+  getFormBody().find('#macro_remove_current').first().click();
+  expectPanelMacroNames((names) => expect(names).to.have.length(0));
 });
 
 Then('the macros are deleted successfully', () => {
@@ -259,12 +281,10 @@ Then('the macros are deleted successfully', () => {
   );
   openRowForm(hostMacros.updated_host.name);
   // Check the non-existence of the Macros
-  getFormBody()
-    .contains(hostMacros.updated_host.normalMacro.name)
-    .should('not.exist');
-  getFormBody()
-    .contains(hostMacros.updated_host.passMacro.name)
-    .should('not.exist');
+  expectPanelMacroNames((names) => {
+    expect(names).to.not.include(hostMacros.updated_host.normalMacro.name);
+    expect(names).to.not.include(hostMacros.updated_host.passMacro.name);
+  });
 });
 
 Then('the macros are removed from the file {string}', (fileName: string) => {
