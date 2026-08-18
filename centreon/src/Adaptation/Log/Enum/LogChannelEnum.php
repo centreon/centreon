@@ -30,7 +30,6 @@ enum LogChannelEnum: string implements LogChannelInterface
     case AUTHENTICATION = 'authentication';
     case PASSWORD = 'password';
     case PLUGIN_PACK_MANAGER = 'plugin-pack-manager';
-    case POLLER_INSTALL = 'poller-install';
     case TOKEN = 'token';
     case UPGRADE = 'upgrade';
     case WEB = 'web';
