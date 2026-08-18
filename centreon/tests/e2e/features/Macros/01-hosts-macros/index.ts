@@ -263,15 +263,25 @@ Given('a configured host with macros', () => {
   );
 });
 
+/**
+ * Remove the macro row carrying a given name, then wait for that name to be gone
+ * before touching the list again: sheepIt re-renders on removal, which detaches
+ * the subject of a chained lookup. Keyed on the name rather than on a row count,
+ * which would also have to know whether the sheepIt template row is counted.
+ */
+const removeMacroRowNamed = (name: string): void => {
+  getFormBody()
+    .find(`#macro input[id^="macroInput"][value="${name}"]`)
+    .parents('li')
+    .find('#macro_remove_current')
+    .click();
+  expectPanelMacroNames((names) => expect(names).to.not.include(name));
+};
+
 When('the non-admin user deletes the macros of the configured host', () => {
   openRowForm(hostMacros.updated_host.name);
-  // One row at a time, waiting for the list to settle in between: removing a row
-  // makes sheepIt re-render, which detaches the subject of a chained lookup.
-  expectPanelMacroNames((names) => expect(names).to.have.length(2));
-  getFormBody().find('#macro_remove_current').first().click();
-  expectPanelMacroNames((names) => expect(names).to.have.length(1));
-  getFormBody().find('#macro_remove_current').first().click();
-  expectPanelMacroNames((names) => expect(names).to.have.length(0));
+  removeMacroRowNamed(hostMacros.updated_host.normalMacro.name);
+  removeMacroRowNamed(hostMacros.updated_host.passMacro.name);
 });
 
 Then('the macros are deleted successfully', () => {
