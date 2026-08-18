@@ -70,10 +70,6 @@ msgid "*The timezone used is configured on your user settings"
 msgstr ""
 "* La zona horaria utilizada es la configurada en su configuración de usuario"
 
-#: centreon/www/install/smarty_translate.php
-msgid "..."
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr ""

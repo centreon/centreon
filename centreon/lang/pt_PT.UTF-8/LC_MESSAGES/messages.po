@@ -68,10 +68,6 @@ msgid "*The timezone used is configured on your user settings"
 msgstr ""
 "*O fuso horário utilizado é o que foi configurado no seu perfil de usuário"
 
-#: centreon/www/install/smarty_translate.php
-msgid "..."
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr ""

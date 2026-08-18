@@ -74,10 +74,6 @@ msgstr ""
 "*Le fuseau horaire utilisé est celui configuré dans vos paramètres "
 "utilisateur"
 
-#: centreon/www/install/smarty_translate.php
-msgid "..."
-msgstr "..."
-
 #: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr "0-9"
