@@ -1,10 +1,10 @@
-import { Button } from '@mui/material';
+import { Button, Chip } from '@mui/material';
 
 import { useSetAtom } from 'jotai';
 import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { labelCreateNewPoller } from '../../translatedLabels';
+import { labelBeta, labelCreateNewPoller } from '../../translatedLabels';
 import { isModalOpenAtom } from './atoms';
 import Modal from './Modal';
 
@@ -24,15 +24,23 @@ const CloudInstallCommand = ({ closeSubMenu }: Props): ReactElement => {
 
   return (
     <>
-      <Button
-        data-testid={labelCreateNewPoller}
-        fullWidth
-        onClick={open}
-        size="small"
-        variant="contained"
-      >
-        {t(labelCreateNewPoller)}
-      </Button>
+      <div className="flex items-center w-full">
+        <Button
+          data-testid={labelCreateNewPoller}
+          onClick={open}
+          size="small"
+          variant="contained"
+        >
+          {t(labelCreateNewPoller)}
+        </Button>
+        <div className="grow flex justify-center">
+          <Chip
+            color="secondary"
+            label={t(labelBeta).toLocaleUpperCase()}
+            sx={{ bgcolor: 'var(--color-secondary-dark)', fontWeight: 'bold' }}
+          />
+        </div>
+      </div>
 
       <Modal />
     </>
