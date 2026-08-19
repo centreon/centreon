@@ -117,6 +117,17 @@ class Kernel extends BaseKernel
         return defined('_CENTREON_LOG_') ? (string) _CENTREON_LOG_ : '/var/log/centreon';
     }
 
+    protected function build(ContainerBuilder $container): void
+    {
+        $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
+
+        if (class_exists($class)) {
+            /** @var CompilerPassInterface $compilerPass */
+            $compilerPass = new $class();
+            $container->addCompilerPass($compilerPass);
+        }
+    }
+
     /**
      * Modules drop yaml files under config/routes and config/packages after the container
      * may already have been compiled. Keying the cache directory on the config file set
@@ -130,20 +141,9 @@ class Kernel extends BaseKernel
                 static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
                 $files
             );
-            $this->configFingerprint = substr(md5(implode('|', $entries)), 0, 8);
+            $this->configFingerprint = mb_substr(md5(implode('|', $entries)), 0, 8);
         }
 
         return $this->configFingerprint;
-    }
-
-    protected function build(ContainerBuilder $container): void
-    {
-        $class = 'CentreonAnomalyDetection\DependencyInjection\TagIndicatorPass';
-
-        if (class_exists($class)) {
-            /** @var CompilerPassInterface $compilerPass */
-            $compilerPass = new $class();
-            $container->addCompilerPass($compilerPass);
-        }
     }
 }

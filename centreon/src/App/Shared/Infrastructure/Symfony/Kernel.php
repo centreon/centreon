@@ -43,28 +43,6 @@ final class Kernel extends BaseKernel
         return '/var/cache/centreon/symfony.new/' . $this->getConfigFingerprint();
     }
 
-    /**
-     * Modules drop yaml/php files under config.new after the container may already have
-     * been compiled. Keying the cache directory on the config file set makes such a stale
-     * container unreachable instead of fatal.
-     */
-    private function getConfigFingerprint(): string
-    {
-        if ($this->configFingerprint === null) {
-            $files = array_merge(
-                glob($this->getConfigDir() . '/{routes,packages,services}/{*,*/*}.{yaml,php}', \GLOB_BRACE) ?: [],
-                glob($this->getConfigDir() . '/bundles.php') ?: []
-            );
-            $entries = array_map(
-                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
-                $files
-            );
-            $this->configFingerprint = substr(md5(implode('|', $entries)), 0, 8);
-        }
-
-        return $this->configFingerprint;
-    }
-
     public function getLogDir(): string
     {
         return '/var/log/centreon';
@@ -127,5 +105,27 @@ final class Kernel extends BaseKernel
     private function getConfigDir(): string
     {
         return $this->getProjectDir() . '/config.new';
+    }
+
+    /**
+     * Modules drop yaml/php files under config.new after the container may already have
+     * been compiled. Keying the cache directory on the config file set makes such a stale
+     * container unreachable instead of fatal.
+     */
+    private function getConfigFingerprint(): string
+    {
+        if ($this->configFingerprint === null) {
+            $files = array_merge(
+                glob($this->getConfigDir() . '/{routes,packages,services}/{*,*/*}.{yaml,php}', \GLOB_BRACE) ?: [],
+                glob($this->getConfigDir() . '/bundles.php') ?: []
+            );
+            $entries = array_map(
+                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
+                $files
+            );
+            $this->configFingerprint = mb_substr(md5(implode('|', $entries)), 0, 8);
+        }
+
+        return $this->configFingerprint;
     }
 }
