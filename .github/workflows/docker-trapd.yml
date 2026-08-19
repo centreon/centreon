@@ -373,7 +373,7 @@ jobs:
             "${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize.outputs.image_tag }}"
         shell: bash
 
-  promote-docker-to-pulp:
+  promote-docker-to-ghcr:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.stability == 'stable' &&
@@ -384,13 +384,13 @@ jobs:
     runs-on: centreon-ubuntu-22.04
     permissions:
       contents: read
-      id-token: write
+      packages: write
     strategy:
       fail-fast: false
       matrix:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
-    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to Pulp stable
+    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to ghcr.io stable
     # HARBOR_TAG reconstructs the release/hotfix branch name (<release_type>-<major_version>-next)
     # that dockerize tagged the image with while that branch was 'testing'. release_type comes
     # from the annotated component tag's message ("release ..."/"hotfix ...", see
@@ -399,21 +399,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          fetch-depth: 0
-          fetch-tags: true
           persist-credentials: false
-
-      - name: Resolve release bundle tag
-        id: resolve-bundle-tag
-        # release-new (.github/actions/release-new) tags the release bundle
-        # (release-<cloud|onprem>-<YYYYMMDD>-<major>) on the same commit as
-        # this component's stable tag, so it's always among the tags pointing
-        # at HEAD here. Soft failure: no match just means no bundle tag to add.
-        run: |
-          BUNDLE_TAG=$(git tag --points-at HEAD | grep -E '^release-(cloud|onprem)-[0-9]{8}-[0-9]{2}\.[0-9]{2}$' | head -n1) || true
-          echo "tag=$BUNDLE_TAG" >> "$GITHUB_OUTPUT"
-          echo "Resolved release bundle tag: ${BUNDLE_TAG:-<none>}"
-        shell: bash
 
       - name: Login to Harbor registry
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
@@ -422,28 +408,30 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
+      - name: Login to ghcr.io
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
-      - name: Promote Harbor candidate to Pulp stable (best-effort, non-blocking)
+      - name: Promote Harbor candidate to ghcr.io stable (best-effort, non-blocking)
         continue-on-error: true
-        id: promote-pulp
+        id: promote-ghcr
         env:
-          PULP_URL: https://pulp-api.apps.centreon.com
-          PULP_OIDC_AUDIENCE: https://pulp.dev.centreon.io
-          BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
+          GHCR_IMAGE: ghcr.io/centreon/${{ matrix.component }}
           HARBOR_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
           HARBOR_TAG: ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next
-          PULP_TAGS: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }} ${{ steps.resolve-bundle-tag.outputs.tag }}
-          MODULE: ${{ matrix.component }}
-          OS: ${{ matrix.operating_system }}
-          STABILITY: ${{ needs.get-environment.outputs.stability }}
+          GHCR_TAGS: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
           PLATFORMS: linux/amd64,linux/arm64
-        run: bash .github/scripts/docker-push-to-pulp.sh
+        run: bash .github/scripts/docker-push-to-ghcr.sh
         shell: bash
 
-      - name: Warn if Pulp stable delivery failed
-        if: steps.promote-pulp.outcome == 'failure'
+      - name: Warn if ghcr.io stable delivery failed
+        if: steps.promote-ghcr.outcome == 'failure'
         run: |
-          echo "::warning::Pulp delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }} (Harbor tag ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next). This release is available on Harbor but was NOT published to Pulp — investigate before relying on public delivery for this version."
+          echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }} (Harbor tag ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next). This release is available on Harbor but was NOT published to ghcr.io — investigate before relying on public delivery for this version."
         shell: bash
