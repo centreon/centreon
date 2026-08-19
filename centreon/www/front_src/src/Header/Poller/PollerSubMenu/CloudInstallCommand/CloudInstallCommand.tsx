@@ -34,10 +34,16 @@ const CloudInstallCommand = ({ closeSubMenu }: Props): ReactElement => {
           {t(labelCreateNewPoller)}
         </Button>
         <div className="grow flex justify-center">
+          {/* The purple is hardcoded on purpose. secondary.dark from the MUI
+              palette is derived from secondary.main in dark mode and resolves
+              to ~#571671, leaving the badge at 1.34:1 against the panel, and
+              var(--color-secondary-dark) is declared twice on :root — #ac28c1
+              by the Tailwind theme, #b5b5b5 by the legacy Generic theme — so
+              which one wins depends on stylesheet order. */}
           <Chip
             color="secondary"
             label={t(labelBeta).toLocaleUpperCase()}
-            sx={{ bgcolor: 'var(--color-secondary-dark)', fontWeight: 'bold' }}
+            sx={{ bgcolor: '#AC28C1', fontWeight: 'bold' }}
           />
         </div>
       </div>

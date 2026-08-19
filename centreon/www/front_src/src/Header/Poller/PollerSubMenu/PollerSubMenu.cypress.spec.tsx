@@ -17,7 +17,8 @@ import {
 import { PollerSubMenu } from './PollerSubMenu';
 
 interface InitializeOptions {
-  isCloudPlatform?: boolean;
+  // null emulates the atom before /platform/features resolves.
+  isCloudPlatform?: boolean | null;
   themeMode?: ThemeMode;
 }
 
@@ -27,7 +28,10 @@ const initialize = ({
 }: InitializeOptions = {}): void => {
   const store = createStore();
 
-  store.set(platformFeaturesAtom, { featureFlags: {}, isCloudPlatform });
+  store.set(
+    platformFeaturesAtom,
+    isCloudPlatform === null ? null : { featureFlags: {}, isCloudPlatform }
+  );
 
   // cy.mount wraps the component in a ThemeProvider that sits *outside* this
   // Provider, so it reads userAtom from the default store rather than ours.
@@ -84,6 +88,12 @@ describe('PollerSubMenu', () => {
 
     it('hides the button on a cloud platform', () => {
       initialize({ isCloudPlatform: true });
+
+      cy.findByTestId(labelCreateNewPoller).should('not.exist');
+    });
+
+    it('hides the button while the platform features are not resolved', () => {
+      initialize({ isCloudPlatform: null });
 
       cy.findByTestId(labelCreateNewPoller).should('not.exist');
     });

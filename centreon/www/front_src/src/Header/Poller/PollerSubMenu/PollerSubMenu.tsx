@@ -92,7 +92,10 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
 
-      {!platformFeatures?.isCloudPlatform && (
+      {/* Explicitly false, not falsy: the atom is null until /platform/features
+          resolves, and a loose check would flash this on-premise entry on a
+          cloud platform. */}
+      {platformFeatures?.isCloudPlatform === false && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <CloudInstallCommand closeSubMenu={closeSubMenu} />
         </ListItem>
