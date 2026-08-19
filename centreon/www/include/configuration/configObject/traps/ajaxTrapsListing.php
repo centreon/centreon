@@ -46,19 +46,19 @@ $conditions = 'WHERE 1 ';
 $bindParams = [];
 
 if ($search !== '') {
-    $conditions .= "AND (t.traps_oid LIKE :search OR t.traps_name LIKE :search "
-        . "OR t.manufacturer_id IN (SELECT id FROM traps_vendor WHERE alias LIKE :search)) ";
+    $conditions .= 'AND (t.traps_oid LIKE :search OR t.traps_name LIKE :search '
+        . 'OR t.manufacturer_id IN (SELECT id FROM traps_vendor WHERE alias LIKE :search)) ';
     $bindParams[':search'] = '%' . $search . '%';
 }
 
 if ($statusFilter > 0) {
     $enumStatus = $statusFilter == 5 ? -1 : $statusFilter - 1;
-    $conditions .= "AND t.traps_status = :status ";
+    $conditions .= 'AND t.traps_status = :status ';
     $bindParams[':status'] = (string) $enumStatus;
 }
 
 if ($vendorFilter > 0) {
-    $conditions .= "AND t.manufacturer_id = :vendor ";
+    $conditions .= 'AND t.manufacturer_id = :vendor ';
     $bindParams[':vendor'] = $vendorFilter;
 }
 
