@@ -127,7 +127,7 @@ class Kernel extends BaseKernel
         if ($this->configFingerprint === null) {
             $files = glob($this->getProjectDir() . '/config/{routes,packages}/*.yaml', \GLOB_BRACE) ?: [];
             $entries = array_map(
-                static fn (string $file): string => $file . ':' . (string) @filemtime($file),
+                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
                 $files
             );
             $this->configFingerprint = substr(md5(implode('|', $entries)), 0, 8);

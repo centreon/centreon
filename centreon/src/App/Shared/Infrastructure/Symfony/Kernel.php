@@ -51,9 +51,12 @@ final class Kernel extends BaseKernel
     private function getConfigFingerprint(): string
     {
         if ($this->configFingerprint === null) {
-            $files = glob($this->getConfigDir() . '/{routes,packages,services}/*.{yaml,php}', \GLOB_BRACE) ?: [];
+            $files = array_merge(
+                glob($this->getConfigDir() . '/{routes,packages,services}/{*,*/*}.{yaml,php}', \GLOB_BRACE) ?: [],
+                glob($this->getConfigDir() . '/bundles.php') ?: []
+            );
             $entries = array_map(
-                static fn (string $file): string => $file . ':' . (string) @filemtime($file),
+                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
                 $files
             );
             $this->configFingerprint = substr(md5(implode('|', $entries)), 0, 8);
