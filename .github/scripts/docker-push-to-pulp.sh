@@ -21,7 +21,7 @@
 # full provenance; only the Pulp copy omits it.
 #
 # Expected env vars:
-#   PULP_URL             e.g. https://pulp-api.apps.centreon.com
+#   PULP_URL             e.g. https://pulp-api.int.centreon.com
 #   PULP_OIDC_AUDIENCE   e.g. https://pulp.dev.centreon.io
 #   BASE_PATH            Pulp container path, e.g. centreon/centreon-centreontrapd-trixie
 #   HARBOR_IMAGE         source image ref on Harbor, no tag
@@ -31,7 +31,7 @@
 #   ACTIONS_ID_TOKEN_REQUEST_TOKEN / ACTIONS_ID_TOKEN_REQUEST_URL (injected by GitHub Actions when the job has `id-token: write`)
 set -euo pipefail
 
-PULP_IMAGE="pulp-api.apps.centreon.com/$BASE_PATH"
+PULP_IMAGE="pulp-api.int.centreon.com/$BASE_PATH"
 
 echo "::group::Fetch GitHub OIDC token for Pulp"
 OIDC_TOKEN=$(curl -sS \
@@ -84,7 +84,7 @@ echo "::endgroup::"
 echo "::group::Login to Pulp registry via OIDC"
 PULP_JWT=$(curl -sS \
   -H "Authorization: Bearer $OIDC_TOKEN" \
-  "$PULP_URL/token/?service=pulp-api.apps.centreon.com&scope=repository:${BASE_PATH}:push,pull" \
+  "$PULP_URL/token/?service=pulp-api.int.centreon.com&scope=repository:${BASE_PATH}:push,pull" \
   | jq -r '.token // empty')
 if [[ -z "$PULP_JWT" ]]; then
   echo "::error::Failed to fetch Pulp JWT (token service returned empty)"
@@ -94,7 +94,7 @@ echo "::add-mask::$PULP_JWT"
 mkdir -p ~/.docker
 EXISTING_CONFIG=$(cat ~/.docker/config.json 2>/dev/null || echo '{}')
 echo "$EXISTING_CONFIG" | jq --arg jwt "$PULP_JWT" \
-  '.auths["pulp-api.apps.centreon.com"] = {"registrytoken": $jwt}' \
+  '.auths["pulp-api.int.centreon.com"] = {"registrytoken": $jwt}' \
   > ~/.docker/config.json
 echo "::endgroup::"
 
