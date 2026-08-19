@@ -127,17 +127,14 @@ function _vmCheckRam() {
 }
 
 function _vmCheckNetwork() {
-  local target
-  if [ "${CLOUD_MODE}" = "true" ]; then
-    target="https://${CENTRAL_URL}"
-  else
-    local host
-    host=$(echo "${CENTRAL_URL}" | cut -d: -f1)
-    target="http://${host}"
-  fi
+  # CENTRAL_HOST/CENTRAL_PORT already resolved by _installDeriveCentral;
+  # re-parsing CENTRAL_URL breaks on scheme-prefixed URLs.
+  local scheme="http"
+  [ "${GORGONE_SSL}" = "true" ] && scheme="https"
+  local target="${scheme}://${CENTRAL_HOST}:${CENTRAL_PORT}"
 
   if curl -sf --max-time 10 "${target}" >/dev/null 2>&1; then
-    consoleInfo "Network connectivity to ${CENTRAL_URL}: OK"
+    consoleInfo "Network connectivity to ${target}: OK"
     logInfo "Network check to ${target}: OK"
   else
     consoleWarn "Cannot reach ${target} — check network connectivity before starting services."

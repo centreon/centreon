@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
@@ -40,12 +41,18 @@ final readonly class CreatePollerInput
 
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: PollerAddress::MIN_LENGTH, max: PollerAddress::MAX_LENGTH)]
+        #[Assert\Regex(pattern: '~://~', match: false, message: 'This value must be an IP address or a hostname, without a protocol scheme.')]
         public string $address,
 
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: 1, max: 255)]
         #[ExistingPollerToken]
         public string $pollerTokenName,
+
+        #[Assert\NotBlank(normalizer: 'trim')]
+        #[Assert\Length(min: CentralAddress::MIN_LENGTH, max: CentralAddress::MAX_LENGTH)]
+        #[Assert\Regex(pattern: '~://~', match: false, message: 'This value must be an IP address or a hostname with an optional base path, without a protocol scheme.')]
+        public string $centralAddress,
     ) {
     }
 }

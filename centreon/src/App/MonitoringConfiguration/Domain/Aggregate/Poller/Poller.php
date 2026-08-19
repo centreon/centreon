@@ -52,6 +52,7 @@ final class Poller extends AggregateRoot
         public readonly ConnectorConfiguration $connectorConfiguration,
         public readonly TrapConfiguration $trapConfiguration,
         public readonly Collection $pollerCommands,
+        public readonly ?CentralAddress $centralAddress = null,
         public ?PollerCMACertificates $cmaCertificates = null,
         public readonly ?PollerRemoteAttachment $remoteAttachment = null,
     ) {

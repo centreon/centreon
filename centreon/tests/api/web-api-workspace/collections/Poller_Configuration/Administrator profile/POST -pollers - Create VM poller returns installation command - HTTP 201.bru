@@ -15,7 +15,8 @@ body:json {
     "name": "{{PollerName}}",
     "address": "{{PollerAddress}}",
     "poller_type": "vm",
-    "poller_token_name": "{{PollerTokenName}}"
+    "poller_token_name": "{{PollerTokenName}}",
+    "central_address": "{{CentralAddress}}"
   }
 }
 
@@ -34,6 +35,8 @@ tests {
     expect(body.installation_command).to.be.a("string");
     expect(body.installation_command).to.include("curl -fsSL");
     expect(body.installation_command).to.include("--type vm");
+    expect(body.central_address).to.eql(bru.getEnvVar("CentralAddress"));
+    expect(body.installation_command).to.include(bru.getEnvVar("CentralAddress"));
   });
 }
 

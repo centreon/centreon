@@ -25,6 +25,7 @@ namespace Tests\Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -65,6 +66,7 @@ beforeEach(function (): void {
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
         $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
         $this->adminResolver = $this->createMock(AdminResolver::class),
+        $this->writeActionLogRepository = $this->createMock(WriteActionLogRepositoryInterface::class),
     );
 
     $this->updateHostGroupRequest = new UpdateHostGroupRequest(
