@@ -62,6 +62,10 @@ const Main = (): JSX.Element => {
   });
 
   useEffect(() => {
+    document.title = 'Centreon Infrastructure Monitoring';
+  }, []);
+
+  useEffect(() => {
     if (isNil(platformInstallationStatus) || isNil(areUserParametersLoaded)) {
       return;
     }

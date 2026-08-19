@@ -7,7 +7,7 @@ import { IconButton, Tooltip } from '@centreon/ui/components';
 
 import { useAtomValue } from 'jotai';
 import { isNil, pluck } from 'ramda';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
@@ -137,15 +137,24 @@ const Breadcrumbs = (): JSX.Element | null => {
   const navigation = useAtomValue(navigationAtom);
   const { pathname } = router.useLocation();
 
+  const breadcrumbsByPath = navigation
+    ? getBreadcrumbsByPath(navigation.result)
+    : {};
+  const breadcrumbs = getBreadcrumbs({ breadcrumbsByPath, path: pathname });
+
+  useEffect(() => {
+    const currentPageLabel = breadcrumbs[breadcrumbs.length - 1]?.label;
+    document.title = currentPageLabel
+      ? `${currentPageLabel} - Centreon Infrastructure Monitoring`
+      : 'Centreon Infrastructure Monitoring';
+  }, [breadcrumbs]);
+
   if (isNil(navigation)) {
     return null;
   }
 
   return (
-    <BreadcrumbTrail
-      breadcrumbsByPath={getBreadcrumbsByPath(navigation.result)}
-      path={pathname}
-    />
+    <BreadcrumbTrail breadcrumbsByPath={breadcrumbsByPath} path={pathname} />
   );
 };
 
