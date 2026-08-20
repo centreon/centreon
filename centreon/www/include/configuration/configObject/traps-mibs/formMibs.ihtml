@@ -1,59 +1,68 @@
 {$form.javascript}
+
 <form {$form.attributes}>
-	<div id="validFormTop">
-	{if isset($o)}
-		{if $o == "a" || $o == "c"}
-			<p class="oreonbutton">
-				{if isset($form.submitC)}
-					{$form.submitC.html}
-				{else}
-					{$form.submitA.html}
-				{/if}
-				&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-		{else if $o == "w"}
-			<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-		{/if}
-	{/if}
-	</div>
-	<div>
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="vendor"> {$form.mnftr.label}</td><td class="FormRowValue">{$form.mnftr.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="filename"> {$form.filename.label}</td><td class="FormRowValue">{$form.filename.html}</td></tr>
-	</table>
-	</div>
-	<div id="validForm">
-		{if isset($form.generate)}
-			<p>{$form.generate.html}</p>
-		{/if}
-		<p class="oreonbutton">{$form.submit.html}&nbsp;&nbsp;&nbsp;
-			{if isset($form.reset)}
-				{$form.reset.html}
-			{/if}
-		</p>
-	</div>
-	{if isset($msg)}
-		<br /><br /><br /><br />
-		<div>
-	 <table class="ListTable">
-	 	<tr class="ListHeader">
-	 		<td class="FormHeader" colspan="2">
-	 			<img src='./img/icones/16x16/component_green.gif'>&nbsp;&nbsp;{$form.header.status}
-	 		</td>
-	 	</tr>
-	 	<tr class="list_lvl_1">
-	 		<td class="ListColLvl1_name" colspan="2">
-	 			{$msg}
-	 		</td>
-	 	</tr>	 
-	 </table>
-	 </div>
-	 {/if}	
-         {$form.hidden}
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <!-- Section: MIB import -->
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.title}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.mnftr.html}
+                    <label class="cf-label-float">{$form.mnftr.label}</label>
+                    <img class="helpTooltip" name="vendor">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.filename.html}
+                    <label class="cf-label-float">{$form.filename.label}</label>
+                    <img class="helpTooltip" name="filename">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if isset($form.generate)}
+            {$form.generate.html}
+        {/if}
+        {$form.submit.html}
+        {if isset($form.reset)}
+            {$form.reset.html}
+        {/if}
+    </div>
+
+    {if isset($msg)}
+    <!-- Section: Status -->
+    <div class="cf-section" id="cf-sec-status">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.status}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">{$msg}</div>
+        </div>
+    </div>
+    {/if}
+
+</div>
+
+{$form.hidden}
 </form>
 {$helptext}
 
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+});
+</script>
+{/literal}
