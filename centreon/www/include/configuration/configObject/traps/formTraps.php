@@ -204,19 +204,21 @@ $cloneSetMaching[] = $form->addElement(
     _('Regexp'),
     ['size' => '50', 'id' => 'regexp_#index#', 'value' => '//']
 );
+// Both statuses hold a one-word value, so they take a width step instead of an
+// equal share of their line -- the string and the regexp above need the room.
 $cloneSetMaching[] = $form->addElement(
     'select',
     'rulestatus[#index#]',
     _('Status'),
     [0 => _('OK'), 1 => _('Warning'), 2 => _('Critical'), 3 => _('Unknown')],
-    ['id' => 'rulestatus_#index#', 'type' => 'select-one']
+    ['id' => 'rulestatus_#index#', 'type' => 'select-one', 'data-clone-width' => 'sm']
 );
 $cloneSetMaching[] = $form->addElement(
     'select',
     'ruleseverity[#index#]',
     _('Severity'),
     $severityArr,
-    ['id' => 'ruleseverity_#index#', 'type' => 'select-one']
+    ['id' => 'ruleseverity_#index#', 'type' => 'select-one', 'data-clone-width' => 'sm']
 );
 
 $form->addElement(

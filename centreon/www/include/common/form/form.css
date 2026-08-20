@@ -394,6 +394,30 @@
     min-width: 0;
 }
 
+/* Width modifiers for a single field of a clone row, driven from the page by
+   'data-clone-width' (see clone.ihtml). Same steps as .cf-field--*, but no cap
+   is needed: a .clone-field is always a flex item. Grow is dropped, so the
+   field stops at its step instead of taking an equal share of the line — the
+   slack goes to the fields that kept their grow, or stays as trailing space if
+   every field on the line is sized. Unlike the floating label of a .cf-field,
+   the label of a clone field sits BESIDE its control and eats into the step:
+   budget it in ("Expression régulière" is about 120px at 13px). */
+.cf-form-wrapper .clonable .clone-cell .clone-field--xs {
+    flex: 0 1 180px;
+}
+
+.cf-form-wrapper .clonable .clone-cell .clone-field--sm {
+    flex: 0 1 240px;
+}
+
+.cf-form-wrapper .clonable .clone-cell .clone-field--md {
+    flex: 0 1 300px;
+}
+
+.cf-form-wrapper .clonable .clone-cell .clone-field--lg {
+    flex: 0 1 420px;
+}
+
 .cf-form-wrapper .clonable .clone-cell input[type="text"],
 .cf-form-wrapper .clonable .clone-cell select,
 .cf-form-wrapper .clonable .clone-cell .select2-container {
