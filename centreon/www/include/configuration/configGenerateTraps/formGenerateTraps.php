@@ -61,7 +61,7 @@ $form->setDefaults(['generate' => '1', 'apply' => '1', 'signal' => '1', 'signal_
 // Add select2 multiselect for pollers
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list';
 $attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => true, 'availableDatasetRoute' => $route, 'multiple' => true];
-$form->addElement('select2', 'nhost', _('Pollers'), ['class' => 'required'], $attrPoller);
+$form->addElement('select2', 'nhost', _('Pollers'), [], $attrPoller);
 $form->addRule('nhost', _('You need to select a least one polling instance.'), 'required', null, 'client');
 
 $redirect = $form->addElement('hidden', 'o');
@@ -101,8 +101,10 @@ $tpl->display('formGenerateTraps.ihtml');
 
     jQuery(function () {
         for (var i = 0; i < genInitPollers.length; i++) {
+            // new Option() sets the label as text, so a poller name carrying
+            // markup cannot break out of the option (same pattern as listing.js).
             jQuery('#nhost').append(
-                '<option value="' + genInitPollers[i].id + '" selected>' + genInitPollers[i].text + '</option>'
+                new Option(genInitPollers[i].text, genInitPollers[i].id, true, true)
             );
         }
         jQuery('#nhost').trigger('change');
@@ -238,10 +240,10 @@ $tpl->display('formGenerateTraps.ihtml');
         var tabsHtml = '', panelsHtml = '';
         pollers.forEach(function (p, idx) {
             if (showTabs) {
-                tabsHtml += '<div class="gen-tab' + (idx === 0 ? ' active' : '') + '" id="gen-tab-' + p + '" onclick="genTabSwitch(\'' + p + '\')">'
-                    + '<span class="st"></span>' + meta[p] + '</div>';
+                tabsHtml += '<div class="gen-tab' + (idx === 0 ? ' active' : '') + '" id="gen-tab-' + clEscapeAttr(p) + '" onclick="genTabSwitch(\'' + clEscapeAttr(p) + '\')">'
+                    + '<span class="st"></span>' + clEscape(meta[p]) + '</div>';
             }
-            panelsHtml += '<div class="gen-console' + (showTabs ? ' attached' : '') + '" id="gen-log-' + p + '"'
+            panelsHtml += '<div class="gen-console' + (showTabs ? ' attached' : '') + '" id="gen-log-' + clEscapeAttr(p) + '"'
                 + (idx === 0 ? '' : ' style="display:none"') + '></div>';
         });
         document.getElementById('genTabs').innerHTML = tabsHtml;
@@ -282,11 +284,13 @@ $tpl->display('formGenerateTraps.ihtml');
                     if (res.error) {
                         failed[pid] = true; anyError = true; groupFail++;
                         genTabState(pid, 'err');
-                        genLog(pid, '<span class="err">&#10007; ' + (res.err || res.status || 'failed') + '</span>\n');
-                        if (res.debug) { genLog(pid, '<span class="muted">' + res.debug + '</span>\n'); }
+                        // res.* carry server-side messages and raw command output:
+                        // escape them before they reach the console's innerHTML.
+                        genLog(pid, '<span class="err">&#10007; ' + clEscape(res.err || res.status || 'failed') + '</span>\n');
+                        if (res.debug) { genLog(pid, '<span class="muted">' + clEscape(res.debug) + '</span>\n'); }
                     } else {
                         genTabState(pid, 'ok');
-                        genLog(pid, '<span class="ok">&#10003;</span>' + (res.status ? ' <span class="muted">' + res.status + '</span>' : '') + '\n');
+                        genLog(pid, '<span class="ok">&#10003;</span>' + (res.status ? ' <span class="muted">' + clEscape(res.status) + '</span>' : '') + '\n');
                     }
                     done++; genProgress(done, total);
                 }
