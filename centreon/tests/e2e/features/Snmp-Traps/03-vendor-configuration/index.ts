@@ -19,8 +19,18 @@ const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }
 };
 
-const secondVendorName = '2VendorName';
+const secondVendorName = 'OtherVendor';
 const centralPollerId = '1';
+
+// This feature shares one container across its scenarios (before/after, not
+// beforeEach), and both the listing search and the bulk-action helper match on
+// a substring. Each scenario therefore gets a name that is not contained in any
+// other one, nor in the "_1" copy the duplication scenario leaves behind.
+const vendorNames = {
+  delete: 'VendorToDelete',
+  duplicate: 'VendorToDuplicate',
+  update: data.default.name
+};
 
 before(() => {
   cy.startContainers();
@@ -143,12 +153,9 @@ Then('the vendor configuration is added to the listing page', () => {
 });
 
 Given('a vendor {string} is configured', (step) => {
-  const vendorName =
-    step === 'update'
-      ? data.default.name
-      : step === 'duplicate' || step === 'delete'
-        ? data.vendor.name
-        : '';
+  const vendorName = vendorNames[step];
+
+  expect(vendorName, `no vendor name declared for "${step}"`).to.be.a('string');
 
   cy.setUserTokenApiV1();
   cy.executeActionViaClapi({
@@ -179,18 +186,18 @@ Then('the properties are updated', () => {
 
 // Scenario: Duplicate one existing vendor
 When('the user duplicates the vendor', () => {
-  cy.searchInTrapsListing(data.vendor.name);
-  cy.runTrapsBulkAction(data.vendor.name, 'Duplicate');
+  cy.searchInTrapsListing(vendorNames.duplicate);
+  cy.runTrapsBulkAction(vendorNames.duplicate, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the new duplicated vendor has the same properties', () => {
   cy.waitForElementInIframe('#main-content', listingTable);
-  cy.openTrapsRowForm(`${data.vendor.name}_1`, 'input[name="name"]');
+  cy.openTrapsRowForm(`${vendorNames.duplicate}_1`, 'input[name="name"]');
   cy.getTrapSidePanelBody()
     .find('input[name="name"]')
-    .should('have.value', `${data.vendor.name}_1`);
+    .should('have.value', `${vendorNames.duplicate}_1`);
   cy.getTrapSidePanelBody()
     .find('input[name="alias"]')
     .should('have.value', data.default.alias);
@@ -198,8 +205,8 @@ Then('the new duplicated vendor has the same properties', () => {
 
 // Scenario: Delete one existing vendor
 When('the user deletes the vendor', () => {
-  cy.searchInTrapsListing(data.vendor.name);
-  cy.runTrapsBulkAction(data.vendor.name, 'Delete');
+  cy.searchInTrapsListing(vendorNames.delete);
+  cy.runTrapsBulkAction(vendorNames.delete, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -208,7 +215,7 @@ Then('the deleted object is not displayed in the list', () => {
   cy.openTrapVendorsListing();
   cy.getIframeBody()
     .find(listingTableBody)
-    .contains(data.vendor.name)
+    .contains(vendorNames.delete)
     .should('not.exist');
 });
 

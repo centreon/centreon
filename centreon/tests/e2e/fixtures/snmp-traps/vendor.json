@@ -1,11 +1,11 @@
 {
     "default": {
-        "name": "1VendorName",
+        "name": "VendorAlpha",
         "alias": "VendorAlias",
         "description": "VendorDescription"
     },
     "vendor": {
-        "name": "1VendorName-changed",
+        "name": "VendorBeta",
         "alias": "VendorAlias-changed",
         "description": "VendorDescription-changed"
     }

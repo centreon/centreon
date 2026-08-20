@@ -110,12 +110,16 @@ try {
             $oid = mb_substr($oid, 0, $oidDisplayLength) . '...';
         }
 
+        // traps_status is nullable (a CLAPI-created trap has no default status):
+        // casting first would read NULL as 0, i.e. "OK".
+        $status = $trap['traps_status'];
+
         $rows[] = [
             'id'          => (int) $trap['traps_id'],
             'name'        => $trap['traps_name'],
             'oid'         => $oid,
-            'status'      => $statusEnum[(int) $trap['traps_status']] ?? '',
-            'status_code' => (int) $trap['traps_status'],
+            'status'      => $status === null ? '' : ($statusEnum[(int) $status] ?? ''),
+            'status_code' => $status === null ? null : (int) $status,
             'vendor'      => $trap['vendor_alias'] ?? '',
             'output'      => $trap['traps_args'],
         ];

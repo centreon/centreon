@@ -12,7 +12,10 @@ import {
   UpdateTrapsSnmpConfiguration
 } from '../common';
 
-const secondTrapName = 'atrapNameSecond';
+// Must not contain data.snmp1.name: the listing search is a LIKE %term%, so a
+// superstring would come back with the first trap and the "only the matching
+// trap" assertion could never hold.
+const secondTrapName = 'otherTrapDefinition';
 
 beforeEach(() => {
   cy.startContainers();

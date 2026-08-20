@@ -76,6 +76,11 @@ CentreonForm.detectSidePanelClose();
 {literal}
 <script type="text/javascript">
 
+// The panel title is a translated string sitting inside a JS string
+// literal: escape='js' keeps an apostrophe ("Modifier l'hote") from
+// terminating it, clEscapeAttr then guards the HTML attribute.
+var cfPanelTitle = '{/literal}{t escape='js'}Modify a vendor{/t}{literal}';
+
 var mnftrListing = new CentreonListing({
     instanceName:  'mnftrListing',
     ajaxListUrl:   './include/configuration/configObject/traps-manufacturer/ajaxMnftrListing.php',
@@ -89,11 +94,11 @@ var mnftrListing = new CentreonListing({
     columns: [
         { id:'name', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$mnftrPage}{literal}&o=c&id=' + row.id;
-            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a vendor{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(cfPanelTitle)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'alias', render: function(row, l) {
             var editUrl = 'main.get.php?p={/literal}{$mnftrPage}{literal}&o=c&id=' + row.id;
-            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a vendor{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.alias||'')+'</a>';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="'+clEscapeAttr(cfPanelTitle)+'" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.alias||'')+'</a>';
         }}
     ],
     renderOptions: function(row) {
