@@ -946,16 +946,22 @@
 /* The field's own label is laid out like a .cf-segmented-row label -- inline,
    ahead of the options -- rather than floating over a top border the group
    does not have. Keeps a "pick one of N" row reading the same whether it ends
-   up as a segmented control or as plain radios. */
-.cf-radio-group > label {
+   up as a segmented control or as plain radios: same 13px medium type, same
+   140px column, no ellipsis clamp and no background patch over a border.
+   Scoped on .cf-field too (and not on .cf-radio-group alone) so it outranks
+   `.cf-field label.cf-label-float`: templates tag every field label with that
+   class, and it would otherwise impose the 11px floating-label look. */
+.cf-field.cf-radio-group > label {
     position: static;
     order: -1;
     min-width: 140px;
+    max-width: none;
     padding: 0;
     font-size: 13px;
     font-weight: 500;
     color: var(--list-color, #555);
     background: transparent;
+    overflow: visible;
 }
 
 /* ==========================================================================
