@@ -141,6 +141,7 @@ jobs:
     outputs:
       image_tag: ${{ steps.compute-tag.outputs.tag }}
       additional_tag: ${{ steps.compute-tag.outputs.additional_tag }}
+      version_tag: ${{ steps.compute-tag.outputs.version_tag }}
 
     steps:
       - name: Checkout sources
@@ -194,6 +195,7 @@ jobs:
         env:
           RAW_REF: ${{ github.head_ref || github.ref_name }}
           MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
         run: |
           if [[ "$RAW_REF" == "develop" ]]; then
             echo "tag=develop-${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
@@ -209,6 +211,17 @@ jobs:
             fi
             echo "tag=${docker_tag}" >> "$GITHUB_OUTPUT"
             echo "additional_tag=" >> "$GITHUB_OUTPUT"
+          fi
+
+          # On a release/hotfix branch (stability 'testing'), also tag with the
+          # deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
+          # pulls this exact tag on the eventual stable event — computed the same
+          # way from the same version file, so no release_type reconstruction is
+          # needed to find the candidate to promote.
+          if [[ "$RAW_REF" =~ ^(release|hotfix)-[0-9]+\.[0-9]+-next$ ]]; then
+            echo "version_tag=${MAJOR_VERSION}.${MINOR_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_tag=" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
 
@@ -226,6 +239,7 @@ jobs:
           push: true
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
+            ${{ steps.compute-tag.outputs.version_tag && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.component, matrix.operating_system, steps.compute-tag.outputs.version_tag) }}
 
   docker-boot-test:
     needs: [get-environment, dockerize]
@@ -391,10 +405,14 @@ jobs:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to ghcr.io stable
-    # HARBOR_TAG reconstructs the release/hotfix branch name (<release_type>-<major_version>-next)
-    # that dockerize tagged the image with while that branch was 'testing'. release_type comes
-    # from the annotated component tag's message ("release ..."/"hotfix ...", see
-    # .github/actions/release-new/action.yml), not from this event's own ref.
+    # HARBOR_TAG is the deterministic target version (major_version.minor_version)
+    # that dockerize tagged the image with while its release/hotfix branch was
+    # 'testing' (see the "Compute Docker tag" step's version_tag output). Computed
+    # identically here from the same version file, so no release_type/branch-name
+    # reconstruction is needed to find the candidate to promote.
+    env:
+      HARBOR_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+      HARBOR_TAG: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -418,13 +436,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
+      - name: Verify Harbor candidate exists
+        # Hard failure, unlike the promote step below: a missing candidate means
+        # our own release pipeline didn't produce what this stable release needs
+        # to promote, not a ghcr.io-side hiccup — this must never be silently
+        # swallowed.
+        run: |
+          if ! docker buildx imagetools inspect "$HARBOR_IMAGE:$HARBOR_TAG" > /dev/null; then
+            echo "::error::No candidate image found on Harbor for $HARBOR_IMAGE:$HARBOR_TAG — the testing build for this version may not have run, or version_tag wasn't pushed. Check the dockerize job on the release/hotfix branch for ${{ matrix.component }}."
+            exit 1
+          fi
+        shell: bash
+
       - name: Promote Harbor candidate to ghcr.io stable (best-effort, non-blocking)
         continue-on-error: true
         id: promote-ghcr
         env:
           GHCR_IMAGE: ghcr.io/centreon/${{ matrix.component }}
-          HARBOR_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
-          HARBOR_TAG: ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next
           GHCR_TAGS: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
           PLATFORMS: linux/amd64,linux/arm64
         run: bash .github/scripts/docker-push-to-ghcr.sh
@@ -433,5 +461,5 @@ jobs:
       - name: Warn if ghcr.io stable delivery failed
         if: steps.promote-ghcr.outcome == 'failure'
         run: |
-          echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }} (Harbor tag ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next). This release is available on Harbor but was NOT published to ghcr.io — investigate before relying on public delivery for this version."
+          echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }} (Harbor tag $HARBOR_TAG). This release is available on Harbor but was NOT published to ghcr.io — investigate before relying on public delivery for this version."
         shell: bash
