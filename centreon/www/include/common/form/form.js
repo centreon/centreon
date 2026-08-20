@@ -278,6 +278,10 @@ var CentreonForm = (function () {
         // longer drop them back into the field on blur (which looked inconsistent
         // once a field had been focused). This just guarantees the class is set.
         document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function (input) {
+            // A radio group with more options than a segmented control can hold stays
+            // in the field as plain .md-radio > label pairs. Those labels name the
+            // options, not the field, so they must not become floating labels.
+            if (input.closest('.md-radio')) return;
             var label = input.parentElement.querySelector('label');
             if (label) label.classList.add('cf-label-float');
         });

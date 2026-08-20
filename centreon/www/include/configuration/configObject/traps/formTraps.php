@@ -266,7 +266,10 @@ $excecution_type[] = $form->createElement(
     _('By OID, Host and Service'),
     '3'
 );
-$form->addGroup($excecution_type, 'traps_exec_interval_type', _('Execution type'), '&nbsp;');
+// No separator: the group keeps its radios (four options, so form.js does not turn it into a
+// segmented control) and the .cf-radio-group flex gap spaces them -- a '&nbsp;' separator would
+// add an anonymous flex item that indents the options wrapping onto a second line.
+$form->addGroup($excecution_type, 'traps_exec_interval_type', _('Execution type'), '');
 $form->setDefaults(['traps_exec_interval_type' => '0']);
 
 $excecution_method[] = $form->createElement('radio', 'traps_exec_method', null, _('Parallel'), '0');

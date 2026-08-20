@@ -904,6 +904,61 @@
 }
 
 /* ==========================================================================
+   Plain radio group
+
+   A QuickForm radio group is normally replaced by a segmented control
+   (initYesNoSegments), but only when it holds two or three options whose
+   values are within {0,1,2}. Anything else -- e.g. the SNMP trap "Execution
+   type" with its four options -- stays in the field as .md-radio wrappers,
+   and then needs the rules below: `.cf-field label` loads after the theme's
+   `.md-radio label` at equal specificity, so it would absolutely position
+   EVERY label of the field. The options would stack on top of each other over
+   the top border, lose their pointer events, and the row would collapse to
+   almost no height, since the radio inputs themselves are display:none.
+
+   Markup: <div class="cf-field cf-radio-group">{$form.<group>.html} ...
+   ========================================================================== */
+
+.cf-field .md-radio {
+    flex: 0 0 auto;
+}
+
+.cf-field .md-radio label {
+    position: relative;
+    top: auto;
+    left: auto;
+    /* Restores the theme's own padding: the 18px on the left is what makes
+       room for the radio circle drawn as the label's ::before. */
+    padding: 2px 6px 0 18px;
+    font-size: 13px;
+    color: var(--list-color, #555);
+    pointer-events: auto;
+}
+
+/* Add the group to the form with an empty separator -- a '&nbsp;' one renders
+   as an anonymous flex item, which indents the options that wrap onto a second
+   line. */
+.cf-radio-group {
+    gap: 6px 20px;
+    padding: 4px 0;
+}
+
+/* The field's own label is laid out like a .cf-segmented-row label -- inline,
+   ahead of the options -- rather than floating over a top border the group
+   does not have. Keeps a "pick one of N" row reading the same whether it ends
+   up as a segmented control or as plain radios. */
+.cf-radio-group > label {
+    position: static;
+    order: -1;
+    min-width: 140px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+    background: transparent;
+}
+
+/* ==========================================================================
    Sub-section heading / separator
    Markup: <div class="cf-subsection">Label</div>
    Modifiers: --flush (first heading under a section header, no top margin)

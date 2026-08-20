@@ -224,7 +224,7 @@
                 </div>
             </div>
             <div class="cf-row">
-                <div class="cf-field">
+                <div class="cf-field cf-radio-group">
                     {$form.traps_exec_interval_type.html}
                     <label class="cf-label-float">{$form.traps_exec_interval_type.label}</label>
                     <img class="helpTooltip" name="traps_exec_interval_type">
