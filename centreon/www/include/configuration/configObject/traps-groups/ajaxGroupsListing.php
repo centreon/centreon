@@ -30,6 +30,8 @@ require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelpe
 
 $helper = AjaxListingHelper::boot();
 $helper->requireCentreon();
+// Configuration > SNMP Traps > Group
+$helper->requireReadAccess(61705);
 $pearDB = $helper->getDb();
 $params = $helper->getParams();
 

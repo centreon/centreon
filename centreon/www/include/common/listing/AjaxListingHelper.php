@@ -184,6 +184,28 @@ class AjaxListingHelper
     }
 
     /**
+     * Require read access on a given topology page. Exits 403 when the page is
+     * not granted to the user at all. Admins always pass.
+     *
+     * Listing endpoints are reachable on their own URL, outside the topology
+     * routing that guards the page itself, so they must check the ACL
+     * themselves — otherwise any authenticated user can read the listing of a
+     * menu entry their profile does not grant.
+     *
+     * @param int $pageId The topology page number (e.g. 61701 for SNMP traps)
+     */
+    public function requireReadAccess(int $pageId): void
+    {
+        if ($this->isAdmin()) {
+            return;
+        }
+        $acl = $this->getAcl();
+        if (! $acl || $acl->page($pageId) === CentreonACL::ACL_ACCESS_NONE) {
+            self::jsonError('Forbidden', 403);
+        }
+    }
+
+    /**
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
