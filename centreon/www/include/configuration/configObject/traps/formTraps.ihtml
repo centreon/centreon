@@ -55,12 +55,12 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field cf-field--sm">
+                <div class="cf-field cf-field--xs">
                     {$form.traps_status.html}
                     <label class="cf-label-float">{$form.traps_status.label}</label>
                     <img class="helpTooltip" name="trap_status">
                 </div>
-                <div class="cf-field cf-field--sm">
+                <div class="cf-field cf-field--xs">
                     {$form.severity.html}
                     <label class="cf-label-float">{$form.severity.label}</label>
                     <img class="helpTooltip" name="severity">
