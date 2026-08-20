@@ -1968,17 +1968,6 @@ jobs:
         component: [centreon-snmptrapd, centreon-centreontrapd]
         operating_system: [trixie]
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to ghcr.io stable
-    # PREFERRED_HARBOR_TAG is the deterministic target version (major_version.minor_version)
-    # that dockerize-trapd-image tags the image with while its release/hotfix
-    # branch is 'testing', only after e2e-test passed (see that job's version_tag
-    # output). This mechanism is new and has not yet run against a real stable
-    # release, so FALLBACK_HARBOR_TAG (the previous release_type-based
-    # reconstruction) is kept as a safety net rather than hard-failing when the
-    # deterministic tag is absent.
-    env:
-      HARBOR_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
-      PREFERRED_HARBOR_TAG: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
-      FALLBACK_HARBOR_TAG: ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next
     steps:
       - name: Checkout sources
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -2002,39 +1991,25 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
-      - name: Resolve Harbor candidate tag
-        # Non-blocking: prefer the deterministic version_tag candidate, but this
-        # mechanism is new and unproven end-to-end, so fall back to the previous
-        # release_type-based tag rather than failing the job outright. Only warn
-        # (never hard-fail) here — a missing candidate is surfaced loudly but the
-        # actual delivery attempt below decides pass/fail via continue-on-error.
-        id: resolve-tag
-        run: |
-          if docker buildx imagetools inspect "$HARBOR_IMAGE:$PREFERRED_HARBOR_TAG" > /dev/null 2>&1; then
-            echo "harbor_tag=$PREFERRED_HARBOR_TAG" >> "$GITHUB_OUTPUT"
-          elif docker buildx imagetools inspect "$HARBOR_IMAGE:$FALLBACK_HARBOR_TAG" > /dev/null 2>&1; then
-            echo "::warning::No candidate at $HARBOR_IMAGE:$PREFERRED_HARBOR_TAG (deterministic version_tag) — falling back to $HARBOR_IMAGE:$FALLBACK_HARBOR_TAG. Check that the dockerize-trapd-image job ran on the release/hotfix branch after the version bump."
-            echo "harbor_tag=$FALLBACK_HARBOR_TAG" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::No candidate image found on Harbor at either $HARBOR_IMAGE:$PREFERRED_HARBOR_TAG or $HARBOR_IMAGE:$FALLBACK_HARBOR_TAG — ghcr.io promote will be skipped for this version."
-            echo "harbor_tag=" >> "$GITHUB_OUTPUT"
-          fi
-        shell: bash
-
-      - name: Promote Harbor candidate to ghcr.io stable (best-effort, non-blocking)
-        if: steps.resolve-tag.outputs.harbor_tag != ''
+      - name: Promote to ghcr.io stable (best-effort, non-blocking)
+        # Fails hard if no Harbor candidate is found (under either the
+        # deterministic version_tag from dockerize-trapd-image, only produced
+        # after e2e-test passed, or the legacy release_type-based tag) or if the
+        # ghcr.io push itself fails — continue-on-error swallows that into a
+        # warning below, mirroring how promote-to-stable-pulp is called.
         continue-on-error: true
         id: promote-ghcr
-        env:
-          GHCR_IMAGE: ghcr.io/centreon/${{ matrix.component }}
-          HARBOR_TAG: ${{ steps.resolve-tag.outputs.harbor_tag }}
-          GHCR_TAGS: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
-          PLATFORMS: linux/amd64,linux/arm64
-        run: bash .github/scripts/docker-push-to-ghcr.sh
-        shell: bash
+        uses: ./.github/actions/promote-docker-to-ghcr
+        with:
+          ghcr_image: ghcr.io/centreon/${{ matrix.component }}
+          harbor_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          preferred_harbor_tag: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+          fallback_harbor_tag: ${{ needs.get-environment.outputs.release_type }}-${{ needs.get-environment.outputs.major_version }}-next
+          ghcr_tags: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
+          platforms: linux/amd64,linux/arm64
 
       - name: Warn if ghcr.io stable delivery failed
-        if: steps.resolve-tag.outputs.harbor_tag == '' || steps.promote-ghcr.outcome == 'failure'
+        if: steps.promote-ghcr.outcome == 'failure'
         run: |
-          echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }} (Harbor tag: ${{ steps.resolve-tag.outputs.harbor_tag || 'none found' }}). This release is available on Harbor but was NOT published to ghcr.io — investigate before relying on public delivery for this version."
+          echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }}. This release is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io stable' step for the missing-candidate or push error, and investigate before relying on public delivery for this version."
         shell: bash
