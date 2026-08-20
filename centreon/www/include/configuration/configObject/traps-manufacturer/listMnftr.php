@@ -23,9 +23,10 @@ if (! isset($centreon)) {
     exit();
 }
 
-include './include/common/autoNumLimit.php';
-
 $tpl = SmartyBC::createSmartyTemplate(__DIR__);
+
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
@@ -53,27 +54,33 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 </script>
 <?php
 
-foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . "     setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-        . "     setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+foreach (['o1'] as $option) {
+    // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
+    // the native confirm()/alert(); messages passed as data-* attributes so the
+    // handler stays locale-independent (keyed on the option value).
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete vendor'),
+        'data-title-delete-many' => _('Delete vendors'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> vendor. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} vendors.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate-one' => _('Duplicate vendor'),
+        'data-title-duplicate-many' => _('Duplicate vendors'),
+        'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> vendor. Do you want to duplicate it?'),
+        'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} vendors.</strong> Do you want to duplicate them?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
     $form->addElement('select', $option, null,
-        [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+        [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
     $form->setDefaults([$option => null]);
     $el = $form->getElement($option);
     $el->setValue(null);
     $el->setSelected(null);
 }
 
-$tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());

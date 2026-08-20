@@ -24,9 +24,11 @@ if (! isset($centreon)) {
 }
 
 include_once './class/centreonUtils.class.php';
-include './include/common/autoNumLimit.php';
 
 $tpl = SmartyBC::createSmartyTemplate($path);
+
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
@@ -41,8 +43,6 @@ $tpl->assign('headerMenu_options', _('Options'));
 $tpl->assign('trapsPage', $p);
 
 $search = $centreon->historySearch[$url]['search'] ?? '';
-$searchStatus = $centreon->historySearch[$url]['status'] ?? '';
-$searchVendor = $centreon->historySearch[$url]['vendor'] ?? '';
 $tpl->assign('searchT', $search);
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
@@ -52,25 +52,19 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Status filter (static select2)
-$tabStatusFilter = ['' => '', 1 => _('OK'), 2 => _('Warning'), 3 => _('Critical'), 4 => _('Unknown'), 5 => _('Pending')];
-$statusDefault = '';
-if ($searchStatus) {
-    $statusDefault = [$tabStatusFilter[$searchStatus] ?? '' => $searchStatus];
-}
-$form->addElement('select2', 'status', '', $tabStatusFilter, ['defaultDataset' => $statusDefault, 'allowClear' => false]);
+// Advanced filters: static select2 elements. Their options are rendered
+// client-side from the element configuration, and the selected value is
+// restored by CentreonListing from its own session state -- so neither
+// defaultDataset nor a custom clear control is needed here. The label is what
+// select2 shows as placeholder while the filter is empty.
+$tabStatusFilter = [1 => _('OK'), 2 => _('Warning'), 3 => _('Critical'), 4 => _('Unknown'), 5 => _('Pending')];
+$form->addElement('select2', 'status', _('Select'), $tabStatusFilter);
 
-// Vendor filter (static select2)
-$vendorResult = $pearDB->query('SELECT id, name FROM traps_vendor ORDER BY name');
-$vendors = ['' => ''];
-while ($v = $vendorResult->fetch(PDO::FETCH_ASSOC)) {
-    $vendors[$v['id']] = $v['name'];
+$vendors = [];
+foreach ($pearDB->fetchAllAssociative('SELECT id, name FROM traps_vendor ORDER BY name') as $vendor) {
+    $vendors[(int) $vendor['id']] = $vendor['name'];
 }
-$vendorDefault = '';
-if ($searchVendor) {
-    $vendorDefault = [$vendors[$searchVendor] ?? '' => $searchVendor];
-}
-$form->addElement('select2', 'vendor', '', $vendors, ['defaultDataset' => $vendorDefault, 'allowClear' => false]);
+$form->addElement('select2', 'vendor', _('Select'), $vendors);
 
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
@@ -80,27 +74,33 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 </script>
 <?php
 
-foreach (['o1', 'o2'] as $option) {
-    $attrs = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . "     setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-        . "     setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+foreach (['o1'] as $option) {
+    // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
+    // the native confirm()/alert(); messages passed as data-* attributes so the
+    // handler stays locale-independent (keyed on the option value).
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete trap'),
+        'data-title-delete-many' => _('Delete traps'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> trap. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} traps.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate-one' => _('Duplicate trap'),
+        'data-title-duplicate-many' => _('Duplicate traps'),
+        'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> trap. Do you want to duplicate it?'),
+        'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} traps.</strong> Do you want to duplicate them?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
     $form->addElement('select', $option, null,
-        [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+        [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
     $form->setDefaults([$option => null]);
     $el = $form->getElement($option);
     $el->setValue(null);
     $el->setSelected(null);
 }
 
-$tpl->assign('limit', $limit);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
