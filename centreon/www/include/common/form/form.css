@@ -263,6 +263,37 @@
     min-width: 0;
 }
 
+/* Field width modifiers — cap a field that would otherwise stretch over its
+   whole row (a status select is 400px wide for a four-word value). Both the
+   basis and the cap are set, so a modifier works the same on a .cf-field that
+   is a flex item of a .cf-row-inline and on one that fills a plain .cf-row.
+   flex-shrink stays at 1: the field still narrows, then wraps, inside the side
+   panel's nested iframe instead of being clipped.
+
+   Pick the step on the TRANSLATED label, not on the value — the floating label
+   is what overflows first, at 11px ≈ 4.9px per character plus 28px of padding
+   and ellipsis reserve. French is in practice the longest of the 6 catalogs. A
+   width no step fits stays a one-off inline style, which wins over the class. */
+.cf-form-wrapper .cf-field--xs {
+    flex: 0 1 180px;
+    max-width: 180px;
+}
+
+.cf-form-wrapper .cf-field--sm {
+    flex: 0 1 240px;
+    max-width: 240px;
+}
+
+.cf-form-wrapper .cf-field--md {
+    flex: 0 1 300px;
+    max-width: 300px;
+}
+
+.cf-form-wrapper .cf-field--lg {
+    flex: 0 1 420px;
+    max-width: 420px;
+}
+
 /* ==========================================================================
    Segmented button group (Default / Yes / No)
    ========================================================================== */

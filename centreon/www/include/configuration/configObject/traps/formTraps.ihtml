@@ -22,12 +22,12 @@
         </div>
         <div class="cf-section-body">
             <div class="cf-row-inline">
-                <div class="cf-field" style="flex:0 1 300px;">
+                <div class="cf-field cf-field--md">
                     {$form.traps_name.html}
                     <label class="cf-label-float">{$form.traps_name.label}</label>
                     <img class="helpTooltip" name="trapname">
                 </div>
-                <div class="cf-field" style="flex:0 1 300px;">
+                <div class="cf-field cf-field--md">
                     {$form.traps_mode.html}
                     <label class="cf-label-float">{$form.traps_mode.label}</label>
                     <img class="helpTooltip" name="mode">
@@ -55,12 +55,12 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field">
+                <div class="cf-field cf-field--sm">
                     {$form.traps_status.html}
                     <label class="cf-label-float">{$form.traps_status.label}</label>
                     <img class="helpTooltip" name="trap_status">
                 </div>
-                <div class="cf-field">
+                <div class="cf-field cf-field--sm">
                     {$form.severity.html}
                     <label class="cf-label-float">{$form.severity.label}</label>
                     <img class="helpTooltip" name="severity">
@@ -212,12 +212,12 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field" style="flex:0 1 300px;">
+                <div class="cf-field cf-field--md">
                     {$form.traps_timeout.html}&nbsp;{t}seconds{/t}
                     <label class="cf-label-float">{$form.traps_timeout.label}</label>
                     <img class="helpTooltip" name="traps_timeout">
                 </div>
-                <div class="cf-field" style="flex:0 1 300px;">
+                <div class="cf-field cf-field--md">
                     {$form.traps_exec_interval.html}&nbsp;{t}seconds{/t}
                     <label class="cf-label-float">{$form.traps_exec_interval.label}</label>
                     <img class="helpTooltip" name="traps_exec_interval">
