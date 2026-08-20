@@ -248,7 +248,7 @@ $form->addElement(
 
 $form->addElement('textarea', 'traps_customcode', _('Custom code'), $attrsTextarea);
 
-$form->addElement('select', 'traps_advanced_treatment_default', _('Advanced matching behavior'), [0 => _('If no match, submit default status'), 1 => _('If no match, disable submit'), 2 => _('If match, disable submit')], ['id' => 'traps_advanced_treatment']);
+$form->addElement('select', 'traps_advanced_treatment_default', _('Advanced matching behavior'), [0 => _('If no match, submit default status'), 1 => _('If no match, disable submit'), 2 => _('If match, disable submit')], ['id' => 'traps_advanced_treatment_default']);
 
 $excecution_type[] = $form->createElement('radio', 'traps_exec_interval_type', null, _('None'), '0');
 $excecution_type[] = $form->createElement('radio', 'traps_exec_interval_type', null, _('By OID'), '1');

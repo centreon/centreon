@@ -87,9 +87,14 @@ $tpl->assign('o', $o);
 
 $tpl->display('formGenerateTraps.ihtml');
 
+// JSON_INVALID_UTF8_SUBSTITUTE: a single non-UTF-8 byte in a poller name would
+// otherwise make json_encode() return false, emitting an empty assignment that
+// breaks the whole page script.
+$initialPollersJson = json_encode($selectedPollers, JSON_INVALID_UTF8_SUBSTITUTE) ?: '[]';
+
 ?>
 <script type='text/javascript'>
-    var genInitPollers = <?php echo json_encode($selectedPollers); ?>;
+    var genInitPollers = <?php echo $initialPollersJson; ?>;
     var genBase = './include/configuration/configGenerateTraps/xml/';
     var genMsg = {
         generate: "<?php echo addslashes(_('Generate trap database')); ?>",
