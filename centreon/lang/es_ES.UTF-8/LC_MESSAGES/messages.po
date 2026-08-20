@@ -1879,7 +1879,7 @@ msgstr "Mal tamaño: el color debe comenzar con"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Bad OID Format"
-msgstr ""
+msgstr "Formato de OID incorrecto"
 
 #: centreon/src/Centreon/Infrastructure/Monitoring/MonitoringRepositoryRDB.php
 msgid "Bad SQL request"
@@ -2133,7 +2133,7 @@ msgstr "Por OID y host"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "By OID, Host and Service"
-msgstr ""
+msgstr "Por OID, host y servicio"
 
 #: centreon/www/install/menu_translation.php
 msgid "By Service Group"
@@ -12296,7 +12296,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Mode"
-msgstr ""
+msgstr "Modo"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Modificaton type"
@@ -19178,7 +19178,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Unique"
-msgstr ""
+msgstr "Único"
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
