@@ -69,6 +69,9 @@ $redirect->setValue($o);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 $csrfToken = createCSRFToken();
 
 $tpl->assign('csrfToken', $csrfToken);

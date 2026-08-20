@@ -148,6 +148,10 @@
 
 .cf-row-inline {
     display: flex;
+    /* Wrap instead of crushing the fields: a field given an explicit basis
+       (e.g. flex: 0 1 300px) drops onto the next line when the form narrows --
+       which is the normal case inside the side panel's nested iframe. */
+    flex-wrap: wrap;
     gap: 16px;
     margin-bottom: 16px;
 }
@@ -184,6 +188,13 @@
     color: var(--body-color, #757575);
     background: var(--body-background, #fff);
     font-weight: 500;
+    /* The label is absolutely positioned over the field's top border: a label
+       too long for its field used to wrap down into the input. Clamp it to one
+       line -- a visible ellipsis means the field must be widened. */
+    max-width: calc(100% - 20px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .cf-field input,
@@ -261,6 +272,9 @@
     border: 1px solid var(--color-divider, #d0d0d0);
     border-radius: 6px;
     overflow: hidden;
+    /* Shrinking a segmented control clips its last button, since the border
+       radius forces overflow:hidden above. */
+    flex-shrink: 0;
 }
 
 .cf-segmented button {
@@ -284,8 +298,8 @@
 }
 
 .cf-segmented button.active {
-    background: var(--color-primary-light, #2E68AA);
-    color: #fff;
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
 }
 
 .cf-segmented-row {
@@ -569,8 +583,8 @@
     padding: 5px 14px;
     font-size: 12px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
     border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
@@ -578,7 +592,7 @@
 }
 
 .cf-form-wrapper .add-new-entry:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--bt-info-hover-background-color, #255891);
     text-decoration: none;
 }
 
@@ -638,9 +652,9 @@
 }
 
 .cf-chip.active {
-    background: var(--color-primary-light, #2E68AA);
-    border-color: var(--color-primary-light, #2E68AA);
-    color: #fff;
+    background: var(--bt-info-background-color, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
 }
 
 /* ==========================================================================
@@ -1237,9 +1251,11 @@
     min-width: 100px;
     font-size: 14px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
-    border: none;
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
+    /* Transparent border rather than none, so the borderless Save matches the
+       height of its outlined Reset sibling. */
+    border: 1px solid transparent;
     border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
@@ -1248,7 +1264,7 @@
 
 .cf-actions input[type="submit"]:hover,
 .cf-actions button:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--bt-info-hover-background-color, #255891);
 }
 
 /* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
@@ -1418,7 +1434,7 @@
     display: inline-flex; align-items: center; gap: 8px;
     padding: 12px 24px; font-size: 14px; font-weight: 600;
     border: none; border-radius: 6px; cursor: pointer;
-    background: var(--bt-info-background-color, #2E68AA); color: #fff;
+    background: var(--bt-info-background-color, #2E68AA); color: var(--btc-color, #fff);
     transition: filter .15s;
 }
 .gen-apply:hover { filter: brightness(0.94); }
@@ -1427,7 +1443,7 @@
 
 /* Advanced (just under the poller field) */
 .gen-adv { margin: 8px 0 4px; }
-.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #2E68AA); font-weight: 500; }
+.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--bt-info-background-color, #2E68AA); font-weight: 500; }
 .gen-adv .gen-adv-body {
     padding: 12px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px;
     background: #f7f8fa; border: 1px solid var(--color-divider, #e6e8ec); border-radius: 6px;
@@ -1444,8 +1460,8 @@
     display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
     transition: background .2s;
 }
-.gen-step.active { color: var(--color-primary-light, #2E68AA); }
-.gen-step.active .dot { background: var(--color-primary-light, #2E68AA); }
+.gen-step.active { color: var(--bt-info-background-color, #2E68AA); }
+.gen-step.active .dot { background: var(--bt-info-background-color, #2E68AA); color: var(--btc-color, #fff); }
 .gen-step.done { color: var(--color-success, #88B922); }
 .gen-step.done .dot { background: var(--color-success, #88B922); }
 .gen-step.err { color: #FF4A4A; }
@@ -1466,9 +1482,9 @@
     color: var(--body-color, #666); border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
 .gen-tab:hover { color: var(--list-color, #333); }
-.gen-tab.active { color: var(--color-primary-light, #2E68AA); border-bottom-color: var(--color-primary-light, #2E68AA); font-weight: 600; }
+.gen-tab.active { color: var(--bt-info-background-color, #2E68AA); border-bottom-color: var(--bt-info-background-color, #2E68AA); font-weight: 600; }
 .gen-tab .st { width: 9px; height: 9px; border-radius: 50%; background: #cfd6df; flex-shrink: 0; }
-.gen-tab.run .st { background: var(--color-primary-light, #2E68AA); animation: genpulse 1s infinite; }
+.gen-tab.run .st { background: var(--bt-info-background-color, #2E68AA); animation: genpulse 1s infinite; }
 .gen-tab.ok  .st { background: var(--color-success, #88B922); }
 .gen-tab.err .st { background: #FF4A4A; }
 @keyframes genpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
@@ -1578,8 +1594,8 @@
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: #fff !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
     border: none !important;
     border-radius: 10px 0 0 10px !important;
     padding: 0 4px 0 12px !important;
@@ -1592,8 +1608,9 @@
     justify-content: center;
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: rgba(255, 255, 255, 0.7) !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
+    opacity: 0.7;
     border: none !important;
     border-radius: 0 10px 10px 0 !important;
     padding: 0 10px 0 4px !important;
@@ -1602,8 +1619,9 @@
     line-height: 20px !important;
 }
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: #fff !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
+    opacity: 1;
 }
 
 /* --- Multi-select single-row collapse. Chips are kept on one line; overflowing
@@ -1657,7 +1675,7 @@
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
     font-size: 12px;
     font-weight: 600;
     line-height: 1;

@@ -1,3 +1,4 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 {$form.javascript}
 
 <form {$form.attributes}>
@@ -21,12 +22,12 @@
         </div>
         <div class="cf-section-body">
             <div class="cf-row-inline">
-                <div class="cf-field">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.traps_name.html}
                     <label class="cf-label-float">{$form.traps_name.label}</label>
                     <img class="helpTooltip" name="trapname">
                 </div>
-                <div class="cf-field">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.traps_mode.html}
                     <label class="cf-label-float">{$form.traps_mode.label}</label>
                     <img class="helpTooltip" name="mode">
@@ -65,12 +66,14 @@
                     <img class="helpTooltip" name="severity">
                 </div>
             </div>
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_advanced_treatment.html}
                     <label class="cf-label-float">{$form.traps_advanced_treatment.label}</label>
                     <img class="helpTooltip" name="trap_advanced">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_advanced_treatment_default.html}
                     <label class="cf-label-float">{$form.traps_advanced_treatment_default.label}</label>
@@ -104,12 +107,14 @@
             </div>
 
             <div class="cf-subsection">{$subtitle3}</div>
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_execution_command_enable.html}
                     <label class="cf-label-float">{$form.traps_execution_command_enable.label}</label>
                     <img class="helpTooltip" name="command_enabled">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_execution_command.html}
                     <label class="cf-label-float">{$form.traps_execution_command.label}</label>
@@ -167,12 +172,14 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_routing_mode.html}
                     <label class="cf-label-float">{$form.traps_routing_mode.label}</label>
                     <img class="helpTooltip" name="traps_routing_mode">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_routing_value.html}
                     <label class="cf-label-float">{$form.traps_routing_value.label}</label>
@@ -197,36 +204,40 @@
             </div>
 
             <div class="cf-subsection">{t}Misc{/t}</div>
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_log.html}
                     <label class="cf-label-float">{$form.traps_log.label}</label>
                     <img class="helpTooltip" name="traps_log">
                 </div>
-                <div class="cf-field" style="max-width:220px;">
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.traps_timeout.html}&nbsp;{t}seconds{/t}
                     <label class="cf-label-float">{$form.traps_timeout.label}</label>
                     <img class="helpTooltip" name="traps_timeout">
                 </div>
-            </div>
-            <div class="cf-row-inline">
-                <div class="cf-field" style="max-width:220px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.traps_exec_interval.html}&nbsp;{t}seconds{/t}
                     <label class="cf-label-float">{$form.traps_exec_interval.label}</label>
                     <img class="helpTooltip" name="traps_exec_interval">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_exec_interval_type.html}
                     <label class="cf-label-float">{$form.traps_exec_interval_type.label}</label>
                     <img class="helpTooltip" name="traps_exec_interval_type">
                 </div>
             </div>
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_exec_method.html}
                     <label class="cf-label-float">{$form.traps_exec_method.label}</label>
                     <img class="helpTooltip" name="traps_exec_method">
                 </div>
+            </div>
+            <div class="cf-row">
                 <div class="cf-field">
                     {$form.traps_downtime.html}
                     <label class="cf-label-float">{$form.traps_downtime.label}</label>
