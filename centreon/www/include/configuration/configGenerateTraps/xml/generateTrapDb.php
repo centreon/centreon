@@ -19,6 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 ini_set('display_errors', 'Off');
 
 if (! isset($_POST['poller']) || ! is_numeric($_POST['poller'])) {
@@ -81,13 +86,26 @@ if (! isset($allowedPollers[$pollerId])) {
 // Trap databases are generated centrally: find the central server's
 // configured storage path (same behaviour as the legacy synchronous form).
 $trapdPath = '/etc/snmp/centreon_traps/';
-$result = $pearDB->query(
-    "SELECT `snmp_trapd_path_conf` FROM `nagios_server` WHERE `localhost` = '1' AND `ns_activate` = '1' LIMIT 1"
-);
-if ($row = $result->fetchRow()) {
-    if (! empty($row['snmp_trapd_path_conf']) && ! str_contains($row['snmp_trapd_path_conf'], '..')) {
-        $trapdPath = $row['snmp_trapd_path_conf'];
+
+try {
+    // Constant query (no user input) -> no bound parameters needed.
+    $configuredPath = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `snmp_trapd_path_conf`
+            FROM `nagios_server`
+            WHERE `localhost` = '1' AND `ns_activate` = '1'
+            LIMIT 1
+            SQL
+    );
+
+    if (is_string($configuredPath) && $configuredPath !== '' && ! str_contains($configuredPath, '..')) {
+        $trapdPath = $configuredPath;
     }
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Trap generation: could not read the central trapd path, using the default one',
+        ['exception' => $exception]
+    );
 }
 
 if (! is_dir($trapdPath . '/' . $pollerId)) {

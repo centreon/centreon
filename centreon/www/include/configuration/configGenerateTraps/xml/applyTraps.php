@@ -19,6 +19,8 @@
  *
  */
 
+declare(strict_types=1);
+
 ini_set('display_errors', 'Off');
 
 if (! isset($_POST['poller']) || ! is_numeric($_POST['poller'])) {

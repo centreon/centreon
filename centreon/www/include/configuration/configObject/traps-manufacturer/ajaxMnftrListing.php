@@ -19,45 +19,72 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-$searchCond = '';
-$searchParams = [];
+$whereClause = '';
+$parameters  = [];
+
 if ($search !== '') {
-    $searchCond = 'WHERE (name LIKE :search OR alias LIKE :search) ';
-    $searchParams[':search'] = '%' . $search . '%';
+    $whereClause = 'WHERE (name LIKE :search OR alias LIKE :search)';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS id, name, alias'
-    . ' FROM traps_vendor ' . $searchCond
-    . ' ORDER BY name, alias LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM traps_vendor
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT id, name, alias
+    FROM traps_vendor
+    {$whereClause}
+    ORDER BY name, alias
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $vendors = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
+    );
+
+    $rows = [];
+    foreach ($vendors as $vendor) {
+        $rows[] = [
+            'id'    => (int) $vendor['id'],
+            'name'  => $vendor['name'],
+            'alias' => $vendor['alias'],
+        ];
+    }
+
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch trap manufacturers',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
-
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-$rows = [];
-while ($v = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'    => (int) $v['id'],
-        'name'  => $v['name'],
-        'alias' => $v['alias'],
-    ];
-}
-
-$helper->jsonResponse($rows, $total, $num, $limit);

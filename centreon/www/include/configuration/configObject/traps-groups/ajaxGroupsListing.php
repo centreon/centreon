@@ -19,44 +19,71 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-$searchCond = '';
-$searchParams = [];
+$whereClause = '';
+$parameters  = [];
+
 if ($search !== '') {
-    $searchCond = 'WHERE traps_group_name LIKE :search ';
-    $searchParams[':search'] = '%' . $search . '%';
+    $whereClause = 'WHERE traps_group_name LIKE :search';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS traps_group_id, traps_group_name'
-    . ' FROM traps_group ' . $searchCond
-    . ' ORDER BY traps_group_name LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM traps_group
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT traps_group_id, traps_group_name
+    FROM traps_group
+    {$whereClause}
+    ORDER BY traps_group_name
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $groups = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
+    );
+
+    $rows = [];
+    foreach ($groups as $group) {
+        $rows[] = [
+            'id'   => (int) $group['traps_group_id'],
+            'name' => $group['traps_group_name'],
+        ];
+    }
+
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch trap groups',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
-
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-$rows = [];
-while ($g = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'   => (int) $g['traps_group_id'],
-        'name' => $g['traps_group_name'],
-    ];
-}
-
-$helper->jsonResponse($rows, $total, $num, $limit);
