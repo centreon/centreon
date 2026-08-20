@@ -1,0 +1,27 @@
+{
+  "description": "Playwright end-to-end tests for centreon-web",
+  "devDependencies": {
+    "@biomejs/biome": "2.3.10",
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^20.11.27",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "name": "@centreon/e2e-playwright",
+  "private": true,
+  "scripts": {
+    "install:browsers": "playwright install --with-deps chromium",
+    "lint": "biome check .",
+    "lint:ci": "biome ci . --error-on-warnings",
+    "lint:fix": "pnpm lint --fix",
+    "report": "playwright show-report results/html",
+    "stack:down": "tsx src/stack/cli.ts down",
+    "stack:up": "tsx src/stack/cli.ts up",
+    "test": "playwright test",
+    "test:debug": "PWDEBUG=1 playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "ts:checks": "tsc --noEmit"
+  },
+  "version": "26.5.0"
+}

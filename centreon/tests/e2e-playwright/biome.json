@@ -1,0 +1,28 @@
+{
+  "extends": ["../../packages/js-config/biome/biome.json"],
+  "files": {
+    "includes": ["**", "!results", "!test-results", "!playwright-report"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "style": {
+        "useNamingConvention": {
+          "level": "warn"
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/stack/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ]
+}
