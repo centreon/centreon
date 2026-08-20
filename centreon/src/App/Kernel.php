@@ -136,7 +136,11 @@ class Kernel extends BaseKernel
     private function getConfigFingerprint(): string
     {
         if ($this->configFingerprint === null) {
-            $files = glob($this->getProjectDir() . '/config/{routes,packages}/*.yaml', \GLOB_BRACE) ?: [];
+            $files = array_merge(
+                glob($this->getProjectDir() . '/config/{routes,packages}/{*,*/*}.yaml', \GLOB_BRACE) ?: [],
+                glob($this->getProjectDir() . '/config/bundles.php') ?: []
+            );
+            sort($files);
             $entries = array_map(
                 static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
                 $files

@@ -119,6 +119,7 @@ final class Kernel extends BaseKernel
                 glob($this->getConfigDir() . '/{routes,packages,services}/{*,*/*}.{yaml,php}', \GLOB_BRACE) ?: [],
                 glob($this->getConfigDir() . '/bundles.php') ?: []
             );
+            sort($files);
             $entries = array_map(
                 static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
                 $files
