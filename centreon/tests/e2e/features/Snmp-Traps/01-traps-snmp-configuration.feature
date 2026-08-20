@@ -6,6 +6,33 @@ Feature: trapsSnmpConfiguration
   Background:
     Given a user is logged in Centreon
 
+  @MON-200041
+  Scenario: The SNMP traps listing loads through the AJAX framework
+    Given an SNMP trap definition is configured
+    When the user opens the SNMP traps listing
+    Then the AJAX listing table is displayed with the configured trap
+
+  @MON-200041
+  Scenario: The search filters the SNMP traps by name
+    Given two SNMP trap definitions are configured
+    When the user opens the SNMP traps listing
+    And the user searches for the first trap
+    Then only the matching trap is displayed
+
+  @MON-200041
+  Scenario: The listing shows pagination information
+    Given an SNMP trap definition is configured
+    When the user opens the SNMP traps listing
+    Then the pagination information shows the total count
+
+  @MON-200041
+  Scenario: The search term persists across navigation
+    Given two SNMP trap definitions are configured
+    When the user opens the SNMP traps listing
+    And the user searches for the first trap
+    And the user opens the trap form and comes back to the listing
+    Then the search field still contains the search term
+
   @MON-151632
   Scenario: Creating SNMP trap with advanced matching rule
     When the user adds a new SNMP trap definition with an advanced matching rule
