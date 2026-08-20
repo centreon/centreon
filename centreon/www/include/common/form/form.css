@@ -341,16 +341,36 @@
 .cf-form-wrapper .clonable .clone-cell {
     display: flex;
     align-items: center;
+    /* Wrap instead of overflowing: a clone row carrying several fields (the
+       trap matching rules) is wider than the section, and .cf-section clips it
+       with overflow:hidden — the trailing fields and the remove icon vanished
+       instead of dropping onto a second line. */
+    flex-wrap: wrap;
     gap: 6px;
     padding: 6px 0;
 }
 
+/* One label + its own field, kept together across a wrap. Two fields per line
+   at any width — a fixed px basis would give three per line at full width and
+   only one inside the side panel's nested iframe. The 34px allowance keeps the
+   drag handle and the remove cross on the row's last line instead of pushing
+   them onto a line of their own. */
+.cf-form-wrapper .clonable .clone-cell .clone-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 calc(50% - 34px);
+    min-width: 0;
+}
+
+.cf-form-wrapper .clonable .clone-cell input[type="text"],
 .cf-form-wrapper .clonable .clone-cell select,
 .cf-form-wrapper .clonable .clone-cell .select2-container {
     flex: 1;
     min-width: 0;
 }
 
+.cf-form-wrapper .clonable .clone-cell input[type="text"],
 .cf-form-wrapper .clonable .clone-cell select {
     padding: 8px 10px;
     font-size: 12px;
@@ -358,6 +378,12 @@
     border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
+    box-sizing: border-box;
+}
+
+.cf-form-wrapper .clonable .clone-cell input[type="text"]:focus {
+    border-color: var(--bt-info-background-color, #2E68AA);
+    outline: none;
 }
 
 .cf-form-wrapper .clonable .clone-cell .select2-container .select2-selection {
