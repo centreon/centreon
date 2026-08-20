@@ -5,17 +5,6 @@ import hostMacros from '../../../fixtures/macros/hosts.json';
 import { getFormBody } from '../commands';
 
 /**
- * The host and host template forms open in the side panel now, so the form is a
- * nested iframe and waitForElementInIframe('#main-content', ...) cannot reach
- * it. `exist` rather than `be.visible`, so this also holds for a frozen form.
- */
-const waitForHostForm = () => {
-  cy.getSidePanelBody()
-    .find('input[name="host_name"]', { timeout: 20_000 })
-    .should('exist');
-};
-
-/**
  * A multi-select keeps its dropdown open after a pick, and its overlay swallows
  * the next click — which is the one meant for the button underneath. Toggle the
  * field closed, the way a user has to, before moving on.
@@ -34,16 +23,22 @@ const pickAclResourceGroup = (): void => {
 };
 
 /**
- * Open a row's form in the side panel. Clicked through the name column, and
- * retried while the panel is still closed: the listing auto-refreshes every 15s,
- * so the anchor can be detached from under the click, and a click that lands on
- * nothing is silent — the panel frame just stays on about:blank, which surfaces
- * later as an empty body rather than as a failed click.
+ * The listing page body, and the body of the form the side panel holds — both as
+ * chains of Cypress queries only. Queries are replayed on every retry of the
+ * assertion that closes the chain, so each attempt reads the live DOM. Reading
+ * the same state through .then() instead freezes whatever document it captured,
+ * and the panel swaps documents under it: the assertion then waits on a page
+ * that will never change again.
  */
+const pageBody = (): Cypress.Chainable<HTMLElement> =>
+  cy.get('#main-content', { timeout: 60_000 }).its('0.contentDocument.body');
+
+const panelFormBody = (): Cypress.Chainable<HTMLElement> =>
+  pageBody().find('#cfSidePanelFrame').its('0.contentDocument.body');
+
 /**
- * The page iframe's document, read from a requeryable subject. Reading state off
- * cy.getIframeBody() instead means chaining .find() on a wrapped body, which the
- * listing detaches on every refetch — including the one closePanel triggers.
+ * The page iframe's document, for the few reads that have to touch the page's
+ * own JS rather than assert on the DOM.
  */
 const pageDocument = (): Cypress.Chainable<Document> =>
   cy.get('#main-content', { timeout: 60_000 }).then(($frame) => {
@@ -55,6 +50,27 @@ const pageDocument = (): Cypress.Chainable<Document> =>
 
 const isPanelOpen = (doc: Document): boolean =>
   doc.querySelector('#cfSidePanel.open') !== null;
+
+/**
+ * Wait for the side panel iframe to be emptied.
+ *
+ * The panel reuses a single iframe, and closePanel only resets its src once the
+ * closing transition is over — so the form that was in it still answers a lookup
+ * made right after the close. Waiting for the reset before opening the next form
+ * is what keeps the steps below from settling on the previous object's form and
+ * then losing it, detached, the moment the new one lands.
+ */
+const waitForPanelReset = (): void => {
+  panelFormBody().should('be.empty');
+};
+
+/**
+ * Wait until the side panel holds a loaded host form. `exist` rather than
+ * `be.visible`, so this also holds for a frozen form.
+ */
+const waitForHostForm = (): void => {
+  panelFormBody().find('input[name="host_name"]').should('exist');
+};
 
 /**
  * Open a row's form in the side panel.
@@ -75,9 +91,8 @@ const openRowForm = (name: string): void => {
     }
     (doc.defaultView as unknown as { cfClosePanel: () => void }).cfClosePanel();
   });
-  pageDocument().should((doc) => {
-    expect(isPanelOpen(doc), 'panel closed before reopening').to.be.false;
-  });
+  pageBody().find('#cfSidePanel').should('not.have.class', 'open');
+  waitForPanelReset();
 
   // The close refetches the listing; wait for its rows before clicking one.
   cy.getIframeBody()
@@ -98,9 +113,7 @@ const openRowForm = (name: string): void => {
 
   clickRowWhilePanelClosed();
   clickRowWhilePanelClosed();
-  pageDocument().should((doc) => {
-    expect(isPanelOpen(doc), 'panel opened').to.be.true;
-  });
+  pageBody().find('#cfSidePanel').should('have.class', 'open');
   waitForHostForm();
 };
 
@@ -112,19 +125,31 @@ const openRowForm = (name: string): void => {
 const expectPanelMacroNames = (
   assertNames: (names: Array<string>) => void
 ): void => {
-  pageDocument().should((doc) => {
-    const frame = doc.querySelector('#cfSidePanelFrame') as HTMLIFrameElement;
-    const inputs = Array.from(
-      frame.contentDocument?.querySelectorAll(
-        '#macro input[id^="macroInput"]'
-      ) ?? []
+  // The callback form of should() hands over the raw subject, which is the body
+  // element itself and not a jQuery wrapper — hence querySelectorAll here.
+  panelFormBody().should((body) => {
+    assertNames(
+      Array.from(body.querySelectorAll('#macro input[id^="macroInput"]')).map(
+        (el) => (el as HTMLInputElement).value
+      )
     );
-    assertNames(inputs.map((el) => (el as HTMLInputElement).value));
   });
+};
+
+/**
+ * Value held by one macro row of the open panel, read the same way and for the
+ * same reason as the names above: the form these steps read has just been
+ * reopened, so a wrapped body is the one thing that cannot be relied on here.
+ */
+const expectPanelMacroValue = (index: number, expected: string): void => {
+  panelFormBody()
+    .find(`#macro input#macroValue_${index}`)
+    .should('have.value', expected);
 };
 
 const clickToAddHost = () => {
   cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
+  waitForPanelReset();
   cy.getIframeBody().contains('a', 'Add').click();
   waitForHostForm();
 };
@@ -434,9 +459,7 @@ Then(
   (name: string) => {
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
     openRowForm(name);
-    getFormBody()
-      .find('#macroValue_0')
-      .should('have.value', `${hostMacros.updated_host.normalMacro.value}`);
+    expectPanelMacroValue(0, hostMacros.updated_host.normalMacro.value);
   }
 );
 
@@ -486,9 +509,7 @@ Then(
     cy.visitHostTemplatesListing(0);
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
     openRowForm(name);
-    getFormBody()
-      .find('#macroValue_0')
-      .should('have.value', `${hostMacros.default_host.normalMacro.value}`);
+    expectPanelMacroValue(0, hostMacros.default_host.normalMacro.value);
   }
 );
 
@@ -508,9 +529,7 @@ When('the normal macro value in the host should be the modified value', () => {
     `a:contains(${hostMacros.default_host.name})`
   );
   openRowForm(hostMacros.default_host.name);
-  getFormBody()
-    .find('#macroValue_0')
-    .should('have.value', `${hostMacros.updated_host.normalMacro.value}`);
+  expectPanelMacroValue(0, hostMacros.updated_host.normalMacro.value);
 });
 
 Then(
