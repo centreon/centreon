@@ -26,6 +26,7 @@ namespace Tests\EventSubscriber;
 use Centreon\Application\ApiPlatform;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Domain\RequestParameters\RequestParametersException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use EventSubscriber\CentreonEventSubscriber;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +38,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Tests\EventSubscriber\Double\NullHttpKernel;
+use Tests\EventSubscriber\Double\FakeHttpKernel;
 
 final class CentreonEventSubscriberTest extends TestCase
 {
@@ -50,7 +51,10 @@ final class CentreonEventSubscriberTest extends TestCase
         } catch (BadRequestHttpException $exception) {
             self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
             self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getCode());
-            self::assertStringContainsString('page', $exception->getMessage());
+            self::assertSame(
+                RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE)->getMessage(),
+                $exception->getMessage()
+            );
         }
     }
 
@@ -63,7 +67,10 @@ final class CentreonEventSubscriberTest extends TestCase
         } catch (BadRequestHttpException $exception) {
             self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
             self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getCode());
-            self::assertStringContainsString('limit', $exception->getMessage());
+            self::assertSame(
+                RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT)->getMessage(),
+                $exception->getMessage()
+            );
         }
     }
 
@@ -95,7 +102,7 @@ final class CentreonEventSubscriberTest extends TestCase
     private function createRequestEvent(string $queryString): RequestEvent
     {
         return new RequestEvent(
-            new NullHttpKernel(),
+            new FakeHttpKernel(),
             Request::create('/api/latest/monitoring/resources?' . $queryString),
             HttpKernelInterface::MAIN_REQUEST
         );

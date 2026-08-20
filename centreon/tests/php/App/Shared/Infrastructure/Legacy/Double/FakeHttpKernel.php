@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\EventSubscriber\Double;
+namespace Tests\App\Shared\Infrastructure\Legacy\Double;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
- * Kernel required to build a RequestEvent; the listeners under test never call it back.
+ * ExceptionEvent requires an HttpKernelInterface; this double provides one without booting a kernel.
  */
-final class NullHttpKernel implements HttpKernelInterface
+final class FakeHttpKernel implements HttpKernelInterface
 {
     public function handle(
         Request $request,

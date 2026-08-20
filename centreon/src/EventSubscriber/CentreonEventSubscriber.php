@@ -128,7 +128,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param RequestEvent $request
      *
-     * @throws BadRequestHttpException when the "limit" or "page" parameter is not an integer
+     * @throws BadRequestHttpException when the "limit" or "page" parameter is not a valid integer
      * @throws \Exception
      */
     public function initRequestParameters(RequestEvent $request): void
@@ -140,8 +140,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             FILTER_VALIDATE_INT
         );
         if ($limit === false) {
+            $exception = RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
+
             throw new BadRequestHttpException(
-                RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT)->getMessage(),
+                $exception->getMessage(),
+                previous: $exception,
                 code: Response::HTTP_BAD_REQUEST,
             );
         }
@@ -152,8 +155,11 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             FILTER_VALIDATE_INT
         );
         if ($page === false) {
+            $exception = RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
+
             throw new BadRequestHttpException(
-                RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE)->getMessage(),
+                $exception->getMessage(),
+                previous: $exception,
                 code: Response::HTTP_BAD_REQUEST,
             );
         }
