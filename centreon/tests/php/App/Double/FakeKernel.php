@@ -27,11 +27,8 @@ use App\Kernel;
 
 class FakeKernel extends Kernel
 {
-    private string $fakeProjectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(private string $fakeProjectDir)
     {
-        $this->fakeProjectDir = $projectDir;
         parent::__construct('test', false);
     }
 
