@@ -52,19 +52,50 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Advanced filters: static select2 elements. Their options are rendered
-// client-side from the element configuration, and the selected value is
-// restored by CentreonListing from its own session state -- so neither
-// defaultDataset nor a custom clear control is needed here. The label is what
-// select2 shows as placeholder while the filter is empty.
+/**
+ * Advanced filters: static select2 elements. Their options are rendered
+ * client-side from the element configuration, and the value the user picked is
+ * restored by CentreonListing from its own session state -- so the filters need
+ * neither an initial dataset nor a custom clear control. The element label is
+ * what select2 shows as placeholder while the filter is empty.
+ *
+ * The one case that does need a dataset is a value coming back from a POST
+ * (the filters sit inside the listing form, so a bulk action resubmits them):
+ * QuickForm wraps a submitted scalar in a list, and select2 would then render
+ * the option with its array index as label ("0") instead of the status name.
+ *
+ * @param array<int|string, string> $options
+ *
+ * @return array<string, array<string, int|string>>
+ */
+$submittedFilterDataset = static function (string $name, array $options): array {
+    $submitted = filter_var($_POST[$name] ?? null, FILTER_VALIDATE_INT);
+
+    return ($submitted !== false && isset($options[$submitted]))
+        ? ['defaultDataset' => [$options[$submitted] => $submitted]]
+        : [];
+};
+
 $tabStatusFilter = [1 => _('OK'), 2 => _('Warning'), 3 => _('Critical'), 4 => _('Unknown'), 5 => _('Pending')];
-$form->addElement('select2', 'status', _('Select'), $tabStatusFilter);
+$form->addElement(
+    'select2',
+    'status',
+    _('Select'),
+    $tabStatusFilter,
+    $submittedFilterDataset('status', $tabStatusFilter)
+);
 
 $vendors = [];
 foreach ($pearDB->fetchAllAssociative('SELECT id, name FROM traps_vendor ORDER BY name') as $vendor) {
     $vendors[(int) $vendor['id']] = $vendor['name'];
 }
-$form->addElement('select2', 'vendor', _('Select'), $vendors);
+$form->addElement(
+    'select2',
+    'vendor',
+    _('Select'),
+    $vendors,
+    $submittedFilterDataset('vendor', $vendors)
+);
 
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
