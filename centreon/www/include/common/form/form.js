@@ -490,6 +490,23 @@ var CentreonForm = (function () {
                     });
                 });
 
+                // A native reset restores the radios, but the segmented button stays
+                // highlighted on the previous choice. Re-read the radios on the next
+                // tick, once the browser has applied the reset (same approach as the
+                // toggle and select2 resets).
+                var firstRadio = _findRadio(base, order[0]);
+                var segForm = firstRadio ? firstRadio.form : null;
+                if (segForm) {
+                    segForm.addEventListener('reset', function () {
+                        setTimeout(function () {
+                            Array.prototype.forEach.call(btns, function (b) {
+                                var r = _findRadio(base, b.getAttribute('data-value'));
+                                b.classList.toggle('active', !!(r && r.checked));
+                            });
+                        }, 0);
+                    });
+                }
+
                 // Reuse the field's float label as the inline segment label, keep help icon
                 // The field's real parameter label = a cf-label-float that is NOT a radio's
                 // own label (those live inside .md-radio).
