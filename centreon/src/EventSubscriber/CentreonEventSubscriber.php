@@ -42,6 +42,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\{ExceptionEvent, RequestEvent, ResponseEvent};
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -127,6 +128,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
      *
      * @param RequestEvent $request
      *
+     * @throws BadRequestHttpException when the "limit" or "page" parameter is not an integer
      * @throws \Exception
      */
     public function initRequestParameters(RequestEvent $request): void
@@ -138,7 +140,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             FILTER_VALIDATE_INT
         );
         if ($limit === false) {
-            throw RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
+            throw new BadRequestHttpException(
+                RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT)->getMessage(),
+                code: Response::HTTP_BAD_REQUEST,
+            );
         }
         $this->requestParameters->setLimit($limit);
 
@@ -147,7 +152,10 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             FILTER_VALIDATE_INT
         );
         if ($page === false) {
-            throw RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
+            throw new BadRequestHttpException(
+                RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE)->getMessage(),
+                code: Response::HTTP_BAD_REQUEST,
+            );
         }
         $this->requestParameters->setPage($page);
 
