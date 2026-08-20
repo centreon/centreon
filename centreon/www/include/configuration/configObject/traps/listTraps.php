@@ -63,10 +63,6 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
  * (the filters sit inside the listing form, so a bulk action resubmits them):
  * QuickForm wraps a submitted scalar in a list, and select2 would then render
  * the option with its array index as label ("0") instead of the status name.
- *
- * @param array<int|string, string> $options
- *
- * @return array<string, array<string, int|string>>
  */
 $submittedFilterDataset = static function (string $name, array $options): array {
     $submitted = filter_var($_POST[$name] ?? null, FILTER_VALIDATE_INT);
