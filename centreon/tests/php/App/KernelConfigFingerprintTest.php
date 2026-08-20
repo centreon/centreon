@@ -161,6 +161,7 @@ final class KernelConfigFingerprintTest extends TestCase
         );
 
         foreach ($items as $item) {
+            assert($item instanceof \SplFileInfo);
             if ($item->isDir()) {
                 rmdir($item->getPathname());
             } else {
