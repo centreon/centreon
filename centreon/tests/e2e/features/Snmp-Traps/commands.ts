@@ -1,6 +1,8 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
+  advancedFiltersButton,
+  advancedSearchButton,
   generatePollersField,
   listingAddButton,
   listingSearchInput,
@@ -108,6 +110,29 @@ Cypress.Commands.add('searchInTrapsListing', (term: string) => {
 });
 
 /**
+ * Apply one of the listing's advanced filters, addressed by its field label,
+ * then wait for the AJAX refresh.
+ */
+Cypress.Commands.add(
+  'filterTrapsListingOn',
+  (label: string, option: string) => {
+    cy.getIframeBody().find(advancedFiltersButton).click();
+    cy.getIframeBody()
+      .contains('.cl-adv-field', label)
+      .find('.select2-selection')
+      .click({ force: true });
+    cy.getIframeBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .contains(option)
+      .click({ force: true });
+    cy.getIframeBody().find(advancedSearchButton).click();
+    cy.getIframeBody()
+      .find(`${listingTableBody} td`)
+      .should('not.contain', 'Loading');
+  }
+);
+
+/**
  * Pick a poller in the Generate page's select2. That page is rendered directly
  * in the legacy iframe, so it needs no side-panel drilling.
  */
@@ -135,6 +160,7 @@ declare global {
       runTrapsBulkAction(name: string, action: string): Chainable<void>;
       selectTrapSidePanelOption(label: string, option: string): Chainable<void>;
       searchInTrapsListing(term: string): Chainable<void>;
+      filterTrapsListingOn(label: string, option: string): Chainable<void>;
       selectTrapsGeneratePoller(poller: string): Chainable<void>;
     }
   }

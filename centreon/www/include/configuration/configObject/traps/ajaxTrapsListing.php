@@ -58,8 +58,12 @@ if ($search !== '') {
 }
 
 if ($statusFilter > 0) {
+    // traps_status is an ENUM('-1','0','1','2','3'): compared against an integer,
+    // MySQL matches the enum *index* instead of its value, so "OK" (value 0) hit
+    // index 0 and returned nothing while the other statuses were shifted by one.
+    // Bind the value as a string, as the legacy page did.
     $conditions[] = 't.traps_status = :status';
-    $parameters[] = QueryParameter::int('status', $statusFilter === 5 ? -1 : $statusFilter - 1);
+    $parameters[] = QueryParameter::string('status', (string) ($statusFilter === 5 ? -1 : $statusFilter - 1));
 }
 
 if ($vendorFilter > 0) {

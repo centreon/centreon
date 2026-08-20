@@ -8,6 +8,8 @@ const listingPagination = '#clPaginationTop';
 const rowCheckbox = '.cl-col-picker input[type="checkbox"]';
 const sidePanelFrame = '#cfSidePanelFrame';
 const saveButton = 'input.btc.bt_success[name^="submit"]';
+const advancedFiltersButton = '.cl-adv-icon-btn';
+const advancedSearchButton = '#clSearchBtn';
 
 // Generate page (Configuration > SNMP Traps > Generate)
 const generatePollersField = '#nhost';
@@ -203,6 +205,8 @@ interface Vendor {
 }
 
 export {
+  advancedFiltersButton,
+  advancedSearchButton,
   AddOrUpdateVendor,
   CheckVendorFieldsValues,
   clickSegmentedValue,

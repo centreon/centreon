@@ -70,6 +70,32 @@ Given('two SNMP trap definitions are configured', () => {
   });
 });
 
+Given(
+  'two SNMP trap definitions with different statuses are configured',
+  () => {
+    cy.setUserTokenApiV1();
+    [
+      { name: data.snmp1.name, oid: data.snmp1.oid, status: 'ok' },
+      { name: secondTrapName, oid: '1.2.3.4.5', status: 'critical' }
+    ].forEach((trap) => {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'ADD',
+          object: 'TRAP',
+          values: `${trap.name};${trap.oid}`
+        }
+      });
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'SETPARAM',
+          object: 'TRAP',
+          values: `${trap.name};status;${trap.status}`
+        }
+      });
+    });
+  }
+);
+
 // Scenario: The SNMP traps listing loads through the AJAX framework
 When('the user opens the SNMP traps listing', () => {
   cy.openTrapsSnmpListing();
@@ -91,6 +117,22 @@ When('the user searches for the first trap', () => {
 });
 
 Then('only the matching trap is displayed', () => {
+  cy.getIframeBody()
+    .find(listingTableBody)
+    .contains(data.snmp1.name)
+    .should('exist');
+  cy.getIframeBody()
+    .find(listingTableBody)
+    .contains(secondTrapName)
+    .should('not.exist');
+});
+
+// Scenario: The advanced filter narrows the listing by status
+When('the user filters the listing on the OK status', () => {
+  cy.filterTrapsListingOn('Status', 'OK');
+});
+
+Then('only the trap having the OK status is displayed', () => {
   cy.getIframeBody()
     .find(listingTableBody)
     .contains(data.snmp1.name)

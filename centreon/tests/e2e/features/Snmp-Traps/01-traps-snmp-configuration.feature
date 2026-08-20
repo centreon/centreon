@@ -20,6 +20,13 @@ Feature: trapsSnmpConfiguration
     Then only the matching trap is displayed
 
   @MON-200041
+  Scenario: The advanced filter narrows the listing by status
+    Given two SNMP trap definitions with different statuses are configured
+    When the user opens the SNMP traps listing
+    And the user filters the listing on the OK status
+    Then only the trap having the OK status is displayed
+
+  @MON-200041
   Scenario: The listing shows pagination information
     Given an SNMP trap definition is configured
     When the user opens the SNMP traps listing
