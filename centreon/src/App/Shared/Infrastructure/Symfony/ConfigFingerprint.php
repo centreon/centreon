@@ -28,26 +28,15 @@ namespace App\Shared\Infrastructure\Symfony;
  * compiled. Keying the cache directory on the configuration file set makes such a stale
  * container unreachable instead of fatal.
  *
- * Both kernels declare their own set of imported files here so that a change of one glob
- * cannot silently drift away from the other.
+ * The Kernel itself is final and resolves its project directory from its own location, so
+ * holding the file set rules here is what makes them testable.
  */
 final class ConfigFingerprint
 {
     /**
-     * Files imported by App\Kernel from the legacy config directory.
+     * Fingerprints every file the shared kernel imports from the given configuration directory.
      */
-    public static function ofLegacyConfigDir(string $configDir): string
-    {
-        return self::of(
-            $configDir . '/{routes,packages}/{*,*/*}.yaml',
-            $configDir . '/bundles.php'
-        );
-    }
-
-    /**
-     * Files imported by the shared kernel from the config.new directory.
-     */
-    public static function ofSharedConfigDir(string $configDir): string
+    public static function ofConfigDir(string $configDir): string
     {
         return self::of(
             $configDir . '/{routes,packages,services}/{*,*/*}.{yaml,php}',

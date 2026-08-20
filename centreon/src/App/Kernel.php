@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Shared\Infrastructure\Symfony\ConfigFingerprint;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -129,8 +128,33 @@ class Kernel extends BaseKernel
         }
     }
 
+    /**
+     * Modules drop yaml files under config/routes and config/packages after the container
+     * may already have been compiled. Keying the cache directory on the config file set
+     * makes such a stale container unreachable instead of fatal.
+     *
+     * The shared kernel computes its own fingerprint the same way. Sharing the code is not an
+     * option: the deptrac Legacy layer must not depend on App\Shared.
+     */
     private function getConfigFingerprint(): string
     {
-        return $this->configFingerprint ??= ConfigFingerprint::ofLegacyConfigDir($this->getProjectDir() . '/config');
+        if ($this->configFingerprint === null) {
+            // filemtime() and filesize() read PHP's stat cache, which must not hand back
+            // pre-write values to a process that just wrote a configuration file.
+            clearstatcache();
+
+            $files = array_merge(
+                glob($this->getProjectDir() . '/config/{routes,packages}/{*,*/*}.yaml', \GLOB_BRACE) ?: [],
+                glob($this->getProjectDir() . '/config/bundles.php') ?: []
+            );
+            sort($files);
+            $entries = array_map(
+                static fn (string $file): string => $file . ':' . (filemtime($file) ?: 0) . ':' . (filesize($file) ?: 0),
+                $files
+            );
+            $this->configFingerprint = mb_substr(md5(implode('|', $entries)), 0, 8);
+        }
+
+        return $this->configFingerprint;
     }
 }

@@ -29,13 +29,15 @@ use Tests\App\Double\FakeKernel;
 use Tests\App\Double\TemporaryConfigDirectory;
 
 /**
- * Checks that both kernels key their cache directory on the fingerprint of the configuration
- * directory they actually import. The fingerprint rules themselves are covered by
+ * Covers the file set the legacy kernel imports from its config directory, and the fact that
+ * both kernels key their cache directory on it. The shared kernel is final and resolves its
+ * project directory from its own location, so the file set it imports is covered by
  * {@see Shared\Infrastructure\Symfony\ConfigFingerprintTest}.
  */
 final class KernelConfigFingerprintTest extends TestCase
 {
     use TemporaryConfigDirectory;
+    private const MTIME = 1700000000;
 
     private string $tmpDir;
 
@@ -55,11 +57,9 @@ final class KernelConfigFingerprintTest extends TestCase
      */
     public function testLegacyCacheDirEndsWithHexFingerprint(): void
     {
-        file_put_contents($this->tmpDir . '/config/routes/test.yaml', "resource: test\n");
+        $this->writeFile($this->tmpDir . '/config/routes/test.yaml', "resource: test\n");
 
-        $kernel = new FakeKernel($this->tmpDir);
-
-        self::assertMatchesRegularExpression('#/symfony/[0-9a-f]{8}$#', $kernel->getCacheDir());
+        self::assertMatchesRegularExpression('#/symfony/[0-9a-f]{8}$#', (new FakeKernel($this->tmpDir))->getCacheDir());
     }
 
     public function testSharedCacheDirEndsWithHexFingerprint(): void
@@ -69,24 +69,103 @@ final class KernelConfigFingerprintTest extends TestCase
         self::assertMatchesRegularExpression('#^/var/cache/centreon/symfony\.new/[0-9a-f]{8}$#', $kernel->getCacheDir());
     }
 
-    public function testLegacyCacheDirChangesWhenAConfigFileIsAdded(): void
+    public function testFingerprintIsComputedOnlyOncePerKernel(): void
     {
-        file_put_contents($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
+        $kernel = new FakeKernel($this->tmpDir);
+        $cacheDir = $kernel->getCacheDir();
+
+        $this->writeFile($this->tmpDir . '/config/routes/b.yaml', "resource: b\n");
+
+        self::assertSame($cacheDir, $kernel->getCacheDir());
+    }
+
+    public function testFingerprintIsStableWhileNothingChanges(): void
+    {
+        $this->writeFile($this->tmpDir . '/config/routes/z.yaml', "resource: z\n");
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
+
+        self::assertSame(
+            (new FakeKernel($this->tmpDir))->getCacheDir(),
+            (new FakeKernel($this->tmpDir))->getCacheDir()
+        );
+    }
+
+    public function testFingerprintChangesWhenAFileIsAdded(): void
+    {
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
         $before = (new FakeKernel($this->tmpDir))->getCacheDir();
 
-        file_put_contents($this->tmpDir . '/config/routes/b.yaml', "resource: b\n");
+        $this->writeFile($this->tmpDir . '/config/routes/b.yaml', "resource: b\n");
 
         self::assertNotSame($before, (new FakeKernel($this->tmpDir))->getCacheDir());
     }
 
-    public function testFingerprintIsComputedOnlyOncePerKernel(): void
+    public function testFingerprintChangesWhenAFileIsRemoved(): void
     {
-        file_put_contents($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
-        $kernel = new FakeKernel($this->tmpDir);
-        $cacheDir = $kernel->getCacheDir();
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
+        $this->writeFile($this->tmpDir . '/config/routes/b.yaml', "resource: b\n");
+        $before = (new FakeKernel($this->tmpDir))->getCacheDir();
 
-        file_put_contents($this->tmpDir . '/config/routes/b.yaml', "resource: b\n");
+        unlink($this->tmpDir . '/config/routes/b.yaml');
 
-        self::assertSame($cacheDir, $kernel->getCacheDir());
+        self::assertNotSame($before, (new FakeKernel($this->tmpDir))->getCacheDir());
+    }
+
+    /**
+     * Both contents have the same length, so only the modification time can tell them apart.
+     */
+    public function testFingerprintChangesWhenContentChangesWithoutSizeChange(): void
+    {
+        $file = $this->tmpDir . '/config/packages/framework.yaml';
+        $this->writeFile($file, "framework:\n    secret: aaa\n");
+        $before = (new FakeKernel($this->tmpDir))->getCacheDir();
+
+        $this->writeFile($file, "framework:\n    secret: bbb\n", self::MTIME + 60);
+
+        self::assertNotSame($before, (new FakeKernel($this->tmpDir))->getCacheDir());
+    }
+
+    /**
+     * The modification time is preserved, as `cp -p` or `rsync -a` would, so only the file
+     * size can tell both contents apart.
+     */
+    public function testFingerprintChangesWhenSizeChangesWithoutMtimeChange(): void
+    {
+        $file = $this->tmpDir . '/config/packages/framework.yaml';
+        $this->writeFile($file, "framework:\n    secret: aaa\n");
+        $before = (new FakeKernel($this->tmpDir))->getCacheDir();
+
+        $this->writeFile($file, "framework:\n    secret: aaa_longer\n");
+
+        self::assertNotSame($before, (new FakeKernel($this->tmpDir))->getCacheDir());
+    }
+
+    public function testFingerprintCoversNestedDirectoriesAndBundles(): void
+    {
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
+        $cacheDirs = [(new FakeKernel($this->tmpDir))->getCacheDir()];
+
+        $this->writeFile($this->tmpDir . '/config/routes/Centreon/module.yaml', "resource: module\n");
+        $cacheDirs[] = (new FakeKernel($this->tmpDir))->getCacheDir();
+
+        $this->writeFile($this->tmpDir . '/config/packages/prod/cache.yaml', "framework:\n    cache: ~\n");
+        $cacheDirs[] = (new FakeKernel($this->tmpDir))->getCacheDir();
+
+        $this->writeFile($this->tmpDir . '/config/bundles.php', "<?php\n\nreturn [];\n");
+        $cacheDirs[] = (new FakeKernel($this->tmpDir))->getCacheDir();
+
+        self::assertSame($cacheDirs, array_unique($cacheDirs));
+    }
+
+    public function testFingerprintIgnoresFilesThatAreNotImported(): void
+    {
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml', "resource: a\n");
+        $before = (new FakeKernel($this->tmpDir))->getCacheDir();
+
+        $this->writeFile($this->tmpDir . '/config/routes/a.yaml.bak', "resource: a\n");
+        $this->writeFile($this->tmpDir . '/config/packages/notes.md', "# notes\n");
+
+        self::assertSame($before, (new FakeKernel($this->tmpDir))->getCacheDir());
     }
 }

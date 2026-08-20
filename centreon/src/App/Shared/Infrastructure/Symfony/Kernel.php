@@ -109,6 +109,6 @@ final class Kernel extends BaseKernel
 
     private function getConfigFingerprint(): string
     {
-        return $this->configFingerprint ??= ConfigFingerprint::ofSharedConfigDir($this->getConfigDir());
+        return $this->configFingerprint ??= ConfigFingerprint::ofConfigDir($this->getConfigDir());
     }
 }

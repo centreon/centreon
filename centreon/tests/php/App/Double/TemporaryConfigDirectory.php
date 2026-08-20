@@ -40,6 +40,21 @@ trait TemporaryConfigDirectory
         return $path;
     }
 
+    /**
+     * A fixed modification time keeps the fingerprint assertions deterministic without
+     * having to wait for the next second.
+     */
+    private function writeFile(string $path, string $content, int $mtime = 1700000000): void
+    {
+        $directory = \dirname($path);
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        file_put_contents($path, $content);
+        touch($path, $mtime);
+    }
+
     private function removeDirectory(string $path): void
     {
         if (! is_dir($path)) {
