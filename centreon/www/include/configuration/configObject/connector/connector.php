@@ -29,6 +29,9 @@ require_once $path . 'DB-Func.php';
 
 $connectorObj = new CentreonConnector($pearDB);
 
+// Matches the maxlength of the duplication field in the listing.
+const MAX_DUPLICATES_PER_CONNECTOR = 999;
+
 if (isset($_REQUEST['select'])) {
     $select = $_REQUEST['select'];
 }
@@ -88,11 +91,17 @@ switch ($o) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
                 $duplicateNbr = $_REQUEST['dupNbr'] ?? $options ?? [];
+                if (! is_array($duplicateNbr)) {
+                    $duplicateNbr = [];
+                }
                 $selectedConnectors = array_keys($select ?? []);
                 foreach ($selectedConnectors as $connectorId) {
                     // An empty or non-numeric field casts to 0, which would copy
                     // nothing and report nothing: duplicate once in that case.
-                    $nb = max(1, (int) ($duplicateNbr[$connectorId] ?? 1));
+                    // The upper bound mirrors the three-digit form field, as the
+                    // request is the only thing standing between a forged value
+                    // and one insert per requested copy.
+                    $nb = min(MAX_DUPLICATES_PER_CONNECTOR, max(1, (int) ($duplicateNbr[$connectorId] ?? 1)));
                     $connectorObj->copy($connectorId, $nb);
                 }
             }
