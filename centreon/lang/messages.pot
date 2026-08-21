@@ -21010,6 +21010,15 @@ msgid "Your rights only allow you to view the properties of a widget."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
+msgid "Could not read the change history."
+msgstr ""
+
+msgid "Could not load more — click to retry"
+msgstr ""
+
+msgid "You are not allowed to view this data."
+msgstr ""
+
 msgid "Your session has expired"
 msgstr ""
 
@@ -21259,7 +21268,7 @@ msgid "centreon is not properly installed"
 msgstr ""
 
 #: centreon/www/include/Administration/configChangelog/viewLogsDetails.ihtml
-msgid "changes recorded"
+msgid "Recorded changes"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
