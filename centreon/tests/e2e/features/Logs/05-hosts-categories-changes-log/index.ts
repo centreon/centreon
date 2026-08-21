@@ -25,16 +25,21 @@ afterEach(() => {
   cy.stopContainers();
 });
 
+const hostCategoriesUrl = '/centreon/api/latest/configuration/hosts/categories';
+
+// Id of the category created by the current scenario, shared across its steps.
+let categoryId = 0;
+
 Given('a user is logged in a Centreon server via APIv2', () => {
   cy.loginAsAdminViaApiV2();
   cy.visit('/').url().should('include', '/monitoring/resources');
 });
 
 When('an apiV2 call is made to "Add" a host category', () => {
-  cy.addSubjectViaApiV2(
-    categories.default,
-    '/centreon/api/latest/configuration/hosts/categories'
-  );
+  cy.addSubjectViaApiV2(categories.default, hostCategoriesUrl).then((id) => {
+    expect(id, 'created host category id').to.be.a('number');
+    categoryId = id;
+  });
 });
 
 Then('a new host category is displayed on the host categories page', () => {
@@ -70,16 +75,14 @@ Then(
 );
 
 Given('a host category is configured via APIv2', () => {
-  cy.addSubjectViaApiV2(
-    categories.default,
-    '/centreon/api/latest/configuration/hosts/categories'
-  );
+  cy.addSubjectViaApiV2(categories.default, hostCategoriesUrl).then((id) => {
+    expect(id, 'created host category id').to.be.a('number');
+    categoryId = id;
+  });
 });
 
 When('an apiV2 call is made to "Delete" the configured host category', () => {
-  cy.deleteSubjectViaApiV2(
-    '/centreon/api/latest/configuration/hosts/categories/1'
-  );
+  cy.deleteSubjectViaApiV2(`${hostCategoriesUrl}/${categoryId}`);
 });
 
 Then(
@@ -93,7 +96,7 @@ Then(
 When('an APIv2 call is made to "Update" the configured host category', () => {
   cy.updateSubjectViaApiV2(
     categories.forTest,
-    '/centreon/api/latest/configuration/hosts/categories/1'
+    `${hostCategoriesUrl}/${categoryId}`
   );
 });
 
@@ -129,16 +132,16 @@ Then(
 );
 
 Given('an enabled host category is configured via APIv2', () => {
-  cy.addSubjectViaApiV2(
-    categories.default,
-    '/centreon/api/latest/configuration/hosts/categories'
-  );
+  cy.addSubjectViaApiV2(categories.default, hostCategoriesUrl).then((id) => {
+    expect(id, 'created host category id').to.be.a('number');
+    categoryId = id;
+  });
 });
 
 When('an APIv2 call is made to "Disable" the configured host category', () => {
   cy.updateSubjectViaApiV2(
     categories.disabled,
-    '/centreon/api/latest/configuration/hosts/categories/1'
+    `${hostCategoriesUrl}/${categoryId}`
   );
 });
 
@@ -151,16 +154,16 @@ Then(
 );
 
 Given('a disabled host category is configured via APIv2', () => {
-  cy.addSubjectViaApiV2(
-    categories.disabled,
-    '/centreon/api/latest/configuration/hosts/categories'
-  );
+  cy.addSubjectViaApiV2(categories.disabled, hostCategoriesUrl).then((id) => {
+    expect(id, 'created host category id').to.be.a('number');
+    categoryId = id;
+  });
 });
 
 When('an APIv2 call is made to "Enable" the disabled host category', () => {
   cy.updateSubjectViaApiV2(
     categories.default,
-    '/centreon/api/latest/configuration/hosts/categories/1'
+    `${hostCategoriesUrl}/${categoryId}`
   );
 });
 

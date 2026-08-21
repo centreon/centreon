@@ -1,6 +1,6 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
 
-/** Open the (modernized) Administration > Logs listing and wait for its rows. */
+/** Open the Administration > Logs listing and wait for its rows. */
 const openChangelogListing = (): void => {
   cy.visit(PAGES.configuration.logsLegacy);
   cy.wait('@getTimeZone');
@@ -12,14 +12,18 @@ const openChangelogListing = (): void => {
 
 /**
  * Assert that the most recent listing row carries the expected modification-type
- * badge and object-type label. `badgeState` is the badge colour class
- * (service_ok / service_warning / service_critical); `typeLabel` is the
- * translated Object Type label (e.g. "Time period"), not the raw token.
+ * badge, object-type label and author. `badgeState` is the badge colour class
+ * (service_ok / service_warning / service_critical); `badgeLabel` is the
+ * translated badge text (Added / Changed / ...); `typeLabel` is the translated
+ * Object Type label (e.g. "Time period"), not the raw token. `author` defaults
+ * to the admin the suite runs as: the column is resolved server-side, so leaving
+ * it unasserted would let a failed lookup render "System" unnoticed.
  */
 const assertLatestChangelogRow = (
   badgeState: string,
   badgeLabel: string,
-  typeLabel: string
+  typeLabel: string,
+  author = 'admin'
 ): void => {
   cy.getIframeBody()
     .find('#clTableBody tr')
@@ -30,12 +34,20 @@ const assertLatestChangelogRow = (
         .find(`span.badge.${badgeState}`)
         .should('contain.text', badgeLabel);
       cy.get('td').eq(3).should('contain.text', typeLabel);
+      cy.get('td').eq(5).should('contain.text', author);
     });
 };
 
 /** Click an object name in the listing to open its timeline detail page. */
 const openObjectTimeline = (objectName: string): void => {
-  cy.getIframeBody().find('#clTableBody td a').contains(objectName).click();
+  // Exact match: a substring match opens a neighbouring row whose name merely
+  // starts with this one ("host-category" vs "host-category-default"), and the
+  // header guard below would still pass.
+  cy.getIframeBody()
+    .find('#clTableBody td a')
+    .filter((_index, link) => Cypress.$(link).text().trim() === objectName)
+    .first()
+    .click();
   cy.waitForElementInIframe('#main-content', '.cld-wrapper');
   cy.getIframeBody()
     .find('.cld-header-text h2')

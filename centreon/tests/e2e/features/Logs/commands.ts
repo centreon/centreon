@@ -39,18 +39,24 @@ Cypress.Commands.add('addTimePeriodViaApi', (payload: TimePeriod) => {
 
 Cypress.Commands.add(
   'addSubjectViaApiV2',
-  (payload: Record<string, unknown>, url: string) => {
-    cy.request({
-      body: payload,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST',
-      url: url
-    }).then((response) => {
-      expect(response.status).to.eq(201);
-    });
-  }
+  (payload: Record<string, unknown>, url: string) =>
+    cy
+      .request({
+        body: payload,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        url: url
+      })
+      .then((response) => {
+        expect(response.status).to.eq(201);
+
+        // Yielded so callers can address the object they just created rather
+        // than hard-coding id 1, which silently targets a pre-existing one on a
+        // seeded platform. Undefined for endpoints that return no id.
+        return response.body?.id;
+      })
 );
 
 Cypress.Commands.add(
@@ -129,10 +135,10 @@ Cypress.Commands.add('deleteSubjectViaApiV2', (url: string) => {
 });
 
 /**
- * Open the object timeline (new detail page) by clicking the object name in the
- * listing, then expand the card whose modification-type badge matches
- * `badgeLabel` (Added / Changed / Deleted / ...). The card is aliased as
- * `@timelineCard` so subsequent `checkLogDetail` calls scope to it.
+ * Expand the timeline card whose modification-type badge matches `badgeLabel`
+ * (Added / Changed / Deleted / ...) and alias it as `@timelineCard`, which
+ * `checkLogDetail` then scopes to. The timeline must already be open — see
+ * `openObjectTimeline` in common.ts.
  */
 Cypress.Commands.add('expandTimelineCard', (badgeLabel: string) => {
   cy.getIframeBody()

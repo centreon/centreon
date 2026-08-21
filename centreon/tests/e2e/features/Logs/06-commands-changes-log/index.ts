@@ -79,12 +79,11 @@ Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
     openChangelogListing();
-    // Object Type now shows the translated label ("Command"), not the raw token.
     assertLatestChangelogRow('service_ok', 'Added', 'Command');
   }
 );
 
-// command_type stored in the changelog per command kind.
+// Values command.command_type takes in the changelog, per command kind.
 const commandTypeCode: Record<string, string> = {
   CHECK: '2',
   DISCOVERY: '4',
@@ -96,15 +95,11 @@ Then(
   'the informations of the log are the same as those of the {string} command',
   (type: string) => {
     const command = commands[type.toLowerCase()];
-    if (!command) {
-      return;
-    }
+    expect(command, `fixture for command type "${type}"`).to.exist;
 
-    // Click the object name to open its timeline, then expand the Added card.
     openObjectTimeline(command.name);
     cy.expandTimelineCard('Added');
 
-    // Added diff has no "Before" column, so `before` is '' for every field.
     cy.checkLogDetail('command_activate', '', command.is_activated ? '1' : '0');
     cy.checkLogDetail('command_name', '', command.name);
     cy.checkLogDetail('command_type', '', commandTypeCode[type]);

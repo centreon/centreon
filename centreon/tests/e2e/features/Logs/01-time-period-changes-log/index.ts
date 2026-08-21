@@ -65,7 +65,6 @@ Then(
   () => {
     openObjectTimeline(periods.default.name);
     cy.expandTimelineCard('Added');
-    // Added diff has no "Before" column, so `before` is '' for every field.
     cy.checkLogDetail('name', '', periods.default.name);
     cy.checkLogDetail('alias', '', periods.default.alias);
     cy.checkLogDetail('monday', '', periods.default.days[0].time_range);

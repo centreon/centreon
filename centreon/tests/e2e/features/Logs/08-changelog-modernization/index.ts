@@ -10,14 +10,10 @@ const detailUrl = '**/ajaxChangelogDetail.php*';
 // Object Type label shown for the 'hostcategories' token (see viewLogs.php).
 const hostCategoryLabel = 'Host Categories';
 
-// Name of the object seeded by the current scenario, shared across its steps.
 let seededName = '';
 
-const seedHostCategory = (name: string): void => {
-  // NOTE(CI): minimal host-category payload; adjust here if the APIv2 schema
-  // requires more fields than name/alias.
+const seedHostCategory = (name: string): Cypress.Chainable =>
   cy.addSubjectViaApiV2({ alias: name, name }, hostCategoryUrl);
-};
 
 beforeEach(() => {
   cy.startContainers();
@@ -38,10 +34,6 @@ afterEach(() => {
   cy.stopContainers();
 });
 
-// ---------------------------------------------------------------------------
-// Background & fixtures — each scenario seeds its own data.
-// ---------------------------------------------------------------------------
-
 Given('a user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
@@ -53,28 +45,21 @@ Given('a configuration change has been recorded', () => {
 
 Given('a disabled configuration change has been recorded', () => {
   seededName = 'changelog_hc_disabled';
-  seedHostCategory(seededName);
   // Disabling records a "Disabled" action, which has no expandable diff.
-  // NOTE(CI): assumes the freshly created category takes id 1, like feature 05.
-  cy.updateSubjectViaApiV2(
-    { alias: seededName, is_activated: false, name: seededName },
-    `${hostCategoryUrl}/1`
-  );
+  seedHostCategory(seededName).then((categoryId) => {
+    expect(categoryId, 'created host category id').to.be.a('number');
+    cy.updateSubjectViaApiV2(
+      { alias: seededName, is_activated: false, name: seededName },
+      `${hostCategoryUrl}/${categoryId}`
+    );
+  });
 });
-
-// ---------------------------------------------------------------------------
-// Navigation
-// ---------------------------------------------------------------------------
 
 When('the user navigates to the changelog page', () => {
   openChangelogListing();
   // Consume the initial listing request so later waits see the next one.
   cy.wait('@getChangelogListing');
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: loads with infinite scroll
-// ---------------------------------------------------------------------------
 
 Then('the changelog listing is displayed', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
@@ -94,10 +79,6 @@ Then('a scroll info counter is displayed', () => {
     .should('match', /\d+\s*\/\s*\d+/);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: search filters by object name
-// ---------------------------------------------------------------------------
-
 When('the user searches for that object name in the changelog', () => {
   cy.getIframeBody().find('#clSearchInput').clear().type(seededName);
   cy.getIframeBody().find('#clSearchBtn').click();
@@ -113,10 +94,6 @@ Then('only matching changelog entries are displayed', () => {
     });
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: object type filter
-// ---------------------------------------------------------------------------
-
 When('the user selects the host category object type filter', () => {
   cy.getIframeBody().find('#clSearchType').select('hostcategories');
   cy.wait('@getChangelogListing');
@@ -130,10 +107,6 @@ Then('only entries of that type are displayed', () => {
       cy.wrap($row).find('td').eq(3).should('contain', hostCategoryLabel);
     });
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: inline diff expand / collapse
-// ---------------------------------------------------------------------------
 
 const expandAddedEntry = (): void => {
   cy.getIframeBody()
@@ -181,10 +154,6 @@ Then('the diff panel is removed', () => {
   cy.getIframeBody().find('.cl-detail-row').should('not.exist');
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: disabled entries cannot be expanded
-// ---------------------------------------------------------------------------
-
 Then('the Disabled entry expand button is grayed out and not clickable', () => {
   cy.getIframeBody()
     .find('#clTableBody tr')
@@ -194,10 +163,6 @@ Then('the Disabled entry expand button is grayed out and not clickable', () => {
     .should('exist')
     .and('have.css', 'pointer-events', 'none');
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: timeline detail page
-// ---------------------------------------------------------------------------
 
 When('the user clicks on the object name link', () => {
   cy.getIframeBody().find('#clTableBody td a').first().click();
