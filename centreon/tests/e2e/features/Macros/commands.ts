@@ -42,9 +42,7 @@ Cypress.Commands.add(
       .find('#macroValue_0')
       .should('have.value', normalMacro.value);
 
-    cy.getFormBody()
-      .find('#macroInput_1')
-      .should('have.value', passMacro.name);
+    cy.getFormBody().find('#macroInput_1').should('have.value', passMacro.name);
     // Check that the value of the password macro contains just *
     cy.getFormBody()
       .find('#macroValue_1')

@@ -115,9 +115,7 @@ const runBulkActionOnFirstRow = (action: string): void => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select(action, { force: true });
+  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
 };
 
 When(
@@ -183,7 +181,10 @@ Given('a host group service is configured', () => {
 });
 
 When('the user changes the properties of the host group service', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', data.default.name).click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', data.default.name)
+    .click();
   cy.createOrUpdateHostGroupService(
     {
       ...data.hostgroupservice,

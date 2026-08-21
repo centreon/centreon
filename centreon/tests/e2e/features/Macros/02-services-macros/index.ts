@@ -223,10 +223,7 @@ Given(
       serviceMacros.default_service.passMacro
     );
     // Save the configuration
-    cy.getFormBody()
-      .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
-      .click();
+    cy.getFormBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
     cy.wait('@getTimeZone');
     // Wait until the service template is charged on the DOM
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
@@ -250,10 +247,7 @@ Given(
     cy.getFormBody().find('span[role="presentation"]').eq(1).click();
     cy.getFormBody().find(`div[title="${parent}"]`).click();
     // Save the configuration
-    cy.getFormBody()
-      .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
-      .click();
+    cy.getFormBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
     cy.wait('@getTimeZone');
     // Wait until the service is charged on the DOM page
     cy.waitForElementInIframe(

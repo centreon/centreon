@@ -563,9 +563,7 @@ Cypress.Commands.add(
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.checkCommand);
-    cy.getFormBody()
-      .find('#macroInput_0')
-      .should('have.value', body.macroName);
+    cy.getFormBody().find('#macroInput_0').should('have.value', body.macroName);
     cy.getFormBody()
       .find('#macroValue_0')
       .should('have.value', body.macroValue);

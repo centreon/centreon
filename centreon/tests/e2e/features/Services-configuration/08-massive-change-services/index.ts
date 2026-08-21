@@ -48,10 +48,7 @@ const checkServicesProperties = (name) => {
   cy.getFormBody()
     .find('input[name="service_retry_check_interval"]')
     .should('have.value', '3');
-  cy.getFormBody()
-    .find('input.btc.bt_success[name^="submit"]')
-    .first()
-    .click();
+  cy.getFormBody().find('input.btc.bt_success[name^="submit"]').first().click();
   cy.wait('@getTimeZone');
 };
 

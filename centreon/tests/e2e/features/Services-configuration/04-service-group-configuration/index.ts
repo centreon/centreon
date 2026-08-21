@@ -67,9 +67,7 @@ const runBulkActionOn = (name: string, action: string): void => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select(action, { force: true });
+  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
 };
 
 When('the user changes the properties of a service group', () => {

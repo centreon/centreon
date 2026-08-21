@@ -69,9 +69,7 @@ Then('the field "Implied Contacts" is disabled', () => {
 });
 
 Then('the field "Implied Contact Groups" is disabled', () => {
-  cy.getListingSidePanelBody()
-    .find('select#service_cgs')
-    .should('be.disabled');
+  cy.getListingSidePanelBody().find('select#service_cgs').should('be.disabled');
 });
 
 afterEach(() => {

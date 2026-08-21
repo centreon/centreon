@@ -184,10 +184,7 @@ Given('a passive service is linked to the vendor', () => {
     .find(`div[title="${data.vendor.name} - ${traps.snmp1.name}"]`)
     .click();
   // Click on the first Save button
-  cy.getFormBody()
-    .find('input.btc.bt_success[name^="submit"]')
-    .first()
-    .click();
+  cy.getFormBody().find('input.btc.bt_success[name^="submit"]').first().click();
   cy.exportConfig();
 });
 

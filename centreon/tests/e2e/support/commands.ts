@@ -130,16 +130,22 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
-Cypress.Commands.add('visitListingAndWait', (page: string): Cypress.Chainable => {
-  cy.visit(page);
-  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  return cy.getIframeBody()
-    .find('#clTableBody tr')
-    .should('have.length.greaterThan', 0);
-});
+Cypress.Commands.add(
+  'visitListingAndWait',
+  (page: string): Cypress.Chainable => {
+    cy.visit(page);
+    cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+
+    return cy
+      .getIframeBody()
+      .find('#clTableBody tr')
+      .should('have.length.greaterThan', 0);
+  }
+);
 
 Cypress.Commands.add('waitForListingRefresh', (): Cypress.Chainable => {
-  return cy.getIframeBody()
+  return cy
+    .getIframeBody()
     .find('#clTableBody tr td')
     .should('not.contain', 'Loading');
 });
@@ -147,7 +153,8 @@ Cypress.Commands.add('waitForListingRefresh', (): Cypress.Chainable => {
 // Migrated forms open in a side panel, which is an iframe nested inside
 // #main-content: cy.getIframeBody() alone no longer reaches their fields.
 Cypress.Commands.add('getListingSidePanelBody', (): Cypress.Chainable => {
-  return cy.getIframeBody()
+  return cy
+    .getIframeBody()
     .find('#cfSidePanelFrame')
     .its('0.contentDocument.body', { timeout: 20_000 })
     .should('not.be.empty')
@@ -167,11 +174,14 @@ Cypress.Commands.add('getFormBody', (): Cypress.Chainable => {
   });
 });
 
-Cypress.Commands.add('openListingRowForm', (name: string): Cypress.Chainable => {
-  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+Cypress.Commands.add(
+  'openListingRowForm',
+  (name: string): Cypress.Chainable => {
+    cy.getIframeBody().find('#clTableBody').contains('a', name).click();
 
-  return cy.getListingSidePanelBody();
-});
+    return cy.getListingSidePanelBody();
+  }
+);
 
 // The framework clones the toolbar Add button into the empty state, so on an
 // empty listing .cl-btn-add matches two elements.
@@ -181,15 +191,18 @@ Cypress.Commands.add('clickListingAddButton', (): Cypress.Chainable => {
   return cy.getIframeBody().find('.cl-actions-left .cl-btn-add').click();
 });
 
-Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
+Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
   cy.getFormBody()
-  .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
-  .clear()
-  .type(body.valueOrIndex);
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .clear()
+    .type(body.valueOrIndex);
 });
 
-Cypress.Commands.add('clickOnFieldInIframe',(body: HtmlElt)=> {
-  cy.getFormBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
+Cypress.Commands.add('clickOnFieldInIframe', (body: HtmlElt) => {
+  cy.getFormBody()
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .eq(Number(body.valueOrIndex))
+    .click();
 });
 
 interface HtmlElt {

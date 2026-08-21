@@ -70,8 +70,14 @@ When('the user navigates to the service groups listing', () => {
 
 Then('the AJAX listing table is displayed with service group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains(serviceGroupAlpha).should('exist');
-  cy.getIframeBody().find('#clTableBody').contains(serviceGroupBeta).should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(serviceGroupAlpha)
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(serviceGroupBeta)
+    .should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -85,7 +91,10 @@ When('the user searches for a specific service group', () => {
 });
 
 Then('only the matching service group is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains(serviceGroupAlpha).should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(serviceGroupAlpha)
+    .should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
     .contains(serviceGroupBeta)
@@ -277,5 +286,7 @@ When('the user navigates back to the service groups listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', serviceGroupAlpha);
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', serviceGroupAlpha);
 });

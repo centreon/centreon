@@ -284,10 +284,7 @@ Then('the service template is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a service template name', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', templateAlpha)
-    .click();
+  cy.getIframeBody().find('#clTableBody').contains('a', templateAlpha).click();
 });
 
 Then('the service template edit form is displayed', () => {
@@ -308,7 +305,5 @@ When('the user navigates back to the service templates listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody()
-    .find('#clSearchInput')
-    .should('have.value', templateAlpha);
+  cy.getIframeBody().find('#clSearchInput').should('have.value', templateAlpha);
 });
