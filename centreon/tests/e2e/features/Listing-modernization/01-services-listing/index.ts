@@ -76,7 +76,7 @@ Then(
 );
 
 When('the user searches for a specific service', () => {
-  cy.getIframeBody().find('#clSearchInput').clear().type(servicePing);
+  cy.getIframeBody().find('#clSearchS').clear().type(servicePing);
   cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
@@ -126,7 +126,7 @@ Then('the toggle response is successful', () => {
 // ---------------------------------------------------------------------------
 
 When('the service is disabled', () => {
-  cy.executeSqlQuery({
+  cy.requestOnDatabase({
     database: 'centreon',
     query: `UPDATE service SET service_activate = '0' WHERE service_description = '${servicePing}'`
   });
@@ -252,5 +252,5 @@ When('the user navigates back to the services by host listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', servicePing);
+  cy.getIframeBody().find('#clSearchS').should('have.value', servicePing);
 });

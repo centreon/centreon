@@ -3,6 +3,18 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 
 const sgPage = PAGES.configuration.servicesGroupsLegacy;
 
+const serviceGroupAlpha = 'sg_alpha';
+const serviceGroupBeta = 'sg_beta';
+const duplicatedServiceGroupAlpha = `${serviceGroupAlpha}_1`;
+
+const serviceGroupToggle = () =>
+  cy
+    .getIframeBody()
+    .find('#clTableBody')
+    .contains(serviceGroupAlpha)
+    .parents('tr')
+    .find('.cl-toggle input[type="checkbox"]');
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -13,6 +25,10 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
+  cy.intercept({
+    method: 'POST',
+    url: '**/ajaxServiceGroupToggle.php'
+  }).as('toggleSg');
 });
 
 afterEach(() => {
@@ -28,13 +44,17 @@ Given('an admin user is logged in Centreon', () => {
 });
 
 Given('several service groups exist', () => {
+  // hostsAndServices is required by cy.addServiceGroup (it maps over it); these
+  // groups only need to exist for the listing, so they carry no service.
   cy.addServiceGroup({
     alias: 'Service Group Alpha',
-    name: 'sg_alpha'
+    hostsAndServices: [],
+    name: serviceGroupAlpha
   });
   cy.addServiceGroup({
     alias: 'Service Group Beta',
-    name: 'sg_beta'
+    hostsAndServices: [],
+    name: serviceGroupBeta
   });
 });
 
@@ -48,8 +68,8 @@ When('the user navigates to the service groups listing', () => {
 
 Then('the AJAX listing table is displayed with service group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('sg_alpha').should('exist');
-  cy.getIframeBody().find('#clTableBody').contains('sg_beta').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains(serviceGroupAlpha).should('exist');
+  cy.getIframeBody().find('#clTableBody').contains(serviceGroupBeta).should('exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -57,16 +77,16 @@ Then('the AJAX listing table is displayed with service group rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific service group', () => {
-  cy.getIframeBody().find('#clSearchInput').clear().type('sg_alpha');
+  cy.getIframeBody().find('#clSearchInput').clear().type(serviceGroupAlpha);
   cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
 
 Then('only the matching service group is displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains('sg_alpha').should('exist');
+  cy.getIframeBody().find('#clTableBody').contains(serviceGroupAlpha).should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('sg_beta')
+    .contains(serviceGroupBeta)
     .should('not.exist');
 });
 
@@ -75,29 +95,13 @@ Then('only the matching service group is displayed', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks the toggle to disable a service group', () => {
-  cy.intercept({
-    method: 'POST',
-    url: '**/ajaxServiceGroupToggle.php'
-  }).as('toggleSg');
-
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .parents('tr')
-    .find('.cl-toggle input[type="checkbox"]')
-    .should('be.checked')
-    .click();
+  serviceGroupToggle().should('be.checked').click();
 
   cy.wait('@toggleSg');
 });
 
 Then('the toggle switches to disabled state', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .parents('tr')
-    .find('.cl-toggle input[type="checkbox"]')
-    .should('not.be.checked');
+  serviceGroupToggle().should('not.be.checked');
 });
 
 Then('the AJAX response is successful', () => {
@@ -112,38 +116,21 @@ Then('the AJAX response is successful', () => {
 // ---------------------------------------------------------------------------
 
 When('the service group is disabled', () => {
-  cy.executeSqlQuery({
+  cy.requestOnDatabase({
     database: 'centreon',
-    query:
-      "UPDATE servicegroup SET sg_activate = '0' WHERE sg_name = 'sg_alpha'"
+    query: `UPDATE servicegroup SET sg_activate = '0' WHERE sg_name = '${serviceGroupAlpha}'`
   });
   cy.visitListingAndWait(sgPage);
 });
 
 When('the user clicks the toggle to enable the service group', () => {
-  cy.intercept({
-    method: 'POST',
-    url: '**/ajaxServiceGroupToggle.php'
-  }).as('toggleSgOn');
+  serviceGroupToggle().should('not.be.checked').click();
 
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .parents('tr')
-    .find('.cl-toggle input[type="checkbox"]')
-    .should('not.be.checked')
-    .click();
-
-  cy.wait('@toggleSgOn').its('response.statusCode').should('eq', 200);
+  cy.wait('@toggleSg').its('response.statusCode').should('eq', 200);
 });
 
 Then('the toggle switches to enabled state', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .parents('tr')
-    .find('.cl-toggle input[type="checkbox"]')
-    .should('be.checked');
+  serviceGroupToggle().should('be.checked');
 });
 
 // ---------------------------------------------------------------------------
@@ -151,40 +138,20 @@ Then('the toggle switches to enabled state', () => {
 // ---------------------------------------------------------------------------
 
 When('the user toggles a service group off then on', () => {
-  cy.intercept({
-    method: 'POST',
-    url: '**/ajaxServiceGroupToggle.php'
-  }).as('toggle1');
+  // Two consecutive waits on the same alias consume the two requests in order,
+  // and asserting the checkbox state in between replaces the arbitrary sleep:
+  // the second click only happens once the first round trip is reflected.
+  serviceGroupToggle().click();
+  cy.wait('@toggleSg').its('response.statusCode').should('eq', 200);
+  serviceGroupToggle().should('not.be.checked');
 
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .parents('tr')
-    .find('.cl-toggle input[type="checkbox"]')
-    .click();
-
-  cy.wait('@toggle1').its('response.statusCode').should('eq', 200);
-
-  cy.wait(500);
-
-  cy.intercept({
-    method: 'POST',
-    url: '**/ajaxServiceGroupToggle.php'
-  }).as('toggle2');
-
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('sg_alpha')
-    .parents('tr')
-    .find('.cl-toggle input[type="checkbox"]')
-    .click();
-
-  cy.wait('@toggle2');
+  serviceGroupToggle().click();
+  cy.wait('@toggleSg').its('response.statusCode').should('eq', 200);
+  serviceGroupToggle().should('be.checked');
 });
 
 Then('both toggle requests succeed', () => {
-  cy.get('@toggle2').its('response.statusCode').should('eq', 200);
-  cy.get('@toggle2')
+  cy.get('@toggleSg')
     .its('response.body')
     .should('have.property', 'success', true);
 });
@@ -218,7 +185,7 @@ Then('at most 10 rows are displayed', () => {
 When('the user selects a service group and duplicates it', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('sg_alpha')
+    .contains(serviceGroupAlpha)
     .parents('tr')
     .find('.cl-col-picker input[type="checkbox"]')
     .click();
@@ -238,7 +205,7 @@ Then('a duplicated service group appears in the listing', () => {
   cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('sg_alpha_1')
+    .contains(duplicatedServiceGroupAlpha)
     .should('exist');
 });
 
@@ -249,7 +216,7 @@ Then('a duplicated service group appears in the listing', () => {
 When('the user selects a service group and deletes it', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('sg_beta')
+    .contains(serviceGroupBeta)
     .parents('tr')
     .find('.cl-col-picker input[type="checkbox"]')
     .click();
@@ -269,7 +236,7 @@ Then('the service group is removed from the listing', () => {
   cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('sg_beta')
+    .contains(serviceGroupBeta)
     .should('not.exist');
 });
 
@@ -278,14 +245,14 @@ Then('the service group is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a service group name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', 'sg_alpha').click();
+  cy.getIframeBody().find('#clTableBody').contains('a', serviceGroupAlpha).click();
 });
 
 Then('the service group edit form is displayed', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="sg_name"]');
   cy.getIframeBody()
     .find('input[name="sg_name"]')
-    .should('have.value', 'sg_alpha');
+    .should('have.value', serviceGroupAlpha);
 });
 
 // ---------------------------------------------------------------------------
@@ -299,5 +266,5 @@ When('the user navigates back to the service groups listing', () => {
 });
 
 Then('the search field still contains the search term', () => {
-  cy.getIframeBody().find('#clSearchInput').should('have.value', 'sg_alpha');
+  cy.getIframeBody().find('#clSearchInput').should('have.value', serviceGroupAlpha);
 });

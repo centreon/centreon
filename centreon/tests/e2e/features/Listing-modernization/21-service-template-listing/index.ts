@@ -3,6 +3,10 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 
 const stPage = PAGES.configuration.servicesTemplatesLegacy;
 
+const templateAlpha = 'st_test_alpha';
+const templateBeta = 'st_test_beta';
+const duplicatedTemplateAlpha = `${templateAlpha}_1`;
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -29,12 +33,12 @@ Given('an admin user is logged in Centreon', () => {
 
 Given('several service templates exist', () => {
   cy.addServiceTemplate({
-    name: 'st_test_alpha',
-    template: 'generic-active-service'
+    name: templateAlpha,
+    template: 'generic-service'
   });
   cy.addServiceTemplate({
-    name: 'st_test_beta',
-    template: 'generic-active-service'
+    name: templateBeta,
+    template: 'generic-service'
   });
 });
 
@@ -50,7 +54,7 @@ Then('the AJAX listing table is displayed with service template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_alpha')
+    .contains(templateAlpha)
     .should('exist');
 });
 
@@ -59,7 +63,7 @@ Then('the AJAX listing table is displayed with service template rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific service template', () => {
-  cy.getIframeBody().find('#clSearchInput').clear().type('st_test_alpha');
+  cy.getIframeBody().find('#clSearchInput').clear().type(templateAlpha);
   cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
@@ -67,11 +71,11 @@ When('the user searches for a specific service template', () => {
 Then('only the matching service template is displayed', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_alpha')
+    .contains(templateAlpha)
     .should('exist');
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_beta')
+    .contains(templateBeta)
     .should('not.exist');
 });
 
@@ -94,7 +98,7 @@ Then('each row displays a service icon', () => {
 Then('service template rows show the parent template chain as links', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_alpha')
+    .contains(templateAlpha)
     .parents('tr')
     .find('a[href*="p=60206"]')
     .should('have.length.greaterThan', 0);
@@ -107,7 +111,7 @@ Then('service template rows show the parent template chain as links', () => {
 Then('service template rows show scheduling intervals', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_alpha')
+    .contains(templateAlpha)
     .parents('tr')
     .invoke('text')
     .should('match', /min|sec/);
@@ -206,7 +210,7 @@ Then('at most 10 rows are displayed', () => {
 When('the user selects a service template and duplicates it', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_alpha')
+    .contains(templateAlpha)
     .parents('tr')
     .find('.cl-col-picker input[type="checkbox"]')
     .click();
@@ -225,7 +229,7 @@ Then('a duplicated service template appears in the listing', () => {
   cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_alpha_1')
+    .contains(duplicatedTemplateAlpha)
     .should('exist');
 });
 
@@ -236,7 +240,7 @@ Then('a duplicated service template appears in the listing', () => {
 When('the user selects a service template and deletes it', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_beta')
+    .contains(templateBeta)
     .parents('tr')
     .find('.cl-col-picker input[type="checkbox"]')
     .click();
@@ -255,7 +259,7 @@ Then('the service template is removed from the listing', () => {
   cy.waitForListingRefresh();
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('st_test_beta')
+    .contains(templateBeta)
     .should('not.exist');
 });
 
@@ -266,7 +270,7 @@ Then('the service template is removed from the listing', () => {
 When('the user clicks on a service template name', () => {
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('a', 'st_test_alpha')
+    .contains('a', templateAlpha)
     .click();
 });
 
@@ -277,7 +281,7 @@ Then('the service template edit form is displayed', () => {
   );
   cy.getIframeBody()
     .find('input[name="service_description"]')
-    .should('have.value', 'st_test_alpha');
+    .should('have.value', templateAlpha);
 });
 
 // ---------------------------------------------------------------------------
@@ -293,5 +297,5 @@ When('the user navigates back to the service templates listing', () => {
 Then('the search field still contains the search term', () => {
   cy.getIframeBody()
     .find('#clSearchInput')
-    .should('have.value', 'st_test_alpha');
+    .should('have.value', templateAlpha);
 });
