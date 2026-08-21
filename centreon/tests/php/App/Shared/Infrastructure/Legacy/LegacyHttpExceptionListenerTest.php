@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Legacy;
 
+use ApiPlatform\Validator\Exception\ValidationException;
 use App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
@@ -32,13 +33,13 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Tests\App\Shared\Infrastructure\Legacy\Double\FakeHttpKernel;
-use Tests\App\Shared\Infrastructure\Legacy\Double\LoggerSpy;
+use Tests\App\Shared\Infrastructure\Legacy\Double\RecordingLogger;
 
 final class LegacyHttpExceptionListenerTest extends TestCase
 {
     public function testBadRequestIsAnsweredAsAClientError(): void
     {
-        $logger = new LoggerSpy();
+        $logger = new RecordingLogger();
         $event = $this->createExceptionEvent(
             new BadRequestHttpException('The parameter "page" must be an integer', code: Response::HTTP_BAD_REQUEST)
         );
@@ -52,12 +53,14 @@ final class LegacyHttpExceptionListenerTest extends TestCase
             ['code' => Response::HTTP_BAD_REQUEST, 'message' => 'The parameter "page" must be an integer'],
             json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)
         );
-        self::assertSame(LogLevel::WARNING, $logger->lastRecord()['level'] ?? null);
+        $record = $logger->lastRecord();
+        self::assertNotNull($record);
+        self::assertSame(LogLevel::WARNING, $record['level']);
     }
 
     public function testExceptionWithoutHttpStatusIsAnsweredAsAServerError(): void
     {
-        $logger = new LoggerSpy();
+        $logger = new RecordingLogger();
         $event = $this->createExceptionEvent(new \RuntimeException('Something went wrong'));
 
         (new LegacyHttpExceptionListener([], $logger))($event);
@@ -65,12 +68,14 @@ final class LegacyHttpExceptionListenerTest extends TestCase
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
-        self::assertSame(LogLevel::CRITICAL, $logger->lastRecord()['level'] ?? null);
+        $record = $logger->lastRecord();
+        self::assertNotNull($record);
+        self::assertSame(LogLevel::CRITICAL, $record['level']);
     }
 
     public function testStatusIsReadFromTheApiPlatformMapping(): void
     {
-        $logger = new LoggerSpy();
+        $logger = new RecordingLogger();
         $event = $this->createExceptionEvent(new \RuntimeException('Nothing here'));
 
         (new LegacyHttpExceptionListener([\RuntimeException::class => Response::HTTP_NOT_FOUND], $logger))($event);
@@ -78,7 +83,20 @@ final class LegacyHttpExceptionListenerTest extends TestCase
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-        self::assertSame(LogLevel::WARNING, $logger->lastRecord()['level'] ?? null);
+        $record = $logger->lastRecord();
+        self::assertNotNull($record);
+        self::assertSame(LogLevel::WARNING, $record['level']);
+    }
+
+    public function testValidationExceptionIsLeftToItsOwnNormalizer(): void
+    {
+        $logger = new RecordingLogger();
+        $event = $this->createExceptionEvent(new ValidationException());
+
+        (new LegacyHttpExceptionListener([], $logger))($event);
+
+        self::assertNull($event->getResponse());
+        self::assertSame([], $logger->records());
     }
 
     private function createExceptionEvent(\Throwable $throwable): ExceptionEvent

@@ -55,6 +55,7 @@ final class CentreonEventSubscriberTest extends TestCase
                 RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE)->getMessage(),
                 $exception->getMessage()
             );
+            self::assertInstanceOf(RequestParametersException::class, $exception->getPrevious());
         }
     }
 
@@ -71,6 +72,7 @@ final class CentreonEventSubscriberTest extends TestCase
                 RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT)->getMessage(),
                 $exception->getMessage()
             );
+            self::assertInstanceOf(RequestParametersException::class, $exception->getPrevious());
         }
     }
 

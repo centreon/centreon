@@ -28,7 +28,7 @@ use Psr\Log\AbstractLogger;
 /**
  * @phpstan-type RecordTypeAlias array{level: string, message: string, context: array<string, mixed>}
  */
-final class LoggerSpy extends AbstractLogger
+final class RecordingLogger extends AbstractLogger
 {
     /** @var list<RecordTypeAlias> */
     private array $records = [];
