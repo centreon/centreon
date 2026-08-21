@@ -27,6 +27,11 @@
 #   PLATFORMS    comma-separated platform list, informational only (e.g. linux/amd64,linux/arm64)
 set -euo pipefail
 
+if [[ -z "${GHCR_TAGS// /}" ]]; then
+  echo "::error::GHCR_TAGS is empty — nothing would be published to $GHCR_IMAGE. Refusing to report success."
+  exit 1
+fi
+
 echo "::group::Resolve Harbor per-platform manifests (excluding attestation/provenance)"
 SRC_REF="$HARBOR_IMAGE:$HARBOR_TAG"
 RAW_MANIFEST=$(docker buildx imagetools inspect "$SRC_REF" --raw)

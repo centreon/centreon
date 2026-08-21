@@ -1,10 +1,10 @@
 name: "promote docker image to ghcr.io stable"
 description: >
   Promote an already-built Harbor image to ghcr.io stable (manifest retag,
-  no rebuild). Fails hard if no candidate is found on Harbor under either the
-  preferred (deterministic version_tag) or fallback (release_type-based) tag,
-  or if the ghcr.io push itself fails — callers should wrap this with
-  continue-on-error and warn on failure, mirroring promote-to-stable-pulp.
+  no rebuild). Fails hard if the deterministic version_tag candidate isn't
+  found on Harbor, or if the ghcr.io push itself fails — callers should wrap
+  this with continue-on-error and warn on failure, mirroring
+  promote-to-stable-pulp.
 inputs:
   ghcr_image:
     description: "Destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-gorgone)"
@@ -12,42 +12,35 @@ inputs:
   harbor_image:
     description: "Source image ref on Harbor, no tag"
     required: true
-  preferred_harbor_tag:
-    description: "Deterministic version_tag candidate to try first (e.g. 26.10.5)"
-    required: true
-  fallback_harbor_tag:
-    description: "Legacy release_type-based tag to fall back to if the preferred tag is absent"
+  harbor_tag:
+    description: >
+      Deterministic version_tag candidate to promote (e.g. 26.10.5). Must be
+      a tag only ever written after the image's own container e2e tests
+      (docker-boot-test/docker-config-wiring-test) have passed — there is no
+      fallback to any pre-validation tag, by design.
     required: true
   ghcr_tags:
     description: "Space-separated list of tags to create on ghcr.io"
     required: true
   platforms:
-    description: "Comma-separated platform list, informational only"
+    description: >
+      Comma-separated platform list, informational only for now: the
+      manifest list is built from every platform manifest found on the
+      source Harbor tag, not filtered by this value.
     required: false
     default: "linux/amd64,linux/arm64"
-outputs:
-  harbor_tag_used:
-    description: "Which Harbor tag was actually promoted (preferred or fallback)"
-    value: ${{ steps.resolve-tag.outputs.harbor_tag }}
 
 runs:
   using: "composite"
   steps:
-    - name: Resolve Harbor candidate tag
-      id: resolve-tag
+    - name: Verify Harbor candidate exists
       shell: bash
       env:
         HARBOR_IMAGE: ${{ inputs.harbor_image }}
-        PREFERRED_HARBOR_TAG: ${{ inputs.preferred_harbor_tag }}
-        FALLBACK_HARBOR_TAG: ${{ inputs.fallback_harbor_tag }}
+        HARBOR_TAG: ${{ inputs.harbor_tag }}
       run: |
-        if docker buildx imagetools inspect "$HARBOR_IMAGE:$PREFERRED_HARBOR_TAG" > /dev/null 2>&1; then
-          echo "harbor_tag=$PREFERRED_HARBOR_TAG" >> "$GITHUB_OUTPUT"
-        elif docker buildx imagetools inspect "$HARBOR_IMAGE:$FALLBACK_HARBOR_TAG" > /dev/null 2>&1; then
-          echo "::notice::No candidate at $HARBOR_IMAGE:$PREFERRED_HARBOR_TAG (deterministic version_tag) — falling back to $HARBOR_IMAGE:$FALLBACK_HARBOR_TAG."
-          echo "harbor_tag=$FALLBACK_HARBOR_TAG" >> "$GITHUB_OUTPUT"
-        else
-          echo "::error::No candidate image found on Harbor at either $HARBOR_IMAGE:$PREFERRED_HARBOR_TAG or $HARBOR_IMAGE:$FALLBACK_HARBOR_TAG."
+        if ! docker buildx imagetools inspect "$HARBOR_IMAGE:$HARBOR_TAG" > /dev/null 2>&1; then
+          echo "::error::No candidate image found on Harbor at $HARBOR_IMAGE:$HARBOR_TAG."
           exit 1
         fi
 
@@ -56,7 +49,7 @@ runs:
       env:
         GHCR_IMAGE: ${{ inputs.ghcr_image }}
         HARBOR_IMAGE: ${{ inputs.harbor_image }}
-        HARBOR_TAG: ${{ steps.resolve-tag.outputs.harbor_tag }}
+        HARBOR_TAG: ${{ inputs.harbor_tag }}
         GHCR_TAGS: ${{ inputs.ghcr_tags }}
         PLATFORMS: ${{ inputs.platforms }}
-      run: bash .github/scripts/docker-push-to-ghcr.sh
+      run: bash "$GITHUB_WORKSPACE/.github/scripts/docker-push-to-ghcr.sh"
