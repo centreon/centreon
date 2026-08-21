@@ -3,7 +3,10 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
 import serviceCategories from '../../../fixtures/services/category.json';
 
-const secondCategoryName = 'service-category-second';
+// Must not contain the default category name as a substring: the listing search
+// is a LIKE '%term%', so a name built on the same prefix stays in the results and
+// makes the "only the matching one is displayed" assertion impossible.
+const secondCategoryName = 'second-category';
 const serviceCategoriesApi =
   '/centreon/api/latest/configuration/services/categories';
 

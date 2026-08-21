@@ -80,7 +80,9 @@ Given('a user is logged in Centreon', () => {
 
 Given('a meta service is configured', () => {
   cy.openMetaServicesListing();
-  cy.getIframeBody().find('.cl-btn-add').click();
+  // The toolbar button, not the one the framework clones into the empty state:
+  // on an empty listing both are present and .cl-btn-add matches two elements.
+  cy.getIframeBody().find('.cl-actions-left .cl-btn-add').click();
   cy.getMetaServiceSidePanelBody()
     .find('input[name="meta_name"]', { timeout: 20_000 })
     .should('be.visible')

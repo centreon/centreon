@@ -98,9 +98,10 @@ When('the user clicks the toggle to disable a service', () => {
     .find('#clTableBody')
     .contains(servicePing)
     .parents('tr')
+    // The real checkbox is 0x0 behind the .cl-toggle slider; force the click.
     .find('.cl-toggle input[type="checkbox"]')
     .should('be.checked')
-    .click();
+    .click({ force: true });
 
   cy.wait('@toggleSvc');
 });
@@ -140,7 +141,7 @@ When('the user clicks the toggle to enable the service', () => {
     .parents('tr')
     .find('.cl-toggle input[type="checkbox"]')
     .should('not.be.checked')
-    .click();
+    .click({ force: true });
 
   cy.wait('@toggleSvc').its('response.statusCode').should('eq', 200);
 });
@@ -187,8 +188,9 @@ When('the user selects a service and duplicates it', () => {
     .find('#clTableBody')
     .contains(servicePing)
     .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
     .find('.cl-col-picker input[type="checkbox"]')
-    .click();
+    .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
@@ -196,7 +198,9 @@ When('the user selects a service and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select('Duplicate', { force: true });
 });
 
 Then('a duplicated service appears in the listing', () => {
@@ -217,12 +221,9 @@ When('the user clicks on a service name', () => {
 });
 
 Then('the service edit form is displayed', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  cy.getIframeBody()
-    .find('input[name="service_description"]')
+  cy.getListingSidePanelBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
     .should('have.value', servicePing);
 });
 

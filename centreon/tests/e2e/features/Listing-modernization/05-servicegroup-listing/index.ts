@@ -7,6 +7,8 @@ const serviceGroupAlpha = 'sg_alpha';
 const serviceGroupBeta = 'sg_beta';
 const duplicatedServiceGroupAlpha = `${serviceGroupAlpha}_1`;
 
+// The real checkbox is 0x0 behind the .cl-toggle slider, so every click on it
+// has to be forced.
 const serviceGroupToggle = () =>
   cy
     .getIframeBody()
@@ -95,7 +97,7 @@ Then('only the matching service group is displayed', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks the toggle to disable a service group', () => {
-  serviceGroupToggle().should('be.checked').click();
+  serviceGroupToggle().should('be.checked').click({ force: true });
 
   cy.wait('@toggleSg');
 });
@@ -124,7 +126,7 @@ When('the service group is disabled', () => {
 });
 
 When('the user clicks the toggle to enable the service group', () => {
-  serviceGroupToggle().should('not.be.checked').click();
+  serviceGroupToggle().should('not.be.checked').click({ force: true });
 
   cy.wait('@toggleSg').its('response.statusCode').should('eq', 200);
 });
@@ -141,11 +143,11 @@ When('the user toggles a service group off then on', () => {
   // Two consecutive waits on the same alias consume the two requests in order,
   // and asserting the checkbox state in between replaces the arbitrary sleep:
   // the second click only happens once the first round trip is reflected.
-  serviceGroupToggle().click();
+  serviceGroupToggle().click({ force: true });
   cy.wait('@toggleSg').its('response.statusCode').should('eq', 200);
   serviceGroupToggle().should('not.be.checked');
 
-  serviceGroupToggle().click();
+  serviceGroupToggle().click({ force: true });
   cy.wait('@toggleSg').its('response.statusCode').should('eq', 200);
   serviceGroupToggle().should('be.checked');
 });
@@ -187,8 +189,9 @@ When('the user selects a service group and duplicates it', () => {
     .find('#clTableBody')
     .contains(serviceGroupAlpha)
     .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
     .find('.cl-col-picker input[type="checkbox"]')
-    .click();
+    .click({ force: true });
 
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -197,7 +200,9 @@ When('the user selects a service group and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select('Duplicate', { force: true });
 });
 
 Then('a duplicated service group appears in the listing', () => {
@@ -218,8 +223,9 @@ When('the user selects a service group and deletes it', () => {
     .find('#clTableBody')
     .contains(serviceGroupBeta)
     .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
     .find('.cl-col-picker input[type="checkbox"]')
-    .click();
+    .click({ force: true });
 
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -228,7 +234,9 @@ When('the user selects a service group and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select('Delete', { force: true });
 });
 
 Then('the service group is removed from the listing', () => {
@@ -245,14 +253,17 @@ Then('the service group is removed from the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user clicks on a service group name', () => {
-  cy.getIframeBody().find('#clTableBody').contains('a', serviceGroupAlpha).click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', serviceGroupAlpha)
+    .click();
 });
 
 Then('the service group edit form is displayed', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="sg_name"]');
-  cy.getIframeBody()
-    .find('input[name="sg_name"]')
-    .should('have.value', serviceGroupAlpha);
+  cy.getListingSidePanelBody()
+    .find('input[name="sg_name"]', { timeout: 20_000 })
+    .should('be.visible')
+    .and('have.value', serviceGroupAlpha);
 });
 
 // ---------------------------------------------------------------------------

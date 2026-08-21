@@ -210,9 +210,11 @@ Cypress.Commands.add('checkFieldsOfVm', (body: VirtualMetric) => {
 
 Cypress.Commands.add('addMetaService', (body: MetaService) => {
   // Wait for the modernized listing so external callers (which visit the page
-  // but don't wait for it) don't race the .cl-btn-add click.
-  cy.waitForElementInIframe('#main-content', '.cl-btn-add');
-  cy.getIframeBody().find('.cl-btn-add').click();
+  // but don't wait for it) don't race the Add click. Target the toolbar button
+  // rather than the one the framework clones into the empty state: on an empty
+  // listing both are present and .cl-btn-add matches two elements.
+  cy.waitForElementInIframe('#main-content', '.cl-actions-left .cl-btn-add');
+  cy.getIframeBody().find('.cl-actions-left .cl-btn-add').click();
   cy.getMetaServiceSidePanelBody()
     .find('input[name="meta_name"]', { timeout: 20_000 })
     .should('be.visible')

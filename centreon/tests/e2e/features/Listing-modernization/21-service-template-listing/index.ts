@@ -7,6 +7,14 @@ const templateAlpha = 'st_test_alpha';
 const templateBeta = 'st_test_beta';
 const duplicatedTemplateAlpha = `${templateAlpha}_1`;
 
+// The Locked filter sits in the advanced-filters popover, which has to be
+// opened before its fields are reachable.
+const openAdvancedFilters = () =>
+  cy
+    .getIframeBody()
+    .find('.cl-adv-icon-btn[data-cl-adv-panel="clAdvPanel"]')
+    .click();
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -122,11 +130,12 @@ Then('service template rows show scheduling intervals', () => {
 // ---------------------------------------------------------------------------
 
 When('the locked checkbox is checked', () => {
+  openAdvancedFilters();
   cy.getIframeBody()
     .find('#displayLocked')
     .then(($cb) => {
       if (!$cb.is(':checked')) {
-        cy.wrap($cb).click();
+        cy.wrap($cb).click({ force: true });
         cy.getIframeBody().find('#clSearchBtn').click();
         cy.waitForListingRefresh();
       }
@@ -141,7 +150,8 @@ Then('locked service templates are visible', () => {
 });
 
 When('the user unchecks the locked checkbox and searches', () => {
-  cy.getIframeBody().find('#displayLocked').uncheck();
+  openAdvancedFilters();
+  cy.getIframeBody().find('#displayLocked').uncheck({ force: true });
   cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
@@ -212,8 +222,9 @@ When('the user selects a service template and duplicates it', () => {
     .find('#clTableBody')
     .contains(templateAlpha)
     .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
     .find('.cl-col-picker input[type="checkbox"]')
-    .click();
+    .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
@@ -221,7 +232,9 @@ When('the user selects a service template and duplicates it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select('Duplicate', { force: true });
 });
 
 Then('a duplicated service template appears in the listing', () => {
@@ -242,8 +255,9 @@ When('the user selects a service template and deletes it', () => {
     .find('#clTableBody')
     .contains(templateBeta)
     .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
     .find('.cl-col-picker input[type="checkbox"]')
-    .click();
+    .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
@@ -251,7 +265,9 @@ When('the user selects a service template and deletes it', () => {
       'onchange',
       "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select('Delete', { force: true });
 });
 
 Then('the service template is removed from the listing', () => {
@@ -275,13 +291,10 @@ When('the user clicks on a service template name', () => {
 });
 
 Then('the service template edit form is displayed', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  cy.getIframeBody()
-    .find('input[name="service_description"]')
-    .should('have.value', templateAlpha);
+  cy.getListingSidePanelBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
+    .and('have.value', templateAlpha);
 });
 
 // ---------------------------------------------------------------------------

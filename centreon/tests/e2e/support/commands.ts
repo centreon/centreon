@@ -144,6 +144,30 @@ Cypress.Commands.add('waitForListingRefresh', (): Cypress.Chainable => {
     .should('not.contain', 'Loading');
 });
 
+// Migrated forms open in a side panel, which is an iframe nested inside
+// #main-content: cy.getIframeBody() alone no longer reaches their fields.
+Cypress.Commands.add('getListingSidePanelBody', (): Cypress.Chainable => {
+  return cy.getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openListingRowForm', (name: string): Cypress.Chainable => {
+  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+
+  return cy.getListingSidePanelBody();
+});
+
+// The framework clones the toolbar Add button into the empty state, so on an
+// empty listing .cl-btn-add matches two elements.
+Cypress.Commands.add('clickListingAddButton', (): Cypress.Chainable => {
+  cy.waitForElementInIframe('#main-content', '.cl-actions-left .cl-btn-add');
+
+  return cy.getIframeBody().find('.cl-actions-left .cl-btn-add').click();
+});
+
 Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
   cy.getIframeBody()
   .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
@@ -183,6 +207,9 @@ declare global {
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       visitListingAndWait: (page: string) => Cypress.Chainable;
       waitForListingRefresh: () => Cypress.Chainable;
+      getListingSidePanelBody: () => Cypress.Chainable;
+      openListingRowForm: (name: string) => Cypress.Chainable;
+      clickListingAddButton: () => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
     }
