@@ -201,15 +201,9 @@ jobs:
           exit $exit_code
 
   package:
-    needs: [get-environment, changes, check-version-consistency, backend-lint]
-    if: |
-      needs.changes.outputs.trigger_packaging == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
+    # TEST MON-207474: gates dropped so the package builds on the test tag dispatch
+    needs: [get-environment]
+    if: needs.get-environment.outputs.skip_workflow == 'false' 
 
     strategy:
       fail-fast: false
@@ -263,6 +257,7 @@ jobs:
     runs-on: centreon-common
     needs: [get-environment, package]
     if: |
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability == 'stable' &&
       github.event_name != 'workflow_dispatch' &&
@@ -288,6 +283,7 @@ jobs:
   deliver:
     needs: [get-environment, changes, package]
     if: |
+      false &&
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
@@ -339,6 +335,7 @@ jobs:
   promote:
     needs: [get-environment, deliver]
     if: |
+      false &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
@@ -380,13 +377,10 @@ jobs:
     uses: ./.github/workflows/set-pull-request-skip-label.yml
 
   deliver-pulp:
-    continue-on-error: true
-    needs: [get-environment, changes, package]
+    # TEST MON-207474: forced testing delivery to pulp, failures are blocking
+    needs: [get-environment, package]
     if: |
-      needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.event.pull_request.head.repo.fork != true &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
@@ -407,16 +401,15 @@ jobs:
       - name: Deliver packages on Pulp
         id: deliver_pulp
         uses: ./.github/actions/package-delivery-pulp
-        continue-on-error: true
         with:
           module_name: dsm
           distrib: ${{ matrix.distrib }}
           version: ${{ needs.get-environment.outputs.major_version }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
-          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          stability: testing
+          release_type: release
+          is_cloud: "true"
+          delivery_type: ""
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
@@ -428,15 +421,13 @@ jobs:
           echo "::warning::Pulp delivery failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory delivery remains authoritative). See the 'Deliver packages on Pulp' step for the guardrail / auth / upload error."
 
   promote-pulp:
-    continue-on-error: true
+    # TEST MON-207474: forced stable promotion right after the testing delivery
     needs: [get-environment, deliver-pulp]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      (contains(fromJson('["stable"]'), needs.get-environment.outputs.stability) && github.event_name != 'workflow_dispatch') &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      github.event.pull_request.head.repo.fork != true
+      ! contains(needs.*.result, 'cancelled')
     runs-on: centreon-ubuntu-22.04
     strategy:
       matrix:
@@ -453,14 +444,13 @@ jobs:
       - name: Promote ${{ matrix.distrib }} to stable on Pulp
         id: promote_pulp
         uses: ./.github/actions/promote-to-stable-pulp
-        continue-on-error: true
         with:
           module_name: dsm
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
-          stability: ${{ needs.get-environment.outputs.stability }}
-          release_type: ${{ needs.get-environment.outputs.release_type }}
-          is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          stability: stable
+          release_type: release
+          is_cloud: "true"
           pulp_url: ${{ vars.PULP_API_URL }}
           pulp_content_url: ${{ vars.PULP_CONTENT_URL }}
           audience: ${{ vars.PULP_OIDC_AUDIENCE }}
