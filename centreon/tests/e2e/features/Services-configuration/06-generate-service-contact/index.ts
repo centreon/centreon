@@ -45,7 +45,9 @@ Given('the user is in the "Notifications" tab', () => {
   cy.openListingRowForm(data.services.service1.name)
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
-  cy.getListingSidePanelBody().find('li#c2').click();
+  // The tab strip became accordion sections; 'Notification' is the header the
+  // form registers for this block.
+  cy.getFormBody().contains('.cf-section-header', 'Notification').click();
 });
 
 When('the user checks case yes to enable Notifications', () => {
@@ -63,9 +65,9 @@ When('the case Inherit contacts is checked', () => {
 });
 
 Then('the field "Implied Contacts" is disabled', () => {
-  cy.getListingSidePanelBody()
-    .find('input[placeholder="Implied Contacts"]')
-    .should('be.disabled');
+  // Assert on the real <select>: that is what the form disables, the select2
+  // search input only mirrors it.
+  cy.getFormBody().find('select#service_cs').should('be.disabled');
 });
 
 Then('the field "Implied Contact Groups" is disabled', () => {

@@ -96,11 +96,13 @@ Cypress.Commands.add(
       .find('input[name="service_description"]')
       .clear()
       .type(name);
-    cy.getFormBody().find('input[placeholder="Hosts"]').click();
+    cy.openFormSelect2('service_hPars');
     cy.wait('@getHostsList');
-    cy.getFormBody().contains('div', host).click();
-    cy.getFormBody().find('span[title="Check Command"]').click();
-    cy.getFormBody().contains('div', cmd).click();
+    cy.getFormBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .contains(host)
+      .click({ force: true });
+    cy.selectFormOption('command_command_id', cmd);
   }
 );
 

@@ -175,14 +175,11 @@ Given('a passive service is linked to the vendor', () => {
     .click();
   // wait for the "Service Trap Relation" input to be charged on the DOM
   cy.getFormBody().find('#service_traps', { timeout: 20_000 }).should('exist');
-  // click on the "Service Trap Relation" input
-  cy.getFormBody()
-    .find('input[placeholder="Service Trap Relation"]')
-    .click({ force: true });
   // chose the already created vendor
-  cy.getFormBody()
-    .find(`div[title="${data.vendor.name} - ${traps.snmp1.name}"]`)
-    .click();
+  cy.selectFormOption(
+    'service_traps',
+    `${data.vendor.name} - ${traps.snmp1.name}`
+  );
   // Click on the first Save button
   cy.getFormBody().find('input.btc.bt_success[name^="submit"]').first().click();
   cy.exportConfig();

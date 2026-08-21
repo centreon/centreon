@@ -191,6 +191,35 @@ Cypress.Commands.add('clickListingAddButton', (): Cypress.Chainable => {
   return cy.getIframeBody().find('.cl-actions-left .cl-btn-add').click();
 });
 
+// Select fields are select2 widgets: the real <select> is hidden and the visible
+// control is its sibling .select2-selection. Driving them through the search
+// input's placeholder only works while select2 renders one, which it does not do
+// for every field in the side-panel form.
+Cypress.Commands.add(
+  'openFormSelect2',
+  (selectId: string): Cypress.Chainable => {
+    return cy
+      .getFormBody()
+      .find(`select#${selectId}`)
+      .next()
+      .find('.select2-selection')
+      .click({ force: true });
+  }
+);
+
+Cypress.Commands.add(
+  'selectFormOption',
+  (selectId: string, option: string): Cypress.Chainable => {
+    cy.openFormSelect2(selectId);
+
+    return cy
+      .getFormBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .contains(option)
+      .click({ force: true });
+  }
+);
+
 Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
   cy.getFormBody()
     .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
@@ -232,6 +261,8 @@ declare global {
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       getFormBody: () => Cypress.Chainable;
+      openFormSelect2: (selectId: string) => Cypress.Chainable;
+      selectFormOption: (selectId: string, option: string) => Cypress.Chainable;
       visitListingAndWait: (page: string) => Cypress.Chainable;
       waitForListingRefresh: () => Cypress.Chainable;
       getListingSidePanelBody: () => Cypress.Chainable;

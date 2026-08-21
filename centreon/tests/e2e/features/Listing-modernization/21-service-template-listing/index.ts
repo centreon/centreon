@@ -92,10 +92,12 @@ Then('only the matching service template is displayed', () => {
 // ---------------------------------------------------------------------------
 
 Then('each row displays a service icon', () => {
+  // A template with no media icon of its own renders the default pictogram as an
+  // inline svg; only a template carrying one renders an <img>.
   cy.getIframeBody()
     .find('#clTableBody tr')
     .first()
-    .find('img[src*="service"]')
+    .find('img[src*="service"], svg')
     .should('exist');
 });
 

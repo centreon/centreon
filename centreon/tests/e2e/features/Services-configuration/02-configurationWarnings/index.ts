@@ -38,7 +38,7 @@ Given('a service with notifications enabled', () => {
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible')
     .type('service');
-  cy.getListingSidePanelBody().find('input[placeholder="Hosts"]').click();
+  cy.openFormSelect2('service_hPars');
   cy.getListingSidePanelBody().find('button.btc.bt_info').click();
   cy.getListingSidePanelBody().find('button.btc.bt_success').click();
   cy.getListingSidePanelBody()

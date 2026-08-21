@@ -67,10 +67,7 @@ When('the admin adds a new service linked to the configured host', () => {
     .clear()
     .type(services.serviceByHost.name);
 
-  cy.getListingSidePanelBody().find('input[placeholder="Hosts"]').click();
-  cy.getListingSidePanelBody()
-    .find(`div[title="${services.serviceByHost.host}"]`)
-    .click();
+  cy.selectFormOption('service_hPars', services.serviceByHost.host);
 });
 
 When('the admin selects the configured service template as parent', () => {
@@ -114,12 +111,7 @@ When(
       .clear()
       .type(services.serviceByHostGroup.name);
 
-    cy.getListingSidePanelBody()
-      .find('input[placeholder="Linked with Host Groups"]')
-      .click();
-    cy.getListingSidePanelBody()
-      .find(`div[title="${services.serviceByHostGroup.host}"]`)
-      .click();
+    cy.selectFormOption('service_hgPars', services.serviceByHostGroup.host);
   }
 );
 

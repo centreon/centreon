@@ -85,8 +85,9 @@ Then('the AJAX listing table is displayed with service group rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific service group', () => {
+  // Live search (debounced AJAX): this listing has no advanced-filter panel, so
+  // no #clSearchBtn to submit — the table refreshes on type.
   cy.getIframeBody().find('#clSearchInput').clear().type(serviceGroupAlpha);
-  cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
 
