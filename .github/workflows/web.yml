@@ -1277,7 +1277,8 @@ jobs:
   # The centreon-snmptrapd / centreon-centreontrapd product images (MON-207531):
   # folded into this workflow, rather than kept in a standalone docker-trapd.yml,
   # so they inherit the same trigger paths and, more importantly, the same
-  # e2e-test gate below — they only build/push once the e2e suite has passed,
+  # e2e-test gate below — they only build/push once the e2e suite has passed or
+  # was skipped (no e2e-relevant changes), never after a real e2e-test failure,
   # instead of racing ahead of it as the old standalone workflow did.
   package-centreon-trap:
     needs: [get-environment]
@@ -1374,9 +1375,12 @@ jobs:
   dockerize-trapd-image:
     # Named "dockerize-trapd-image" (not "dockerize") to avoid colliding with the
     # internal centreon-web-testing-* dependency image job above. Depends on
-    # e2e-test (in addition to the two package jobs) so the Harbor candidate for
-    # this build — including its version_tag used by promote-docker-to-ghcr — is
-    # only produced after the e2e suite passed, instead of racing ahead of it.
+    # e2e-test (in addition to the two package jobs) so this only runs once
+    # e2e-test has passed or was skipped (no e2e-relevant changes) — never after
+    # a real failure — instead of racing ahead of it. This job alone doesn't
+    # guarantee the resulting image is validated: docker-boot-test/
+    # docker-config-wiring-test below are what actually gate version_tag and
+    # promote-docker-tag/promote-docker-to-ghcr.
     needs: [get-environment, package-centreon-trap, package-perl-libs, e2e-test]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
