@@ -14,6 +14,10 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'POST',
+    url: INTERCEPTORS.ajax.service_categories_toggle
+  }).as('toggleSc');
 });
 
 afterEach(() => {
@@ -35,13 +39,9 @@ When('an apiV2 call is made to "Add" a service category', () => {
 Then(
   'a new service category is displayed on the service categories page',
   () => {
-    cy.visit(PAGES.configuration.servicesCategoriesLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      `a:contains("${categories.default.name}")`
-    );
+    cy.visitListingAndWait(PAGES.configuration.servicesCategoriesLegacy);
     cy.getIframeBody()
+      .find('#clTableBody')
       .contains('a', categories.default.name)
       .should('be.visible');
   }
@@ -128,24 +128,15 @@ Then(
 When(
   'the user changes some properties of the configured service category from UI',
   () => {
-    cy.visit(PAGES.configuration.servicesCategoriesLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      `a:contains("${categories.default.name}")`
-    );
-    cy.getIframeBody().contains('a', categories.default.name).click();
-    cy.getIframeBody().waitForElementInIframe(
-      '#main-content',
-      'input[name="sc_name"]'
-    );
-    cy.getIframeBody()
-      .find('input[name="sc_name"]')
+    cy.visitListingAndWait(PAGES.configuration.servicesCategoriesLegacy);
+    cy.openListingRowForm(categories.default.name)
+      .find('input[name="sc_name"]', { timeout: 20_000 })
+      .should('be.visible')
       .clear()
       .type(categories['service-category-changed'].name);
-    cy.getIframeBody()
+    cy.getListingSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
+      .first()
       .click();
     cy.wait('@getTimeZone');
   }
@@ -206,14 +197,16 @@ Given('an enabled service category is configured via APIv2', () => {
 });
 
 When('the user disables the configured service category from UI', () => {
-  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${categories.default.name}")`
-  );
-  cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
-  cy.wait('@getTimeZone');
+  cy.visitListingAndWait(PAGES.configuration.servicesCategoriesLegacy);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(categories.default.name)
+    .parents('tr')
+    // The real checkbox is 0x0 behind the .cl-toggle slider; force the click.
+    .find('.cl-toggle input[type="checkbox"]')
+    .should('be.checked')
+    .click({ force: true });
+  cy.wait('@toggleSc').its('response.statusCode').should('eq', 200);
 });
 
 Then(
@@ -245,14 +238,15 @@ Given('a disabled service category is configured via APIv2', () => {
 });
 
 When('the user enables the configured service category from UI', () => {
-  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${categories.default.name}")`
-  );
-  cy.getIframeBody().find('img[alt="Enabled"]').eq(2).click();
-  cy.wait('@getTimeZone');
+  cy.visitListingAndWait(PAGES.configuration.servicesCategoriesLegacy);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(categories['service-category-changed'].name)
+    .parents('tr')
+    .find('.cl-toggle input[type="checkbox"]')
+    .should('not.be.checked')
+    .click({ force: true });
+  cy.wait('@toggleSc').its('response.statusCode').should('eq', 200);
 });
 
 Then(

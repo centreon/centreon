@@ -18,158 +18,135 @@ Given('a user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
+const templateName = 'service_template';
+const modifiedAlias = 'service_template_modified';
+const modifiedDescription = 'template_desp_modified';
+
+const waitForTemplatesListing = (): void => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+};
+
+// Bulk actions go through the hidden o1 select, whose onchange has to be
+// overridden to reach the legacy dispatcher.
+const runBulkActionOn = (name: string, action: string): void => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', name)
+    .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
+    .find('.cl-col-picker input[type="checkbox"]')
+    .click({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select(action, { force: true });
+};
+
+// Single-select fields are select2 widgets: open the selection, then pick the
+// option from the results rendered in the same (side panel) document.
+const selectFormOption = (selectId: string, option: string): void => {
+  cy.getListingSidePanelBody()
+    .find(`select#${selectId}`)
+    .next()
+    .find('.select2-selection')
+    .click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains(option)
+    .click({ force: true });
+};
+
 Then('a service template is configured', () => {
   cy.addServiceTemplate({
-    name: 'service_template',
+    name: templateName,
     template: 'generic-service'
   });
-  cy.visit(PAGES.configuration.servicesTemplatesLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
-  cy.getIframeBody().contains('service_template').click();
-  cy.waitForElementInIframe('#main-content', 'input[name="service_alias"]');
-  cy.getIframeBody()
-    .find('input[name="service_alias"]')
+  cy.visitListingAndWait(PAGES.configuration.servicesTemplatesLegacy);
+  cy.openListingRowForm(templateName)
+    .find('input[name="service_alias"]', { timeout: 20_000 })
+    .should('be.visible')
     .clear()
-    .type('service_template');
-  cy.getIframeBody()
-    .find('div#validForm')
-    .find('p.oreonbutton')
-    .find('.btc.bt_success[name="submitC"]')
+    .type(templateName);
+  cy.getListingSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
 });
 
 When('the user changes the properties of a service template', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
-  cy.getIframeBody().contains('service_template').click();
-  cy.waitForElementInIframe('#main-content', 'input[name="service_alias"]');
-  cy.getIframeBody()
-    .find('input[name="service_alias"]')
+  waitForTemplatesListing();
+  cy.openListingRowForm(templateName)
+    .find('input[name="service_alias"]', { timeout: 20_000 })
+    .should('be.visible')
     .clear()
-    .type('service_template_modified');
-  cy.getIframeBody()
+    .type(modifiedAlias);
+  cy.getListingSidePanelBody()
     .find('input[name="service_description"]')
     .clear()
-    .type('template_desp_modified');
-  cy.getIframeBody()
-    .find('select#service_template_model_stm_id')
-    .next()
-    .click();
-  cy.getIframeBody().contains('Ping-WAN').click();
-  //Click on the tab 'Notifications'
-  cy.getIframeBody().contains('a', 'Notifications').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
-  // Chose '24x7' as Notification Period
-  cy.getIframeBody().find('#select2-timeperiod_tp_id2-container').click();
-  cy.getIframeBody().contains('div', '24x7').click();
-  // Check 'Critical' as Notification type
-  cy.getIframeBody().find('#notifC').click({ force: true });
-  //Click on the 'Save' button
-  cy.getIframeBody()
-    .find('div#validForm')
-    .find('p.oreonbutton')
-    .find('.btc.bt_success[name="submitC"]')
+    .type(modifiedDescription);
+  selectFormOption('service_template_model_stm_id', 'Ping-WAN');
+  cy.getListingSidePanelBody().contains('a', 'Notifications').click();
+  selectFormOption('timeperiod_tp_id2', '24x7');
+  cy.getListingSidePanelBody().find('#notifC').click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
 });
 
 Then('the properties are updated', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
-  cy.getIframeBody().contains('service_template_modified').click();
-  cy.waitForElementInIframe('#main-content', 'input[name="service_alias"]');
-  cy.getIframeBody()
-    .find('input[name="service_alias"]')
-    .should('have.value', 'service_template_modified');
-  cy.getIframeBody()
+  waitForTemplatesListing();
+  cy.openListingRowForm(modifiedDescription)
+    .find('input[name="service_alias"]', { timeout: 20_000 })
+    .should('have.value', modifiedAlias);
+  cy.getListingSidePanelBody()
     .find('input[name="service_description"]')
-    .should('have.value', 'template_desp_modified');
-  cy.getIframeBody()
+    .should('have.value', modifiedDescription);
+  cy.getListingSidePanelBody()
     .find('select#service_template_model_stm_id')
     .contains('Ping-WAN')
     .should('exist');
-  //Click on the tab 'Notifications'
-  cy.getIframeBody().contains('a', 'Notifications').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
-  // Check that the 'Notification Period' has the setted value
-  cy.getIframeBody()
+  cy.getListingSidePanelBody().contains('a', 'Notifications').click();
+  cy.getListingSidePanelBody()
     .find('#timeperiod_tp_id2')
     .find('option:selected')
     .should('have.length', 1)
     .and('have.text', '24x7');
-  // Check that the type 'Critical' is checked
-  cy.getIframeBody().find('#notifC').should('be.checked');
+  cy.getListingSidePanelBody().find('#notifC').should('be.checked');
 });
 
 When('the user duplicates a service template', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
-  cy.getIframeBody()
-    .find('td.ListColLeft')
-    .contains('a', 'service_template')
-    .parents('tr')
-    .within(() => {
-      cy.get('td.ListColPicker').find('div.md-checkbox').click();
-    });
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Duplicate');
+  waitForTemplatesListing();
+  runBulkActionOn(templateName, 'Duplicate');
 });
 
 Then('the new service template has the same properties', () => {
-  cy.reload();
-  cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
-  cy.getIframeBody()
-    .find('td.ListColLeft')
-    .contains('a', 'service_template_1')
-    .click();
-  cy.waitForElementInIframe('#main-content', 'input[name="service_alias"]');
-  cy.getIframeBody()
-    .find('input[name="service_alias"]')
-    .should('have.value', 'service_template');
-  cy.getIframeBody()
+  waitForTemplatesListing();
+  cy.openListingRowForm(`${templateName}_1`)
+    .find('input[name="service_alias"]', { timeout: 20_000 })
+    .should('have.value', templateName);
+  cy.getListingSidePanelBody()
     .find('input[name="service_description"]')
-    .should('have.value', 'service_template_1');
+    .should('have.value', `${templateName}_1`);
 });
 
 When('the user deletes a service template', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
-  cy.getIframeBody()
-    .find('td.ListColLeft')
-    .contains('a', 'service_template')
-    .parents('tr')
-    .within(() => {
-      cy.get('td.ListColPicker').find('div.md-checkbox').click();
-    });
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Delete');
+  waitForTemplatesListing();
+  runBulkActionOn(templateName, 'Delete');
 });
 
 Then('the deleted service template is not displayed in the list', () => {
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable tbody')
-    .contains('service_template')
+  waitForTemplatesListing();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(templateName)
     .should('not.exist');
 });
 
