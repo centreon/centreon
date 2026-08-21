@@ -90,9 +90,10 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
             centralAddress: $centralAddress,
-            gorgoneCommunicationType: $this->isCloudPlatform
-                ? GorgoneCommunicationTypeEnum::PullWss
-                : GorgoneCommunicationTypeEnum::ZMQ,
+            // Both install.sh paths (vm and docker) always provision the gorgone pullwss
+            // module, on-premise as well as on Cloud, so the persisted communication type
+            // must match. ZMQ stays available through the legacy poller wizard.
+            gorgoneCommunicationType: GorgoneCommunicationTypeEnum::PullWss,
         );
 
         $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);

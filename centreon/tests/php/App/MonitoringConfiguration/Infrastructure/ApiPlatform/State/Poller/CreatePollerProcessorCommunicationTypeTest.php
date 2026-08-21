@@ -72,7 +72,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
     }
 
-    public function testOnPremPlatformUsesZmq(): void
+    public function testOnPremPlatformAlsoUsesPullWss(): void
     {
         $capturedCommand = null;
         $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
@@ -83,7 +83,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         );
 
         self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::ZMQ, $capturedCommand->gorgoneCommunicationType);
+        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
     }
 
     public function testCentralAddressIsPassedToCommand(): void
