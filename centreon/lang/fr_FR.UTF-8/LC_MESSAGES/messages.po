@@ -12139,7 +12139,7 @@ msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid "Nothing here, use the \"Add\" button"
-msgstr "Rien à afficher, utiliser le bouton \"Add\""
+msgstr "Rien à afficher, utilisez le bouton \"Ajouter\""
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 msgid "Notif"
@@ -24817,10 +24817,6 @@ msgstr "Une configuration de coffre-fort existe déjà avec ces propriétés"
 #: unknown
 msgid "Vault provider does not exist"
 msgstr "Le fournisseur de coffre-fort n'existe pas"
-
-#: unknown
-msgid "View a  host category"
-msgstr "Visualiser une catégorie d'hôte"
 
 #: unknown
 msgid "View a Command"

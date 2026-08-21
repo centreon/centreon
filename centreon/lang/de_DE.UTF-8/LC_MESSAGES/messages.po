@@ -18463,7 +18463,7 @@ msgstr "Ausfallszeit anzeigen"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "View a host category"
-msgstr ""
+msgstr "Hostkategorie anzeigen"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -21682,10 +21682,6 @@ msgstr "User rausgeworfen"
 #: unknown
 msgid "Users Access"
 msgstr "Benutzerzugriff"
-
-#: unknown
-msgid "View a  host category"
-msgstr "Hostkategorie anzeigen"
 
 #: unknown
 msgid "View a Command"

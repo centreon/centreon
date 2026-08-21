@@ -14,7 +14,7 @@ annotate_untranslated_entries() {
     echo "::error file=${po_file},line=${line_number}::Untranslated French string: msgid ${msgid:0:120}"
   done < <(awk '/^msgid / { id = substr($0, 7) }
     pending && $0 !~ /^"/ { print pending "\t" id }
-    { pending = ($0 == "msgstr \"\"") ? NR : 0 }
+    { pending = ($0 == "msgstr \"\"" || $0 ~ /^msgstr\[[0-9]+\] ""$/) ? NR : 0 }
     END { if (pending) print pending "\t" id }' "${po_file}")
 
   while read -r line_number; do

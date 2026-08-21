@@ -7169,8 +7169,8 @@ msgid ""
 "priority."
 msgstr ""
 "Niveau de gravité, doit être un nombre. Les éléments affichés seront "
-"triées par ordre croissant. Ainsi la criticité le plus basse est "
-"considérée comme de la plus prioritaire."
+"triés par ordre croissant. Ainsi, la gravité la plus basse est considérée "
+"comme la priorité la plus haute."
 
 #: unknown
 msgid ""

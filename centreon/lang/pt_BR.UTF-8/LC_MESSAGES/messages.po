@@ -18917,7 +18917,7 @@ msgstr "Visualiza manutenção"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "View a host category"
-msgstr ""
+msgstr "Visualiza uma categoria de host"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -23862,10 +23862,6 @@ msgstr "Imagem VRML"
 #: unknown
 msgid "Valid for an upgrade"
 msgstr "Valido para atualização"
-
-#: unknown
-msgid "View a  host category"
-msgstr "Visualiza uma categoria de host"
 
 #: unknown
 msgid "View a Command"

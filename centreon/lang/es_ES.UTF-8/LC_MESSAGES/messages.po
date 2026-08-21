@@ -19968,7 +19968,7 @@ msgstr "Visualizar un tiempo de inactividad"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "View a host category"
-msgstr ""
+msgstr "Ver una categoría de host"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "View a poller Configuration"
@@ -25301,10 +25301,6 @@ msgstr "Imagen VRML"
 #: unknown
 msgid "Valid for an upgrade"
 msgstr "Válido para una actualización."
-
-#: unknown
-msgid "View a  host category"
-msgstr "Ver una categoría de host"
 
 #: unknown
 msgid "View a Command"

@@ -11170,7 +11170,7 @@ msgstr "Modify a global macro"
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 #: centreon/www/install/smarty_translate.php
 msgid "Modify a host category"
-msgstr "Modify a  host category"
+msgstr "Modify a host category"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -20537,10 +20537,6 @@ msgstr ""
 #: unknown
 msgid "Update already in progress"
 msgstr "Update already in progress"
-
-#: unknown
-msgid "View a  host category"
-msgstr "View a  host category"
 
 #: unknown
 msgid "View a Command"
