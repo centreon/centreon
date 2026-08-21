@@ -267,9 +267,9 @@ export const lightPalette: PaletteOptions = {
   },
   primary: {
     contrastText: '#fff',
-    dark: '#255891',
-    light: '#cde7fc',
-    main: '#2E68AA'
+    dark: '#2A3575',
+    light: '#D8DCE9',
+    main: '#131D5A'
   },
   secondary: {
     contrastText: '#fff',

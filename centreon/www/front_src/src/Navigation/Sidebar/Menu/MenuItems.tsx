@@ -57,22 +57,26 @@ const useStyles = makeStyles<{ isRoot?: boolean }>()((theme, { isRoot }) => ({
       }
     },
     '& .MuiSvgIcon-root': {
-      color: isDarkMode(theme)
-        ? theme.palette.common.white
-        : theme.palette.primary.main
+      color:
+        isRoot || isDarkMode(theme)
+          ? theme.palette.common.white
+          : theme.palette.primary.main
     },
     '&:hover': {
       backgroundColor: isDarkMode(theme)
         ? theme.palette.primary.dark
-        : theme.palette.primary.light
+        : isRoot
+          ? 'rgba(255, 255, 255, 0.12)'
+          : theme.palette.primary.light
     },
     backgroundColor: isDarkMode(theme)
       ? theme.palette.primary.dark
-      : theme.palette.primary.light,
-    color:
-      isDarkMode(theme) && isRoot
-        ? theme.palette.common.white
-        : theme.palette.primary.main
+      : isRoot
+        ? 'rgba(255, 255, 255, 0.20)'
+        : theme.palette.primary.light,
+    color: isRoot
+      ? theme.palette.common.white
+      : theme.palette.primary.main
   },
   arrowIcon: {
     color: 'inherit'
