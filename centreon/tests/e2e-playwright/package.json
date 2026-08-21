@@ -2,7 +2,7 @@
   "description": "Playwright end-to-end tests for centreon-web",
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
-    "@playwright/test": "^1.62.0",
+    "@playwright/test": "1.62.1",
     "@types/node": "^20.11.27",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
