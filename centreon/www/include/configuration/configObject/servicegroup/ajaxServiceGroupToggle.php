@@ -39,9 +39,26 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-$newToken = $helper->validateCsrfToken();
-
 $helper->requireWriteAccess(60203);
+
+// On top of the menu ACL, check at the resource level that the group is within
+// the caller's scope: checking only the page would let a user toggle any service
+// group by id (IDOR). Same ACL source as ajaxServiceGroupListing.php.
+if (! $helper->isAdmin()) {
+    $acl        = $helper->getAcl();
+    $grantedIds = $acl === null
+        ? []
+        : array_map('intval', array_keys($acl->getServiceGroupAclConf(null, 'broker')));
+
+    if (! in_array($objId, $grantedIds, true)) {
+        AjaxListingHelper::jsonError('Access denied', 403);
+    }
+}
+
+// Consumed only once the caller is known to be allowed: validateCsrfToken()
+// invalidates the token, so validating it before the ACL checks made a rejected
+// request burn the page's token and break its next legitimate action.
+$newToken = $helper->validateCsrfToken();
 
 $activate = ($action === 's') ? '1' : '0';
 

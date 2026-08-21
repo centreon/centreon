@@ -39,8 +39,6 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-$newToken = $helper->validateCsrfToken();
-
 $activate = ($action === 's') ? '1' : '0';
 
 try {
@@ -83,6 +81,11 @@ try {
             AjaxListingHelper::jsonError('Access denied', 403);
         }
     }
+
+    // Consumed only once the caller is known to be allowed: validateCsrfToken()
+    // invalidates the token, so validating it before the ACL checks made a
+    // rejected request burn the page's token and break its next legitimate action.
+    $newToken = $helper->validateCsrfToken();
 
     // Fetch the description (also acts as the existence check) then flip the
     // activation flag. service_register = '1' keeps templates out of reach.

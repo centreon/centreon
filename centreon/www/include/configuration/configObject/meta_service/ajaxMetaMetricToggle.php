@@ -39,8 +39,6 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-$newToken = $helper->validateCsrfToken();
-
 $helper->requireWriteAccess(60204);
 
 $activate = ($action === 's') ? '1' : '0';
@@ -62,6 +60,25 @@ try {
     if ($parent === false || $parent === []) {
         AjaxListingHelper::jsonError('Object not found', 404);
     }
+
+    // A metric relation carries no ACL of its own, so the scope check applies to
+    // the meta service owning it: checking only the page would let a user toggle
+    // any metric by id (IDOR). Same ACL source as ajaxMetaServiceListing.php.
+    if (! $helper->isAdmin()) {
+        $acl        = $helper->getAcl();
+        $grantedIds = $acl !== null
+            ? array_values(array_filter(array_map('intval', array_keys($acl->getMetaServices()))))
+            : [];
+
+        if (! in_array((int) $parent['meta_id'], $grantedIds, true)) {
+            AjaxListingHelper::jsonError('Access denied', 403);
+        }
+    }
+
+    // Consumed only once the caller is known to be allowed: validateCsrfToken()
+    // invalidates the token, so validating it before the ACL checks made a
+    // rejected request burn the page's token and break its next legitimate action.
+    $newToken = $helper->validateCsrfToken();
 
     $pearDB->executeStatement(
         <<<'SQL'
