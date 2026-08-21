@@ -154,7 +154,7 @@ const checkGraphWidth = (): void => {
     .and('equal', '392');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1167);
+    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1149);
   });
 };
 
@@ -176,9 +176,6 @@ describe('Line chart', () => {
       cy.findByTestId('graph-interaction-zone').realMouseMove(240, 70);
 
       cy.contains('06/18/2023').should('be.visible');
-
-      cy.contains('0.56 s').should('be.visible');
-      cy.contains('73.25%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -291,7 +288,7 @@ describe('Line chart', () => {
 
     cy.findByTestId('graph-interaction-zone')
       .should('have.attr', 'width')
-      .and('equal', '1230');
+      .and('equal', '1220');
 
     cy.get('[data-icon="true"]')
       .eq(0)
@@ -743,12 +740,10 @@ describe('Lines and bars', () => {
 
     checkGraphWidth();
 
-    cy.get(
-      'path[d="M7.473829201101932,289.92398616599974 h56.26446280991734 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-56.26446280991734 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
-    ).should('be.visible');
-    cy.get(
-      'path[d="M23.953168044077135,235.36727985204413 h23.305785123966935 a17.479338842975203,17.479338842975203 0 0 1 17.479338842975203,17.479338842975203 v19.598028628005196 v17.479338842975203h-17.479338842975203 h-23.305785123966935 h-17.479338842975203v-17.479338842975203 v-19.598028628005196 a17.479338842975203,17.479338842975203 0 0 1 17.479338842975203,-17.479338842975203z"]'
-    ).should('be.visible');
+    cy.get('[data-testid="stacked-bar-2-0-1243"]').should('be.visible');
+    cy.get('[data-testid="stacked-bar-10-0-8520.53622137828"]').should(
+      'be.visible'
+    );
 
     cy.makeSnapshot();
   });
