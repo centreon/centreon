@@ -41,41 +41,37 @@ Given('a service associated to a host is configured', () => {
 });
 
 Given('the user is in the "Notifications" tab', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
-  cy.getIframeBody()
-    .find('tr[class*="list_"]')
-    .contains(`${data.services.service1.name}`)
-    .click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  cy.getIframeBody().find('li#c2').click();
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  cy.openListingRowForm(data.services.service1.name)
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
+  cy.getListingSidePanelBody().find('li#c2').click();
 });
 
 When('the user checks case yes to enable Notifications', () => {
-  cy.getIframeBody()
+  cy.getListingSidePanelBody()
     .find('input[name*="service_notifications_enabled"][value="1"]')
     .parent()
     .click();
 });
 
 When('the case Inherit contacts is checked', () => {
-  cy.getIframeBody()
+  cy.getListingSidePanelBody()
     .find('input[name*="service_use_only_contacts_from_host"][value="1"]')
     .parent()
     .click();
 });
 
 Then('the field "Implied Contacts" is disabled', () => {
-  cy.getIframeBody()
+  cy.getListingSidePanelBody()
     .find('input[placeholder="Implied Contacts"]')
     .should('be.disabled');
 });
 
 Then('the field "Implied Contact Groups" is disabled', () => {
-  cy.getIframeBody().find('select#service_cgs').should('be.disabled');
+  cy.getListingSidePanelBody()
+    .find('select#service_cgs')
+    .should('be.disabled');
 });
 
 afterEach(() => {

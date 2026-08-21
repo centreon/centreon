@@ -98,6 +98,28 @@ Given('some service categories are configured', () => {
   );
 });
 
+// The listing has no legacy search input to wait on and its bulk actions go
+// through the hidden o1 select, whose onchange has to be overridden to reach the
+// legacy dispatcher.
+const runBulkActionOnFirstRow = (action: string): void => {
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .first()
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
+    .find('.cl-col-picker input[type="checkbox"]')
+    .click({ force: true });
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select(action, { force: true });
+};
+
 When(
   'the user goes to Configuration > Services > Services by host group',
   () => {
@@ -107,8 +129,7 @@ When(
 );
 
 When('the user Add a new host group service', () => {
-  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
-  cy.getIframeBody().contains('a', 'Add').eq(0).click();
+  cy.clickListingAddButton();
   cy.wait('@getTimeZone');
   cy.createOrUpdateHostGroupService(
     {
@@ -145,18 +166,24 @@ When('the user Add a new host group service', () => {
 });
 
 Then('the host group service is added to the listing page', () => {
-  cy.getIframeBody().contains('a', data.default.name).should('exist');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', data.default.name)
+    .should('exist');
 });
 
 Given('a host group service is configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
-  cy.getIframeBody().contains('a', data.default.name).should('exist');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', data.default.name)
+    .should('exist');
 });
 
 When('the user changes the properties of the host group service', () => {
-  cy.getIframeBody().contains('a', data.default.name).click();
+  cy.getIframeBody().find('#clTableBody').contains('a', data.default.name).click();
   cy.createOrUpdateHostGroupService(
     {
       ...data.hostgroupservice,
@@ -217,9 +244,8 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the host group service', () => {
-  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.checkFirstRowFromListing('hostgroups');
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+  runBulkActionOnFirstRow('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -253,13 +279,17 @@ Then('the new duplicated host group service has the same properties', () => {
 });
 
 When('the user deletes the host group service', () => {
-  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.checkFirstRowFromListing('hostgroups');
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+  runBulkActionOnFirstRow('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the deleted host group service is not displayed in the list', () => {
-  cy.getIframeBody().find('a[href*="service_id=29"]').should('not.exist');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.hostgroupservice.name)
+    .should('not.exist');
 });

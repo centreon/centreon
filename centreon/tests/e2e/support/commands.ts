@@ -154,6 +154,19 @@ Cypress.Commands.add('getListingSidePanelBody', (): Cypress.Chainable => {
     .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
 });
 
+// Where the form currently lives: the side panel when a migrated listing has
+// one open, #main-content otherwise. Legacy pages have no #cfSidePanel at all,
+// so this is a no-op for them.
+Cypress.Commands.add('getFormBody', (): Cypress.Chainable => {
+  return cy.getIframeBody().then(($body) => {
+    if ($body.find('#cfSidePanel.open').length === 0) {
+      return cy.wrap($body);
+    }
+
+    return cy.getListingSidePanelBody();
+  });
+});
+
 Cypress.Commands.add('openListingRowForm', (name: string): Cypress.Chainable => {
   cy.getIframeBody().find('#clTableBody').contains('a', name).click();
 
@@ -169,14 +182,14 @@ Cypress.Commands.add('clickListingAddButton', (): Cypress.Chainable => {
 });
 
 Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
-  cy.getIframeBody()
+  cy.getFormBody()
   .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
   .clear()
   .type(body.valueOrIndex);
 });
 
 Cypress.Commands.add('clickOnFieldInIframe',(body: HtmlElt)=> {
-  cy.getIframeBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
+  cy.getFormBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
 });
 
 interface HtmlElt {
@@ -205,6 +218,7 @@ declare global {
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
+      getFormBody: () => Cypress.Chainable;
       visitListingAndWait: (page: string) => Cypress.Chainable;
       waitForListingRefresh: () => Cypress.Chainable;
       getListingSidePanelBody: () => Cypress.Chainable;

@@ -33,145 +33,113 @@ When('a service is configured', () => {
   });
 });
 
-When('the user changes the properties of a service', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
+const serviceName = 'test';
+const modifiedName = 'test_modified';
+const hostName = 'host_1';
 
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_one')
-    .find('td.ListColLeft')
-    .contains('test')
-    .click();
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_two')
-    .find('td.FormRowValue')
-    .find('input[name="service_description"]')
-    .clear()
-    .type('test_modified');
-  cy.enterIframe('iframe#main-content')
-    .find('td.FormRowValue')
-    .find('select#service_template_model_stm_id')
-    .next()
-    .click();
-  cy.getIframeBody().contains('Ping-WAN').click();
-  //Click on the tab 'Notifications'
-  cy.getIframeBody().contains('a', 'Notifications').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
-  // Chose '24x7' as Notification Period
-  cy.getIframeBody().find('#select2-timeperiod_tp_id2-container').click();
-  cy.getIframeBody().contains('div', '24x7').click();
-  // Check 'Critical' as Notification type
-  cy.getIframeBody().find('#notifC').click({ force: true });
-  //Click on the 'Save' button
+// The Host filter sits in the advanced-filters popover, which has to be opened
+// before its fields are reachable.
+const filterOnHost = (host: string): void => {
   cy.getIframeBody()
-    .find('div#validForm')
-    .find('p.oreonbutton')
-    .find('.btc.bt_success[name="submitC"]')
+    .find('.cl-adv-icon-btn[data-cl-adv-panel="clAdvPanel"]')
     .click();
-});
+  cy.getIframeBody().find('#clSearchH').clear().type(host);
+  cy.getIframeBody().find('#clSearchBtn').click();
+  cy.waitForListingRefresh();
+};
 
-Then('the properties are updated', () => {
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_one')
-    .find('td.ListColLeft')
-    .contains('test')
-    .click();
-
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_two')
-    .find('td.FormRowValue')
-    .find('input[name="service_description"]')
-    .should('have.value', 'test_modified');
-  cy.enterIframe('iframe#main-content')
-    .find('table tr.list_one')
-    .find('td.FormRowValue')
-    .find('select#service_template_model_stm_id')
-    .contains('Ping-WAN')
-    .should('exist');
-  //Click on the tab 'Notifications'
-  cy.getIframeBody().contains('a', 'Notifications').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
-  // Check that the 'Notification Period' has the setted value
-  cy.getIframeBody()
-    .find('#timeperiod_tp_id2')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', '24x7');
-  // Check that the type 'Critical' is checked
-  cy.getIframeBody().find('#notifC').should('be.checked');
-});
-
-When('the user duplicates a service', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
-  cy.getIframeBody().find('input[name="searchH"]').clear().type('host_1');
-  cy.getIframeBody().find('input[name="Search"].btc.bt_success').click();
-  cy.reload();
-  cy.getIframeBody().find('#checkall').click({ force: true });
+// Bulk actions go through the hidden o1 select, whose onchange has to be
+// overridden to reach the legacy dispatcher.
+const runBulkActionOnSelection = (action: string): void => {
   cy.getIframeBody()
     .find('select[name="o1"]')
     .invoke(
       'attr',
       'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
     );
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select(action, { force: true });
+};
+
+// Single-select fields are select2 widgets rendered in the side panel document.
+const selectFormOption = (selectId: string, option: string): void => {
+  cy.getListingSidePanelBody()
+    .find(`select#${selectId}`)
+    .next()
+    .find('.select2-selection')
+    .click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains(option)
+    .click({ force: true });
+};
+
+When('the user changes the properties of a service', () => {
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  cy.openListingRowForm(serviceName)
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
+    .clear()
+    .type(modifiedName);
+  selectFormOption('service_template_model_stm_id', 'Ping-WAN');
+  cy.getListingSidePanelBody().contains('a', 'Notifications').click();
+  selectFormOption('timeperiod_tp_id2', '24x7');
+  cy.getListingSidePanelBody().find('#notifC').click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
+});
+
+Then('the properties are updated', () => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.openListingRowForm(modifiedName)
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('have.value', modifiedName);
+  cy.getListingSidePanelBody()
+    .find('select#service_template_model_stm_id')
+    .contains('Ping-WAN')
+    .should('exist');
+  cy.getListingSidePanelBody().contains('a', 'Notifications').click();
+  cy.getListingSidePanelBody()
+    .find('#timeperiod_tp_id2')
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', '24x7');
+  cy.getListingSidePanelBody().find('#notifC').should('be.checked');
+});
+
+When('the user duplicates a service', () => {
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  filterOnHost(hostName);
+  cy.getIframeBody().find('#checkall').click({ force: true });
+  runBulkActionOnSelection('Duplicate');
   cy.exportConfig();
 });
 
 Then('the new service has the same properties', () => {
-  cy.waitForElementInIframe('#main-content', 'a:contains("test_1")');
-  cy.getIframeBody().contains('test_1').click();
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_two')
-    .find('td.FormRowValue')
-    .find('input[name="service_description"]')
-    .should('have.value', 'test_1');
-  cy.getIframeBody()
-    .find('table tr.list_one')
-    .find('td.FormRowValue')
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.openListingRowForm(`${serviceName}_1`)
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('have.value', `${serviceName}_1`);
+  cy.getListingSidePanelBody()
     .find('select#service_template_model_stm_id')
     .contains('Ping-LAN')
     .should('exist');
 });
 
 When('the user deletes a service', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.enterIframe('iframe#main-content')
-    .find('table tbody')
-    .find('tr.list_one')
-    .each((row) => {
-      cy.wrap(row)
-        .find('td.ListColLeft')
-        .then((td) => {
-          if (td.text().includes('host_1')) {
-            cy.wrap(row)
-              .find('td.ListColPicker')
-              .find('div.md-checkbox')
-              .click();
-          }
-        });
-    });
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Delete');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  // Narrowing on the host then selecting everything replaces the per-row host
+  // match: the listing groups its rows, so the host name is only rendered on
+  // the first row of each group.
+  filterOnHost(hostName);
+  cy.getIframeBody().find('#checkall').click({ force: true });
+  runBulkActionOnSelection('Delete');
 });
 
 Then('the deleted service is not displayed in the service list', () => {
