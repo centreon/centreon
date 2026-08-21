@@ -45,23 +45,17 @@ Given('the user is in the "Notifications" tab', () => {
   cy.openListingRowForm(data.services.service1.name)
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
-  // The tab strip became accordion sections; 'Notification' is the header the
-  // form registers for this block.
-  cy.getFormBody().contains('.cf-section-header', 'Notification').click();
+  // The tab strip became scroll anchors over one long form: target the anchor by
+  // its section id, the labels are translated (and 'Extended Info' is now 'Misc').
+  cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
 });
 
 When('the user checks case yes to enable Notifications', () => {
-  cy.getListingSidePanelBody()
-    .find('input[name*="service_notifications_enabled"][value="1"]')
-    .parent()
-    .click();
+  cy.selectFormSegment('service_notifications_enabled', '1');
 });
 
 When('the case Inherit contacts is checked', () => {
-  cy.getListingSidePanelBody()
-    .find('input[name*="service_use_only_contacts_from_host"][value="1"]')
-    .parent()
-    .click();
+  cy.selectFormSegment('service_use_only_contacts_from_host', '1');
 });
 
 Then('the field "Implied Contacts" is disabled', () => {

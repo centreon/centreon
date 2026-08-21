@@ -90,7 +90,9 @@ When('the user changes the properties of a service template', () => {
     .clear()
     .type(modifiedDescription);
   selectFormOption('service_template_model_stm_id', 'Ping-WAN');
-  cy.getListingSidePanelBody().contains('a', 'Notifications').click();
+  cy.getListingSidePanelBody()
+    .find('.cf-tab-nav a[href="#cf-sec-notif"]')
+    .click();
   selectFormOption('timeperiod_tp_id2', '24x7');
   cy.getListingSidePanelBody().find('#notifC').click({ force: true });
   cy.getListingSidePanelBody()
@@ -111,7 +113,9 @@ Then('the properties are updated', () => {
     .find('select#service_template_model_stm_id')
     .contains('Ping-WAN')
     .should('exist');
-  cy.getListingSidePanelBody().contains('a', 'Notifications').click();
+  cy.getListingSidePanelBody()
+    .find('.cf-tab-nav a[href="#cf-sec-notif"]')
+    .click();
   cy.getListingSidePanelBody()
     .find('#timeperiod_tp_id2')
     .find('option:selected')

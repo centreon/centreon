@@ -466,10 +466,17 @@ Cypress.Commands.add(
       cy.fillFieldInIframe(elt);
     });
     if (isUpdate) {
-      cy.getFormBody().contains('label', 'No').eq(0).click();
+      // The radio labels are hidden behind the generated segmented buttons;
+      // keep the original intent (the form's first "No") without having to name
+      // the field it belongs to.
+      cy.getFormBody()
+        .find('.cf-segmented button')
+        .filter(':contains("No")')
+        .first()
+        .click({ force: true });
     }
     //Notifications
-    cy.getFormBody().contains('a', 'Notifications').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
     cy.clickOnFieldInIframe(htmldata[13]);
     cy.getFormBody()
       .find('input[class="select2-search__field"]')
@@ -496,7 +503,7 @@ Cypress.Commands.add(
       cy.fillFieldInIframe(elt);
     });
     //Relations
-    cy.getFormBody().contains('a', 'Relations').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-relations"]').click();
     cy.clickOnFieldInIframe(htmldata[22]);
     cy.getFormBody()
       .find('input[class="select2-search__field"]')
@@ -511,10 +518,10 @@ Cypress.Commands.add(
       .click({ force: true });
     cy.clickOnFieldInIframe(htmldata[25]);
     //Data Processing
-    cy.getFormBody().contains('a', 'Data Processing').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-data"]').click();
     cy.fillFieldInIframe(htmldata[26]);
     //Extended Info
-    cy.getFormBody().contains('a', 'Extended Info').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-extended"]').click();
     cy.clickOnFieldInIframe(htmldata[27]);
     cy.getFormBody()
       .find('input[class="select2-search__field"]')
@@ -583,7 +590,7 @@ Cypress.Commands.add(
       .should('have.value', body.retryCheckInterval);
     cy.checkLegacyRadioButton('No');
     //Notifications
-    cy.getFormBody().contains('a', 'Notifications').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
     cy.getFormBody()
       .find('#service_cs')
       .find('option:selected')
@@ -612,7 +619,7 @@ Cypress.Commands.add(
       .find('input[name="service_recovery_notification_delay"]')
       .should('have.value', body.recoveryNotificationDelay);
     //Relations
-    cy.getFormBody().contains('a', 'Relations').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-relations"]').click();
     cy.getFormBody()
       .find('#service_sgs')
       .find('option:selected')
@@ -624,12 +631,12 @@ Cypress.Commands.add(
       .should('have.length', 1)
       .and('have.text', body.serviceTrap);
     //Data Processing
-    cy.getFormBody().contains('a', 'Data Processing').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-data"]').click();
     cy.getFormBody()
       .find('input[name="service_freshness_threshold"]')
       .should('have.value', body.freshnessThreshold);
     //Extended Info
-    cy.getFormBody().contains('a', 'Extended Info').click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-extended"]').click();
     cy.getFormBody()
       .find('#service_categories')
       .find('option:selected')

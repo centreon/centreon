@@ -212,13 +212,39 @@ Cypress.Commands.add(
   (selectId: string, option: string): Cypress.Chainable => {
     cy.openFormSelect2(selectId);
 
-    return cy
-      .getFormBody()
+    cy.getFormBody()
       .find('.select2-results__option', { timeout: 20_000 })
       .contains(option)
       .click({ force: true });
+
+    // A multiple select keeps its dropdown open after a pick, and the results
+    // list then covers whatever sits below the field.
+    cy.getFormBody().type('{esc}', { force: true });
+
+    return cy
+      .getFormBody()
+      .find('.select2-container--open')
+      .should('not.exist');
   }
 );
+
+// The migrated forms convert small radio groups (values within 0/1/2) into
+// segmented buttons and hide the radios, so a click on a radio's wrapper lands
+// on a display:none element. The generated control carries the field name and
+// the value as attributes, which is translation-proof.
+Cypress.Commands.add(
+  'selectFormSegment',
+  (radioName: string, value: string): Cypress.Chainable => {
+    return cy
+      .getFormBody()
+      .find(
+        `.cf-segmented[data-radio-name="${radioName}"] button[data-value="${value}"]`,
+        { timeout: 20_000 }
+      )
+      .click({ force: true });
+  }
+);
+
 
 Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
   cy.getFormBody()
@@ -263,6 +289,10 @@ declare global {
       getFormBody: () => Cypress.Chainable;
       openFormSelect2: (selectId: string) => Cypress.Chainable;
       selectFormOption: (selectId: string, option: string) => Cypress.Chainable;
+      selectFormSegment: (
+        radioName: string,
+        value: string
+      ) => Cypress.Chainable;
       visitListingAndWait: (page: string) => Cypress.Chainable;
       waitForListingRefresh: () => Cypress.Chainable;
       getListingSidePanelBody: () => Cypress.Chainable;

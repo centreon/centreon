@@ -102,12 +102,7 @@ Given('a meta service is configured', () => {
   cy.getMetaServiceSidePanelBody()
     .find('select[name="data_source_type"]')
     .select(data.default.data_source_type);
-  cy.getMetaServiceSidePanelBody()
-    .find(
-      `input[name*="meta_select_mode"][value=${data.default.selection_mode}]`
-    )
-    .parent()
-    .click();
+  cy.selectFormSegment('meta_select_mode', String(data.default.selection_mode));
   cy.getMetaServiceSidePanelBody()
     .find('input[name="regexp_str"]')
     .type(data.default.sql_like_clause_expression);
@@ -126,22 +121,12 @@ Given('a meta service is configured', () => {
   cy.getMetaServiceSidePanelBody()
     .find('input[name="retry_check_interval"]')
     .type(data.default.retry_check_interval);
-  cy.getMetaServiceSidePanelBody()
-    .find(
-      `input[name*="notifications_enabled"][value=${data.default.notification_enabled}]`
-    )
-    .parent()
-    .click();
-  cy.getMetaServiceSidePanelBody()
-    .find('input[placeholder="Implied Contacts"]')
-    .click();
-  cy.getMetaServiceSidePanelBody().contains(data.default.contacts).click();
-  cy.getMetaServiceSidePanelBody()
-    .find('input[placeholder="Linked Contact Groups"]')
-    .click();
-  cy.getMetaServiceSidePanelBody()
-    .contains(data.default.contact_groups)
-    .click();
+  cy.selectFormSegment(
+    'notifications_enabled',
+    String(data.default.notification_enabled)
+  );
+  cy.selectFormOption('ms_cs', data.default.contacts);
+  cy.selectFormOption('ms_cgs', data.default.contact_groups);
   cy.getMetaServiceSidePanelBody()
     .find('input[name="notification_interval"]')
     .type(data.default.notification_interval);
@@ -227,10 +212,7 @@ When('the user changes the properties of a meta service', () => {
   cy.getMetaServiceSidePanelBody()
     .find('select[name="data_source_type"]')
     .select('COUNTER');
-  cy.getMetaServiceSidePanelBody()
-    .find('input[name*="meta_select_mode"][value="2"]')
-    .parent()
-    .click();
+  cy.selectFormSegment('meta_select_mode', '2');
   cy.getMetaServiceSidePanelBody()
     .find('input[name="regexp_str"]')
     .clear()
@@ -251,10 +233,7 @@ When('the user changes the properties of a meta service', () => {
     .find('input[name="retry_check_interval"]')
     .clear()
     .type('20');
-  cy.getMetaServiceSidePanelBody()
-    .find('input[name*="notifications_enabled"][value="2"]')
-    .parent()
-    .click();
+  cy.selectFormSegment('notifications_enabled', '2');
   cy.getMetaServiceSidePanelBody()
     .find(`li[title=${data.default.contact_groups}]`)
     .find('span[class*="choice__remove"]')
