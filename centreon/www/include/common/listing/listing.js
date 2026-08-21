@@ -98,21 +98,22 @@ function clInitAdvSelectClear() {
         // state as soon as the field goes empty. Path-agnostic, and it never
         // fetches, so it cannot double-fetch with a Search click.
         var wasEmpty = isEmpty();
+        // Scoped to the current listing's own state entry. Filter element ids are
+        // generic and reused across pages (template, status, ...), so sweeping
+        // every cl_state_* key would clear a namesake filter persisted by another
+        // migrated listing.
         function forgetPersistedFilter() {
             var name = selectEl.id || selectEl.name;
-            if (!name) return;
-            for (var i = 0; i < sessionStorage.length; i++) {
-                var key = sessionStorage.key(i);
-                if (!key || key.indexOf('cl_state_') !== 0) continue;
-                try {
-                    var state = JSON.parse(sessionStorage.getItem(key) || 'null');
-                    if (!state) continue;
-                    var touched = false;
-                    if (state.extra && state.extra[name] !== undefined) { delete state.extra[name]; touched = true; }
-                    if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
-                    if (touched) sessionStorage.setItem(key, JSON.stringify(state));
-                } catch (e) {}
-            }
+            var key = window.clCurrentStateKey;
+            if (!name || !key) return;
+            try {
+                var state = JSON.parse(sessionStorage.getItem(key) || 'null');
+                if (!state) return;
+                var touched = false;
+                if (state.extra && state.extra[name] !== undefined) { delete state.extra[name]; touched = true; }
+                if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
+                if (touched) sessionStorage.setItem(key, JSON.stringify(state));
+            } catch (e) {}
         }
 
         // The eraser additionally re-runs the search, so the rows stop showing a
@@ -253,6 +254,11 @@ function CentreonListing(config) {
 
     // Restore state from sessionStorage (survives navigation, cleared on browser close)
     var stateKey   = 'cl_state_' + cfg.storageKey;
+    // Published for the advanced-filter helpers, which run outside this closure
+    // and must only ever touch the state of the listing on the current page.
+    // One listing per page, and the instance is built by the page's inline
+    // script, so this is set before any filter interaction can happen.
+    window.clCurrentStateKey = stateKey;
     var savedState = null;
     try { savedState = JSON.parse(sessionStorage.getItem(stateKey)); } catch(e) {}
 
