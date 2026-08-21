@@ -1,0 +1,25 @@
+import { expect, test } from '@playwright/test';
+
+import type { WithLabel } from '../../www/front_src/src/Dashboards/SingleInstancePage/Dashboard/AddEditWidget/WidgetProperties/Inputs/Warning.story';
+
+const storyId = 'Inputs/Warning/WithLabel';
+
+test('displays the label given to the field', async ({ mount }) => {
+  const label = 'Warning message!';
+
+  const component = await mount<typeof WithLabel>(storyId, { label });
+
+  await expect(component.getByText(label)).toBeVisible();
+
+  await expect(component).toHaveScreenshot('widget-warning-field.png');
+});
+
+test('reflects a new label without remounting', async ({ mount }) => {
+  const component = await mount<typeof WithLabel>(storyId, { label: 'First' });
+
+  await expect(component.getByText('First')).toBeVisible();
+
+  await component.update({ label: 'Second' });
+
+  await expect(component.getByText('Second')).toBeVisible();
+});
