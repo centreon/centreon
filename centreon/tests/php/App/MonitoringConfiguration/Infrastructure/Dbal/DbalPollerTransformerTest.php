@@ -25,8 +25,10 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Exception\InvalidGorgoneCommunicationTypeException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -156,6 +158,81 @@ final class DbalPollerTransformerTest extends TestCase
         $poller = $this->transformer->transform($row);
 
         self::assertNull($poller->centralAddress);
+    }
+
+    #[DataProvider('provideGorgoneCommunicationTypes')]
+    public function testTransformMapsGorgoneCommunicationType(
+        string $databaseValue,
+        GorgoneCommunicationTypeEnum $expectedCommunicationType,
+    ): void {
+        $row = $this->buildRow(['gorgone_communication_type' => $databaseValue]);
+
+        $poller = $this->transformer->transform($row);
+
+        self::assertSame($expectedCommunicationType, $poller->gorgoneConfiguration->communicationType);
+    }
+
+    /**
+     * @return iterable<string, array{string, GorgoneCommunicationTypeEnum}>
+     */
+    public static function provideGorgoneCommunicationTypes(): iterable
+    {
+        yield 'zmq' => ['1', GorgoneCommunicationTypeEnum::ZMQ];
+
+        yield 'ssh' => ['2', GorgoneCommunicationTypeEnum::SSH];
+
+        yield 'pull' => ['3', GorgoneCommunicationTypeEnum::Pull];
+
+        yield 'pullwss' => ['4', GorgoneCommunicationTypeEnum::PullWss];
+    }
+
+    public function testTransformRejectsUnknownGorgoneCommunicationType(): void
+    {
+        $row = $this->buildRow(['gorgone_communication_type' => '5']);
+
+        $this->expectException(InvalidGorgoneCommunicationTypeException::class);
+        $this->expectExceptionMessage('Unsupported gorgone communication type "5" read from the database.');
+
+        $this->transformer->transform($row);
+    }
+
+    /**
+     * The 26.07 upgrade extended the column without extending the enum, which turned
+     * every poller read into an HTTP 500 on cloud platforms. Keep both in lockstep.
+     */
+    public function testEveryCommunicationTypeAllowedBySchemaIsMapped(): void
+    {
+        $mappedCases = [];
+        foreach ($this->communicationTypesAllowedBySchema() as $databaseValue) {
+            $poller = $this->transformer->transform(
+                $this->buildRow(['gorgone_communication_type' => $databaseValue])
+            );
+            $mappedCases[] = $poller->gorgoneConfiguration->communicationType;
+        }
+
+        self::assertEqualsCanonicalizing(
+            GorgoneCommunicationTypeEnum::cases(),
+            $mappedCases,
+            'nagios_server.gorgone_communication_type and GorgoneCommunicationTypeEnum have drifted apart'
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function communicationTypesAllowedBySchema(): array
+    {
+        $schema = file_get_contents(dirname(__DIR__, 6) . '/www/install/createTables.sql');
+        self::assertIsString($schema);
+
+        self::assertSame(
+            1,
+            preg_match('/`gorgone_communication_type` enum\(([^)]+)\)/', $schema, $column),
+            'gorgone_communication_type column not found in createTables.sql'
+        );
+        preg_match_all("/'([^']+)'/", $column[1], $allowedValues);
+
+        return $allowedValues[1];
     }
 
     /**

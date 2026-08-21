@@ -38,6 +38,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Exception\InvalidGorgoneCommunicationTypeException;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 
@@ -130,7 +131,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
             '2' => GorgoneCommunicationTypeEnum::SSH,
             '3' => GorgoneCommunicationTypeEnum::Pull,
             '4' => GorgoneCommunicationTypeEnum::PullWss,
-            default => throw new \ValueError("Invalid gorgone_communication_type: {$value}"),
+            default => throw InvalidGorgoneCommunicationTypeException::fromDatabaseValue($value),
         };
     }
 }
