@@ -19,7 +19,16 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../../../../../config/centreon.config.php');
+
+// PSR-4 autoloader for the src/ classes used below (QueryParameters, Logger):
+// this standalone endpoint does not go through the full bootstrap.
+require_once realpath(__DIR__ . '/../../../../../../vendor/autoload.php');
 
 require_once __DIR__ . '/argumentsXmlFunction.php';
 
@@ -52,109 +61,128 @@ $db = new CentreonDB();
 
 $args = [];
 
-if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
-    $cmdId = CentreonDB::escape($_GET['cmdId']);
-    $svcId = CentreonDB::escape($_GET['svcId']);
-    $svcTplId = CentreonDB::escape($_GET['svcTplId']);
-    $o = CentreonDB::escape($_GET['o']);
+try {
+    if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
+        $cmdId    = (int) filter_var($_GET['cmdId'], FILTER_VALIDATE_INT);
+        $svcId    = (int) filter_var($_GET['svcId'], FILTER_VALIDATE_INT);
+        $svcTplId = (int) filter_var($_GET['svcTplId'], FILTER_VALIDATE_INT);
+        $mode     = $_GET['o'];
 
-    $tab = [];
-    if (! $cmdId && $svcTplId) {
-        $query4 = 'SELECT service_template_model_stm_id, command_command_id, command_command_id_arg '
-            . 'FROM `service` '
-            . 'WHERE service_id = :svc_tpl_id';
-        $statement4 = $db->prepare($query4);
-        while (1) {
-            $stmt4 = $db->prepare(
-                'SELECT service_template_model_stm_id, command_command_id, command_command_id_arg
-                FROM `service`
-                WHERE service_id = :svcTplId'
+        // No command on the service itself: walk up the template chain until one
+        // defines a check command. $visited guards against a cyclic chain.
+        $visited = [];
+        while ($cmdId === 0 && $svcTplId !== 0) {
+            $template = $db->fetchAssociative(
+                <<<'SQL'
+                    SELECT service_template_model_stm_id, command_command_id
+                    FROM `service`
+                    WHERE service_id = :svcTplId
+                    SQL,
+                QueryParameters::create([QueryParameter::int('svcTplId', $svcTplId)])
             );
-            $stmt4->bindValue(':svcTplId', (int) $svcTplId, PDO::PARAM_INT);
-            $stmt4->execute();
-            $row4 = $stmt4->fetch(PDO::FETCH_ASSOC);
-            if (isset($row4['command_command_id']) && $row4['command_command_id']) {
-                $cmdId = $row4['command_command_id'];
+
+            if ($template === false || $template === []) {
                 break;
             }
-            if (! isset($row4['service_template_model_stm_id']) || ! $row4['service_template_model_stm_id']) {
+
+            if (! empty($template['command_command_id'])) {
+                $cmdId = (int) $template['command_command_id'];
                 break;
             }
-            if (isset($tab[$row4['service_template_model_stm_id']])) {
+
+            $parentId = (int) ($template['service_template_model_stm_id'] ?? 0);
+            if ($parentId === 0 || isset($visited[$parentId])) {
                 break;
             }
-            $svcTplId = $row4['service_template_model_stm_id'];
-            $tab[$svcTplId] = 1;
-        }
-    }
 
-    $argTab = [];
-    $exampleTab = [];
-    $valueTab = [];
-
-    $query2 = 'SELECT command_line, command_example FROM command WHERE command_id = :cmd_id LIMIT 1';
-    $statement = $db->prepare($query2);
-    $statement->bindValue(':cmd_id', $cmdId, PDO::PARAM_INT);
-    $statement->execute();
-    if ($row2 = $statement->fetch()) {
-        $cmdLine = $row2['command_line'];
-        preg_match_all('/\\$(ARG[0-9]+)\\$/', $cmdLine, $matches);
-        foreach ($matches[1] as $key => $value) {
-            $argTab[$value] = $value;
+            $visited[$parentId] = true;
+            $svcTplId = $parentId;
         }
-        $exampleTab = preg_split('/\!/', $row2['command_example']);
-        if (is_array($exampleTab)) {
-            foreach ($exampleTab as $key => $value) {
-                $nbTmp = $key;
-                $exampleTab['ARG' . $nbTmp] = $value;
-                unset($exampleTab[$key]);
+
+        $argTab = [];
+        $exampleTab = [];
+        $valueTab = [];
+
+        $command = $db->fetchAssociative(
+            <<<'SQL'
+                SELECT command_line, command_example FROM command WHERE command_id = :cmdId LIMIT 1
+                SQL,
+            QueryParameters::create([QueryParameter::int('cmdId', $cmdId)])
+        );
+
+        if ($command !== false && $command !== []) {
+            preg_match_all('/\\$(ARG[0-9]+)\\$/', (string) $command['command_line'], $matches);
+            foreach ($matches[1] as $value) {
+                $argTab[$value] = $value;
+            }
+
+            $exampleTab = preg_split('/\!/', (string) $command['command_example']);
+            if (is_array($exampleTab)) {
+                foreach ($exampleTab as $key => $value) {
+                    $exampleTab['ARG' . $key] = $value;
+                    unset($exampleTab[$key]);
+                }
             }
         }
-    }
 
-    $cmdStatement = $db->prepare('SELECT command_command_id_arg '
-        . 'FROM service '
-        . 'WHERE service_id = :svcId LIMIT 1');
-    $cmdStatement->bindValue(':svcId', (int) $svcId, PDO::PARAM_INT);
-    $cmdStatement->execute();
-    if ($cmdStatement->rowCount()) {
-        $row3 = $cmdStatement->fetchRow();
-        $valueTab = preg_split('/(?<!\\\)\!/', $row3['command_command_id_arg']);
-        if (is_array($valueTab)) {
-            foreach ($valueTab as $key => $value) {
-                $nbTmp = $key;
-                $valueTab['ARG' . $nbTmp] = $value;
-                unset($valueTab[$key]);
+        $serviceArgs = $db->fetchOne(
+            <<<'SQL'
+                SELECT command_command_id_arg FROM service WHERE service_id = :svcId LIMIT 1
+                SQL,
+            QueryParameters::create([QueryParameter::int('svcId', $svcId)])
+        );
+
+        if ($serviceArgs !== false) {
+            $valueTab = preg_split('/(?<!\\\)\!/', (string) $serviceArgs);
+            if (is_array($valueTab)) {
+                foreach ($valueTab as $key => $value) {
+                    $valueTab['ARG' . $key] = $value;
+                    unset($valueTab[$key]);
+                }
+            } else {
+                $exampleTab = [];
             }
-        } else {
-            $exampleTab = [];
+        }
+
+        foreach (
+            $db->fetchAllAssociative(
+                <<<'SQL'
+                    SELECT macro_name, macro_description
+                    FROM command_arg_description
+                    WHERE cmd_id = :cmdId
+                    ORDER BY macro_name
+                    SQL,
+                QueryParameters::create([QueryParameter::int('cmdId', $cmdId)])
+            ) as $macro
+        ) {
+            $argTab[$macro['macro_name']] = $macro['macro_description'];
+        }
+
+        $disabled = $mode === 'w';
+        foreach ($argTab as $name => $description) {
+            $args[] = [
+                'name' => $name,
+                'description' => $description,
+                'value' => $valueTab[$name] ?? '',
+                'example' => isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : '',
+                'disabled' => $disabled,
+            ];
         }
     }
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Service form: failed to fetch the command arguments',
+        ['exception' => $exception]
+    );
 
-    $macroStatement = $db->prepare('SELECT macro_name, macro_description '
-        . 'FROM command_arg_description '
-        . 'WHERE cmd_id = :cmdId ORDER BY macro_name');
-    $macroStatement->bindValue(':cmdId', (int) $cmdId, PDO::PARAM_INT);
-    $macroStatement->execute();
-    while ($row = $macroStatement->fetchRow()) {
-        $argTab[$row['macro_name']] = $row['macro_description'];
-    }
-    $macroStatement->closeCursor();
+    http_response_code(500);
+    echo json_encode(['error' => 'Internal error'], JSON_THROW_ON_ERROR);
 
-    $disabled = $o === 'w';
-    foreach ($argTab as $name => $description) {
-        $args[] = [
-            'name' => $name,
-            'description' => $description,
-            'value' => $valueTab[$name] ?? '',
-            'example' => isset($exampleTab[$name]) ? myDecodeValue($exampleTab[$name]) : '',
-            'disabled' => $disabled,
-        ];
-    }
+    exit;
 }
 
 header('Content-Type: application/json');
 header('Pragma: no-cache');
 header('Expires: 0');
 header('Cache-Control: no-cache, must-revalidate');
-echo json_encode(['args' => $args]);
+echo json_encode(['args' => $args], JSON_THROW_ON_ERROR);
