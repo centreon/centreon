@@ -29,6 +29,7 @@ use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Domain\RequestParameters\RequestParametersException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use EventSubscriber\CentreonEventSubscriber;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -42,34 +43,42 @@ use Tests\EventSubscriber\Double\FakeHttpKernel;
 
 final class CentreonEventSubscriberTest extends TestCase
 {
-    public function testInitRequestParametersRejectsNonIntegerPage(): void
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function provideMalformedPaginationParameters(): \Generator
     {
-        try {
-            $this->createSubscriber(new RequestParameters())
-                ->initRequestParameters($this->createRequestEvent('page=abc'));
-            self::fail('A BadRequestHttpException was expected.');
-        } catch (BadRequestHttpException $exception) {
-            self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-            self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getCode());
-            self::assertSame(
-                RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE)->getMessage(),
-                $exception->getMessage()
-            );
-            self::assertInstanceOf(RequestParametersException::class, $exception->getPrevious());
-        }
+        yield 'non-numeric page' => ['page=abc', RequestParameters::NAME_FOR_PAGE];
+
+        yield 'empty page' => ['page=', RequestParameters::NAME_FOR_PAGE];
+
+        yield 'decimal page' => ['page=1.5', RequestParameters::NAME_FOR_PAGE];
+
+        yield 'array-shaped page' => ['page[]=1', RequestParameters::NAME_FOR_PAGE];
+
+        yield 'page beyond PHP_INT_MAX' => ['page=99999999999999999999', RequestParameters::NAME_FOR_PAGE];
+
+        yield 'non-numeric limit' => ['limit=abc', RequestParameters::NAME_FOR_LIMIT];
+
+        yield 'empty limit' => ['limit=', RequestParameters::NAME_FOR_LIMIT];
+
+        yield 'array-shaped limit' => ['limit[]=10', RequestParameters::NAME_FOR_LIMIT];
     }
 
-    public function testInitRequestParametersRejectsNonIntegerLimit(): void
-    {
+    #[DataProvider('provideMalformedPaginationParameters')]
+    public function testInitRequestParametersRejectsNonIntegerPagination(
+        string $queryString,
+        string $rejectedParameter,
+    ): void {
         try {
             $this->createSubscriber(new RequestParameters())
-                ->initRequestParameters($this->createRequestEvent('limit=abc'));
+                ->initRequestParameters($this->createRequestEvent($queryString));
             self::fail('A BadRequestHttpException was expected.');
         } catch (BadRequestHttpException $exception) {
             self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
             self::assertSame(Response::HTTP_BAD_REQUEST, $exception->getCode());
             self::assertSame(
-                RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT)->getMessage(),
+                RequestParametersException::integer($rejectedParameter)->getMessage(),
                 $exception->getMessage()
             );
             self::assertInstanceOf(RequestParametersException::class, $exception->getPrevious());
@@ -85,6 +94,17 @@ final class CentreonEventSubscriberTest extends TestCase
 
         self::assertSame(3, $requestParameters->getPage());
         self::assertSame(50, $requestParameters->getLimit());
+    }
+
+    public function testInitRequestParametersFallsBackToTheDefaultPagination(): void
+    {
+        $requestParameters = new RequestParameters();
+
+        $this->createSubscriber($requestParameters)
+            ->initRequestParameters($this->createRequestEvent(''));
+
+        self::assertSame(RequestParameters::DEFAULT_PAGE, $requestParameters->getPage());
+        self::assertSame(RequestParameters::DEFAULT_LIMIT, $requestParameters->getLimit());
     }
 
     private function createSubscriber(RequestParameters $requestParameters): CentreonEventSubscriber

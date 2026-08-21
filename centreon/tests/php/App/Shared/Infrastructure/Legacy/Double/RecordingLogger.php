@@ -26,7 +26,7 @@ namespace Tests\App\Shared\Infrastructure\Legacy\Double;
 use Psr\Log\AbstractLogger;
 
 /**
- * @phpstan-type RecordTypeAlias array{level: string, message: string, context: array<string, mixed>}
+ * @phpstan-type RecordTypeAlias array{level: string, message: string, context: array<int|string, mixed>}
  */
 final class RecordingLogger extends AbstractLogger
 {
@@ -34,12 +34,20 @@ final class RecordingLogger extends AbstractLogger
     private array $records = [];
 
     /**
-     * @param array<string, mixed> $context
-     * @param mixed $level
+     * @param array<int|string, mixed> $context
      */
-    public function log($level, string|\Stringable $message, array $context = []): void
+    public function log(mixed $level, string|\Stringable $message, array $context = []): void
     {
-        assert(is_string($level));
+        // Not an assert(): assertions are compiled out under
+        // zend.assertions=-1, which the repository does not pin, and a
+        // non-string level would then be recorded against the shape this
+        // double advertises.
+        if (! is_string($level)) {
+            throw new \LogicException(sprintf(
+                'Expected a PSR-3 string level, got "%s".',
+                get_debug_type($level),
+            ));
+        }
 
         $this->records[] = [
             'level' => $level,

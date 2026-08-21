@@ -40,9 +40,13 @@ final class LegacyHttpExceptionListenerTest extends TestCase
     public function testBadRequestIsAnsweredAsAClientError(): void
     {
         $logger = new RecordingLogger();
-        $event = $this->createExceptionEvent(
-            new BadRequestHttpException('The parameter "page" must be an integer', code: Response::HTTP_BAD_REQUEST)
+        $domainCause = new \RuntimeException('The parameter "page" must be an integer');
+        $exception = new BadRequestHttpException(
+            $domainCause->getMessage(),
+            previous: $domainCause,
+            code: Response::HTTP_BAD_REQUEST,
         );
+        $event = $this->createExceptionEvent($exception);
 
         (new LegacyHttpExceptionListener([], $logger))($event);
 
@@ -53,9 +57,16 @@ final class LegacyHttpExceptionListenerTest extends TestCase
             ['code' => Response::HTTP_BAD_REQUEST, 'message' => 'The parameter "page" must be an integer'],
             json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)
         );
+        // The listener logs once and stops propagation, so Symfony's own
+        // ErrorListener never gets to log the same exception a second time.
+        self::assertCount(1, $logger->records());
         $record = $logger->lastRecord();
         self::assertNotNull($record);
         self::assertSame(LogLevel::WARNING, $record['level']);
+        // The whole chain is handed to the logger: the processors report the
+        // original cause, not only the HTTP exception wrapping it.
+        self::assertSame($exception, $record['context']['exception'] ?? null);
+        self::assertSame($domainCause, $exception->getPrevious());
     }
 
     public function testExceptionWithoutHttpStatusIsAnsweredAsAServerError(): void
@@ -68,6 +79,13 @@ final class LegacyHttpExceptionListenerTest extends TestCase
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        // The body carries the exception code, not the resolved status: an
+        // exception carrying none answers a 500 whose payload code stays 0.
+        self::assertSame(
+            ['code' => 0, 'message' => 'Something went wrong'],
+            json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)
+        );
+        self::assertCount(1, $logger->records());
         $record = $logger->lastRecord();
         self::assertNotNull($record);
         self::assertSame(LogLevel::CRITICAL, $record['level']);
@@ -83,6 +101,14 @@ final class LegacyHttpExceptionListenerTest extends TestCase
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        // Status mapped to 404 while the payload code stays 0: the mapping
+        // alone cannot fix the body, which is why the thrown exception has to
+        // carry the status as its code too.
+        self::assertSame(
+            ['code' => 0, 'message' => 'Nothing here'],
+            json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR)
+        );
+        self::assertCount(1, $logger->records());
         $record = $logger->lastRecord();
         self::assertNotNull($record);
         self::assertSame(LogLevel::WARNING, $record['level']);

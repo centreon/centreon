@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
- * RequestEvent requires an HttpKernelInterface; this double provides one without booting a kernel.
+ * Kernel events require an HttpKernelInterface; this double provides one without booting a kernel.
  */
 final class FakeHttpKernel implements HttpKernelInterface
 {
