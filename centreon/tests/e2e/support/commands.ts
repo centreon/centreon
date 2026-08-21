@@ -228,23 +228,32 @@ Cypress.Commands.add(
   }
 );
 
-// The migrated forms convert small radio groups (values within 0/1/2) into
-// segmented buttons and hide the radios, so a click on a radio's wrapper lands
-// on a display:none element. The generated control carries the field name and
-// the value as attributes, which is translation-proof.
+// A yes/no field comes in three shapes in the migrated forms: the segmented
+// buttons initYesNoSegments() generates over a small radio group, a cl-toggle
+// wired by CentreonForm.syncToggle, or the plain radios of a group the
+// conversion skipped. Only the first exposes the field name and the value as
+// attributes; for the other two, setting the radio is what the form reads back.
 Cypress.Commands.add(
   'selectFormSegment',
   (radioName: string, value: string): Cypress.Chainable => {
-    return cy
-      .getFormBody()
-      .find(
-        `.cf-segmented[data-radio-name="${radioName}"] button[data-value="${value}"]`,
-        { timeout: 20_000 }
-      )
-      .click({ force: true });
+    return cy.getFormBody().then(($body) => {
+      const segment = $body.find(
+        `.cf-segmented[data-radio-name="${radioName}"] button[data-value="${value}"]`
+      );
+
+      if (segment.length > 0) {
+        return cy.wrap(segment).click({ force: true });
+      }
+
+      return cy
+        .getFormBody()
+        .find(`input[name*="${radioName}"][value="${value}"]`, {
+          timeout: 20_000
+        })
+        .check({ force: true });
+    });
   }
 );
-
 
 Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
   cy.getFormBody()
