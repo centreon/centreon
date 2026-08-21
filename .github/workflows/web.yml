@@ -104,8 +104,6 @@ jobs:
         "centreon/packaging/**"
         "centreon/selinux/**"
         "centreon/snmptrapd/**"
-        ".github/docker/centreon-snmptrapd/**"
-        ".github/docker/centreon-centreontrapd/**"
         "centreon/src/**"
         "centreon/tmpl/**"
         "centreon/tools/**"
@@ -146,6 +144,8 @@ jobs:
         "centreon/tests/clapi_export/**"
         "centreon/tests/e2e/**"
         "centreon/tests/performance/**"
+        ".github/docker/centreon-snmptrapd/**"
+        ".github/docker/centreon-centreontrapd/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/packaging/**"
