@@ -30,6 +30,11 @@ class VaultException extends \Exception
         return new self(_('Unable to migrate passwords'));
     }
 
+    public static function unableToRevertCredentials(): self
+    {
+        return new self(_('Unable to revert passwords'));
+    }
+
     public static function noVaultConfigured(): self
     {
         return new self(_('No vault configured'));

@@ -107,9 +107,10 @@ jobs:
         working-directory: ${{ env.WORKING_DIRECTORY }}
     env:
       WORKING_DIRECTORY: ${{ inputs.working_directory }}
-      IMAGE_TAG: ${{ github.head_ref || github.ref_name }}
       IMAGE_NAME: ${{ inputs.image_name }}-${{ inputs.operating_system }}
-      WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-${{ inputs.operating_system }}:${{ github.head_ref || github.ref_name }}
+      # WEB_IMAGE is set on the container-startup step below, from the sanitized
+      # tag produced by the "Compute image tag" step (a Docker tag cannot contain
+      # '/', so the raw branch ref must be sanitized like the dockerize job does).
       FEATURE: ${{ matrix.feature }}
       BRUNO_GITHUB_SCRIPTS_PATH: ${{ github.workspace }}/.github/scripts/bruno-test-api
       # Disable system proxy detection in Bruno CLI on Linux runners (no proxy configured).
@@ -122,6 +123,27 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Same tag computation as the dockerize job and cypress-e2e-parallelization:
+      # a Docker tag cannot contain '/', so the raw branch ref (feature/foo) must
+      # be sanitized to match the tag dockerize pushed (feature-foo). Using the
+      # raw ref referenced a non-existent tag and failed `docker compose up --wait`.
+      - name: Compute image tag
+        id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ inputs.major_version }}
+        run: |
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
+          else
+            SANITIZED_REF="$(printf '%s' "$REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)"
+            if [[ -z "$SANITIZED_REF" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$REF'"
+              exit 1
+            fi
+            echo "tag=$SANITIZED_REF" >> $GITHUB_OUTPUT
+          fi
 
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
         with:
@@ -162,6 +184,7 @@ jobs:
       # Start Centreon web and database containers and adding custom setup environment if exists
       - name: Start Centreon Web and database containers with specific setup if exists
         env:
+          WEB_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ inputs.image_name }}-${{ inputs.operating_system }}:${{ steps.image_tag.outputs.tag }}
           MYSQL_IMAGE: ${{ inputs.database_image }}
           UPLOAD_ARTIFACTS: ${{ inputs.upload_artifacts }}
           OS_INPUT: ${{ inputs.operating_system }}

@@ -200,6 +200,13 @@ contents:
       group: "root"
       mode: 0744
 
+  - src: "../bin/revertCredentials.php"
+    dst: "/usr/share/centreon/bin/revertCredentials.php"
+    file_info:
+      owner: "root"
+      group: "root"
+      mode: 0744
+
   - src: "../bin/logAnalyserBroker"
     dst: "/usr/share/centreon/bin/logAnalyserBroker"
     file_info:
@@ -419,6 +426,13 @@ contents:
       owner: "centreon"
       group: "centreon"
       mode: 0775
+
+  - src: "../install-poller/install.sh"
+    dst: "/usr/share/centreon/www/poller/install.sh"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0644
 
 scripts:
   preinstall: ./scripts/centreon-web-preinstall.sh

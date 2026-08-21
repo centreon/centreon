@@ -30,10 +30,8 @@ function runVmInstall() {
 
     if [ -n "${installed_major}" ] && [ "${installed_major}" != "${major}" ]; then
       consoleInfo "Major version change: ${installed_major} → ${major}"
-      _vmUpdateRepo
-    else
-      consoleInfo "Repository already at major ${major}, no repo update needed"
     fi
+    _vmUpdateRepo
 
     echo ""
     consoleTitle "Updating Centreon packages:"

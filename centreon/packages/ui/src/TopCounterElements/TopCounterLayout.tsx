@@ -1,9 +1,9 @@
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import type { SvgIcon } from '@mui/material';
+import type { SvgIconProps } from '@mui/material';
 import { Badge, ClickAwayListener } from '@mui/material';
 
-import { useEffect, useState } from 'react';
+import { ComponentType, useEffect, useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import useCloseOnLegacyPage from './useCloseOnLegacyPage';
@@ -98,7 +98,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 interface TopCounterLayoutProps {
-  Icon: typeof SvgIcon;
+  Icon: ComponentType<SvgIconProps>;
   renderIndicators: () => JSX.Element;
   renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
   showPendingBadge?: boolean;

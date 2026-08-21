@@ -28,6 +28,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
+use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Application\Common\UseCase\{
     ErrorResponse,
     InvalidArgumentResponse,
@@ -83,6 +85,7 @@ final class UpdateHostGroup
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
         private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
         private readonly AdminResolver $adminResolver,
+        private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
     ) {
     }
 
@@ -120,7 +123,7 @@ final class UpdateHostGroup
 
             $this->updateHostGroup($request, $existingHostGroup);
             if ($request->hosts !== null) {
-                $this->updateHostLinks($request);
+                $this->updateHostLinks($request, $existingHostGroup);
             }
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
@@ -187,10 +190,11 @@ final class UpdateHostGroup
      * Update the hosts linked to the host group.
      *
      * @param UpdateHostGroupRequest $request
+     * @param HostGroup $existingHostGroup
      *
      * @throws \Throwable
      */
-    private function updateHostLinks(UpdateHostGroupRequest $request): void
+    private function updateHostLinks(UpdateHostGroupRequest $request, HostGroup $existingHostGroup): void
     {
         /** @var int[] $hosts */
         $hosts = $request->hosts;
@@ -210,9 +214,34 @@ final class UpdateHostGroup
             ))->getRemoved();
         }
 
+        $linkedBefore = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
         $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
+        $linkedAfter = array_map('intval', $this->readHostGroupRepository->findLinkedHosts($request->id));
         $this->notifyConfigurationChange($hosts);
+
+        sort($linkedBefore);
+        sort($linkedAfter);
+        if ($linkedBefore === $linkedAfter) {
+            return;
+        }
+
+        $actionLog = new ActionLog(
+            ActionLog::OBJECT_TYPE_HOSTGROUP,
+            $request->id,
+            $existingHostGroup->getName(),
+            ActionLog::ACTION_TYPE_CHANGE,
+            $this->user->getId(),
+        );
+        $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+        $actionLog->setId($actionLogId);
+
+        $added = array_values(array_diff($linkedAfter, $linkedBefore));
+        $removed = array_values(array_diff($linkedBefore, $linkedAfter));
+        $this->writeActionLogRepository->addActionDetails($actionLog, [
+            'hosts_added' => implode(',', $added),
+            'hosts_removed' => implode(',', $removed),
+        ]);
     }
 
     /**

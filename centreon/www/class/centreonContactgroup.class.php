@@ -389,7 +389,7 @@ class CentreonContactgroup
                             && ldap_errno($ldapConn->getDs()) != 3
                         ) {
                             $dn = $ldapConn->findGroupDn($row['cg_name']);
-                            if ($dn === false && ldap_errno($ldapConn->getDs()) != 3) {
+                            if (empty($dn) && ldap_errno($ldapConn->getDs()) != 3) {
                                 // Delete the ldap group in contactgroup
                                 try {
                                     $stmt = $this->db->prepare(

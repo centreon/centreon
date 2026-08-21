@@ -645,6 +645,8 @@ class CentreonTopCounter extends CentreonWebService
         foreach ($listConfPoller as $poller) {
             $listPoller[$poller['id']] = ['id' => $poller['id'], 'name' => $poller['name'], 'stability' => 0, 'database' => ['state' => 0, 'time' => null], 'latency' => ['state' => 0, 'time' => null]];
             $uidToId[$poller['uid']] = $poller['id'];
+            // Legacy pollers unaware of the Snowflake UID still report nagios_server.id as instance_id.
+            $uidToId[$poller['id']] = $poller['id'];
         }
 
         if ($uidToId === []) {
@@ -661,8 +663,20 @@ class CentreonTopCounter extends CentreonWebService
             throw new RestInternalServerErrorException($e);
         }
 
+        // Keep the freshest instances row per poller so a stale legacy row cannot
+        // override the fresh Snowflake-uid one after a 26.07 upgrade.
+        $freshestByPoller = [];
         while ($row = $res->fetch()) {
             $pollerId = $uidToId[$row['instance_id']];
+            if (
+                ! isset($freshestByPoller[$pollerId])
+                || (int) $row['last_alive'] > (int) $freshestByPoller[$pollerId]['last_alive']
+            ) {
+                $freshestByPoller[$pollerId] = $row;
+            }
+        }
+
+        foreach ($freshestByPoller as $pollerId => $row) {
             // Test if poller running and activity
             if (time() - $row['last_alive'] >= $this->timeUnit * 10) {
                 $listPoller[$pollerId]['stability'] = 2;
@@ -694,6 +708,14 @@ class CentreonTopCounter extends CentreonWebService
 
         while ($row = $res->fetch()) {
             $pollerId = $uidToId[$row['instance_id']];
+            // Only trust the latency of the freshest instances row so a stale legacy
+            // row cannot raise a false latency alert.
+            if (
+                ! isset($freshestByPoller[$pollerId])
+                || $row['instance_id'] != $freshestByPoller[$pollerId]['instance_id']
+            ) {
+                continue;
+            }
             if ($row['stat_value'] >= 120) {
                 $listPoller[$pollerId]['latency']['state'] = 2;
                 $listPoller[$pollerId]['latency']['time'] = $row['stat_value'];

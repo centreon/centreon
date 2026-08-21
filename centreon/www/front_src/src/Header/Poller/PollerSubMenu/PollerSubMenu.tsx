@@ -40,7 +40,6 @@ export const PollerSubMenu = ({
   displayPollerButton
 }: PollerSubMenuProps): ReactElement => {
   const platformFeatures = useAtomValue(platformFeaturesAtom);
-  const isCreatePollerDisplayed = false && !platformFeatures?.isCloudPlatform; // for now
 
   return (
     <List className="min-w-[216px] p-0" data-testid="poller-menu">
@@ -93,7 +92,7 @@ export const PollerSubMenu = ({
         </ListItem>
       )}
 
-      {isCreatePollerDisplayed && (
+      {false && (
         <ListItem className="p-2 [&:not(:last-child)]:border-b [&:not(:last-child)]:border-divider">
           <CloudInstallCommand closeSubMenu={closeSubMenu} />
         </ListItem>

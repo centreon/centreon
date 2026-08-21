@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -427,11 +427,11 @@ final class InstallationCommandFactoryTest extends TestCase
             pollerType: PollerTypeEnum::VM,
             uid: new PollerUid(1),
             globalMacros: new Collection([], GlobalMacro::class),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
-            engineConfiguration: new EngineConfiguration(),
+            engineInformation: new EngineInformation(),
             gorgoneConfiguration: new GorgoneConfiguration(),
             cmaCertificates: $cmaCertificates,
         );

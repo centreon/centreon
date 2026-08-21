@@ -40,6 +40,7 @@ final readonly class ResourcePollerTransformer implements TransformerInterface
             name: $from->name->value,
             pollerType: $from->pollerType->value,
             address: $from->address->value,
+            centralAddress: $from->centralAddress?->value,
             uid: (string) $from->uid->value,
             gorgoneCommunicationType: $this->communicationTypeToString($from->gorgoneConfiguration->communicationType),
         );

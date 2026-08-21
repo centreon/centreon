@@ -1,6 +1,5 @@
-import HostIcon from '@mui/icons-material/Dns';
-
 import {
+  HostIcon,
   MenuSkeleton,
   TopCounterLayout,
   TopCounterResourceCounters,
