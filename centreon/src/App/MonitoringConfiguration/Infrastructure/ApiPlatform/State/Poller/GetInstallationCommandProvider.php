@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
@@ -64,11 +64,11 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             ? $this->pollerTokenRepository->getValidPollerTokenByName($tokenName)
             : $this->pollerTokenRepository->getFirstValidPollerToken();
 
-        if (! $poller->centralAddress instanceof PollerAddress) {
+        if (! $poller->centralAddress instanceof CentralAddress) {
             throw new BadRequestHttpException(sprintf('No central address configured for poller #%d.', $pollerId->value));
         }
 
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             $poller,
             $token,
             $this->engineSecretsRepository->getAppSecret(),

@@ -1407,7 +1407,7 @@ parameters:
 		-
 			message: '#^Call to protected method any\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 3
+			count: 7
 			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
 
 		-
@@ -1419,13 +1419,13 @@ parameters:
 		-
 			message: '#^Call to protected method exactly\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 2
+			count: 5
 			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
 
 		-
 			message: '#^Call to protected method once\(\) of class PHPUnit\\Framework\\TestCase\.$#'
 			identifier: method.protected
-			count: 22
+			count: 30
 			path: tests/php/Core/HostGroup/Application/UseCase/UpdateHostGroup/UpdateHostGroupTest.php
 
 		-
