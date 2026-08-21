@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 
 if (! isset($centreon)) {
@@ -37,8 +39,11 @@ $path = './include/Administration/configChangelog/';
  * each type is mapped to the label its configuration menu already uses.
  *
  * Covers ActionLog::AVAILABLE_OBJECT_TYPES — the types the filter offers — plus
- * the two severity types, which the audit log writes but that list leaves out.
- * A type missing from this map falls back to its raw token.
+ * the two severity types, which the audit log writes but that list leaves out,
+ * and the legacy 'commands' alias. A type missing from this map falls back to
+ * its raw token.
+ *
+ * @return array<string, string>
  */
 function getChangelogObjectTypeLabels(): array
 {
@@ -87,12 +92,16 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('centreon_path', _CENTREON_PATH_);
 $tpl->assign('p', $p);
 
-// Detail view: when object_id is in GET and no search form submitted
+// Detail view: object_id + object_type in GET.
 if (isset($_GET['object_id'], $_GET['object_type'])) {
-    // CentreonLogAction reads the centstorage connection as a global.
-    $pearDBO = new CentreonDB('centstorage');
+    // CentreonLogAction reads the centstorage connection as a global. header.php
+    // already opens one for every page served by main.php, so reuse it rather
+    // than opening a second connection per detail view.
+    if (! isset($pearDBO)) {
+        $pearDBO = new CentreonDB('centstorage');
+    }
 
-    $objectId = (int) $_GET['object_id'];
+    $objectId = filter_var($_GET['object_id'], FILTER_VALIDATE_INT);
     $objectType = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['object_type']);
 
     $tpl->assign('field_name', _('Field Name'));
@@ -102,8 +111,40 @@ if (isset($_GET['object_id'], $_GET['object_type'])) {
     // Same label as the "Object Type" column of the listing.
     $tpl->assign('objectTypeLabel', getChangelogObjectTypeLabels()[$objectType] ?? $objectType);
 
-    $tpl->assign('action', $centreon->CentreonLogAction->listAction($objectId, $objectType));
-    $tpl->assign('modification', $centreon->CentreonLogAction->listModification($objectId, $objectType));
+    // "No history for this object" is a legitimate answer; a malformed id and a
+    // failed read are not. Without this they would all render the same empty
+    // state, leaving no way to tell a broken link from a dead database. One
+    // message is enough for the user — the logs carry the distinction.
+    $actions = [];
+    $modifications = [];
+    $loadError = null;
+
+    if ($objectId === false || $objectId <= 0) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Changelog detail: malformed object_id in the request',
+            [
+                // ?object_id[]=1 reaches here as an array, which would warn on cast.
+                'object_id' => is_scalar($_GET['object_id']) ? (string) $_GET['object_id'] : '(non-scalar)',
+                'object_type' => $objectType,
+            ]
+        );
+        $loadError = _('Could not read the change history.');
+    } else {
+        try {
+            $actions = $centreon->CentreonLogAction->listAction($objectId, $objectType);
+            $modifications = $centreon->CentreonLogAction->listModification($objectId, $objectType);
+        } catch (Throwable $e) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                sprintf('Changelog detail: could not read the history of %s#%d', $objectType, $objectId),
+                ['exception' => $e]
+            );
+            $loadError = _('Could not read the change history.');
+        }
+    }
+
+    $tpl->assign('action', $actions);
+    $tpl->assign('modification', $modifications);
+    $tpl->assign('loadError', $loadError);
 
     $tpl->display('viewLogsDetails.ihtml');
 } else {

@@ -5,9 +5,9 @@
     <div class="cl-filter-box">
         <div class="cl-filter-bar">
             <label class="cl-filter-label" for="clSearchInput">{t}Object{/t}</label>
-            <input type="text" id="clSearchInput" name="searchO" value="" placeholder="{t}Search{/t}" class="cl-search-input">
+            <input type="text" id="clSearchInput" value="" placeholder="{t}Search{/t}" class="cl-search-input">
             <label class="cl-filter-label" for="clSearchUser">{t}User{/t}</label>
-            <input type="text" id="clSearchUser" name="searchU" value="" placeholder="{t}Search{/t}" class="cl-search-input">
+            <input type="text" id="clSearchUser" value="" placeholder="{t}Search{/t}" class="cl-search-input">
             <label class="cl-filter-label" for="clSearchType">{t}Type{/t}</label>
             <select id="clSearchType" class="cl-search-input">
                 <option value="">{t}All{/t}</option>
@@ -46,9 +46,10 @@
 </div>
 
 <script type="text/javascript">
-    // Page-specific translations: listing.js is a static asset and cannot use
-    // {t}...{/t}, so the strings it renders are exposed here (same mechanism as
-    // window.clI18n in clI18n.ihtml).
+    // The render callbacks below sit inside a Smarty literal block, where
+    // gettext tags are inert, so expose their strings here instead. Do not write
+    // Smarty tag syntax in this comment: auto_literal is off, so an unbalanced
+    // brace tag here would swallow the rest of the template.
     window.changelogI18n = {ldelim}
         actions: {ldelim}
             a: "{t escape='js'}Added{/t}",
@@ -100,7 +101,6 @@
 
     var detailUrl = './include/Administration/configChangelog/ajaxChangelogDetail.php';
 
-    // Toggle detail row
     function toggleDetail(btn, actionLogId) {
         var tr = jQuery(btn).closest('tr');
         var detailId = 'cl-detail-' + actionLogId;
@@ -114,7 +114,6 @@
 
         jQuery(btn).addClass('open').text('−');
 
-        // Insert detail row after current row
         var colCount = tr.find('td').length;
         var detailRow = jQuery(
             '<tr id="' + detailId + '" class="cl-detail-row">' +
@@ -125,7 +124,6 @@
         detailRow.find('.cl-diff-loading').text(i18n.diff.loading);
         tr.after(detailRow);
 
-        // Fetch detail
         jQuery.ajax({
             url: detailUrl,
             type: 'GET',
@@ -142,7 +140,6 @@
 
                 var isCreate = data.action_type === 'a';
 
-                // Header
                 var header = '<div class="cl-diff-header">' +
                     '<span>' + clEscape(i18n.diff.field) + '</span>';
                 if (!isCreate) {
@@ -151,7 +148,6 @@
                 header += '<span>' + clEscape(isCreate ? i18n.diff.value : i18n.diff.after) + '</span></div>';
                 container.append(header);
 
-                // Rows
                 for (var i = 0; i < data.diff.length; i++) {
                     var d = data.diff[i];
                     var row = '<div class="cl-diff-row">' +
@@ -164,10 +160,20 @@
                     container.append(row);
                 }
             },
-            error: function() {
+            error: function(xhr, status, err) {
+                if (window.console) {
+                    console.error('[changelog] diff fetch failed', (xhr && xhr.status) || '', status, err);
+                }
+                var httpStatus = xhr && xhr.status;
+                var errorCode = xhr && xhr.responseJSON && xhr.responseJSON.code;
+                var label = clListingLabel('loadError', 'Error loading data');
+                if (httpStatus === 401 || httpStatus === 403) {
+                    label = errorCode === 'access_denied'
+                        ? clListingLabel('accessDenied', 'You are not allowed to view this data.')
+                        : clListingLabel('sessionExpired', 'Your session has expired — please reload the page.');
+                }
                 detailRow.find('.cl-diff-container').empty().append(
-                    jQuery('<div class="cl-diff-empty cl-diff-error"></div>')
-                        .text(clListingLabel('loadError', 'Error loading data'))
+                    jQuery('<div class="cl-diff-empty cl-diff-error"></div>').text(label)
                 );
             }
         });

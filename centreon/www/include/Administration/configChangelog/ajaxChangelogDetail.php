@@ -43,7 +43,7 @@ $pearDBO = new CentreonDB('centstorage');
 if (! $helper->isAdmin()) {
     $acl = $helper->getAcl();
     if (! $acl || $acl->page(CHANGELOG_PAGE_ID) === 0) {
-        AjaxListingHelper::jsonError('Access denied', 403);
+        AjaxListingHelper::jsonError('Access denied', 403, 'access_denied');
     }
 }
 
@@ -55,7 +55,12 @@ if ($actionLogId === false || $actionLogId <= 0) {
 require_once _CENTREON_PATH_ . '/www/class/centreonLogAction.class.php';
 $logAction = $centreon->CentreonLogAction ?? null;
 if ($logAction === null) {
-    AjaxListingHelper::jsonError('Forbidden', 403);
+    // An incomplete session object is an internal error, not an authorization
+    // decision: a 403 would tell the client to reload, which cannot help.
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX changelog detail: CentreonLogAction missing from the session object'
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
 
 try {

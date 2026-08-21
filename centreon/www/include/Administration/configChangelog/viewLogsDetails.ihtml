@@ -2,22 +2,22 @@
 
 <div class="cld-wrapper">
 {* A crafted object_id / object_type pair can match no log row; render a clean
-   empty state with a Back button instead of a headerless "0 changes recorded". *}
+   empty state with a Back button instead of a headerless subtitle. $loadError
+   keeps a failed read distinguishable from a genuinely empty history. *}
 {if ($action|@count) == 0}
     <div class="cld-header">
         <div class="cld-header-info">
-            <div class="cld-header-text"><h2>{t}No results found{/t}</h2></div>
+            <div class="cld-header-text"><h2>{if $loadError}{$loadError|escape:'html'}{else}{t}No results found{/t}{/if}</h2></div>
         </div>
         <a href="./main.php?p={$p|escape:'html'}" class="cld-back-btn">&larr; {t}Back{/t}</a>
     </div>
 {else}
-    <!-- Header -->
     <div class="cld-header">
         <div class="cld-header-info">
             <div class="cld-header-icon">
                 {* Hosts and services reuse their top-counter icon
                    (packages/ui/src/Icon); any other type falls back to an
-                   outlined gear. The fill is theme-aware, see .cld-header-icon. *}
+                   outlined gear. *}
                 {if isset($action[0].object_type) && $action[0].object_type == 'host'}
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 21C3.45 21 2.97917 20.8042 2.5875 20.4125C2.19583 20.0208 2 19.55 2 19V5C2 4.45 2.19583 3.97917 2.5875 3.5875C2.97917 3.19583 3.45 3 4 3H9C9.55 3 10.0208 3.19583 10.4125 3.5875C10.8042 3.97917 11 4.45 11 5V19C11 19.55 10.8042 20.0208 10.4125 20.4125C10.0208 20.8042 9.55 21 9 21H4ZM15 21C14.45 21 13.9792 20.8042 13.5875 20.4125C13.1958 20.0208 13 19.55 13 19V5C13 4.45 13.1958 3.97917 13.5875 3.5875C13.9792 3.19583 14.45 3 15 3H20C20.55 3 21.0208 3.19583 21.4125 3.5875C21.8042 3.97917 22 4.45 22 5V19C22 19.55 21.8042 20.0208 21.4125 20.4125C21.0208 20.8042 20.55 21 20 21H15ZM4 19H9V5H4V19ZM15 19H20V5H15V19ZM5 15H8V13H5V15ZM16 15H19V13H16V15ZM5 12H8V10H5V12ZM16 12H19V10H16V12ZM5 9H8V7H5V9ZM16 9H19V7H16V9Z"/></svg>
                 {elseif isset($action[0].object_type) && $action[0].object_type == 'service'}
@@ -28,13 +28,12 @@
             </div>
             <div class="cld-header-text">
                 <h2>{$action[0].object_name|escape:'html'}</h2>
-                <div class="cld-subtitle">{$objectTypeLabel|escape:'html'} &middot; {$action|@count} {t}changes recorded{/t}</div>
+                <div class="cld-subtitle">{$objectTypeLabel|escape:'html'} &middot; {t}Recorded changes{/t}: {$action|@count}</div>
             </div>
         </div>
         <a href="./main.php?p={$p|escape:'html'}" class="cld-back-btn">&larr; {t}Back{/t}</a>
     </div>
 
-    <!-- Timeline -->
     <div class="cld-timeline">
     {foreach item=list from=$action}
         {assign var='atype' value=$list.action_type}

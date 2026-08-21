@@ -46,11 +46,18 @@ $search = $params['search'];
 $num = $params['num'];
 $limit = $params['limit'];
 
+// getParams() bounds num from below only. Left unchecked, num * limit overflows
+// into a float, QueryParameter::int raises a TypeError, and a malformed request
+// is reported as a 500 with a log entry instead of a 400.
+if ($num > intdiv(PHP_INT_MAX, max($limit, 1))) {
+    AjaxListingHelper::jsonError('Invalid pagination parameters', 400);
+}
+
 // ACL: require at least read access on the changelog page.
 if (! $helper->isAdmin()) {
     $acl = $helper->getAcl();
     if (! $acl || $acl->page(CHANGELOG_PAGE_ID) === 0) {
-        AjaxListingHelper::jsonError('Access denied', 403);
+        AjaxListingHelper::jsonError('Access denied', 403, 'access_denied');
     }
 }
 
@@ -62,8 +69,22 @@ $sanitize = static fn (string $value): string => HtmlSanitizer::createFromString
 $searchUser = $sanitize((string) ($_GET['searchUser'] ?? ''));
 $objectType = $sanitize((string) ($_GET['objectType'] ?? ''));
 
+// Reject rather than drop the clause: silently ignoring an unknown type returns
+// rows of every type while the filter still reads as active in the UI.
+if ($objectType !== '' && ! in_array($objectType, ActionLog::AVAILABLE_OBJECT_TYPES, true)) {
+    AjaxListingHelper::jsonError('Invalid object type', 400);
+}
+
 require_once _CENTREON_PATH_ . '/www/class/centreonLogAction.class.php';
 $logAction = $centreon->CentreonLogAction ?? null;
+
+if ($logAction === null) {
+    // Only the "host / service" prefix is lost, so the request still succeeds.
+    // Logged once here rather than once per row.
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX changelog listing: CentreonLogAction unavailable, service parents not resolved'
+    );
+}
 
 try {
     $conditions = [];
@@ -101,17 +122,28 @@ try {
         $conditions[] = 'log_contact_id IN (' . implode(', ', $placeholders) . ')';
     }
 
-    // The type is a closed list; anything else is silently ignored rather than
-    // reaching the query.
-    if ($objectType !== '' && in_array($objectType, ActionLog::AVAILABLE_OBJECT_TYPES, true)) {
-        $conditions[] = 'object_type = :object_type';
-        $parameters[] = QueryParameter::string('object_type', $objectType);
+    if ($objectType !== '') {
+        // Command changes are written under two tokens: the Core writer uses the
+        // singular constant, the legacy path the plural 'commands'. Both are
+        // labelled "Command" in the listing, so the filter has to match both or
+        // rows vanish when the user selects the type they are labelled with.
+        $typeTokens = $objectType === ActionLog::OBJECT_TYPE_COMMAND
+            ? [ActionLog::OBJECT_TYPE_COMMAND, 'commands']
+            : [$objectType];
+
+        $placeholders = [];
+        foreach ($typeTokens as $index => $typeToken) {
+            $placeholders[] = ":object_type_{$index}";
+            $parameters[] = QueryParameter::string("object_type_{$index}", $typeToken);
+        }
+        $conditions[] = 'object_type IN (' . implode(', ', $placeholders) . ')';
     }
 
     // Rows with no object id are unusable (no detail page to link to) and are
-    // filtered out in SQL so that they don't skew the total either.
-    $conditions[] = 'object_id IS NOT NULL';
-    $conditions[] = "object_id <> ''";
+    // filtered out in SQL so that they don't skew the total either. object_id is
+    // a NOT NULL int column, so 0 is the only "missing" value it can hold —
+    // comparing it to '' would coerce the literal and forfeit the index.
+    $conditions[] = 'object_id <> 0';
 
     $whereClause = 'WHERE ' . implode(' AND ', $conditions);
 
@@ -184,7 +216,14 @@ try {
  * (or hostgroup) it was attached to at the time so the row is unambiguous.
  * Best effort: the relation may have been deleted since the event.
  */
-$resolveServiceParent = static function (int $objectId, string $objectName) use ($logAction): string {
+$parentFailureCount = 0;
+$parentFailureCause = null;
+
+$resolveServiceParent = static function (int $objectId, string $objectName) use (
+    $logAction,
+    &$parentFailureCount,
+    &$parentFailureCause
+): string {
     if ($logAction === null) {
         return $objectName;
     }
@@ -213,19 +252,27 @@ $resolveServiceParent = static function (int $objectId, string $objectName) use 
             }
         } elseif (isset($parents['hg'])) {
             $hostGroupIds = explode(',', $parents['hg']);
-            if (count($hostGroupIds) === 1) {
-                $hostGroupName = $logAction->getHostGroupName($parents['hg']);
+            $hostGroupNames = [];
+            foreach ($hostGroupIds as $hostGroupId) {
+                $hostGroupName = $logAction->getHostGroupName($hostGroupId);
                 if ((int) $hostGroupName !== -1) {
-                    return $hostGroupName . ' / ' . $objectName;
+                    $hostGroupNames[] = (string) $hostGroupName;
                 }
+            }
+
+            if (count($hostGroupNames) === 1) {
+                return $hostGroupNames[0] . ' / ' . $objectName;
+            }
+            if ($hostGroupNames !== []) {
+                return '(' . implode(', ', $hostGroupNames) . ') ' . $objectName;
             }
         }
     } catch (Throwable $e) {
         // Enrichment only — the row is still displayable without its parent.
-        Logger::create(LogChannelEnum::WEB)->error(
-            sprintf('AJAX changelog listing: could not resolve the parent of service #%d', $objectId),
-            ['exception' => $e]
-        );
+        // Counted here and logged once after the loop: a systemic failure would
+        // otherwise write one identical entry per row of the page.
+        $parentFailureCount++;
+        $parentFailureCause ??= $e;
     }
 
     return $objectName;
@@ -258,6 +305,13 @@ foreach ($logs as $log) {
         'author' => $authors[$contactId] ?? null,
         'author_id' => $contactId,
     ];
+}
+
+if ($parentFailureCount > 0) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX changelog listing: could not resolve the parent of some services',
+        ['failed_count' => $parentFailureCount, 'exception' => $parentFailureCause]
+    );
 }
 
 $helper->jsonResponse($rows, $total, $num, $limit);
