@@ -107,11 +107,11 @@ Cypress.Commands.add('checkValuesOfCommands', (name: string, body: Cmd) => {
 Cypress.Commands.add(
   'addCommandToResource',
   (index: number, command: string) => {
-    cy.getIframeBody().find('span[title="Clear field"]').eq(index).click();
+    cy.getFormBody().find('span[title="Clear field"]').eq(index).click();
     // Click on the check command field in the form
-    cy.getIframeBody().find('span[title="Check Command"]').click();
+    cy.getFormBody().find('span[title="Check Command"]').click();
     // Chose a check command
-    cy.getIframeBody().find(`div[title="${command}"]`).click();
+    cy.getFormBody().find(`div[title="${command}"]`).click();
   }
 );
 

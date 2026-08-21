@@ -167,28 +167,27 @@ Then('the deleted object is not displayed in the list', () => {
 Given('a passive service is linked to the vendor', () => {
   // make the already created service as a passive service
   cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
-  // click on the passive service to open edit form
-  cy.getIframeBody().contains(services.serviceOk.name).click();
-  // Wait for the "Relations" tab to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', 'a:contains("Relations")');
-  // click on the "Relations" tab in the service edit form
-  cy.getIframeBody().contains('a', 'Relations').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  // click on the passive service to open the edit form in the side panel
+  cy.openListingRowForm(services.serviceOk.name)
+    .contains('a', 'Relations', { timeout: 20_000 })
+    // click on the "Relations" tab in the service edit form
+    .click();
   // wait for the "Service Trap Relation" input to be charged on the DOM
-  cy.waitForElementInIframe('#main-content', '#service_traps');
+  cy.getFormBody().find('#service_traps', { timeout: 20_000 }).should('exist');
   // click on the "Service Trap Relation" input
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[placeholder="Service Trap Relation"]')
     .click({ force: true });
   // chose the already created vendor
-  cy.getIframeBody()
+  cy.getFormBody()
     .find(`div[title="${data.vendor.name} - ${traps.snmp1.name}"]`)
     .click();
   // Click on the first Save button
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getFormBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.exportConfig();
 });
 

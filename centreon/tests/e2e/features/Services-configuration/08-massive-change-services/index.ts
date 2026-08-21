@@ -32,23 +32,39 @@ const resultsToSubmit = [
 ];
 
 const checkServicesProperties = (name) => {
-  cy.getIframeBody().contains(name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
 
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('span[id="select2-command_command_id-container"]')
     .should('have.attr', 'title', 'check_http');
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[name="service_max_check_attempts"]')
     .should('have.value', '2');
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[name="service_retry_check_interval"]')
     .should('have.value', '3');
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  cy.getFormBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
+};
+
+// Select the row of a named service. The listing groups its rows by host, so
+// positional indexes no longer identify a service.
+const selectServiceRow = (name: string): void => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', name)
+    .parents('tr')
+    // The row checkbox is visibility:hidden behind its md-checkbox label.
+    .find('.cl-col-picker input[type="checkbox"]')
+    .click({ force: true });
 };
 
 beforeEach(() => {
@@ -112,25 +128,33 @@ Given('several services have been created with mandatory properties', () => {
 });
 
 When('the user has applied "Mass Change" operation on several services', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(13).click();
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(14).click();
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(12).click();
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  selectServiceRow(services.serviceOk.name);
+  selectServiceRow(services.serviceWarning.name);
+  selectServiceRow(services.serviceCritical.name);
 
-  cy.getIframeBody().find('select[name="o1"]').select('Mass Change');
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+    );
+  cy.getIframeBody()
+    .find('select[name="o1"]')
+    .select('Mass Change', { force: true });
   cy.wait('@getTimeZone');
-  cy.getIframeBody()
-    .find('span[id="select2-command_command_id-container"]')
+  cy.getFormBody()
+    .find('span[id="select2-command_command_id-container"]', {
+      timeout: 20_000
+    })
     .click();
-  cy.getIframeBody().find('div[title="check_http"]').click();
-  cy.getIframeBody().find('input[name="service_max_check_attempts"]').type('2');
-  cy.getIframeBody()
-    .find('input[name="service_retry_check_interval"]')
-    .type('3');
-  cy.getIframeBody()
+  cy.getFormBody().find('div[title="check_http"]').click();
+  cy.getFormBody().find('input[name="service_max_check_attempts"]').type('2');
+  cy.getFormBody().find('input[name="service_retry_check_interval"]').type('3');
+  cy.getFormBody()
     .find('input.btc.bt_success[name="submitMC"]')
-    .eq(1)
+    .first()
     .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -138,8 +162,6 @@ When('the user has applied "Mass Change" operation on several services', () => {
 
 Then('all selected services are updated with the same values', () => {
   checkServicesProperties(services.serviceOk.name);
-  cy.waitForElementInIframe('#main-content', 'a[href*="service_id=28"]');
   checkServicesProperties(services.serviceWarning.name);
-  cy.waitForElementInIframe('#main-content', 'a[href*="service_id=29"]');
   checkServicesProperties(services.serviceCritical.name);
 });

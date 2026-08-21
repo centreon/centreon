@@ -4,12 +4,10 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import serviceMacros from '../../../fixtures/macros/services.json';
 
 const clickToAddService = () => {
-  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
-  cy.getIframeBody().contains('a', 'Add').click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.clickListingAddButton();
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
 };
 
 before(() => {
@@ -74,7 +72,7 @@ When('the non-admin user adds one normal macro and one password macro', () => {
 });
 
 When('the non-admin user clicks the "Save" button', () => {
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getFormBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
 });
 
@@ -84,11 +82,10 @@ Then('all the properties, including the macros, are successfully saved', () => {
     `a:contains(${serviceMacros.default_service.name})`
   );
   cy.getIframeBody().contains('a', serviceMacros.default_service.name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  cy.getIframeBody()
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
+  cy.getFormBody()
     .find('input[name="service_description"]')
     .should('have.value', serviceMacros.default_service.name);
   cy.checkMacrosFieldsValues(
@@ -120,10 +117,9 @@ Given('an existing service with macros', () => {
 
 When('the non-admin user opens the service for editing', () => {
   cy.getIframeBody().contains('a', serviceMacros.default_service.name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
 });
 
 When('the non-admin user updates the values of the existing macros', () => {
@@ -140,10 +136,9 @@ Then('the modified macros are saved successfully', () => {
     `a:contains(${serviceMacros.updated_service.name})`
   );
   cy.getIframeBody().contains('a', serviceMacros.updated_service.name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
   cy.checkMacrosFieldsValues(
     serviceMacros.updated_service.normalMacro,
     serviceMacros.updated_service.passMacro
@@ -159,14 +154,13 @@ Given('a configured service with macros', () => {
 
 When('the non-admin user deletes the macros of the configured service', () => {
   cy.getIframeBody().contains('a', serviceMacros.updated_service.name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
   // Remove the normal macro
-  cy.getIframeBody().find('#macro_remove_current').eq(0).click();
+  cy.getFormBody().find('#macro_remove_current').eq(0).click();
   // Remove tha password macro
-  cy.getIframeBody().find('#macro_remove_current').eq(0).click();
+  cy.getFormBody().find('#macro_remove_current').eq(0).click();
 });
 
 Then('the macros are deleted successfully', () => {
@@ -175,15 +169,14 @@ Then('the macros are deleted successfully', () => {
     `a:contains(${serviceMacros.updated_service.name})`
   );
   cy.getIframeBody().contains('a', serviceMacros.updated_service.name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
   // Check the non-existence of the Macros
-  cy.getIframeBody()
+  cy.getFormBody()
     .contains(serviceMacros.updated_service.normalMacro.name)
     .should('not.exist');
-  cy.getIframeBody()
+  cy.getFormBody()
     .contains(serviceMacros.updated_service.passMacro.name)
     .should('not.exist');
 });
@@ -218,11 +211,11 @@ Given(
   (name: string) => {
     clickToAddService();
     // Fill mandatory fields
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_description"]')
       .clear()
       .type(name);
-    cy.getIframeBody().find('input[name="service_alias"]').clear().type(name);
+    cy.getFormBody().find('input[name="service_alias"]').clear().type(name);
     // Fill Service Template Macros (one normal, one of type password)
     cy.fillMacros(
       false,
@@ -230,7 +223,7 @@ Given(
       serviceMacros.default_service.passMacro
     );
     // Save the configuration
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input.btc.bt_success[name^="submit"]')
       .eq(0)
       .click();
@@ -250,15 +243,14 @@ Given(
     cy.getIframeBody()
       .contains('a', serviceMacros.default_service.name)
       .click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
+    cy.getFormBody()
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible');
     // Add the service template to the service
-    cy.getIframeBody().find('span[role="presentation"]').eq(1).click();
-    cy.getIframeBody().find(`div[title="${parent}"]`).click();
+    cy.getFormBody().find('span[role="presentation"]').eq(1).click();
+    cy.getFormBody().find(`div[title="${parent}"]`).click();
     // Save the configuration
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input.btc.bt_success[name^="submit"]')
       .eq(0)
       .click();
@@ -316,14 +308,14 @@ When(
   (child: string, parent: string) => {
     clickToAddService();
     // Fill mandatory fields
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_description"]')
       .clear()
       .type(child);
-    cy.getIframeBody().find('input[name="service_alias"]').clear().type(child);
+    cy.getFormBody().find('input[name="service_alias"]').clear().type(child);
     // Add the parent service template to the child service
-    cy.getIframeBody().find('span[role="presentation"]').eq(0).click();
-    cy.getIframeBody().find(`div[title="${parent}"]`).click();
+    cy.getFormBody().find('span[role="presentation"]').eq(0).click();
+    cy.getFormBody().find(`div[title="${parent}"]`).click();
   }
 );
 
@@ -332,17 +324,17 @@ When(
   () => {
     // Check first that the inherited macros are visible
     [0, 1].forEach((index) => {
-      cy.getIframeBody().find(`#macroInput_${index}`).should('be.visible');
+      cy.getFormBody().find(`#macroInput_${index}`).should('be.visible');
     });
     // Check that the inherited macros are highlighted in orange
     [0, 1].forEach((index) => {
-      cy.getIframeBody()
+      cy.getFormBody()
         .find(`#macroInput_${index}`)
         .should('have.attr', 'style')
         .and('include', 'var(--custom-macros-template-background-color)');
     });
     // Now change the normal macro value
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#macroValue_0')
       .clear()
       .type(`${serviceMacros.updated_service.normalMacro.value}`);
@@ -354,11 +346,10 @@ Then(
   (name: string) => {
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
     cy.getIframeBody().contains('a', name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
-    cy.getIframeBody()
+    cy.getFormBody()
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible');
+    cy.getFormBody()
       .find('#macroValue_0')
       .should(
         'have.value',
@@ -368,11 +359,11 @@ Then(
 );
 
 Then('the normal macro should not be highlighted in orange', () => {
-  cy.getIframeBody().find('#macroInput_0').should('not.have.attr', 'style');
+  cy.getFormBody().find('#macroInput_0').should('not.have.attr', 'style');
 });
 
 Then('the password macro should still be highlighted in orange', () => {
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('#macroInput_1')
     .should('have.attr', 'style')
     .and('include', 'var(--custom-macros-template-background-color)');
@@ -389,8 +380,8 @@ When(
       serviceMacros.default_service.cmd
     );
     // Add the parent service template to the child service
-    cy.getIframeBody().find('span[role="presentation"]').eq(1).click();
-    cy.getIframeBody().find(`div[title="${parent}"]`).click();
+    cy.getFormBody().find('span[role="presentation"]').eq(1).click();
+    cy.getFormBody().find(`div[title="${parent}"]`).click();
   }
 );
 
@@ -400,11 +391,10 @@ Then(
     cy.visitServicesListing(0);
     cy.waitForElementInIframe('#main-content', `a:contains(${name})`);
     cy.getIframeBody().contains('a', name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
-    cy.getIframeBody()
+    cy.getFormBody()
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible');
+    cy.getFormBody()
       .find('#macroValue_0')
       .should(
         'have.value',
@@ -433,11 +423,10 @@ When(
     cy.getIframeBody()
       .contains('a', serviceMacros.default_service.name)
       .click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
-    cy.getIframeBody()
+    cy.getFormBody()
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible');
+    cy.getFormBody()
       .find('#macroValue_0')
       .should(
         'have.value',

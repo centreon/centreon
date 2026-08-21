@@ -175,27 +175,26 @@ Then(
 );
 
 Given('a service being configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  // Click on the "Add" button
-  cy.getIframeBody().contains('a', 'Add').click();
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  // Click on the "Add" button, which opens the form in the side panel
+  cy.clickListingAddButton();
   // Wait for the "Service description" to be in the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  // Type value on the service description field
-  cy.getIframeBody().find('input[name="service_description"]').type('service2');
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
+    // Type value on the service description field
+    .type('service2');
   // Click on the service template field
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getFormBody().find('input[class="select2-search__field"]').eq(0).click();
   // Chose a template
-  cy.getIframeBody().find('div[title="generic-active-host"]').click();
+  cy.getFormBody().find('div[title="generic-active-host"]').click();
 });
 
 When('the admin user selects a check command on the service form', () => {
   // Click on the check command field in the form
-  cy.getIframeBody().find('span[title="Check Command"]').click();
+  cy.getFormBody().find('span[title="Check Command"]').click();
   // Chose a check command
-  cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();
+  cy.getFormBody().find('div[title="check_centreon_dummy"]').click();
 });
 
 Then('Arguments of this command are displayed for the service', () => {
@@ -261,19 +260,16 @@ Given('a check command is configured', () => {
 });
 
 Given('a service is configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
   // Wait for the "Configured Service" to be in the DOM
-  cy.waitForElementInIframe('#main-content', 'a:contains("service2")');
+  cy.getIframeBody().find('#clTableBody').contains('a', 'service2');
 });
 
 When('the admin user opens the service in edit mode', () => {
-  cy.getIframeBody().contains('service2').click();
-  // Wait for the "Service description" to be in the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  // Wait for the "Service description" to be in the DOM of the side panel
+  cy.openListingRowForm('service2')
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
 });
 
 When(
@@ -285,9 +281,9 @@ When(
 
 When('the admin user saves the configuration', () => {
   // Click on the first "Save" button
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[class="btc bt_success"][name^="submit"]')
-    .eq(0)
+    .first()
     .click();
 });
 
