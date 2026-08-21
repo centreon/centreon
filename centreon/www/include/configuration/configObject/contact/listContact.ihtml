@@ -172,7 +172,7 @@ var contactListing = new CentreonListing({
         // Unblock action for locked users (admin only); full reload after the action.
         var unblock = '';
         if (row.blocked) {
-            unblock = '<a href="main.get.php?p={/literal}{$contactPage}{literal}&o=un&contact_id=' + row.id + '&centreon_token={/literal}{$centreonToken}{literal}" title="{/literal}{t}Unblock{/t}{literal}" class="cl-unblock" style="margin-right:8px;" onclick="return confirm(\'{/literal}{t escape='js'}Do you really want to unblock this user?{/t}{literal}\');"><img src="./img/icons/lock_closed.png" class="ico-14"/></a>';
+            unblock = '<a href="main.get.php?p={/literal}{$contactPage}{literal}&o=un&contact_id=' + row.id + '&centreon_token={/literal}{$centreonToken}{literal}" title="{/literal}{t}Unblock{/t}{literal}" class="cl-unblock" style="margin-right:8px;" onclick="unblockContact(this.href); return false;"><img src="./img/icons/lock_closed.png" class="ico-14"/></a>';
         }
         var dup = '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
         if (row.is_current_user) {

@@ -167,16 +167,22 @@ $tpl->assign(
         });
     }
 
-    // ask for confirmation when requesting to resynchronize contact data from the LDAP
+    // The two row-level admin actions confirm through the same styled modal as
+    // the bulk ones, where the legacy page used a native confirm(). The request
+    // is no longer synchronous either: the modal already gates it on an answer.
     function submitSync(p, contactId) {
-        // msg = localized message to be displayed in the confirmation popup
-        let msg = "<?= _('If the contact is connected, all his instances will be closed. Are you sure you want to '
-            . 'request a data synchronization at the next login of this Contact ?'); ?>";
-        if (confirm(msg)) {
+        clShowConfirmModal({
+            title: <?= json_encode(_('Synchronize LDAP'), JSON_THROW_ON_ERROR); ?>,
+            message: <?= json_encode(_('If the contact is connected, all his instances will be closed. Are you sure you want to '
+                . 'request a data synchronization at the next login of this Contact ?'), JSON_THROW_ON_ERROR); ?>,
+            confirmLabel: <?= json_encode(_('Synchronize LDAP'), JSON_THROW_ON_ERROR); ?>
+        }, function (confirmed) {
+            if (!confirmed) {
+                return;
+            }
             $.ajax({
                 url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
                 type: 'POST',
-                async: false,
                 data: {contactId: contactId},
                 success: function(data) {
                     if (data === true) {
@@ -184,7 +190,20 @@ $tpl->assign(
                     }
                 }
             });
-        }
+        });
+    }
+
+    // Unblock is a plain link on the row: confirm first, then follow it.
+    function unblockContact(url) {
+        clShowConfirmModal({
+            title: <?= json_encode(_('Unblock'), JSON_THROW_ON_ERROR); ?>,
+            message: <?= json_encode(_('Do you really want to unblock this user?'), JSON_THROW_ON_ERROR); ?>,
+            confirmLabel: <?= json_encode(_('Unblock'), JSON_THROW_ON_ERROR); ?>
+        }, function (confirmed) {
+            if (confirmed) {
+                window.location.href = url;
+            }
+        });
     }
 </script>
 <?php
