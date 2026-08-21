@@ -86,7 +86,10 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 snmpTrapPathConf: $from['snmp_trapd_path_conf'],
             ),
             gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: $this->communicationTypeFromDatabase($from['gorgone_communication_type']),
+                communicationType: $this->communicationTypeFromDatabase(
+                    $from['gorgone_communication_type'],
+                    $from['poller_id']
+                ),
                 gorgonePort: (int) ($from['gorgone_port'] ?? 5556),
                 sshPort: (int) ($from['ssh_port'] ?? 22),
                 useRemoteServerAsProxy: $from['remote_server_use_as_proxy'] === '1',
@@ -96,7 +99,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
     }
 
     /**
-     * Rows written before the scheme rejection (MON-206245) may carry a full URL:
+     * Rows written before the scheme rejection may carry a full URL:
      * the modal used to send window.location.href on cloud platforms. Reduce them
      * to host[:port] so hydration keeps working — their base path cannot be told
      * apart from the page path of the stored URL. Unreadable values become null,
@@ -124,14 +127,17 @@ final readonly class DbalPollerTransformer implements TransformerInterface
         }
     }
 
-    private function communicationTypeFromDatabase(string $value): GorgoneCommunicationTypeEnum
+    /**
+     * @throws InvalidGorgoneCommunicationTypeException When the stored value has no matching enum case
+     */
+    private function communicationTypeFromDatabase(string $value, int $pollerId): GorgoneCommunicationTypeEnum
     {
         return match ($value) {
             '1' => GorgoneCommunicationTypeEnum::ZMQ,
             '2' => GorgoneCommunicationTypeEnum::SSH,
             '3' => GorgoneCommunicationTypeEnum::Pull,
             '4' => GorgoneCommunicationTypeEnum::PullWss,
-            default => throw InvalidGorgoneCommunicationTypeException::fromDatabaseValue($value),
+            default => throw InvalidGorgoneCommunicationTypeException::fromDatabaseValue($value, $pollerId),
         };
     }
 }

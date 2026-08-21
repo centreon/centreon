@@ -24,16 +24,21 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Exception;
 
 /**
- * Thrown when nagios_server.gorgone_communication_type holds a value the domain
- * cannot map: the database column and the enum have drifted apart, which is a
- * platform data/code mismatch rather than a client mistake.
+ * Reports a nagios_server.gorgone_communication_type value with no matching
+ * GorgoneCommunicationTypeEnum case: the column and the enum would have to
+ * diverge for that to happen, so it is a platform data/code mismatch rather
+ * than a client mistake.
  */
 final class InvalidGorgoneCommunicationTypeException extends \RuntimeException
 {
-    public static function fromDatabaseValue(string $value): self
+    public static function fromDatabaseValue(string $value, int $pollerId): self
     {
         return new self(
-            sprintf('Unsupported gorgone communication type "%s" read from the database.', $value)
+            sprintf(
+                'Invalid gorgone communication type "%s" read from the database for poller #%d.',
+                $value,
+                $pollerId
+            )
         );
     }
 }
