@@ -1734,9 +1734,8 @@
     align-items: center;
     gap: 14px;
 }
-/* Bare icon, no badge behind it. The SVGs are inline and fill with
-   currentColor, so the theme-aware --icons-fill-color is what keeps them
-   legible on both the light and the dark background. */
+/* The SVGs are inline and fill with currentColor, so the theme-aware
+   --icons-fill-color is what keeps them legible on both backgrounds. */
 .cld-header-icon {
     display: flex;
     align-items: center;
@@ -1761,9 +1760,8 @@
     color: #888;
     letter-spacing: 0.2px;
 }
-/* Outlined button: transparent fill, blue border and blue label. The blue comes
-   from the +Add button token, which the dark theme remaps to a brighter shade —
-   so the label stays legible on both backgrounds without a theme-specific rule. */
+/* The blue comes from the +Add button token, which the dark theme remaps to a
+   brighter shade — so one rule covers both backgrounds. */
 .cld-back-btn {
     display: inline-flex;
     align-items: center;
@@ -1786,7 +1784,7 @@
     color: var(--bt-info-background-color, #2E68AA);
     text-decoration: none;
 }
-/* Keyboard focus ring: listing.css clears outlines elsewhere on the page. */
+/* Focus ring: this file clears outlines elsewhere. */
 .cld-back-btn:focus-visible {
     outline: 2px solid var(--bt-info-background-color, #2E68AA);
     outline-offset: 2px;
@@ -1854,7 +1852,6 @@
 .cld-card-header:hover {
     background: rgba(0,0,0,0.015);
 }
-/* The header is a keyboard-operable toggle (role="button" tabindex="0"). */
 .cld-card-header:focus-visible {
     outline: 2px solid var(--bt-info-background-color, #2E68AA);
     outline-offset: -2px;

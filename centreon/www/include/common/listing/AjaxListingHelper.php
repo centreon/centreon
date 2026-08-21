@@ -295,11 +295,17 @@ class AjaxListingHelper
 
     /**
      * Send a JSON error response and exit.
+     *
+     * @param string $message human-readable cause, for logs and debugging
+     * @param int $httpCode HTTP status to answer with
+     * @param string|null $code stable machine-readable discriminator, so the client
+     *                          can tell apart the several reasons that share a status
+     *                          (a 403 is either a lost session or an ACL denial)
      */
-    public static function jsonError(string $message, int $httpCode = 400): void
+    public static function jsonError(string $message, int $httpCode = 400, ?string $code = null): void
     {
         http_response_code($httpCode);
-        echo json_encode(['error' => $message]);
+        echo json_encode($code === null ? ['error' => $message] : ['error' => $message, 'code' => $code]);
 
         exit;
     }
