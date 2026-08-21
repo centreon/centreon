@@ -26,7 +26,7 @@
  */
 
 (function() {
-  var Dropzone, Emitter, ExifRestore, camelize, contentLoaded, detectVerticalSquash, drawImageIOSFix, escapeHtml, noop, without,
+  var Dropzone, Emitter, ExifRestore, camelize, contentLoaded, detectVerticalSquash, drawImageIOSFix, escapeHtml, noop, sanitizeElement, without,
     slice = [].slice,
     extend1 = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -1669,10 +1669,36 @@
     });
   };
 
+  sanitizeElement = function(root) {
+    var attr, el, i, j, name, ref, scripts, value;
+    scripts = root.querySelectorAll("script");
+    for (i = 0; i < scripts.length; i++) {
+      scripts[i].parentNode.removeChild(scripts[i]);
+    }
+    ref = root.querySelectorAll("*");
+    for (j = 0; j < ref.length; j++) {
+      el = ref[j];
+      i = el.attributes.length - 1;
+      while (i >= 0) {
+        attr = el.attributes[i];
+        name = attr.name.toLowerCase();
+        value = attr.value.replace(/[\t\r\n]/g, "");
+        if (name.indexOf("on") === 0 || name === "srcdoc") {
+          el.removeAttribute(attr.name);
+        } else if ((name === "href" || name === "src" || name === "xlink:href") && /^\s*javascript:/i.test(value)) {
+          el.removeAttribute(attr.name);
+        }
+        i--;
+      }
+    }
+    return root;
+  };
+
   Dropzone.createElement = function(string) {
     var div;
     div = document.createElement("div");
     div.innerHTML = string;
+    sanitizeElement(div);
     return div.childNodes[0];
   };
 

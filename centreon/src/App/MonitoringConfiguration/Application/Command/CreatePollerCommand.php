@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\Command;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
@@ -35,7 +36,7 @@ final readonly class CreatePollerCommand
         public PollerTypeEnum $pollerType,
         public PollerAddress $address,
         public int $creatorId,
-        public PollerAddress $centralAddress,
+        public CentralAddress $centralAddress,
         public GorgoneCommunicationTypeEnum $gorgoneCommunicationType = GorgoneCommunicationTypeEnum::ZMQ,
     ) {
     }
