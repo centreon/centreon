@@ -71,8 +71,9 @@ Then('the AJAX listing table is displayed with service template rows', () => {
 // ---------------------------------------------------------------------------
 
 When('the user searches for a specific service template', () => {
+  // Live search (the listing declares liveSearch): the Search button lives in
+  // the advanced-filters popover and is visibility:hidden while it is closed.
   cy.getIframeBody().find('#clSearchInput').clear().type(templateAlpha);
-  cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
 

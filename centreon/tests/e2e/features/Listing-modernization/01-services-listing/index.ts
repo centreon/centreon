@@ -76,8 +76,9 @@ Then(
 );
 
 When('the user searches for a specific service', () => {
+  // Live search (the listing declares liveSearchFields): the Search button lives
+  // in the advanced-filters popover and is visibility:hidden while it is closed.
   cy.getIframeBody().find('#clSearchS').clear().type(servicePing);
-  cy.getIframeBody().find('#clSearchBtn').click();
   cy.waitForListingRefresh();
 });
 
