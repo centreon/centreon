@@ -217,9 +217,19 @@ Cypress.Commands.add(
       .contains(option)
       .click({ force: true });
 
-    // A multiple select keeps its dropdown open after a pick, and the results
-    // list then covers whatever sits below the field.
-    cy.getFormBody().type('{esc}', { force: true });
+    // A single select closes on pick, a multiple one keeps its dropdown open and
+    // the results list then covers whatever sits below the field. Escape has to
+    // reach select2's own search field: the widget listens there, not on the body.
+    cy.getFormBody().then(($body) => {
+      if ($body.find('.select2-container--open').length === 0) {
+        return;
+      }
+
+      cy.getFormBody()
+        .find('.select2-search__field')
+        .first()
+        .type('{esc}', { force: true });
+    });
 
     return cy
       .getFormBody()
