@@ -61,10 +61,11 @@ class AjaxListingHelper
     private ?int $defaultLimit = null;
 
     /**
-     * CSRF token minted by validateCsrfToken(), attached to every subsequent
-     * response — including error ones. Static because jsonError() is static and
-     * is also reached from requireWriteAccess() and from the endpoints' catch
-     * blocks, all of which run after the submitted token has been consumed.
+     * CSRF token minted by validateCsrfToken(), carried to the error responses:
+     * the submitted one is consumed by then, so without it a rejected write
+     * would leave the page unable to retry. Success paths mint their own.
+     * Static because jsonError() is static and is also reached from
+     * requireWriteAccess() and from the endpoints' catch blocks.
      */
     private static ?string $rotatedCsrfToken = null;
 
@@ -199,7 +200,7 @@ class AjaxListingHelper
      * replace, which were only served through main.php and its topology check.
      * Listings whose objects carry no per-object ACL rely on this alone.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
      */
     public function requireReadAccess(int $pageId): void
     {
@@ -217,7 +218,7 @@ class AjaxListingHelper
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
      */
     public function requireWriteAccess(int $pageId): void
     {
@@ -339,7 +340,7 @@ class AjaxListingHelper
             $payload['centreon_token'] = self::$rotatedCsrfToken;
         }
 
-        echo json_encode($payload);
+        echo json_encode($payload, JSON_THROW_ON_ERROR);
 
         exit;
     }

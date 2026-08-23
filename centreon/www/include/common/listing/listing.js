@@ -982,6 +982,12 @@ function CentreonListing(config) {
                             el.val(val);
                         }
                         el.trigger('change');
+                    } else if (el.length && el.is(':checkbox')) {
+                        // Checkbox filters (e.g. "Locked") are persisted by
+                        // extraParams() only when checked, so their presence in
+                        // the saved state is the value. Restored without a
+                        // change event: init() fetches right after this.
+                        el.prop('checked', true);
                     }
                 }
             });

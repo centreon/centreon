@@ -611,7 +611,9 @@
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
-    min-width: 58px;
+    /* Four 26px buttons and their gaps: every row reserves the same width,
+       whether its actions are live or rendered as empty slots. */
+    min-width: 116px;
     margin-left: 4px;
 }
 

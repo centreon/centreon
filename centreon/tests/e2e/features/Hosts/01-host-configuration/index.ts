@@ -48,9 +48,8 @@ const resultsToSubmit = [
 ];
 
 /**
- * Geographic coordinates live in the form's first section, which the modernized
- * form renders expanded — the legacy "Host Extended Infos" tab it used to sit
- * behind no longer exists.
+ * Geographic coordinates moved to the form's first section, which the
+ * modernized form renders expanded, instead of the Extended Information one.
  */
 const fillGeographicCoordinates = (value: string) => {
   cy.getSidePanelBody().find('input[name="geo_coords"]').clear().type(value);

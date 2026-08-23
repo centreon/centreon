@@ -69,6 +69,11 @@ try {
         ])
     );
 
+    // Flag the pollers as needing an export, as enableHostInDB()/disableHostInDB()
+    // do: without it the change never reaches Export configuration and the host
+    // keeps being monitored as it was.
+    signalConfigurationChange('host', $objId, [], $action === 's');
+
     $helper->logToggleAction('host', $objId, (string) $objName, $action === 's' ? 'enable' : 'disable');
 
     echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);

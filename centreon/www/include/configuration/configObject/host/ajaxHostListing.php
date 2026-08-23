@@ -129,8 +129,8 @@ try {
     // whole page (one query each, or one per inheritance level for the icons)
     // rather than per row: with a page size of up to MAX_LIMIT and a 15s
     // auto-refresh, a per-row lookup means thousands of queries per refresh tick.
-    // Scoped to the page's ids, never the whole relation table — that read grows
-    // with the platform while the page never shows more than $limit rows.
+    // Pollers and templates are scoped to the page's ids; the icon walk reaches
+    // arbitrary ancestors, so it reads the objects carrying an icon in one go.
     $hostPollers     = [];
     $templatesByHost = [];
     $icons           = [];

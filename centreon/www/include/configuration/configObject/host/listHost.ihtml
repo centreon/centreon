@@ -171,7 +171,6 @@ var hostListing = new CentreonListing({
             if (row.mon_state === null || row.mon_state === undefined) return '<span style="opacity:.3;">-</span>';
             var cls = ['cl-mon-up','cl-mon-down','cl-mon-unreach','cl-mon-up','cl-mon-pending'][row.mon_state] || 'cl-mon-pending';
             var label = hostMonI18n.states[row.mon_state] || hostMonI18n.states[4];
-            // Build tooltip content
             // Tooltip is rendered as plain text (textContent), so line breaks
             // must be real newlines (\n) and labels plain — no HTML tags.
             var tip = hostMonI18n.status + ': ' + label;

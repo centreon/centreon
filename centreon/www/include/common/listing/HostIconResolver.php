@@ -29,22 +29,28 @@ require_once __DIR__ . '/AjaxListingHelper.php';
  * Resolves the icon of hosts and host templates, inheriting from the template
  * chain when the object defines none of its own.
  *
- * Two properties matter here, and both are why this is a batch resolver rather
- * than a per-row recursive lookup:
+ * The walk matches getMyHostExtendedInfoImage(): every direct template is
+ * followed, in `order`, and a template that carries no icon is exhausted
+ * through its own chain before the next one is looked at. An object linked to
+ * a generic template first and to an icon-bearing pack second must still show
+ * the pack's icon.
+ *
+ * Two properties make this a batch resolver rather than a per-row recursive
+ * lookup:
  *
  * - `host_template_relation` is not guaranteed acyclic (a cycle is reachable
  *   through CLAPI or an import). Each object therefore carries its own visited
- *   set and the walk is capped in depth: an unguarded recursion would run until
- *   the worker exhausts its memory, an E_ERROR no `catch (Throwable)` can
- *   rescue. The legacy CentreonHost inheritance helpers guard cycles the same
- *   way (`$alreadyProcessed`).
- * - the chain is walked one level at a time for the whole page, so a listing of
- *   N rows costs one query per level of inheritance instead of N × depth.
+ *   set and the walk is capped: an unguarded recursion would run until the
+ *   worker exhausts its memory, an E_ERROR no `catch (Throwable)` can rescue.
+ *   The legacy CentreonHost inheritance helpers guard cycles the same way
+ *   (`$alreadyProcessed`).
+ * - one query serves every row of the page at each step, so a listing of N rows
+ *   costs one query per step instead of N × the size of its template chain.
  */
 final class HostIconResolver
 {
     /** Safety net on top of the per-object visited set. */
-    private const MAX_DEPTH = 30;
+    private const MAX_NODES_PER_OBJECT = 50;
 
     /**
      * @param int[] $hostIds Host or host-template ids to resolve
@@ -60,10 +66,10 @@ final class HostIconResolver
 
         $directIcons = self::fetchDirectIcons($db);
 
-        // $walking maps each requested id to the chain node currently being
-        // inspected for it; $visited holds the nodes already inspected for it.
+        // $pending maps each requested id to the nodes it still has to inspect,
+        // in depth-first order; $visited holds the nodes already inspected for it.
         $resolved = [];
-        $walking  = [];
+        $pending  = [];
         $visited  = [];
         foreach ($hostIds as $hostId) {
             if (isset($directIcons[$hostId])) {
@@ -71,34 +77,49 @@ final class HostIconResolver
 
                 continue;
             }
-            $walking[$hostId] = $hostId;
+            $pending[$hostId] = [$hostId];
             $visited[$hostId] = [$hostId => true];
         }
 
-        for ($depth = 0; $walking !== [] && $depth < self::MAX_DEPTH; $depth++) {
-            $parents = self::fetchFirstParents($db, array_unique(array_values($walking)));
+        for ($step = 0; $pending !== [] && $step < self::MAX_NODES_PER_OBJECT; $step++) {
+            $heads = [];
+            foreach ($pending as $stack) {
+                $heads[] = $stack[0];
+            }
+            $templates = self::fetchTemplates($db, array_values(array_unique($heads)));
 
-            foreach ($walking as $hostId => $node) {
-                $parent = $parents[$node] ?? null;
+            foreach ($pending as $hostId => $stack) {
+                $node = array_shift($stack);
 
-                // Top of the chain reached, or node already inspected for this id
-                // (cycle): nothing left to inherit from.
-                if ($parent === null || isset($visited[$hostId][$parent])) {
-                    unset($walking[$hostId]);
-
-                    continue;
-                }
-
-                $visited[$hostId][$parent] = true;
-
-                if (isset($directIcons[$parent])) {
-                    $resolved[$hostId] = $directIcons[$parent];
-                    unset($walking[$hostId]);
+                // Checked before descending, so a template's own icon wins over
+                // anything further up its chain.
+                if (isset($directIcons[$node])) {
+                    $resolved[$hostId] = $directIcons[$node];
+                    unset($pending[$hostId]);
 
                     continue;
                 }
 
-                $walking[$hostId] = $parent;
+                $children = [];
+                foreach ($templates[$node] ?? [] as $templateId) {
+                    if (isset($visited[$hostId][$templateId])) {
+                        continue;
+                    }
+                    $visited[$hostId][$templateId] = true;
+                    $children[] = $templateId;
+                }
+
+                // Prepended: the first template's chain is exhausted before the
+                // second template of the same object is considered.
+                $stack = array_merge($children, $stack);
+
+                if ($stack === []) {
+                    unset($pending[$hostId]);
+
+                    continue;
+                }
+
+                $pending[$hostId] = $stack;
             }
         }
 
@@ -133,13 +154,13 @@ final class HostIconResolver
     }
 
     /**
-     * First template (lowest `order`) of each given object, in a single query.
+     * Templates of each given object, in `order`, in a single query.
      *
      * @param int[] $hostIds
      *
-     * @return array<int, int>
+     * @return array<int, int[]>
      */
-    private static function fetchFirstParents(CentreonDB $db, array $hostIds): array
+    private static function fetchTemplates(CentreonDB $db, array $hostIds): array
     {
         $in = AjaxListingHelper::buildIntInClause($hostIds, 'icon_hid');
 
@@ -153,12 +174,11 @@ final class HostIconResolver
             QueryParameters::create($in['parameters'])
         );
 
-        $parents = [];
+        $templates = [];
         foreach ($rows as $row) {
-            // Ordered by `order`, so the first row seen for an id is its first template.
-            $parents[(int) $row['host_host_id']] ??= (int) $row['host_tpl_id'];
+            $templates[(int) $row['host_host_id']][] = (int) $row['host_tpl_id'];
         }
 
-        return $parents;
+        return $templates;
     }
 }

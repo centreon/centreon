@@ -81,7 +81,7 @@ try {
     // Service counts, parent templates and icons of the listed templates, all
     // resolved for the whole page (one query each, or one per inheritance level
     // for the icons) rather than per row: with a page size of up to MAX_LIMIT
-    // and a 15s auto-refresh, per-row lookups mean thousands of queries per
+    // and a 30s auto-refresh, per-row lookups mean thousands of queries per
     // refresh tick.
     $svcCounts       = [];
     $templatesByHost = [];
