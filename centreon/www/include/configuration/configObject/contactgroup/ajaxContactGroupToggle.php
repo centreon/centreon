@@ -47,7 +47,15 @@ $helper->requireWriteAccess(60302, $newToken);
 // covered by their access groups. Page-level access alone would allow toggling
 // any contact group by id (IDOR).
 if (! $helper->isAdmin()) {
-    $cgAcl = $helper->getAcl()->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
+    try {
+        $cgAcl = $helper->getAcl()->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
+    } catch (Throwable $exception) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'AJAX toggle: failed to resolve the contact group ACL scope',
+            ['exception' => $exception]
+        );
+        AjaxListingHelper::jsonError('Internal error', 500, $newToken);
+    }
     if (! isset($cgAcl[$objId])) {
         AjaxListingHelper::jsonError('Access denied', 403, $newToken);
     }

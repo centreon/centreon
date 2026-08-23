@@ -56,8 +56,16 @@ $countAclClause      = '';
 $countAclParameters  = [];
 
 if (! $helper->isAdmin()) {
-    $acl   = $helper->getAcl();
-    $cgAcl = $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
+    try {
+        $acl   = $helper->getAcl();
+        $cgAcl = $acl->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
+    } catch (Throwable $exception) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'AJAX listing: failed to resolve the contact group ACL scope',
+            ['exception' => $exception]
+        );
+        AjaxListingHelper::jsonError('Internal error', 500);
+    }
 
     if ($cgAcl === []) {
         $helper->jsonResponse([], 0, $num, $limit);
@@ -76,7 +84,15 @@ if (! $helper->isAdmin()) {
     // scope would send thousands of them on every listing request. The subquery
     // mirrors CentreonACL::getContactAclConf() for a non-admin user, so only the
     // access group ids are bound.
-    $aclGroupIds = array_values(array_filter(array_map('intval', array_keys($acl->getAccessGroups()))));
+    try {
+        $aclGroupIds = array_values(array_filter(array_map('intval', array_keys($acl->getAccessGroups()))));
+    } catch (Throwable $exception) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'AJAX listing: failed to resolve the access groups',
+            ['exception' => $exception]
+        );
+        AjaxListingHelper::jsonError('Internal error', 500);
+    }
 
     if ($aclGroupIds === []) {
         // No access group: every group counts zero rather than its full membership.

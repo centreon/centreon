@@ -64,22 +64,59 @@ if ($contactGroup > 0) {
 }
 
 // ACL filtering: a non-admin only sees the contacts granted by its access groups.
+// Resolved in SQL rather than materialized in PHP: binding one parameter per
+// visible contact grows with the ACL scope, and a wide one would send thousands
+// of them on every refresh tick. The subquery mirrors the non-admin branch of
+// CentreonACL::getContactAclConf(), so only the access group ids are bound.
 if (! $helper->isAdmin()) {
-    $contactAcl = $helper->getAcl()->getContactAclConf(
-        ['fields' => ['contact_id'], 'keys' => ['contact_id']]
-    );
+    // Resolving the scope hits the database: without this the failure escapes
+    // as a fatal, after the JSON header has already been sent.
+    try {
+        $aclGroupIds = array_values(
+            array_filter(array_map('intval', array_keys($helper->getAcl()->getAccessGroups())))
+        );
+    } catch (Throwable $exception) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'AJAX listing: failed to resolve the contact ACL scope',
+            ['exception' => $exception]
+        );
+        AjaxListingHelper::jsonError('Internal error', 500);
+    }
 
-    if ($contactAcl === []) {
+    if ($aclGroupIds === []) {
         $helper->jsonResponse([], 0, $num, $limit);
     }
 
-    $placeholders = [];
-    foreach (array_keys($contactAcl) as $index => $contactId) {
-        $placeholder    = 'acl_c' . $index;
-        $placeholders[] = ':' . $placeholder;
-        $parameters[]   = QueryParameter::int($placeholder, (int) $contactId);
+    // Two sets of placeholders for the same ids: a named placeholder cannot be
+    // reused across both branches of the UNION.
+    $directPlaceholders       = [];
+    $throughGroupPlaceholders = [];
+    foreach ($aclGroupIds as $index => $aclGroupId) {
+        $directPlaceholders[]       = ':acl_ga' . $index;
+        $throughGroupPlaceholders[] = ':acl_gb' . $index;
+        $parameters[]               = QueryParameter::int('acl_ga' . $index, $aclGroupId);
+        $parameters[]               = QueryParameter::int('acl_gb' . $index, $aclGroupId);
     }
-    $conditions[] = 'c.contact_id IN (' . implode(', ', $placeholders) . ')';
+    $directList       = implode(', ', $directPlaceholders);
+    $throughGroupList = implode(', ', $throughGroupPlaceholders);
+
+    $conditions[] = <<<SQL
+        c.contact_id IN (
+            SELECT aclAgcr.contact_contact_id
+            FROM acl_group_contacts_relations aclAgcr
+            INNER JOIN contact aclDirect ON aclDirect.contact_id = aclAgcr.contact_contact_id
+            WHERE aclDirect.contact_register = '1'
+                AND aclAgcr.acl_group_id IN ({$directList})
+            UNION
+            SELECT aclCcr.contact_contact_id
+            FROM acl_group_contactgroups_relations aclAgccgr
+            INNER JOIN contactgroup_contact_relation aclCcr
+                ON aclCcr.contactgroup_cg_id = aclAgccgr.cg_cg_id
+            INNER JOIN contact aclThroughGroup ON aclThroughGroup.contact_id = aclCcr.contact_contact_id
+            WHERE aclThroughGroup.contact_register = '1'
+                AND aclAgccgr.acl_group_id IN ({$throughGroupList})
+        )
+        SQL;
 }
 
 $whereClause = 'WHERE ' . implode(' AND ', $conditions);
