@@ -227,11 +227,46 @@ var CentreonForm = (function () {
      *
      * @param {HTMLElement} header - The .cf-section-header element that was clicked.
      */
+    // Feeds the ids minted for elements that need one to be referenced.
+    var autoDomId = 0;
+
     function toggleSection(header) {
         var section = header.parentElement;
         if (section) {
             section.classList.toggle('collapsed');
+            header.setAttribute('aria-expanded', section.classList.contains('collapsed') ? 'false' : 'true');
         }
+    }
+
+    /**
+     * Make the accordion headers operable without a mouse.
+     * The header stays a div — the CSS is written for one — so it is given the
+     * button role, focusability and the expanded state it has to expose, and
+     * Enter/Space are wired to do what a click does.
+     */
+    function initSectionHeaders() {
+        document.querySelectorAll('.cf-section-header').forEach(function (header) {
+            if (header.dataset.cfHeaderReady) return;
+            header.dataset.cfHeaderReady = '1';
+
+            var section = header.parentElement;
+            var body = section ? section.querySelector('.cf-section-body') : null;
+            if (body) {
+                if (!body.id) {
+                    body.id = (section.id || 'cf-section-' + (++autoDomId)) + '-body';
+                }
+                header.setAttribute('aria-controls', body.id);
+            }
+            header.setAttribute('role', 'button');
+            header.setAttribute('tabindex', '0');
+            header.setAttribute('aria-expanded', section && section.classList.contains('collapsed') ? 'false' : 'true');
+
+            header.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+                event.preventDefault();
+                toggleSection(header);
+            });
+        });
     }
 
     /**
@@ -247,6 +282,8 @@ var CentreonForm = (function () {
             // Expand if currently collapsed
             if (section.classList.contains('collapsed')) {
                 section.classList.remove('collapsed');
+                var expandedHeader = section.querySelector('.cf-section-header');
+                if (expandedHeader) expandedHeader.setAttribute('aria-expanded', 'true');
             }
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -277,10 +314,34 @@ var CentreonForm = (function () {
         // so labels sit on the top border at all times. We keep them there and no
         // longer drop them back into the field on blur (which looked inconsistent
         // once a field had been focused). This just guarantees the class is set.
-        document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function (input) {
+        document.querySelectorAll('.cf-field input, .cf-field textarea, .cf-field select').forEach(function (input) {
             var label = input.parentElement.querySelector('label');
-            if (label) label.classList.add('cf-label-float');
+            if (!label) return;
+            label.classList.add('cf-label-float');
+            bindLabel(label, input);
         });
+    }
+
+    // QuickForm renders the control and the template renders the label beside
+    // it, so nothing ties the two together and the control ends up with no
+    // accessible name. Bind them here rather than in every template, minting an
+    // id from the control name when it has none.
+    // Radios and checkboxes are left alone: they come as groups carrying their
+    // own labels, and pointing the field label at the first one would lie.
+    var LABELABLE_CONTROLS = /^(text|textarea|select-one|select-multiple|password|number|email|url|tel|search|date|time|datetime-local)$/;
+
+    function bindLabel(label, input) {
+        if (label.htmlFor || label.contains(input) || !LABELABLE_CONTROLS.test(input.type)) return;
+        if (!input.id) {
+            // Names are not unique on a page (repeated groups share one, and
+            // multi-valued fields carry "[]"), so the id is checked before use.
+            var candidate = 'cf-field-' + (input.name ? input.name.replace(/[^\w-]/g, '-') : ++autoDomId);
+            while (document.getElementById(candidate)) {
+                candidate = 'cf-field-' + (++autoDomId);
+            }
+            input.id = candidate;
+        }
+        label.htmlFor = input.id;
     }
 
     // =========================================================================
@@ -1168,7 +1229,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initSectionHeaders, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
 
@@ -1388,8 +1449,9 @@ var CentreonForm = (function () {
         _sidePanelListing:    null,
 
         // Accordion
-        toggleSection: toggleSection,
-        scrollTo:      scrollTo,
+        toggleSection:      toggleSection,
+        initSectionHeaders: initSectionHeaders,
+        scrollTo:           scrollTo,
 
         // Form components
         initFloatLabels:      initFloatLabels,

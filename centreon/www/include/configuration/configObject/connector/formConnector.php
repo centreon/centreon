@@ -82,14 +82,16 @@ try {
     . ($connector_id ?? ''), 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
     . 'object=centreon_configuration_command&action=list', 'linkedObject' => 'centreonCommand'];
 
-    $form->addElement('text', 'connector_name', _('Connector Name'), $attrsText);
-    $form->addElement('text', 'connector_description', _('Connector Description'), $attrsText);
+    $form->addElement('text', 'connector_name', _('Connector Name'), $attrsText + ['id' => 'connector_name']);
+    $form->addElement('text', 'connector_description', _('Connector Description'), $attrsText + ['id' => 'connector_description']);
     $form->addElement('textarea', 'command_line', _('Command Line'), $attrsTextarea);
 
-    $form->addElement('select', 'resource', null, $resource);
-    $form->addElement('select', 'macros', null, $macros);
+    // The three insertion lists sit next to their + button and have no visible
+    // label of their own, so they carry their name as an attribute.
+    $form->addElement('select', 'resource', null, $resource, ['aria-label' => _('Resources')]);
+    $form->addElement('select', 'macros', null, $macros, ['aria-label' => _('Macros')]);
     ksort($availableConnectors_list);
-    $form->addElement('select', 'plugins', null, $availableConnectors_list);
+    $form->addElement('select', 'plugins', null, $availableConnectors_list, ['aria-label' => _('Connectors')]);
 
     $form->addElement('select2', 'command_id', _('Used by command'), [], $attrCommands);
 

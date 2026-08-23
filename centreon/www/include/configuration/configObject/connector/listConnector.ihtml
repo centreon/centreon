@@ -101,8 +101,11 @@ var connListing = new CentreonListing({
     ],
     renderOptions: function(row, l) {
         var checked = row.activate ? ' checked' : '';
-        return '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="connListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
-            '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
+        // Neither control carries a label of its own, so both take the connector
+        // name: out of visual context, a bare toggle says nothing about its row.
+        var rowName = clEscapeAttr(row.name);
+        return '<label class="cl-toggle"><input type="checkbox" aria-label="{/literal}{t escape='js'}Status{/t}{literal}: '+rowName+'" data-row-id="'+row.id+'"'+checked+' onchange="connListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
+            '<input aria-label="{/literal}{t escape='js'}Duplications{/t}{literal}: '+rowName+'" onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }
 });
 connListing.init();
