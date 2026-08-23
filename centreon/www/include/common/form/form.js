@@ -221,15 +221,15 @@ var CentreonForm = (function () {
     //  Collapsible sections with a header bar. Click to expand/collapse.
     // =========================================================================
 
+    // Feeds the ids minted for elements that need one to be referenced.
+    var autoDomId = 0;
+
     /**
      * Toggle an accordion section open/closed.
      * The section element gets the CSS class "collapsed" which hides its body.
      *
      * @param {HTMLElement} header - The .cf-section-header element that was clicked.
      */
-    // Feeds the ids minted for elements that need one to be referenced.
-    var autoDomId = 0;
-
     function toggleSection(header) {
         var section = header.parentElement;
         if (section) {
@@ -322,14 +322,18 @@ var CentreonForm = (function () {
         });
     }
 
-    // QuickForm renders the control and the template renders the label beside
-    // it, so nothing ties the two together and the control ends up with no
-    // accessible name. Bind them here rather than in every template, minting an
-    // id from the control name when it has none.
-    // Radios and checkboxes are left alone: they come as groups carrying their
-    // own labels, and pointing the field label at the first one would lie.
+    // Radios and checkboxes are absent on purpose: they come as groups carrying
+    // their own labels, and pointing the field label at the first one would lie.
     var LABELABLE_CONTROLS = /^(text|textarea|select-one|select-multiple|password|number|email|url|tel|search|date|time|datetime-local)$/;
 
+    /**
+     * Tie a field's label to its control. QuickForm renders the control and the
+     * template renders the label beside it, so nothing binds the two and the
+     * control ends up with no accessible name.
+     *
+     * @param {HTMLElement} label - The field's <label>.
+     * @param {HTMLElement} input - The control it describes.
+     */
     function bindLabel(label, input) {
         if (label.htmlFor || label.contains(input) || !LABELABLE_CONTROLS.test(input.type)) return;
         if (!input.id) {

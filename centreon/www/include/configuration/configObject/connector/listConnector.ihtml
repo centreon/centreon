@@ -89,9 +89,8 @@ var connListing = new CentreonListing({
     rowIdField:    'id',
     columns: [
         { id:'name', render: function(row, l) {
-            // The panel target travels through data attributes: an inline handler
-            // is parsed as HTML before it is compiled as JS, so attribute
-            // escaping alone would not keep a quoted name inside its literal.
+            // The panel target travels through data attributes rather than the
+            // inline handler, which is parsed as HTML before it is run as JS.
             var editUrl = 'main.get.php?p={/literal}{$connPage}{literal}&o=c&id=' + row.id;
             return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t escape='js'}Modify a connector{/t}{literal}"'
                 + ' onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';

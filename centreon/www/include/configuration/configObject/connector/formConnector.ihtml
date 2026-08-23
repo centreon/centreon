@@ -31,6 +31,7 @@
                         <span class="cl-toggle-slider"></span>
                     </label>
                     <span style="display:none;">{$form.connector_status.html}</span>
+                    <img class="helpTooltip" name="connector_status">
                 </div>
             </div>
             <div class="cf-row">

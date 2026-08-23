@@ -52,7 +52,7 @@ const openConnectorsListing = (): void => {
 const listingRowAnchor = (name: string): RegExp =>
   new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 
-/** Both add and edit open the form in the side panel instead of navigating. */
+/** Editing opens the form in the side panel instead of navigating. */
 const openConnectorForm = (name: string): void => {
   cy.getIframeBody()
     .find('#clTableBody')
@@ -206,8 +206,6 @@ When(
       if ($toggle.prop('checked') === shouldBeEnabled) {
         return;
       }
-      // The activation toggle posts to ajaxConnectorToggle.php; the previous
-      // enabled/disabled icons went through a full page reload.
       cy.wrap($toggle).click({ force: true });
       cy.wait('@toggleConnector').then(({ response }) => {
         expect(response?.statusCode).to.equal(200);

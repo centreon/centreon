@@ -52,11 +52,8 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 </script>
 <?php
 
-// "More actions" dropdown (duplicate / delete) sitting next to the Add button.
-// clMoreAction opens the styled confirmation modal and reads its wording from
-// the data-* attributes; the native confirm()/alert() flow is gone, along with
-// its isChecked() guard, which counted every checked box on the page — including
-// the per-row activation toggles.
+// clMoreAction reads the confirmation wording from these data-* attributes, so
+// the handler stays locale-independent and keys on the option value instead.
 $attrs = [
     'onchange' => 'clMoreAction(this);',
     'data-msg-select' => _('Please select one or more items'),

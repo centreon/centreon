@@ -146,8 +146,8 @@ const selectUsedByCommand = (command: string): void => {
 };
 
 /**
- * Activation is driven by a cosmetic toggle; the radio group it mirrors is
- * hidden, so the real input sits behind the slider, hence the forced click.
+ * The checkbox is covered by its own .cl-toggle-slider, hence the forced click.
+ * It mirrors the hidden radio group that actually carries the value.
  */
 const setConnectorStatus = (isEnabled: number): void => {
   cy.getConnectorSidePanelBody()

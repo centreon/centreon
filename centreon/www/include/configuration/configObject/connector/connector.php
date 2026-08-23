@@ -29,7 +29,8 @@ require_once $path . 'DB-Func.php';
 
 $connectorObj = new CentreonConnector($pearDB);
 
-// Matches the maxlength of the duplication field in the listing.
+// Mirrors the three-digit duplication field: the request is the only thing
+// between a forged value and one insert per requested copy.
 const MAX_DUPLICATES_PER_CONNECTOR = 999;
 
 if (isset($_REQUEST['select'])) {
@@ -94,15 +95,17 @@ switch ($o) {
                 if (! is_array($duplicateNbr)) {
                     $duplicateNbr = [];
                 }
-                $selectedConnectors = array_keys($select ?? []);
+                $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
-                    // An empty or non-numeric field casts to 0, which would copy
-                    // nothing and report nothing: duplicate once in that case.
-                    // The upper bound mirrors the three-digit form field, as the
-                    // request is the only thing standing between a forged value
-                    // and one insert per requested copy.
-                    $nb = min(MAX_DUPLICATES_PER_CONNECTOR, max(1, (int) ($duplicateNbr[$connectorId] ?? 1)));
-                    $connectorObj->copy($connectorId, $nb);
+                    // An untouched field means one copy; a typed 0 means none, as
+                    // it did before, so a row can still be left out of a batch.
+                    $requested = $duplicateNbr[$connectorId] ?? '';
+                    $nb = ($requested === '' || ! is_numeric($requested))
+                        ? 1
+                        : min(MAX_DUPLICATES_PER_CONNECTOR, max(0, (int) $requested));
+                    if ($nb > 0) {
+                        $connectorObj->copy($connectorId, $nb);
+                    }
                 }
             }
         } else {
@@ -115,7 +118,7 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
-                $selectedConnectors = array_keys($select ?? []);
+                $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
                     $connectorObj->delete($connectorId);
                 }

@@ -120,10 +120,11 @@
     filter: brightness(0.96);
 }
 
-/* The header is keyboard-operable, so its focus has to be visible. Inset, as
-   the section clips its corners and an outside ring would be cut off. */
+/* The header is keyboard-operable, so its focus has to be visible. currentColor
+   rather than an accent: the header background is themed, and a fixed blue sits
+   at ~1:1 on the dark one. Inset, as the section clips its corners. */
 .cf-section-header:focus-visible {
-    outline: 2px solid var(--color-primary-light, #131D5A);
+    outline: 2px solid currentColor;
     outline-offset: -2px;
 }
 
