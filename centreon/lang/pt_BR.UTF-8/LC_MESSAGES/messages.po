@@ -24068,6 +24068,10 @@ msgstr "Você está prestes a duplicar a categoria de host <strong>{{ name }}</s
 
 
 #: unknown
+msgid "The synchronization request was refused. Check that LDAP authentication is enabled in the general options."
+msgstr "A solicitação de sincronização foi recusada. Verifique se a autenticação LDAP está habilitada nas opções gerais."
+
+#: unknown
 msgid "Delete contact"
 msgstr "Excluir contato"
 

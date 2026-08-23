@@ -191,7 +191,7 @@ class AjaxListingHelper
      * replace, which were only served through main.php and its topology check.
      * Listings whose objects carry no per-object ACL rely on this alone.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
      */
     public function requireReadAccess(int $pageId): void
     {
@@ -209,7 +209,7 @@ class AjaxListingHelper
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
      * @param string|null $csrfToken Fresh token to hand back when the caller already consumed one
      */
     public function requireWriteAccess(int $pageId, ?string $csrfToken = null): void
@@ -330,7 +330,7 @@ class AjaxListingHelper
         if ($csrfToken !== null) {
             $payload['centreon_token'] = $csrfToken;
         }
-        echo json_encode($payload);
+        echo json_encode($payload, JSON_THROW_ON_ERROR);
 
         exit;
     }

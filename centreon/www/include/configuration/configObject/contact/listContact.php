@@ -42,7 +42,6 @@ $tpl->assign('headerMenu_admin', _('Admin'));
 $tpl->assign('headerMenu_options', _('Options'));
 $tpl->assign('isAdmin', $centreon->user->admin);
 
-// Per-row LDAP synchronization column, shown to admins only
 $tpl->assign('headerMenu_refreshLdap', _('Refresh'));
 $tpl->assign(
     'headerMenu_refreshLdapTitleTooltip',
@@ -57,18 +56,15 @@ $tpl->assign(
 
 $tpl->assign('contactPage', $p);
 
-// CSRF token for the single-contact unblock action link
 $tpl->assign('centreonToken', createCSRFToken());
 
-// Restore search from history
-$search = $centreon->historySearch[$url]['search'] ?? '';
-$tpl->assign('searchC', $search);
+// The term is restored client-side from the listing's own session state;
+// the template only needs the key to exist.
+$tpl->assign('searchC', '');
 
-// Default limit from DB
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
 
-// Check LDAP configured
 $res = $pearDB->query('SELECT count(ar_id) as count_ldap FROM auth_ressource');
 $row = $res->fetch();
 if ($row['count_ldap'] > 0) {
@@ -94,13 +90,11 @@ if ($centreon->user->admin) {
     }
 }
 
-// Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Contact group filter (select2 AJAX)
 $contactGrRoute = './api/internal.php?object=centreon_configuration_contactgroup&action=list';
 // No linkedObject / defaultDataset here: the filter must start empty, and the
 // listing restores the chosen value and its label from its own session state.
@@ -180,15 +174,30 @@ $tpl->assign(
             if (!confirmed) {
                 return;
             }
+            var syncFailed = function () {
+                clShowConfirmModal({
+                    alert: true,
+                    title: <?= json_encode(_('Synchronize LDAP'), JSON_THROW_ON_ERROR); ?>,
+                    message: <?= json_encode(_('The synchronization request was refused. Check that LDAP authentication is '
+                        . 'enabled in the general options.'), JSON_THROW_ON_ERROR); ?>
+                });
+            };
+
             $.ajax({
                 url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
                 type: 'POST',
                 data: {contactId: contactId},
+                // The endpoint answers an empty body when it refuses, so silence
+                // used to read as success and the admin clicked again.
                 success: function(data) {
                     if (data === true) {
                         window.location.href = "?p=" + p;
+
+                        return;
                     }
-                }
+                    syncFailed();
+                },
+                error: syncFailed
             });
         });
     }
@@ -209,9 +218,8 @@ $tpl->assign(
 <?php
 
 foreach (['o1'] as $option) {
-    // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
-    // the native confirm()/alert(); messages passed as data-* attributes so the
-    // handler stays locale-independent (keyed on the option value).
+    // Messages travel as data-* attributes so clContactMoreAction stays
+    // locale-independent, keyed on the option value.
     $attrs = [
         'onchange' => 'clContactMoreAction(this);',
         'data-msg-select' => _('Please select one or more items'),

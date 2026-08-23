@@ -37,15 +37,13 @@ $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('tpPage', $p);
 
-// Restore search from history
-$search = $centreon->historySearch[$url]['search'] ?? '';
-$tpl->assign('searchTP', $search);
+// The term is restored client-side from the listing's own session state;
+// the template only needs the key to exist.
+$tpl->assign('searchTP', '');
 
-// Default limit from DB
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
 
-// Form for bulk actions
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];

@@ -37,7 +37,15 @@ $params   = $helper->getParams();
 $search       = $params['search'];
 $num          = $params['num'];
 $limit        = $params['limit'];
-$contactGroup = filter_var($_GET['contactGroup'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+$contactGroup = 0;
+if (isset($_GET['contactGroup']) && $_GET['contactGroup'] !== '') {
+    $contactGroup = filter_var($_GET['contactGroup'], FILTER_VALIDATE_INT);
+    // Falling back to "no filter" would keep the chip on screen while the whole
+    // platform comes back in the rows.
+    if ($contactGroup === false || $contactGroup <= 0) {
+        AjaxListingHelper::jsonError('Invalid contact group', 400);
+    }
+}
 
 // Only registered contacts belong to this listing; contact templates have their own page.
 $conditions = ["c.contact_register = '1'"];

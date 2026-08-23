@@ -21,8 +21,8 @@ if (! isset($centreon)) {
     exit();
 }
 
-// tp_id is concatenated into SQL downstream (CentreonTimePeriodRenderer):
-// force it to a strict integer to prevent SQL injection via the request.
+// Reject anything that is not a positive integer id up front, rather than
+// letting the renderer decide what to do with it.
 $rawTpId = $_GET['tp_id'] ?? $_POST['tp_id'] ?? null;
 $tp_id = filter_var($rawTpId, FILTER_VALIDATE_INT);
 if ($tp_id === false || $tp_id <= 0) {

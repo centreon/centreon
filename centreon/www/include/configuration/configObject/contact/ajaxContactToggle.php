@@ -39,7 +39,6 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-// Cannot toggle yourself
 if ($objId === (int) $centreon->user->get_id()) {
     AjaxListingHelper::jsonError('Cannot toggle your own account', 403);
 }

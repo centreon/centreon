@@ -871,8 +871,8 @@ function CentreonListing(config) {
                 toggle.disabled = false;
             },
             error: function (xhr, status, err) {
-                // Revert the optimistic switch and re-enable it (kept), but tell
-                // the user instead of leaving a silently-reverted toggle.
+                // Revert the optimistic switch, and tell the user rather than
+                // leaving a toggle that flipped back on its own.
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
                 // The endpoint consumes the token before it can fail, so an error

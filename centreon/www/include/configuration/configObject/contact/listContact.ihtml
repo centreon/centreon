@@ -167,7 +167,6 @@ var contactListing = new CentreonListing({
         {/literal}{/if}{literal}
     ],
     renderOptions: function(row, l) {
-        // Cannot toggle yourself
         var checked = row.activate ? ' checked' : '';
         // Unblock action for locked users (admin only); full reload after the action.
         var unblock = '';
@@ -176,7 +175,6 @@ var contactListing = new CentreonListing({
         }
         var dup = '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
         if (row.is_current_user) {
-            // Show toggle disabled for current user (can't self-disable)
             return unblock + '<label class="cl-toggle"><input type="checkbox"'+checked+' disabled /><span class="cl-toggle-slider"></span></label>' + dup;
         }
         return unblock + '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="contactListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' + dup;

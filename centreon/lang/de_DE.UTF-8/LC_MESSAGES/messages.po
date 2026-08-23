@@ -21616,6 +21616,10 @@ msgstr "Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu duplizi
 
 
 #: unknown
+msgid "The synchronization request was refused. Check that LDAP authentication is enabled in the general options."
+msgstr "Die Synchronisierungsanfrage wurde abgelehnt. Prüfen Sie, ob die LDAP-Authentifizierung in den allgemeinen Optionen aktiviert ist."
+
+#: unknown
 msgid "Delete contact"
 msgstr "Kontakt löschen"
 

@@ -25218,6 +25218,10 @@ msgid "Centreon Central address, as seen by this poller"
 msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 
 #: unknown
+msgid "The synchronization request was refused. Check that LDAP authentication is enabled in the general options."
+msgstr "La demande de synchronisation a été refusée. Vérifiez que l'authentification LDAP est activée dans les options générales."
+
+#: unknown
 msgid "Delete contact"
 msgstr "Supprimer le contact"
 

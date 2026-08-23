@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Infrastructure\Event\EventDispatcher;
 use Centreon\Infrastructure\Event\EventHandler;
 use Centreon\ServiceProvider;
@@ -69,6 +71,23 @@ $sanitizeInt = static fn ($value): ?int => filter_var($value, FILTER_VALIDATE_IN
 $sanitizeArray = static fn ($value): array => is_array($value) ? array_map('intval', $value) : [];
 
 $fromRequest = static fn (string $key) => $_GET[$key] ?? $_POST[$key] ?? null;
+
+// The admin-only actions used to short-circuit on the flag: a non-admin got a
+// page that reloaded as if nothing had been asked, and nothing server-side
+// either. The AJAX endpoints of these pages answer 403 for the same case.
+$requireAdminOrFail = static function () use ($centreon): bool {
+    if ($centreon->user->admin) {
+        return true;
+    }
+
+    Logger::create(LogChannelEnum::WEB)->warning(
+        'Privileged contact action refused for a non-admin user',
+        ['user_id' => $centreon->user->get_id()]
+    );
+    echo "<div class='msg' align='center'>" . _("You don't have sufficient permissions for this action") . '</div>';
+
+    return false;
+};
 
 $handleCsrfOrFail = static function (): bool {
     purgeOutdatedCSRFTokens();
@@ -208,8 +227,7 @@ try {
             require_once $path . 'listContact.php';
             break;
         case MASSIVE_UNBLOCK_CONTACT:
-            // Unblocking is reserved to administrators
-            if ($centreon->user->admin && $handleCsrfOrFail()) {
+            if ($requireAdminOrFail() && $handleCsrfOrFail()) {
                 unblockContactInDB($select);
             }
             require_once $path . 'listContact.php';
@@ -245,7 +263,7 @@ try {
             // so it is reserved to administrators — as the single-contact variant
             // below already was. The menu entry is hidden for everyone else, but
             // the action was still reachable by POST.
-            if ($centreon->user->admin && $handleCsrfOrFail()) {
+            if ($requireAdminOrFail() && $handleCsrfOrFail()) {
                 $eventDispatcher->notify(
                     'contact.form',
                     EventDispatcher::EVENT_SYNCHRONIZE,
@@ -264,8 +282,7 @@ try {
             require_once $path . 'listContact.php';
             break;
         case UNBLOCK_CONTACT:
-            // Unblocking is reserved to administrators
-            if ($centreon->user->admin && $handleCsrfOrFail()) {
+            if ($requireAdminOrFail() && $handleCsrfOrFail()) {
                 unblockContactInDB($contactId);
             }
             require_once $path . 'listContact.php';
