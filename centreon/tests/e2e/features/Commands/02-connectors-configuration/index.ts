@@ -53,7 +53,10 @@ const listingRowAnchor = (name: string): RegExp => new RegExp(`^${name}$`);
 
 /** Both add and edit open the form in the side panel instead of navigating. */
 const openConnectorForm = (name: string): void => {
-  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', listingRowAnchor(name))
+    .click();
   cy.getConnectorSidePanelBody()
     .find('input[name="connector_name"]', { timeout: 20_000 })
     .should('be.visible');
@@ -137,13 +140,13 @@ Then('the connector is displayed in the list', () => {
   openConnectorsListing();
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('a', data.connector.name)
+    .contains('a', listingRowAnchor(data.connector.name))
     .should('exist');
   // The listing truncates the command line at 70 characters while the form
   // keeps the full value; the fixture is longer than that on purpose.
   cy.getIframeBody()
     .find('#clTableBody')
-    .contains('a', data.connector.name)
+    .contains('a', listingRowAnchor(data.connector.name))
     .parents('tr')
     .should('contain.text', `${data.connector.command_line.slice(0, 70)}...`);
 });
