@@ -49,7 +49,8 @@ const openConnectorsListing = (): void => {
  * would only pick the right one because ORDER BY name happens to sort the
  * shorter one first.
  */
-const listingRowAnchor = (name: string): RegExp => new RegExp(`^${name}$`);
+const listingRowAnchor = (name: string): RegExp =>
+  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 
 /** Both add and edit open the form in the side panel instead of navigating. */
 const openConnectorForm = (name: string): void => {
