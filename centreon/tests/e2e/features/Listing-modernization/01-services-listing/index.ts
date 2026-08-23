@@ -71,7 +71,7 @@ Then(
       .find('#clTableBody tr')
       .should('have.length.greaterThan', 0);
     // Host name should appear as grouping header or in the row
-    cy.getIframeBody().find('#clTableBody').contains(hostName).should('exist');
+    cy.waitForListingToShow(hostName);
   }
 );
 
@@ -83,11 +83,8 @@ When('the user searches for a specific service', () => {
 });
 
 Then('only the matching services are displayed', () => {
-  cy.getIframeBody().find('#clTableBody').contains(servicePing).should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceCpu)
-    .should('not.exist');
+  cy.waitForListingToShow(servicePing);
+  cy.waitForListingToDrop(serviceCpu);
 });
 
 // ---------------------------------------------------------------------------
@@ -185,12 +182,13 @@ Then('the pagination info shows the total count', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects a service and duplicates it', () => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(servicePing)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${servicePing}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -207,10 +205,7 @@ When('the user selects a service and duplicates it', () => {
 Then('a duplicated service appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(duplicatedServicePing)
-    .should('exist');
+  cy.waitForListingToShow(duplicatedServicePing);
 });
 
 // ---------------------------------------------------------------------------

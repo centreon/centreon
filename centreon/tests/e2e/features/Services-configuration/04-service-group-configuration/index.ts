@@ -53,12 +53,13 @@ const linkedService = 'Centreon-Server - Memory';
 // The listing is AJAX-driven and its bulk actions go through the hidden o1
 // select, whose onchange has to be overridden to reach the legacy dispatcher.
 const runBulkActionOn = (name: string, action: string): void => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(name)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -140,10 +141,7 @@ Then(
   () => {
     cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
     cy.waitForListingRefresh();
-    cy.getIframeBody()
-      .find('#clTableBody')
-      .contains(serviceGroupName)
-      .should('not.exist');
+    cy.waitForListingToDrop(serviceGroupName);
   }
 );
 

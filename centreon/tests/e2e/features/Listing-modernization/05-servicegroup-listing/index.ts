@@ -70,14 +70,8 @@ When('the user navigates to the service groups listing', () => {
 
 Then('the AJAX listing table is displayed with service group rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupAlpha)
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupBeta)
-    .should('exist');
+  cy.waitForListingToShow(serviceGroupAlpha);
+  cy.waitForListingToShow(serviceGroupBeta);
 });
 
 // ---------------------------------------------------------------------------
@@ -92,14 +86,8 @@ When('the user searches for a specific service group', () => {
 });
 
 Then('only the matching service group is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupAlpha)
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupBeta)
-    .should('not.exist');
+  cy.waitForListingToShow(serviceGroupAlpha);
+  cy.waitForListingToDrop(serviceGroupBeta);
 });
 
 // ---------------------------------------------------------------------------
@@ -195,12 +183,13 @@ Then('at most 10 rows are displayed', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects a service group and duplicates it', () => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupAlpha)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${serviceGroupAlpha}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
 
   cy.getIframeBody()
@@ -218,10 +207,7 @@ When('the user selects a service group and duplicates it', () => {
 Then('a duplicated service group appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(duplicatedServiceGroupAlpha)
-    .should('exist');
+  cy.waitForListingToShow(duplicatedServiceGroupAlpha);
 });
 
 // ---------------------------------------------------------------------------
@@ -229,12 +215,13 @@ Then('a duplicated service group appears in the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects a service group and deletes it', () => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupBeta)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${serviceGroupBeta}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
 
   cy.getIframeBody()
@@ -252,10 +239,7 @@ When('the user selects a service group and deletes it', () => {
 Then('the service group is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(serviceGroupBeta)
-    .should('not.exist');
+  cy.waitForListingToDrop(serviceGroupBeta);
 });
 
 // ---------------------------------------------------------------------------

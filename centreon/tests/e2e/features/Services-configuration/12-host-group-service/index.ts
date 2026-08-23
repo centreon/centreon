@@ -166,18 +166,12 @@ When('the user Add a new host group service', () => {
 Then('the host group service is added to the listing page', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', data.default.name)
-    .should('exist');
+  cy.waitForListingToShow(data.default.name);
 });
 
 Given('a host group service is configured', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', data.default.name)
-    .should('exist');
+  cy.waitForListingToShow(data.default.name);
 });
 
 When('the user changes the properties of the host group service', () => {
@@ -289,8 +283,5 @@ When('the user deletes the host group service', () => {
 Then('the deleted host group service is not displayed in the list', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.hostgroupservice.name)
-    .should('not.exist');
+  cy.waitForListingToDrop(data.hostgroupservice.name);
 });

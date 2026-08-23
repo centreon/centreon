@@ -697,11 +697,13 @@ Cypress.Commands.add('openMetaServiceForm', (name: string) => {
 Cypress.Commands.add(
   'selectMetaServiceRowAndRunBulkAction',
   (name: string, action: string) => {
+    // One query, not a chain: the listing auto-refreshes every 30s and a
+    // contains -> parents -> find chain loses its subject when the table is
+    // replaced mid-way. Cypress retries a single find() atomically.
     cy.getIframeBody()
-      .find('#clTableBody')
-      .contains(name)
-      .parents('tr')
-      .find('.cl-col-picker input[type="checkbox"]')
+      .find(
+        `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+      )
       .click({ force: true });
     cy.getIframeBody()
       .find('select[name="o1"]')
@@ -748,12 +750,13 @@ Cypress.Commands.add('openServiceCategoryForm', (name: string) => {
 Cypress.Commands.add(
   'selectServiceCategoryRowAndRunBulkAction',
   (name: string, action: string) => {
+    // One query, not a chain: the listing auto-refreshes every 30s and a
+    // contains -> parents -> find chain loses its subject when the table is
+    // replaced mid-way. Cypress retries a single find() atomically.
     cy.getIframeBody()
-      .find('#clTableBody')
-      .contains(name)
-      .parents('tr')
-      // The row checkbox is visibility:hidden behind its md-checkbox label.
-      .find('.cl-col-picker input[type="checkbox"]')
+      .find(
+        `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+      )
       .click({ force: true });
     cy.getIframeBody()
       .find('select[name="o1"]')

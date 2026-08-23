@@ -30,12 +30,13 @@ const waitForTemplatesListing = (): void => {
 // Bulk actions go through the hidden o1 select, whose onchange has to be
 // overridden to reach the legacy dispatcher.
 const runBulkActionOn = (name: string, action: string): void => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', name)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -146,10 +147,7 @@ When('the user deletes a service template', () => {
 
 Then('the deleted service template is not displayed in the list', () => {
   waitForTemplatesListing();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateName)
-    .should('not.exist');
+  cy.waitForListingToDrop(templateName);
 });
 
 afterEach(() => {

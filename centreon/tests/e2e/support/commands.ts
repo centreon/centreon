@@ -130,6 +130,66 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
+// Query-only accessor for the listing document. getIframeBody() is built on
+// waitUntil + .then(), so after a legacy form submit reloads #main-content it can
+// hand back the body of the previous document; .its() is a query and Cypress
+// re-evaluates it, landing on the current one. Its subject is a raw body element,
+// which .find() accepts and .contains() does not.
+Cypress.Commands.add('getListingBody', (): Cypress.Chainable => {
+  return cy
+    .get('iframe#main-content', { log: false })
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty');
+});
+
+// Presence in the listing, waited on for the same reason as its absence twin:
+// contains() on a held tbody fails once a refresh replaces it.
+Cypress.Commands.add(
+  'waitForListingToShow',
+  (text: string): Cypress.Chainable => {
+    return cy.waitUntil(
+      () =>
+        cy
+          .getListingBody()
+          .then(
+            ($body) =>
+              Cypress.$($body).find(`#clTableBody *:contains("${text}")`)
+                .length > 0
+          ),
+      {
+        errorMsg: `"${text}" never appeared in the listing`,
+        interval: 500,
+        timeout: 30_000
+      }
+    );
+  }
+);
+
+// Absence in the listing, waited on rather than asserted. A chained
+// find().should('not.exist') pins a subject that the post-action reload replaces,
+// and Cypress then refuses to requery it. waitUntil re-runs the whole lookup on
+// every attempt, which is how waitForElementInIframe already handles presence.
+Cypress.Commands.add(
+  'waitForListingToDrop',
+  (text: string): Cypress.Chainable => {
+    return cy.waitUntil(
+      () =>
+        cy
+          .getListingBody()
+          .then(
+            ($body) =>
+              Cypress.$($body).find(`#clTableBody *:contains("${text}")`)
+                .length === 0
+          ),
+      {
+        errorMsg: `"${text}" still listed after waiting`,
+        interval: 500,
+        timeout: 30_000
+      }
+    );
+  }
+);
+
 Cypress.Commands.add(
   'visitListingAndWait',
   (page: string): Cypress.Chainable => {
@@ -145,8 +205,8 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('waitForListingRefresh', (): Cypress.Chainable => {
   return cy
-    .getIframeBody()
-    .find('#clTableBody tr td')
+    .getListingBody()
+    .find('#clTableBody tr td', { timeout: 20_000 })
     .should('not.contain', 'Loading');
 });
 
@@ -177,9 +237,53 @@ Cypress.Commands.add('getFormBody', (): Cypress.Chainable => {
 Cypress.Commands.add(
   'openListingRowForm',
   (name: string): Cypress.Chainable => {
-    cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+    // closePanel() drops the .open class synchronously but resets the iframe src
+    // to about:blank 300ms later, once the CSS transition ends. Clicking inside
+    // that window lets the pending timeout overwrite the src that cfOpenPanel
+    // just set, and the panel then loads blank for good. So wait for the reset
+    // itself, not for .open to go away — that one is already gone.
+    cy.waitUntil(
+      () =>
+        cy
+          .get('iframe#main-content', { log: false })
+          .its('0.contentDocument.body')
+          .then(($body) => {
+            const listing = Cypress.$($body);
+            if (listing.find('#cfSidePanel.open').length > 0) {
+              return false;
+            }
+            const frame = listing.find('#cfSidePanelFrame')[0] as
+              | HTMLIFrameElement
+              | undefined;
 
-    return cy.getListingSidePanelBody();
+            return !frame?.src || frame.src.endsWith('about:blank');
+          }),
+      {
+        errorMsg: 'the side panel never released its iframe',
+        interval: 100,
+        timeout: 20_000
+      }
+    );
+
+    // Queries only, and one of them: a bulk action submits the legacy form, so
+    // #main-content navigates and getIframeBody() — built on waitUntil + .then()
+    // — can hand back the body of the document from before that reload. .its()
+    // is a query, so Cypress re-evaluates it and lands on the new document.
+    cy.get('iframe#main-content', { log: false })
+      .its('0.contentDocument.body', { timeout: 20_000 })
+      .find(`#clTableBody a:contains("${name}")`, { timeout: 20_000 })
+      .first()
+      .click();
+
+    // Same reason for the panel: it replaces its document while the form loads,
+    // so its body has to be reached through queries too. The subject is then a
+    // raw body element — .find() accepts it, .contains() does not.
+    return cy
+      .get('iframe#main-content', { log: false })
+      .its('0.contentDocument.body', { timeout: 20_000 })
+      .find('#cfSidePanelFrame')
+      .its('0.contentDocument.body', { timeout: 20_000 })
+      .should('not.be.empty');
   }
 );
 
@@ -306,6 +410,9 @@ declare global {
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       getFormBody: () => Cypress.Chainable;
+      getListingBody: () => Cypress.Chainable;
+      waitForListingToDrop: (text: string) => Cypress.Chainable;
+      waitForListingToShow: (text: string) => Cypress.Chainable;
       openFormSelect2: (selectId: string) => Cypress.Chainable;
       selectFormOption: (selectId: string, option: string) => Cypress.Chainable;
       selectFormSegment: (

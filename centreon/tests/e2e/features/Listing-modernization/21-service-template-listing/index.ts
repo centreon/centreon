@@ -60,10 +60,7 @@ When('the user navigates to the service templates listing', () => {
 
 Then('the AJAX listing table is displayed with service template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateAlpha)
-    .should('exist');
+  cy.waitForListingToShow(templateAlpha);
 });
 
 // ---------------------------------------------------------------------------
@@ -78,14 +75,8 @@ When('the user searches for a specific service template', () => {
 });
 
 Then('only the matching service template is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateAlpha)
-    .should('exist');
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateBeta)
-    .should('not.exist');
+  cy.waitForListingToShow(templateAlpha);
+  cy.waitForListingToDrop(templateBeta);
 });
 
 // ---------------------------------------------------------------------------
@@ -221,12 +212,13 @@ Then('at most 10 rows are displayed', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects a service template and duplicates it', () => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateAlpha)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${templateAlpha}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -243,10 +235,7 @@ When('the user selects a service template and duplicates it', () => {
 Then('a duplicated service template appears in the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(duplicatedTemplateAlpha)
-    .should('exist');
+  cy.waitForListingToShow(duplicatedTemplateAlpha);
 });
 
 // ---------------------------------------------------------------------------
@@ -254,12 +243,13 @@ Then('a duplicated service template appears in the listing', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects a service template and deletes it', () => {
+  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // contains -> parents -> find chain loses its subject when the table is
+  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateBeta)
-    .parents('tr')
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
-    .find('.cl-col-picker input[type="checkbox"]')
+    .find(
+      `#clTableBody tr:contains("${templateBeta}") .cl-col-picker input[type="checkbox"]`
+    )
     .click({ force: true });
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -276,10 +266,7 @@ When('the user selects a service template and deletes it', () => {
 Then('the service template is removed from the listing', () => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(templateBeta)
-    .should('not.exist');
+  cy.waitForListingToDrop(templateBeta);
 });
 
 // ---------------------------------------------------------------------------

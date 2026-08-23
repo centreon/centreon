@@ -177,8 +177,11 @@ Then(
     cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
     // Click on the service to open its details in the side panel, then wait
     // until the tab 'Extended Infos' is visible
-    cy.openListingRowForm(services.serviceOk.name)
-      .contains('a', 'Extended Info', { timeout: 20_000 })
+    cy.openListingRowForm(services.serviceOk.name);
+    // Tab anchors are targeted by section id: the labels are translated and
+    // 'Extended Info' is now 'Misc'.
+    cy.getFormBody()
+      .find('.cf-tab-nav a[href="#cf-sec-extended"]', { timeout: 20_000 })
       .click();
     // Check that the 'Note URL' contains the url of the mediawiki
     cy.getFormBody()

@@ -169,9 +169,11 @@ Given('a passive service is linked to the vendor', () => {
   cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
   cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
   // click on the passive service to open the edit form in the side panel
-  cy.openListingRowForm(services.serviceOk.name)
-    .contains('a', 'Relations', { timeout: 20_000 })
-    // click on the "Relations" tab in the service edit form
+  cy.openListingRowForm(services.serviceOk.name);
+  // Tab anchors are targeted by section id: the labels are translated and
+  // 'Extended Info' is now 'Misc'.
+  cy.getFormBody()
+    .find('.cf-tab-nav a[href="#cf-sec-relations"]', { timeout: 20_000 })
     .click();
   // wait for the "Service Trap Relation" input to be charged on the DOM
   cy.getFormBody().find('#service_traps', { timeout: 20_000 }).should('exist');
