@@ -64,8 +64,27 @@ final class HostIconResolver
             return [];
         }
 
-        $directIcons = self::fetchDirectIcons($db);
+        return self::walk(
+            $hostIds,
+            self::fetchDirectIcons($db),
+            static fn (array $nodes): array => self::fetchTemplates($db, $nodes)
+        );
+    }
 
+    /**
+     * The walk itself, with its two data sources handed in: the icons of the
+     * objects that carry one, and a callable returning the templates of a batch
+     * of nodes. Kept apart from the queries so the inheritance rules can be
+     * exercised on their own.
+     *
+     * @param int[] $hostIds Host or host-template ids to resolve
+     * @param array<int, string> $directIcons Icon path of the objects defining one
+     * @param callable(int[]): array<int, int[]> $fetchTemplates Templates of the given nodes, in `order`
+     *
+     * @return array<int, string> Icon path indexed by requested id
+     */
+    public static function walk(array $hostIds, array $directIcons, callable $fetchTemplates): array
+    {
         // $pending maps each requested id to the nodes it still has to inspect,
         // in depth-first order; $visited holds the nodes already inspected for it.
         $resolved = [];
@@ -86,7 +105,7 @@ final class HostIconResolver
             foreach ($pending as $stack) {
                 $heads[] = $stack[0];
             }
-            $templates = self::fetchTemplates($db, array_values(array_unique($heads)));
+            $templates = $fetchTemplates(array_values(array_unique($heads)));
 
             foreach ($pending as $hostId => $stack) {
                 $node = array_shift($stack);

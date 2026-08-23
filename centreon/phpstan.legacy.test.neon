@@ -15,6 +15,10 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
         - tests/php/bootstrap.php
         - tests/php/polyfill.php
+        # Listing helpers: required explicitly by their consumers, so they are
+        # outside the Composer classmap and unknown to the analysis otherwise.
+        - www/include/common/listing/AjaxListingHelper.php
+        - www/include/common/listing/HostIconResolver.php
 
     paths:
         - tests/php/Centreon
