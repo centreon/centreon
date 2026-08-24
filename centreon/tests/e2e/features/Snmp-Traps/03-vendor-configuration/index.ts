@@ -34,6 +34,9 @@ const vendorNames = {
 
 before(() => {
   cy.startContainers();
+  // executeActionViaClapi reads the token straight from localStorage, so without
+  // this the CLAPI calls below go out with a `centreon-auth-token: null` header.
+  cy.setUserTokenApiV1();
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
