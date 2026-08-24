@@ -910,10 +910,17 @@ function CentreonListing(config) {
                 centreon_token: csrfToken
             },
             success: function (response) {
-                if (response.centreon_token) {
+                if (response && response.centreon_token) {
                     csrfToken = response.centreon_token;
                 }
                 toggle.disabled = false;
+                // The endpoint answers {success: true}; anything else means the
+                // write did not happen, and leaving the switch flipped would
+                // report a state the database does not have.
+                if (!response || response.success !== true) {
+                    toggle.checked = !isChecked;
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
             },
             error: function (xhr, status, err) {
                 // The endpoint consumes the submitted token before attempting the
