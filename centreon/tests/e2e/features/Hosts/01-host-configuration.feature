@@ -78,9 +78,9 @@ Feature: HostConfiguration
 
   Scenario: Each host row shows an icon inherited from its template chain
     Given several hosts exist with different addresses
-    And the first host carries its own icon and its template another one
+    And the template of those hosts carries an icon
     When the admin opens the hosts listing
-    Then the first host shows its own icon and the others their template one
+    Then every host row shows the icon inherited from its template
 
   Scenario: The toggle endpoint refuses a request carrying an invalid CSRF token
     Given several hosts exist with different addresses

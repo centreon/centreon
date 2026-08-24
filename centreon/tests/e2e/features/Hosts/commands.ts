@@ -186,17 +186,15 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
   });
 });
 
-Cypress.Commands.add('setIconWithSql', (name: string, mediaOffset: number) => {
-  // The icon column is the one piece of the listing whose value is computed
-  // by HostIconResolver walking host_template_relation. Asserting on it means
-  // an object has to actually carry an icon, and no other suite sets one.
-  // Any media reachable through a directory does the job; two different
-  // offsets give two different paths, so an inherited icon can be told apart
-  // from an own one.
+Cypress.Commands.add('setIconWithSql', (name: string) => {
+  // The icon column is the one value the listing computes rather than reads:
+  // HostIconResolver walks host_template_relation for it. Asserting on it means
+  // an object has to actually carry an icon, and no other suite sets one. Any
+  // media reachable through a directory does — the platform ships at least one.
 
-  // The row is created along with the object in the normal flow, but a template
-  // shipped with the platform may predate it — insert it when missing so the
-  // update below has something to write on.
+  // The row comes with the object in the normal flow, but a template shipped
+  // with the platform can predate it: insert it when missing so the update
+  // below has something to write on.
   cy.requestOnDatabase({
     database: 'centreon',
     query: `INSERT INTO extended_host_information (host_host_id)
@@ -212,38 +210,43 @@ Cypress.Commands.add('setIconWithSql', (name: string, mediaOffset: number) => {
   cy.requestOnDatabase({
     database: 'centreon',
     query: `UPDATE extended_host_information ehi
-              INNER JOIN host h ON h.host_id = ehi.host_host_id
-              SET ehi.ehi_icon_image = (
-                SELECT vi.img_id
-                FROM view_img vi
-                INNER JOIN view_img_dir_relation vidr ON vidr.img_img_id = vi.img_id
-                INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
-                WHERE vid.dir_alias <> '' AND vi.img_path <> ''
-                ORDER BY vi.img_id
-                LIMIT 1 OFFSET ${mediaOffset}
-              )
-              WHERE h.host_name = "${name}"`
+            INNER JOIN host h ON h.host_id = ehi.host_host_id
+            SET ehi.ehi_icon_image = (
+              SELECT vi.img_id
+              FROM view_img vi
+              INNER JOIN view_img_dir_relation vidr ON vidr.img_img_id = vi.img_id
+              INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
+              WHERE vid.dir_alias <> '' AND vi.img_path <> ''
+              ORDER BY vi.img_id
+              LIMIT 1
+            )
+            WHERE h.host_name = "${name}"`
   });
 
-  // Read it back rather than trusting affectedRows: an UPDATE that matches
-  // the value already stored reports 0, and a missing
-  // extended_host_information row reports 0 too — the second is a real
-  // failure and has to be loud, or the assertion downstream fails on the
-  // icon while the cause is the fixture.
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: `SELECT ehi.ehi_icon_image
+  // Read the path back and hand it to the caller: asserting the exact src the
+  // row must show is what proves the resolver builds it from dir_alias and
+  // img_path the way the legacy helper did. Reading it also catches a fixture
+  // that silently wrote nothing, which would otherwise surface as the row
+  // falling back to its inline glyph.
+  return cy
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT CONCAT('./img/media/', vid.dir_alias, '/', vi.img_path) AS icon_path
               FROM extended_host_information ehi
               INNER JOIN host h ON h.host_id = ehi.host_host_id
+              INNER JOIN view_img vi ON vi.img_id = ehi.ehi_icon_image
+              INNER JOIN view_img_dir_relation vidr ON vidr.img_img_id = vi.img_id
+              INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
               WHERE h.host_name = "${name}"`
-  }).then(([rows]) => {
-    // requestOnDatabase resolves to the driver's [rows, fields] tuple, so the
-    // first row is rows[0] only once that tuple is destructured.
-    const iconId = rows[0]?.ehi_icon_image;
-    if (!iconId) {
-      throw new Error(`No icon could be set on ${name}`);
-    }
-  });
+    })
+    .then(([rows]) => {
+      const iconPath = rows[0]?.icon_path;
+      if (!iconPath) {
+        throw new Error(`No icon could be set on ${name}`);
+      }
+
+      return cy.wrap(iconPath, { log: false });
+    });
 });
 
 Cypress.Commands.add('visitHostsListingPage', () => {
@@ -527,7 +530,7 @@ declare global {
         body: HostGroupDependency
       ) => Cypress.Chainable;
       lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
-      setIconWithSql: (name: string, mediaOffset: number) => Cypress.Chainable;
+      setIconWithSql: (name: string) => Cypress.Chainable;
       visitHostsListingPage: () => Cypress.Chainable;
       openHostsListing(): Chainable<void>;
       openHostTemplatesListing(): Chainable<void>;

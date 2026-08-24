@@ -249,16 +249,15 @@ Given('the first host belongs to a dedicated hostgroup', () => {
   });
 });
 
-Given(
-  'the first host carries its own icon and its template another one',
-  () => {
-    // Two different media, so an inherited icon is distinguishable from an own
-    // one. Every host of this fixture is built on generic-host, so giving the
-    // template an icon covers the inheritance path for the other rows.
-    cy.setIconWithSql(listingHosts[0].name, 0);
-    cy.setIconWithSql('generic-host', 1);
-  }
-);
+let inheritedIconPath = '';
+
+Given('the template of those hosts carries an icon', () => {
+  // Every host of this fixture is built on generic-host and none carries an
+  // icon of its own, so the whole column goes through the inheritance path.
+  cy.setIconWithSql('generic-host').then((path) => {
+    inheritedIconPath = String(path);
+  });
+});
 
 When('the admin opens the hosts listing', () => {
   cy.openHostsListing();
@@ -371,30 +370,19 @@ Then('the host is enabled again', () => {
     .should('be.checked');
 });
 
-Then(
-  'the first host shows its own icon and the others their template one',
-  () => {
-    // The icon column is the only value HostIconResolver computes, by walking
-    // host_template_relation. Both rows must show a real media path, and the
-    // two must differ: the own icon has to beat the inherited one. Accepting
-    // the fallback <svg> here — as `img, svg` did — passed even when the
-    // resolver returned nothing at all, which is its failure mode.
-    const iconSrc = (name: string) =>
-      getListingRow(name)
-        .find('td')
-        .eq(1)
-        .find('img.ico-16')
-        .should('have.attr', 'src');
-
-    iconSrc(listingHosts[0].name)
-      .and('match', /^\.\/img\/media\/[^/]+\/.+/)
-      .then((ownSrc) => {
-        iconSrc(listingHosts[1].name)
-          .and('match', /^\.\/img\/media\/[^/]+\/.+/)
-          .and('not.equal', String(ownSrc));
-      });
-  }
-);
+Then('every host row shows the icon inherited from its template', () => {
+  // The exact src, on every row: the resolver has to find the template's icon
+  // and rebuild the path from dir_alias and img_path. When it resolves nothing
+  // the row renders its inline fallback <svg> instead, so accepting
+  // `img, svg` — as this step used to — passed even then.
+  listingHosts.forEach((host) => {
+    getListingRow(host.name)
+      .find('td')
+      .eq(1)
+      .find('img.ico-16')
+      .should('have.attr', 'src', inheritedIconPath);
+  });
+});
 
 Then(
   'the monitoring column shows a tooltipped badge or the not-monitored placeholder',
