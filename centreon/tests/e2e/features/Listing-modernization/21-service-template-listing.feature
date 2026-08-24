@@ -29,6 +29,7 @@ Feature: Modern service template listing
     Then service template rows show scheduling intervals
 
   Scenario: Locked checkbox shows and hides locked templates
+    Given a locked service template exists
     When the user navigates to the service templates listing
     And the locked checkbox is checked
     Then locked service templates are visible
@@ -36,6 +37,7 @@ Feature: Modern service template listing
     Then locked service templates are hidden
 
   Scenario: Locked templates have disabled checkboxes and dup inputs
+    Given a locked service template exists
     When the user navigates to the service templates listing
     And the locked checkbox is checked
     Then locked rows have disabled selection checkboxes

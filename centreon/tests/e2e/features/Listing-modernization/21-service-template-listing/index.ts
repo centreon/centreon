@@ -6,6 +6,7 @@ const stPage = PAGES.configuration.servicesTemplatesLegacy;
 const templateAlpha = 'st_test_alpha';
 const templateBeta = 'st_test_beta';
 const duplicatedTemplateAlpha = `${templateAlpha}_1`;
+const templateLocked = 'st_test_locked';
 
 // The Locked filter sits in the advanced-filters popover, which has to be
 // opened before its fields are reachable. The button is a toggle and the popover
@@ -57,6 +58,22 @@ Given('several service templates exist', () => {
   cy.addServiceTemplate({
     name: templateBeta,
     template: 'generic-service'
+  });
+});
+
+// The locked flag is what the Plugin Packs set on the templates they install:
+// neither the UI nor CLAPI exposes it, and no pack is installed on the test
+// platform, so the rows these two scenarios assert on have to be seeded in the
+// database. Kept out of the Background on purpose — the other scenarios then
+// stay runnable on a platform with no database handle.
+Given('a locked service template exists', () => {
+  cy.addServiceTemplate({
+    name: templateLocked,
+    template: 'generic-service'
+  });
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `UPDATE service SET service_locked = '1' WHERE service_description = '${templateLocked}'`
   });
 });
 
