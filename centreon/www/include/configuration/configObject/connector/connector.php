@@ -48,8 +48,6 @@ if (isset($_REQUEST['id'])) {
     $connector_id = $_REQUEST['id'];
 }
 
-$options = $_REQUEST['options'] ?? null;
-
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 
@@ -96,15 +94,15 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
-                $duplicateNbr = $_REQUEST['dupNbr'] ?? $options ?? [];
+                $duplicateNbr = $_REQUEST['dupNbr'] ?? [];
                 if (! is_array($duplicateNbr)) {
                     $duplicateNbr = [];
                 }
                 $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
                     // An empty field or a typed 0 leaves the row out of the batch, as
-                    // the legacy page did. Anything else that yields no copy is a
-                    // typo: the confirmation modal has already promised a count.
+                    // the legacy page did. Anything else that yields no copy is a typo
+                    // on a row the operator selected on purpose, so it is reported.
                     $requested = $duplicateNbr[$connectorId] ?? '';
                     $deliberateSkip = $requested === '' || $requested === '0';
                     $copies = is_numeric($requested)

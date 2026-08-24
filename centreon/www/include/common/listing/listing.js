@@ -258,6 +258,25 @@ function CentreonListing(config) {
         return ids;
     }
 
+    function getRowInputValues() {
+        var values = {};
+        jQuery('#' + cfg.tableBodyId + ' .cl-dup-input').each(function () {
+            var name = this.getAttribute('name');
+            if (name) { values[name] = this.value; }
+        });
+        return values;
+    }
+
+    function restoreRowInputValues(values) {
+        if (!values) return;
+        jQuery('#' + cfg.tableBodyId + ' .cl-dup-input').each(function () {
+            var name = this.getAttribute('name');
+            if (name && Object.prototype.hasOwnProperty.call(values, name)) {
+                this.value = values[name];
+            }
+        });
+    }
+
     function restoreCheckedIds(ids) {
         if (!ids || !ids.length) return;
         // Match by comparing the name in JS rather than interpolating the id into
@@ -546,6 +565,9 @@ function CentreonListing(config) {
         } catch(e) {}
 
         var checkedIds = getCheckedIds();
+        // The auto-refresh re-renders every row, so a duplication count typed but
+        // not yet submitted would silently fall back to 1.
+        var rowInputValues = getRowInputValues();
 
         if (firstLoad) {
             jQuery('#' + cfg.tableBodyId).html(
@@ -596,7 +618,17 @@ function CentreonListing(config) {
                         self.renderPagination(data.total, data.num, data.limit);
                     }
                     restoreCheckedIds(checkedIds);
+                    restoreRowInputValues(rowInputValues);
                     jQuery('#' + cfg.limitInputId).val(data.limit);
+
+                    // Deleting the last rows of the last page leaves the stored page
+                    // past the end: the table reads empty and the counter reads
+                    // backwards. Land on the last page that still holds rows.
+                    if (data.total > 0 && data.num > 0 && data.num * data.limit >= data.total) {
+                        self.fetch(Math.ceil(data.total / data.limit) - 1, data.limit, currentSearch, silent);
+
+                        return;
+                    }
                     if (!silent) {
                         void tbody[0].offsetWidth;
                         tbody.addClass('cl-fade-in');
