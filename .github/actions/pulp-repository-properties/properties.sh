@@ -107,10 +107,17 @@ if [[ "$REPO_BASE" == "plugins" ]]; then
     # carry the plain codename only
     REPOSITORY_NAME="${DEB_PREFIX}${STABILITY_SEGMENT}"
     BASE_PATH="$REPOSITORY_NAME"
-    SUITE="$DISTRIB"
+    # historical plugins suite names: plain codename for stable,
+    # codename-<stability> otherwise (bare "testing" segment)
+    LEGACY_SEGMENT="$STABILITY_SEGMENT"
+    [[ "$STABILITY_SEGMENT" == "testing-release" ]] && LEGACY_SEGMENT="testing"
+    LEGACY_TESTING_SEGMENT="$TESTING_SEGMENT"
+    [[ "$TESTING_SEGMENT" == "testing-release" ]] && LEGACY_TESTING_SEGMENT="testing"
+    SUITE="$DISTRIB-$LEGACY_SEGMENT"
+    [[ "$STABILITY" == "stable" ]] && SUITE="$DISTRIB"
     TESTING_REPOSITORY_NAME="${DEB_PREFIX}${TESTING_SEGMENT}"
     TESTING_BASE_PATH="$TESTING_REPOSITORY_NAME"
-    TESTING_SUITE="$DISTRIB"
+    TESTING_SUITE="$DISTRIB-$LEGACY_TESTING_SEGMENT"
     STABLE_REPOSITORY_NAME="${DEB_PREFIX}stable"
     STABLE_BASE_PATH="$STABLE_REPOSITORY_NAME"
     STABLE_SUITE="$DISTRIB"
