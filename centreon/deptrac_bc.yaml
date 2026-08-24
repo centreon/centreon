@@ -76,3 +76,6 @@ parameters:
             - Core\Common\Application\VaultEligibilityService
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGorgoneNodesSynchronizer:
+            - Centreon\Domain\Gorgone\Command\NodesSync
+            - Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface

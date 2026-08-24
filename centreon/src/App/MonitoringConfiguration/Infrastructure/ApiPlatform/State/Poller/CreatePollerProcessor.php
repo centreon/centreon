@@ -30,18 +30,22 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
+use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
+use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\TransformerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,6 +67,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        private GorgoneNodesSynchronizer $gorgoneNodesSynchronizer,
+        private LoggerInterface $logger,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -103,6 +109,14 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
+        // In PullWSS the Central only accepts the poller's websocket once Gorgone has
+        // re-read its node list, so every creation must trigger the sync — same as the
+        // legacy poller form. It is sent from here, after the command bus committed, and
+        // not from a PollerCreated handler: those run inside the create-poller
+        // transaction, where Gorgone — reading the database on its own connection —
+        // would not see the new poller yet.
+        $this->synchronizeGorgoneNodes($model);
+
         // Use the normalized value, not the raw input: the stored poller and the
         // returned command must match what GET /installation-command/{id} generates.
         $factory = PollerInstallationCommandFactory::fromPoller(
@@ -118,5 +132,28 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $resource->installationCommand = $factory->generate();
 
         return $resource;
+    }
+
+    /**
+     * A Gorgone outage must not fail a creation that is already committed: the poller is
+     * persisted and returned, and it is picked up by the next sync (legacy poller form save,
+     * configuration export or Gorgone restart).
+     *
+     * Logged at error level, not warning: the record must escape the fingers_crossed buffer
+     * so an operator sees that this poller was not announced to the Central.
+     */
+    private function synchronizeGorgoneNodes(Poller $poller): void
+    {
+        try {
+            $this->gorgoneNodesSynchronizer->synchronize();
+        } catch (\Throwable $exception) {
+            /** @var PollerId $pollerId */
+            $pollerId = $poller->id();
+
+            $this->logger->error('Failed to trigger Gorgone nodes sync', [
+                'poller_id' => $pollerId->value,
+                'exception' => ExceptionFormatter::format($exception),
+            ]);
+        }
     }
 }

@@ -24,13 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use ApiPlatform\Metadata\Post;
-use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -54,55 +52,73 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
-final class CreatePollerProcessorCommunicationTypeTest extends TestCase
+/**
+ * The Central only accepts a PullWSS poller once Gorgone re-read its node list, so a creation
+ * must always trigger the sync — and only after the poller has been persisted.
+ */
+final class CreatePollerProcessorGorgoneSyncTest extends TestCase
 {
-    public function testCloudPlatformUsesPullWss(): void
+    private FakeGorgoneNodesSynchronizer $synchronizer;
+
+    /** @var int calls counted while the create-poller command was being handled */
+    private int $synchronizeCallsDuringCommand = 0;
+
+    protected function setUp(): void
     {
-        $capturedCommand = null;
-        $processor = $this->buildProcessor(isCloudPlatform: true, capturedCommand: $capturedCommand);
-
-        $processor->process(
-            $this->buildInput(),
-            new Post(),
-        );
-
-        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
+        $this->synchronizer = new FakeGorgoneNodesSynchronizer();
     }
 
-    public function testOnPremPlatformAlsoUsesPullWss(): void
+    public function testItSynchronizesGorgoneNodesOncePerCreation(): void
     {
-        $capturedCommand = null;
-        $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('error');
 
-        $processor->process(
-            $this->buildInput(),
-            new Post(),
-        );
+        $this->buildProcessor($logger)->process($this->buildInput(), new Post());
 
-        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
+        self::assertSame(1, $this->synchronizer->synchronizeCalls);
     }
 
-    public function testCentralAddressIsPassedToCommand(): void
+    /**
+     * Gorgone reads the poller list on its own database connection: a sync sent while the
+     * create-poller transaction is still open would find nothing to register.
+     */
+    public function testItSynchronizesOnlyOnceThePollerIsPersisted(): void
     {
-        $capturedCommand = null;
-        $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
+        $this->buildProcessor($this->createMock(LoggerInterface::class))
+            ->process($this->buildInput(), new Post());
 
-        $processor->process(
-            $this->buildInput(),
-            new Post(),
-        );
-
-        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
+        self::assertSame(0, $this->synchronizeCallsDuringCommand);
+        self::assertSame(1, $this->synchronizer->synchronizeCalls);
     }
 
-    private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
+    public function testItCreatesThePollerEvenWhenGorgoneIsUnreachable(): void
+    {
+        $this->synchronizer->throwable = new \RuntimeException('Error when connecting to the Gorgone server');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
+            ->method('error')
+            ->with(
+                'Failed to trigger Gorgone nodes sync',
+                self::callback(static function (array $context): bool {
+                    self::assertSame(42, $context['poller_id']);
+                    self::assertIsArray($context['exception']);
+                    self::assertArrayHasKey('exceptions', $context['exception']);
+
+                    return true;
+                })
+            );
+
+        $resource = $this->buildProcessor($logger)->process($this->buildInput(), new Post());
+
+        self::assertSame('TestPoller', $resource->name);
+    }
+
+    private function buildProcessor(LoggerInterface $logger): CreatePollerProcessor
     {
         $poller = new Poller(
             id: new PollerId(42),
@@ -125,8 +141,8 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->method('execute')
-            ->willReturnCallback(static function (object $command) use (&$capturedCommand, $poller): Poller {
-                $capturedCommand = $command;
+            ->willReturnCallback(function () use ($poller): Poller {
+                $this->synchronizeCallsDuringCommand = $this->synchronizer->synchronizeCalls;
 
                 return $poller;
             });
@@ -163,9 +179,8 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
-            gorgoneNodesSynchronizer: new FakeGorgoneNodesSynchronizer(),
-            logger: new NullLogger(),
-            isCloudPlatform: $isCloudPlatform,
+            gorgoneNodesSynchronizer: $this->synchronizer,
+            logger: $logger,
         );
     }
 
