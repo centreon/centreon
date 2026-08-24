@@ -75,7 +75,7 @@ header('Cache-Control: no-cache, must-revalidate');
 if (! isset($allowedPollers[$pollerId])) {
     $xml->startElement('response');
     $xml->writeElement('status', _('NOK'));
-    $xml->writeElement('statuscode', 1);
+    $xml->writeElement('statuscode', '1');
     $xml->writeElement('error', _('Poller not allowed'));
     $xml->endElement();
     $xml->output();
@@ -127,10 +127,10 @@ exec(
 $xml->startElement('response');
 if ($returnVal === 0) {
     $xml->writeElement('status', _('OK'));
-    $xml->writeElement('statuscode', 0);
+    $xml->writeElement('statuscode', '0');
 } else {
     $xml->writeElement('status', _('NOK'));
-    $xml->writeElement('statuscode', 1);
+    $xml->writeElement('statuscode', '1');
     $xml->writeElement('error', _('Trap database generation failed'));
 }
 $xml->writeElement('debug', implode(' | ', $output));

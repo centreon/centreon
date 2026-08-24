@@ -74,7 +74,7 @@ $xml->startElement('response');
 
 if (! isset($allowedPollers[$pollerId])) {
     $xml->writeElement('status', _('NOK'));
-    $xml->writeElement('statuscode', 1);
+    $xml->writeElement('statuscode', '1');
     $xml->writeElement('error', _('Poller not allowed'));
     $xml->endElement();
     $xml->output();
@@ -90,10 +90,10 @@ $centcorePipe = is_dir($centcoreDirectory . '/centcore')
 $written = file_put_contents($centcorePipe, $signal . ':' . $pollerId . "\n", FILE_APPEND | LOCK_EX);
 if ($written !== false) {
     $xml->writeElement('status', _('OK'));
-    $xml->writeElement('statuscode', 0);
+    $xml->writeElement('statuscode', '0');
 } else {
     $xml->writeElement('status', _('NOK'));
-    $xml->writeElement('statuscode', 1);
+    $xml->writeElement('statuscode', '1');
     $xml->writeElement('error', _('Could not write into centcore.cmd. Please check file permissions.'));
 }
 $xml->endElement();
