@@ -1,26 +1,16 @@
 import {
-  labelAll,
-  labelCritical,
   labelCriticalStatusServices,
-  labelOk,
   labelOkStatusServices,
-  labelPending,
+  labelPendingStatusServices,
   labelServices,
-  labelUnknown,
   labelUnknownStatusServices,
-  labelWarning,
   labelWarningStatusServices
 } from '../Resources/Service/translatedLabels';
-import {
-  initialize,
-  openSubMenu,
-  submenuShouldBeClosed,
-  submenuShouldBeOpened
-} from './Header.utils';
+import { initialize } from './Header.utils';
 
 const getElements = (): void => {
-  cy.findByRole('button', { name: labelServices, timeout: 5000 }).as(
-    'serviceButton'
+  cy.findByRole('link', { name: labelServices, timeout: 5000 }).as(
+    'serviceIcon'
   );
 
   cy.findByRole('link', { name: labelCriticalStatusServices }).as(
@@ -36,26 +26,29 @@ const getElements = (): void => {
   cy.findByRole('link', { name: labelWarningStatusServices }).as(
     'warningCounter'
   );
+
+  cy.findByRole('link', { name: labelPendingStatusServices }).as(
+    'pendingCounter'
+  );
 };
 
 export default (): void =>
   describe(labelServices, () => {
     describe('responsive behaviors', () => {
-      it("hides the button's text at viewports uneder 768px", () => {
+      it('displays the icon without an expand chevron', () => {
         initialize();
         getElements();
         cy.viewport(1024, 300);
-        cy.get('@serviceButton').within(() => {
-          cy.findByText(labelServices).should('not.be.visible');
-          cy.findByTestId('ExpandMoreIcon').should('be.visible');
+        cy.get('@serviceIcon').within(() => {
           cy.findByTestId('GrainIcon').should('be.visible');
+          cy.findByTestId('ExpandMoreIcon').should('not.exist');
         });
       });
 
       it('hides top counters viewport size under 600px', () => {
         initialize();
         cy.viewport(599, 300);
-        cy.findByRole('button', { name: labelServices, timeout: 5000 }).should(
+        cy.findByRole('link', { name: labelServices, timeout: 5000 }).should(
           'be.visible'
         );
 
@@ -71,38 +64,9 @@ export default (): void =>
         cy.findByRole('link', { name: labelWarningStatusServices }).should(
           'not.exist'
         );
-      });
-    });
-
-    describe('pending indicator', () => {
-      it('displays a pending indicator when the pending count is greater than 0', () => {
-        const serviceStubs = {
-          pending: '1'
-        };
-
-        initialize({ servicesStatus: serviceStubs });
-        getElements();
-
-        cy.get('@serviceButton').within(() => {
-          cy.get('.MuiBadge-badge.MuiBadge-colorPending')
-            .should('exist')
-            .should('be.visible');
-        });
-      });
-
-      it('hides the pending indicator when there is no pending ressources', () => {
-        const serviceStubs = {
-          pending: '0'
-        };
-
-        initialize({ servicesStatus: serviceStubs });
-        getElements();
-
-        cy.get('@serviceButton').within(() => {
-          cy.get('.MuiBadge-badge.MuiBadge-colorPending')
-            .should('exist')
-            .should('not.be.visible');
-        });
+        cy.findByRole('link', { name: labelPendingStatusServices }).should(
+          'not.exist'
+        );
       });
     });
 
@@ -111,6 +75,7 @@ export default (): void =>
         const serviceStubs = {
           critical: { unhandled: '12' },
           ok: '12134',
+          pending: '3',
           unknown: { unhandled: '126' },
           warning: { unhandled: '14688222' }
         };
@@ -122,6 +87,7 @@ export default (): void =>
         cy.get('@unknownCounter').should('be.visible').contains('126');
         cy.get('@okCounter').should('be.visible').contains('12.1k');
         cy.get('@warningCounter').should('be.visible').contains('14.7m');
+        cy.get('@pendingCounter').should('be.visible').contains('3');
 
         cy.makeSnapshot();
       });
@@ -130,6 +96,7 @@ export default (): void =>
         const serviceStubs = {
           critical: { unhandled: '12' },
           ok: '12134',
+          pending: '3',
           unknown: { unhandled: '125' },
           warning: { unhandled: '14688222' }
         };
@@ -164,109 +131,13 @@ export default (): void =>
           'include',
           'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22WARNING%22,%22name%22:%22Warning%22}]},{%22name%22:%22states%22,%22value%22:[{%22id%22:%22unhandled_problems%22,%22name%22:%22Unhandled%22}]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
         );
-      });
-    });
 
-    describe('sub menu', () => {
-      it('displays a button to open the submenu', () => {
-        initialize();
-        getElements();
-        submenuShouldBeClosed(labelServices);
-        cy.get('@serviceButton').should('be.visible');
-        cy.get('@serviceButton').click();
-        submenuShouldBeOpened(labelServices);
-        cy.makeSnapshot();
-      });
+        cy.get('@pendingCounter').click();
 
-      it('closes the submenu when clicking outside, using esc key, or clicking again on the button', () => {
-        initialize();
-        getElements();
-
-        openSubMenu(labelServices);
-
-        cy.get('body').type('{esc}');
-        submenuShouldBeClosed(labelServices);
-
-        openSubMenu(labelServices);
-
-        cy.get('body').click();
-        submenuShouldBeClosed(labelServices);
-
-        openSubMenu(labelServices);
-
-        cy.get('@serviceButton').click();
-        submenuShouldBeClosed(labelServices);
-      });
-
-      it('closes the submenu when clicking on an item', () => {
-        initialize();
-        openSubMenu(labelServices);
-
-        cy.findAllByRole('menuitem').as('items');
-
-        cy.get('@items').each((item: string) => {
-          cy.get(item).click();
-          submenuShouldBeClosed(labelServices);
-          openSubMenu(labelServices);
-        });
-      });
-
-      it('displays the items in the right order, with the right texts and urls', () => {
-        const serviceStubs = {
-          critical: { total: '2', unhandled: '1' },
-          ok: '1',
-          pending: '1',
-          total: 8,
-          unknown: { total: '2', unhandled: '1' },
-          warning: { total: '2', unhandled: '1' }
-        };
-
-        initialize({ servicesStatus: serviceStubs });
-        openSubMenu(labelServices);
-
-        cy.get('#Services-menu').within(() => {
-          cy.findAllByRole('menuitem').as('items').should('have.length', 6);
-
-          const expectedOrderAndContent = [
-            {
-              count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelCritical
-            },
-            {
-              count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"WARNING","name":"Warning"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelWarning
-            },
-            {
-              count: '1/2',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"UNKNOWN","name":"Unknown"}]},{"name":"states","value":[{"id":"unhandled_problems","name":"Unhandled"}]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelUnknown
-            },
-            {
-              count: '1',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"OK","name":"Ok"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelOk
-            },
-            {
-              count: '1',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"PENDING","name":"Pending"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelPending
-            },
-            {
-              count: '8',
-              href: '/monitoring/resources?filter={"criterias":[{"name":"resource_types","value":[]},{"name":"statuses","value":[{"id":"OK","name":"Ok"},{"id":"PENDING","name":"Pending"},{"id":"UNKNOWN","name":"Unknown"},{"id":"WARNING","name":"Warning"},{"id":"CRITICAL","name":"Critical"}]},{"name":"states","value":[]},{"name":"search","value":""}]}&fromTopCounter=true',
-              label: labelAll
-            }
-          ];
-
-          cy.get('@items').each((el, index) => {
-            cy.wrap(el)
-              .should('contain.text', expectedOrderAndContent[index].label)
-              .should('contain.text', expectedOrderAndContent[index].count)
-              .should('have.attr', 'href', expectedOrderAndContent[index].href);
-          });
-        });
+        cy.url().should(
+          'include',
+          'monitoring/resources?filter={%22criterias%22:[{%22name%22:%22resource_types%22,%22value%22:[]},{%22name%22:%22statuses%22,%22value%22:[{%22id%22:%22PENDING%22,%22name%22:%22Pending%22}]},{%22name%22:%22states%22,%22value%22:[]},{%22name%22:%22search%22,%22value%22:%22%22}]}&fromTopCounter=true'
+        );
       });
     });
   });
