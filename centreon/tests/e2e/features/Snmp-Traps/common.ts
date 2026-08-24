@@ -3,7 +3,10 @@
 const listingTable = 'table.cl-listing-table';
 const listingTableBody = '#clTableBody';
 const listingSearchInput = '#clSearchInput';
-const listingAddButton = 'a.cl-btn-add';
+// Scoped to the toolbar: when the listing is empty, listing.js clones this button
+// into the empty state as `.cl-btn-add--empty`, so an unscoped selector matches two
+// elements on a fresh platform.
+const listingAddButton = '.cl-actions-left a.cl-btn-add';
 const listingPagination = '#clPaginationTop';
 const rowCheckbox = '.cl-col-picker input[type="checkbox"]';
 const sidePanelFrame = '#cfSidePanelFrame';
