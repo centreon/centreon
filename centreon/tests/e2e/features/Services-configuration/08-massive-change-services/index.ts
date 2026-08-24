@@ -131,16 +131,13 @@ When('the user has applied "Mass Change" operation on several services', () => {
   selectServiceRow(services.serviceWarning.name);
   selectServiceRow(services.serviceCritical.name);
 
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Mass Change', { force: true });
+  // Mass Change is the one bulk action that does not submit the form: the
+  // framework opens the side panel on the selected ids instead, so there is
+  // neither a confirmation modal nor a POST — hence the menu driven here rather
+  // than cy.runListingBulkAction(). Selecting on the hidden <select> made the
+  // panel open mid-chain, detaching the subject of whatever came next.
+  cy.getIframeBody().find('.cl-more-actions-btn').first().click();
+  cy.getIframeBody().find('.cl-more-actions-item[data-value="mc"]').click();
   cy.wait('@getTimeZone');
   cy.getFormBody()
     .find('span[id="select2-command_command_id-container"]', {

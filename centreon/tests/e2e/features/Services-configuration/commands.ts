@@ -723,8 +723,11 @@ Cypress.Commands.add('getServiceCategorySidePanelBody', () => {
     .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
 });
 
+// openListingRowForm waits for the panel to have released its iframe: clicking
+// during the closing transition lets the pending reset blank the src that was
+// just set, and the panel then loads empty for good.
 Cypress.Commands.add('openServiceCategoryForm', (name: string) => {
-  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  cy.openListingRowForm(name);
   cy.getServiceCategorySidePanelBody()
     .find('input[name="sc_name"]', { timeout: 20000 })
     .should('be.visible');
