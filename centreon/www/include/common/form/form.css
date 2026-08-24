@@ -265,7 +265,7 @@
 
 /* Text inputs carry the same 40px box as .cf-field select and the select2
    single selection below, so a row mixing a text field and a dropdown reads as
-   one control height instead of a 36/40 stagger (review feedback on the PR).
+   one control height instead of a 36/40 stagger.
    Vertical padding goes to 0 — the fixed height centres a single line of text on
    its own; the textarea above is deliberately excluded and keeps its padding. */
 .cf-field input:not([type="radio"]):not([type="checkbox"]):not(.select2-search__field) {
