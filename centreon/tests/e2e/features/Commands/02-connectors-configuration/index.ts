@@ -6,6 +6,9 @@ import data from '../../../fixtures/commands/connector.json';
 
 before(() => {
   cy.startContainers();
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/connectors-acl-user-readonly-rights.json'
+  );
 });
 
 beforeEach(() => {
@@ -28,6 +31,9 @@ beforeEach(() => {
 });
 
 after(() => {
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/config-ACL/delete-connectors-acl-user-readonly-rights.json'
+  );
   cy.stopContainers();
 });
 
@@ -43,12 +49,7 @@ const openConnectorsListing = (): void => {
   cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
 };
 
-/**
- * Anchored on purpose: contains() is substring-based, so from the duplication
- * scenario onward '<name>' would also match the '<name>_1' row and the step
- * would only pick the right one because ORDER BY name happens to sort the
- * shorter one first.
- */
+/** contains() is substring-based: an unanchored '<name>' also matches '<name>_1'. */
 const listingRowAnchor = (name: string): RegExp =>
   new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
 
@@ -68,17 +69,15 @@ const submitConnectorForm = (): void => {
   cy.getConnectorSidePanelBody()
     .find('input.btc.bt_success[name^="submit"]')
     .click({ force: true });
-  // The POST navigates the nested iframe, which Cypress does not track: without
-  // this the next cy.visit could cancel it. The re-rendered listing closes the
-  // panel from inside the frame, so losing the class is the round-trip landing.
+  // The POST navigates the nested iframe, which Cypress does not track. The panel
+  // is closed from inside that frame once the listing re-renders, so the class
+  // dropping is the signal that the round trip landed.
   cy.getIframeBody().find('#cfSidePanel').should('not.have.class', 'open');
 };
 
 /**
- * Run a bulk action through the control the user actually clicks: the styled
- * .cl-more-actions menu and the confirmation modal, whose wording comes from
- * the translated data-* attributes of the o1 select. Driving the hidden native
- * select instead would leave menu, modal and translations uncovered.
+ * Driving the hidden native select instead of the .cl-more-actions menu would
+ * leave the menu, the confirmation modal and their translations uncovered.
  */
 const selectRowAndRunBulkAction = (
   name: string,
@@ -88,7 +87,7 @@ const selectRowAndRunBulkAction = (
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', listingRowAnchor(name))
-    .parents('tr')
+    .closest('tr')
     // Scoped to the picker: the row also holds the activation toggle checkbox.
     .find('.cl-col-picker input[type="checkbox"]')
     .click({ force: true });
@@ -106,7 +105,6 @@ const selectRowAndRunBulkAction = (
   // appears somewhere in the modal.
   cy.getIframeBody().find('.cl-confirm-body strong').should('have.text', name);
   cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
-  // The action submits the listing form; wait for the reloaded page's fetch.
   cy.wait('@listConnectors');
 };
 
@@ -115,8 +113,23 @@ const rowToggle = (name: string) =>
     .getIframeBody()
     .find('#clTableBody')
     .contains('a', listingRowAnchor(name))
-    .parents('tr')
+    .closest('tr')
     .find('.cl-toggle input[type="checkbox"]');
+
+const AjaxBase = '/centreon/include/configuration/configObject/connector/';
+
+const searchListing = (term: string): void => {
+  cy.getIframeBody().find('#clSearchInput').clear().type(term);
+  cy.wait('@listConnectors');
+};
+
+const expectOnlyRowListed = (name: string): void => {
+  cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', listingRowAnchor(name))
+    .should('exist');
+};
 
 Given('an admin user is logged in a Centreon server', () => {
   cy.loginByTypeOfUser({
@@ -143,13 +156,16 @@ Then('the connector is displayed in the list', () => {
     .find('#clTableBody')
     .contains('a', listingRowAnchor(data.connector.name))
     .should('exist');
-  // The listing truncates the command line at 70 characters while the form
-  // keeps the full value; the fixture is longer than that on purpose.
+  // The cell is clipped by CSS, not by the endpoint: the whole command line has
+  // to be both rendered and reachable through the tooltip. The fixture is longer
+  // than the visible width on purpose.
   cy.getIframeBody()
     .find('#clTableBody')
     .contains('a', listingRowAnchor(data.connector.name))
-    .parents('tr')
-    .should('contain.text', `${data.connector.command_line.slice(0, 70)}...`);
+    .closest('tr')
+    .find('td span[title]')
+    .should('have.attr', 'title', data.connector.command_line)
+    .and('have.text', data.connector.command_line);
 });
 
 When('the user changes the properties of a connector', () => {
@@ -199,18 +215,17 @@ When(
   'the user updates the status of a connector to {string}',
   (type: string) => {
     openConnectorsListing();
-    // Set the state the example asks for rather than blindly toggling, so both
-    // rows of the outline are independent of the order they run in.
     const shouldBeEnabled = type === 'Enabled';
-    rowToggle(data.connectorUpdated.name).then(($toggle) => {
-      if ($toggle.prop('checked') === shouldBeEnabled) {
-        return;
-      }
-      cy.wrap($toggle).click({ force: true });
-      cy.wait('@toggleConnector').then(({ response }) => {
-        expect(response?.statusCode).to.equal(200);
-        expect(response?.body).to.have.property('success', true);
-      });
+    // Assert the starting state instead of skipping when it already matches: a
+    // change to the creation default would otherwise turn the outline into a
+    // green no-op that toggles nothing.
+    rowToggle(data.connectorUpdated.name).should(
+      shouldBeEnabled ? 'not.be.checked' : 'be.checked'
+    );
+    rowToggle(data.connectorUpdated.name).click({ force: true });
+    cy.wait('@toggleConnector').then(({ response }) => {
+      expect(response?.statusCode).to.equal(200);
+      expect(response?.body).to.have.property('success', true);
     });
   }
 );
@@ -233,7 +248,7 @@ When('the user deletes a connector', () => {
 
 Then('the deleted connector is not displayed in the list', () => {
   openConnectorsListing();
-  // Pinned on the duplicate the previous scenario left behind, so the absence
+  // Anchored on the duplicate left behind by an earlier scenario, so the absence
   // below is proven against a populated table rather than an empty or errored one.
   cy.getIframeBody()
     .find('#clTableBody')
@@ -244,3 +259,119 @@ Then('the deleted connector is not displayed in the list', () => {
     .contains('a', listingRowAnchor(data.connectorUpdated.name))
     .should('not.exist');
 });
+
+Given(
+  'a connector with a distinctive description and command line exists',
+  () => {
+    openConnectorsListing();
+    cy.getIframeBody().find('a.cl-btn-add').click();
+    cy.addConnectors({
+      ...data.connectorForSearch,
+      commandLine: data.connectorForSearch.command_line,
+      isEnabled: data.connectorForSearch.is_enabled,
+      usedByCommand: data.connectorForSearch.used_by_command
+    });
+    submitConnectorForm();
+  }
+);
+
+When(
+  'the user searches the listing by name, by description and by command line',
+  () => {
+    openConnectorsListing();
+    // More than one row to filter out, otherwise a search that does nothing at
+    // all would still leave the expected connector on screen.
+    cy.getIframeBody()
+      .find('#clTableBody tr')
+      .should('have.length.greaterThan', 1);
+
+    searchListing(data.connectorForSearch.name);
+    expectOnlyRowListed(data.connectorForSearch.name);
+
+    searchListing(data.connectorForSearch.description);
+    expectOnlyRowListed(data.connectorForSearch.name);
+
+    searchListing('searchable-command-token');
+    expectOnlyRowListed(data.connectorForSearch.name);
+  }
+);
+
+Then('each search returns only that connector', () => {
+  // Clearing brings the other rows back, so the filtering above was the search
+  // doing its job and not the listing having lost its content.
+  searchListing('connector-');
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 1);
+});
+
+When('a user with read-only rights displays the connectors', () => {
+  cy.logout();
+  cy.loginByTypeOfUser({
+    jsonName: 'connectors-acl-user-readonly-rights',
+    loginViaApi: false
+  });
+  openConnectorsListing();
+});
+
+Then(
+  'no write control is offered and the server refuses a forged status change',
+  () => {
+    cy.getIframeBody().find('a.cl-btn-add').should('not.exist');
+    cy.getIframeBody().find('.cl-more-actions-btn').should('not.exist');
+    cy.getIframeBody().find('.cl-dup-input').should('not.exist');
+    cy.getIframeBody()
+      .find('.cl-toggle input[type="checkbox"]')
+      .first()
+      .should('be.disabled');
+
+    // Hiding the controls proves nothing on its own: the endpoint has to refuse
+    // the same action when it is called directly, with a token it accepts.
+    cy.request({
+      failOnStatusCode: false,
+      method: 'GET',
+      url: `${AjaxBase}ajaxConnectorListing.php`
+    }).then((listing) => {
+      expect(listing.status).to.equal(200);
+      expect(listing.body.rows).to.have.length.greaterThan(0);
+
+      cy.request({
+        body: {
+          action: 'u',
+          centreon_token: listing.body.centreon_token,
+          id: listing.body.rows[0].id
+        },
+        failOnStatusCode: false,
+        form: true,
+        method: 'POST',
+        url: `${AjaxBase}ajaxConnectorToggle.php`
+      }).then((toggle) => {
+        expect(toggle.status).to.equal(403);
+        expect(toggle.body).to.have.property('error', 'Write access denied');
+      });
+    });
+  }
+);
+
+When('the status change of a connector fails on the server', () => {
+  openConnectorsListing();
+  cy.intercept(
+    { method: 'POST', url: INTERCEPTORS.ajax.connector_toggle },
+    { body: { error: 'Internal error' }, statusCode: 500 }
+  ).as('toggleFailure');
+  rowToggle(data.connectorUpdated.name).should('be.checked').click({
+    force: true
+  });
+  cy.wait('@toggleFailure');
+});
+
+Then(
+  'the toggle returns to its previous state and an error is displayed',
+  () => {
+    cy.getIframeBody()
+      .find('.cl-toast.error')
+      .should('be.visible')
+      .and('contain.text', 'Could not change status');
+    rowToggle(data.connectorUpdated.name).should('be.checked');
+  }
+);
