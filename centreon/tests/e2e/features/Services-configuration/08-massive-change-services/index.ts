@@ -136,8 +136,14 @@ When('the user has applied "Mass Change" operation on several services', () => {
   // neither a confirmation modal nor a POST — hence the menu driven here rather
   // than cy.runListingBulkAction(). Selecting on the hidden <select> made the
   // panel open mid-chain, detaching the subject of whatever came next.
+  // The panel then loads the mass change form in its iframe, and that form is
+  // heavy: getFormBody() only waits 20s for a body to stop being empty, which a
+  // busy CI platform outruns. Synchronising on the request itself removes the
+  // guesswork.
+  cy.intercept('GET', '**/main.get.php*o=mc*').as('massChangeForm');
   cy.getIframeBody().find('.cl-more-actions-btn').first().click();
   cy.getIframeBody().find('.cl-more-actions-item[data-value="mc"]').click();
+  cy.wait('@massChangeForm', { timeout: 60_000 });
   cy.wait('@getTimeZone');
   cy.getFormBody()
     .find('span[id="select2-command_command_id-container"]', {
