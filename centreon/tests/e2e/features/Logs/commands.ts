@@ -128,6 +128,29 @@ Cypress.Commands.add('deleteSubjectViaApiV2', (url: string) => {
   });
 });
 
+// The change log lists the fields in the order the form submitted them, so a row
+// index shifts as soon as the form's field order changes. The field name does
+// not move.
+Cypress.Commands.add(
+  'checkLogDetailsByField',
+  (tableIndex: number, fieldName: string, before: string, after: string) => {
+    cy.getIframeBody()
+      .find('table.ListTable')
+      .eq(tableIndex)
+      .find('tbody tr')
+      .filter(
+        (_index, row) =>
+          row.querySelector('td')?.textContent?.trim() === fieldName
+      )
+      .should('have.length', 1)
+      .find('td')
+      .then(($cells) => {
+        expect($cells.eq(1).text().trim()).to.equal(before);
+        expect($cells.eq(2).text().trim()).to.equal(after);
+      });
+  }
+);
+
 Cypress.Commands.add(
   'checkLogDetails',
   (
@@ -168,6 +191,12 @@ declare global {
         body: TimePeriod
       ) => Cypress.Chainable;
       deleteTimePeriodViaApi: (name: string) => Cypress.Chainable;
+      checkLogDetailsByField: (
+        tableIndex: number,
+        fieldName: string,
+        before: string,
+        after: string
+      ) => Cypress.Chainable;
       checkLogDetails: (
         tableIndex: number,
         trIndex: number,

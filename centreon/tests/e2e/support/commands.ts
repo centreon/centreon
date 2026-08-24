@@ -169,6 +169,8 @@ Cypress.Commands.add(
 // find().should('not.exist') pins a subject that the post-action reload replaces,
 // and Cypress then refuses to requery it. waitUntil re-runs the whole lookup on
 // every attempt, which is how waitForElementInIframe already handles presence.
+// Exact text, not :contains: a duplicated row is named <name>_1, so the row the
+// caller waits on can be long gone while the copy still matches the substring.
 Cypress.Commands.add(
   'waitForListingToDrop',
   (text: string): Cypress.Chainable => {
@@ -178,8 +180,11 @@ Cypress.Commands.add(
           .getListingBody()
           .then(
             ($body) =>
-              Cypress.$($body).find(`#clTableBody *:contains("${text}")`)
-                .length === 0
+              Cypress.$($body)
+                .find('#clTableBody *')
+                .filter(
+                  (_index, element) => element.textContent?.trim() === text
+                ).length === 0
           ),
       {
         errorMsg: `"${text}" still listed after waiting`,
@@ -311,6 +316,10 @@ Cypress.Commands.add(
   }
 );
 
+interface Select2Window extends Window {
+  jQuery: (element: Element) => { select2: (action: string) => void };
+}
+
 Cypress.Commands.add(
   'selectFormOption',
   (selectId: string, option: string): Cypress.Chainable => {
@@ -321,24 +330,82 @@ Cypress.Commands.add(
       .contains(option)
       .click({ force: true });
 
-    // A single select closes on pick, a multiple one keeps its dropdown open and
-    // the results list then covers whatever sits below the field. Escape has to
-    // reach select2's own search field: the widget listens there, not on the body.
-    cy.getFormBody().then(($body) => {
-      if ($body.find('.select2-container--open').length === 0) {
-        return;
-      }
+    return cy.closeFormSelect2(selectId);
+  }
+);
 
-      cy.getFormBody()
-        .find('.select2-search__field')
-        .first()
-        .type('{esc}', { force: true });
-    });
+// A single select closes on pick, a multiple one keeps its dropdown open and the
+// results list then covers whatever sits below the field. Escape only reaches
+// the widget while select2's own search field holds the focus, which the pick
+// has already moved away — and on a multiple select there is one such field per
+// widget, so the first one is rarely the open one. Closing through select2's own
+// API needs neither the focus nor the right guess.
+Cypress.Commands.add(
+  'closeFormSelect2',
+  (selectId: string): Cypress.Chainable => {
+    cy.getFormBody()
+      .find(`select#${selectId}`)
+      .then(($select) => {
+        const form = $select[0].ownerDocument.defaultView as Select2Window;
+
+        form.jQuery($select[0]).select2('close');
+      });
 
     return cy
       .getFormBody()
       .find('.select2-container--open')
       .should('not.exist');
+  }
+);
+
+// Every eraser in the migrated forms is hidden at rest and shown only while its
+// field is active and holds a value (form.css), and initSingleSelectClear drops
+// the ones select2 rendered to re-create its own inside the widget's container
+// (form.js) — so neither the DOM order nor the plain visibility the legacy
+// suites relied on still holds. Reaching the eraser through its own field
+// answers both: activate the field, clear it if there is anything to clear, then
+// close the dropdown that the activation opened.
+Cypress.Commands.add(
+  'clearFormSelect',
+  (selectId: string): Cypress.Chainable => {
+    cy.openFormSelect2(selectId);
+
+    cy.getFormBody()
+      .find(`select#${selectId}`)
+      .then(($select) => {
+        // A migrated form wraps each field in .cf-field. The legacy forms this
+        // helper also serves — the host form, still rendered full page — have no
+        // such wrapper, so the eraser is looked up next to the widget instead.
+        const field = $select.closest('.cf-field');
+        const scope = field.length > 0 ? field : $select.parent();
+        const eraser = scope.find('.clearAllSelect2');
+
+        if (eraser.length > 0 && eraser.is(':visible')) {
+          cy.wrap(eraser).click({ force: true });
+        }
+      });
+
+    return cy.closeFormSelect2(selectId);
+  }
+);
+
+// The suites that drive a field to a known value need the value to REPLACE what
+// the field holds, not to join it: checkValuesOf… asserts a single selected
+// option. The option is matched on its whole text, since a check command named
+// check_http is a prefix of check_https.
+Cypress.Commands.add(
+  'replaceFormOption',
+  (selectId: string, option: string): Cypress.Chainable => {
+    cy.clearFormSelect(selectId);
+    cy.openFormSelect2(selectId);
+
+    cy.getFormBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .filter((_index, element) => element.textContent?.trim() === option)
+      .first()
+      .click({ force: true });
+
+    return cy.closeFormSelect2(selectId);
   }
 );
 
@@ -375,6 +442,37 @@ Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
     .clear()
     .type(body.valueOrIndex);
 });
+
+// The migrated listings hide the legacy <select name="o1"> behind a "More
+// actions" menu and a styled confirmation modal. Overriding that select's own
+// onchange — how the suites used to reach the legacy dispatcher — skips both,
+// and submits through form.submit(), which the framework itself steers clear of:
+// a field named submit shadows the method, so clMoreAction calls the prototype.
+// Driving the menu runs the very path a user takes.
+Cypress.Commands.add(
+  'runListingBulkAction',
+  (action: string): Cypress.Chainable => {
+    // clMoreAction counts the per-row select[] boxes, not the header one: with
+    // none checked it only shows an alert, and the confirm click below then
+    // silently dismisses that alert instead of running the action.
+    cy.getIframeBody()
+      .find('.cl-col-picker input[type="checkbox"][name^="select["]:checked')
+      .should('have.length.at.least', 1);
+    cy.getIframeBody().find('.cl-more-actions-btn').first().click();
+    cy.getIframeBody()
+      .find(`.cl-more-actions-item[data-value="${action}"]`)
+      .click();
+
+    cy.intercept('POST', '**/main.get.php*').as('bulkActionPost');
+    cy.getIframeBody()
+      .find('.cl-confirm-modal .cl-confirm-confirm-btn', { timeout: 20_000 })
+      .click();
+
+    // The action is a form submit, not an XHR: waiting on it is what tells the
+    // steps below that the listing they are about to read has been reloaded.
+    return cy.wait('@bulkActionPost', { timeout: 30_000 });
+  }
+);
 
 Cypress.Commands.add('clickOnFieldInIframe', (body: HtmlElt) => {
   cy.getFormBody()
@@ -426,6 +524,13 @@ declare global {
       clickListingAddButton: () => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
+      clearFormSelect: (selectId: string) => Cypress.Chainable;
+      runListingBulkAction: (action: string) => Cypress.Chainable;
+      closeFormSelect2: (selectId: string) => Cypress.Chainable;
+      replaceFormOption: (
+        selectId: string,
+        option: string
+      ) => Cypress.Chainable;
     }
   }
 }

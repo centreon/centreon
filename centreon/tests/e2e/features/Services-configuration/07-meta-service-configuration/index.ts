@@ -246,6 +246,10 @@ When('the user changes the properties of a meta service', () => {
   cy.getMetaServiceSidePanelBody()
     .find(`div[title=${data.default.contact_groups}]`)
     .click();
+  // Removing a chip re-opens the multi-select it belongs to, and its result list
+  // then hangs over the fields below — notification_interval among them.
+  cy.closeFormSelect2('ms_cs');
+  cy.closeFormSelect2('ms_cgs');
   cy.getMetaServiceSidePanelBody()
     .find('input[name="notification_interval"]')
     .clear()

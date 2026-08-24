@@ -81,7 +81,10 @@ Then('all the properties, including the macros, are successfully saved', () => {
     '#main-content',
     `a:contains(${serviceMacros.default_service.name})`
   );
-  cy.getIframeBody().contains('a', serviceMacros.default_service.name).click();
+  // openListingRowForm waits for the side panel to have released its iframe:
+  // a click made during the closing transition lets the pending reset blank the
+  // src that was just set, and the panel then loads empty for good.
+  cy.openListingRowForm(serviceMacros.default_service.name);
   cy.getFormBody()
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
@@ -116,7 +119,10 @@ Given('an existing service with macros', () => {
 });
 
 When('the non-admin user opens the service for editing', () => {
-  cy.getIframeBody().contains('a', serviceMacros.default_service.name).click();
+  // openListingRowForm waits for the side panel to have released its iframe:
+  // a click made during the closing transition lets the pending reset blank the
+  // src that was just set, and the panel then loads empty for good.
+  cy.openListingRowForm(serviceMacros.default_service.name);
   cy.getFormBody()
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
@@ -135,7 +141,10 @@ Then('the modified macros are saved successfully', () => {
     '#main-content',
     `a:contains(${serviceMacros.updated_service.name})`
   );
-  cy.getIframeBody().contains('a', serviceMacros.updated_service.name).click();
+  // openListingRowForm waits for the side panel to have released its iframe:
+  // a click made during the closing transition lets the pending reset blank the
+  // src that was just set, and the panel then loads empty for good.
+  cy.openListingRowForm(serviceMacros.updated_service.name);
   cy.getFormBody()
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
@@ -153,7 +162,10 @@ Given('a configured service with macros', () => {
 });
 
 When('the non-admin user deletes the macros of the configured service', () => {
-  cy.getIframeBody().contains('a', serviceMacros.updated_service.name).click();
+  // openListingRowForm waits for the side panel to have released its iframe:
+  // a click made during the closing transition lets the pending reset blank the
+  // src that was just set, and the panel then loads empty for good.
+  cy.openListingRowForm(serviceMacros.updated_service.name);
   cy.getFormBody()
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
@@ -168,7 +180,10 @@ Then('the macros are deleted successfully', () => {
     '#main-content',
     `a:contains(${serviceMacros.updated_service.name})`
   );
-  cy.getIframeBody().contains('a', serviceMacros.updated_service.name).click();
+  // openListingRowForm waits for the side panel to have released its iframe:
+  // a click made during the closing transition lets the pending reset blank the
+  // src that was just set, and the panel then loads empty for good.
+  cy.openListingRowForm(serviceMacros.updated_service.name);
   cy.getFormBody()
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
@@ -237,9 +252,9 @@ Given(
       '#main-content',
       `a:contains(${serviceMacros.default_service.name})`
     );
-    cy.getIframeBody()
-      .contains('a', serviceMacros.default_service.name)
-      .click();
+    // Same reason as above: the panel has to have released its iframe before
+    // the click, or it loads blank.
+    cy.openListingRowForm(serviceMacros.default_service.name);
     cy.getFormBody()
       .find('input[name="service_description"]', { timeout: 20_000 })
       .should('be.visible');
@@ -414,9 +429,9 @@ When(
       '#main-content',
       `a:contains(${serviceMacros.default_service.name})`
     );
-    cy.getIframeBody()
-      .contains('a', serviceMacros.default_service.name)
-      .click();
+    // Same reason as above: the panel has to have released its iframe before
+    // the click, or it loads blank.
+    cy.openListingRowForm(serviceMacros.default_service.name);
     cy.getFormBody()
       .find('input[name="service_description"]', { timeout: 20_000 })
       .should('be.visible');

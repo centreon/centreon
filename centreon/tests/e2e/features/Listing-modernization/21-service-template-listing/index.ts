@@ -8,12 +8,22 @@ const templateBeta = 'st_test_beta';
 const duplicatedTemplateAlpha = `${templateAlpha}_1`;
 
 // The Locked filter sits in the advanced-filters popover, which has to be
-// opened before its fields are reachable.
+// opened before its fields are reachable. The button is a toggle and the popover
+// stays open across a search, so clicking it unconditionally closes the panel
+// the second time — taking the Search button out of reach with it.
 const openAdvancedFilters = () =>
   cy
     .getIframeBody()
-    .find('.cl-adv-icon-btn[data-cl-adv-panel="clAdvPanel"]')
-    .click();
+    .find('#clAdvPanel')
+    .then(($panel) => {
+      if ($panel.hasClass('open')) {
+        return;
+      }
+
+      cy.getIframeBody()
+        .find('.cl-adv-icon-btn[data-cl-adv-panel="clAdvPanel"]')
+        .click();
+    });
 
 beforeEach(() => {
   cy.startContainers();

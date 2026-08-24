@@ -35,31 +35,6 @@ When('a service is configured', () => {
 
 const serviceName = 'test';
 const modifiedName = 'test_modified';
-const hostName = 'host_1';
-
-// The Host filter sits in the advanced-filters popover, which has to be opened
-// before its fields are reachable.
-const filterOnHost = (host: string): void => {
-  cy.getIframeBody()
-    .find('.cl-adv-icon-btn[data-cl-adv-panel="clAdvPanel"]')
-    .click();
-  cy.getIframeBody().find('#clSearchH').clear().type(host);
-  cy.getIframeBody().find('#clSearchBtn').click();
-  cy.waitForListingRefresh();
-};
-
-// Bulk actions go through the hidden o1 select, whose onchange has to be
-// overridden to reach the legacy dispatcher.
-const runBulkActionOnSelection = (action: string): void => {
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
-};
 
 // Single-select fields are select2 widgets rendered in the side panel document.
 const selectFormOption = (selectId: string, option: string): void => {
@@ -71,6 +46,24 @@ const selectFormOption = (selectId: string, option: string): void => {
   cy.getListingSidePanelBody()
     .find('.select2-results__option', { timeout: 20_000 })
     .contains(option)
+    .click({ force: true });
+};
+
+// Queries only — find and filter are replayed, so the chain survives the timed
+// refresh replacing the table. The row is matched on the exact link text, and
+// its checkbox is visibility:hidden behind the md-checkbox label, hence the
+// forced click. Picking the row by name is also why these steps no longer
+// narrow the listing down to one host first: every search re-fetches, and a box
+// ticked while that is in flight is dropped by the re-render.
+const selectListingRow = (name: string): void => {
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .filter((_index, row) =>
+      Array.from(row.querySelectorAll('a')).some(
+        (link) => link.textContent?.trim() === name
+      )
+    )
+    .find('.cl-col-picker input[type="checkbox"]')
     .click({ force: true });
 };
 
@@ -116,9 +109,8 @@ Then('the properties are updated', () => {
 
 When('the user duplicates a service', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
-  filterOnHost(hostName);
-  cy.getIframeBody().find('#checkall').click({ force: true });
-  runBulkActionOnSelection('Duplicate');
+  selectListingRow(serviceName);
+  cy.runListingBulkAction('m');
   cy.exportConfig();
 });
 
@@ -136,12 +128,8 @@ Then('the new service has the same properties', () => {
 
 When('the user deletes a service', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
-  // Narrowing on the host then selecting everything replaces the per-row host
-  // match: the listing groups its rows, so the host name is only rendered on
-  // the first row of each group.
-  filterOnHost(hostName);
-  cy.getIframeBody().find('#checkall').click({ force: true });
-  runBulkActionOnSelection('Delete');
+  selectListingRow(serviceName);
+  cy.runListingBulkAction('d');
 });
 
 Then('the deleted service is not displayed in the service list', () => {

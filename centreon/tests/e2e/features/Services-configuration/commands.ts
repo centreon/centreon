@@ -98,13 +98,6 @@ interface HostGroupService {
   comment: string;
 }
 
-interface HtmlElt {
-  tag: string;
-  attribut: string;
-  attributValue: string;
-  valueOrIndex: string;
-}
-
 Cypress.Commands.add(
   'addOrUpdateVirtualMetric',
   (body: VirtualMetric, showGraph: boolean) => {
@@ -435,36 +428,37 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'createOrUpdateHostGroupService',
-  (body: HostGroupService, isUpdate: boolean, htmldata: Array<HtmlElt>) => {
+  (body: HostGroupService, isUpdate: boolean) => {
+    // The suite used to drive this form through a list of (tag, attribute,
+    // index) triples, clicking every "Clear field" eraser by its rank among all
+    // of them. The migrated form rebuilds those erasers — initSingleSelectClear
+    // drops the ones select2 rendered and creates its own inside the widget's
+    // container — so that rank no longer names the same field. Naming the field
+    // is what survives the rebuild.
+    // The help tooltip of a field carries the field's own name attribute, so the
+    // input has to be named as one: a bare [name=…] matches the tooltip too.
+    const fillFormField = (name: string, value: number | string): void => {
+      cy.getFormBody()
+        .find(`input[name="${name}"], textarea[name="${name}"]`)
+        .clear()
+        .type(`${value}`);
+    };
+
     cy.getFormBody()
       .find('input[name="service_description"]', { timeout: 20_000 })
       .should('be.visible');
-    cy.fillFieldInIframe(htmldata[0]);
-    [htmldata[1], htmldata[2], htmldata[3], htmldata[4]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getFormBody()
-      .find('#select2-service_template_model_stm_id-container')
-      .click();
-    [htmldata[5], htmldata[6]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getFormBody().find('#select2-command_command_id-container').click();
-    cy.getFormBody()
-      .find('input[class="select2-search__field"]')
-      .eq(6)
-      .type(body.checkCommand);
-    cy.clickOnFieldInIframe(htmldata[7]);
+    fillFormField('service_description', body.name);
+    cy.replaceFormOption('service_hgPars', body.hostGroups);
+    cy.replaceFormOption('service_template_model_stm_id', body.template);
+    cy.replaceFormOption('command_command_id', body.checkCommand);
     cy.getFormBody().find('#macro_add').click();
     cy.getFormBody().find('#macroInput_0', { timeout: 20_000 }).should('exist');
     cy.getFormBody().find('#macroInput_0').clear().type(body.macroName);
     cy.getFormBody().find('#macroValue_0').clear().type(`${body.macroValue}`);
-    cy.clickOnFieldInIframe(htmldata[8]);
-    cy.getFormBody().find('#select2-timeperiod_tp_id-container').click();
-    cy.clickOnFieldInIframe(htmldata[9]);
-    [htmldata[10], htmldata[11], htmldata[12]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
+    cy.replaceFormOption('timeperiod_tp_id', body.checkPeriod);
+    fillFormField('service_max_check_attempts', body.maxCheckAttempts);
+    fillFormField('service_normal_check_interval', body.normalCheckInterval);
+    fillFormField('service_retry_check_interval', body.retryCheckInterval);
     if (isUpdate) {
       // The radio labels are hidden behind the generated segmented buttons;
       // keep the original intent (the form's first "No") without having to name
@@ -477,64 +471,43 @@ Cypress.Commands.add(
     }
     //Notifications
     cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
-    cy.clickOnFieldInIframe(htmldata[13]);
-    cy.getFormBody()
-      .find('input[class="select2-search__field"]')
-      .eq(1)
-      .click({ force: true });
-    [htmldata[14], htmldata[15]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getFormBody()
-      .find('input[class="select2-search__field"]')
-      .eq(2)
-      .click({ force: true });
-    cy.clickOnFieldInIframe(htmldata[16]);
-    cy.fillFieldInIframe(htmldata[17]);
-    cy.clickOnFieldInIframe(htmldata[18]);
-    cy.getFormBody().find('#select2-timeperiod_tp_id2-container').click();
-    cy.clickOnFieldInIframe(htmldata[19]);
+    cy.replaceFormOption('service_cs', body.contacts);
+    cy.replaceFormOption('service_cgs', body.contactGroups);
+    fillFormField('service_notification_interval', body.notificationInterval);
+    cy.replaceFormOption('timeperiod_tp_id2', body.notificationPeriod);
     cy.getFormBody().find('#notifC').click({ force: true });
     if (isUpdate) {
       cy.getFormBody().find('#notifC').click({ force: true });
       cy.getFormBody().find('#notifU').click({ force: true });
     }
-    [htmldata[20], htmldata[21]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
+    fillFormField(
+      'service_first_notification_delay',
+      body.firstNotificationDelay
+    );
+    fillFormField(
+      'service_recovery_notification_delay',
+      body.recoveryNotificationDelay
+    );
     //Relations
     cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-relations"]').click();
-    cy.clickOnFieldInIframe(htmldata[22]);
-    cy.getFormBody()
-      .find('input[class="select2-search__field"]')
-      .eq(3)
-      .click({ force: true });
-    [htmldata[23], htmldata[24]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getFormBody()
-      .find('input[class="select2-search__field"]')
-      .eq(4)
-      .click({ force: true });
-    cy.clickOnFieldInIframe(htmldata[25]);
+    cy.replaceFormOption('service_sgs', body.serviceGroups);
+    cy.replaceFormOption('service_traps', body.serviceTrap);
     //Data Processing
     cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-data"]').click();
-    cy.fillFieldInIframe(htmldata[26]);
+    fillFormField('service_freshness_threshold', body.freshnessThreshold);
     //Extended Info
     cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-extended"]').click();
-    cy.clickOnFieldInIframe(htmldata[27]);
-    cy.getFormBody()
-      .find('input[class="select2-search__field"]')
-      .eq(5)
-      .click({ force: true });
-    cy.clickOnFieldInIframe(htmldata[28]);
-    [htmldata[29], htmldata[30], htmldata[31]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
-    cy.getFormBody().find('#esi_icon_image').select('1');
-    [htmldata[32], htmldata[33], htmldata[34]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
+    cy.replaceFormOption('service_categories', body.serviceCategories);
+    fillFormField('esi_notes_url', body.noteUrl);
+    fillFormField('esi_notes', body.note);
+    fillFormField('esi_action_url', body.actionUrl);
+    // The icon picker is a select2 now: the real <select> is hidden behind the
+    // widget, so the native selection has to be forced onto it. select2 syncs
+    // itself from the change event it fires.
+    cy.getFormBody().find('#esi_icon_image').select('1', { force: true });
+    fillFormField('esi_icon_image_alt', body.atlIcon);
+    fillFormField('geo_coords', body.geoCoords);
+    fillFormField('service_comment', body.comment);
     cy.getFormBody()
       .find('input.btc.bt_success[name^="submit"]')
       .first()
@@ -588,7 +561,14 @@ Cypress.Commands.add(
     cy.getFormBody()
       .find('input[name="service_retry_check_interval"]')
       .should('have.value', body.retryCheckInterval);
-    cy.checkLegacyRadioButton('No');
+    // A yes/no field is a segmented button in the migrated form, and the label
+    // the legacy helper keys on is now a floating label carrying no `for`. The
+    // state is read where the update wrote it: the first "No" segment.
+    cy.getFormBody()
+      .find('.cf-segmented button')
+      .filter(':contains("No")')
+      .first()
+      .should('have.class', 'active');
     //Notifications
     cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
     cy.getFormBody()
@@ -687,9 +667,12 @@ Cypress.Commands.add('getMetaServiceSidePanelBody', () => {
     .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
 });
 
+// openListingRowForm waits for the panel to have released its iframe before
+// clicking: a click made while the closing transition is still pending lets that
+// timeout blank the src cfOpenPanel just set, and the panel then loads empty for
+// good — which is what a scenario opening a second form runs into.
 Cypress.Commands.add('openMetaServiceForm', (name: string) => {
-  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
-  cy.getMetaServiceSidePanelBody()
+  cy.openListingRowForm(name)
     .find('input[name="meta_name"]', { timeout: 20_000 })
     .should('be.visible');
 });
@@ -815,8 +798,7 @@ declare global {
       ) => Cypress.Chainable;
       createOrUpdateHostGroupService: (
         body: HostGroupService,
-        isUpdate: boolean,
-        htmldata: Array<HtmlElt>
+        isUpdate: boolean
       ) => Cypress.Chainable;
       checkValuesOfHostGroupService: (
         name: string,

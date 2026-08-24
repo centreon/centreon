@@ -179,9 +179,8 @@ Then(
       .should('contain.text', categories['service-category-changed'].name);
     cy.getIframeBody().contains('td', 'Change by admin').should('exist');
     cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
+    cy.checkLogDetailsByField(
       1,
-      2,
       'sc_name',
       categories.default.name,
       categories['service-category-changed'].name

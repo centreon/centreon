@@ -5,7 +5,6 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import serviceCategories from '../../../fixtures/services/category.json';
 import data from '../../../fixtures/services/host_group.json';
 import servicesData from '../../../fixtures/services/service.json';
-import htmldata from './data.json';
 
 const services = {
   serviceCritical: {
@@ -101,21 +100,22 @@ Given('some service categories are configured', () => {
 // The listing has no legacy search input to wait on and its bulk actions go
 // through the hidden o1 select, whose onchange has to be overridden to reach the
 // legacy dispatcher.
-const runBulkActionOnFirstRow = (action: string): void => {
+const runBulkActionOnRow = (name: string, action: string): void => {
+  // Queries only — find and filter are replayed, so the chain survives the
+  // timed refresh replacing the table. The row is matched on the exact link
+  // text: once a service has been duplicated, :contains(name) also matches the
+  // copy named <name>_1. The checkbox is visibility:hidden behind its
+  // md-checkbox label, hence the forced click.
   cy.getIframeBody()
     .find('#clTableBody tr')
-    .first()
-    // The row checkbox is visibility:hidden behind its md-checkbox label.
+    .filter((_index, row) =>
+      Array.from(row.querySelectorAll('a')).some(
+        (link) => link.textContent?.trim() === name
+      )
+    )
     .find('.cl-col-picker input[type="checkbox"]')
     .click({ force: true });
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+  cy.runListingBulkAction(action);
 };
 
 When(
@@ -155,11 +155,7 @@ When('the user Add a new host group service', () => {
       serviceGroups: data.default.servicegroups,
       serviceTrap: data.default.servicetrap
     },
-    false,
-    htmldata.dataForCreation.map((elt) => ({
-      ...elt,
-      valueOrIndex: String(elt.valueOrIndex)
-    }))
+    false
   );
 });
 
@@ -205,8 +201,7 @@ When('the user changes the properties of the host group service', () => {
       serviceGroups: data.hostgroupservice.servicegroups,
       serviceTrap: data.hostgroupservice.servicetrap
     },
-    true,
-    htmldata.dataForUpdate
+    true
   );
 });
 
@@ -240,7 +235,7 @@ Then('the properties are updated', () => {
 
 When('the user duplicates the host group service', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
-  runBulkActionOnFirstRow('Duplicate');
+  runBulkActionOnRow(data.hostgroupservice.name, 'm');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -275,7 +270,7 @@ Then('the new duplicated host group service has the same properties', () => {
 
 When('the user deletes the host group service', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
-  runBulkActionOnFirstRow('Delete');
+  runBulkActionOnRow(data.hostgroupservice.name, 'd');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
