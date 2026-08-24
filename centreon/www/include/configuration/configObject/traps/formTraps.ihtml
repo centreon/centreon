@@ -21,13 +21,15 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <div class="cf-row-inline">
+            <div class="cf-row">
                 <div class="cf-field cf-field--md">
                     {$form.traps_name.html}
                     <label class="cf-label-float">{$form.traps_name.label}</label>
                     <img class="helpTooltip" name="trapname">
                 </div>
-                <div class="cf-field cf-field--md">
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
                     {$form.traps_mode.html}
                     <label class="cf-label-float">{$form.traps_mode.label}</label>
                     <img class="helpTooltip" name="mode">
