@@ -51,10 +51,6 @@ $duplicateNbr = filter_var_array(
 $path = './include/configuration/configObject/traps/';
 
 $trapObj = new CentreonTraps($pearDB, $oreon);
-$acl = $centreon->user->access;
-$aclDbName = $acl->getNameDBAcl();
-$dbmon = new CentreonDB('centstorage');
-$sgs = $acl->getServiceGroupAclConf(null, 'broker');
 $severityObj = new CentreonCriticality($pearDB);
 
 // Set the real page
