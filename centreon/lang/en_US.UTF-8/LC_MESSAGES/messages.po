@@ -20301,3 +20301,11 @@ msgstr "Trap database generation failed"
 #: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
 msgid "NOK"
 msgstr "NOK"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Could not create the trap directory"
+msgstr "Could not create the trap directory"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "unknown error"
+msgstr "unknown error"

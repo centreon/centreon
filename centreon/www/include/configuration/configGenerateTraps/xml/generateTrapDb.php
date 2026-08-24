@@ -108,10 +108,30 @@ try {
     );
 }
 
-if (! is_dir($trapdPath . '/' . $pollerId)) {
-    mkdir($trapdPath . '/' . $pollerId, 0755, true);
+$pollerDirectory = $trapdPath . '/' . $pollerId;
+
+// The web user may not be allowed to write into the trapd path: without this
+// check generateSqlLite would fail later on with a misleading message.
+if (! is_dir($pollerDirectory) && ! @mkdir($pollerDirectory, 0755, true) && ! is_dir($pollerDirectory)) {
+    $lastError = error_get_last();
+
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Trap generation: could not create the poller directory',
+        ['directory' => $pollerDirectory, 'error' => $lastError['message'] ?? null]
+    );
+
+    $xml->startElement('response');
+    $xml->writeElement('status', _('NOK'));
+    $xml->writeElement('statuscode', '1');
+    $xml->writeElement('error', _('Could not create the trap directory'));
+    $xml->writeElement('debug', $pollerDirectory . ': ' . ($lastError['message'] ?? _('unknown error')));
+    $xml->endElement();
+    $xml->output();
+
+    exit();
 }
-$filename = $trapdPath . '/' . $pollerId . '/centreontrapd.sdb';
+
+$filename = $pollerDirectory . '/centreontrapd.sdb';
 
 $output = [];
 $returnVal = 0;

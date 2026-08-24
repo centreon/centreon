@@ -21814,3 +21814,11 @@ msgstr "Erzeugung der Trap-Datenbank fehlgeschlagen"
 #: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
 msgid "NOK"
 msgstr "NOK"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Could not create the trap directory"
+msgstr "Trap-Verzeichnis konnte nicht erstellt werden"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "unknown error"
+msgstr "unbekannter Fehler"

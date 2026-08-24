@@ -25688,3 +25688,11 @@ msgstr "Error al generar la base de datos de trampas SNMP"
 #: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
 msgid "NOK"
 msgstr "NOK"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Could not create the trap directory"
+msgstr "No se pudo crear el directorio de trampas SNMP"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "unknown error"
+msgstr "error desconocido"

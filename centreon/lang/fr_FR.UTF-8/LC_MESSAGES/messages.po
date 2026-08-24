@@ -25412,3 +25412,11 @@ msgstr "La génération de la base de définition des traps a échoué"
 #: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
 msgid "NOK"
 msgstr "NOK"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Could not create the trap directory"
+msgstr "Impossible de créer le répertoire des traps"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "unknown error"
+msgstr "erreur inconnue"
