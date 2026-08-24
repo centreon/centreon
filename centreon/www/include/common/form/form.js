@@ -34,6 +34,15 @@ var CentreonForm = (function () {
     /** @private localStorage key used to remember the side panel's last width */
     var SIDE_PANEL_WIDTH_KEY = 'cf_side_panel_width';
 
+    /**
+     * @private Pending timer that resets the panel iframe to about:blank once the
+     * close transition is over. Kept here so reopening the panel can cancel it:
+     * otherwise a save followed by a quick reopen (the listing refreshes and the
+     * user clicks a row within 300ms) lets the stale timer blank the form that
+     * has just been loaded, leaving an open panel with an empty iframe.
+     */
+    var _sidePanelResetTimer = null;
+
     /** @private Read the last resized width from localStorage, if any */
     function getSavedSidePanelWidth() {
         try {
@@ -69,6 +78,25 @@ var CentreonForm = (function () {
 
         if (!titleEl || !frameEl || !overlay || !panel) {
             return;
+        }
+
+        // A close that has not finished its transition still has a pending reset
+        // to about:blank; let it run and it would wipe the URL set just below.
+        if (_sidePanelResetTimer !== null) {
+            clearTimeout(_sidePanelResetTimer);
+            _sidePanelResetTimer = null;
+        }
+
+        // Setting src only swaps the document once the new page has loaded, so the
+        // panel would keep showing the previous object's form in the meantime -
+        // confusing to read, and indistinguishable from the new one being ready.
+        // Empty the current document up front so the panel is blank while loading.
+        try {
+            if (frameEl.contentDocument && frameEl.contentDocument.body) {
+                frameEl.contentDocument.body.innerHTML = '';
+            }
+        } catch (err) {
+            // Cross-origin document: nothing to clear.
         }
 
         titleEl.textContent = title || '';
@@ -107,7 +135,11 @@ var CentreonForm = (function () {
         panel.classList.remove('open');
 
         // Reset iframe after the CSS transition completes (300ms)
-        setTimeout(function () {
+        if (_sidePanelResetTimer !== null) {
+            clearTimeout(_sidePanelResetTimer);
+        }
+        _sidePanelResetTimer = setTimeout(function () {
+            _sidePanelResetTimer = null;
             if (frameEl) {
                 frameEl.src = 'about:blank';
             }
