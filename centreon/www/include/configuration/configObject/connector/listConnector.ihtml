@@ -125,3 +125,8 @@ CentreonForm.initSidePanel(connListing);
     clToast("{t escape='js'}Some connectors could not be processed. See the Centreon log for details.{/t}", 'error');
 </script>
 {/if}
+{if $batchInvalidCount > 0}
+<script type="text/javascript">
+    clToast("{t escape='js'}Some connectors were left out: their duplication count is not a valid number.{/t}", 'error');
+</script>
+{/if}

@@ -882,8 +882,8 @@ function CentreonListing(config) {
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
                 var payload = (xhr && xhr.responseJSON) || {};
-                // The endpoint consumes the CSRF token before it can fail, so it
-                // hands the replacement back with the error.
+                // Some endpoints consume the CSRF token before they can fail and
+                // hand the replacement back with the error. Take it when it is there.
                 if (payload.centreon_token) {
                     csrfToken = payload.centreon_token;
                 }
@@ -901,9 +901,10 @@ function CentreonListing(config) {
                 } else {
                     clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
                 }
-                // 403: the token was stale, and the replacement taken above may not
-                // be enough if the whole page state moved on. 404: the row is gone,
-                // so it has to stop being displayed instead of inviting another click.
+                // 403 is either a stale token or a write the user may no longer make.
+                // A stale token carries no replacement, so this refetch is the only
+                // way to get a fresh one and stop every later toggle from failing.
+                // 404: the row is gone and has to stop inviting clicks.
                 if (httpStatus === 403 || httpStatus === 404) {
                     self.fetch(currentNum, currentLimit, currentSearch, true);
                 }

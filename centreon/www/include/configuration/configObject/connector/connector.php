@@ -36,8 +36,11 @@ $connectorObj = new CentreonConnector($pearDB);
 // one INSERT each. 999 is the largest value the 3-character input accepts.
 const MAX_DUPLICATES_PER_CONNECTOR = 999;
 
-// Connector ids the batch could not process; the listing reports the count.
+// Connector ids the batch could not process; a non-empty list makes the listing
+// warn. Rows the operator mistyped are kept apart: that is a mistake they can fix
+// themselves, not a failure to go and read a server log about.
 $batchErrors = [];
+$batchInvalid = [];
 
 $select = $_REQUEST['select'] ?? null;
 
@@ -100,34 +103,35 @@ switch ($o) {
                 $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
                     // An empty field or a typed 0 leaves the row out of the batch, as
-                    // the legacy page did. Anything else is a mistake, and the
-                    // confirmation modal has already promised a count.
+                    // the legacy page did. Anything else that yields no copy is a
+                    // typo: the confirmation modal has already promised a count.
                     $requested = $duplicateNbr[$connectorId] ?? '';
-                    if (is_numeric($requested)) {
-                        $nb = min(MAX_DUPLICATES_PER_CONNECTOR, max(0, (int) $requested));
-                    } else {
-                        $nb = 0;
-                        if ($requested !== '') {
-                            $batchErrors[] = $connectorId;
-                            Logger::create(LogChannelEnum::WEB)->error(
+                    $deliberateSkip = $requested === '' || $requested === '0';
+                    $copies = is_numeric($requested)
+                        ? min(MAX_DUPLICATES_PER_CONNECTOR, (int) $requested)
+                        : 0;
+
+                    if ($copies < 1) {
+                        if (! $deliberateSkip) {
+                            $batchInvalid[] = $connectorId;
+                            Logger::create(LogChannelEnum::WEB)->warning(
                                 'Connectors: invalid duplication count',
                                 ['id' => $connectorId, 'requested' => $requested]
                             );
                         }
-                    }
-                    if ($nb === 0) {
+
                         continue;
                     }
 
                     try {
-                        $connectorObj->copy($connectorId, $nb);
+                        $connectorObj->copy($connectorId, $copies);
                     } catch (Throwable $exception) {
                         // copy() throws mid-loop, so an unguarded failure would leave
                         // a half-applied batch behind a broken page and no log entry.
                         $batchErrors[] = $connectorId;
                         Logger::create(LogChannelEnum::WEB)->error(
                             'Connectors: duplication failed',
-                            ['id' => $connectorId, 'copies' => $nb, 'exception' => $exception]
+                            ['id' => $connectorId, 'copies' => $copies, 'exception' => $exception]
                         );
                     }
                 }

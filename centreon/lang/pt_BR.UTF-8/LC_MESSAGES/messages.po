@@ -24146,3 +24146,11 @@ msgstr "Não foi possível carregar o formulário. Consulte o log do Centreon pa
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "The connector could not be saved. See the Centreon log for details."
 msgstr "Não foi possível salvar o conector. Consulte o log do Centreon para mais detalhes."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The connector was saved, but the list could not be displayed. Reload the page."
+msgstr "O conector foi salvo, mas a lista não pôde ser exibida. Recarregue a página."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Some connectors were left out: their duplication count is not a valid number."
+msgstr "Alguns conectores foram ignorados: seu número de duplicações não é um número válido."

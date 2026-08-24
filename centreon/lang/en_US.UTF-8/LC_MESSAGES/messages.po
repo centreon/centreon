@@ -20181,3 +20181,11 @@ msgstr "The form could not be loaded. See the Centreon log for details."
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "The connector could not be saved. See the Centreon log for details."
 msgstr "The connector could not be saved. See the Centreon log for details."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The connector was saved, but the list could not be displayed. Reload the page."
+msgstr "The connector was saved, but the list could not be displayed. Reload the page."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Some connectors were left out: their duplication count is not a valid number."
+msgstr "Some connectors were left out: their duplication count is not a valid number."

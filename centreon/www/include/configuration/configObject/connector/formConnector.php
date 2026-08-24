@@ -22,7 +22,8 @@ use Adaptation\Log\Logger;
 
 require_once __DIR__ . '/formConnectorFunction.php';
 
-// The try below spans both persistence and rendering; this says which one failed.
+// The try below spans submission, persistence and rendering; this says which of
+// them failed, so a saved connector is never reported as a failed save.
 $formStage = 'render';
 
 try {
@@ -144,6 +145,7 @@ try {
 
     $valid = false;
     if ($form->validate()) {
+        $formStage = 'save';
         $cntObj = new CentreonConnector($pearDB);
         $tab = $form->getSubmitValues();
         $connectorValues = [];
@@ -155,13 +157,13 @@ try {
         $connectorId = (int) $tab['connector_id'];
 
         if (! empty($connectorValues['name'])) {
-            $formStage = 'save';
             if ($form->getSubmitValue('submitA')) {
                 $connectorId = $cntObj->create($connectorValues, true);
             } elseif ($form->getSubmitValue('submitC')) {
                 $cntObj->update($connectorId, $connectorValues);
             }
-            $formStage = 'render';
+            // Committed: from here a failure is only about showing the listing.
+            $formStage = 'saved';
             $valid = true;
         }
     }
@@ -169,14 +171,16 @@ try {
     if ($valid) {
         require_once $path . 'listConnector.php';
     } else {
+        $formStage = 'render';
         $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
         $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
         $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
         $form->accept($renderer);
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
-        // In View mode the radio group is frozen, so the toggle is the only status
-        // display. It must match the QuickForm default, or syncToggle flips it at load.
+        // Once the radio group is frozen (View mode) the toggle is the only status
+        // display, so it is rendered checked server-side. Everywhere else syncToggle
+        // re-reads the group, so this has to agree with the QuickForm default.
         $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '0') === '1');
         $tpl->assign(
             'helpattr',
@@ -194,16 +198,23 @@ try {
         $tpl->display('formConnector.ihtml');
     }
 } catch (Throwable $exception) {
-    $failedToSave = $formStage === 'save';
+    $logMessage = match ($formStage) {
+        'save' => 'Connectors: failed to save the form',
+        'saved' => 'Connectors: saved, but failed to render the listing',
+        default => 'Connectors: failed to render the form',
+    };
+    $userMessage = match ($formStage) {
+        'save' => _('The connector could not be saved. See the Centreon log for details.'),
+        'saved' => _('The connector was saved, but the list could not be displayed. Reload the page.'),
+        default => _('The form could not be loaded. See the Centreon log for details.'),
+    };
     Logger::create(LogChannelEnum::WEB)->error(
-        $failedToSave ? 'Connectors: failed to save the form' : 'Connectors: failed to render the form',
-        ['id' => $connector_id ?? null, 'action' => $o ?? null, 'exception' => $exception]
+        $logMessage,
+        // $connectorId carries the id create() just returned; $connector_id only
+        // exists when the request named one, so a creation would log null.
+        ['id' => $connectorId ?? $connector_id ?? null, 'action' => $o ?? null, 'exception' => $exception]
     );
-    echo '<p style="padding:16px;color:#FF4A4A;">'
-        . ($failedToSave
-            ? _('The connector could not be saved. See the Centreon log for details.')
-            : _('The form could not be loaded. See the Centreon log for details.'))
-        . '</p>';
+    echo '<p style="padding:16px;color:#FF4A4A;">' . $userMessage . '</p>';
 }
 
 ?>

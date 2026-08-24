@@ -35,6 +35,7 @@ $tpl->assign('headerMenu_command_line', _('Command Line'));
 $tpl->assign('connPage', $p);
 
 $tpl->assign('batchErrorCount', count($batchErrors ?? []));
+$tpl->assign('batchInvalidCount', count($batchInvalid ?? []));
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
