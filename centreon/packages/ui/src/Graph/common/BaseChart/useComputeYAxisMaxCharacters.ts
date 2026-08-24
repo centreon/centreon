@@ -44,7 +44,7 @@ export const useComputeYAxisMaxCharacters = ({
     isHorizontal
   });
 
-  // Always add a character space in case the algorithm does not compute the displayed value in axis.
+  // Always add a space in case the algorithm does not compute the displayed value in axis.
   const maxLeftAxisCharacters = useMemo(() => {
     if (!leftScale) {
       return 0;
@@ -55,7 +55,7 @@ export const useComputeYAxisMaxCharacters = ({
 
     return isEmpty(formattedTicks)
       ? 2
-      : Math.max(...formattedTicks.map((value) => value.length), 2) + 1;
+      : Math.max(...formattedTicks.map((value) => value.length), 2) + 3;
   }, [leftScale, axisLeft]);
 
   const maxRightAxisCharacters = useMemo(() => {
@@ -68,7 +68,7 @@ export const useComputeYAxisMaxCharacters = ({
 
     return isEmpty(formattedTicks)
       ? 2
-      : Math.max(...formattedTicks.map((value) => value.length), 2) + 1;
+      : Math.max(...formattedTicks.map((value) => value.length), 2) + 3;
   }, [rightScale, axisRight]);
 
   return {
