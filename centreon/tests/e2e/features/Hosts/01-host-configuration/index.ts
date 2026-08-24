@@ -249,6 +249,17 @@ Given('the first host belongs to a dedicated hostgroup', () => {
   });
 });
 
+Given(
+  'the first host carries its own icon and its template another one',
+  () => {
+    // Two different media, so an inherited icon is distinguishable from an own
+    // one. Every host of this fixture is built on generic-host, so giving the
+    // template an icon covers the inheritance path for the other rows.
+    cy.setIconWithSql(listingHosts[0].name, 0);
+    cy.setIconWithSql('generic-host', 1);
+  }
+);
+
 When('the admin opens the hosts listing', () => {
   cy.openHostsListing();
 });
@@ -361,18 +372,26 @@ Then('the host is enabled again', () => {
 });
 
 Then(
-  'every host row shows either a custom icon or the default host glyph',
+  'the first host shows its own icon and the others their template one',
   () => {
-    // A host with its own (or an inherited) icon renders an <img> from
-    // img/media; otherwise the row falls back to the inline HostIcon <svg>.
-    cy.getIframeBody()
-      .find(`${listingSelectors.tableBody} tr`)
-      .each(($row) => {
-        cy.wrap($row)
-          .find('td')
-          .eq(1)
-          .find('img[src*="img/media"], svg')
-          .should('have.length.greaterThan', 0);
+    // The icon column is the only value HostIconResolver computes, by walking
+    // host_template_relation. Both rows must show a real media path, and the
+    // two must differ: the own icon has to beat the inherited one. Accepting
+    // the fallback <svg> here — as `img, svg` did — passed even when the
+    // resolver returned nothing at all, which is its failure mode.
+    const iconSrc = (name: string) =>
+      getListingRow(name)
+        .find('td')
+        .eq(1)
+        .find('img.ico-16')
+        .should('have.attr', 'src');
+
+    iconSrc(listingHosts[0].name)
+      .and('match', /^\.\/img\/media\/[^/]+\/.+/)
+      .then((ownSrc) => {
+        iconSrc(listingHosts[1].name)
+          .and('match', /^\.\/img\/media\/[^/]+\/.+/)
+          .and('not.equal', String(ownSrc));
       });
   }
 );
@@ -480,3 +499,76 @@ Then('the hosts search field still contains the search term', () => {
     .find(listingSelectors.searchInput)
     .should('have.value', listingHosts[0].name);
 });
+
+const toggleEndpoint =
+  '/centreon/include/configuration/configObject/host/ajaxHostToggle.php';
+
+/** host_activate of a host, read straight from the configuration database. */
+const hostActivation = (name: string) =>
+  cy
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT host_id, host_activate FROM host WHERE host_name = "${name}"`
+    })
+    .then((rows) => (Array.isArray(rows) ? rows[0] : undefined));
+
+Then('the toggle endpoint answers 403 and the host stays enabled', () => {
+  // The endpoint is reachable directly, unlike the page it replaces, so its
+  // CSRF guard is the only thing standing between a forged cross-site POST and
+  // a host being disabled. Asserting the write did NOT happen matters as much
+  // as the status code: a 403 returned after the UPDATE would be useless.
+  hostActivation(listingHosts[0].name).then((host) => {
+    cy.request({
+      body: {
+        action: 'u',
+        centreon_token: 'not-a-valid-token',
+        id: host.host_id
+      },
+      failOnStatusCode: false,
+      form: true,
+      method: 'POST',
+      url: toggleEndpoint
+    }).then((response) => {
+      expect(response.status).to.equal(403);
+    });
+
+    hostActivation(listingHosts[0].name).then((after) => {
+      expect(String(after.host_activate)).to.equal(String(host.host_activate));
+    });
+  });
+});
+
+Given('a user without write access on hosts is logged in', () => {
+  cy.loginByTypeOfUser({
+    jsonName: 'contacts-management-acl-user-readonly-rights',
+    loginViaApi: false
+  });
+});
+
+Then(
+  'the toggle endpoint answers 403 to that user and the host stays enabled',
+  () => {
+    // requireWriteAccess(60101) exists because this endpoint bypasses main.php
+    // and its topology check. This asserts the guard refuses a session that
+    // does not hold write access on the Hosts page — it does not distinguish
+    // read-only from no-access, both of which it must refuse alike.
+    hostActivation(listingHosts[0].name).then((host) => {
+      cy.getCookie('PHPSESSID').should('exist');
+      cy.request({
+        body: { action: 'u', id: host.host_id },
+        failOnStatusCode: false,
+        form: true,
+        method: 'POST',
+        url: toggleEndpoint
+      }).then((response) => {
+        expect(response.status).to.equal(403);
+      });
+
+      hostActivation(listingHosts[0].name).then((after) => {
+        expect(String(after.host_activate)).to.equal(
+          String(host.host_activate)
+        );
+      });
+    });
+  }
+);

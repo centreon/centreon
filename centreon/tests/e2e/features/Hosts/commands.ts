@@ -186,6 +186,48 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
   });
 });
 
+Cypress.Commands.add('setIconWithSql', (name: string, mediaOffset: number) => {
+  // The icon column is the one piece of the listing whose value is computed
+  // by HostIconResolver walking host_template_relation. Asserting on it means
+  // an object has to actually carry an icon, and no other suite sets one.
+  // Any media reachable through a directory does the job; two different
+  // offsets give two different paths, so an inherited icon can be told apart
+  // from an own one.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `UPDATE extended_host_information ehi
+              INNER JOIN host h ON h.host_id = ehi.host_host_id
+              SET ehi.ehi_icon_image = (
+                SELECT vi.img_id
+                FROM view_img vi
+                INNER JOIN view_img_dir_relation vidr ON vidr.img_img_id = vi.img_id
+                INNER JOIN view_img_dir vid ON vid.dir_id = vidr.dir_dir_parent_id
+                WHERE vid.dir_alias <> '' AND vi.img_path <> ''
+                ORDER BY vi.img_id
+                LIMIT 1 OFFSET ${mediaOffset}
+              )
+              WHERE h.host_name = "${name}"`
+  });
+
+  // Read it back rather than trusting affectedRows: an UPDATE that matches
+  // the value already stored reports 0, and a missing
+  // extended_host_information row reports 0 too — the second is a real
+  // failure and has to be loud, or the assertion downstream fails on the
+  // icon while the cause is the fixture.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT ehi.ehi_icon_image
+              FROM extended_host_information ehi
+              INNER JOIN host h ON h.host_id = ehi.host_host_id
+              WHERE h.host_name = "${name}"`
+  }).then((rows) => {
+    const iconId = Array.isArray(rows) ? rows[0]?.ehi_icon_image : undefined;
+    if (!iconId) {
+      throw new Error(`No icon could be set on ${name}`);
+    }
+  });
+});
+
 Cypress.Commands.add('visitHostsListingPage', () => {
   cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
@@ -467,6 +509,7 @@ declare global {
         body: HostGroupDependency
       ) => Cypress.Chainable;
       lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
+      setIconWithSql: (name: string, mediaOffset: number) => Cypress.Chainable;
       visitHostsListingPage: () => Cypress.Chainable;
       openHostsListing(): Chainable<void>;
       openHostTemplatesListing(): Chainable<void>;
