@@ -77,6 +77,14 @@ $form->addElement('select2', 'status', _('Select'), $statusFilter);
 
 $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
+?>
+<script type="text/javascript">
+    function setO(_i) {
+        document.forms['form'].elements['o'].value = _i;
+    }
+</script>
+<?php
+
 // Styled, secure confirmation modal (clMoreAction in listing.js) replaces the
 // native confirm()/alert(); messages passed as data-* attributes so the handler
 // stays locale-independent (keyed on the option value).
