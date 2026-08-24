@@ -33,7 +33,9 @@ if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_t
 $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row' => 'name', 'order' => ['name'], 'keys' => ['id'], 'conditions' => ['ns_activate' => 1]]);
 
-$pollersFromUrl = $_GET['poller'] ?? '';
+// A query string can carry any type (e.g. ?poller[]=1) while explode() only
+// accepts a string: discard anything else instead of raising a TypeError.
+$pollersFromUrl = is_string($_GET['poller'] ?? null) ? $_GET['poller'] : '';
 $pollersId = explode(',', $pollersFromUrl);
 $selectedPollers = [];
 
