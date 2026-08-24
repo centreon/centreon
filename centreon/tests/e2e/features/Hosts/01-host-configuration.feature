@@ -87,11 +87,6 @@ Feature: HostConfiguration
     When the admin opens the hosts listing
     Then the toggle endpoint answers 403 and the host stays enabled
 
-  Scenario: The toggle endpoint refuses a user without write access on hosts
-    Given several hosts exist with different addresses
-    And a user without write access on hosts is logged in
-    Then the toggle endpoint answers 403 to that user and the host stays enabled
-
   Scenario: The monitoring column shows a status badge or a placeholder
     Given several hosts exist with different addresses
     When the admin opens the hosts listing

@@ -193,6 +193,22 @@ Cypress.Commands.add('setIconWithSql', (name: string, mediaOffset: number) => {
   // Any media reachable through a directory does the job; two different
   // offsets give two different paths, so an inherited icon can be told apart
   // from an own one.
+
+  // The row is created along with the object in the normal flow, but a template
+  // shipped with the platform may predate it — insert it when missing so the
+  // update below has something to write on.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO extended_host_information (host_host_id)
+            SELECT h.host_id
+            FROM host h
+            WHERE h.host_name = "${name}"
+              AND NOT EXISTS (
+                SELECT 1 FROM extended_host_information e
+                WHERE e.host_host_id = h.host_id
+              )`
+  });
+
   cy.requestOnDatabase({
     database: 'centreon',
     query: `UPDATE extended_host_information ehi
@@ -220,8 +236,10 @@ Cypress.Commands.add('setIconWithSql', (name: string, mediaOffset: number) => {
               FROM extended_host_information ehi
               INNER JOIN host h ON h.host_id = ehi.host_host_id
               WHERE h.host_name = "${name}"`
-  }).then((rows) => {
-    const iconId = Array.isArray(rows) ? rows[0]?.ehi_icon_image : undefined;
+  }).then(([rows]) => {
+    // requestOnDatabase resolves to the driver's [rows, fields] tuple, so the
+    // first row is rows[0] only once that tuple is destructured.
+    const iconId = rows[0]?.ehi_icon_image;
     if (!iconId) {
       throw new Error(`No icon could be set on ${name}`);
     }

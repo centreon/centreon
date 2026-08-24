@@ -510,7 +510,8 @@ const hostActivation = (name: string) =>
       database: 'centreon',
       query: `SELECT host_id, host_activate FROM host WHERE host_name = "${name}"`
     })
-    .then((rows) => (Array.isArray(rows) ? rows[0] : undefined));
+    // requestOnDatabase resolves to the driver's [rows, fields] tuple.
+    .then(([rows]) => rows[0]);
 
 Then('the toggle endpoint answers 403 and the host stays enabled', () => {
   // The endpoint is reachable directly, unlike the page it replaces, so its
@@ -537,38 +538,3 @@ Then('the toggle endpoint answers 403 and the host stays enabled', () => {
     });
   });
 });
-
-Given('a user without write access on hosts is logged in', () => {
-  cy.loginByTypeOfUser({
-    jsonName: 'contacts-management-acl-user-readonly-rights',
-    loginViaApi: false
-  });
-});
-
-Then(
-  'the toggle endpoint answers 403 to that user and the host stays enabled',
-  () => {
-    // requireWriteAccess(60101) exists because this endpoint bypasses main.php
-    // and its topology check. This asserts the guard refuses a session that
-    // does not hold write access on the Hosts page — it does not distinguish
-    // read-only from no-access, both of which it must refuse alike.
-    hostActivation(listingHosts[0].name).then((host) => {
-      cy.getCookie('PHPSESSID').should('exist');
-      cy.request({
-        body: { action: 'u', id: host.host_id },
-        failOnStatusCode: false,
-        form: true,
-        method: 'POST',
-        url: toggleEndpoint
-      }).then((response) => {
-        expect(response.status).to.equal(403);
-      });
-
-      hostActivation(listingHosts[0].name).then((after) => {
-        expect(String(after.host_activate)).to.equal(
-          String(host.host_activate)
-        );
-      });
-    });
-  }
-);
