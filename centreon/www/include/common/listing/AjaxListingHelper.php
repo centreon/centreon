@@ -69,6 +69,8 @@ class AjaxListingHelper
     /**
      * Bootstrap the AJAX endpoint: config, Composer autoloader, session, JSON header.
      * Exits with appropriate HTTP error on failure.
+     *
+     * @throws JsonException
      */
     public static function boot(): self
     {
@@ -148,7 +150,10 @@ class AjaxListingHelper
     }
 
     /**
-     * Get the Centreon session object, or exit 403 if unavailable.
+     * Get the Centreon session object, or exit 401 if unavailable. A caller with no
+     * session is not the same as one denied a page, which answers 403.
+     *
+     * @throws JsonException
      */
     public function requireCentreon(): mixed
     {
@@ -191,7 +196,7 @@ class AjaxListingHelper
      * replace, which were only served through main.php and its topology check.
      * Listings whose objects carry no per-object ACL rely on this alone.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
+     * @param int $pageId The topology page number (60806 for connectors, 60104 for host categories)
      * @param array<string, mixed> $extra Additional fields to return with the error
      *
      * @throws JsonException
@@ -212,7 +217,7 @@ class AjaxListingHelper
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
+     * @param int $pageId The topology page number (60806 for connectors, 60104 for host categories)
      * @param array<string, mixed> $extra Additional fields to return with the error
      *
      * @throws JsonException
@@ -231,6 +236,8 @@ class AjaxListingHelper
     /**
      * Validate and consume a CSRF token from POST. Exits 403 on failure.
      * Returns a fresh token for the next request.
+     *
+     * @throws JsonException
      */
     public function validateCsrfToken(): string
     {
@@ -294,6 +301,8 @@ class AjaxListingHelper
 
     /**
      * Send a successful JSON listing response and exit.
+     *
+     * @throws JsonException
      */
     public function jsonResponse(array $rows, int $total, int $num, int $limit): void
     {
@@ -324,7 +333,8 @@ class AjaxListingHelper
     /**
      * Send a JSON error response and exit.
      *
-     * @param array<string, mixed> $extra Additional fields to merge into the body. An
+     * @param array<string, mixed> $extra Additional fields to merge into the body, which
+     *                                    cannot override the message itself. An
      *                                    endpoint that consumed the CSRF token before
      *                                    failing must return the replacement here, or
      *                                    the client's next call dies on a stale token.
@@ -334,7 +344,7 @@ class AjaxListingHelper
     public static function jsonError(string $message, int $httpCode = 400, array $extra = []): void
     {
         http_response_code($httpCode);
-        echo json_encode(array_merge(['error' => $message], $extra), JSON_THROW_ON_ERROR);
+        echo json_encode(array_merge($extra, ['error' => $message]), JSON_THROW_ON_ERROR);
 
         exit;
     }

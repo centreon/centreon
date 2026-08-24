@@ -33,10 +33,10 @@ require_once $path . 'DB-Func.php';
 $connectorObj = new CentreonConnector($pearDB);
 
 // Caps the duplication count, which comes straight from the request and drives
-// one INSERT each. 999 matches the field's maxlength.
+// one INSERT each. 999 is the largest value the 3-character input accepts.
 const MAX_DUPLICATES_PER_CONNECTOR = 999;
 
-// Connector ids the batch could not process, surfaced by the listing.
+// Connector ids the batch could not process; the listing reports the count.
 $batchErrors = [];
 
 $select = $_REQUEST['select'] ?? null;
@@ -99,12 +99,22 @@ switch ($o) {
                 }
                 $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
-                    // As on the legacy page, anything that is not a positive number
-                    // leaves the row out of the batch.
+                    // An empty field or a typed 0 leaves the row out of the batch, as
+                    // the legacy page did. Anything else is a mistake, and the
+                    // confirmation modal has already promised a count.
                     $requested = $duplicateNbr[$connectorId] ?? '';
-                    $nb = is_numeric($requested)
-                        ? min(MAX_DUPLICATES_PER_CONNECTOR, max(0, (int) $requested))
-                        : 0;
+                    if (is_numeric($requested)) {
+                        $nb = min(MAX_DUPLICATES_PER_CONNECTOR, max(0, (int) $requested));
+                    } else {
+                        $nb = 0;
+                        if ($requested !== '') {
+                            $batchErrors[] = $connectorId;
+                            Logger::create(LogChannelEnum::WEB)->error(
+                                'Connectors: invalid duplication count',
+                                ['id' => $connectorId, 'requested' => $requested]
+                            );
+                        }
+                    }
                     if ($nb === 0) {
                         continue;
                     }

@@ -31,9 +31,6 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/config-ACL/delete-connectors-acl-user-readonly-rights.json'
-  );
   cy.stopContainers();
 });
 
@@ -264,10 +261,9 @@ Given(
   'a connector with a distinctive description and command line exists',
   () => {
     openConnectorsListing();
-    // No apostrophe in the name on purpose: the legacy save path entity-encodes
-    // it, so the listing never receives a raw quote through the form and the
-    // attribute escaping cannot be reached from here.
     cy.getIframeBody().find('a.cl-btn-add').click();
+    // The name carries no apostrophe: the legacy save path entity-encodes it, so
+    // no quote reaches the listing through the form.
     cy.addConnectors({
       ...data.connectorForSearch,
       commandLine: data.connectorForSearch.command_line,
@@ -300,8 +296,8 @@ When(
 );
 
 Then('each search returns only that connector', () => {
-  // Clearing brings the other rows back, so the filtering above was the search
-  // doing its job and not the listing having lost its content.
+  // A broader term brings the other rows back, so the filtering above was the
+  // search doing its job and not the listing having lost its content.
   searchListing('connector-');
   cy.getIframeBody()
     .find('#clTableBody tr')

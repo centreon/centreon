@@ -22,6 +22,9 @@ use Adaptation\Log\Logger;
 
 require_once __DIR__ . '/formConnectorFunction.php';
 
+// The try below spans both persistence and rendering; this says which one failed.
+$formStage = 'render';
+
 try {
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($path);
@@ -152,11 +155,13 @@ try {
         $connectorId = (int) $tab['connector_id'];
 
         if (! empty($connectorValues['name'])) {
+            $formStage = 'save';
             if ($form->getSubmitValue('submitA')) {
                 $connectorId = $cntObj->create($connectorValues, true);
             } elseif ($form->getSubmitValue('submitC')) {
                 $cntObj->update($connectorId, $connectorValues);
             }
+            $formStage = 'render';
             $valid = true;
         }
     }
@@ -189,12 +194,15 @@ try {
         $tpl->display('formConnector.ihtml');
     }
 } catch (Throwable $exception) {
+    $failedToSave = $formStage === 'save';
     Logger::create(LogChannelEnum::WEB)->error(
-        'Connectors: failed to render the form',
+        $failedToSave ? 'Connectors: failed to save the form' : 'Connectors: failed to render the form',
         ['id' => $connector_id ?? null, 'action' => $o ?? null, 'exception' => $exception]
     );
     echo '<p style="padding:16px;color:#FF4A4A;">'
-        . _('The form could not be loaded. See the Centreon log for details.')
+        . ($failedToSave
+            ? _('The connector could not be saved. See the Centreon log for details.')
+            : _('The form could not be loaded. See the Centreon log for details.'))
         . '</p>';
 }
 

@@ -25296,3 +25296,7 @@ msgstr "Certains connecteurs n'ont pas pu être traités. Consultez le journal C
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "The form could not be loaded. See the Centreon log for details."
 msgstr "Le formulaire n'a pas pu être chargé. Consultez le journal Centreon pour plus de détails."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The connector could not be saved. See the Centreon log for details."
+msgstr "Le connecteur n'a pas pu être enregistré. Consultez le journal Centreon pour plus de détails."

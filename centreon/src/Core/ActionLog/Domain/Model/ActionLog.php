@@ -63,7 +63,6 @@ class ActionLog
     public const OBJECT_TYPE_HOST_SEVERITY = 'hostseverity';
     public const AVAILABLE_OBJECT_TYPES = [
         self::OBJECT_TYPE_COMMAND,
-        self::OBJECT_TYPE_CONNECTOR,
         self::OBJECT_TYPE_TIMEPERIOD,
         self::OBJECT_TYPE_CONTACT,
         self::OBJECT_TYPE_CONTACTGROUP,
@@ -89,6 +88,9 @@ class ActionLog
         self::OBJECT_TYPE_MANUFACTURER,
         self::OBJECT_TYPE_HOSTCATEGORIES,
         self::OBJECT_TYPE_SERVICECATEGORIES,
+        // Appended on purpose: Administration > Logs turns this list into positional
+        // option values, so inserting anywhere else renumbers every type after it.
+        self::OBJECT_TYPE_CONNECTOR,
     ];
 
     private ?int $id = null;

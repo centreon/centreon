@@ -626,10 +626,17 @@ function CentreonListing(config) {
                     // longer allowed on: telling them to reload would send them
                     // chasing an authentication problem they do not have.
                     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-                    if (httpStatus === 403) {
-                        clToast(clListingLabel('accessDenied', 'You are not allowed to access this page.'), 'error');
-                    } else {
-                        clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    var accessMessage = httpStatus === 403
+                        ? clListingLabel('accessDenied', 'You are not allowed to access this page.')
+                        : clListingLabel('sessionExpired', 'Your session has expired — please reload the page.');
+                    clToast(accessMessage, 'error');
+                    // The toast fades, so on a first load the placeholder would stay
+                    // on screen for good with no explanation.
+                    if (firstLoad) {
+                        jQuery('#' + cfg.tableBodyId).html(
+                            '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">' +
+                            clEscape(accessMessage) + '</td></tr>'
+                        );
                     }
                     return;
                 }
@@ -884,14 +891,19 @@ function CentreonListing(config) {
                     console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
                 }
                 var httpStatus = xhr && xhr.status;
-                if (httpStatus === 404) {
+                if (httpStatus === 401) {
+                    // A dead session cannot be recovered by retrying, so stop the
+                    // auto-refresh here too instead of waiting for the next tick.
+                    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                } else if (httpStatus === 404) {
                     clToast(clListingLabel('toggleNotFound', 'This item no longer exists'), 'error');
                 } else {
                     clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
                 }
-                // 403: the token was stale, and the refresh above may not be enough
-                // if the whole page state moved on. 404: the row is gone, so it has
-                // to stop being displayed instead of inviting another click.
+                // 403: the token was stale, and the replacement taken above may not
+                // be enough if the whole page state moved on. 404: the row is gone,
+                // so it has to stop being displayed instead of inviting another click.
                 if (httpStatus === 403 || httpStatus === 404) {
                     self.fetch(currentNum, currentLimit, currentSearch, true);
                 }

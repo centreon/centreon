@@ -25568,3 +25568,7 @@ msgstr "Algunos conectores no se han podido procesar. Consulte el registro de Ce
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "The form could not be loaded. See the Centreon log for details."
 msgstr "No se ha podido cargar el formulario. Consulte el registro de Centreon para más detalles."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The connector could not be saved. See the Centreon log for details."
+msgstr "No se ha podido guardar el conector. Consulte el registro de Centreon para más detalles."

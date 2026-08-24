@@ -102,8 +102,8 @@ var connListing = new CentreonListing({
     ],
     renderOptions: function(row, l, writeAccess) {
         var checked = row.activate ? ' checked' : '';
-        // Neither control carries a label of its own, so both take the connector
-        // name: out of visual context, a bare toggle says nothing about its row.
+        // Neither control carries a label of its own, so both take a role prefix
+        // plus the connector name: a bare toggle says nothing about its row.
         var rowName = clEscapeAttr(row.name);
         var toggle = '<label class="cl-toggle"><input type="checkbox" aria-label="{/literal}{t escape='js'}Status{/t}{literal}: '+rowName+'" data-row-id="'+row.id+'"'+checked+' onchange="connListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>';
         // Read-only users keep the toggle as the status indicator, but the
