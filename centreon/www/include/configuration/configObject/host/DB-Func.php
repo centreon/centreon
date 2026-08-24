@@ -30,6 +30,8 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger as AdaptationLogger;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -2895,8 +2897,7 @@ function updateHostInAPI(int $hostId, array $formData): bool
         try {
             $relationsBefore = getHostRelationsSnapshot($hostId);
         } catch (Throwable $ex) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_BUSINESS_LOG,
+            AdaptationLogger::create(LogChannelEnum::WEB)->error(
                 'Failed to snapshot host relations before update',
                 [
                     'hostId' => $hostId,
@@ -2939,8 +2940,7 @@ function updateHostInAPI(int $hostId, array $formData): bool
                 );
             }
         } catch (Throwable $ex) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_BUSINESS_LOG,
+            AdaptationLogger::create(LogChannelEnum::WEB)->error(
                 'Failed to record host relation-change action log',
                 [
                     'hostId' => $hostId,

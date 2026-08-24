@@ -28,7 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroComment;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpression;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -90,7 +90,7 @@ final class DbalPollerRepositoryTest extends KernelTestCase
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineInformation: new EngineInformation(),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),

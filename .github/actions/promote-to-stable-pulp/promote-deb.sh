@@ -7,10 +7,10 @@ source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 source "$(dirname "$0")/../../scripts/pulp/api.sh"
 
 # an unset org variable is forwarded as an empty string, overriding the default
-PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
-PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
-# testing and stable repositories live in different Pulp Domains; PULP_DOMAIN
-# covers the read phase, switch_pulp_domain moves to PULP_STABLE_DOMAIN for the write phase
+PULP_URL="${PULP_URL:-https://pulp-api.int.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.int.centreon.com}"
+# stable shares its Domain with testing since the domain merge (PULP_STABLE_DOMAIN
+# now equals PULP_DOMAIN); the read/write phase switch is kept as a no-op
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 # switch_pulp_domain overwrites PULP_DOMAIN itself once the write phase
@@ -181,40 +181,6 @@ lookup_deb_content() {
   done
 }
 
-# wait for a content-create task and emit its created content href; fall
-# back to a lookup (content already existing on a job re-run)
-resolve_task_content() {
-  local task_href=$1 endpoint=$2 fallback_query=$3
-  local body state content attempt
-  for ((attempt = 0; attempt < 200; attempt++)); do
-    refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
-    state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
-    case "$state" in
-      completed)
-        content=$(echo "$body" | jq -r '.created_resources[0] // empty')
-        if [[ -n "$content" ]]; then
-          echo "$content"
-          return 0
-        fi
-        break
-        ;;
-      failed | canceled)
-        break
-        ;;
-      *)
-        sleep 3
-        ;;
-    esac
-  done
-  content=$(lookup_deb_content "$endpoint" "$fallback_query")
-  if [[ -z "$content" ]]; then
-    echo "::error::Cannot resolve the created deb content for task $task_href" >&2
-    return 1
-  fi
-  echo "$content"
-}
-
 # emit the release-component hrefs a package is associated with
 lookup_prcs() {
   local package_href=$1
@@ -250,11 +216,12 @@ if ((${#UNPROMOTED_HREFS[@]} == 0)); then
   exit 0
 fi
 
-# batched promote, mirroring the batched delivery: Pulp Domains share no
-# content across domains, so promoting means re-downloading each package from
-# testing's published distribution and re-uploading it into the stable domain
-# (see deliver-deb.sh for why the FIRST package of each arch goes through the
-# legacy path to establish the release component).
+# batched promote, mirroring the batched delivery. Testing and stable share
+# their domain (and content) since the domain merge: the batch below associates
+# the testing package hrefs directly, no re-download/re-upload. Only the FIRST
+# package of each arch goes through the legacy upload path, to establish the
+# release component and deduce its href (see deliver-deb.sh; listing release
+# components requires admin rights).
 declare -A ARCH_SEEN=()
 LEGACY_PACKAGES=()
 BATCH_PACKAGES=()
@@ -365,70 +332,18 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   fi
   echo "[INFO] Release component of $STABLE_SUITE/main: $STABLE_RC"
 
-  # remaining packages: parallel re-download+upload (pool of 8, marker-file
-  # based like rpm/deliver-deb), associated with the stable release component below
-  echo "[INFO] Re-uploading ${#BATCH_PACKAGES[@]} package(s) from $BASE_PATH into the stable domain"
-  DOWNLOAD_DIR=$(mktemp -d)
-  MAX_PARALLEL=8
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if ((i % 40 == 0)); then
-      refresh_pulp_token
-    fi
-    (
-      refresh_pulp_token
-      PACKAGE="${BATCH_PACKAGES[$i]}"
-      RELATIVE_PATH=$(echo "$PACKAGE" | jq -r '.relative_path')
-      SHA256=$(echo "$PACKAGE" | jq -r '.sha256')
-      ARCH=$(echo "$PACKAGE" | jq -r '.architecture')
-      FILE_NAME=$(basename "$RELATIVE_PATH")
-      FILE="$DOWNLOAD_DIR/$i-$FILE_NAME"
-      download_testing_package "$SHA256" "$ARCH" "$FILE"
-      pulp_upload \
-        -F "file=@\"$FILE\"" \
-        -F "relative_path=$RELATIVE_PATH" \
-        -F "pulp_labels=$PULP_LABELS" \
-        "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/" > "$DOWNLOAD_DIR/$i.task"
-    ) &
-    while (($(jobs -rp | wc -l) >= MAX_PARALLEL)); do
-      wait -n || true
-    done
-  done
-  wait || true
-
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if [[ ! -s "$DOWNLOAD_DIR/$i.task" ]]; then
-      echo "::error::Re-upload into the stable domain failed for $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package') ($(echo "${BATCH_PACKAGES[$i]}" | jq -r '.architecture')), see the worker error above"
-      exit 1
-    fi
-  done
-
-  echo "[INFO] Resolving ${#BATCH_PACKAGES[@]} uploaded package(s)"
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if ((i % 40 == 0)); then
-      refresh_pulp_token
-    fi
-    (
-      resolve_task_content "$(cat "$DOWNLOAD_DIR/$i.task")" "packages" \
-        "--data-urlencode sha256=$(echo "${BATCH_PACKAGES[$i]}" | jq -r '.sha256')" > "$DOWNLOAD_DIR/$i.content"
-    ) &
-    while (($(jobs -rp | wc -l) >= MAX_PARALLEL)); do
-      wait -n || true
-    done
-  done
-  wait || true
+  # remaining packages: the testing content hrefs are associated with the
+  # stable release component directly (same domain, shared content); the
+  # packages keep their delivery-time labels
   PACKAGE_HREFS=()
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if [[ ! -s "$DOWNLOAD_DIR/$i.content" ]]; then
-      echo "::error::Cannot resolve the promoted content for $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package') (see the worker error above)"
-      exit 1
-    fi
-    PACKAGE_HREFS+=("$(cat "$DOWNLOAD_DIR/$i.content")")
+  for PACKAGE in "${BATCH_PACKAGES[@]}"; do
+    PACKAGE_HREFS+=("$(echo "$PACKAGE" | jq -r '.pulp_href')")
   done
-  rm -rf "$DOWNLOAD_DIR"
 
   # package_release_components create is synchronous (201 with the unit, no
   # task); a failed create (already existing on a job re-run) falls back to a lookup
   echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with $STABLE_SUITE/main"
+  MAX_PARALLEL=8
   PRC_DIR=$(mktemp -d)
   for i in "${!PACKAGE_HREFS[@]}"; do
     if ((i % 40 == 0)); then
