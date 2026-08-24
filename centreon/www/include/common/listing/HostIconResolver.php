@@ -44,8 +44,10 @@ require_once __DIR__ . '/AjaxListingHelper.php';
  *   worker exhausts its memory, an E_ERROR no `catch (Throwable)` can rescue.
  *   The legacy CentreonHost inheritance helpers guard cycles the same way
  *   (`$alreadyProcessed`).
- * - one query serves every row of the page at each step, so a listing of N rows
- *   costs one query per step instead of N × the size of its template chain.
+ * - every row of the page shares the same two queries at each step — the icons
+ *   of the nodes being looked at, and their templates — so a listing of N rows
+ *   costs a constant number of queries per step instead of N × the size of its
+ *   template chain. Both are scoped to those nodes, never to the whole table.
  */
 final class HostIconResolver
 {
@@ -66,33 +68,36 @@ final class HostIconResolver
 
         return self::walk(
             $hostIds,
-            self::fetchDirectIcons($db),
+            static fn (array $nodes): array => self::fetchDirectIcons($db, $nodes),
             static fn (array $nodes): array => self::fetchTemplates($db, $nodes)
         );
     }
 
     /**
-     * The walk itself, with its two data sources handed in: the icons of the
-     * objects that carry one, and a callable returning the templates of a batch
-     * of nodes. Kept apart from the queries so the inheritance rules can be
-     * exercised on their own.
+     * The walk itself, with its two data sources handed in as callables: the
+     * icons of a batch of nodes, and their templates in `order`. Kept apart
+     * from the queries so the inheritance rules can be exercised on their own.
      *
      * @param int[] $hostIds Host or host-template ids to resolve
-     * @param array<int, string> $directIcons Icon path of the objects defining one
+     * @param callable(int[]): array<int, string> $fetchIcons Icon path of those given nodes that define one
      * @param callable(int[]): array<int, int[]> $fetchTemplates Templates of the given nodes, in `order`
      *
      * @return array<int, string> Icon path indexed by requested id
      */
-    public static function walk(array $hostIds, array $directIcons, callable $fetchTemplates): array
+    public static function walk(array $hostIds, callable $fetchIcons, callable $fetchTemplates): array
     {
         // $pending maps each requested id to the nodes it still has to inspect,
-        // in depth-first order; $visited holds the nodes already inspected for it.
+        // in depth-first order; $visited holds the nodes already inspected for
+        // it. $icons caches what the icon source answered — a null meaning
+        // "asked about, carries none" — so a template shared by many rows is
+        // only ever asked about once.
         $resolved = [];
         $pending  = [];
         $visited  = [];
+        $icons    = self::askIcons($fetchIcons, $hostIds, []);
         foreach ($hostIds as $hostId) {
-            if (isset($directIcons[$hostId])) {
-                $resolved[$hostId] = $directIcons[$hostId];
+            if (isset($icons[$hostId])) {
+                $resolved[$hostId] = $icons[$hostId];
 
                 continue;
             }
@@ -105,15 +110,17 @@ final class HostIconResolver
             foreach ($pending as $stack) {
                 $heads[] = $stack[0];
             }
-            $templates = $fetchTemplates(array_values(array_unique($heads)));
+            $heads     = array_values(array_unique($heads));
+            $icons     = self::askIcons($fetchIcons, $heads, $icons);
+            $templates = $fetchTemplates($heads);
 
             foreach ($pending as $hostId => $stack) {
                 $node = array_shift($stack);
 
                 // Checked before descending, so a template's own icon wins over
                 // anything further up its chain.
-                if (isset($directIcons[$node])) {
-                    $resolved[$hostId] = $directIcons[$node];
+                if (isset($icons[$node])) {
+                    $resolved[$hostId] = $icons[$node];
                     unset($pending[$hostId]);
 
                     continue;
@@ -146,27 +153,76 @@ final class HostIconResolver
     }
 
     /**
-     * Icon of every object that defines one directly. Loaded whole because the
-     * walk reaches arbitrary ancestors, and the filter on `ehi_icon_image`
-     * keeps this to the objects that actually carry an icon.
+     * Ask the icon source about the nodes it has not been asked about yet, and
+     * keep the answer. Nodes carrying no icon are cached as null: a template
+     * sitting in many chains is then asked about once instead of once per row.
+     *
+     * @param callable(int[]): array<int, string> $fetchIcons
+     * @param int[] $nodes
+     * @param array<int, string|null> $known
+     *
+     * @return array<int, string|null>
+     */
+    private static function askIcons(callable $fetchIcons, array $nodes, array $known): array
+    {
+        $unknown = [];
+        foreach ($nodes as $node) {
+            if (! array_key_exists($node, $known)) {
+                $unknown[] = $node;
+            }
+        }
+
+        if ($unknown === []) {
+            return $known;
+        }
+
+        $found = $fetchIcons($unknown);
+        foreach ($unknown as $node) {
+            $known[$node] = $found[$node] ?? null;
+        }
+
+        return $known;
+    }
+
+    /**
+     * Icon of those given objects that define one directly. Scoped to the nodes
+     * the walk is currently looking at: the whole table would otherwise be read
+     * on every listing request, and the listing refreshes on a timer.
+     *
+     * @param int[] $hostIds
      *
      * @return array<int, string>
      */
-    private static function fetchDirectIcons(CentreonDB $db): array
+    private static function fetchDirectIcons(CentreonDB $db, array $hostIds): array
     {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        $in = AjaxListingHelper::buildIntInClause($hostIds, 'icon_oid');
+
         $icons = [];
         $rows = $db->fetchAllAssociative(
-            <<<'SQL'
-                SELECT ehi.host_host_id, CONCAT(vid.dir_alias, '/', vi.img_path) AS icon_path
+            <<<SQL
+                SELECT ehi.host_host_id, vid.dir_alias, vi.img_path
                 FROM extended_host_information ehi
                 INNER JOIN view_img vi ON ehi.ehi_icon_image = vi.img_id
                 INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
                 INNER JOIN view_img_dir vid ON vidr.dir_dir_parent_id = vid.dir_id
-                WHERE ehi.ehi_icon_image IS NOT NULL
-                SQL
+                WHERE ehi.ehi_icon_image IS NOT NULL AND ehi.host_host_id IN ({$in['clause']})
+                SQL,
+            QueryParameters::create($in['parameters'])
         );
         foreach ($rows as $row) {
-            $icons[(int) $row['host_host_id']] = './img/media/' . $row['icon_path'];
+            // Both halves are required, as the legacy helper required them:
+            // concatenating a missing one yields './img/media//file.png', a
+            // path that resolves to nothing.
+            $dir  = (string) $row['dir_alias'];
+            $file = (string) $row['img_path'];
+            if ($dir === '' || $file === '') {
+                continue;
+            }
+            $icons[(int) $row['host_host_id']] = './img/media/' . $dir . '/' . $file;
         }
 
         return $icons;
