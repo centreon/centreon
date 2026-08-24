@@ -154,13 +154,17 @@ else
     # (e.g. "trixie-26.09")
     REPOSITORY_NAME="${DEB_PREFIX}${DEB_INFIX}${STABILITY_SEGMENT}"
     BASE_PATH="$REPOSITORY_NAME"
-    SUITE="$DISTRIB-$VERSION"
+    # suites keep their historical stability-suffixed names so the legacy
+    # client lines (deb .../apt-standard/ trixie-26.10-stable main) work
+    # through the content-front rewrites; each suite lives in its own
+    # per-stability repository regardless
+    SUITE="$DISTRIB-$VERSION-$STABILITY_SEGMENT"
     TESTING_REPOSITORY_NAME="${DEB_PREFIX}${DEB_INFIX}${TESTING_SEGMENT}"
     TESTING_BASE_PATH="$TESTING_REPOSITORY_NAME"
-    TESTING_SUITE="$DISTRIB-$VERSION"
+    TESTING_SUITE="$DISTRIB-$VERSION-$TESTING_SEGMENT"
     STABLE_REPOSITORY_NAME="${DEB_PREFIX}${DEB_INFIX}stable"
     STABLE_BASE_PATH="$STABLE_REPOSITORY_NAME"
-    STABLE_SUITE="$DISTRIB-$VERSION"
+    STABLE_SUITE="$DISTRIB-$VERSION-stable"
     POOL_PATH="pool/$VERSION/$POOL_SEGMENT/$MODULE_NAME"
     TESTING_POOL_PATH="pool/$VERSION/$TESTING_POOL_SEGMENT/$MODULE_NAME"
     STABLE_POOL_PATH="pool/$VERSION/stable/$MODULE_NAME"
