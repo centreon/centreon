@@ -304,6 +304,61 @@ if [[ -z "$RELEASE_COMPONENT_HREF" ]]; then
 fi
 echo "[INFO] Release component of $SUITE/main: $RELEASE_COMPONENT_HREF"
 
+# legacy alias suite (client compatibility): a second legacy pass on the alias
+# suite name. The representatives now exist in pulp, so the alias release
+# component is isolated by diffing each one's associations before/after.
+ALIAS_RELEASE_COMPONENT_HREF=""
+if [[ -n "${SUITE_ALIAS:-}" ]]; then
+  refresh_pulp_token
+  declare -A ALIAS_BEFORE=()
+  for i in "${!LEGACY_FILES[@]}"; do
+    sha=$(sha256sum "${LEGACY_FILES[$i]}" | cut -d' ' -f1)
+    href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
+    ALIAS_BEFORE[$i]=$(lookup_prcs "$href" | sort)
+  done
+  for FILE in "${LEGACY_FILES[@]}"; do
+    for legacy_attempt in 1 2 3; do
+      echo "[INFO] Uploading $FILE to $POOL_PATH/ ($SUITE_ALIAS/main, legacy alias suite) [attempt $legacy_attempt]"
+      LEGACY_TASK=$(
+        pulp_upload \
+          -F "file=@\"$FILE\"" \
+          -F "relative_path=$POOL_PATH/$FILE" \
+          -F "distribution=$SUITE_ALIAS" \
+          -F "component=main" \
+          -F "repository=$REPOSITORY_HREF" \
+          -F "pulp_labels=$PULP_LABELS" \
+          "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/"
+      )
+      wait_task_race "$LEGACY_TASK" && rc=0 || rc=$?
+      if [[ $rc -eq 0 ]]; then
+        break
+      elif [[ $rc -eq 2 && $legacy_attempt -lt 3 ]]; then
+        echo "[WARN] Legacy alias upload of $FILE lost the repository-version race, retrying"
+        sleep $((legacy_attempt * 15))
+      else
+        echo "::error::Legacy alias upload of $FILE failed"
+        exit 1
+      fi
+    done
+  done
+  refresh_pulp_token
+  for i in "${!LEGACY_FILES[@]}"; do
+    sha=$(sha256sum "${LEGACY_FILES[$i]}" | cut -d' ' -f1)
+    href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
+    after=$(lookup_prcs "$href" | sort)
+    new_rcs=$(comm -13 <(echo "${ALIAS_BEFORE[$i]}") <(echo "$after") | grep . || true)
+    if [[ $(echo "$new_rcs" | grep -c .) -eq 1 ]]; then
+      ALIAS_RELEASE_COMPONENT_HREF="$new_rcs"
+      break
+    fi
+  done
+  if [[ -z "$ALIAS_RELEASE_COMPONENT_HREF" ]]; then
+    echo "::error::Cannot deduce the $SUITE_ALIAS/main release component (rerun with a fresh build, or clean up the previous partial delivery)"
+    exit 1
+  fi
+  echo "[INFO] Release component of $SUITE_ALIAS/main (legacy alias): $ALIAS_RELEASE_COMPONENT_HREF"
+fi
+
 # parallel repository-less uploads (pool of 8), marker-file based like rpm
 UPLOAD_DIR=$(mktemp -d)
 MAX_PARALLEL_UPLOADS=8
@@ -362,54 +417,61 @@ for i in "${!ORPHAN_FILES[@]}"; do
 done
 
 # package_release_components create is synchronous (201 with the unit, no
-# task); a failed create (already existing on a job re-run) falls back to a lookup
-echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with $SUITE/main"
-for i in "${!PACKAGE_HREFS[@]}"; do
-  if ((i % 40 == 0)); then
-    refresh_pulp_token
-  fi
-  (
-    refresh_pulp_token
-    out=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
-      "{\"package\": \"${PACKAGE_HREFS[$i]}\", \"release_component\": \"$RELEASE_COMPONENT_HREF\"}") || out=$'\n000'
-    code="${out##*$'\n'}"
-    body="${out%$'\n'*}"
+# task); a failed create (already existing on a job re-run) falls back to a
+# lookup. Every package is associated with the canonical release component and,
+# when a legacy alias suite exists, with its release component too.
+RC_HREFS=("$RELEASE_COMPONENT_HREF")
+[[ -n "$ALIAS_RELEASE_COMPONENT_HREF" ]] && RC_HREFS+=("$ALIAS_RELEASE_COMPONENT_HREF")
+PRC_HREFS=()
+for rc_idx in "${!RC_HREFS[@]}"; do
+  RC_HREF="${RC_HREFS[$rc_idx]}"
+  echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with release component $RC_HREF"
+  for i in "${!PACKAGE_HREFS[@]}"; do
+    if ((i % 40 == 0)); then
+      refresh_pulp_token
+    fi
+    (
+      refresh_pulp_token
+      out=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
+        "{\"package\": \"${PACKAGE_HREFS[$i]}\", \"release_component\": \"$RC_HREF\"}") || out=$'\n000'
+      code="${out##*$'\n'}"
+      body="${out%$'\n'*}"
+      href=""
+      if [[ "$code" == 2* ]]; then
+        # tolerate a non-json body (gateway error page behind a 2xx)
+        href=$(echo "$body" | jq -r '.pulp_href // .task // empty' 2>/dev/null) || href=""
+      fi
+      if [[ -z "$href" ]]; then
+        href=$(lookup_deb_content "package_release_components" \
+          "--data-urlencode package=${PACKAGE_HREFS[$i]} --data-urlencode release_component=$RC_HREF")
+        if [[ -n "$href" ]]; then
+          # api answers 500 on a duplicate synchronous create; expected on a rerun
+          echo "[INFO] ${ORPHAN_FILES[$i]}: suite association already exists (HTTP $code on create, expected on a rerun), reusing it"
+        else
+          echo "[WARN] Suite association create for ${ORPHAN_FILES[$i]} returned HTTP $code: $(echo "$body" | head -c 300)" >&2
+        fi
+      fi
+      printf '%s' "$href" > "$UPLOAD_DIR/$i.prc$rc_idx"
+    ) &
+    while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
+      wait -n || true
+    done
+  done
+  wait || true
+
+  for i in "${!PACKAGE_HREFS[@]}"; do
     href=""
-    if [[ "$code" == 2* ]]; then
-      # tolerate a non-json body (gateway error page behind a 2xx)
-      href=$(echo "$body" | jq -r '.pulp_href // .task // empty' 2>/dev/null) || href=""
+    [[ -s "$UPLOAD_DIR/$i.prc$rc_idx" ]] && href=$(cat "$UPLOAD_DIR/$i.prc$rc_idx")
+    if [[ "$href" == */tasks/* ]]; then
+      href=$(resolve_task_content "$href" "package_release_components" \
+        "--data-urlencode package=${PACKAGE_HREFS[$i]} --data-urlencode release_component=$RC_HREF")
     fi
     if [[ -z "$href" ]]; then
-      href=$(lookup_deb_content "package_release_components" \
-        "--data-urlencode package=${PACKAGE_HREFS[$i]} --data-urlencode release_component=$RELEASE_COMPONENT_HREF")
-      if [[ -n "$href" ]]; then
-        # api answers 500 on a duplicate synchronous create; expected on a rerun
-        echo "[INFO] ${ORPHAN_FILES[$i]}: suite association already exists (HTTP $code on create, expected on a rerun), reusing it"
-      else
-        echo "[WARN] Suite association create for ${ORPHAN_FILES[$i]} returned HTTP $code: $(echo "$body" | head -c 300)" >&2
-      fi
+      echo "::error::Suite association failed for ${ORPHAN_FILES[$i]} (see the worker error above)"
+      exit 1
     fi
-    printf '%s' "$href" > "$UPLOAD_DIR/$i.prc"
-  ) &
-  while (($(jobs -rp | wc -l) >= MAX_PARALLEL_UPLOADS)); do
-    wait -n || true
+    PRC_HREFS+=("$href")
   done
-done
-wait || true
-
-PRC_HREFS=()
-for i in "${!PACKAGE_HREFS[@]}"; do
-  href=""
-  [[ -s "$UPLOAD_DIR/$i.prc" ]] && href=$(cat "$UPLOAD_DIR/$i.prc")
-  if [[ "$href" == */tasks/* ]]; then
-    href=$(resolve_task_content "$href" "package_release_components" \
-      "--data-urlencode package=${PACKAGE_HREFS[$i]} --data-urlencode release_component=$RELEASE_COMPONENT_HREF")
-  fi
-  if [[ -z "$href" ]]; then
-    echo "::error::Suite association failed for ${ORPHAN_FILES[$i]} (see the worker error above)"
-    exit 1
-  fi
-  PRC_HREFS+=("$href")
 done
 rm -rf "$UPLOAD_DIR"
 

@@ -123,6 +123,7 @@ runs:
         REPOSITORY_NAME: ${{ steps.pulp-properties.outputs.repository_name }}
         BASE_PATH: ${{ steps.pulp-properties.outputs.base_path }}
         SUITE: ${{ steps.pulp-properties.outputs.suite }}
+        SUITE_ALIAS: ${{ steps.pulp-properties.outputs.suite_alias }}
         STABLE_SUITE: ${{ steps.pulp-properties.outputs.stable_suite }}
         STABLE_BASE_PATH: ${{ steps.pulp-properties.outputs.stable_base_path }}
         POOL_PATH: ${{ steps.pulp-properties.outputs.pool_path }}
