@@ -57,9 +57,6 @@ outputs:
   suite:
     description: "Apt suite of the deb delivery"
     value: ${{ steps.properties.outputs.suite }}
-  suite_alias:
-    description: "Legacy stability-suffixed alias of the deb suite (client compatibility), empty when identical"
-    value: ${{ steps.properties.outputs.suite_alias }}
   testing_repository_prefix:
     description: "Repository name prefix of testing rpm repositories, used as promotion source"
     value: ${{ steps.properties.outputs.testing_repository_prefix }}
@@ -84,9 +81,6 @@ outputs:
   stable_suite:
     description: "Apt suite of stable deb packages"
     value: ${{ steps.properties.outputs.stable_suite }}
-  stable_suite_alias:
-    description: "Legacy stability-suffixed alias of the stable deb suite (client compatibility), empty when identical"
-    value: ${{ steps.properties.outputs.stable_suite_alias }}
   stable_repository_name:
     description: "Repository holding the stable deb packages (one deb repository per stability)"
     value: ${{ steps.properties.outputs.stable_repository_name }}

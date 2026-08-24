@@ -281,54 +281,6 @@ for PACKAGE in "${LEGACY_PACKAGES[@]}"; do
   done
 done
 
-# legacy alias suite (client compatibility): re-run the legacy pass on the
-# alias suite name so it carries the same packages. The reference package's
-# associations are captured in between, isolating the alias release component.
-ALIAS_STABLE_RC=""
-if [[ -n "${STABLE_SUITE_ALIAS:-}" ]]; then
-  refresh_pulp_token
-  LEGACY_REF_MID_HREF=$(lookup_deb_content "packages" "--data-urlencode sha256=$LEGACY_REF_SHA256")
-  LEGACY_REF_MID=""
-  [[ -n "$LEGACY_REF_MID_HREF" ]] && LEGACY_REF_MID=$(lookup_prcs "$LEGACY_REF_MID_HREF" | sort)
-  for PACKAGE in "${LEGACY_PACKAGES[@]}"; do
-    RELATIVE_PATH=$(echo "$PACKAGE" | jq -r '.relative_path')
-    FILE_NAME=$(basename "$RELATIVE_PATH")
-    FILE="promoted-packages/$FILE_NAME"
-    for legacy_attempt in 1 2 3; do
-      echo "[INFO] Promoting $FILE_NAME to $STABLE_SUITE_ALIAS/main [legacy alias suite, attempt $legacy_attempt]"
-      TASK_HREF=$(
-        pulp_upload \
-          -F "file=@\"$FILE\"" \
-          -F "relative_path=$RELATIVE_PATH" \
-          -F "distribution=$STABLE_SUITE_ALIAS" \
-          -F "component=main" \
-          -F "repository=$STABLE_REPOSITORY_HREF" \
-          -F "pulp_labels=$PULP_LABELS" \
-          "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/"
-      )
-      wait_task_race "$TASK_HREF" && rc=0 || rc=$?
-      if [[ $rc -eq 0 ]]; then
-        break
-      elif [[ $rc -eq 2 && $legacy_attempt -lt 3 ]]; then
-        echo "[WARN] Legacy alias promotion of $FILE_NAME lost the repository-version race, retrying"
-        sleep $((legacy_attempt * 15))
-      else
-        echo "::error::Legacy alias promotion of $FILE_NAME failed"
-        exit 1
-      fi
-    done
-  done
-  refresh_pulp_token
-  LEGACY_REF_ALIAS_HREF=$(lookup_deb_content "packages" "--data-urlencode sha256=$LEGACY_REF_SHA256")
-  LEGACY_REF_ALIAS_AFTER=$(lookup_prcs "$LEGACY_REF_ALIAS_HREF" | sort)
-  ALIAS_STABLE_RC=$(comm -13 <(echo "$LEGACY_REF_MID") <(echo "$LEGACY_REF_ALIAS_AFTER") | grep . | head -1 || true)
-  if [[ -z "$ALIAS_STABLE_RC" ]]; then
-    echo "::error::Cannot deduce the $STABLE_SUITE_ALIAS/main release component (rerun with a fresh build, or clean up the previous partial promotion)"
-    exit 1
-  fi
-  echo "[INFO] Release component of $STABLE_SUITE_ALIAS/main (legacy alias): $ALIAS_STABLE_RC"
-fi
-
 if ((${#BATCH_PACKAGES[@]} > 0)); then
   # the release component is the association the legacy re-upload just added
   # to the reference package (diffed against its pre-upload set captured above)
@@ -390,54 +342,47 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
 
   # package_release_components create is synchronous (201 with the unit, no
   # task); a failed create (already existing on a job re-run) falls back to a lookup
+  echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with $STABLE_SUITE/main"
   MAX_PARALLEL=8
   PRC_DIR=$(mktemp -d)
-  STABLE_RC_HREFS=("$STABLE_RC")
-  [[ -n "$ALIAS_STABLE_RC" ]] && STABLE_RC_HREFS+=("$ALIAS_STABLE_RC")
-  for rc_idx in "${!STABLE_RC_HREFS[@]}"; do
-    RC_HREF="${STABLE_RC_HREFS[$rc_idx]}"
-    echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with release component $RC_HREF"
-    for i in "${!PACKAGE_HREFS[@]}"; do
-      if ((i % 40 == 0)); then
-        refresh_pulp_token
+  for i in "${!PACKAGE_HREFS[@]}"; do
+    if ((i % 40 == 0)); then
+      refresh_pulp_token
+    fi
+    (
+      refresh_pulp_token
+      package_href="${PACKAGE_HREFS[$i]}"
+      out=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
+        "{\"package\": \"$package_href\", \"release_component\": \"$STABLE_RC\"}") || out=$'\n000'
+      code="${out##*$'\n'}"
+      body="${out%$'\n'*}"
+      href=""
+      if [[ "$code" == 2* ]]; then
+        # tolerate a non-json body (gateway error page behind a 2xx)
+        href=$(echo "$body" | jq -r '.pulp_href // empty' 2>/dev/null) || href=""
       fi
-      (
-        refresh_pulp_token
-        package_href="${PACKAGE_HREFS[$i]}"
-        out=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
-          "{\"package\": \"$package_href\", \"release_component\": \"$RC_HREF\"}") || out=$'\n000'
-        code="${out##*$'\n'}"
-        body="${out%$'\n'*}"
-        href=""
-        if [[ "$code" == 2* ]]; then
-          # tolerate a non-json body (gateway error page behind a 2xx)
-          href=$(echo "$body" | jq -r '.pulp_href // empty' 2>/dev/null) || href=""
-        fi
-        if [[ -z "$href" ]]; then
-          # api answers 500 on a duplicate synchronous create; expected on a rerun
-          echo "[INFO] $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package'): stable association create answered HTTP $code, falling back to the lookup (expected on a rerun)"
-          href=$(lookup_deb_content "package_release_components" \
-            "--data-urlencode package=$package_href --data-urlencode release_component=$RC_HREF")
-        fi
-        printf '%s\n%s' "$package_href" "$href" > "$PRC_DIR/$i.pair$rc_idx"
-      ) &
-      while (($(jobs -rp | wc -l) >= MAX_PARALLEL)); do
-        wait -n || true
-      done
+      if [[ -z "$href" ]]; then
+        # api answers 500 on a duplicate synchronous create; expected on a rerun
+        echo "[INFO] $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package'): stable association create answered HTTP $code, falling back to the lookup (expected on a rerun)"
+        href=$(lookup_deb_content "package_release_components" \
+          "--data-urlencode package=$package_href --data-urlencode release_component=$STABLE_RC")
+      fi
+      printf '%s\n%s' "$package_href" "$href" > "$PRC_DIR/$i.pair"
+    ) &
+    while (($(jobs -rp | wc -l) >= MAX_PARALLEL)); do
+      wait -n || true
     done
-    wait || true
   done
+  wait || true
 
   ADD_UNITS_FILE=$(mktemp)
-  for rc_idx in "${!STABLE_RC_HREFS[@]}"; do
-    for i in "${!BATCH_PACKAGES[@]}"; do
-      if [[ ! -s "$PRC_DIR/$i.pair$rc_idx" ]] || [[ -z "$(sed -n '2p' "$PRC_DIR/$i.pair$rc_idx")" ]]; then
-        echo "::error::Stable suite association failed for package $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package') (see the worker error above)"
-        exit 1
-      fi
-      cat "$PRC_DIR/$i.pair$rc_idx" >> "$ADD_UNITS_FILE"
-      echo >> "$ADD_UNITS_FILE"
-    done
+  for i in "${!BATCH_PACKAGES[@]}"; do
+    if [[ ! -s "$PRC_DIR/$i.pair" ]] || [[ -z "$(sed -n '2p' "$PRC_DIR/$i.pair")" ]]; then
+      echo "::error::Stable suite association failed for package $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package') (see the worker error above)"
+      exit 1
+    fi
+    cat "$PRC_DIR/$i.pair" >> "$ADD_UNITS_FILE"
+    echo >> "$ADD_UNITS_FILE"
   done
   rm -rf "$PRC_DIR"
 
