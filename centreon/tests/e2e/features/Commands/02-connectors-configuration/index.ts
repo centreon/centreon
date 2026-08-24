@@ -264,6 +264,9 @@ Given(
   'a connector with a distinctive description and command line exists',
   () => {
     openConnectorsListing();
+    // No apostrophe in the name on purpose: the legacy save path entity-encodes
+    // it, so the listing never receives a raw quote through the form and the
+    // attribute escaping cannot be reached from here.
     cy.getIframeBody().find('a.cl-btn-add').click();
     cy.addConnectors({
       ...data.connectorForSearch,

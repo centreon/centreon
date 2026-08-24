@@ -17,7 +17,7 @@
     "command_line": "/usr/lib/centreon-connector/centreon_connector_search --token=searchable-command-token",
     "description": "searchable-description-token",
     "is_enabled": 1,
-    "name": "connector-o'brien-search",
+    "name": "connector-search-target",
     "used_by_command": "check_centreon_cpu"
   }
 }
