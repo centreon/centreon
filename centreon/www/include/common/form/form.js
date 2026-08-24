@@ -221,7 +221,6 @@ var CentreonForm = (function () {
     //  Collapsible sections with a header bar. Click to expand/collapse.
     // =========================================================================
 
-    // Feeds the ids minted for elements that need one to be referenced.
     var autoDomId = 0;
 
     /**
@@ -239,10 +238,8 @@ var CentreonForm = (function () {
     }
 
     /**
-     * Make the accordion headers operable without a mouse.
-     * The header stays a div — the CSS is written for one — so it is given the
-     * button role, focusability and the expanded state it has to expose, and
-     * Enter/Space are wired to do what a click does.
+     * Make the accordion headers operable without a mouse. The header stays a div
+     * because the CSS is written for one.
      */
     function initSectionHeaders() {
         document.querySelectorAll('.cf-section-header').forEach(function (header) {
@@ -330,9 +327,6 @@ var CentreonForm = (function () {
      * Tie a field's label to its control. QuickForm renders the control and the
      * template renders the label beside it, so nothing binds the two and the
      * control ends up with no accessible name.
-     *
-     * @param {HTMLElement} label - The field's <label>.
-     * @param {HTMLElement} input - The control it describes.
      */
     function bindLabel(label, input) {
         if (label.htmlFor || label.contains(input) || !LABELABLE_CONTROLS.test(input.type)) return;
@@ -752,7 +746,7 @@ var CentreonForm = (function () {
         if (!toggle || !radioOn) return;
 
         // Set initial state from the checked radio. On a frozen form QuickForm
-        // renders the checked option as static text plus a persistant
+        // renders the checked option as static text plus a persistent
         // <input type="hidden"> carrying the same name and value, and .checked is
         // always false on a hidden input — reading it would clear the state the
         // server rendered on the toggle, which is then the only status display.

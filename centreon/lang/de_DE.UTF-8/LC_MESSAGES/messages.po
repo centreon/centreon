@@ -21674,3 +21674,19 @@ msgstr "Konnektor einfügen"
 #: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
 msgid "Insert macro"
 msgstr "Makro einfügen"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "This item no longer exists"
+msgstr "Dieses Element existiert nicht mehr"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are not allowed to access this page."
+msgstr "Sie sind nicht berechtigt, auf diese Seite zuzugreifen."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Some connectors could not be processed. See the Centreon log for details."
+msgstr "Einige Konnektoren konnten nicht verarbeitet werden. Weitere Informationen finden Sie im Centreon-Protokoll."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The form could not be loaded. See the Centreon log for details."
+msgstr "Das Formular konnte nicht geladen werden. Weitere Informationen finden Sie im Centreon-Protokoll."

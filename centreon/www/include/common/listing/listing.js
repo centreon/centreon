@@ -621,10 +621,16 @@ function CentreonListing(config) {
 
                 var httpStatus = xhr && xhr.status;
                 if (httpStatus === 401 || httpStatus === 403) {
-                    // Session expired / access lost mid-view: stop the auto-refresh
-                    // so we don't hammer a dead session, and tell the user.
+                    // Stop the auto-refresh either way, so we don't hammer a dead
+                    // session. 401 is a lost session, 403 is a page the user is no
+                    // longer allowed on: telling them to reload would send them
+                    // chasing an authentication problem they do not have.
                     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    if (httpStatus === 403) {
+                        clToast(clListingLabel('accessDenied', 'You are not allowed to access this page.'), 'error');
+                    } else {
+                        clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    }
                     return;
                 }
 
@@ -868,13 +874,25 @@ function CentreonListing(config) {
                 // the user instead of leaving a silently-reverted toggle.
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
+                var payload = (xhr && xhr.responseJSON) || {};
+                // The endpoint consumes the CSRF token before it can fail, so it
+                // hands the replacement back with the error.
+                if (payload.centreon_token) {
+                    csrfToken = payload.centreon_token;
+                }
                 if (window.console) {
                     console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
                 }
-                clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
-                // A stale CSRF token (403) would make every subsequent toggle fail
-                // too; a silent list refresh pulls a fresh token so the next works.
-                if (xhr && xhr.status === 403) {
+                var httpStatus = xhr && xhr.status;
+                if (httpStatus === 404) {
+                    clToast(clListingLabel('toggleNotFound', 'This item no longer exists'), 'error');
+                } else {
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
+                // 403: the token was stale, and the refresh above may not be enough
+                // if the whole page state moved on. 404: the row is gone, so it has
+                // to stop being displayed instead of inviting another click.
+                if (httpStatus === 403 || httpStatus === 404) {
                     self.fetch(currentNum, currentLimit, currentSearch, true);
                 }
             }

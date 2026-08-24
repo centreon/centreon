@@ -29,46 +29,45 @@ use Adaptation\Log\Logger;
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
 $helper = AjaxListingHelper::boot();
-$helper->requireCentreon();
-// Connectors carry no per-object ACL, so page access is the only thing standing
-// between an authenticated user and the whole list.
-$helper->requireReadAccess(60806);
-$pearDB = $helper->getDb();
-$params = $helper->getParams();
 
-$search = $params['search'];
-$num    = $params['num'];
-$limit  = $params['limit'];
-
-// Command lines run long; the listing shows a truncated value and the form
-// holds the full one.
-$commandLineMaxLength = 70;
-
-$conditions = [];
-$parameters = [];
-
-if ($search !== '') {
-    $conditions[] = '(name LIKE :search OR description LIKE :search OR command_line LIKE :search)';
-    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
-}
-
-$whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
-
-$countQuery = <<<SQL
-    SELECT COUNT(*) AS total
-    FROM connector
-    {$whereClause}
-    SQL;
-
-$dataQuery = <<<SQL
-    SELECT id, name, description, command_line, enabled
-    FROM connector
-    {$whereClause}
-    ORDER BY name
-    LIMIT :offset, :limit
-    SQL;
+$search = null;
+$num    = null;
+$limit  = null;
 
 try {
+    $helper->requireCentreon();
+    $helper->requireReadAccess(60806);
+    $pearDB = $helper->getDb();
+    $params = $helper->getParams();
+
+    $search = $params['search'];
+    $num    = $params['num'];
+    $limit  = $params['limit'];
+
+    $conditions = [];
+    $parameters = [];
+
+    if ($search !== '') {
+        $conditions[] = '(name LIKE :search OR description LIKE :search OR command_line LIKE :search)';
+        $parameters[] = QueryParameter::string('search', '%' . $search . '%');
+    }
+
+    $whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
+
+    $countQuery = <<<SQL
+        SELECT COUNT(*) AS total
+        FROM connector
+        {$whereClause}
+        SQL;
+
+    $dataQuery = <<<SQL
+        SELECT id, name, description, command_line, enabled
+        FROM connector
+        {$whereClause}
+        ORDER BY name
+        LIMIT :offset, :limit
+        SQL;
+
     $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
 
     $connectors = $pearDB->fetchAllAssociative(
@@ -82,16 +81,11 @@ try {
 
     $rows = [];
     foreach ($connectors as $connector) {
-        $commandLine = $connector['command_line'] ?? '';
-        if (mb_strlen($commandLine) > $commandLineMaxLength) {
-            $commandLine = mb_substr($commandLine, 0, $commandLineMaxLength) . '...';
-        }
-
         $rows[] = [
             'id'           => (int) $connector['id'],
             'name'         => $connector['name'],
             'description'  => $connector['description'] ?? '',
-            'command_line' => $commandLine,
+            'command_line' => $connector['command_line'] ?? '',
             'activate'     => (int) $connector['enabled'],
         ];
     }
@@ -100,7 +94,7 @@ try {
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'AJAX listing: failed to fetch connectors',
-        ['exception' => $exception]
+        ['search' => $search, 'num' => $num, 'limit' => $limit, 'exception' => $exception]
     );
     AjaxListingHelper::jsonError('Internal error', 500);
 }

@@ -20161,3 +20161,19 @@ msgstr "Insert connector"
 #: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
 msgid "Insert macro"
 msgstr "Insert macro"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "This item no longer exists"
+msgstr "This item no longer exists"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are not allowed to access this page."
+msgstr "You are not allowed to access this page."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Some connectors could not be processed. See the Centreon log for details."
+msgstr "Some connectors could not be processed. See the Centreon log for details."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The form could not be loaded. See the Centreon log for details."
+msgstr "The form could not be loaded. See the Centreon log for details."

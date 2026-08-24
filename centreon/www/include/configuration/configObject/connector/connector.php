@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -29,21 +32,20 @@ require_once $path . 'DB-Func.php';
 
 $connectorObj = new CentreonConnector($pearDB);
 
-// Mirrors the three-digit duplication field: the request is the only thing
-// between a forged value and one insert per requested copy.
+// Caps the duplication count, which comes straight from the request and drives
+// one INSERT each. 999 matches the field's maxlength.
 const MAX_DUPLICATES_PER_CONNECTOR = 999;
 
-if (isset($_REQUEST['select'])) {
-    $select = $_REQUEST['select'];
-}
+// Connector ids the batch could not process, surfaced by the listing.
+$batchErrors = [];
+
+$select = $_REQUEST['select'] ?? null;
 
 if (isset($_REQUEST['id'])) {
     $connector_id = $_REQUEST['id'];
 }
 
-if (isset($_REQUEST['options'])) {
-    $options = $_REQUEST['options'];
-}
+$options = $_REQUEST['options'] ?? null;
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
@@ -97,14 +99,26 @@ switch ($o) {
                 }
                 $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
-                    // An untouched field means one copy; a typed 0 means none, as
-                    // it did before, so a row can still be left out of a batch.
+                    // As on the legacy page, anything that is not a positive number
+                    // leaves the row out of the batch.
                     $requested = $duplicateNbr[$connectorId] ?? '';
-                    $nb = ($requested === '' || ! is_numeric($requested))
-                        ? 1
-                        : min(MAX_DUPLICATES_PER_CONNECTOR, max(0, (int) $requested));
-                    if ($nb > 0) {
+                    $nb = is_numeric($requested)
+                        ? min(MAX_DUPLICATES_PER_CONNECTOR, max(0, (int) $requested))
+                        : 0;
+                    if ($nb === 0) {
+                        continue;
+                    }
+
+                    try {
                         $connectorObj->copy($connectorId, $nb);
+                    } catch (Throwable $exception) {
+                        // copy() throws mid-loop, so an unguarded failure would leave
+                        // a half-applied batch behind a broken page and no log entry.
+                        $batchErrors[] = $connectorId;
+                        Logger::create(LogChannelEnum::WEB)->error(
+                            'Connectors: duplication failed',
+                            ['id' => $connectorId, 'copies' => $nb, 'exception' => $exception]
+                        );
                     }
                 }
             }
@@ -120,7 +134,15 @@ switch ($o) {
             if ($lvl_access == 'w') {
                 $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
-                    $connectorObj->delete($connectorId);
+                    try {
+                        $connectorObj->delete($connectorId);
+                    } catch (Throwable $exception) {
+                        $batchErrors[] = $connectorId;
+                        Logger::create(LogChannelEnum::WEB)->error(
+                            'Connectors: deletion failed',
+                            ['id' => $connectorId, 'exception' => $exception]
+                        );
+                    }
                 }
             }
         } else {

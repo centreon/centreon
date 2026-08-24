@@ -29,24 +29,29 @@ use Adaptation\Log\Logger;
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
 $helper = AjaxListingHelper::boot();
-$helper->requireCentreon();
-$pearDB = $helper->getDb();
 
-$objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
-$action = $_POST['action'] ?? null;
-
-if (! $objId || ! in_array($action, ['s', 'u'], true)) {
-    AjaxListingHelper::jsonError('Invalid parameters', 400);
-}
-
-$newToken = $helper->validateCsrfToken();
-
-$helper->requireWriteAccess(60806);
-
-$enabled = ($action === 's') ? 1 : 0;
+$objId    = null;
+$action   = null;
+$newToken = null;
 
 try {
-    // Fetch the name (also acts as the existence check) then flip the activation flag.
+    $helper->requireCentreon();
+    $pearDB = $helper->getDb();
+
+    $objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+    $action = $_POST['action'] ?? null;
+
+    if (! $objId || ! in_array($action, ['s', 'u'], true)) {
+        AjaxListingHelper::jsonError('Invalid parameters', 400);
+    }
+
+    // The token is single-use, so every answer issued from here on carries its
+    // replacement: without it the operator's next click dies on a stale token.
+    $newToken = $helper->validateCsrfToken();
+
+    $helper->requireWriteAccess(60806, ['centreon_token' => $newToken]);
+
+    // The name feeds the audit log; the fetch doubles as the existence check.
     $objName = $pearDB->fetchOne(
         <<<'SQL'
             SELECT name FROM connector WHERE id = :id
@@ -55,16 +60,15 @@ try {
     );
 
     if ($objName === false) {
-        AjaxListingHelper::jsonError('Object not found', 404);
+        AjaxListingHelper::jsonError('Object not found', 404, ['centreon_token' => $newToken]);
     }
 
-    // modified carries the last change timestamp, as the legacy page did.
     $pearDB->executeStatement(
         <<<'SQL'
             UPDATE connector SET enabled = :enabled, modified = :modified WHERE id = :id
             SQL,
         QueryParameters::create([
-            QueryParameter::int('enabled', $enabled),
+            QueryParameter::int('enabled', $action === 's' ? 1 : 0),
             QueryParameter::int('modified', time()),
             QueryParameter::int('id', $objId),
         ])
@@ -76,9 +80,13 @@ try {
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'AJAX toggle: failed to update connector activation',
-        ['exception' => $exception]
+        ['id' => $objId, 'action' => $action, 'exception' => $exception]
     );
-    AjaxListingHelper::jsonError('Internal error', 500);
+    AjaxListingHelper::jsonError(
+        'Internal error',
+        500,
+        $newToken === null ? [] : ['centreon_token' => $newToken]
+    );
 }
 
 exit;

@@ -57,7 +57,9 @@
             ok: "{t escape='js'}OK{/t}",
             loadError: "{t escape='js'}Error loading data{/t}",
             toggleError: "{t escape='js'}Could not change status{/t}",
-            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}"
+            toggleNotFound: "{t escape='js'}This item no longer exists{/t}",
+            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}",
+            accessDenied: "{t escape='js'}You are not allowed to access this page.{/t}"
         {rdelim}
     {rdelim};
 </script>

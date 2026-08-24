@@ -1,6 +1,4 @@
 {include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
-<script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-
 {literal}
 <script type="text/javascript">
 CentreonForm.detectSidePanelClose();
@@ -26,7 +24,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC}" class="cl-search-simple" placeholder="{t}Search connectors{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchC" class="cl-search-simple" placeholder="{t}Search connectors{/t}" autocomplete="off">
                 </div>
             </div>
             <div class="cl-toolbar-right">
@@ -61,7 +59,6 @@ CentreonForm.detectSidePanelClose();
 {$form.hidden}
 </form>
 
-<!-- Side panel -->
 <div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
 <div class="cf-side-panel" id="cfSidePanel">
     <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
@@ -96,14 +93,25 @@ var connListing = new CentreonListing({
                 + ' onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
         }},
         { id:'description' },
-        { id:'command_line' }
+        { id:'command_line', render: function(row, l) {
+            // The cell is clipped by CSS, so the whole line only stays reachable
+            // through the tooltip.
+            var commandLine = row.command_line || '';
+            return '<span title="'+clEscapeAttr(commandLine)+'">'+l.escape(commandLine)+'</span>';
+        }}
     ],
-    renderOptions: function(row, l) {
+    renderOptions: function(row, l, writeAccess) {
         var checked = row.activate ? ' checked' : '';
         // Neither control carries a label of its own, so both take the connector
         // name: out of visual context, a bare toggle says nothing about its row.
         var rowName = clEscapeAttr(row.name);
-        return '<label class="cl-toggle"><input type="checkbox" aria-label="{/literal}{t escape='js'}Status{/t}{literal}: '+rowName+'" data-row-id="'+row.id+'"'+checked+' onchange="connListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
+        var toggle = '<label class="cl-toggle"><input type="checkbox" aria-label="{/literal}{t escape='js'}Status{/t}{literal}: '+rowName+'" data-row-id="'+row.id+'"'+checked+' onchange="connListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>';
+        // Read-only users keep the toggle as the status indicator, but the
+        // duplication field would be an empty promise: the server refuses them.
+        if (!writeAccess) {
+            return toggle;
+        }
+        return toggle +
             '<input aria-label="{/literal}{t escape='js'}Duplications{/t}{literal}: '+rowName+'" onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }
 });
@@ -111,3 +119,9 @@ connListing.init();
 CentreonForm.initSidePanel(connListing);
 </script>
 {/literal}
+
+{if $batchErrorCount > 0}
+<script type="text/javascript">
+    clToast("{t escape='js'}Some connectors could not be processed. See the Centreon log for details.{/t}", 'error');
+</script>
+{/if}

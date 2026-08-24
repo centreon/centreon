@@ -32,6 +32,7 @@ class ActionLog
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
     public const OBJECT_TYPE_COMMAND = 'command';
+    public const OBJECT_TYPE_CONNECTOR = 'connector';
     public const OBJECT_TYPE_TIMEPERIOD = 'timeperiod';
     public const OBJECT_TYPE_CONTACT = 'contact';
     public const OBJECT_TYPE_CONTACTGROUP = 'contactgroup';
@@ -62,6 +63,7 @@ class ActionLog
     public const OBJECT_TYPE_HOST_SEVERITY = 'hostseverity';
     public const AVAILABLE_OBJECT_TYPES = [
         self::OBJECT_TYPE_COMMAND,
+        self::OBJECT_TYPE_CONNECTOR,
         self::OBJECT_TYPE_TIMEPERIOD,
         self::OBJECT_TYPE_CONTACT,
         self::OBJECT_TYPE_CONTACTGROUP,

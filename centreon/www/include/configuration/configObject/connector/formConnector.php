@@ -17,6 +17,9 @@
  * For more information : contact@centreon.com
  *
  */
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once __DIR__ . '/formConnectorFunction.php';
 
 try {
@@ -167,11 +170,8 @@ try {
         $form->accept($renderer);
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
-        // The cosmetic toggle mirrors a hidden radio group, so it carries the
-        // state server-side for View mode, where the group is frozen. It must
-        // agree with the QuickForm default set above ('0' in Add mode): a
-        // disagreement makes the toggle flip once syncToggle reads the group at
-        // DOMContentLoaded.
+        // In View mode the radio group is frozen, so the toggle is the only status
+        // display. It must match the QuickForm default, or syncToggle flips it at load.
         $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '0') === '1');
         $tpl->assign(
             'helpattr',
@@ -188,8 +188,14 @@ try {
 
         $tpl->display('formConnector.ihtml');
     }
-} catch (Exception $e) {
-    echo 'Erreur n°' . $e->getCode() . ' : ' . $e->getMessage();
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Connectors: failed to render the form',
+        ['id' => $connector_id ?? null, 'action' => $o ?? null, 'exception' => $exception]
+    );
+    echo '<p style="padding:16px;color:#FF4A4A;">'
+        . _('The form could not be loaded. See the Centreon log for details.')
+        . '</p>';
 }
 
 ?>

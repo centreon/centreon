@@ -34,15 +34,14 @@ $tpl->assign('headerMenu_command_line', _('Command Line'));
 
 $tpl->assign('connPage', $p);
 
-$search = $centreon->historySearch[$url]['search'] ?? '';
-$tpl->assign('searchC', $search);
+$tpl->assign('batchErrorCount', count($batchErrors ?? []));
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
 
 $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
-$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
+$tpl->assign('msg', ['addT' => _('Add')]);
 
 ?>
 <script type="text/javascript">

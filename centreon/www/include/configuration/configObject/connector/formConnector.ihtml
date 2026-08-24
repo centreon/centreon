@@ -6,8 +6,7 @@
 
     <h1 class="cf-page-title">{$form.header.title}</h1>
 
-    <!-- Section: General information -->
-    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section" id="cf-sec-info">
         <div class="cf-section-header" onclick="cfToggleSection(this)">
             {$form.header.information}
             <span class="cf-section-chevron">&#9660;</span>
@@ -72,8 +71,7 @@
         </div>
     </div>
 
-    <!-- Action buttons -->
-    <div class="cf-actions">
+        <div class="cf-actions">
         {if $o == "a" || $o == "c"}
             {$form.reset.html}
             {if isset($form.submitC)}

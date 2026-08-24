@@ -153,7 +153,7 @@ class AjaxListingHelper
     public function requireCentreon(): mixed
     {
         if (! $this->centreon) {
-            self::jsonError('Forbidden', 403);
+            self::jsonError('Unauthenticated', 401);
         }
 
         return $this->centreon;
@@ -192,8 +192,11 @@ class AjaxListingHelper
      * Listings whose objects carry no per-object ACL rely on this alone.
      *
      * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
+     * @param array<string, mixed> $extra Additional fields to return with the error
+     *
+     * @throws JsonException
      */
-    public function requireReadAccess(int $pageId): void
+    public function requireReadAccess(int $pageId, array $extra = []): void
     {
         if ($this->isAdmin()) {
             return;
@@ -201,7 +204,7 @@ class AjaxListingHelper
         $acl = $this->getAcl();
         // CentreonACL::page() returns 0 (no access), 1 (read/write) or 2 (read only).
         if (! $acl || $acl->page($pageId) === 0) {
-            self::jsonError('Forbidden', 403);
+            self::jsonError('Forbidden', 403, $extra);
         }
     }
 
@@ -210,15 +213,18 @@ class AjaxListingHelper
      * Admins always pass.
      *
      * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
+     * @param array<string, mixed> $extra Additional fields to return with the error
+     *
+     * @throws JsonException
      */
-    public function requireWriteAccess(int $pageId): void
+    public function requireWriteAccess(int $pageId, array $extra = []): void
     {
         if ($this->isAdmin()) {
             return;
         }
         $acl = $this->getAcl();
         if (! $acl || $acl->page($pageId) !== 1) {
-            self::jsonError('Write access denied', 403);
+            self::jsonError('Write access denied', 403, $extra);
         }
     }
 
@@ -317,11 +323,18 @@ class AjaxListingHelper
 
     /**
      * Send a JSON error response and exit.
+     *
+     * @param array<string, mixed> $extra Additional fields to merge into the body. An
+     *                                    endpoint that consumed the CSRF token before
+     *                                    failing must return the replacement here, or
+     *                                    the client's next call dies on a stale token.
+     *
+     * @throws JsonException
      */
-    public static function jsonError(string $message, int $httpCode = 400): void
+    public static function jsonError(string $message, int $httpCode = 400, array $extra = []): void
     {
         http_response_code($httpCode);
-        echo json_encode(['error' => $message], JSON_THROW_ON_ERROR);
+        echo json_encode(array_merge(['error' => $message], $extra), JSON_THROW_ON_ERROR);
 
         exit;
     }
