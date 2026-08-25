@@ -130,6 +130,125 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
+// ---------------------------------------------------------------------------
+// Modernized listing / side-panel form helpers
+//
+// The migrated configuration pages (AJAX listing + side-panel form) render the
+// form inside a second iframe nested in #main-content, and hide the native
+// "more actions" select behind a custom menu. These helpers hold the selector
+// knowledge so the step definitions stay declarative.
+// ---------------------------------------------------------------------------
+
+Cypress.Commands.add('waitForModernListing', (): Cypress.Chainable => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+
+  return cy
+    .getIframeBody()
+    .find('#clTableBody td')
+    .should('not.contain', 'Loading');
+});
+
+Cypress.Commands.add('getSidePanelBody', (): Cypress.Chainable => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+// Row names often share a prefix (a duplicate is "<name>_1"), so rows are
+// matched on the exact link text rather than with a substring contains().
+const exactRowText = (name: string): RegExp =>
+  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+
+Cypress.Commands.add(
+  'openSidePanelForm',
+  (name: string, fieldSelector: string): Cypress.Chainable => {
+    cy.waitForModernListing();
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', exactRowText(name))
+      .click();
+
+    return cy
+      .getSidePanelBody()
+      .find(fieldSelector, { timeout: 20_000 })
+      .should('be.visible');
+  }
+);
+
+// select2 fields are addressed by their visible label: the placeholder is the
+// generic "Search"/"Select", and index-based lookups break as soon as a field
+// is added to the form.
+Cypress.Commands.add(
+  'pickSidePanelOption',
+  (label: string, option: string): Cypress.Chainable => {
+    cy.getSidePanelBody()
+      .contains('.cf-field', label)
+      .find('.select2-selection')
+      .click({ force: true });
+
+    return cy
+      .getSidePanelBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .contains(option)
+      .click({ force: true });
+  }
+);
+
+Cypress.Commands.add(
+  'clearSidePanelSelection',
+  (label: string): Cypress.Chainable => {
+    return cy
+      .getSidePanelBody()
+      .contains('.cf-field', label)
+      .find('.select2-selection__choice__remove')
+      .click({ force: true, multiple: true });
+  }
+);
+
+Cypress.Commands.add(
+  'listingRowShouldNotExist',
+  (name: string): Cypress.Chainable => {
+    cy.waitForModernListing();
+
+    return cy
+      .getIframeBody()
+      .find('#clTableBody a')
+      .filter((_index, element) => element.textContent?.trim() === name)
+      .should('have.length', 0);
+  }
+);
+
+Cypress.Commands.add(
+  'runListingBulkAction',
+  (name: string, action: string): Cypress.Chainable => {
+    cy.waitForModernListing();
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', exactRowText(name))
+      .parents('tr')
+      // The real checkbox is visibility:hidden behind its md-checkbox label.
+      .find('.cl-col-picker input[type="checkbox"]')
+      .click({ force: true });
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .invoke(
+        'attr',
+        'onchange',
+        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+      );
+
+    // The native o1 select is hidden (replaced by the .cl-more-actions menu);
+    // the overridden onchange above turns a value change into setO + submit.
+    return cy
+      .getIframeBody()
+      .find('select[name="o1"]')
+      .select(action, { force: true });
+  }
+);
+
 Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
   cy.getIframeBody()
   .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
@@ -167,6 +286,22 @@ declare global {
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
+      waitForModernListing: () => Cypress.Chainable;
+      getSidePanelBody: () => Cypress.Chainable<JQuery<HTMLElement>>;
+      openSidePanelForm: (
+        name: string,
+        fieldSelector: string
+      ) => Cypress.Chainable;
+      runListingBulkAction: (
+        name: string,
+        action: string
+      ) => Cypress.Chainable;
+      listingRowShouldNotExist: (name: string) => Cypress.Chainable;
+      pickSidePanelOption: (
+        label: string,
+        option: string
+      ) => Cypress.Chainable;
+      clearSidePanelSelection: (label: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
     }

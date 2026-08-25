@@ -7,6 +7,24 @@ Feature: Service dependency configuration
     Given a user is logged in a Centreon server
     And some hosts and services and service groups are configured
 
+  Scenario: The service dependencies listing loads through the AJAX framework
+    Given a service dependency is configured
+    When the user opens the service dependencies listing
+    Then the AJAX listing table is displayed with the configured service dependency
+
+  Scenario: The search filters the service dependencies by name
+    Given a service dependency is configured
+    When the user opens the service dependencies listing
+    And the user searches for a term matching no service dependency
+    Then no service dependency is displayed
+    When the user searches for the configured service dependency
+    Then only the matching service dependency is displayed
+
+  Scenario: The service dependencies listing shows pagination information
+    Given a service dependency is configured
+    When the user opens the service dependencies listing
+    Then the pagination information shows the total count
+
   @MON-156576
   Scenario: Change the properties of a service dependency
     Given a service dependency is configured
@@ -24,6 +42,11 @@ Feature: Service dependency configuration
     Given a service dependency is configured
     When the user deletes a service dependency
     Then the deleted service dependency is not displayed in the list
+
+  Scenario: The service group dependencies listing loads through the AJAX framework
+    Given a service group dependency is configured
+    When the user opens the service group dependencies listing
+    Then the AJAX listing table is displayed with the configured service group dependency
 
   @MON-156893
   Scenario: Change the properties of a service group dependency

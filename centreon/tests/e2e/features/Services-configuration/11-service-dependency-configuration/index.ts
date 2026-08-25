@@ -33,6 +33,14 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.api.centreon_topcounter}&action=servicesStatus`
   }).as('getTopCounter');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.service_dependency_listing
+  }).as('getServiceDependencies');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.servicegroup_dependency_listing
+  }).as('getServiceGroupDependencies');
 });
 
 afterEach(() => {
@@ -88,8 +96,9 @@ Given('some hosts and services and service groups are configured', () => {
 
 Given('a service dependency is configured', () => {
   cy.visit(PAGES.configuration.servicesDependenciesLegacy);
-  cy.getIframeBody().contains('a', 'Add').click();
-  cy.wait('@getTimeZone');
+  cy.waitForModernListing();
+  // The +Add button opens the form in the side panel, not in #main-content.
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addServiceDependency({
     dependency: {
       comment: data.default.dependency.comment,
@@ -124,14 +133,78 @@ Given('a service dependency is configured', () => {
   });
 });
 
+const unmatchedSearchTerm = 'no-such-dependency';
+
+When('the user opens the service dependencies listing', () => {
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
+  cy.waitForModernListing();
+});
+
+Then(
+  'the AJAX listing table is displayed with the configured service dependency',
+  () => {
+    cy.getIframeBody().find('table.cl-listing-table').should('exist');
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(data.default.dependency.name)
+      .should('exist');
+  }
+);
+
+When('the user searches for a term matching no service dependency', () => {
+  // Live search (debounced AJAX) — there is no submit button, the table
+  // refreshes as the user types.
+  cy.getIframeBody().find('#clSearchInput').clear().type(unmatchedSearchTerm);
+  cy.wait('@getServiceDependencies');
+});
+
+Then('no service dependency is displayed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.default.dependency.name)
+    .should('not.exist');
+});
+
+When('the user searches for the configured service dependency', () => {
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .clear()
+    .type(data.default.dependency.name);
+  cy.wait('@getServiceDependencies');
+});
+
+Then('only the matching service dependency is displayed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.default.dependency.name)
+    .should('exist');
+});
+
+When('the user opens the service group dependencies listing', () => {
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
+  cy.waitForModernListing();
+});
+
+Then(
+  'the AJAX listing table is displayed with the configured service group dependency',
+  () => {
+    cy.getIframeBody().find('table.cl-listing-table').should('exist');
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(data.defaultSGDependency.dependency.name)
+      .should('exist');
+  }
+);
+
+Then('the pagination information shows the total count', () => {
+  cy.getIframeBody()
+    .find('#clPaginationTop')
+    .invoke('text')
+    .should('match', /\d+-\d+ of \d+/);
+});
+
 When('the user changes the properties of a service dependency', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.default.dependency.name}")`
-  );
-  cy.getIframeBody().contains(data.default.dependency.name).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
+  cy.openSidePanelForm(data.default.dependency.name, 'input[name="dep_name"]');
   cy.updateServiceDependency({
     ...data.ServDependency1,
     dependency: {
@@ -167,117 +240,108 @@ When('the user changes the properties of a service dependency', () => {
 });
 
 Then('the properties are updated', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.ServDependency1.dependency.name}")`
+  cy.openSidePanelForm(
+    data.ServDependency1.dependency.name,
+    'input[name="dep_name"]'
   );
-  cy.getIframeBody().contains(data.ServDependency1.dependency.name).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_name"]')
     .should('have.value', data.ServDependency1.dependency.name);
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .should('have.value', data.ServDependency1.dependency.description);
-  cy.getIframeBody().find('#eWarning').should('be.checked');
-  cy.getIframeBody().find('#eCritical').should('be.checked');
-  cy.getIframeBody().find('#nWarning').should('be.checked');
-  cy.getIframeBody().find('#nCritical').should('be.checked');
+  cy.getSidePanelBody().find('#eWarning').should('be.checked');
+  cy.getSidePanelBody().find('#eCritical').should('be.checked');
+  cy.getSidePanelBody().find('#nWarning').should('be.checked');
+  cy.getSidePanelBody().find('#nCritical').should('be.checked');
 
-  cy.getIframeBody()
-    .find('#dep_hSvPar')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', `host2 - ${data.ServDependency1.services[0]}`);
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="host2 - ${data.ServDependency1.services[0]}"]`
+    )
+    .should('exist');
 
-  cy.getIframeBody()
-    .find('#dep_hSvChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', `host3 - ${data.ServDependency1.dependentServices[0]}`);
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="host3 - ${data.ServDependency1.dependentServices[0]}"]`
+    )
+    .should('exist');
 
-  cy.getIframeBody()
-    .find('#dep_hHostChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.ServDependency1.dependentHosts[0]);
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.ServDependency1.dependentHosts[0]}"]`
+    )
+    .should('exist');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.ServDependency1.dependency.comment);
 });
 
 When('the user duplicates a service dependency', () => {
-  cy.checkFirstRowFromListing('searchSD');
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.runListingBulkAction(data.default.dependency.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the new service dependency has the same properties', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.default.dependency.name}_1")`
+  cy.openSidePanelForm(
+    `${data.default.dependency.name}_1`,
+    'input[name="dep_name"]'
   );
-  cy.getIframeBody().contains(`${data.default.dependency.name}_1`).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_name"]')
     .should('have.value', `${data.default.dependency.name}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .should('have.value', data.default.dependency.description);
-  cy.getIframeBody().find('#eOk').should('be.checked');
-  cy.getIframeBody().find('#eWarning').should('be.checked');
-  cy.getIframeBody().find('#eCritical').should('be.checked');
+  cy.getSidePanelBody().find('#eOk').should('be.checked');
+  cy.getSidePanelBody().find('#eWarning').should('be.checked');
+  cy.getSidePanelBody().find('#eCritical').should('be.checked');
 
-  cy.getIframeBody().find('#nOk').should('be.checked');
-  cy.getIframeBody().find('#nWarning').should('be.checked');
-  cy.getIframeBody().find('#nCritical').should('be.checked');
+  cy.getSidePanelBody().find('#nOk').should('be.checked');
+  cy.getSidePanelBody().find('#nWarning').should('be.checked');
+  cy.getSidePanelBody().find('#nCritical').should('be.checked');
 
-  cy.getIframeBody()
-    .find('#dep_hSvPar')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.default.services[0]);
+  cy.getSidePanelBody()
+    .find(`.select2-selection__choice[title="${data.default.services[0]}"]`)
+    .should('exist');
 
-  cy.getIframeBody()
-    .find('#dep_hSvChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', `host2 - ${data.default.dependentServices[0]}`);
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="host2 - ${data.default.dependentServices[0]}"]`
+    )
+    .should('exist');
 
-  cy.getIframeBody()
-    .find('#dep_hHostChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.default.dependentHosts[0]);
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.default.dependentHosts[0]}"]`
+    )
+    .should('exist');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.default.dependency.comment);
 });
 
 When('the user deletes a service dependency', () => {
-  cy.checkFirstRowFromListing('searchSD');
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.runListingBulkAction(data.default.dependency.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the deleted service dependency is not displayed in the list', () => {
-  cy.getIframeBody().contains(data.default.dependency.name).should('not.exist');
+  // The duplicate created earlier is "<name>_1", so the deleted row has to be
+  // matched on its exact name rather than as a substring.
+  cy.listingRowShouldNotExist(data.default.dependency.name);
 });
 
 Given('a service group dependency is configured', () => {
   cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
-  cy.getIframeBody().contains('a', 'Add').click();
-  cy.wait('@getTimeZone');
+  cy.waitForModernListing();
+  // The +Add button opens the form in the side panel, not in #main-content.
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addServiceGroupDependency({
     ...data.defaultSGDependency,
     dependency: {
@@ -317,13 +381,10 @@ Given('a service group dependency is configured', () => {
 });
 
 When('the user changes the properties of a service group dependency', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.defaultSGDependency.dependency.name}")`
+  cy.openSidePanelForm(
+    data.defaultSGDependency.dependency.name,
+    'input[name="dep_name"]'
   );
-  cy.getIframeBody().contains(data.defaultSGDependency.dependency.name).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
   cy.updateServiceGroupDependency({
     ...data.SGDependency1,
     dependency: {
@@ -361,96 +422,85 @@ When('the user changes the properties of a service group dependency', () => {
 });
 
 Then('the properties of the service group dependency are updated', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.SGDependency1.dependency.name}")`
+  cy.openSidePanelForm(
+    data.SGDependency1.dependency.name,
+    'input[name="dep_name"]'
   );
-  cy.getIframeBody().contains(data.SGDependency1.dependency.name).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_name"]')
     .should('have.value', data.SGDependency1.dependency.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .should('have.value', data.SGDependency1.dependency.description);
-  cy.getIframeBody().find('#eWarning').should('be.checked');
-  cy.getIframeBody().find('#eCritical').should('be.checked');
-  cy.getIframeBody().find('#nWarning').should('be.checked');
-  cy.getIframeBody().find('#nCritical').should('be.checked');
-  cy.getIframeBody()
-    .find('#dep_sgParents')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.SGDependency1.service_groups[0]);
-  cy.getIframeBody()
-    .find('#dep_sgChilds')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.SGDependency1.dependent_service_groups[0]);
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('#eWarning').should('be.checked');
+  cy.getSidePanelBody().find('#eCritical').should('be.checked');
+  cy.getSidePanelBody().find('#nWarning').should('be.checked');
+  cy.getSidePanelBody().find('#nCritical').should('be.checked');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.SGDependency1.service_groups[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.SGDependency1.dependent_service_groups[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.SGDependency1.dependency.comment);
 });
 
 When('the user duplicates a service group dependency', () => {
-  cy.checkFirstRowFromListing('searchSGD');
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.runListingBulkAction(
+    data.defaultSGDependency.dependency.name,
+    'Duplicate'
+  );
   cy.wait('@getTimeZone');
 });
 
 Then('the new service group dependency has the same properties', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.defaultSGDependency.dependency.name}_1")`
+  cy.openSidePanelForm(
+    `${data.defaultSGDependency.dependency.name}_1`,
+    'input[name="dep_name"]'
   );
-  cy.getIframeBody()
-    .contains(`${data.defaultSGDependency.dependency.name}_1`)
-    .click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_name"]')
     .should('have.value', `${data.defaultSGDependency.dependency.name}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .should('have.value', data.defaultSGDependency.dependency.description);
-  cy.getIframeBody().find('#eOk').should('be.checked');
-  cy.getIframeBody().find('#eWarning').should('be.checked');
-  cy.getIframeBody().find('#eCritical').should('be.checked');
-  cy.getIframeBody().find('#nOk').should('be.checked');
-  cy.getIframeBody().find('#nWarning').should('be.checked');
-  cy.getIframeBody().find('#nCritical').should('be.checked');
-  cy.getIframeBody()
-    .find('#dep_sgParents')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.defaultSGDependency.service_groups[0]);
-  cy.getIframeBody()
-    .find('#dep_sgChilds')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.defaultSGDependency.dependent_service_groups[0]);
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('#eOk').should('be.checked');
+  cy.getSidePanelBody().find('#eWarning').should('be.checked');
+  cy.getSidePanelBody().find('#eCritical').should('be.checked');
+  cy.getSidePanelBody().find('#nOk').should('be.checked');
+  cy.getSidePanelBody().find('#nWarning').should('be.checked');
+  cy.getSidePanelBody().find('#nCritical').should('be.checked');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.defaultSGDependency.service_groups[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.defaultSGDependency.dependent_service_groups[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.defaultSGDependency.dependency.comment);
 });
 
 When('the user deletes a service group dependency', () => {
-  cy.checkFirstRowFromListing('searchSGD');
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.runListingBulkAction(data.defaultSGDependency.dependency.name, 'Delete');
   cy.wait('@getTimeZone');
 });
 
 Then(
   'the deleted service group dependency is not displayed in the list',
   () => {
-    cy.reload();
-    cy.wait('@getTimeZone');
-    cy.getIframeBody()
-      .contains(data.defaultSGDependency.dependency.name)
-      .should('not.exist');
+    // The duplicate created earlier is "<name>_1", so the deleted row has to be
+    // matched on its exact name rather than as a substring.
+    cy.listingRowShouldNotExist(data.defaultSGDependency.dependency.name);
   }
 );

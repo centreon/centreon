@@ -32,6 +32,10 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.api.centreon_topcounter}&action=servicesStatus`
   }).as('getTopCounter');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_dependency_listing
+  }).as('getHostDependencies');
 });
 
 afterEach(() => {
@@ -77,8 +81,8 @@ Given('some hosts and services are configured', () => {
 
 Given('a host dependency is configured', () => {
   cy.visit(PAGES.configuration.hostsDependenciesLegacy);
-  cy.getIframeBody().contains('a', 'Add').click();
-  cy.wait('@getTimeZone');
+  cy.waitForModernListing();
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addHostDependency({
     comment: data.default.comment,
     dependentHostNames: data.default.dependentHostNames,
@@ -101,14 +105,59 @@ Given('a host dependency is configured', () => {
   });
 });
 
+const unmatchedSearchTerm = 'no-such-dependency';
+
+When('the user opens the host dependencies listing', () => {
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
+  cy.waitForModernListing();
+});
+
+Then(
+  'the AJAX listing table is displayed with the configured host dependency',
+  () => {
+    cy.getIframeBody().find('table.cl-listing-table').should('exist');
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(data.default.name)
+      .should('exist');
+  }
+);
+
+When('the user searches for a term matching no host dependency', () => {
+  // Live search (debounced AJAX) — there is no submit button, the table
+  // refreshes as the user types.
+  cy.getIframeBody().find('#clSearchInput').clear().type(unmatchedSearchTerm);
+  cy.wait('@getHostDependencies');
+});
+
+Then('no host dependency is displayed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.default.name)
+    .should('not.exist');
+});
+
+When('the user searches for the configured host dependency', () => {
+  cy.getIframeBody().find('#clSearchInput').clear().type(data.default.name);
+  cy.wait('@getHostDependencies');
+});
+
+Then('only the matching host dependency is displayed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.default.name)
+    .should('exist');
+});
+
+Then('the pagination information shows the total count', () => {
+  cy.getIframeBody()
+    .find('#clPaginationTop')
+    .invoke('text')
+    .should('match', /\d+-\d+ of \d+/);
+});
+
 When('the user changes the properties of a host dependency', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.default.name}")`
-  );
-  cy.getIframeBody().contains(data.default.name).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
+  cy.openSidePanelForm(data.default.name, 'input[name="dep_name"]');
   cy.updateHostDependency({
     comment: data.HostDependency1.comment,
     dependentHostNames: data.HostDependency1.dependentHostNames,
@@ -134,102 +183,83 @@ When('the user changes the properties of a host dependency', () => {
 });
 
 Then('the properties are updated', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.HostDependency1.name}")`
-  );
-  cy.getIframeBody().contains(data.HostDependency1.name).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody()
+  cy.openSidePanelForm(data.HostDependency1.name, 'input[name="dep_name"]');
+  cy.getSidePanelBody()
     .find('input[name="dep_name"]')
     .should('have.value', data.HostDependency1.name);
-
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .should('have.value', data.HostDependency1.description);
-  cy.getIframeBody().find('#eUp').should('be.checked');
-  cy.getIframeBody().find('#nDown').should('be.checked');
-  cy.getIframeBody()
-    .find('#dep_hostParents')
-    .find('option:selected')
-    .should('have.length', 2)
-    .then((options) => {
-      const selectedTexts = Array.from(options).map((option) =>
-        (option.textContent || '').trim()
-      );
-      expect(selectedTexts).to.include.members([
-        data.HostDependency1.hostNames[0],
-        data.HostDependency1.hostNames[1]
-      ]);
-    });
-  cy.getIframeBody()
-    .find('#dep_hostChilds')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.HostDependency1.dependentHostNames[0]);
-  cy.getIframeBody()
-    .find('#dep_hSvChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', `host2 - ${data.HostDependency1.dependentServices[0]}`);
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('#eUp').should('be.checked');
+  cy.getSidePanelBody().find('#nDown').should('be.checked');
+  // Selections show up as select2 chips, not as selected <option> elements.
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.HostDependency1.hostNames[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.HostDependency1.hostNames[1]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.HostDependency1.dependentHostNames[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="host2 - ${data.HostDependency1.dependentServices[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.HostDependency1.comment);
 });
 
 When('the user duplicates a host dependency', () => {
-  cy.checkFirstRowFromListing('searchHD');
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.runListingBulkAction(data.default.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the new host dependency has the same properties', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.default.name}_1")`
-  );
-  cy.getIframeBody().contains(`${data.default.name}_1`).click();
-  cy.wait('@getTopCounter');
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody()
+  cy.openSidePanelForm(`${data.default.name}_1`, 'input[name="dep_name"]');
+  cy.getSidePanelBody()
     .find('input[name="dep_name"]')
     .should('have.value', `${data.default.name}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .should('have.value', data.default.description);
-  cy.getIframeBody().find('#eDown').should('be.checked');
-  cy.getIframeBody().find('#nPending').should('be.checked');
-  cy.getIframeBody()
-    .find('#dep_hostParents')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.default.hostNames[0]);
-  cy.getIframeBody()
-    .find('#dep_hostChilds')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.default.dependentHostNames[0]);
-  cy.getIframeBody()
-    .find('#dep_hSvChi')
-    .find('option:selected')
-    .should('have.length', 1)
-    .and('have.text', data.default.dependentServices[0]);
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('#eDown').should('be.checked');
+  cy.getSidePanelBody().find('#nPending').should('be.checked');
+  cy.getSidePanelBody()
+    .find(`.select2-selection__choice[title="${data.default.hostNames[0]}"]`)
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.default.dependentHostNames[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
+    .find(
+      `.select2-selection__choice[title="${data.default.dependentServices[0]}"]`
+    )
+    .should('exist');
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .should('have.value', data.default.comment);
 });
 
 When('the user deletes a host dependency', () => {
-  cy.checkFirstRowFromListing('searchHD');
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.runListingBulkAction(data.default.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the deleted host dependency is not displayed in the list', () => {
-  cy.getIframeBody().contains(data.default.name).should('not.exist');
+  // The duplicate created earlier is "<name>_1", so the deleted row has to be
+  // matched on its exact name rather than as a substring.
+  cy.listingRowShouldNotExist(data.default.name);
 });

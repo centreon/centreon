@@ -14,6 +14,27 @@ Feature: Configuration of an escalation
     And the user clicks on save
     Then the escalation is displayed on the listing
 
+  Scenario: The escalations listing loads through the AJAX framework
+    When the user opens the escalations listing
+    Then the AJAX listing table is displayed with the configured escalation
+
+  Scenario: The listing shows pagination information
+    When the user opens the escalations listing
+    Then the pagination information shows the total count
+
+  Scenario: The search filters the escalations by name
+    When the user opens the escalations listing
+    And the user searches for a term matching no escalation
+    Then no escalation is displayed
+    When the user searches for the configured escalation
+    Then only the matching escalation is displayed
+
+  Scenario: The search term persists across navigation
+    When the user opens the escalations listing
+    And the user searches for the configured escalation
+    And the user opens the escalation form and comes back to the listing
+    Then the search field still contains the search term
+
   @MON-157182
   Scenario: Change the properties of one existing escalation
     When the user changes the properties of the configured escalation

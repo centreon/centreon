@@ -218,41 +218,34 @@ Cypress.Commands.add('addMetaService', (body: MetaService) => {
   cy.wait('@getTimeZone');
 });
 
+// Dependency forms are rendered in the side panel — a second iframe nested in
+// #main-content — so every field lookup goes through cy.getSidePanelBody().
+// select2 fields are addressed by their visible label rather than by index.
+
 Cypress.Commands.add(
   'addMetaserviceDependency',
   (body: MetaServiceDependency) => {
-    cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-    cy.getIframeBody().find('input[name="dep_name"]').type(body.name);
-    cy.getIframeBody()
+    cy.getSidePanelBody()
+      .find('input[name="dep_name"]', { timeout: 20_000 })
+      .should('be.visible')
+      .type(body.name);
+    cy.getSidePanelBody()
       .find('input[name="dep_description"]')
       .type(body.description);
-    cy.getIframeBody().find('label[for="eUnknown"]').click({ force: true });
-    cy.getIframeBody().find('label[for="nUnknown"]').click({ force: true });
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(0)
-      .click();
-    cy.getIframeBody()
-      .find(`div[title="${body.metaServicesNames[0]}"]`)
-      .click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(0)
-      .click();
-    cy.getIframeBody()
-      .find(`div[title="${body.metaServicesNames[1]}"]`)
-      .click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(1)
-      .click();
-    cy.getIframeBody()
-      .find(`div[title="${body.dependentMetaServicesNames[0]}"]`)
-      .click();
-    cy.getIframeBody().find('textarea[name="dep_comment"]').type(body.comment);
-    cy.getIframeBody()
+    cy.getSidePanelBody().find('label[for="eUnknown"]').click({ force: true });
+    cy.getSidePanelBody().find('label[for="nUnknown"]').click({ force: true });
+    cy.pickSidePanelOption('Meta Service Names', body.metaServicesNames[0]);
+    cy.pickSidePanelOption('Meta Service Names', body.metaServicesNames[1]);
+    cy.pickSidePanelOption(
+      'Dependent Meta Service Names',
+      body.dependentMetaServicesNames[0]
+    );
+    cy.getSidePanelBody()
+      .find('textarea[name="dep_comment"]')
+      .type(body.comment);
+    cy.getSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
+      .first()
       .click();
   }
 );
@@ -260,69 +253,67 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'updateMetaserviceDependency',
   (body: MetaServiceDependency) => {
-    cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-    cy.getIframeBody().find('input[name="dep_name"]').clear().type(body.name);
-    cy.getIframeBody()
+    cy.getSidePanelBody()
+      .find('input[name="dep_name"]', { timeout: 20_000 })
+      .should('be.visible')
+      .clear()
+      .type(body.name);
+    cy.getSidePanelBody()
       .find('input[name="dep_description"]')
       .clear()
       .type(body.description);
-    cy.getIframeBody().find('label[for="eUnknown"]').click({ force: true });
-    cy.getIframeBody().find('label[for="eOk"]').click({ force: true });
-
-    cy.getIframeBody().find('label[for="nUnknown"]').click({ force: true });
-    cy.getIframeBody().find('label[for="nCritical"]').click({ force: true });
-    cy.getIframeBody().find('span[title="Clear field"]').eq(0).click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(0)
-      .click();
-    cy.getIframeBody()
-      .find(`div[title="${body.metaServicesNames[0]}"]`)
-      .click();
-    cy.getIframeBody().find('span[title="Clear field"]').eq(1).click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(1)
-      .click();
-    cy.getIframeBody()
-      .find(`div[title="${body.dependentMetaServicesNames[0]}"]`)
-      .click();
-    cy.getIframeBody()
+    cy.getSidePanelBody().find('label[for="eUnknown"]').click({ force: true });
+    cy.getSidePanelBody().find('label[for="eOk"]').click({ force: true });
+    cy.getSidePanelBody().find('label[for="nUnknown"]').click({ force: true });
+    cy.getSidePanelBody().find('label[for="nCritical"]').click({ force: true });
+    cy.clearSidePanelSelection('Meta Service Names');
+    cy.pickSidePanelOption('Meta Service Names', body.metaServicesNames[0]);
+    cy.clearSidePanelSelection('Dependent Meta Service Names');
+    cy.pickSidePanelOption(
+      'Dependent Meta Service Names',
+      body.dependentMetaServicesNames[0]
+    );
+    cy.getSidePanelBody()
       .find('textarea[name="dep_comment"]')
       .clear()
       .type(body.comment);
-    cy.getIframeBody()
+    cy.getSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
+      .first()
       .click();
   }
 );
 
 Cypress.Commands.add('addCommonDependencyFields', (body: Dependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody().find('input[name="dep_name"]').type(body.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
+    .find('input[name="dep_name"]', { timeout: 20_000 })
+    .should('be.visible')
+    .type(body.name);
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .type(body.description);
-  cy.getIframeBody().find('label[for="eOk"]').click({ force: true });
-  cy.getIframeBody().find('label[for="eWarning"]').click({ force: true });
-  cy.getIframeBody().find('label[for="eCritical"]').click({ force: true });
-  cy.getIframeBody().find('label[for="nOk"]').click({ force: true });
-  cy.getIframeBody().find('label[for="nWarning"]').click({ force: true });
-  cy.getIframeBody().find('label[for="nCritical"]').click({ force: true });
-  cy.getIframeBody().find('textarea[name="dep_comment"]').type(body.comment);
+  cy.getSidePanelBody().find('label[for="eOk"]').click({ force: true });
+  cy.getSidePanelBody().find('label[for="eWarning"]').click({ force: true });
+  cy.getSidePanelBody().find('label[for="eCritical"]').click({ force: true });
+  cy.getSidePanelBody().find('label[for="nOk"]').click({ force: true });
+  cy.getSidePanelBody().find('label[for="nWarning"]').click({ force: true });
+  cy.getSidePanelBody().find('label[for="nCritical"]').click({ force: true });
+  cy.getSidePanelBody().find('textarea[name="dep_comment"]').type(body.comment);
 });
 
 Cypress.Commands.add('updateCommonDependencyFields', (body: Dependency) => {
-  cy.waitForElementInIframe('#main-content', 'input[name="dep_name"]');
-  cy.getIframeBody().find('input[name="dep_name"]').clear().type(body.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
+    .find('input[name="dep_name"]', { timeout: 20_000 })
+    .should('be.visible')
+    .clear()
+    .type(body.name);
+  cy.getSidePanelBody()
     .find('input[name="dep_description"]')
     .clear()
     .type(body.description);
-  cy.getIframeBody().find('label[for="eOk"]').click({ force: true });
-  cy.getIframeBody().find('label[for="nOk"]').click({ force: true });
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('label[for="eOk"]').click({ force: true });
+  cy.getSidePanelBody().find('label[for="nOk"]').click({ force: true });
+  cy.getSidePanelBody()
     .find('textarea[name="dep_comment"]')
     .clear()
     .type(body.comment);
@@ -330,42 +321,35 @@ Cypress.Commands.add('updateCommonDependencyFields', (body: Dependency) => {
 
 Cypress.Commands.add('addServiceDependency', (body: ServiceDependency) => {
   cy.addCommonDependencyFields(body.dependency);
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
-  cy.getIframeBody().find(`div[title="${body.services[0]}"]`).click();
-  cy.getIframeBody()
-    .find('input[class="select2-search__field"]')
-    .eq(1)
-    .type(`host2 - ${body.dependentServices[0]}`);
-  cy.getIframeBody()
-    .find(`div[title="host2 - ${body.dependentServices[0]}"]`)
+  cy.pickSidePanelOption('Services', body.services[0]);
+  cy.pickSidePanelOption(
+    'Dependent Services',
+    `host2 - ${body.dependentServices[0]}`
+  );
+  cy.pickSidePanelOption('Dependent Hosts', body.dependentHosts[0]);
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(2).click();
-  cy.getIframeBody().find(`div[title="${body.dependentHosts[0]}"]`).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Cypress.Commands.add('updateServiceDependency', (body: ServiceDependency) => {
   cy.updateCommonDependencyFields(body.dependency);
-  cy.getIframeBody().find('span[title="Clear field"]').eq(0).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
-  cy.getIframeBody().find(`div[title="host2 - ${body.services[0]}"]`).click();
-  cy.getIframeBody().find('span[title="Clear field"]').eq(1).click();
-  cy.getIframeBody()
-    .find('input[class="select2-search__field"]')
-    .eq(1)
-    .type(body.dependentServices[0]);
-  cy.getIframeBody()
-    .find(`div[title="host3 - ${body.dependentServices[0]}"]`)
+  cy.clearSidePanelSelection('Services');
+  cy.pickSidePanelOption('Services', `host2 - ${body.services[0]}`);
+  cy.clearSidePanelSelection('Dependent Services');
+  cy.pickSidePanelOption(
+    'Dependent Services',
+    `host3 - ${body.dependentServices[0]}`
+  );
+  cy.clearSidePanelSelection('Dependent Hosts');
+  cy.pickSidePanelOption('Dependent Hosts', body.dependentHosts[0]);
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
-  cy.getIframeBody().find('span[title="Clear field"]').eq(2).click();
-  cy.getIframeBody()
-    .find('input[class="select2-search__field"]')
-    .eq(2)
-    .type(body.dependentHosts[0]);
-  cy.getIframeBody().find(`div[title="${body.dependentHosts[0]}"]`).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -374,21 +358,14 @@ Cypress.Commands.add(
   'addServiceGroupDependency',
   (body: ServiceGroupDependency) => {
     cy.addCommonDependencyFields(body.dependency);
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(0)
-      .click();
-    cy.getIframeBody().find(`div[title="${body.serviceGroups[0]}"]`).click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(1)
-      .type(body.dependentServiceGroups[0]);
-    cy.getIframeBody()
-      .find(`div[title="${body.dependentServiceGroups[0]}"]`)
-      .click();
-    cy.getIframeBody()
+    cy.pickSidePanelOption('Servicegroups', body.serviceGroups[0]);
+    cy.pickSidePanelOption(
+      'Dependent Servicegroups',
+      body.dependentServiceGroups[0]
+    );
+    cy.getSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
+      .first()
       .click();
     cy.wait('@getTimeZone');
     cy.exportConfig();
@@ -399,23 +376,16 @@ Cypress.Commands.add(
   'updateServiceGroupDependency',
   (body: ServiceGroupDependency) => {
     cy.updateCommonDependencyFields(body.dependency);
-    cy.getIframeBody().find('span[title="Clear field"]').eq(0).click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(0)
-      .click();
-    cy.getIframeBody().find(`div[title="${body.serviceGroups[0]}"]`).click();
-    cy.getIframeBody().find('span[title="Clear field"]').eq(1).click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(1)
-      .type(body.dependentServiceGroups[0]);
-    cy.getIframeBody()
-      .find(`div[title="${body.dependentServiceGroups[0]}"]`)
-      .click();
-    cy.getIframeBody()
+    cy.clearSidePanelSelection('Servicegroups');
+    cy.pickSidePanelOption('Servicegroups', body.serviceGroups[0]);
+    cy.clearSidePanelSelection('Dependent Servicegroups');
+    cy.pickSidePanelOption(
+      'Dependent Servicegroups',
+      body.dependentServiceGroups[0]
+    );
+    cy.getSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
-      .eq(0)
+      .first()
       .click();
     cy.wait('@getTimeZone');
     cy.exportConfig();
