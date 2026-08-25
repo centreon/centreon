@@ -34,7 +34,12 @@ const resultsToSubmit = [
 const checkServicesProperties = (name) => {
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
   cy.waitForListingRefresh();
-  cy.getIframeBody().find('#clTableBody').contains('a', name).click();
+  // Not a plain click: this helper runs three times in a row, and each run
+  // submits the form, which closes the panel. closePanel() only resets the
+  // iframe src 300ms later, so clicking inside that window lets the pending
+  // timeout overwrite the src cfOpenPanel just set and the panel loads blank
+  // for good. openListingRowForm waits for that reset before opening the next.
+  cy.openListingRowForm(name);
   cy.getFormBody()
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('be.visible');
