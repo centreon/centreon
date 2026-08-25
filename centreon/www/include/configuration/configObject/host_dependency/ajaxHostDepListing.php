@@ -30,6 +30,9 @@ require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelpe
 
 $helper = AjaxListingHelper::boot();
 $helper->requireCentreon();
+// The endpoint has its own URL, so main.get.php's topology check does not
+// cover it: gate it on read access to the page itself.
+$helper->requireReadAccess(60407);
 $pearDB = $helper->getDb();
 $params = $helper->getParams();
 
