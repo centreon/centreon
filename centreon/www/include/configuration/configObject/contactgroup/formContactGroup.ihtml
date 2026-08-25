@@ -87,7 +87,6 @@
         </div>
     </div>
 
-    <!-- Action buttons -->
     <div class="cf-actions">
         {if $o == "a" || $o == "c"}
             {$form.reset.html}

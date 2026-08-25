@@ -182,12 +182,10 @@ if ($valid) {
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
-    // The cosmetic toggle cannot read its state from a frozen QuickForm radio
-    // group, so the state is rendered server-side. The submitted value comes
-    // first, otherwise a failed validation redisplays the persisted state and
-    // the toggle contradicts the hidden radio QuickForm just repopulated.
-    // addGroup makes getSubmitValue() hand back an array keyed by the group
-    // name; the scalar branch below is there for the plain-element case.
+    // Paint the toggle's initial state server-side, before syncToggle() runs.
+    // The submitted value wins, so a failed validation does not redisplay the
+    // persisted one. addGroup makes getSubmitValue() return an array, hence the
+    // scalar branch below.
     $submitted = $form->getSubmitValue('cg_activate');
     $activate = is_array($submitted) ? ($submitted['cg_activate'] ?? null) : $submitted;
     $tpl->assign('cgActivateOn', ($activate ?? $cg['cg_activate'] ?? '1') === '1');

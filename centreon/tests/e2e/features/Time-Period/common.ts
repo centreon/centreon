@@ -69,7 +69,7 @@ const listingAlias = '@getTimePeriodListing';
  * wait passes against stale rows.
  */
 function waitForListingRefresh() {
-  cy.wait(listingAlias);
+  cy.wait(listingAlias).its('response.statusCode').should('eq', 200);
   cy.getIframeBody()
     .find('#clTableBody tr td')
     .should('not.contain', 'Loading');

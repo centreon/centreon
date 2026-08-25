@@ -38,6 +38,7 @@ $tpl->assign('headerMenu_hostNotif', _('Host Notification Period'));
 $tpl->assign('headerMenu_svNotif', _('Services Notification Period'));
 $tpl->assign('headerMenu_lang', _('Language'));
 $tpl->assign('headerMenu_access', _('Access'));
+$tpl->assign('headerMenu_accessTooltip', _("Contacts with the 'Reach Centreon Front-end' option enabled"));
 $tpl->assign('headerMenu_admin', _('Admin'));
 $tpl->assign('headerMenu_options', _('Options'));
 $tpl->assign('isAdmin', $centreon->user->admin);
@@ -77,8 +78,8 @@ if ($row['count_ldap'] > 0) {
 $blockedContactsCount = 0;
 if ($centreon->user->admin) {
     try {
-        // One quoted line rather than a heredoc: xgettext does not implement
-        // heredoc and never resynchronizes, so it would drop every _() below.
+        // Quoted, not a heredoc: xgettext desyncs on heredoc and would drop
+        // every _() below.
         $blockedContactsCount = (int) $pearDB->fetchOne(
             "SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL"
         );
@@ -187,8 +188,8 @@ $tpl->assign(
                 url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
                 type: 'POST',
                 data: {contactId: contactId},
-                // The endpoint answers an empty body when it refuses, so silence
-                // used to read as success and the admin clicked again.
+                // The endpoint answers false when it refuses; only true meant
+                // success, so silence used to read as one and the admin reclicked.
                 success: function(data) {
                     if (data === true) {
                         window.location.href = "?p=" + p;

@@ -12,9 +12,6 @@
         <a href="#cf-sec-additional" onclick="cfScrollTo('cf-sec-additional', this); return false;">{$form.header.additional}</a>
     </div>
 
-    <!-- ================================================================ -->
-    <!-- Section 1: General information                                    -->
-    <!-- ================================================================ -->
     <div class="cf-section" id="cf-sec-info">
         <div class="cf-section-header" onclick="cfToggleSection(this)">
             {$form.header.information}
@@ -62,9 +59,6 @@
         </div>
     </div>
 
-    <!-- ================================================================ -->
-    <!-- Section 2: Notifications                                          -->
-    <!-- ================================================================ -->
     <div class="cf-section" id="cf-sec-notif">
         <div class="cf-section-header" onclick="cfToggleSection(this)">
             {$form.header.notification}
@@ -151,9 +145,6 @@
         </div>
     </div>
 
-    <!-- ================================================================ -->
-    <!-- Section 3: Additional                                             -->
-    <!-- ================================================================ -->
     <div class="cf-section collapsed" id="cf-sec-additional">
         <div class="cf-section-header" onclick="cfToggleSection(this)">
             {$form.header.additional}
@@ -213,7 +204,6 @@
         </div>
     </div>
 
-    <!-- Action buttons -->
     <div class="cf-actions">
         {if $o == "a" || $o == "c" || $o == "mc"}
             {$form.reset.html}

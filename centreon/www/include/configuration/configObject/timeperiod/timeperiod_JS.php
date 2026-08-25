@@ -108,7 +108,6 @@
                 deleteBtn.className = 'cf-dynamic-delete';
                 deleteBtn.innerHTML = '&#128465;';
                 deleteBtn.title = <?php echo json_encode(_('Delete'), JSON_THROW_ON_ERROR); ?>;
-                var btnId = globalj;
                 deleteBtn.onclick = function () {
                     if (window.confirm(<?php echo json_encode(_('Do you confirm this deletion?'), JSON_THROW_ON_ERROR); ?>)) {
                         document.getElementById('trExceptionInput_' + this.dataset.rowId).remove();
@@ -124,10 +123,7 @@
         document.getElementById('hiddenExInput').value = globalj;
     }
 
-    /*
-     * Validation
-     */
-    function purgeHideInput(tab) {
+    function purgeHideInput() {
         jQuery('.cf-tab-content').each(function(idx, el) {
             if (jQuery(el).css('display') === 'none') {
                 jQuery(el).find(':input').each(function(idx, input) {
@@ -142,8 +138,7 @@
         jQuery('#Form').centreonValidate('validate');
 
         if (jQuery('#Form').centreonValidate('hasError')) {
-            var visibleTab = jQuery('.cf-tab-content').filter(function() { return jQuery(this).css('display') !== 'none'; })[0];
-            purgeHideInput(visibleTab ? visibleTab.id : '');
+            purgeHideInput();
             return false;
         }
 
@@ -154,7 +149,6 @@
      * Global variables
      */
     var globalj = 0;
-    var trExceptionClassFlag = 1;
     var globalExceptionTabId = new Array();
     var globalExceptionTabName = new Array();
     var globalExceptionTabTimerange = new Array();

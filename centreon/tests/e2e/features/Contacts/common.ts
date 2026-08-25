@@ -16,9 +16,14 @@ const listingAlias = {
   contactTemplates: '@getContactTemplateListing'
 };
 
-/** Wait for a listing fetch to land and its rows to be rendered. */
+/**
+ * Wait for a listing fetch to land and its rows to be rendered. The status check
+ * is what catches an access regression: on a 401/403 the framework replaces the
+ * "Loading..." row with its own message, so the DOM assertion below would pass
+ * and the failure would only surface later as a missing element.
+ */
 function waitForListingXhr(alias: string): void {
-  cy.wait(alias);
+  cy.wait(alias).its('response.statusCode').should('eq', 200);
   cy.getIframeBody()
     .find('#clTableBody tr td')
     .should('not.contain', 'Loading');

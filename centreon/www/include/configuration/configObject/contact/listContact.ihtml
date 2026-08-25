@@ -73,7 +73,7 @@ CentreonForm.detectSidePanelClose();
                     <th class="cl-col-center">{$headerMenu_hostNotif}</th>
                     <th class="cl-col-center">{$headerMenu_svNotif}</th>
                     <th class="cl-col-center">{$headerMenu_lang}</th>
-                    <th class="cl-col-center">{$headerMenu_access}</th>
+                    <th class="cl-col-center" title="{$headerMenu_accessTooltip|escape}">{$headerMenu_access}</th>
                     <th class="cl-col-center">{$headerMenu_admin}</th>
                     { if $isAdmin }
                     <th class="cl-col-center" title="{$headerMenu_refreshLdapTitleTooltip}">{$headerMenu_refreshLdap}</th>
@@ -93,7 +93,6 @@ CentreonForm.detectSidePanelClose();
 {$form.hidden}
 </form>
 
-<!-- Side panel -->
 <div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
 <div class="cf-side-panel" id="cfSidePanel">
     <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
@@ -150,13 +149,14 @@ var contactListing = new CentreonListing({
                 : '<span class="cl-tag cl-tag--neutral">{/literal}{t escape='js'}No{/t}{literal}</span>';
         }}
         {/literal}{if $isAdmin}{literal},
-        // LDAP synchronization, admin only — the header cell is gated on the
-        // same condition, so the row and the header keep the same column count.
+        // LDAP synchronization, admin only. Three sites share this condition and
+        // must move together: this column, the header cell, and the colspan of
+        // the loading row.
         { id:'ldap_sync', align:'center', render: function(row) {
             if (row.auth_type !== 'ldap') {
                 return '<span title="{/literal}{$refreshLdapHelpNone|escape}{literal}">-</span>';
             }
-            if (row.ldap_sync === '1') {
+            if (row.ldap_sync === 1) {
                 return '<span class="ico-18" style="opacity:.4;" title="{/literal}{$refreshLdapHelpRequested|escape}{literal}">'
                     + '<img src="./img/icons/refresh.svg" width="18" height="18" alt="" /></span>';
             }

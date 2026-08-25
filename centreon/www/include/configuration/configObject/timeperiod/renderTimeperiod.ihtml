@@ -14,7 +14,7 @@
     </div>
 
     {if !$tpId}
-        <div class="tp-empty">{$labels.no_tp_selected}</div>
+        <div class="tp-empty">{if $tpNotFound}{$labels.tp_not_found}{elseif $tpLoadFailed}{$labels.tp_load_failed}{else}{$labels.no_tp_selected}{/if}</div>
     {else}
 
     <div class="tp-section-title">

@@ -34,16 +34,37 @@ require_once './include/common/common-Func.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonTimeperiodRenderer.class.php';
 $imgpath = './include/common/javascript/scriptaculous/images/bramus/';
 $imgs = scandir($imgpath);
-$t = null;
-if ($tp_id) {
-    $t = new CentreonTimePeriodRenderer($pearDB, $tp_id, 1);
-    $t->timeBars();
-}
 $query = 'SELECT tp_name, tp_id FROM timeperiod';
 $DBRESULT = $pearDB->query($query);
 $tplist[0] = _('Select Timeperiod...');
 while ($row = $DBRESULT->fetchRow()) {
     $tplist[$row['tp_id']] = $row['tp_name'];
+}
+
+$t = null;
+$tpNotFound = false;
+$tpLoadFailed = false;
+if ($tp_id) {
+    // The list above already says whether the row exists, so a deleted time
+    // period and a failing renderer can be told apart. Reporting both as "no
+    // longer exists" would contradict the dropdown, which still lists it.
+    if (! isset($tplist[$tp_id])) {
+        $tpNotFound = true;
+        $tp_id = null;
+    } else {
+        try {
+            $t = new CentreonTimePeriodRenderer($pearDB, $tp_id, 1);
+            $t->timeBars();
+        } catch (Throwable $exception) {
+            Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->error(
+                'Time period graphical view: failed to render the time period',
+                ['tp_id' => $tp_id, 'exception' => $exception]
+            );
+            $t = null;
+            $tp_id = null;
+            $tpLoadFailed = true;
+        }
+    }
 }
 $form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p . '&o=s');
 $attrs1 = ['onchange' => "javascript: setTP(this.form.elements['tp_id'].value); submit();"];
@@ -75,10 +96,12 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
-$labels = ['unset_timerange' => _('Unset Timerange'), 'included_timerange' => _('Included Timerange'), 'excluded_timerange' => _('Excluded Timerange'), 'timerange_overlaps' => _('Timerange Overlaps'), 'hover_for_info' => _('Hover on timeline to see more information'), 'no_tp_selected' => _('No time period selected')];
+$labels = ['unset_timerange' => _('Unset Timerange'), 'included_timerange' => _('Included Timerange'), 'excluded_timerange' => _('Excluded Timerange'), 'timerange_overlaps' => _('Timerange Overlaps'), 'hover_for_info' => _('Hover on timeline to see more information'), 'no_tp_selected' => _('No time period selected'), 'tp_not_found' => _('This time period no longer exists'), 'tp_load_failed' => _('This time period could not be displayed, please try again')];
 $tpl->assign('labels', $labels);
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('tpId', $tp_id);
+$tpl->assign('tpNotFound', $tpNotFound);
+$tpl->assign('tpLoadFailed', $tpLoadFailed);
 $tpl->assign('tp', $t);
 $tpl->assign('path', $path);
 $tpl->display('renderTimeperiod.ihtml');

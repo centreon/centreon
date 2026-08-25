@@ -198,6 +198,9 @@ function CentreonListing(config) {
     var self       = this;
     var csrfToken  = '';
     var firstLoad  = true;
+    // Guards the "rows may be out of date" warning so a failing auto-refresh
+    // reports once rather than every tick. Cleared on the next successful fetch.
+    var staleNotified = false;
 
     // Restore state from sessionStorage (survives navigation, cleared on browser close)
     var stateKey   = 'cl_state_' + cfg.storageKey;
@@ -453,15 +456,17 @@ function CentreonListing(config) {
         // Mass Change opens as a full page reload by default (the shared
         // onchange handler's setO(value); submit()) — reuse the page's own
         // "+Add" button URL (same cfOpenPanel side panel already used for
-        // Add/Edit) to open it there instead, carrying the checked rows'
-        // ids along as a GET param the same way the old full-page submit
-        // carried them via POST.
+        // Add/Edit) to open it there instead.
+        //
+        // The ids travel as select[<id>]=1, the shape the full-page POST used.
+        // The forms rebuild their hidden select field from the array *keys*, so
+        // a positional select=<id>,<id> list would hand them 0,1,… and the save
+        // would land on those ids instead of the selected rows.
         function openMassChangePanel(label) {
             var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
             // The button carries its target in data-panel-url and its handler
-            // reads it back from the dataset, so there is no quoted literal in
-            // the onclick to scrape. The regex is kept for any page still
-            // interpolating the URL into the attribute.
+            // reads it back from the dataset; the regex covers a caller that
+            // interpolates the URL into the onclick instead.
             var addUrl = (addBtn && addBtn.dataset && addBtn.dataset.panelUrl) || '';
             if (!addUrl) {
                 var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec((addBtn && addBtn.getAttribute('onclick')) || '');
@@ -477,7 +482,10 @@ function CentreonListing(config) {
             });
             if (!ids.length) return false;
 
-            var url = addUrl.replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
+            var selectParams = ids.map(function (id) {
+                return 'select[' + encodeURIComponent(id) + ']=1';
+            }).join('&');
+            var url = addUrl.replace(/([?&]o=)[^&]*/, '$1mc') + '&' + selectParams;
             window.cfOpenPanel(url, label);
             return true;
         }
@@ -610,6 +618,7 @@ function CentreonListing(config) {
                     }
                 }
                 firstLoad = false;
+                staleNotified = false;
                 // Reset bulk action dropdowns to default
                 jQuery('select[name="o1"], select[name="o2"]').prop('selectedIndex', 0);
                 updateBulkActionState();
@@ -628,10 +637,22 @@ function CentreonListing(config) {
 
                 var httpStatus = xhr && xhr.status;
                 if (httpStatus === 401 || httpStatus === 403) {
-                    // Session expired / access lost mid-view: stop the auto-refresh
-                    // so we don't hammer a dead session, and tell the user.
+                    // Session expired or access lost mid-view: stop the auto-refresh
+                    // so we don't hammer a request that can no longer succeed.
                     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    // A 401 is a dead session; a 403 is a live session that lost the
+                    // right to this page, where "reload" sends the user nowhere.
+                    var accessMessage = httpStatus === 401
+                        ? clListingLabel('sessionExpired', 'Your session has expired — please reload the page.')
+                        : clListingLabel('accessDenied', 'You no longer have access to this page.');
+                    // Render it in the table as well: a toast self-dismisses, and the
+                    // rows left on screen would otherwise read as current.
+                    jQuery('#' + cfg.tableBodyId).html(
+                        '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">' +
+                        clEscape(accessMessage) + '</td></tr>'
+                    );
+                    clToast(accessMessage, 'error');
+
                     return;
                 }
 
@@ -644,6 +665,14 @@ function CentreonListing(config) {
                     // Surface later failures (page change, search) instead of silently
                     // leaving stale rows on screen as if they matched the new request.
                     clToast(clListingLabel('loadError', 'Error loading data'), 'error');
+                } else if (!staleNotified) {
+                    // Silent refreshes swallowing their failures leave stale rows
+                    // looking current — a save appears lost.
+                    staleNotified = true;
+                    clToast(
+                        clListingLabel('staleData', 'The list could not be refreshed — the rows shown may be out of date.'),
+                        'error'
+                    );
                 }
             }
         });
@@ -875,16 +904,32 @@ function CentreonListing(config) {
                 // leaving a toggle that flipped back on its own.
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
-                // The endpoint consumes the token before it can fail, so an error
-                // response carries the rotated one; without this the next toggle
-                // would be rejected too.
-                if (xhr && xhr.responseJSON && xhr.responseJSON.centreon_token) {
-                    csrfToken = xhr.responseJSON.centreon_token;
+                // An error response carries a rotated token when the endpoint
+                // already consumed one; without this the next toggle would be
+                // rejected too.
+                var rotatedToken = xhr && xhr.responseJSON && xhr.responseJSON.centreon_token;
+                if (rotatedToken) {
+                    csrfToken = rotatedToken;
                 }
                 if (window.console) {
                     console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
                 }
-                clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                // A 403 covers both an ACL refusal and an expired CSRF token —
+                // the latter being the most retryable case there is. Only the
+                // refusals rotate a token, so its presence tells them apart;
+                // without it, two quick toggles read as "not allowed" while the
+                // refresh below is already making the retry work. The server's
+                // own message stays out of the toast: it is untranslated.
+                var toggleStatus = xhr && xhr.status;
+                var toggleMessage = clListingLabel('toggleError', 'Could not change status');
+                if (toggleStatus === 403) {
+                    toggleMessage = rotatedToken
+                        ? clListingLabel('toggleForbidden', 'You are not allowed to change this status.')
+                        : clListingLabel('toggleExpired', 'The page state expired — the list was refreshed, please try again.');
+                } else if (toggleStatus === 404) {
+                    toggleMessage = clListingLabel('toggleMissing', 'This object no longer exists.');
+                }
+                clToast(toggleMessage, 'error');
                 // A stale CSRF token (403) would make every subsequent toggle fail
                 // too; a silent list refresh pulls a fresh token so the next works.
                 if (xhr && xhr.status === 403) {

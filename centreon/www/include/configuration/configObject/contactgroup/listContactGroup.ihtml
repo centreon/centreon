@@ -61,7 +61,6 @@ CentreonForm.detectSidePanelClose();
 {$form.hidden}
 </form>
 
-<!-- Side panel -->
 <div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
 <div class="cf-side-panel" id="cfSidePanel">
     <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
@@ -101,7 +100,7 @@ var cgListing = new CentreonListing({
     ],
     renderOptions: function(row, l) {
         var checked = row.activate ? ' checked' : '';
-        return '<a href="#" title="{/literal}{t}View notifications{/t}{literal}" class="cl-icon-action" style="margin-right:8px;color:var(--bt-info-background-color, #2E68AA);" data-panel-url="main.get.php?p=60302&o=dn&min=1&cg_id='+row.id+'" data-panel-title="{/literal}{t}View notifications{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a>' +
+        return '<a href="#" title="{/literal}{t}View notifications{/t}{literal}" class="cl-icon-action" style="margin-right:8px;color:var(--bt-info-background-color, #2E68AA);" data-panel-url="main.get.php?p={/literal}{$cgPage}{literal}&o=dn&min=1&cg_id='+row.id+'" data-panel-title="{/literal}{t}View notifications{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></a>' +
             '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="cgListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' +
             '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
     }

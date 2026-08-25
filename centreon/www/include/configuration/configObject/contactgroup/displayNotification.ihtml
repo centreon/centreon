@@ -10,7 +10,7 @@
     .dn-filter label { font-size: 13px; font-weight: 600; color: var(--c-text-secondary, #6b7280); white-space: nowrap; }
     .dn-filter select { flex: 1; min-width: 0; height: 38px; border: 1px solid var(--c-stroke, #d0d5dd); border-radius: 6px; padding: 0 10px; background: var(--body-background, #fff); font-size: 14px; }
     .dn-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-    .dn-chip { display: inline-block; padding: 4px 12px; border-radius: 14px; background: rgba(46,104,170,.10); color: var(--bt-info-background-color, #2E68AA); font-size: 12px; font-weight: 600; text-decoration: none; }
+    .dn-chip { display: inline-block; padding: 4px 12px; border-radius: 14px; background: rgba(46,104,170,.10); color: var(--list-color, #2E68AA); font-size: 12px; font-weight: 600; text-decoration: none; }
     .dn-chip:hover { background: rgba(46,104,170,.20); }
     .dn-table-wrap { margin-bottom: 20px; }
     .dn-host-ico { color: var(--bt-info-background-color, #2E68AA); vertical-align: middle; margin-right: 8px; }
@@ -48,7 +48,7 @@
             {section name=elem loop=$elemArrHostEsc}
             {assign var=host value=$elemArrHostEsc[elem].RowMenu_host}
             <tr>
-                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrHostEsc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
+                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrHostEsc[elem].RowMenu_host|escape}{else}&nbsp;{/if}</td>
             </tr>
             {assign var=hostOld value=$host}
             {sectionelse}
@@ -67,8 +67,8 @@
             {section name=elem loop=$elemArrSvcEsc}
             {assign var=host value=$elemArrSvcEsc[elem].RowMenu_host}
             <tr>
-                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrSvcEsc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
-                <td>{$elemArrSvcEsc[elem].RowMenu_service}</td>
+                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrSvcEsc[elem].RowMenu_host|escape}{else}&nbsp;{/if}</td>
+                <td>{$elemArrSvcEsc[elem].RowMenu_service|escape}</td>
             </tr>
             {assign var=hostOld value=$host}
             {sectionelse}
@@ -87,7 +87,7 @@
             {section name=elem loop=$elemArrHost}
             {assign var=host value=$elemArrHost[elem].RowMenu_host}
             <tr>
-                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrHost[elem].RowMenu_host}{else}&nbsp;{/if}</td>
+                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrHost[elem].RowMenu_host|escape}{else}&nbsp;{/if}</td>
             </tr>
             {assign var=hostOld value=$host}
             {sectionelse}
@@ -106,8 +106,8 @@
             {section name=elem loop=$elemArrSvc}
             {assign var=host value=$elemArrSvc[elem].RowMenu_host}
             <tr>
-                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrSvc[elem].RowMenu_host}{else}&nbsp;{/if}</td>
-                <td>{$elemArrSvc[elem].RowMenu_service}</td>
+                <td>{if $host != $hostOld}<svg class="dn-host-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="1.5"/><rect x="2" y="14" width="20" height="7" rx="1.5"/><line x1="6" y1="6.5" x2="6.02" y2="6.5"/><line x1="6" y1="17.5" x2="6.02" y2="17.5"/></svg>{$elemArrSvc[elem].RowMenu_host|escape}{else}&nbsp;{/if}</td>
+                <td>{$elemArrSvc[elem].RowMenu_service|escape}</td>
             </tr>
             {assign var=hostOld value=$host}
             {sectionelse}

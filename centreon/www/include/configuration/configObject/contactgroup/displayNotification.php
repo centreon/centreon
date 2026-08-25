@@ -74,9 +74,29 @@ if (isset($_POST['contact'])) {
     $contactgroup_id = 0;
 }
 
-// ACL: reject contact groups outside the user's access groups
-if ($contactgroup_id && ! isset($contact[$contactgroup_id])) {
+// Downgrading an unusable id to "nothing selected" without a word would show
+// "please select a user" to someone who did select one — reachable through a
+// bookmarked panel URL, or a deletion between the listing render and the click.
+// The list above holds every group the user may see, so a miss means either the
+// group is gone or it is out of scope; only the second is an ACL matter, and for
+// an admin the list is exhaustive, so it can only ever be the first.
+$contactGroupRefused = false;
+$contactGroupMissing = false;
+if ($contactgroup_id && ! array_key_exists($contactgroup_id, $contact)) {
+    $contactGroupExists = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
+        'SELECT 1 FROM contactgroup WHERE cg_id = :cgId',
+        Adaptation\Database\Connection\Collection\QueryParameters::create([
+            Adaptation\Database\Connection\ValueObject\QueryParameter::int('cgId', $contactgroup_id),
+        ])
+    );
+    Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
+        $contactGroupExists
+            ? 'Notification view: contact group outside the access scope'
+            : 'Notification view: unknown contact group requested',
+        ['cg_id' => $contactgroup_id, 'user_id' => $centreon->user->get_id()]
+    );
     $contactgroup_id = 0;
+    $contactGroupExists ? $contactGroupRefused = true : $contactGroupMissing = true;
 }
 
 $formData = ['contact' => $contactgroup_id];
@@ -149,7 +169,13 @@ $labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('msgSelect', _('Please select a user in order to view his notifications'));
+$msgSelect = _('Please select a user in order to view his notifications');
+if ($contactGroupRefused) {
+    $msgSelect = _('This contact group is not within your access groups');
+} elseif ($contactGroupMissing) {
+    $msgSelect = _('This contact group no longer exists');
+}
+$tpl->assign('msgSelect', $msgSelect);
 $tpl->assign('p', $p);
 $tpl->assign('contact', $contactgroup_id);
 $tpl->assign('labels', $labels);

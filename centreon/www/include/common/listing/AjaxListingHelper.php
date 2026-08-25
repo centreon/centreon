@@ -72,6 +72,11 @@ class AjaxListingHelper
      */
     public static function boot(): self
     {
+        // A PHP notice printed before the body would flush the headers at 200 and
+        // make every http_response_code() below a no-op, on a response the client
+        // parses as JSON. Same first statement as the other AJAX endpoints.
+        ini_set('display_errors', 'Off');
+
         require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
         // Composer autoloader (PSR-4 for src/, e.g. Adaptation\Log\Logger). This
         // standalone endpoint doesn't go through the full bootstrap, so load it
@@ -191,7 +196,7 @@ class AjaxListingHelper
      * replace, which were only served through main.php and its topology check.
      * Listings whose objects carry no per-object ACL rely on this alone.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
+     * @param int $pageId Topology page id (e.g. 60301 for contacts)
      */
     public function requireReadAccess(int $pageId): void
     {
@@ -200,7 +205,7 @@ class AjaxListingHelper
         }
         $acl = $this->getAcl();
         // CentreonACL::page() returns 0 (no access), 1 (read/write) or 2 (read only).
-        if (! $acl || $acl->page($pageId) === 0) {
+        if (! $acl || $this->aclPage($acl, $pageId) === 0) {
             self::jsonError('Forbidden', 403);
         }
     }
@@ -209,7 +214,7 @@ class AjaxListingHelper
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60203 for service groups)
+     * @param int $pageId Topology page id (e.g. 60301 for contacts)
      * @param string|null $csrfToken Fresh token to hand back when the caller already consumed one
      */
     public function requireWriteAccess(int $pageId, ?string $csrfToken = null): void
@@ -218,7 +223,7 @@ class AjaxListingHelper
             return;
         }
         $acl = $this->getAcl();
-        if (! $acl || $acl->page($pageId) !== 1) {
+        if (! $acl || $this->aclPage($acl, $pageId, $csrfToken) !== 1) {
             self::jsonError('Write access denied', 403, $csrfToken);
         }
     }
@@ -290,7 +295,7 @@ class AjaxListingHelper
     /**
      * Send a successful JSON listing response and exit.
      */
-    public function jsonResponse(array $rows, int $total, int $num, int $limit): void
+    public function jsonResponse(array $rows, int $total, int $num, int $limit): never
     {
         // JSON_INVALID_UTF8_SUBSTITUTE: a single non-UTF-8 byte in row data (common
         // in plugin output/aliases) otherwise makes json_encode() return false,
@@ -323,7 +328,7 @@ class AjaxListingHelper
      * the client can keep acting after an error instead of holding a token the
      * session no longer accepts.
      */
-    public static function jsonError(string $message, int $httpCode = 400, ?string $csrfToken = null): void
+    public static function jsonError(string $message, int $httpCode = 400, ?string $csrfToken = null): never
     {
         http_response_code($httpCode);
         $payload = ['error' => $message];
@@ -333,6 +338,30 @@ class AjaxListingHelper
         echo json_encode($payload, JSON_THROW_ON_ERROR);
 
         exit;
+    }
+
+    /**
+     * Resolve a topology page's access level.
+     *
+     * CentreonACL::page() hits the session table, so it can fail like any other
+     * database call; an escaping Throwable would replace the JSON body with an
+     * HTML fatal.
+     *
+     * @param string|null $csrfToken Fresh token to hand back when the caller already consumed one
+     */
+    private function aclPage(CentreonACL $acl, int $pageId, ?string $csrfToken = null): int
+    {
+        try {
+            return $acl->page($pageId);
+        } catch (Throwable $exception) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                'Ajax listing: failed to resolve the topology page access level',
+                ['page_id' => $pageId, 'exception' => $exception]
+            );
+            // Without the rotated token the client cannot recover: it only
+            // refetches one on a 403, so the next toggle would fail too.
+            self::jsonError('Internal error', 500, $csrfToken);
+        }
     }
 
     /**

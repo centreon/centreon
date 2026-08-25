@@ -72,9 +72,6 @@ $sanitizeArray = static fn ($value): array => is_array($value) ? array_map('intv
 
 $fromRequest = static fn (string $key) => $_GET[$key] ?? $_POST[$key] ?? null;
 
-// The admin-only actions used to short-circuit on the flag: a non-admin got a
-// page that reloaded as if nothing had been asked, and nothing server-side
-// either. The AJAX endpoints of these pages answer 403 for the same case.
 $requireAdminOrFail = static function () use ($centreon): bool {
     if ($centreon->user->admin) {
         return true;

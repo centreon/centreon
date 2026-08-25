@@ -61,7 +61,6 @@ CentreonForm.detectSidePanelClose();
 {$form.hidden}
 </form>
 
-<!-- Side panel -->
 <div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
 <div class="cf-side-panel" id="cfSidePanel">
     <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>

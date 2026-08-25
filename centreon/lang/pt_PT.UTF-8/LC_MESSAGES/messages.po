@@ -2179,6 +2179,10 @@ msgstr ""
 msgid "CMA authentication token(s)"
 msgstr ""
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Could not change status"
+msgstr "Não foi possível alterar o estado"
+
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 msgid "CRITICAL"
@@ -6150,6 +6154,10 @@ msgstr "Erro na definição de Hora"
 #: centreon/src/Core/Application/Configuration/User/Exception/UserException.php
 msgid "Error in reading the themes available to the user"
 msgstr ""
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Error loading data"
+msgstr "Erro ao carregar os dados"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Error messages"
@@ -16569,6 +16577,34 @@ msgstr "Opção de registro em Syslog"
 msgid "System Logs"
 msgstr "Registros de Sistema"
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The list could not be refreshed — the rows shown may be out of date."
+msgstr "A lista não pôde ser atualizada — as linhas apresentadas podem estar desatualizadas."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The page state expired — the list was refreshed, please try again."
+msgstr "O estado da página expirou — a lista foi atualizada, tente novamente."
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not within your access groups"
+msgstr "Este grupo de contactos não faz parte dos seus grupos de acesso"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "This object no longer exists."
+msgstr "Este objeto já não existe."
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group no longer exists"
+msgstr "Este grupo de contactos já não existe"
+
+#: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
+msgid "This time period could not be displayed, please try again"
+msgstr "Não foi possível apresentar este período de tempo, tente novamente"
+
+#: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
+msgid "This time period no longer exists"
+msgstr "Este período de tempo já não existe"
+
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/install/front_translate.php
 msgid "TLS"
@@ -19263,6 +19299,10 @@ msgstr ""
 msgid "You are not allowed to add tokens linked to user ID %d"
 msgstr ""
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are not allowed to change this status."
+msgstr "Não tem permissão para alterar este estado."
+
 #: centreon/www/install/front_translate.php
 msgid "You are not allowed to choose this type."
 msgstr ""
@@ -19581,6 +19621,10 @@ msgstr "Você precisa selecionar ao menos uma instancia de coletor."
 msgid "You need to send '%s' in the request."
 msgstr "Você precisa enviar '%s' na sua requisição."
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You no longer have access to this page."
+msgstr "Já não tem acesso a esta página."
+
 #: centreon/www/install/step_upgrade/step4.php
 msgid "You seem to be having trouble with your upgrade."
 msgstr "Parece que você esta tendo problemas com sua atualização."
@@ -19705,6 +19749,10 @@ msgstr ""
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Your session has expired"
 msgstr ""
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Your session has expired — please reload the page."
+msgstr "A sua sessão expirou — recarregue a página."
 
 #: centreon/www/install/front_translate.php
 msgid "Your widget has been created successfully!"

@@ -39,8 +39,7 @@ $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('ctPage', $p);
 
-// The term is restored client-side from the listing's own session state;
-// the template only needs the key to exist.
+// Restored client-side by listing.js; the template only needs the key to exist.
 $tpl->assign('searchCT', '');
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
@@ -62,9 +61,8 @@ $tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')])
 <?php
 
 foreach (['o1'] as $option) {
-    // Styled, secure confirmation modal (clMoreAction in listing.js) replaces
-    // the native confirm()/alert(); messages passed as data-* attributes so the
-    // handler stays locale-independent (keyed on the option value).
+    // Prompts travel as data-* so clMoreAction stays locale-independent
+    // (keyed on the option value, not its translated label).
     $attrs = [
         'onchange' => 'clMoreAction(this);',
         'data-msg-select' => _('Please select one or more items'),

@@ -13,9 +13,7 @@
         <a href="#cf-sec-exceptions" onclick="cfScrollTo('cf-sec-exceptions', this); return false;">{t}Time Range Exceptions{/t}</a>
     </div>
 
-    <!-- ================================================================ -->
     <!-- All sections in a single scrollable page                         -->
-    <!-- ================================================================ -->
     <div id="cf-tab-general">
 
         <!-- Section: Timeperiods -->
@@ -90,7 +88,6 @@
                         <img class="helpTooltip" name="weekday">
                     </div>
                     <div class="cf-field">
-                        <!-- spacer -->
                     </div>
                 </div>
             </div>
@@ -134,7 +131,12 @@
 
     </div>
 
-    <!-- Action buttons -->
+    {if $o == "a" || $o == "c"}
+        {if isset($form.requirednote)}
+        <div class="cf-row"><small>{$form.requirednote}</small></div>
+        {/if}
+    {/if}
+
     <div class="cf-actions">
         {if $o == "a" || $o == "c"}
             {$form.reset.html}

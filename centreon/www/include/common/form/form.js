@@ -68,16 +68,27 @@ var CentreonForm = (function () {
         var panel   = document.getElementById('cfSidePanel');
 
         if (!titleEl || !frameEl || !overlay || !panel) {
+            // A silent return here kills every create/edit entry point; log which
+            // id is missing.
+            if (window.console) {
+                console.error('[CentreonForm] side panel markup missing', {
+                    cfSidePanelTitle: !!titleEl,
+                    cfSidePanelFrame: !!frameEl,
+                    cfSideOverlay: !!overlay,
+                    cfSidePanel: !!panel
+                });
+            }
+
             return;
         }
 
         titleEl.textContent = title || '';
         // Name the frame after what it actually holds — a form, the notification
-        // matrix, the graphical view — instead of leaving the markup fallback,
-        // which assistive technology would announce for every panel alike.
-        if (title) {
-            frameEl.title = title;
-        }
+        // matrix, the graphical view. Always assign: keeping the previous value
+        // when opened untitled would announce the panel opened before this one.
+        frameEl.title = title
+            || (window.clI18n && window.clI18n.form && window.clI18n.form.panelTitle)
+            || 'Form';
         frameEl.src = url;
         overlay.classList.add('open');
         panel.classList.add('open');

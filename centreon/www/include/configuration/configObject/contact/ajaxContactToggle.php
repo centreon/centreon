@@ -39,11 +39,11 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-if ($objId === (int) $centreon->user->get_id()) {
-    AjaxListingHelper::jsonError('Cannot toggle your own account', 403);
-}
-
 $newToken = $helper->validateCsrfToken();
+
+if ($objId === (int) $centreon->user->get_id()) {
+    AjaxListingHelper::jsonError('Cannot toggle your own account', 403, $newToken);
+}
 
 $helper->requireWriteAccess(60301, $newToken);
 
@@ -84,7 +84,8 @@ try {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            UPDATE contact SET contact_activate = :activate WHERE contact_id = :id
+            UPDATE contact SET contact_activate = :activate
+            WHERE contact_id = :id AND contact_register = '1'
             SQL,
         QueryParameters::create([
             QueryParameter::string('activate', $activate),

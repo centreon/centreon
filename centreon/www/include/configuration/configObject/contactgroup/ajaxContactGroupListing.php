@@ -98,30 +98,24 @@ if (! $helper->isAdmin()) {
         // No access group: every group counts zero rather than its full membership.
         $countAclClause = ' AND 1 = 0';
     } else {
-        // Two sets of placeholders for the same ids: a named placeholder cannot
-        // be reused across both branches of the UNION.
-        $directPlaceholders = [];
-        $throughGroupPlaceholders = [];
+        $aclGroupPlaceholders = [];
         foreach ($aclGroupIds as $index => $aclGroupId) {
-            $directPlaceholders[] = ':acl_ga' . $index;
-            $throughGroupPlaceholders[] = ':acl_gb' . $index;
-            $countAclParameters[] = QueryParameter::int('acl_ga' . $index, $aclGroupId);
-            $countAclParameters[] = QueryParameter::int('acl_gb' . $index, $aclGroupId);
+            $aclGroupPlaceholders[] = ':acl_g' . $index;
+            $countAclParameters[] = QueryParameter::int('acl_g' . $index, $aclGroupId);
         }
-        $directList = implode(', ', $directPlaceholders);
-        $throughGroupList = implode(', ', $throughGroupPlaceholders);
+        $aclGroupList = implode(', ', $aclGroupPlaceholders);
 
         $visibleContactsQuery = <<<SQL
             SELECT agcr.contact_contact_id
             FROM acl_group_contacts_relations agcr
             INNER JOIN contact c ON c.contact_id = agcr.contact_contact_id
-            WHERE c.contact_register = '1' AND agcr.acl_group_id IN ({$directList})
+            WHERE c.contact_register = '1' AND agcr.acl_group_id IN ({$aclGroupList})
             UNION
             SELECT aclCcr.contact_contact_id
             FROM acl_group_contactgroups_relations agccgr
             INNER JOIN contactgroup_contact_relation aclCcr ON aclCcr.contactgroup_cg_id = agccgr.cg_cg_id
             INNER JOIN contact aclC ON aclC.contact_id = aclCcr.contact_contact_id
-            WHERE aclC.contact_register = '1' AND agccgr.acl_group_id IN ({$throughGroupList})
+            WHERE aclC.contact_register = '1' AND agccgr.acl_group_id IN ({$aclGroupList})
             SQL;
 
         $countAclClause = ' AND ccr.contact_contact_id IN (' . $visibleContactsQuery . ')';

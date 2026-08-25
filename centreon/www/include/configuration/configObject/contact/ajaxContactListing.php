@@ -87,18 +87,12 @@ if (! $helper->isAdmin()) {
         $helper->jsonResponse([], 0, $num, $limit);
     }
 
-    // Two sets of placeholders for the same ids: a named placeholder cannot be
-    // reused across both branches of the UNION.
-    $directPlaceholders       = [];
-    $throughGroupPlaceholders = [];
+    $aclGroupPlaceholders = [];
     foreach ($aclGroupIds as $index => $aclGroupId) {
-        $directPlaceholders[]       = ':acl_ga' . $index;
-        $throughGroupPlaceholders[] = ':acl_gb' . $index;
-        $parameters[]               = QueryParameter::int('acl_ga' . $index, $aclGroupId);
-        $parameters[]               = QueryParameter::int('acl_gb' . $index, $aclGroupId);
+        $aclGroupPlaceholders[] = ':acl_g' . $index;
+        $parameters[]           = QueryParameter::int('acl_g' . $index, $aclGroupId);
     }
-    $directList       = implode(', ', $directPlaceholders);
-    $throughGroupList = implode(', ', $throughGroupPlaceholders);
+    $aclGroupList = implode(', ', $aclGroupPlaceholders);
 
     $conditions[] = <<<SQL
         c.contact_id IN (
@@ -106,7 +100,7 @@ if (! $helper->isAdmin()) {
             FROM acl_group_contacts_relations aclAgcr
             INNER JOIN contact aclDirect ON aclDirect.contact_id = aclAgcr.contact_contact_id
             WHERE aclDirect.contact_register = '1'
-                AND aclAgcr.acl_group_id IN ({$directList})
+                AND aclAgcr.acl_group_id IN ({$aclGroupList})
             UNION
             SELECT aclCcr.contact_contact_id
             FROM acl_group_contactgroups_relations aclAgccgr
@@ -114,7 +108,7 @@ if (! $helper->isAdmin()) {
                 ON aclCcr.contactgroup_cg_id = aclAgccgr.cg_cg_id
             INNER JOIN contact aclThroughGroup ON aclThroughGroup.contact_id = aclCcr.contact_contact_id
             WHERE aclThroughGroup.contact_register = '1'
-                AND aclAgccgr.acl_group_id IN ({$throughGroupList})
+                AND aclAgccgr.acl_group_id IN ({$aclGroupList})
         )
         SQL;
 }
@@ -195,7 +189,7 @@ try {
             'activate'        => (int) $contact['contact_activate'],
             'is_current_user' => ((int) $contact['contact_id'] === $currentUserId),
             'auth_type'       => $contact['contact_auth_type'],
-            'ldap_sync'       => $contact['contact_ldap_required_sync'],
+            'ldap_sync'       => (int) $contact['contact_ldap_required_sync'],
             'blocked'         => $isAdmin && $contact['blocking_time'] !== null,
         ];
     }
