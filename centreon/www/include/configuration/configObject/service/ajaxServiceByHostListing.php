@@ -94,7 +94,7 @@ try {
             $aclIn = implode(',', $aclPlaceholders);
             $aclJoin = " INNER JOIN `{$aclDbName}`.centreon_acl acl ON acl.host_id = host.host_id AND acl.service_id = sv.service_id AND acl.group_id IN ({$aclIn}) ";
         } else {
-            $helper->jsonResponse([], 0, 0, $limit);
+            $helper->jsonResponse([], 0, $num, $limit);
         }
     }
     $joins .= $aclJoin;

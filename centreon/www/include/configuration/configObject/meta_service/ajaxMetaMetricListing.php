@@ -32,6 +32,8 @@ $helper   = AjaxListingHelper::boot();
 $centreon = $helper->requireCentreon();
 $pearDB   = $helper->getDb();
 $params   = $helper->getParams();
+$num      = $params['num'];
+$limit    = $params['limit'];
 
 $metaId = filter_var($_GET['meta_id'] ?? null, FILTER_VALIDATE_INT);
 if (! $metaId) {
@@ -82,7 +84,7 @@ try {
             : [];
 
         if ($aclGroupIds === []) {
-            $helper->jsonResponse([], 0, 0, 0);
+            $helper->jsonResponse([], 0, $num, $limit);
         }
 
         $aclPlaceholders = [];
@@ -162,12 +164,20 @@ try {
         }
     }
 
+    // The relations are assembled in PHP rather than paginated in SQL, so the
+    // page is cut here. Echoing back limit = count($rows) instead made the
+    // client compute Math.ceil(0/0) = NaN on an empty meta service, leaving the
+    // Next/Last arrows enabled, and never matched one of the rows-per-page
+    // options on a populated one.
+    $total = count($rows);
+    $rows  = array_slice($rows, $num * $limit, $limit);
+
     $centreonToken = createCSRFToken();
     echo json_encode([
-        'rows'           => $rows,
-        'total'          => count($rows),
-        'num'            => 0,
-        'limit'          => count($rows),
+        'rows'           => array_values($rows),
+        'total'          => $total,
+        'num'            => $num,
+        'limit'          => $limit,
         'centreon_token' => $centreonToken,
         'meta_name'      => $metaInfo['meta_name'],
         // Raw code (AVE/SOM/MIN/MAX): the template holds the translated labels,

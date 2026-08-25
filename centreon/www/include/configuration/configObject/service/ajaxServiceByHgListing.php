@@ -101,7 +101,7 @@ try {
             $joins .= " INNER JOIN `{$aclDbName}`.centreon_acl acl ON acl.service_id = sv.service_id AND acl.group_id IN ({$aclIn}) "
                 . ' INNER JOIN hostgroup_relation hgr_acl ON hgr_acl.hostgroup_hg_id = hg.hg_id AND hgr_acl.host_host_id = acl.host_id ';
         } else {
-            $helper->jsonResponse([], 0, 0, $limit);
+            $helper->jsonResponse([], 0, $num, $limit);
         }
     }
 
