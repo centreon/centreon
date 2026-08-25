@@ -22,6 +22,53 @@ const activeChecksRadio = 'host_active_checks_enabled';
 const massChangedMaxCheckAttempts = '7';
 const massChangedRetryInterval = '3';
 
+// Nothing the platform installs is guaranteed to be a service template, and the
+// duplication path only misbehaves once the source template carries one.
+const serviceTemplateName = 'host-template-service';
+
+const linkServiceTemplate = (hostTemplateName: string): void => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO service (service_description, service_register, service_activate)
+            VALUES ('${serviceTemplateName}', '0', '1')`
+  });
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO host_service_relation
+              (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+            SELECT NULL, host.host_id, NULL, service.service_id
+            FROM host, service
+            WHERE host.host_name = '${hostTemplateName}'
+              AND service.service_description = '${serviceTemplateName}'`
+  }).then(([result]) => {
+    // An INSERT ... SELECT that matches nothing is an OK packet with no row, so
+    // a mistyped name would otherwise fail a later step for an unrelated reason.
+    if (!result || result.affectedRows === 0) {
+      throw new Error(
+        `Host template not found for template name ${hostTemplateName}`
+      );
+    }
+  });
+};
+
+const expectServiceTemplateLinks = (
+  hostTemplateName: string,
+  expected: number
+): void => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT COUNT(*) AS link_count
+            FROM host_service_relation
+            INNER JOIN host ON host.host_id = host_service_relation.host_host_id
+            WHERE host.host_name = '${hostTemplateName}'`
+  }).then(([rows]) => {
+    expect(
+      Number(rows[0].link_count),
+      `service template links of ${hostTemplateName}`
+    ).to.eq(expected);
+  });
+};
+
 const createHostTemplate = (body: Record<string, unknown>): void => {
   cy.request({
     body,
@@ -190,6 +237,34 @@ Then('the properties are updated', () => {
     .find(segmentedRadio(activeChecksRadio, '1'))
     .should('be.checked');
 });
+
+Given('the configured host template carries a service template', () => {
+  linkServiceTemplate(hostTemplates.defaultHostTemplate.name);
+});
+
+When('the user duplicates the configured host template twice', () => {
+  const sourceName = hostTemplates.defaultHostTemplate.name;
+
+  // The second copy is the one that exposes the defect: by then the service
+  // template is shared with the first copy, which used to earn it a relation
+  // from the shared-service branch on top of the one the template branch makes.
+  [1, 2].forEach(() => {
+    cy.openHostTemplatesListing();
+    cy.runListingBulkAction(sourceName, 'Duplicate', 'Duplicate');
+    cy.wait('@getTimeZone');
+  });
+});
+
+Then(
+  'the source and both copies link the service template exactly once',
+  () => {
+    const sourceName = hostTemplates.defaultHostTemplate.name;
+
+    [sourceName, `${sourceName}_1`, `${sourceName}_2`].forEach((name) => {
+      expectServiceTemplateLinks(name, 1);
+    });
+  }
+);
 
 When('the user duplicates the configured host template', () => {
   cy.openHostTemplatesListing();
