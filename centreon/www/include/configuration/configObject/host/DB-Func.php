@@ -424,6 +424,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             continue;
         }
         $originalHostName = $row['host_name'];
+        $skippedNames = [];
         for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
             foreach ($row as $key2 => $value2) {
@@ -773,12 +774,10 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                 }
             } else {
-                // Nothing is created and the page reloads unchanged, so the operator
-                // gets no explanation for the copy that never appeared.
-                AdaptationLogger::create(LogChannelEnum::WEB)->warning(
-                    'Host duplication skipped: the generated name is already taken by a host or a host template',
-                    ['sourceHostId' => (int) $key, 'name' => $hostName]
-                );
+                // Collected, not logged here: $dupCount has no server-side ceiling, so
+                // a forged dupNbr would turn one record per name into a disk-write
+                // amplifier — a logger and a file handle each time round.
+                $skippedNames[] = $hostName;
             }
             // if all duplication names are already used, next value is never set
             if (isset($maxId)) {
@@ -789,6 +788,19 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     'duplicate_host' => (int) $key,
                 ]);
             }
+        }
+
+        if ($skippedNames !== []) {
+            // The page reloads unchanged, so without this the operator has no
+            // explanation for the copies that never appeared.
+            AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                'Host duplication skipped: generated names already taken by a host or a host template',
+                [
+                    'sourceHostId' => (int) $key,
+                    'names' => array_slice($skippedNames, 0, 20),
+                    'skippedTotal' => count($skippedNames),
+                ]
+            );
         }
     }
     CentreonACL::duplicateHostAcl($hostAcl);
