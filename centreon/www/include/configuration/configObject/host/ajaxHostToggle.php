@@ -46,13 +46,39 @@ $helper->requireWriteAccess(60101);
 $activate = ($action === 's') ? '1' : '0';
 
 try {
+    // Write access to page 60101 says the caller may toggle hosts, not which
+    // ones, so the lookup carries the same resource ACL as the listing. Without
+    // it a non-admin flips any host by posting its id, including hosts its own
+    // listing never shows.
+    $joins      = '';
+    $parameters = [QueryParameter::int('id', $objId)];
+
+    if (! $helper->isAdmin()) {
+        $acl         = $helper->getAcl();
+        $aclGroupIds = $acl !== null
+            ? array_values(array_filter(array_map('intval', array_keys($acl->getAccessGroups()))))
+            : [];
+
+        if ($aclGroupIds === []) {
+            AjaxListingHelper::jsonError('Object not found', 404);
+        }
+
+        $aclDbName  = $pearDB->getConnectionConfig()->getDatabaseNameRealTime();
+        $aclIn      = AjaxListingHelper::buildIntInClause($aclGroupIds, 'acl_gid');
+        $parameters = [...$parameters, ...$aclIn['parameters']];
+        $joins      = " INNER JOIN `{$aclDbName}`.centreon_acl acl"
+            . ' ON acl.host_id = h.host_id AND acl.service_id IS NULL'
+            . " AND acl.group_id IN ({$aclIn['clause']}) ";
+    }
+
     // Fetch the name (also acts as the existence check, real hosts only) then
     // flip the activation flag.
     $objName = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT host_name FROM host WHERE host_id = :id AND host_register = '1'
+        <<<SQL
+            SELECT h.host_name FROM host h {$joins}
+            WHERE h.host_id = :id AND h.host_register = '1'
             SQL,
-        QueryParameters::create([QueryParameter::int('id', $objId)])
+        QueryParameters::create($parameters)
     );
 
     if ($objName === false) {
