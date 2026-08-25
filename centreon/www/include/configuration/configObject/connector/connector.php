@@ -36,13 +36,25 @@ $connectorObj = new CentreonConnector($pearDB);
 // one INSERT each. 999 is the largest value the 3-character input accepts.
 const MAX_DUPLICATES_PER_CONNECTOR = 999;
 
-// Connector ids the batch could not process; a non-empty list makes the listing
-// warn. Rows the operator mistyped are kept apart: that is a mistake they can fix
-// themselves, not a failure to go and read a server log about.
+// Batch failures the operator cannot act on, which point at the server log.
+// Mistyped duplication counts are kept apart: those are fixed in the form itself.
 $batchErrors = [];
 $batchInvalid = [];
 
 $select = $_REQUEST['select'] ?? null;
+
+// The listing only ever posts select[] as an array of ids, so a scalar is a forged
+// or broken request: report it instead of applying the action to nothing.
+$selectedConnectors = [];
+if (is_array($select)) {
+    $selectedConnectors = array_keys($select);
+} elseif ($select !== null) {
+    $batchErrors[] = $select;
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Connectors: malformed batch selection',
+        ['select' => $select]
+    );
+}
 
 if (isset($_REQUEST['id'])) {
     $connector_id = $_REQUEST['id'];
@@ -96,16 +108,22 @@ switch ($o) {
             if ($lvl_access == 'w') {
                 $duplicateNbr = $_REQUEST['dupNbr'] ?? [];
                 if (! is_array($duplicateNbr)) {
+                    $batchErrors[] = $duplicateNbr;
+                    Logger::create(LogChannelEnum::WEB)->error(
+                        'Connectors: malformed duplication counts',
+                        ['dupNbr' => $duplicateNbr]
+                    );
                     $duplicateNbr = [];
                 }
-                $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
                     // An empty field or a typed 0 leaves the row out of the batch, as
                     // the legacy page did. Anything else that yields no copy is a typo
                     // on a row the operator selected on purpose, so it is reported.
                     $requested = $duplicateNbr[$connectorId] ?? '';
-                    $deliberateSkip = $requested === '' || $requested === '0';
-                    $copies = is_numeric($requested)
+                    $isNumeric = is_numeric($requested);
+                    // Any numeric zero is a skip, however it was typed ('0', '00').
+                    $deliberateSkip = $requested === '' || ($isNumeric && (int) $requested === 0);
+                    $copies = $isNumeric
                         ? min(MAX_DUPLICATES_PER_CONNECTOR, (int) $requested)
                         : 0;
 
@@ -144,7 +162,6 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
-                $selectedConnectors = is_array($select) ? array_keys($select) : [];
                 foreach ($selectedConnectors as $connectorId) {
                     try {
                         $connectorObj->delete($connectorId);

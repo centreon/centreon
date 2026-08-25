@@ -25,14 +25,17 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
+use Core\ActionLog\Domain\Model\ActionLog;
 
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
 $helper = AjaxListingHelper::boot();
 
-$objId    = null;
-$action   = null;
-$newToken = null;
+$objId       = null;
+$action      = null;
+$newToken    = null;
+$auditName   = null;
+$auditAction = null;
 
 try {
     $helper->requireCentreon();
@@ -74,9 +77,12 @@ try {
         ])
     );
 
-    $helper->logToggleAction('connector', $objId, (string) $objName, $action === 's' ? 'enable' : 'disable');
-
+    // Answer before auditing: the toggle is already committed, so an audit
+    // failure must not be reported to the operator as a failed toggle.
     echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);
+
+    $auditName   = (string) $objName;
+    $auditAction = $action === 's' ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE;
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'AJAX toggle: failed to update connector activation',
@@ -87,6 +93,10 @@ try {
         500,
         $newToken === null ? [] : ['centreon_token' => $newToken]
     );
+}
+
+if ($auditName !== null && $auditAction !== null) {
+    $helper->logToggleAction(ActionLog::OBJECT_TYPE_CONNECTOR, (int) $objId, $auditName, $auditAction);
 }
 
 exit;

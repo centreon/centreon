@@ -25,3 +25,4 @@ $help['connector_name'] = dgettext('help', 'Name which will be used for identify
 $help['connector_description'] = dgettext('help', 'A short description of the connector.');
 $help['command_line'] = dgettext('help', 'The connector binary that centreon-engine will launch.');
 $help['connector_status'] = dgettext('help', 'Whether or not the connector is enabled.');
+$help['command_id'] = dgettext('help', 'The commands that will use this connector.');

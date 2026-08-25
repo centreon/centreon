@@ -120,7 +120,7 @@ try {
                 'change',
                 _('Modify'),
                 ['onClick' => "javascript:window.location.href='?p="
-                    . $p . '&o=c&connector_id=' . $connector_id . '&status=' . $status . "'"]
+                    . $p . '&o=c&id=' . $connector_id . "'"]
             );
         }
         $form->setDefaults($cnt);
@@ -208,13 +208,15 @@ try {
         'saved' => _('The connector was saved, but the list could not be displayed. Reload the page.'),
         default => _('The form could not be loaded. See the Centreon log for details.'),
     };
+    echo '<p style="padding:16px;color:#FF4A4A;">' . $userMessage . '</p>';
+
+    // (int) '' is 0, so a creation that failed before create() returned has to fall
+    // back on the requested id rather than log id 0.
+    $loggedId = empty($connectorId) ? ($connector_id ?? null) : $connectorId;
     Logger::create(LogChannelEnum::WEB)->error(
         $logMessage,
-        // $connectorId carries the id create() just returned; $connector_id only
-        // exists when the request named one, so a creation would log null.
-        ['id' => $connectorId ?? $connector_id ?? null, 'action' => $o ?? null, 'exception' => $exception]
+        ['id' => $loggedId, 'action' => $o ?? null, 'exception' => $exception]
     );
-    echo '<p style="padding:16px;color:#FF4A4A;">' . $userMessage . '</p>';
 }
 
 ?>

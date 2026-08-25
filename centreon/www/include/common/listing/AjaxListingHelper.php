@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
@@ -52,6 +53,9 @@ class AjaxListingHelper
 
     /** Absolute ceiling on the requested page size (crafted-input safety net). */
     private const MAX_LIMIT = 1000;
+
+    /** Absolute ceiling on the requested page index: num * limit must stay an int. */
+    private const MAX_NUM = 100000;
 
     private CentreonDB $db;
 
@@ -117,7 +121,7 @@ class AjaxListingHelper
     }
 
     /**
-     * Get sanitized listing parameters from the request.
+     * Get listing parameters from the request.
      *
      * @return array{search: string, num: int, limit: int}
      */
@@ -129,13 +133,13 @@ class AjaxListingHelper
         $defaultLimit = $this->getDefaultLimit();
 
         $num = filter_var($_GET['num'] ?? 0, FILTER_VALIDATE_INT);
-        $num = ($num === false || $num < 0) ? 0 : $num;
+        $num = ($num === false || $num < 0) ? 0 : min($num, self::MAX_NUM);
 
         $limit = filter_var($_GET['limit'] ?? $defaultLimit, FILTER_VALIDATE_INT);
         $limit = ($limit === false || $limit < 1) ? $defaultLimit : min($limit, self::MAX_LIMIT);
 
         return [
-            'search' => HtmlSanitizer::createFromString((string) ($_GET['search'] ?? ''))->sanitize()->removeTags()->getString(),
+            'search' => self::escapeLikeWildcards((string) ($_GET['search'] ?? '')),
             'num'    => $num,
             'limit'  => $limit,
         ];
@@ -196,7 +200,7 @@ class AjaxListingHelper
      * replace, which were only served through main.php and its topology check.
      * Listings whose objects carry no per-object ACL rely on this alone.
      *
-     * @param int $pageId The topology page number (60806 for connectors, 60104 for host categories)
+     * @param int $pageId The topology page number (60806 for connectors)
      * @param array<string, mixed> $extra Additional fields to return with the error
      *
      * @throws JsonException
@@ -265,11 +269,29 @@ class AjaxListingHelper
     public function logToggleAction(string $objectType, int $objectId, string $objectName, string $actionType): void
     {
         try {
-            $storageDb = new CentreonDB('centstorage');
+            // Factory rather than `new CentreonDB('centstorage')`: that constructor
+            // answers a connection failure with an HTML page and exit(), which would
+            // kill the request after the caller already committed its write. This one
+            // throws, so the catch below can keep the request alive.
+            $storageDb = CentreonDB::connectToCentreonStorageDb(new ConnectionConfig(
+                host: hostCentstorage,
+                user: user,
+                password: password,
+                databaseNameConfiguration: dbcstg,
+                databaseNameRealTime: dbcstg,
+                port: port ?? 3306,
+            ));
 
-            // Skip when audit logging is disabled in the configuration.
             $auditOpt = $storageDb->fetchOne('SELECT `audit_log_option` FROM `config` LIMIT 1');
-            if ($auditOpt != '1') {
+            if ($auditOpt === false || $auditOpt === null) {
+                // No config row at all: auditing is off by accident, not by choice.
+                Logger::create(LogChannelEnum::WEB)->error(
+                    'AJAX listing: centstorage config row is missing, audit trail is disabled'
+                );
+
+                return;
+            }
+            if ((string) $auditOpt !== '1') {
                 return;
             }
 
@@ -341,12 +363,26 @@ class AjaxListingHelper
      *
      * @throws JsonException
      */
-    public static function jsonError(string $message, int $httpCode = 400, array $extra = []): void
+    public static function jsonError(string $message, int $httpCode = 400, array $extra = []): never
     {
         http_response_code($httpCode);
         echo json_encode(array_merge($extra, ['error' => $message]), JSON_THROW_ON_ERROR);
 
         exit;
+    }
+
+    /**
+     * Escape the LIKE wildcards of a search term, so a literal % or _ filters on
+     * itself instead of matching anything.
+     *
+     * The term is deliberately not HTML-encoded: callers only ever bind it as a
+     * query parameter, and htmlspecialchars() turned a search for the characters
+     * command lines are made of (`>`, `&`, `"`, `'`) into a term that matches no
+     * stored row at all. Values are stored raw and escaped at render time.
+     */
+    private static function escapeLikeWildcards(string $search): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
     }
 
     /**
