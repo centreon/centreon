@@ -165,9 +165,8 @@ When('the locked checkbox is checked', () => {
 
 Then('locked service templates are visible', () => {
   cy.getIframeBody()
-    .find('#clTableBody tr')
-    .its('length')
-    .as('countWithLocked');
+    .find(`#clTableBody tr:contains("${templateLocked}")`)
+    .should('have.length.at.least', 1);
 });
 
 When('the user unchecks the locked checkbox and searches', () => {
@@ -178,14 +177,15 @@ When('the user unchecks the locked checkbox and searches', () => {
 });
 
 Then('locked service templates are hidden', () => {
+  // Comparing row counts before/after passed when both were equal, i.e. exactly
+  // when the filter changed nothing. Assert on the locked row itself, and keep
+  // an unlocked one in view so an empty listing cannot pass for a filtered one.
   cy.getIframeBody()
-    .find('#clTableBody tr')
-    .its('length')
-    .then((countWithout) => {
-      cy.get('@countWithLocked').then((countWith) => {
-        expect(countWithout).to.be.at.most(countWith as unknown as number);
-      });
-    });
+    .find(`#clTableBody tr:contains("${templateAlpha}")`)
+    .should('have.length.at.least', 1);
+  cy.getIframeBody()
+    .find(`#clTableBody tr:contains("${templateLocked}")`)
+    .should('not.exist');
 });
 
 // ---------------------------------------------------------------------------
@@ -193,15 +193,27 @@ Then('locked service templates are hidden', () => {
 // ---------------------------------------------------------------------------
 
 Then('locked rows have disabled selection checkboxes', () => {
+  // Scoped to the locked row: counting disabled checkboxes across the whole
+  // table also passed when the disabling applied to the wrong rows.
   cy.getIframeBody()
-    .find('#clTableBody .cl-col-picker input[type="checkbox"][disabled]')
-    .should('have.length.greaterThan', 0);
+    .find(
+      `#clTableBody tr:contains("${templateLocked}") .cl-col-picker input[type="checkbox"]`
+    )
+    .should('be.disabled');
+  cy.getIframeBody()
+    .find(
+      `#clTableBody tr:contains("${templateAlpha}") .cl-col-picker input[type="checkbox"]`
+    )
+    .should('not.be.disabled');
 });
 
 Then('locked rows have disabled duplication inputs', () => {
   cy.getIframeBody()
-    .find('#clTableBody input.cl-dup-input[disabled]')
-    .should('have.length.greaterThan', 0);
+    .find(`#clTableBody tr:contains("${templateLocked}") input.cl-dup-input`)
+    .should('be.disabled');
+  cy.getIframeBody()
+    .find(`#clTableBody tr:contains("${templateAlpha}") input.cl-dup-input`)
+    .should('not.be.disabled');
 });
 
 // ---------------------------------------------------------------------------
