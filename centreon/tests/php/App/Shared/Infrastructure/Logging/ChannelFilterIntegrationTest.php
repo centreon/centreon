@@ -82,6 +82,8 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         yield 'upgrade channel' => ['monolog.logger.upgrade'];
 
         yield 'plugin-pack-manager channel' => ['monolog.logger.plugin-pack-manager'];
+
+        yield 'poller-install channel' => ['monolog.logger.poller-install'];
     }
 
     #[DataProvider('capturedChannels')]
@@ -174,6 +176,8 @@ final class ChannelFilterIntegrationTest extends KernelTestCase
         yield 'upgrade channel' => ['monolog.logger.upgrade'];
 
         yield 'plugin-pack-manager channel' => ['monolog.logger.plugin-pack-manager'];
+
+        yield 'poller-install channel' => ['monolog.logger.poller-install'];
     }
 
     #[DataProvider('everyChannel')]
