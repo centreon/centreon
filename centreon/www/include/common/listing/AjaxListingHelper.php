@@ -45,8 +45,9 @@ use Adaptation\Log\Logger;
  * Security contract: boot() validates the session and NOTHING else. These
  * endpoints are addressable directly, so each one owns its own access control:
  *
- * - every endpoint MUST call requireCentreon() then requireReadAccess($pageId);
- * - a mutating (POST) endpoint MUST also call requireWriteAccess($pageId) and
+ * - every endpoint MUST call requireCentreon() first;
+ * - a read-only endpoint then calls requireReadAccess($pageId); a mutating one
+ *   calls requireWriteAccess($pageId) instead, which subsumes it, plus
  *   validateCsrfToken() before it writes;
  * - page-level access says whether the user may act on this kind of object,
  *   never on which one — an endpoint naming an object MUST additionally scope it
@@ -114,9 +115,11 @@ class AjaxListingHelper
             self::jsonError('Internal error', 500);
         }
 
-        // Deserialization already happened in session_start() above, resolved by
-        // the Composer classmap. These requires only make the class names usable
-        // for the type hints and instanceof checks below.
+        // Belt and braces on the session objects: deserialization already happened
+        // in session_start() above, resolved by the Composer classmap, so these are
+        // no-ops on a healthy install — and the guard against an install whose
+        // classmap has not been regenerated, where they are what stands between the
+        // caller and a __PHP_Incomplete_Class.
         require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
         require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
 
@@ -164,6 +167,12 @@ class AjaxListingHelper
     public function requireCentreon(): mixed
     {
         if (! $this->centreon) {
+            // The first check every endpoint runs, so the likeliest refusal of all —
+            // and it says nothing about ACLs, which is exactly what an operator
+            // reading "Forbidden" needs to know.
+            Logger::create(LogChannelEnum::WEB)->warning(
+                'AJAX listing: no Centreon session object, request refused'
+            );
             self::jsonError('Forbidden', 403);
         }
 
@@ -233,9 +242,9 @@ class AjaxListingHelper
     public function validateCsrfToken(): string
     {
         // Purge first: nothing else on the AJAX path does, while every listing
-        // response mints a token. Without this the pool grows with each refresh
-        // tick and the 15-minute lifetime the rest of the application assumes
-        // never applies — a token stayed valid until logout.
+        // response mints a token. Without this the pool grows with each refresh tick
+        // and the 15-minute lifetime the rest of the application assumes never
+        // applies to these endpoints.
         if (isset($_SESSION['x-centreon-token-generated-at'])) {
             purgeOutdatedCSRFTokens();
         }
@@ -243,9 +252,15 @@ class AjaxListingHelper
         $token = $_POST['centreon_token'] ?? null;
 
         if ($token === null || ! in_array($token, $_SESSION['x-centreon-token'] ?? [], true)) {
-            Logger::create(LogChannelEnum::WEB)->warning(
+            // Info, not warning: a double-click sends the same single-use token twice
+            // and lands here, so this fires on ordinary use and cannot carry an alert.
+            // What it does give is the pairing with the access denials below.
+            Logger::create(LogChannelEnum::WEB)->info(
                 'AJAX listing: CSRF token rejected',
-                ['userId' => $this->centreon ? (int) $this->centreon->user->get_id() : 0]
+                [
+                    'userId' => $this->centreon ? (int) $this->centreon->user->get_id() : 0,
+                    'submitted' => $token === null ? 'none' : 'unknown-or-consumed',
+                ]
             );
             self::jsonError('Invalid CSRF token', 403);
         }
@@ -408,12 +423,14 @@ class AjaxListingHelper
     }
 
     /**
-     * Record a refused access. An operator needs to know that a user hit a wall
-     * here: the client only ever shows a generic message, so without this line a
-     * misconfigured ACL and an attempted privilege escalation look identical —
-     * which is to say, invisible.
+     * Record a refused access. The client tells the user they lack the rights, but
+     * nothing tells the administrator: without this line a misconfigured ACL and an
+     * attempted privilege escalation are equally invisible on the server side.
+     *
+     * Public because an endpoint denying a specific object — an id outside the
+     * caller's resource ACL — has to report it too, and only the endpoint knows it.
      */
-    private function logAccessDenial(string $kind, int $pageId): void
+    public function logAccessDenial(string $kind, int $pageId): void
     {
         Logger::create(LogChannelEnum::WEB)->warning(
             sprintf('AJAX listing: %s access denied on page %d', $kind, $pageId),
