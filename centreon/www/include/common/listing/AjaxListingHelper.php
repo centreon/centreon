@@ -35,15 +35,22 @@ use Adaptation\Log\Logger;
  * Usage in an AJAX endpoint:
  *
  *   $helper = AjaxListingHelper::boot();
+ *   $helper->requireCentreon();
+ *   $helper->requireReadAccess(60101);   // the endpoint's topology page
  *   $params = $helper->getParams();
- *   $centreon = $helper->getCentreon();  // may be null
  *   $db = $helper->getDb();
- *   // ... run your query ...
+ *   // ... run your query, ACL-filtered when the objects carry a resource ACL ...
  *   $helper->jsonResponse($rows, $total, $params['num'], $params['limit']);
  *
- * Security contract: boot() validates the session only. Mutating (POST)
- * endpoints MUST additionally call validateCsrfToken() and requireWriteAccess()
- * before performing any write.
+ * Security contract: boot() validates the session and NOTHING else. These
+ * endpoints are addressable directly, so each one owns its own access control:
+ *
+ * - every endpoint MUST call requireCentreon() then requireReadAccess($pageId);
+ * - a mutating (POST) endpoint MUST also call requireWriteAccess($pageId) and
+ *   validateCsrfToken() before it writes;
+ * - page-level access says whether the user may act on this kind of object,
+ *   never on which one — an endpoint naming an object MUST additionally scope it
+ *   to the caller's resource ACL, as ajaxHostListing/ajaxHostToggle do.
  */
 class AjaxListingHelper
 {
@@ -61,11 +68,8 @@ class AjaxListingHelper
     private ?int $defaultLimit = null;
 
     /**
-     * CSRF token minted by validateCsrfToken(), carried to the error responses:
-     * the submitted one is consumed by then, so without it a rejected write
-     * would leave the page unable to retry. Success paths mint their own.
-     * Static because jsonError() is static and is also reached from
-     * requireWriteAccess() and from the endpoints' catch blocks.
+     * CSRF token minted by validateCsrfToken(), handed back on error responses —
+     * see jsonError(). Static because jsonError() is static.
      */
     private static ?string $rotatedCsrfToken = null;
 
@@ -102,8 +106,7 @@ class AjaxListingHelper
             }
         } catch (Throwable $e) {
             // Never leak internals to the client, but record the real cause so a
-            // DB outage / broken session backend is diagnosable (was silently
-            // swallowed). Throwable so Error types are handled too, not just Exception.
+            // DB outage or a broken session backend stays diagnosable.
             Logger::create(LogChannelEnum::WEB)->error(
                 'AJAX listing: session validation failed',
                 ['exception' => $e]
@@ -111,10 +114,9 @@ class AjaxListingHelper
             self::jsonError('Internal error', 500);
         }
 
-        // Session deserialization needs the Centreon class graph. The critical
-        // classes are required explicitly (so we don't depend on composer classmap
-        // freshness for the bootstrap); any other www/class/ classes referenced by
-        // the session object resolve through the Composer autoloader loaded above.
+        // Deserialization already happened in session_start() above, resolved by
+        // the Composer classmap. These requires only make the class names usable
+        // for the type hints and instanceof checks below.
         require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
         require_once _CENTREON_PATH_ . '/www/class/centreonACL.class.php';
 
@@ -168,25 +170,16 @@ class AjaxListingHelper
         return $this->centreon;
     }
 
-    /**
-     * Get the database connection.
-     */
     public function getDb(): CentreonDB
     {
         return $this->db;
     }
 
-    /**
-     * Check if the current user is admin.
-     */
     public function isAdmin(): bool
     {
         return $this->centreon ? (bool) $this->centreon->user->admin : false;
     }
 
-    /**
-     * Get the ACL object for the current user.
-     */
     public function getAcl(): ?CentreonACL
     {
         return $this->centreon ? $this->centreon->user->access : null;
@@ -210,6 +203,7 @@ class AjaxListingHelper
         $acl = $this->getAcl();
         // CentreonACL::page() returns 0 (no access), 1 (read/write) or 2 (read only).
         if (! $acl || $acl->page($pageId) === 0) {
+            $this->logAccessDenial('read', $pageId);
             self::jsonError('Forbidden', 403);
         }
     }
@@ -227,6 +221,7 @@ class AjaxListingHelper
         }
         $acl = $this->getAcl();
         if (! $acl || $acl->page($pageId) !== 1) {
+            $this->logAccessDenial('write', $pageId);
             self::jsonError('Write access denied', 403);
         }
     }
@@ -237,9 +232,21 @@ class AjaxListingHelper
      */
     public function validateCsrfToken(): string
     {
+        // Purge first: nothing else on the AJAX path does, while every listing
+        // response mints a token. Without this the pool grows with each refresh
+        // tick and the 15-minute lifetime the rest of the application assumes
+        // never applies — a token stayed valid until logout.
+        if (isset($_SESSION['x-centreon-token-generated-at'])) {
+            purgeOutdatedCSRFTokens();
+        }
+
         $token = $_POST['centreon_token'] ?? null;
 
         if ($token === null || ! in_array($token, $_SESSION['x-centreon-token'] ?? [], true)) {
+            Logger::create(LogChannelEnum::WEB)->warning(
+                'AJAX listing: CSRF token rejected',
+                ['userId' => $this->centreon ? (int) $this->centreon->user->get_id() : 0]
+            );
             self::jsonError('Invalid CSRF token', 403);
         }
 
@@ -263,9 +270,19 @@ class AjaxListingHelper
         try {
             $storageDb = new CentreonDB('centstorage');
 
-            // Skip when audit logging is disabled in the configuration.
+            // Skip when audit logging is disabled in the configuration. false means
+            // the row is missing, which is not the same answer as "disabled" and must
+            // not pass for one on a compliance trail.
             $auditOpt = $storageDb->fetchOne('SELECT `audit_log_option` FROM `config` LIMIT 1');
-            if ($auditOpt != '1') {
+            if ($auditOpt === false) {
+                Logger::create(LogChannelEnum::WEB)->error(
+                    'AJAX listing: could not read audit_log_option, skipping the audit entry',
+                    ['objectType' => $objectType, 'objectId' => $objectId]
+                );
+
+                return;
+            }
+            if ((string) $auditOpt !== '1') {
                 return;
             }
 
@@ -285,9 +302,8 @@ class AjaxListingHelper
                 ])
             );
         } catch (Throwable $e) {
-            // Don't fail the toggle because auditing failed — but record the lost
-            // audit entry so the drop is observable (this is a security/compliance
-            // trail; a silent empty catch made schema drift / DB errors invisible).
+            // Don't fail the toggle because auditing failed, but record the lost
+            // entry so the drop stays observable on a compliance trail.
             Logger::create(LogChannelEnum::WEB)->error(
                 sprintf('AJAX listing: audit log write failed for %s#%d (%s)', $objectType, $objectId, $actionType),
                 ['exception' => $e]
@@ -297,13 +313,24 @@ class AjaxListingHelper
 
     /**
      * Send a successful JSON listing response and exit.
+     *
+     * @param array<string, mixed> $extra Endpoint-specific top-level fields, e.g. a
+     *                                    flag saying a decorative data source was
+     *                                    unreachable so the client can say so
      */
-    public function jsonResponse(array $rows, int $total, int $num, int $limit): void
+    public function jsonResponse(array $rows, int $total, int $num, int $limit, array $extra = []): void
     {
+        // Purge before minting: a listing on a 15s auto-refresh mints a token per
+        // tick, and nothing else on this path expires them.
+        if (isset($_SESSION['x-centreon-token-generated-at'])) {
+            purgeOutdatedCSRFTokens();
+        }
+
         // JSON_INVALID_UTF8_SUBSTITUTE: a single non-UTF-8 byte in row data (common
         // in plugin output/aliases) otherwise makes json_encode() return false,
         // echoing an empty body with HTTP 200 — the client then sees "no results".
         $json = json_encode([
+            ...$extra,
             'rows'           => $rows,
             'total'          => $total,
             'num'            => $num,
@@ -378,6 +405,20 @@ class AjaxListingHelper
         }
 
         return ['clause' => implode(', ', $placeholders), 'parameters' => $parameters];
+    }
+
+    /**
+     * Record a refused access. An operator needs to know that a user hit a wall
+     * here: the client only ever shows a generic message, so without this line a
+     * misconfigured ACL and an attempted privilege escalation look identical —
+     * which is to say, invisible.
+     */
+    private function logAccessDenial(string $kind, int $pageId): void
+    {
+        Logger::create(LogChannelEnum::WEB)->warning(
+            sprintf('AJAX listing: %s access denied on page %d', $kind, $pageId),
+            ['userId' => $this->centreon ? (int) $this->centreon->user->get_id() : 0]
+        );
     }
 
     /**
