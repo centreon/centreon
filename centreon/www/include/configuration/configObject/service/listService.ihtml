@@ -249,8 +249,11 @@ svcListing.renderRows = function(rows) {
             var tip = '<b>'+mLabel+'</b>';
             if (row.mon_last) tip += '<br>{/literal}{t escape='js'}Last Check{/t}{literal}: ' + new Date(row.mon_last*1000).toLocaleString();
             var mOut = row.mon_output ? String(row.mon_output).substring(0,100) : '';
+            // mon_output is attribute-escaped only: the tooltip renders it through
+            // document.createTextNode, so HTML-escaping it here would show the
+            // entities literally ("load 5 < 10" displayed as "load 5 &lt; 10").
             tr += '<td class="cl-col-center"><span class="cl-mon-badge '+mCls+'" data-cl-tooltip="'+tip.replace(/"/g,'&quot;')+'"'
-                + (mOut ? ' data-cl-tooltip-text="'+self.escape(mOut).replace(/"/g,'&quot;')+'"' : '')
+                + (mOut ? ' data-cl-tooltip-text="'+mOut.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"' : '')
                 + ' style="cursor:help;"></span></td>';
         }
 

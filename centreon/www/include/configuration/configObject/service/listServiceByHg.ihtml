@@ -140,7 +140,7 @@ svcHgListing.renderRows = function(rows) {
     tbody.empty();
 
     if (!rows || !rows.length) {
-        tbody.html('<tr><td colspan="6" style="text-align:center;padding:24px;color:#a7a9ac;">No services found</td></tr>');
+        tbody.html('<tr><td colspan="6" style="text-align:center;padding:24px;color:#a7a9ac;">' + self.escape(clListingLabel('noResults', 'No results found')) + '</td></tr>');
         return;
     }
 
