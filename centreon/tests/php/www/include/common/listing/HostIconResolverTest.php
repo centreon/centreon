@@ -173,8 +173,8 @@ it('gives up on a chain deeper than the node cap', function (): void {
     ))->toBe([]);
 
     // Reported, not silently indistinguishable from "no icon anywhere in the
-    // chain": resolve() turns this into a warning, because only a cycle or
-    // abnormal data ever reaches the cap.
+    // chain": resolve() logs it, since the object keeps the default glyph while
+    // its own form shows the right icon.
     expect($truncated)->toBe([10]);
 });
 

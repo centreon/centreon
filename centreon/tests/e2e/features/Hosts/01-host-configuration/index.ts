@@ -385,23 +385,20 @@ Then('every host row shows the icon inherited from its template', () => {
   });
 });
 
-Then(
-  'the monitoring column shows a tooltipped badge or the not-monitored placeholder',
-  () => {
-    // These hosts are configured and never monitored, so centstorage holds no row
-    // for them and the column renders its "-" placeholder — deterministically, so
-    // this asserts exactly that. It does NOT cover the badge itself: proving the
-    // tooltip's contents needs a genuinely monitored host, which this scenario
-    // does not create.
-    //
-    // Third cell (picker, name, monitoring): the placeholder is scoped to that
-    // column, whereas a row-wide contain('-') is satisfied by the 'generic-host'
-    // every row of this suite carries in Templates.
-    getListingRow(listingHosts[0].name).then(($row) => {
-      expect($row.find('td').eq(2).text().trim()).to.equal('-');
-    });
-  }
-);
+Then('the monitoring column shows the not-monitored placeholder', () => {
+  // These hosts are configured and never monitored, so centstorage holds no row
+  // for them and the column renders its "-" placeholder — deterministically, so
+  // this asserts exactly that. It does NOT cover the badge itself: proving the
+  // tooltip's contents needs a genuinely monitored host, which this scenario
+  // does not create.
+  //
+  // Third cell (picker, name, monitoring): the placeholder is scoped to that
+  // column, whereas a row-wide contain('-') is satisfied by the 'generic-host'
+  // every row of this suite carries in Templates.
+  getListingRow(listingHosts[0].name).then(($row) => {
+    expect($row.find('td').eq(2).text().trim()).to.equal('-');
+  });
+});
 
 Then(
   'the template of the first host opens the host template side panel',

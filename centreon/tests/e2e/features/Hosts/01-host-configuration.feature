@@ -90,7 +90,7 @@ Feature: HostConfiguration
   Scenario: The monitoring column shows a status badge or a placeholder
     Given several hosts exist with different addresses
     When the admin opens the hosts listing
-    Then the monitoring column shows a tooltipped badge or the not-monitored placeholder
+    Then the monitoring column shows the not-monitored placeholder
 
   Scenario: The template column links to the host template form
     Given several hosts exist with different addresses
