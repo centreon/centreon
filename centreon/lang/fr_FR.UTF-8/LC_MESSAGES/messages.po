@@ -25308,3 +25308,43 @@ msgstr "Le connecteur a été enregistré, mais la liste n'a pas pu être affich
 #: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
 msgid "Some connectors were left out: their duplication count is not a valid number."
 msgstr "Certains connecteurs ont été ignorés : leur nombre de duplications n'est pas un nombre valide."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Delete %s"
+msgstr "Supprimer %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to delete the selected %s. This action cannot be undone. Do you want to continue?"
+msgstr "Vous êtes sur le point de supprimer les %s sélectionnés. Cette action est irréversible. Voulez-vous continuer ?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Disable %s"
+msgstr "Désactiver %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to disable the selected %s. Do you want to continue?"
+msgstr "Vous êtes sur le point de désactiver les %s sélectionnés. Voulez-vous continuer ?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Duplicate %s"
+msgstr "Dupliquer %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to duplicate the selected %s. Do you want to continue?"
+msgstr "Vous êtes sur le point de dupliquer les %s sélectionnés. Voulez-vous continuer ?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Error loading data"
+msgstr "Erreur lors du chargement des données"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Could not change status"
+msgstr "Impossible de modifier le statut"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Your session has expired — please reload the page."
+msgstr "Votre session a expiré — veuillez recharger la page."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The list is no longer refreshing — reload the page."
+msgstr "La liste ne se rafraîchit plus — rechargez la page."

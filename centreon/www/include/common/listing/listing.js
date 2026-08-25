@@ -216,6 +216,8 @@ function CentreonListing(config) {
     // Auto-refresh timer handle — stored so init() can clear it before re-arming
     // (init() may run more than once on combo pages; otherwise timers stack).
     var autoRefreshTimer = null;
+    // A silent (auto-refresh) failure is announced once, not on every tick.
+    var refreshStalled = false;
 
     // =====================================================================
     // Public: HTML escape utility
@@ -246,7 +248,8 @@ function CentreonListing(config) {
     };
 
     // =====================================================================
-    // Internal: save / restore checked row checkboxes
+    // Internal: save / restore per-row state across a re-render (checked
+    // checkboxes and typed row inputs)
     // =====================================================================
 
     function getCheckedIds() {
@@ -590,7 +593,36 @@ function CentreonListing(config) {
             dataType: 'json',
             data: jQuery.extend({ search: search, num: num, limit: limit }, typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams),
             success: function (data) {
+                if (!data || !Array.isArray(data.rows)) {
+                    // A 200 whose body carries no rows is a failure, not an empty
+                    // page: rendering it as empty would also blank the token below
+                    // and make every later action fail on a stale one.
+                    if (window.console) {
+                        console.error('[CentreonListing] malformed listing response', data);
+                    }
+                    if (isAppend) {
+                        isLoadingMore = false;
+                        jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
+                    }
+                    if (firstLoad) {
+                        jQuery('#' + cfg.tableBodyId).html(
+                            '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">' +
+                            clEscape(clListingLabel('loadError', 'Error loading data')) + '</td></tr>'
+                        );
+                    } else {
+                        clToast(clListingLabel('loadError', 'Error loading data'), 'error');
+                    }
+                    return;
+                }
+
+                refreshStalled = false;
                 csrfToken = data.centreon_token || '';
+                // The batch form's token is minted once at render and purged after
+                // 15 min, while this page is built never to navigate: refresh it on
+                // every response or Delete/Duplicate start refusing on a live page.
+                if (csrfToken) {
+                    jQuery('input[name="centreon_token"]').val(csrfToken);
+                }
                 var tbody = jQuery('#' + cfg.tableBodyId);
 
                 if (cfg.infiniteScroll && isAppend) {
@@ -682,6 +714,11 @@ function CentreonListing(config) {
                     // Surface later failures (page change, search) instead of silently
                     // leaving stale rows on screen as if they matched the new request.
                     clToast(clListingLabel('loadError', 'Error loading data'), 'error');
+                } else if (!refreshStalled) {
+                    // The auto-refresh is the only thing keeping the rows current, so
+                    // a frozen listing has to say so rather than look live.
+                    refreshStalled = true;
+                    clToast(clListingLabel('refreshStalled', 'The list is no longer refreshing — reload the page.'), 'error');
                 }
             }
         });
@@ -903,10 +940,16 @@ function CentreonListing(config) {
                 centreon_token: csrfToken
             },
             success: function (response) {
-                if (response.centreon_token) {
+                if (response && response.centreon_token) {
                     csrfToken = response.centreon_token;
                 }
                 toggle.disabled = false;
+                if (!response || response.success !== true) {
+                    // A 200 whose body is not a success is still a failure: without
+                    // this the switch stays flipped over an unchanged row.
+                    toggle.checked = !isChecked;
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
             },
             error: function (xhr, status, err) {
                 // Revert the optimistic switch and re-enable it (kept), but tell

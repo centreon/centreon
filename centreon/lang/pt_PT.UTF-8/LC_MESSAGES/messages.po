@@ -24028,3 +24028,63 @@ msgstr "O conetor foi guardado, mas a lista não pôde ser apresentada. Recarreg
 #: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
 msgid "Some connectors were left out: their duplication count is not a valid number."
 msgstr "Alguns conetores foram ignorados: o seu número de duplicações não é um número válido."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Delete %s"
+msgstr "Eliminar %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to delete the selected %s. This action cannot be undone. Do you want to continue?"
+msgstr "Está a eliminar os %s selecionados. Esta ação não pode ser anulada. Deseja continuar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Disable %s"
+msgstr "Desativar %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to disable the selected %s. Do you want to continue?"
+msgstr "Está a desativar os %s selecionados. Deseja continuar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Duplicate %s"
+msgstr "Duplicar %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to duplicate the selected %s. Do you want to continue?"
+msgstr "Está a duplicar os %s selecionados. Deseja continuar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You have unsaved changes. Are you sure you want to close this panel without saving?"
+msgstr "Tem alterações não guardadas. Deseja realmente fechar este painel sem guardar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Welcome to the %s page"
+msgstr "Bem-vindo à página %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You haven't configured any %s yet. Add your first one below and Centreon will start monitoring it right away."
+msgstr "Ainda não configurou nenhum %s. Adicione o primeiro abaixo e o Centreon começará a monitorizá-lo imediatamente."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Nothing configured yet. Add your first entry below to get started."
+msgstr "Ainda não há nada configurado. Adicione uma primeira entrada abaixo para começar."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Select"
+msgstr "Selecionar"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Error loading data"
+msgstr "Erro ao carregar os dados"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Could not change status"
+msgstr "Não foi possível alterar o estado"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Your session has expired — please reload the page."
+msgstr "A sua sessão expirou — recarregue a página."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The list is no longer refreshing — reload the page."
+msgstr "A lista já não é atualizada — recarregue a página."

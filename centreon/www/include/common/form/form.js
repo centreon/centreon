@@ -218,7 +218,7 @@ var CentreonForm = (function () {
 
     // =========================================================================
     //  ACCORDION SECTIONS
-    //  Collapsible sections with a header bar. Click to expand/collapse.
+    //  Collapsible sections with a header bar, operable by click or Enter/Space.
     // =========================================================================
 
     var autoDomId = 0;
@@ -301,10 +301,9 @@ var CentreonForm = (function () {
     // =========================================================================
 
     /**
-     * Initialize floating labels on all .cf-field inputs and textareas.
-     * - On page load: float labels for pre-filled inputs
-     * - On focus: float the label
-     * - On blur: un-float if the input is empty
+     * Float the label of every .cf-field control (inputs, textareas and selects)
+     * and tie it to that control, assigning an id when the control has none.
+     * Labels stay floated: they are never dropped back into the field.
      */
     function initFloatLabels() {
         // The templates render every field label with the .cf-label-float class,
@@ -330,6 +329,12 @@ var CentreonForm = (function () {
      */
     function bindLabel(label, input) {
         if (label.htmlFor || label.contains(input) || !LABELABLE_CONTROLS.test(input.type)) return;
+        // A select2 keeps the native select clipped to 1x1; pointing the label at it
+        // would forward activation to that hidden control instead of the widget.
+        if (input.classList.contains('select2-hidden-accessible')
+            || (input.parentElement && input.parentElement.querySelector('.select2-container'))) {
+            return;
+        }
         if (!input.id) {
             // Names are not unique on a page (repeated groups share one, and
             // multi-valued fields carry "[]"), so the id is checked before use.
@@ -768,7 +773,9 @@ var CentreonForm = (function () {
         if (form) {
             form.addEventListener('reset', function () {
                 setTimeout(function () {
-                    toggle.checked = radioOn.checked;
+                    // Same rule as the initial sync: a frozen form renders the
+                    // checked option as a persistent hidden input, never .checked.
+                    toggle.checked = radioOn.checked || radioOn.type === 'hidden';
                 }, 0);
             });
         }
