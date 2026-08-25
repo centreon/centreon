@@ -113,8 +113,8 @@ Then(
     // Wait until the 'Name' search field is visible in the DOM page
     cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
     // Click on the host to open its details. The modernized listing opens the
-    // form in a side panel, which is an iframe nested inside the page iframe —
-    // everything below therefore runs against that nested document.
+    // form in a side panel, which is an iframe nested inside the page iframe, so
+    // the form assertions below run against that nested document.
     cy.getIframeBody().contains('a', services.serviceOk.host).click();
     // Wait until the tab 'Host Extended Infos' is visible, then click it: the
     // section it points at ships collapsed and the anchor expands it.

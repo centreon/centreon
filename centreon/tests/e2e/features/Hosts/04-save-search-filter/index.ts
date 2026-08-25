@@ -36,7 +36,7 @@ Given('an admin user is logged in a Centreon server', () => {
 
 Given('a search on the host template listing', () => {
   // The modernized listing searches as you type — there is no submit button to
-  // click, and the term is what gets stored in the session.
+  // click, and the term is what gets persisted, in sessionStorage.
   cy.openHostTemplatesListing();
   cy.getIframeBody()
     .find(listingSelectors.searchInput)

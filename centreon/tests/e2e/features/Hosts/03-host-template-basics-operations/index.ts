@@ -133,7 +133,8 @@ When('the user changes the properties of the configured host template', () => {
     .clear()
     .type(hostTemplates.hostTemplate.retry_check_interval.toString());
 
-  // Yes/No/Default is a button group now, not a radio pair.
+  // Yes/No/Default is a button group now, driving the hidden radios the form
+  // still submits — hence clicking the button and asserting the radio.
   cy.getSidePanelBody().find(segmentedButton(activeChecksRadio, '1')).click();
 
   cy.getSidePanelBody().find(formSelectors.saveButton).first().click();

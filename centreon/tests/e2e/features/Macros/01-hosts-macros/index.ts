@@ -81,7 +81,7 @@ const waitForHostForm = (): void => {
  * click, so nothing is chained off a body that the ensuing refetch detaches.
  *
  * The click is then retried while the panel is still closed: the listing
- * auto-refreshes every 15s, so the anchor can be detached from under it, and a
+ * auto-refreshes on a timer, so the anchor can be detached from under it, and a
  * click that lands on nothing is silent.
  */
 const openRowForm = (name: string): void => {

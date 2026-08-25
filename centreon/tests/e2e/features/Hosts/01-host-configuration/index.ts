@@ -322,8 +322,9 @@ Then('only the hosts of that hostgroup are displayed', () => {
 
 When('the admin clears the advanced filters', () => {
   // Applying the filters dismisses the popover, so it has to be reopened to
-  // reach its Clear button. One clear-all button resets hostgroup, poller and
-  // template together — there is no per-filter clear control.
+  // reach its Clear button. That one button resets hostgroup, poller, template
+  // and status together; each field also has its own eraser, which re-runs the
+  // search without closing the panel.
   cy.getIframeBody().find(listingSelectors.advancedToggle).click();
   cy.getIframeBody().find(listingSelectors.advancedClear).click();
   waitForListingRefresh('@getHostListing');
@@ -373,8 +374,8 @@ Then('the host is enabled again', () => {
 Then('every host row shows the icon inherited from its template', () => {
   // The exact src, on every row: the resolver has to find the template's icon
   // and rebuild the path from dir_alias and img_path. When it resolves nothing
-  // the row renders its inline fallback <svg> instead, so accepting
-  // `img, svg` — as this step used to — passed even then.
+  // the row renders its inline fallback <svg>, so a selector accepting that
+  // fallback would pass even when the resolver returns nothing.
   listingHosts.forEach((host) => {
     getListingRow(host.name)
       .find('td')
@@ -387,21 +388,16 @@ Then('every host row shows the icon inherited from its template', () => {
 Then(
   'the monitoring column shows a tooltipped badge or the not-monitored placeholder',
   () => {
-    // These hosts are configured but never monitored, so centstorage has no
-    // row for them and the column renders its "-" placeholder. Accept both so
-    // the check holds whether or not the poller had time to report.
+    // These hosts are configured and never monitored, so centstorage holds no row
+    // for them and the column renders its "-" placeholder — deterministically, so
+    // this asserts exactly that. It does NOT cover the badge itself: proving the
+    // tooltip's contents needs a genuinely monitored host, which this scenario
+    // does not create.
+    //
+    // Third cell (picker, name, monitoring): the placeholder is scoped to that
+    // column, whereas a row-wide contain('-') is satisfied by the 'generic-host'
+    // every row of this suite carries in Templates.
     getListingRow(listingHosts[0].name).then(($row) => {
-      const badge = $row.find('.cl-mon-badge[data-cl-tooltip]');
-
-      if (badge.length > 0) {
-        expect(badge.attr('data-cl-tooltip')).to.contain('Status');
-
-        return;
-      }
-
-      // Third cell (picker, name, monitoring): the placeholder is scoped to
-      // that column, whereas a row-wide contain('-') is satisfied by the
-      // 'generic-host' every row of this suite carries in Templates.
       expect($row.find('td').eq(2).text().trim()).to.equal('-');
     });
   }

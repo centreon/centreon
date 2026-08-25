@@ -150,18 +150,32 @@ it('keeps one object of a batch from consuming another\'s inheritance', function
 });
 
 it('gives up on a chain deeper than the node cap', function (): void {
-    // A linear chain of 60 templates carrying the icon past the cap: the walk
-    // stops and the object silently keeps the default glyph, by design.
+    // A linear chain, each template carrying the next. The walk spends one step
+    // per node, so the assertions sit on the exact boundary: the last reachable
+    // node resolves, the one past it does not. A chain far beyond the cap would
+    // fail whatever the loop condition, and would let an off-by-one through.
     $relations = [];
-    for ($id = 10; $id < 70; $id++) {
+    for ($id = 10; $id < 80; $id++) {
         $relations[$id] = [$id + 1];
     }
 
-    expect(HostIconResolver::walk([10], iconsFrom([69 => 'far.png']), hostTemplatesFrom($relations)))
-        ->toBe([]);
-    // One node closer than the cap, the same chain resolves.
-    expect(HostIconResolver::walk([10], iconsFrom([58 => 'near.png']), hostTemplatesFrom($relations)))
-        ->toBe([10 => 'near.png']);
+    $lastReachable = 10 + 49;
+
+    expect(HostIconResolver::walk([10], iconsFrom([$lastReachable => 'last.png']), hostTemplatesFrom($relations)))
+        ->toBe([10 => 'last.png']);
+
+    $truncated = null;
+    expect(HostIconResolver::walk(
+        [10],
+        iconsFrom([$lastReachable + 1 => 'past.png']),
+        hostTemplatesFrom($relations),
+        $truncated
+    ))->toBe([]);
+
+    // Reported, not silently indistinguishable from "no icon anywhere in the
+    // chain": resolve() turns this into a warning, because only a cycle or
+    // abnormal data ever reaches the cap.
+    expect($truncated)->toBe([10]);
 });
 
 it('asks the icon source about a shared template only once', function (): void {

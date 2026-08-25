@@ -85,22 +85,20 @@ const segmentedRadio = (radioName: string, value: string): string =>
  * Wait for a listing fetch to land. The "Loading..." row is only re-rendered on
  * the very first fetch (listing.js gates it on firstLoad), so on any later one
  * its absence is satisfied instantly by the rows already on screen — the XHR is
- * the only reliable barrier. The row check is kept for the first load, where the
- * placeholder is server-rendered.
+ * the only reliable barrier, and the alias is therefore required. The row check
+ * is kept for the first load, where the placeholder is server-rendered.
  */
-const waitForListingRefresh = (alias?: string): void => {
-  if (alias) {
-    cy.wait(alias);
-  }
+const waitForListingRefresh = (alias: string): void => {
+  cy.wait(alias);
   cy.getIframeBody()
     .find(`${listingSelectors.tableBody} tr td`)
     .should('not.contain', 'Loading');
 };
 
 /**
- * Scoped to the name column on purpose: the templates column renders parent
- * template names as plain text, so an unscoped contains() would return the
- * first row *inheriting* from that name rather than the row itself.
+ * Scoped to the name column on purpose: the Templates column renders parent
+ * template names as links of their own, so an unscoped lookup can return the
+ * row *inheriting* from that name rather than the row itself.
  */
 const getListingRow = (name: string): Cypress.Chainable =>
   cy
@@ -109,7 +107,7 @@ const getListingRow = (name: string): Cypress.Chainable =>
     .contains(name)
     .parents('tr');
 
-const searchInListing = (term: string, alias?: string): void => {
+const searchInListing = (term: string, alias: string): void => {
   cy.getIframeBody().find(listingSelectors.searchInput).clear().type(term);
   waitForListingRefresh(alias);
 };
