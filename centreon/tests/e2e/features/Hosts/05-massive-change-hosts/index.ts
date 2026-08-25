@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
-import { formSections, formSelectors, listingSelectors } from '../common';
+import { formSections, formSelectors } from '../common';
 
 const hostNames = ['host2', 'host3', 'host4'];
 
@@ -65,9 +65,12 @@ Given('several hosts have been created with mandatory properties', () => {
 When('the user has applied "Mass Change" operation on several hosts', () => {
   cy.openHostsListing();
 
-  // Select every row through the header checkbox — its real input is hidden
-  // behind the md-checkbox label.
-  cy.getIframeBody().find(listingSelectors.checkAll).click({ force: true });
+  // Tick the fixture hosts one by one. The header checkbox ticks every row the
+  // table shows, so the platform's own hosts would be carried into the mass
+  // change and silently receive these values too.
+  hostNames.forEach((name) => {
+    cy.tickListingRow(name);
+  });
 
   // Mass Change carries the checked ids into the side panel; unlike Delete and
   // Duplicate it is not gated by a confirmation modal.
