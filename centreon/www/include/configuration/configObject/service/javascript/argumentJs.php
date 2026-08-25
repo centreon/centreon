@@ -30,32 +30,69 @@ var _svcId = '<?php echo isset($cmdId) ? $service_id : null; ?>';
 var _svcTplId = '<?php echo isset($cmdId) ? $serviceTplId : null; ?>';
 
 /**
- * Escapes a value for safe insertion as HTML text/attribute content.
- */
-function argEscapeHtml(value) {
-    var div = document.createElement('div');
-    div.textContent = value == null ? '' : value;
-    return div.innerHTML;
-}
-
-/**
  * Builds one .cf-field row for a single command argument, matching the
  * Host form's check-command-args pattern: floating label, and — when the
  * command defines an example value — an arrow that copies it into the
  * real field next to a disabled preview.
+ *
+ * Built through the DOM rather than by concatenating HTML: every value here
+ * (argument value, macro name, macro description, command example) is user
+ * supplied and reaches an attribute position. Assigning them with
+ * setAttribute/textContent leaves no parsing context for them to escape from,
+ * which string building cannot guarantee — the example arrow in particular
+ * used to interpolate the macro name inside a JS string literal in an inline
+ * onclick, where HTML escaping alone would not have been enough.
  */
-function renderArgumentRow(arg) {
+function renderArgumentRow(arg)
+{
     var hasExample = arg.example !== '' && !arg.disabled;
-    var html = '<div class="cf-row"><div class="cf-field" style="max-width:60%;">'
-        + '<input type="text" placeholder="&nbsp;" value="' + argEscapeHtml(arg.value) + '" name="' + argEscapeHtml(arg.name) + '"'
-        + (arg.disabled ? ' disabled' : '') + '>'
-        + '<label class="cf-label-float">' + argEscapeHtml(arg.description) + '</label>';
-    if (hasExample) {
-        html += '<img src="./img/icons/arrow-left.png" class="ico-14" style="cursor:pointer;margin:0 6px;vertical-align:middle;order:10;" onclick="set_arg(\'example_' + arg.name + '\',\'' + arg.name + '\');">'
-            + '<input type="text" disabled value="' + argEscapeHtml(arg.example) + '" name="example_' + arg.name + '" style="order:11;flex:0 0 140px;">';
+    var name = arg.name == null ? '' : String(arg.name);
+
+    var row = document.createElement('div');
+    row.className = 'cf-row';
+
+    var field = document.createElement('div');
+    field.className = 'cf-field';
+    field.style.maxWidth = '60%';
+    row.appendChild(field);
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '\u00a0';
+    input.value = arg.value == null ? '' : arg.value;
+    input.name = name;
+    if (arg.disabled) {
+        input.disabled = true;
     }
-    html += '</div></div>';
-    return html;
+    field.appendChild(input);
+
+    var label = document.createElement('label');
+    label.className = 'cf-label-float';
+    label.textContent = arg.description == null ? '' : arg.description;
+    field.appendChild(label);
+
+    if (hasExample) {
+        var exampleName = 'example_' + name;
+
+        var arrow = document.createElement('img');
+        arrow.src = './img/icons/arrow-left.png';
+        arrow.className = 'ico-14';
+        arrow.style.cssText = 'cursor:pointer;margin:0 6px;vertical-align:middle;order:10;';
+        arrow.addEventListener('click', function () {
+            set_arg(exampleName, name);
+        });
+        field.appendChild(arrow);
+
+        var example = document.createElement('input');
+        example.type = 'text';
+        example.disabled = true;
+        example.value = arg.example;
+        example.name = exampleName;
+        example.style.cssText = 'order:11;flex:0 0 140px;';
+        field.appendChild(example);
+    }
+
+    return row;
 }
 
 /**
