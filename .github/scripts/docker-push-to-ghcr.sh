@@ -19,12 +19,34 @@
 # registries choke on committing a manifest that includes that attestation
 # subject). Harbor keeps full provenance; only the ghcr.io copy omits it.
 #
+# MON-207622: that Harbor attestation manifest is BuildKit's default,
+# unsigned in-toto provenance — it has no Sigstore/Fulcio/Rekor trust chain,
+# so `gh attestation verify`/`cosign verify-attestation` (which only validate
+# GitHub-native, Sigstore-signed attestations) could never verify it even if
+# it were copied across registries. Decision: leave the exclusion above
+# untouched, and instead generate fresh, GitHub-native provenance + SBOM
+# attestations against the ghcr.io digest after promotion (see the caller
+# composite action `attest-ghcr-image`). To make that possible, this script
+# also resolves and emits the promoted manifest-list digest (and the amd64
+# platform digest, since an SBOM must target a single-platform manifest, not
+# a multi-arch index) as step outputs — resolved from the ghcr.io side after
+# publish, not assumed from Harbor, since imagetools create's cross-registry
+# digest preservation is a property to verify, not to bet delivery on.
+# Resolution failures here are non-fatal (a warning, no outputs): they would
+# only skip attestation, never turn a successful publish into a reported
+# failure — that distinction is what the caller's attest-ghcr-image step and
+# its separate warning message rely on.
+#
 # Expected env vars:
 #   GHCR_IMAGE   destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)
 #   HARBOR_IMAGE source image ref on Harbor, no tag
 #   HARBOR_TAG   source tag on Harbor to promote (e.g. release-26.10-next)
 #   GHCR_TAGS    space-separated list of tags to create on ghcr.io (e.g. "26.10.5 26.10")
 #   PLATFORMS    comma-separated platform list, informational only (e.g. linux/amd64,linux/arm64)
+#
+# Outputs (written to $GITHUB_OUTPUT, best-effort — may be absent):
+#   digest       digest of the promoted ghcr.io manifest list (identical across all GHCR_TAGS)
+#   amd64_digest digest of the amd64 platform manifest, for SBOM scanning
 set -euo pipefail
 
 if [[ -z "${GHCR_TAGS// /}" ]]; then
@@ -69,6 +91,36 @@ for tag in $GHCR_TAGS; do
   echo "Publishing $GHCR_IMAGE:$tag from $SRC_REF (${#SRC_REFS[@]} platform manifest(s))"
   retry_imagetools_create "$GHCR_IMAGE:$tag" "${SRC_REFS[@]}"
 done
+echo "::endgroup::"
+
+echo "::group::Resolve promoted digest (for attestation, best-effort)"
+GHCR_DIGEST=""
+AMD64_DIGEST=""
+DIGEST_RESOLUTION_OK=true
+for tag in $GHCR_TAGS; do
+  [[ -z "$tag" ]] && continue
+  if ! DEST_MANIFEST=$(docker buildx imagetools inspect "$GHCR_IMAGE:$tag" --format '{{json .Manifest}}'); then
+    echo "::warning::Could not inspect $GHCR_IMAGE:$tag after publish — skipping attestation for this promote run (image is still published)"
+    DIGEST_RESOLUTION_OK=false
+    break
+  fi
+  tag_digest=$(echo "$DEST_MANIFEST" | jq -r '.digest')
+  if [[ -z "$GHCR_DIGEST" ]]; then
+    GHCR_DIGEST="$tag_digest"
+    AMD64_DIGEST=$(echo "$DEST_MANIFEST" | jq -r '.manifests[]? | select(.platform.architecture == "amd64") | .digest' | head -n1)
+  elif [[ "$tag_digest" != "$GHCR_DIGEST" ]]; then
+    echo "::warning::Published tags resolved to different digests ($GHCR_DIGEST vs $tag_digest for tag $tag) — skipping attestation for this promote run (ambiguous subject, image is still published)"
+    DIGEST_RESOLUTION_OK=false
+    break
+  fi
+done
+if [[ "$DIGEST_RESOLUTION_OK" == true && "$GHCR_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && -n "$AMD64_DIGEST" ]]; then
+  echo "Resolved digest: $GHCR_DIGEST (amd64 platform digest for SBOM: $AMD64_DIGEST)"
+  echo "digest=$GHCR_DIGEST" >> "$GITHUB_OUTPUT"
+  echo "amd64_digest=$AMD64_DIGEST" >> "$GITHUB_OUTPUT"
+else
+  echo "::warning::Could not resolve a usable digest/amd64_digest for $GHCR_IMAGE — attestation step will be skipped for this promote run (image is still published)"
+fi
 echo "::endgroup::"
 
 echo "ghcr.io stable promote complete: $GHCR_IMAGE ($GHCR_TAGS)"

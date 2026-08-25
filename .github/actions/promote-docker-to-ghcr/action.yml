@@ -30,6 +30,14 @@ inputs:
     required: false
     default: "linux/amd64,linux/arm64"
 
+outputs:
+  digest:
+    description: "Digest of the promoted ghcr.io manifest list (identical across all ghcr_tags)"
+    value: ${{ steps.promote.outputs.digest }}
+  amd64_digest:
+    description: "Digest of the amd64 platform manifest, for SBOM scanning (MON-207622)"
+    value: ${{ steps.promote.outputs.amd64_digest }}
+
 runs:
   using: "composite"
   steps:
@@ -45,6 +53,7 @@ runs:
         fi
 
     - name: Promote Harbor candidate to ghcr.io
+      id: promote
       shell: bash
       env:
         GHCR_IMAGE: ${{ inputs.ghcr_image }}

@@ -1992,6 +1992,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
@@ -2043,4 +2045,26 @@ jobs:
         if: steps.promote-ghcr.outcome == 'failure'
         run: |
           echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }}. This release is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io stable' step for the missing-candidate or push error, and investigate before relying on public delivery for this version."
+        shell: bash
+
+      - name: Attest provenance + SBOM on ghcr.io (best-effort, non-blocking)
+        # MON-207622: generates GitHub-native, Sigstore-signed provenance and
+        # SBOM attestations against the image just promoted above. Only runs
+        # when the promote step actually succeeded. continue-on-error keeps
+        # an attestation-side failure from blocking the release — the image
+        # is already live on ghcr.io either way; the warning below is worded
+        # distinctly from the "was NOT published" one above.
+        if: steps.promote-ghcr.outcome == 'success' && steps.promote-ghcr.outputs.digest != ''
+        continue-on-error: true
+        id: attest-ghcr
+        uses: ./.github/actions/attest-ghcr-image
+        with:
+          ghcr_image: ghcr.io/centreon/${{ matrix.component }}
+          digest: ${{ steps.promote-ghcr.outputs.digest }}
+          amd64_digest: ${{ steps.promote-ghcr.outputs.amd64_digest }}
+
+      - name: Warn if ghcr.io attestation failed
+        if: steps.attest-ghcr.outcome == 'failure'
+        run: |
+          echo "::warning::Provenance/SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested — see the 'Attest provenance + SBOM on ghcr.io' step and investigate before relying on gh attestation verify for this version."
         shell: bash
