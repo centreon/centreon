@@ -47,6 +47,15 @@ final readonly class CentralAddress
 
     public string $value;
 
+    /** Authority host with the port stripped: hostname, IPv4, or unbracketed IPv6. */
+    public string $host;
+
+    /** Web port when the address carries one, null otherwise. Never a protocol port such as the broker's. */
+    public ?int $port;
+
+    /** Base path without surrounding slashes ("platform", "base/path"), null when the address has none. */
+    public ?string $basePath;
+
     public function __construct(string $value)
     {
         $normalized = rtrim(trim($value), '/');
@@ -56,7 +65,7 @@ final readonly class CentralAddress
         $authority = $slashPosition === false ? $normalized : mb_substr($normalized, 0, $slashPosition);
         $basePath = $slashPosition === false ? null : mb_substr($normalized, $slashPosition + 1);
 
-        $this->assertAuthority($authority);
+        [$this->host, $this->port] = $this->parseAuthority($authority);
         if ($basePath !== null) {
             Assert::regex(
                 $basePath,
@@ -71,28 +80,42 @@ final readonly class CentralAddress
             );
         }
 
+        $this->basePath = $basePath;
         $this->value = $normalized;
     }
 
-    private function assertAuthority(string $authority): void
+    /**
+     * Validate the authority and split it into host + optional port.
+     *
+     * The parts are kept rather than discarded because consumers that reach the central over a
+     * protocol other than HTTP (the broker output, which dials its own port) need the bare host.
+     * They cannot re-derive it with parse_url(): on a scheme-less value it reports no host at all
+     * unless a port happens to be present.
+     *
+     * @return array{0: string, 1: int|null}
+     */
+    private function parseAuthority(string $authority): array
     {
         // A bare IP address (IPv4, or IPv6 whose colons would confuse port detection).
         if (filter_var($authority, FILTER_VALIDATE_IP) !== false) {
-            return;
+            return [$authority, null];
         }
 
         if (preg_match(self::HOST_PORT_PATTERN, $authority, $matches) === 1) {
+            $port = (int) $matches['port'];
             Assert::range(
-                (int) $matches['port'],
+                $port,
                 1,
                 65535,
                 sprintf('[CentralAddress::value] The port in "%s" is out of range', $authority)
             );
             CentreonAssert::ipOrHostname($matches['host'], 'CentralAddress::value');
 
-            return;
+            return [$matches['host'], $port];
         }
 
         CentreonAssert::ipOrHostname($authority, 'CentralAddress::value');
+
+        return [$authority, null];
     }
 }
