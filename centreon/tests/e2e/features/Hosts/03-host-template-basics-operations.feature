@@ -18,9 +18,10 @@ Feature: HostTemplateBasicsOperations
     Then a new host template is created with identical properties
 
   Scenario: Duplicating a host template does not multiply its service template links
-    Given the configured host template carries a service template
-    When the user duplicates the configured host template twice
-    Then the source and both copies link the service template exactly once
+    Given a second host template is configured
+    And both host templates carry the same service template
+    When the user duplicates the configured host template
+    Then the copy links the service template exactly once
 
   @MON-151109
   Scenario: Deletion of a host template

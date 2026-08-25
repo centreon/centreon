@@ -26,12 +26,15 @@ const massChangedRetryInterval = '3';
 // duplication path only misbehaves once the source template carries one.
 const serviceTemplateName = 'host-template-service';
 
-const linkServiceTemplate = (hostTemplateName: string): void => {
+const createServiceTemplate = (): void => {
   cy.requestOnDatabase({
     database: 'centreon',
     query: `INSERT INTO service (service_description, service_register, service_activate)
             VALUES ('${serviceTemplateName}', '0', '1')`
   });
+};
+
+const linkServiceTemplate = (hostTemplateName: string): void => {
   cy.requestOnDatabase({
     database: 'centreon',
     query: `INSERT INTO host_service_relation
@@ -238,33 +241,23 @@ Then('the properties are updated', () => {
     .should('be.checked');
 });
 
-Given('the configured host template carries a service template', () => {
+// Sharing the service template between two objects up front is what arms the
+// defect: the copy then used to earn a relation from the shared-service branch
+// on top of the one the template branch makes. Duplicating the source twice
+// would arm it too, but the second pass cannot name its target — the listing
+// holds the copy by then, and a name lookup matches it on the shared prefix.
+Given('both host templates carry the same service template', () => {
+  createServiceTemplate();
   linkServiceTemplate(hostTemplates.defaultHostTemplate.name);
+  linkServiceTemplate(secondTemplateName);
 });
 
-When('the user duplicates the configured host template twice', () => {
+Then('the copy links the service template exactly once', () => {
   const sourceName = hostTemplates.defaultHostTemplate.name;
 
-  // The second copy is the one that exposes the defect: by then the service
-  // template is shared with the first copy, which used to earn it a relation
-  // from the shared-service branch on top of the one the template branch makes.
-  [1, 2].forEach(() => {
-    cy.openHostTemplatesListing();
-    cy.runListingBulkAction(sourceName, 'Duplicate', 'Duplicate');
-    cy.wait('@getTimeZone');
-  });
+  expectServiceTemplateLinks(`${sourceName}_1`, 1);
+  expectServiceTemplateLinks(sourceName, 1);
 });
-
-Then(
-  'the source and both copies link the service template exactly once',
-  () => {
-    const sourceName = hostTemplates.defaultHostTemplate.name;
-
-    [sourceName, `${sourceName}_1`, `${sourceName}_2`].forEach((name) => {
-      expectServiceTemplateLinks(name, 1);
-    });
-  }
-);
 
 When('the user duplicates the configured host template', () => {
   cy.openHostTemplatesListing();
