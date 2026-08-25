@@ -19,45 +19,74 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-$searchCond = '';
-$searchParams = [];
+$conditions = [];
+$parameters = [];
+
 if ($search !== '') {
-    $searchCond = 'WHERE (esc_name LIKE :search OR esc_alias LIKE :search) ';
-    $searchParams[':search'] = '%' . $search . '%';
+    $conditions[] = '(esc.esc_name LIKE :search OR esc.esc_alias LIKE :search)';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS esc_id, esc_name, esc_alias'
-    . ' FROM escalation ' . $searchCond
-    . ' ORDER BY esc_name LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
+$whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);
+
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM escalation esc
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT esc.esc_id, esc.esc_name, esc.esc_alias
+    FROM escalation esc
+    {$whereClause}
+    ORDER BY esc.esc_name
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $escalations = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
+    );
+
+    $rows = [];
+    foreach ($escalations as $escalation) {
+        $rows[] = [
+            'id'    => (int) $escalation['esc_id'],
+            'name'  => $escalation['esc_name'],
+            'alias' => $escalation['esc_alias'],
+        ];
+    }
+
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch escalations',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
 }
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
-
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-$rows = [];
-while ($esc = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'    => (int) $esc['esc_id'],
-        'name'  => $esc['esc_name'],
-        'alias' => $esc['esc_alias'],
-    ];
-}
-
-$helper->jsonResponse($rows, $total, $num, $limit);

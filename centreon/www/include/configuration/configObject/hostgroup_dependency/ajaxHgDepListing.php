@@ -19,47 +19,110 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
-$params   = $helper->getParams();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
+$params = $helper->getParams();
 
 $search = $params['search'];
 $num    = $params['num'];
 $limit  = $params['limit'];
 
-$searchCond = '';
-$searchParams = [];
+$conditions = [];
+$parameters = [];
+$aclClause  = '';
+
 if ($search !== '') {
-    $searchCond = 'AND (d.dep_name LIKE :search OR d.dep_description LIKE :search) ';
-    $searchParams[':search'] = '%' . $search . '%';
+    $conditions[] = '(dep.dep_name LIKE :search OR dep.dep_description LIKE :search)';
+    $parameters[] = QueryParameter::string('search', '%' . $search . '%');
 }
 
-$statement = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS d.dep_id, d.dep_name, d.dep_description'
-    . ' FROM dependency d'
-    . ' INNER JOIN dependency_hostgroupParent_relation rel ON rel.dependency_dep_id = d.dep_id'
-    . ' WHERE 1=1 ' . $searchCond
-    . ' GROUP BY d.dep_id ORDER BY d.dep_name LIMIT :offset, :limit'
-);
-foreach ($searchParams as $key => $val) {
-    $statement->bindValue($key, $val, PDO::PARAM_STR);
-}
-$statement->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
+// ACL filtering: a non-admin only sees dependencies built on the host groups it is granted.
+if (! $helper->isAdmin()) {
+    $acl    = $helper->getAcl();
+    $aclIds = $acl !== null
+        ? array_values(array_filter(array_map('intval', array_keys($acl->getHostGroups()))))
+        : [];
 
-$total = (int) $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+    if ($aclIds === []) {
+        $helper->jsonResponse([], 0, $num, $limit);
+    }
 
-$rows = [];
-while ($dep = $statement->fetch(PDO::FETCH_ASSOC)) {
-    $rows[] = [
-        'id'   => (int) $dep['dep_id'],
-        'name' => $dep['dep_name'],
-        'desc' => $dep['dep_description'],
-    ];
+    $aclPlaceholders = [];
+    foreach ($aclIds as $index => $aclId) {
+        $placeholder       = 'acl_hg' . $index;
+        $aclPlaceholders[] = ':' . $placeholder;
+        $parameters[]      = QueryParameter::int($placeholder, $aclId);
+    }
+
+    $aclClause = ' AND rel.hostgroup_hg_id IN (' . implode(', ', $aclPlaceholders) . ')';
 }
 
-$helper->jsonResponse($rows, $total, $num, $limit);
+// A dependency shows up as soon as it references a granted host group on either side.
+$conditions[] = <<<SQL
+    (
+        EXISTS (
+            SELECT 1 FROM dependency_hostgroupParent_relation rel
+            WHERE rel.dependency_dep_id = dep.dep_id{$aclClause}
+        )
+        OR EXISTS (
+            SELECT 1 FROM dependency_hostgroupChild_relation rel
+            WHERE rel.dependency_dep_id = dep.dep_id{$aclClause}
+        )
+    )
+    SQL;
+
+$whereClause = 'WHERE ' . implode(' AND ', $conditions);
+
+$countQuery = <<<SQL
+    SELECT COUNT(*) AS total
+    FROM dependency dep
+    {$whereClause}
+    SQL;
+
+$dataQuery = <<<SQL
+    SELECT dep.dep_id, dep.dep_name, dep.dep_description
+    FROM dependency dep
+    {$whereClause}
+    ORDER BY dep.dep_name, dep.dep_description
+    LIMIT :offset, :limit
+    SQL;
+
+try {
+    $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
+
+    $dependencies = $pearDB->fetchAllAssociative(
+        $dataQuery,
+        QueryParameters::create([
+            ...$parameters,
+            QueryParameter::int('offset', $num * $limit),
+            QueryParameter::int('limit', $limit),
+        ])
+    );
+
+    $rows = [];
+    foreach ($dependencies as $dependency) {
+        $rows[] = [
+            'id'   => (int) $dependency['dep_id'],
+            'name' => $dependency['dep_name'],
+            'desc' => $dependency['dep_description'],
+        ];
+    }
+
+    $helper->jsonResponse($rows, $total, $num, $limit);
+} catch (Throwable $exception) {
+    Logger::create(LogChannelEnum::WEB)->error(
+        'AJAX listing: failed to fetch host group dependencies',
+        ['exception' => $exception]
+    );
+    AjaxListingHelper::jsonError('Internal error', 500);
+}
