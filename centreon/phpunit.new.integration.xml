@@ -9,6 +9,7 @@
     <ini name="display_errors" value="1"/>
     <ini name="error_reporting" value="-1"/>
     <const name="INTEGRATION_BOOTSTRAP" value="true"/>
+    <const name="_CENTREON_LOG_" value="/tmp/centreon-test-logs/"/>
     <server name="APP_ENV" value="test" force="true"/>
     <server name="KERNEL_CLASS" value="App\Shared\Infrastructure\Symfony\Kernel"/>
     <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0&amp;quiet[]=indirect&amp;quiet[]=other"/>

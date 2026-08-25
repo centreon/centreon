@@ -25,7 +25,7 @@ namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
 use Webmozart\Assert\Assert;
 
-final readonly class BrokerConfiguration
+final readonly class BrokerInformation
 {
     public const DEFAULT_RELOAD_COMMAND = 'systemctl reload cbd';
     public const DEFAULT_CONFIGURATION_PATH = '/etc/centreon-broker';

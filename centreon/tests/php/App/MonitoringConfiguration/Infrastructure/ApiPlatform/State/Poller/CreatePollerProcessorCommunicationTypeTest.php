@@ -26,7 +26,7 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Pol
 use ApiPlatform\Metadata\Post;
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -114,7 +114,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineInformation: new EngineInformation(),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
