@@ -1558,6 +1558,26 @@
 .cl-status-pending { color: var(--color-pending, #1EBEB3); }
 
 /* ==========================================================================
+   Name cell: object icon followed by its label.
+
+   Both stay inline so the cell keeps its own text-overflow:ellipsis on long
+   names — an inline-flex link would be an atomic box the ellipsis cannot
+   reach. Which is why they are centred against each other with a shared
+   vertical-align instead: on the icon alone it lines the icon up with the
+   parent's x-height, an axis that sits above the middle of the text, and the
+   icon then rides visibly high.
+   ========================================================================== */
+
+.cl-name-icon {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.cl-name-label {
+    vertical-align: middle;
+}
+
+/* ==========================================================================
    Object icons (host.svg, service.svg, ...): loaded via <img>, so they carry
    their own flat-black fill that color/currentColor can't override — a
    filter is the only theme-aware lever available.
