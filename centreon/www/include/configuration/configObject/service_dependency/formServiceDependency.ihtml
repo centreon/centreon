@@ -1,76 +1,133 @@
-</script>
 {$form.javascript}
-<form {$form.attributes}>
-<div id="validFormTop">
-{if $o == "a" || $o == "c"}
-	<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-{else if $o == "w"}
-	<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-{/if}
-</div>
-<div id='tab1' class="tab">
-	 <table class="formTable table">
-	 	<tr class="ListHeader">
-          <td class="FormHeader" colspan="2">
-            <h3>| {$form.header.title}</h3>
-          </td>
-        </tr>
-	 	<tr class="list_lvl_1">
-          <td class="ListColLvl1_name" colspan="2">
-            <h4>{$form.header.information}</h4>
-          </td>
-        </tr>
 
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="name"> {$form.dep_name.label}</td><td class="FormRowValue">{$form.dep_name.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="description"> {$form.dep_description.label}</td><td class="FormRowValue">{$form.dep_description.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="inherits_parent"> {$form.inherits_parent.label}</td><td class="FormRowValue">{$form.inherits_parent.html}</td></tr>
-		<tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="execution_failure_criteria"> {$form.execution_failure_criteria.label}</td><td class="FormRowValue">{$form.execution_failure_criteria.html}</td></tr>
-		<tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="notification_failure_criteria"> {$form.notification_failure_criteria.label}</td><td class="FormRowValue">{$form.notification_failure_criteria.html}</td></tr>		
-		<tr class="list_two">
-			<td class="FormRowField"><img class="helpTooltip" name="service_description"> {$form.dep_hSvPar.label}</td>
-			<td class="FormRowValue">
-				{if isset($form.host_filterParent)}
-					{$form.host_filterParent.html}
-				{/if}
-				{$form.dep_hSvPar.html}
-			</td>
-		</tr>
-		<tr class="list_one">
-			<td class="FormRowField"><img class="helpTooltip" name="dependent_service_description"> {$form.dep_hSvChi.label}</td>
-			<td class="FormRowValue">
-				{if isset($form.host_filterChild)}
-					{$form.host_filterChild.html}
-				{/if}
-				{$form.dep_hSvChi.html}
-			</td>
-		</tr>
-		<tr class="list_two">
-			<td class="FormRowField"><img class="helpTooltip" name="dep_hHostChi"> {$form.dep_hHostChi.label}</td>
-			<td class="FormRowValue">{$form.dep_hHostChi.html}</td>
-		</tr>
-		<tr class="list_one"><td class="FormRowField">{$form.dep_comment.label}</td><td class="FormRowValue">{$form.dep_comment.html}</td></tr>
-	</table>
+<form {$form.attributes}>
+<div class="cf-form-wrapper">
+
+    <h1 class="cf-page-title">{$form.header.title}</h1>
+
+    <div class="cf-tab-nav">
+        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$form.header.information}</a>
+        <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{t}Relations{/t}</a>
+        <a href="#cf-sec-misc" onclick="cfScrollTo('cf-sec-misc', this); return false;">{t}Misc{/t}</a>
+    </div>
+
+    <!-- Section: Configuration -->
+    <div class="cf-section" id="cf-sec-info">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {$form.header.information}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row-inline">
+                <div class="cf-field" style="max-width:240px;">
+                    {$form.dep_name.html}
+                    <label class="cf-label-float">{$form.dep_name.label}</label>
+                    <img class="helpTooltip" name="name">
+                </div>
+                <div class="cf-field" style="flex:2;">
+                    {$form.dep_description.html}
+                    <label class="cf-label-float">{$form.dep_description.label}</label>
+                    <img class="helpTooltip" name="description">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.inherits_parent.html}
+                    <label class="cf-label-float">{$form.inherits_parent.label}</label>
+                    <img class="helpTooltip" name="inherits_parent">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.execution_failure_criteria.html}
+                    <label class="cf-label-float">{$form.execution_failure_criteria.label}</label>
+                    <img class="helpTooltip" name="execution_failure_criteria">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.notification_failure_criteria.html}
+                    <label class="cf-label-float">{$form.notification_failure_criteria.label}</label>
+                    <img class="helpTooltip" name="notification_failure_criteria">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Relations -->
+    <div class="cf-section" id="cf-sec-relations">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Relations{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {if isset($form.host_filterParent)}{$form.host_filterParent.html}{/if}
+                    {$form.dep_hSvPar.html}
+                    <label class="cf-label-float">{$form.dep_hSvPar.label}</label>
+                    <img class="helpTooltip" name="service_description">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {if isset($form.host_filterChild)}{$form.host_filterChild.html}{/if}
+                    {$form.dep_hSvChi.html}
+                    <label class="cf-label-float">{$form.dep_hSvChi.label}</label>
+                    <img class="helpTooltip" name="dependent_service_description">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.dep_hHostChi.html}
+                    <label class="cf-label-float">{$form.dep_hHostChi.label}</label>
+                    <img class="helpTooltip" name="dep_hHostChi">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Misc -->
+    <div class="cf-section" id="cf-sec-misc">
+        <div class="cf-section-header" onclick="cfToggleSection(this)">
+            {t}Misc{/t}
+            <span class="cf-section-chevron">&#9660;</span>
+        </div>
+        <div class="cf-section-body">
+            <div class="cf-row">
+                <div class="cf-field">
+                    {$form.dep_comment.html}
+                    <label class="cf-label-float">{$form.dep_comment.label}</label>
+                    <img class="helpTooltip" name="comment">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if $o == "a" || $o == "c"}
+            {$form.reset.html}
+            {if isset($form.submitC)}
+                {$form.submitC.html}
+            {else}
+                {$form.submitA.html}
+            {/if}
+        {else if $o == "w"}
+            {if isset($form.change)}{$form.change.html}{/if}
+        {/if}
+    </div>
+
 </div>
-<div id="validForm">
-	{if $o == "a" || $o == "c"}
-		<p class="oreonbutton">
-			{if isset($form.submitC)}
-				{$form.submitC.html}
-			{else}
-				{$form.submitA.html}
-			{/if}
-			&nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
-	{else if $o == "w"}
-		<p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
-	{/if}
-</div>
+
 {$form.hidden}
 </form>
 {$helptext}
 
+{literal}
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    CentreonForm.initFormPage();
+});
+</script>
+{/literal}
