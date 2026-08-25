@@ -7,10 +7,10 @@ source "$(dirname "$0")/../../scripts/pulp/manifest.sh"
 source "$(dirname "$0")/../../scripts/pulp/api.sh"
 
 # an unset org variable is forwarded as an empty string, overriding the default
-PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
-PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
-# testing and stable repositories live in different Pulp Domains; PULP_DOMAIN
-# covers the read phase, switch_pulp_domain moves to PULP_STABLE_DOMAIN for the write phase
+PULP_URL="${PULP_URL:-https://pulp-api.int.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.int.centreon.com}"
+# stable shares its Domain with testing since the domain merge (PULP_STABLE_DOMAIN
+# now equals PULP_DOMAIN); the read/write phase switch is kept as a no-op
 PULP_DOMAIN="${PULP_DOMAIN:-default}"
 PULP_STABLE_DOMAIN="${PULP_STABLE_DOMAIN:-default}"
 # switch_pulp_domain overwrites PULP_DOMAIN itself once the write phase
@@ -42,7 +42,7 @@ suite_sha_file() {
   local base_path=$1 suite=$2 out release_file arches arch pkg_file rc
   out=$(mktemp)
   release_file=$(mktemp)
-  fetch_index "$PULP_CONTENT_URL/$PULP_DOMAIN/$base_path/dists/$suite/Release" "$release_file" && rc=0 || rc=$?
+  fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" "$release_file" && rc=0 || rc=$?
   if [[ $rc -eq 2 ]]; then
     echo "$out"
     return 0
@@ -53,7 +53,7 @@ suite_sha_file() {
   arches=$(awk -F': ' '/^Architectures:/ {print $2}' "$release_file")
   for arch in $arches; do
     pkg_file=$(mktemp)
-    if ! fetch_index "$PULP_CONTENT_URL/$PULP_DOMAIN/$base_path/dists/$suite/main/binary-$arch/Packages" "$pkg_file"; then
+    if ! fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$arch/Packages" "$pkg_file"; then
       echo "::error::Cannot fetch the $suite binary-$arch Packages index; refusing to promote from a partial view." >&2
       return 1
     fi
@@ -70,17 +70,17 @@ suite_sha_file() {
 download_testing_package() {
   local sha256=$1 arch=$2 dest=$3 filename
   filename=$(
-    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
+    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
       awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }'
   )
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
     return 1
   fi
-  content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/$filename"
+  content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/$filename"
 }
 
-TESTING_SHAS_FILE=$(suite_sha_file "$BASE_PATH" "$TESTING_SUITE")
+TESTING_SHAS_FILE=$(suite_sha_file "${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}" "$TESTING_SUITE")
 
 # paginated: the repository keeps every delivered version across all suites,
 # so the module listing can exceed a single page
@@ -181,40 +181,6 @@ lookup_deb_content() {
   done
 }
 
-# wait for a content-create task and emit its created content href; fall
-# back to a lookup (content already existing on a job re-run)
-resolve_task_content() {
-  local task_href=$1 endpoint=$2 fallback_query=$3
-  local body state content attempt
-  for ((attempt = 0; attempt < 200; attempt++)); do
-    refresh_pulp_token
-    body=$(curl -fsSL -H "Authorization: Bearer $PULP_TOKEN" "$PULP_URL$task_href" 2>/dev/null) || body=""
-    state=$(echo "$body" | jq -r '.state' 2>/dev/null) || state=""
-    case "$state" in
-      completed)
-        content=$(echo "$body" | jq -r '.created_resources[0] // empty')
-        if [[ -n "$content" ]]; then
-          echo "$content"
-          return 0
-        fi
-        break
-        ;;
-      failed | canceled)
-        break
-        ;;
-      *)
-        sleep 3
-        ;;
-    esac
-  done
-  content=$(lookup_deb_content "$endpoint" "$fallback_query")
-  if [[ -z "$content" ]]; then
-    echo "::error::Cannot resolve the created deb content for task $task_href" >&2
-    return 1
-  fi
-  echo "$content"
-}
-
 # emit the release-component hrefs a package is associated with
 lookup_prcs() {
   local package_href=$1
@@ -240,21 +206,22 @@ if ((${#UNPROMOTED_HREFS[@]} == 0)); then
   echo "[INFO] All $PACKAGES_COUNT package(s) are already promoted to $STABLE_SUITE; republishing only"
   while read -r PACKAGE; do
     manifest_add "$(echo "$PACKAGE" | jq -c \
-      --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+      --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" \
       --arg suite "$STABLE_SUITE" \
       '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
   done < <(echo "$PACKAGES" | jq -c '.[]')
   create_publication deb "$STABLE_REPOSITORY_NAME" --structured
-  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}/ $STABLE_SUITE main"
   manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
   exit 0
 fi
 
-# batched promote, mirroring the batched delivery: Pulp Domains share no
-# content across domains, so promoting means re-downloading each package from
-# testing's published distribution and re-uploading it into the stable domain
-# (see deliver-deb.sh for why the FIRST package of each arch goes through the
-# legacy path to establish the release component).
+# batched promote, mirroring the batched delivery. Testing and stable share
+# their domain (and content) since the domain merge: the batch below associates
+# the testing package hrefs directly, no re-download/re-upload. Only the FIRST
+# package of each arch goes through the legacy upload path, to establish the
+# release component and deduce its href (see deliver-deb.sh; listing release
+# components requires admin rights).
 declare -A ARCH_SEEN=()
 LEGACY_PACKAGES=()
 BATCH_PACKAGES=()
@@ -342,7 +309,7 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
     # publication: republish and re-check every candidate before giving up
     echo "[WARN] Cannot deduce the $STABLE_SUITE/main release component (got: ${STABLE_RC_SET:-none}); republishing to check for an interrupted promotion"
     create_publication deb "$STABLE_REPOSITORY_NAME" --structured
-    RECHECK_SHAS_FILE=$(suite_sha_file "$STABLE_BASE_PATH" "$STABLE_SUITE")
+    RECHECK_SHAS_FILE=$(suite_sha_file "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" "$STABLE_SUITE")
     MISSING_COUNT=0
     while read -r sha; do
       grep -qxF "$sha" "$RECHECK_SHAS_FILE" || MISSING_COUNT=$((MISSING_COUNT + 1))
@@ -352,11 +319,11 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
       echo "[INFO] Every candidate package is published in $STABLE_SUITE; the interrupted promotion only missed the publication"
       while read -r PACKAGE; do
         manifest_add "$(echo "$PACKAGE" | jq -c \
-          --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+          --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" \
           --arg suite "$STABLE_SUITE" \
           '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
       done < <(echo "$PACKAGES" | jq -c '.[]')
-      echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+      echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}/ $STABLE_SUITE main"
       manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
       exit 0
     fi
@@ -365,70 +332,18 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
   fi
   echo "[INFO] Release component of $STABLE_SUITE/main: $STABLE_RC"
 
-  # remaining packages: parallel re-download+upload (pool of 8, marker-file
-  # based like rpm/deliver-deb), associated with the stable release component below
-  echo "[INFO] Re-uploading ${#BATCH_PACKAGES[@]} package(s) from $BASE_PATH into the stable domain"
-  DOWNLOAD_DIR=$(mktemp -d)
-  MAX_PARALLEL=8
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if ((i % 40 == 0)); then
-      refresh_pulp_token
-    fi
-    (
-      refresh_pulp_token
-      PACKAGE="${BATCH_PACKAGES[$i]}"
-      RELATIVE_PATH=$(echo "$PACKAGE" | jq -r '.relative_path')
-      SHA256=$(echo "$PACKAGE" | jq -r '.sha256')
-      ARCH=$(echo "$PACKAGE" | jq -r '.architecture')
-      FILE_NAME=$(basename "$RELATIVE_PATH")
-      FILE="$DOWNLOAD_DIR/$i-$FILE_NAME"
-      download_testing_package "$SHA256" "$ARCH" "$FILE"
-      pulp_upload \
-        -F "file=@\"$FILE\"" \
-        -F "relative_path=$RELATIVE_PATH" \
-        -F "pulp_labels=$PULP_LABELS" \
-        "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/packages/" > "$DOWNLOAD_DIR/$i.task"
-    ) &
-    while (($(jobs -rp | wc -l) >= MAX_PARALLEL)); do
-      wait -n || true
-    done
-  done
-  wait || true
-
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if [[ ! -s "$DOWNLOAD_DIR/$i.task" ]]; then
-      echo "::error::Re-upload into the stable domain failed for $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package') ($(echo "${BATCH_PACKAGES[$i]}" | jq -r '.architecture')), see the worker error above"
-      exit 1
-    fi
-  done
-
-  echo "[INFO] Resolving ${#BATCH_PACKAGES[@]} uploaded package(s)"
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if ((i % 40 == 0)); then
-      refresh_pulp_token
-    fi
-    (
-      resolve_task_content "$(cat "$DOWNLOAD_DIR/$i.task")" "packages" \
-        "--data-urlencode sha256=$(echo "${BATCH_PACKAGES[$i]}" | jq -r '.sha256')" > "$DOWNLOAD_DIR/$i.content"
-    ) &
-    while (($(jobs -rp | wc -l) >= MAX_PARALLEL)); do
-      wait -n || true
-    done
-  done
-  wait || true
+  # remaining packages: the testing content hrefs are associated with the
+  # stable release component directly (same domain, shared content); the
+  # packages keep their delivery-time labels
   PACKAGE_HREFS=()
-  for i in "${!BATCH_PACKAGES[@]}"; do
-    if [[ ! -s "$DOWNLOAD_DIR/$i.content" ]]; then
-      echo "::error::Cannot resolve the promoted content for $(echo "${BATCH_PACKAGES[$i]}" | jq -r '.package') (see the worker error above)"
-      exit 1
-    fi
-    PACKAGE_HREFS+=("$(cat "$DOWNLOAD_DIR/$i.content")")
+  for PACKAGE in "${BATCH_PACKAGES[@]}"; do
+    PACKAGE_HREFS+=("$(echo "$PACKAGE" | jq -r '.pulp_href')")
   done
-  rm -rf "$DOWNLOAD_DIR"
 
   # package_release_components create is synchronous (201 with the unit, no
   # task); a failed create (already existing on a job re-run) falls back to a lookup
   echo "[INFO] Associating ${#PACKAGE_HREFS[@]} package(s) with $STABLE_SUITE/main"
+  MAX_PARALLEL=8
   PRC_DIR=$(mktemp -d)
   for i in "${!PACKAGE_HREFS[@]}"; do
     if ((i % 40 == 0)); then
@@ -497,7 +412,7 @@ fi
 # verification step verifies exactly this set against the stable suite
 while read -r PACKAGE; do
   manifest_add "$(echo "$PACKAGE" | jq -c \
-    --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+    --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" \
     --arg suite "$STABLE_SUITE" \
     '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
 done < <(echo "$PACKAGES" | jq -c '.[]')
@@ -505,6 +420,6 @@ done < <(echo "$PACKAGES" | jq -c '.[]')
 echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
 create_publication deb "$STABLE_REPOSITORY_NAME" --structured
 
-echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}/ $STABLE_SUITE main"
 
 manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"

@@ -88,12 +88,57 @@ final class CentralAddressTest extends TestCase
         yield 'longer than 255 characters' => [str_repeat('a', 250) . '.example.com'];
     }
 
+    /**
+     * @return iterable<string, array{string, string, int|null, string|null}>
+     */
+    public static function authorityPartsProvider(): iterable
+    {
+        yield 'hostname' => ['central.example.com', 'central.example.com', null, null];
+
+        yield 'hostname with port' => ['central.example.com:8443', 'central.example.com', 8443, null];
+
+        yield 'hostname with base path' => [
+            'orga.euwest1.example.com/platform',
+            'orga.euwest1.example.com',
+            null,
+            'platform',
+        ];
+
+        yield 'hostname with port and multi-segment base path' => [
+            'central.example.com:8443/base/path',
+            'central.example.com',
+            8443,
+            'base/path',
+        ];
+
+        // An unbracketed IPv6 address must not have its last group mistaken for a port.
+        yield 'IPv6 address' => ['2001:db8::1', '2001:db8::1', null, null];
+
+        yield 'IPv4 with base path' => ['10.0.0.1/centreon', '10.0.0.1', null, 'centreon'];
+
+        yield 'trailing slash is removed' => ['central.example.com/platform/', 'central.example.com', null, 'platform'];
+    }
+
     #[DataProvider('validAddressProvider')]
     public function testAcceptsValidAddress(string $rawValue, string $expectedValue): void
     {
         $address = new CentralAddress($rawValue);
 
         self::assertSame($expectedValue, $address->value);
+    }
+
+    #[DataProvider('authorityPartsProvider')]
+    public function testExposesTheAuthorityParts(
+        string $rawValue,
+        string $expectedHost,
+        ?int $expectedPort,
+        ?string $expectedBasePath,
+    ): void {
+        $address = new CentralAddress($rawValue);
+
+        self::assertSame($expectedHost, $address->host);
+        self::assertSame($expectedPort, $address->port);
+        self::assertSame($expectedBasePath, $address->basePath);
     }
 
     #[DataProvider('invalidAddressProvider')]

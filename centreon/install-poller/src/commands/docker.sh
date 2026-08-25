@@ -87,8 +87,9 @@ function _generateDotEnv() {
   local dir=$1
   logInfo "Generating .env in ${dir} (stability: ${STABILITY})"
 
-  # NOTE: unstable tag reachability on docker.centreon.com is unverified for
-  # centreon-engine/centreon-gorgone/centreon-snmptrapd/centreon-centreontrapd.
+  # Registry/repo selection (ghcr.io for stable, Harbor otherwise) happens in
+  # _pollerImageRepo, used by _generateDockerCompose. Only the tag is decided
+  # here (MON-207531 verified these tag conventions end-to-end).
   local image_tag
   case "${STABILITY}" in
   stable)
@@ -141,6 +142,19 @@ EOF
   logInfo ".env written"
 }
 
+# Registry + repo (no tag) for one of the 5 poller component images, per
+# stability. Only 'stable' is published to ghcr.io (MON-207531); testing and
+# unstable stay on Harbor, as neither ever gets a validated stable-equivalent
+# tag there.
+function _pollerImageRepo() {
+  local component=$1
+  if [ "${STABILITY}" = "stable" ]; then
+    echo "ghcr.io/centreon/centreon-${component}"
+  else
+    echo "docker.centreon.com/centreon/centreon-${component}-trixie"
+  fi
+}
+
 function _generateDockerCompose() {
   local dir=$1
   local out="${dir}/docker-compose.yaml"
@@ -150,7 +164,9 @@ function _generateDockerCompose() {
   cat > "${out}" <<'EOF'
 services:
   centengine:
-    image: "docker.centreon.com/centreon/centreon-engine-trixie:${ENGINE_TAG:-${TAG}}"
+EOF
+  printf '    image: "%s:${ENGINE_TAG:-${TAG}}"\n' "$(_pollerImageRepo engine)" >> "${out}"
+  cat >> "${out}" <<'EOF'
     container_name: "${NAME}-centengine"
     hostname: centengine
     restart: unless-stopped
@@ -194,7 +210,9 @@ EOF
   # gorgone base volumes (always)
   cat >> "${out}" <<'EOF'
   gorgone:
-    image: "docker.centreon.com/centreon/centreon-gorgone-trixie:${GORGONE_TAG:-${TAG}}"
+EOF
+  printf '    image: "%s:${GORGONE_TAG:-${TAG}}"\n' "$(_pollerImageRepo gorgone)" >> "${out}"
+  cat >> "${out}" <<'EOF'
     container_name: "${NAME}-gorgone"
     hostname: gorgone
     restart: unless-stopped
@@ -265,7 +283,9 @@ EOF
   if [ "${WITH_SNMPTRAP}" = "1" ]; then
     cat >> "${out}" <<'EOF'
   snmptrapd:
-    image: "docker.centreon.com/centreon/centreon-snmptrapd-trixie:${SNMPTRAPD_TAG:-${TAG}}"
+EOF
+    printf '    image: "%s:${SNMPTRAPD_TAG:-${TAG}}"\n' "$(_pollerImageRepo snmptrapd)" >> "${out}"
+    cat >> "${out}" <<'EOF'
     container_name: "${NAME}-snmptrap"
     hostname: snmptrapd
     restart: unless-stopped
@@ -286,7 +306,9 @@ EOF
       retries: 3
 
   centreontrapd:
-    image: "docker.centreon.com/centreon/centreon-centreontrapd-trixie:${CENTREONTRAPD_TAG:-${TAG}}"
+EOF
+    printf '    image: "%s:${CENTREONTRAPD_TAG:-${TAG}}"\n' "$(_pollerImageRepo centreontrapd)" >> "${out}"
+    cat >> "${out}" <<'EOF'
     container_name: "${NAME}-centreontrap"
     hostname: centreontrapd
     restart: unless-stopped

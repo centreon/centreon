@@ -36,6 +36,7 @@ class Broker extends AbstractObjectJSON
     use VaultTrait;
     private const STREAM_BBDO_SERVER = 'bbdo_server';
     private const STREAM_BBDO_CLIENT = 'bbdo_client';
+    private const EVENT_SCRIPT_LOGGER_MINIMUM_VERSION = '25.10.3';
 
     /** @var array|null */
     protected $engine = null;
@@ -110,6 +111,12 @@ class Broker extends AbstractObjectJSON
 
     /** @var CentreonDBStatement|null */
     protected $stmt_engine_parameters = null;
+
+    /** @var CentreonDBStatement|null */
+    protected $stmt_poller_version = null;
+
+    /** @var array<int, string|null> */
+    protected $cachePollerVersion = [];
 
     /** @var array|null */
     protected $cacheExternalValue = null;
@@ -206,6 +213,34 @@ class Broker extends AbstractObjectJSON
     }
 
     /**
+     * @param int $pollerId
+     * @param int|null $pollerUid
+     *
+     * @throws PDOException
+     * @return string|null
+     */
+    private function getPollerVersion(int $pollerId, ?int $pollerUid): ?string
+    {
+        if (! array_key_exists($pollerId, $this->cachePollerVersion)) {
+            if (is_null($this->stmt_poller_version)) {
+                $this->stmt_poller_version = $this->backend_instance->db_cs->prepare(
+                    "SELECT `version` FROM instances
+                    WHERE instance_id IN (:poller_id, :poller_uid)
+                    AND `version` IS NOT NULL AND `version` <> ''
+                    ORDER BY last_alive DESC LIMIT 1"
+                );
+            }
+            $this->stmt_poller_version->bindValue(':poller_id', $pollerId, PDO::PARAM_INT);
+            $this->stmt_poller_version->bindValue(':poller_uid', $pollerUid ?? $pollerId, PDO::PARAM_INT);
+            $this->stmt_poller_version->execute();
+            $version = $this->stmt_poller_version->fetchColumn();
+            $this->cachePollerVersion[$pollerId] = is_string($version) && $version !== '' ? $version : null;
+        }
+
+        return $this->cachePollerVersion[$pollerId];
+    }
+
+    /**
      * @param $poller_id
      * @param $localhost
      * @param mixed $pollerId
@@ -293,6 +328,21 @@ class Broker extends AbstractObjectJSON
             $object['log']['max_size'] = filter_var($row['log_max_size'], FILTER_VALIDATE_INT);
             $this->getLogsValues();
             $logs = $this->cacheLogValue[$object['broker_id']];
+
+            // brokers < 25.10.3 reject unknown loggers
+            if (isset($logs['event_script'])) {
+                $pollerVersion = $this->getPollerVersion(
+                    (int) $pollerId,
+                    $this->engine['uid'] !== null ? (int) $this->engine['uid'] : null
+                );
+                if (
+                    $pollerVersion === null
+                    || version_compare($pollerVersion, self::EVENT_SCRIPT_LOGGER_MINIMUM_VERSION, '<')
+                ) {
+                    unset($logs['event_script']);
+                }
+            }
+
             $object['log']['loggers'] = $logs;
 
             $reindexedObjectKeys = [];
