@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Exception;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal\Exception;
 
 /**
  * Reports a nagios_server.gorgone_communication_type value with no matching

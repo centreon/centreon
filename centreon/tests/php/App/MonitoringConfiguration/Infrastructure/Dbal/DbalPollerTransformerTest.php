@@ -25,9 +25,9 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
-use App\MonitoringConfiguration\Domain\Exception\InvalidGorgoneCommunicationTypeException;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\Dbal\Exception\InvalidGorgoneCommunicationTypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
