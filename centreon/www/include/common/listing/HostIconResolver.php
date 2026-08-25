@@ -76,13 +76,19 @@ final class HostIconResolver
             $truncated
         );
 
-        if (! empty($truncated)) {
-            // Only a chain deeper than the cap, or a cycle, gets here. The symptom
-            // an operator sees — this row shows the default glyph while the object's
-            // own form shows the right icon — is unexplainable without this line.
-            Logger::create(LogChannelEnum::WEB)->warning(
-                'Host icon inheritance gave up: template chain deeper than the node cap',
-                ['objectIds' => $truncated, 'cap' => self::MAX_NODES_PER_OBJECT]
+        if ($truncated !== null && $truncated !== []) {
+            // The symptom an operator sees — this row shows the default glyph while
+            // the object's own form shows the right icon — has no other explanation.
+            // Reported at info: a wide template hierarchy reaches this on healthy
+            // data, so it is not on its own a fault. The id list is capped because a
+            // full page can hold a thousand of them.
+            Logger::create(LogChannelEnum::WEB)->info(
+                'Host icon inheritance gave up: more nodes to inspect than the per-object cap',
+                [
+                    'objectIds' => array_slice($truncated, 0, 20),
+                    'objectIdsTotal' => count($truncated),
+                    'cap' => self::MAX_NODES_PER_OBJECT,
+                ]
             );
         }
 
@@ -98,8 +104,8 @@ final class HostIconResolver
      * @param callable(int[]): array<int, string> $fetchIcons Icon path of those given nodes that define one
      * @param callable(int[]): array<int, int[]> $fetchTemplates Templates of the given nodes, in `order`
      *
-     * @param int[]|null $truncated Set to the ids whose chain hit the depth cap,
-     *                              so the caller can report data it cannot resolve
+     * @param int[]|null $truncated Set to the ids that ran out of node budget, so
+     *                              the caller can report what it could not resolve
      *
      * @return array<int, string> Icon path indexed by requested id
      */
@@ -229,9 +235,10 @@ final class HostIconResolver
         $in = AjaxListingHelper::buildIntInClause($hostIds, 'icon_oid');
 
         $icons = [];
+        $brokenMedia = [];
         $rows = $db->fetchAllAssociative(
             <<<SQL
-                SELECT ehi.host_host_id, vid.dir_alias, vi.img_path
+                SELECT ehi.host_host_id, vi.img_id, vid.dir_alias, vi.img_path
                 FROM extended_host_information ehi
                 INNER JOIN view_img vi ON ehi.ehi_icon_image = vi.img_id
                 INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
@@ -247,17 +254,24 @@ final class HostIconResolver
             $dir  = (string) $row['dir_alias'];
             $file = (string) $row['img_path'];
             if ($dir === '' || $file === '') {
-                // A media row with only half a path is inconsistent data, not a
-                // missing icon: without a trace, "this object lost its icon" has
-                // no explanation anywhere.
-                Logger::create(LogChannelEnum::WEB)->warning(
-                    'Host icon skipped: media row carries an empty directory or file name',
-                    ['objectId' => (int) $row['host_host_id']]
-                );
+                // A media row with only half a path is inconsistent data, not a missing
+                // icon. Collected rather than logged here: one broken media row shared
+                // by a page of hosts would otherwise emit a record — and build a logger
+                // — per row, on every refresh tick.
+                $brokenMedia[(int) $row['img_id']] = true;
 
                 continue;
             }
             $icons[(int) $row['host_host_id']] = './img/media/' . $dir . '/' . $file;
+        }
+
+        if ($brokenMedia !== []) {
+            // Named by media id, which is what has to be repaired — the hosts merely
+            // suffer it, and there can be a thousand of them for one bad row.
+            Logger::create(LogChannelEnum::WEB)->warning(
+                'Host icon skipped: media rows carry an empty directory or file name',
+                ['mediaIds' => array_slice(array_keys($brokenMedia), 0, 20)]
+            );
         }
 
         return $icons;
