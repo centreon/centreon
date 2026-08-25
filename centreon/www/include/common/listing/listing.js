@@ -105,9 +105,9 @@ function clInitAdvSelectClear() {
                     if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
                     if (touched) sessionStorage.setItem(key, JSON.stringify(state));
                 } catch (e) {
-                    // A corrupt entry or a write refused by the browser (private
-                    // mode, quota) means the cleared filter comes back on reload —
-                    // the exact bug this function prevents. Say so.
+                    // A corrupt entry, or a write refused by the browser (private
+                    // mode, quota): the cleared filter then comes back on reload,
+                    // which is the bug this function exists to prevent.
                     if (window.console) {
                         console.warn('[CentreonListing] could not drop persisted filter', key, e);
                     }
@@ -261,7 +261,14 @@ function CentreonListing(config) {
     // Restore state from sessionStorage (survives navigation, cleared on browser close)
     var stateKey   = 'cl_state_' + cfg.storageKey;
     var savedState = null;
-    try { savedState = JSON.parse(sessionStorage.getItem(stateKey)); } catch(e) {}
+    try {
+        savedState = JSON.parse(sessionStorage.getItem(stateKey));
+    } catch (e) {
+        // A corrupt entry silently loses the page, the search and every filter.
+        // Drop it rather than fail this way on every load for the whole session.
+        if (window.console) { console.warn('[CentreonListing] unreadable saved state, dropping it', stateKey, e); }
+        try { sessionStorage.removeItem(stateKey); } catch (removeError) { savedState = null; }
+    }
 
     var currentNum    = (savedState && typeof savedState.num === 'number') ? savedState.num : 0;
     var currentLimit  = parseInt(localStorage.getItem(cfg.storageKey), 10) || (savedState && savedState.limit) || cfg.defaultLimit;
@@ -336,6 +343,31 @@ function CentreonListing(config) {
             var name = this.getAttribute('name');
             if (name && values[name] !== undefined) { this.value = values[name]; }
         });
+    }
+
+    // One read-only policy for both render paths. Parsed rather than pattern-matched:
+    // [^>] cannot cross the ">" inside an inline handler, so a regex silently missed
+    // any control carrying one. A <template> is an inert parsing context — a plain
+    // detached <div> belongs to the live document, where an img/svg in the markup
+    // would start loading on assignment.
+    var readOnlyHolder = null;
+    function stripWriteControls(optHtml) {
+        if (!readOnlyHolder) { readOnlyHolder = document.createElement('template'); }
+        readOnlyHolder.innerHTML = optHtml;
+        var frag = readOnlyHolder.content;
+        var dupInputs = frag.querySelectorAll('.cl-dup-input');
+        for (var d = 0; d < dupInputs.length; d++) {
+            dupInputs[d].parentNode.removeChild(dupInputs[d]);
+        }
+        var handlers = frag.querySelectorAll('[onchange]');
+        for (var h = 0; h < handlers.length; h++) {
+            handlers[h].removeAttribute('onchange');
+        }
+        var boxes = frag.querySelectorAll('input[type=checkbox]');
+        for (var b = 0; b < boxes.length; b++) {
+            boxes[b].setAttribute('disabled', 'disabled');
+        }
+        return readOnlyHolder.innerHTML;
     }
 
     function restoreCheckedIds(ids) {
@@ -630,7 +662,11 @@ function CentreonListing(config) {
                 });
             }
             sessionStorage.setItem(stateKey, JSON.stringify({ num: num, limit: limit, search: search, extra: extra || {}, labels: labels }));
-        } catch(e) {}
+        } catch (e) {
+            // Quota reached, or a browser refusing the write: the listing works but
+            // nothing survives a navigation, which reads as "it forgot my filters".
+            if (window.console) { console.warn('[CentreonListing] could not persist listing state', stateKey, e); }
+        }
 
         var checkedIds = getCheckedIds();
         var dupValues  = getDupValues();
@@ -692,8 +728,8 @@ function CentreonListing(config) {
                     }
                 }
                 // An endpoint may report that a decorative source it reads was
-                // unreachable. Told once per transition, because every row then
-                // renders an empty cell that otherwise reads as "not monitored".
+                // unreachable. Told once per transition, because every row then shows
+                // the same dimmed dash as a host that is genuinely not monitored.
                 if (data && data.rtm_available === false) {
                     if (!rtmWarned) {
                         rtmWarned = true;
@@ -725,6 +761,18 @@ function CentreonListing(config) {
                 }
 
                 var httpStatus = xhr && xhr.status;
+
+                // A malformed body on a 200 is how a fatal PHP error reaches us —
+                // typically an HTML page under our JSON content type. Nothing on the
+                // next tick will change that, so report it even on a silent refresh
+                // rather than leave stale rows passing for current ones.
+                if (status === 'parsererror' || (httpStatus >= 400 && httpStatus < 500 && httpStatus !== 401 && httpStatus !== 403)) {
+                    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+                    clToast(clListingLabel('requestRejected', 'The listing could not be loaded — please reload the page.'), 'error');
+
+                    return;
+                }
+
                 if (httpStatus === 401 || httpStatus === 403) {
                     // Session expired / access lost mid-view: stop the auto-refresh
                     // so we don't hammer a dead session, and tell the user.
@@ -796,22 +844,7 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    // Parsed, not regex-stripped: [^>]* cannot cross the ">" that
-                    // appears inside an inline handler, so the pattern silently
-                    // missed any input carrying one. A renderOptions that honours
-                    // its writeAccess argument makes this a second line of defence.
-                    var holder = document.createElement('div');
-                    holder.innerHTML = optHtml;
-                    var dupInputs = holder.querySelectorAll('.cl-dup-input');
-                    for (var d = 0; d < dupInputs.length; d++) {
-                        dupInputs[d].parentNode.removeChild(dupInputs[d]);
-                    }
-                    var boxes = holder.querySelectorAll('input[type=checkbox]');
-                    for (var b = 0; b < boxes.length; b++) {
-                        boxes[b].removeAttribute('onchange');
-                        boxes[b].setAttribute('disabled', 'disabled');
-                    }
-                    optHtml = holder.innerHTML;
+                    optHtml = stripWriteControls(optHtml);
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -855,8 +888,7 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
-                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                    optHtml = stripWriteControls(optHtml);
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -1004,11 +1036,21 @@ function CentreonListing(config) {
                     console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err,
                         ((xhr && xhr.responseText) || '').substring(0, 500));
                 }
-                // Prefer the endpoint's own reason ("Write access denied", "Object
-                // not found") over the generic label: it is what tells the user
-                // whether to ask for rights or to reload a stale listing.
-                var reason = (xhr && xhr.responseJSON && xhr.responseJSON.error) || null;
-                clToast(reason || clListingLabel('toggleError', 'Could not change status'), 'error');
+                // Map the endpoint's own reason onto a translated string. Passing the
+                // raw server text through would show English on a localized platform,
+                // and "Object not found" also answers an ACL refusal, so it must not
+                // read as "reload and it will be there".
+                var reason = (xhr && xhr.responseJSON && xhr.responseJSON.error) || '';
+                var label = 'toggleError';
+                var fallback = 'Could not change status';
+                if (reason === 'Write access denied') {
+                    label = 'writeDenied';
+                    fallback = 'You do not have the rights to change this.';
+                } else if (reason === 'Object not found') {
+                    label = 'objectGone';
+                    fallback = 'This object is not available — the list will refresh.';
+                }
+                clToast(clListingLabel(label, fallback), 'error');
                 // A stale CSRF token (403) would make every subsequent toggle fail
                 // too; a silent list refresh pulls a fresh token so the next works.
                 if (xhr && xhr.status === 403) {
