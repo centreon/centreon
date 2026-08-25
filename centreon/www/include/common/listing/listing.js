@@ -113,7 +113,15 @@ function clInitAdvSelectClear() {
                 if (state.extra && state.extra[name] !== undefined) { delete state.extra[name]; touched = true; }
                 if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
                 if (touched) sessionStorage.setItem(key, JSON.stringify(state));
-            } catch (e) {}
+            } catch (e) {
+                // Storage unavailable or the entry is not the JSON we wrote: the
+                // cleared filter stays persisted and comes back on the next load,
+                // which is the very bug this function exists to prevent. Nothing
+                // to retry, but it must not pass unnoticed.
+                if (window.console) {
+                    console.warn('[CentreonListing] could not forget persisted filter', name, e);
+                }
+            }
         }
 
         // The eraser additionally re-runs the search, so the rows stop showing a
@@ -923,10 +931,19 @@ function CentreonListing(config) {
                 centreon_token: csrfToken
             },
             success: function (response) {
-                if (response.centreon_token) {
+                if (response && response.centreon_token) {
                     csrfToken = response.centreon_token;
                 }
                 toggle.disabled = false;
+                // The toggles answer {success: true}; anything else on a 200 —
+                // an empty body, a redirect to a login page parsed as JSON —
+                // means the row was not flipped. Check for the acknowledgement
+                // rather than trusting the status code, otherwise the switch
+                // ends up showing the opposite of the database.
+                if (!response || response.success !== true) {
+                    toggle.checked = !isChecked;
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
             },
             error: function (xhr, status, err) {
                 // Revert the optimistic switch and re-enable it (kept), but tell

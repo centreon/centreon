@@ -45,6 +45,13 @@ if (! isset($_SESSION['centreon'])) {
 if (isset($_SESSION['centreon'])) {
     $oreon = $_SESSION['centreon'];
 } else {
+    // A bare exit would answer 200 with an empty body, which the caller reads
+    // as "this command has no arguments" — the same state as a successful
+    // empty response, on a form that then saves those arguments away.
+    header('Content-Type: application/json');
+    http_response_code(401);
+    echo json_encode(['error' => 'Session expired'], JSON_THROW_ON_ERROR);
+
     exit;
 }
 
@@ -169,6 +176,12 @@ try {
             ];
         }
     }
+
+    header('Content-Type: application/json');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    header('Cache-Control: no-cache, must-revalidate');
+    echo json_encode(['args' => $args], JSON_THROW_ON_ERROR);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'Service form: failed to fetch the command arguments',
@@ -180,9 +193,3 @@ try {
 
     exit;
 }
-
-header('Content-Type: application/json');
-header('Pragma: no-cache');
-header('Expires: 0');
-header('Cache-Control: no-cache, must-revalidate');
-echo json_encode(['args' => $args], JSON_THROW_ON_ERROR);

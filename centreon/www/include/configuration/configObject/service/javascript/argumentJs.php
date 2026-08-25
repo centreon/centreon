@@ -113,14 +113,29 @@ function transformForm()
             var header = document.getElementById('cf-args-header');
             var args = data.args || [];
             if (target) {
-                var html = '';
+                target.innerHTML = '';
                 args.forEach(function (arg) {
-                    html += renderArgumentRow(arg);
+                    target.appendChild(renderArgumentRow(arg));
                 });
-                target.innerHTML = html;
             }
             if (header) {
                 header.style.display = args.length ? 'flex' : 'none';
+            }
+        },
+        // Without this the failure is invisible and destructive: #dynamicDiv is
+        // empty server-side, so the ARGn inputs only exist once this call has
+        // answered. Saving the form with none of them present makes
+        // getCommandArgs() return null, and the stored arguments are wiped.
+        // Surface it and keep the previous content rather than silently
+        // offering an empty, submittable field set.
+        error: function () {
+            var target = document.getElementById('dynamicDiv');
+            if (target && target.children.length === 0) {
+                var warning = document.createElement('div');
+                warning.className = 'cf-row';
+                warning.textContent = (window.clI18n && window.clI18n.argumentsLoadError)
+                    || 'Command arguments could not be loaded. Reload the page before saving, otherwise the current arguments will be lost.';
+                target.appendChild(warning);
             }
         }
     });
