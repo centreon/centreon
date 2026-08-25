@@ -262,13 +262,13 @@ const openListing = (url: string): void => {
   cy.visit(url);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', listingSelectors.table);
-  // Row checkboxes, not rows: the table and its "Loading..." row are rendered
-  // server-side, so counting <tr> is satisfied before the fetch has landed —
-  // which would let a negative assertion pass against an empty table. Neither
-  // the placeholder nor the "No results found" row carries a checkbox.
+  // Wait on the "Loading..." row disappearing, not on row checkboxes: the table
+  // and that row are rendered server-side, so counting <tr> is satisfied before
+  // the fetch has landed, while requiring a checkbox rejects a listing that
+  // legitimately comes back empty — "No results found" carries none either.
   cy.getIframeBody()
-    .find(`${listingSelectors.tableBody} ${listingSelectors.rowCheckbox}`)
-    .should('have.length.greaterThan', 0);
+    .find(`${listingSelectors.tableBody} tr td`)
+    .should('not.contain', 'Loading');
 };
 
 Cypress.Commands.add('openHostsListing', () => {
