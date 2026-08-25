@@ -104,7 +104,14 @@ function clInitAdvSelectClear() {
                     if (state.extra && state.extra[name] !== undefined) { delete state.extra[name]; touched = true; }
                     if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
                     if (touched) sessionStorage.setItem(key, JSON.stringify(state));
-                } catch (e) {}
+                } catch (e) {
+                    // A corrupt entry or a write refused by the browser (private
+                    // mode, quota) means the cleared filter comes back on reload —
+                    // the exact bug this function prevents. Say so.
+                    if (window.console) {
+                        console.warn('[CentreonListing] could not drop persisted filter', key, e);
+                    }
+                }
             }
         }
 
@@ -125,7 +132,13 @@ function clInitAdvSelectClear() {
             }
             var panel = field.closest('.cl-adv-panel');
             var searchBtn = panel && panel.querySelector('.cl-adv-search');
-            if (searchBtn) searchBtn.click();
+            if (!searchBtn) return;
+            // Re-run the search without dismissing the popover: the user erased one
+            // field and may well want to erase the next. Only an explicit click on
+            // Search means "I am done here".
+            if (panel) panel.setAttribute('data-cl-keep-open', '1');
+            searchBtn.click();
+            if (panel) panel.removeAttribute('data-cl-keep-open');
         }
 
         syncFilled();
@@ -243,6 +256,7 @@ function CentreonListing(config) {
     var self       = this;
     var csrfToken  = '';
     var firstLoad  = true;
+    var rtmWarned  = false;
 
     // Restore state from sessionStorage (survives navigation, cleared on browser close)
     var stateKey   = 'cl_state_' + cfg.storageKey;
@@ -301,6 +315,27 @@ function CentreonListing(config) {
             if (name) ids.push(name);
         });
         return ids;
+    }
+
+    // Per-row duplication counts live only in the DOM, and renderRows() rebuilds
+    // every row from JSON on each fetch — including a silent auto-refresh tick.
+    // Without carrying them across, an operator who types "5" and picks Duplicate
+    // more than one tick later silently gets one copy per object instead of five.
+    function getDupValues() {
+        var values = {};
+        jQuery('#' + cfg.tableBodyId + ' .cl-dup-input').each(function () {
+            var name = this.getAttribute('name');
+            if (name && this.value !== '' && this.value !== '1') { values[name] = this.value; }
+        });
+        return values;
+    }
+
+    function restoreDupValues(values) {
+        if (!values) return;
+        jQuery('#' + cfg.tableBodyId + ' .cl-dup-input').each(function () {
+            var name = this.getAttribute('name');
+            if (name && values[name] !== undefined) { this.value = values[name]; }
+        });
     }
 
     function restoreCheckedIds(ids) {
@@ -598,6 +633,7 @@ function CentreonListing(config) {
         } catch(e) {}
 
         var checkedIds = getCheckedIds();
+        var dupValues  = getDupValues();
 
         if (firstLoad) {
             jQuery('#' + cfg.tableBodyId).html(
@@ -648,12 +684,28 @@ function CentreonListing(config) {
                         self.renderPagination(data.total, data.num, data.limit);
                     }
                     restoreCheckedIds(checkedIds);
+                    restoreDupValues(dupValues);
                     jQuery('#' + cfg.limitInputId).val(data.limit);
                     if (!silent) {
                         void tbody[0].offsetWidth;
                         tbody.addClass('cl-fade-in');
                     }
                 }
+                // An endpoint may report that a decorative source it reads was
+                // unreachable. Told once per transition, because every row then
+                // renders an empty cell that otherwise reads as "not monitored".
+                if (data && data.rtm_available === false) {
+                    if (!rtmWarned) {
+                        rtmWarned = true;
+                        clToast(clListingLabel(
+                            'rtmUnavailable',
+                            'Monitoring status is currently unavailable — the configuration below is unaffected.'
+                        ), 'error');
+                    }
+                } else if (data && data.rtm_available === true) {
+                    rtmWarned = false;
+                }
+
                 firstLoad = false;
                 // Reset bulk action dropdowns to default
                 jQuery('select[name="o1"], select[name="o2"]').prop('selectedIndex', 0);
@@ -668,7 +720,8 @@ function CentreonListing(config) {
                 // Always leave a diagnostic trace — this callback used to discard
                 // xhr/status/err, so a "the list is stuck" report had nothing to go on.
                 if (window.console) {
-                    console.error('[CentreonListing] fetch failed', (xhr && xhr.status) || '', status, err);
+                    console.error('[CentreonListing] fetch failed', (xhr && xhr.status) || '', status, err,
+                        ((xhr && xhr.responseText) || '').substring(0, 500));
                 }
 
                 var httpStatus = xhr && xhr.status;
@@ -743,9 +796,22 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    // Disable toggles and hide dup inputs for read-only users
-                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
-                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                    // Parsed, not regex-stripped: [^>]* cannot cross the ">" that
+                    // appears inside an inline handler, so the pattern silently
+                    // missed any input carrying one. A renderOptions that honours
+                    // its writeAccess argument makes this a second line of defence.
+                    var holder = document.createElement('div');
+                    holder.innerHTML = optHtml;
+                    var dupInputs = holder.querySelectorAll('.cl-dup-input');
+                    for (var d = 0; d < dupInputs.length; d++) {
+                        dupInputs[d].parentNode.removeChild(dupInputs[d]);
+                    }
+                    var boxes = holder.querySelectorAll('input[type=checkbox]');
+                    for (var b = 0; b < boxes.length; b++) {
+                        boxes[b].removeAttribute('onchange');
+                        boxes[b].setAttribute('disabled', 'disabled');
+                    }
+                    optHtml = holder.innerHTML;
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -935,9 +1001,14 @@ function CentreonListing(config) {
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
                 if (window.console) {
-                    console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
+                    console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err,
+                        ((xhr && xhr.responseText) || '').substring(0, 500));
                 }
-                clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                // Prefer the endpoint's own reason ("Write access denied", "Object
+                // not found") over the generic label: it is what tells the user
+                // whether to ask for rights or to reload a stale listing.
+                var reason = (xhr && xhr.responseJSON && xhr.responseJSON.error) || null;
+                clToast(reason || clListingLabel('toggleError', 'Could not change status'), 'error');
                 // A stale CSRF token (403) would make every subsequent toggle fail
                 // too; a silent list refresh pulls a fresh token so the next works.
                 if (xhr && xhr.status === 403) {
@@ -1018,7 +1089,7 @@ function CentreonListing(config) {
         jQuery('#' + cfg.searchBtnId).on('click', function () {
             var btn = document.getElementById(cfg.searchBtnId);
             var panel = btn && btn.closest('.cl-adv-panel--popover');
-            if (panel) {
+            if (panel && panel.getAttribute('data-cl-keep-open') !== '1') {
                 clCloseAdvPanel(panel);
             }
             self.applySearch();
@@ -1210,16 +1281,24 @@ function CentreonListing(config) {
 function clToggleAdvancedFilters(btn) {
     var panel = document.getElementById(btn.getAttribute('data-cl-adv-panel'));
     if (!panel) return;
-    var open = panel.classList.toggle('open');
-    btn.classList.toggle('active', open);
+    // Closing goes through clCloseAdvPanel so there really is one close path —
+    // it owns taking the backdrop down, which a second implementation here would
+    // eventually forget.
+    if (panel.classList.contains('open')) {
+        clCloseAdvPanel(panel);
+
+        return;
+    }
+
+    panel.classList.add('open');
+    btn.classList.add('active');
     var labelEl = btn.querySelector('.cl-adv-label');
-    var show = btn.getAttribute('data-cl-label-show');
     var hide = btn.getAttribute('data-cl-label-hide');
-    if (labelEl && show && hide) {
-        labelEl.textContent = open ? hide : show;
+    if (labelEl && hide) {
+        labelEl.textContent = hide;
     }
     if (panel.classList.contains('cl-adv-panel--popover')) {
-        clSetAdvBackdrop(panel, btn, open);
+        clSetAdvBackdrop(panel, btn, true);
     }
 }
 
