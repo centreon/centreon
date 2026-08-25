@@ -7,7 +7,7 @@ description: >
   promote-to-stable-pulp.
 inputs:
   ghcr_image:
-    description: "Destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-gorgone)"
+    description: "Destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)"
     required: true
   harbor_image:
     description: "Source image ref on Harbor, no tag"
@@ -35,7 +35,7 @@ outputs:
     description: "Digest of the promoted ghcr.io manifest list (identical across all ghcr_tags)"
     value: ${{ steps.promote.outputs.digest }}
   amd64_digest:
-    description: "Digest of the amd64 platform manifest, for SBOM scanning (MON-207622)"
+    description: "Digest of the amd64 platform manifest, for SBOM scanning"
     value: ${{ steps.promote.outputs.amd64_digest }}
 
 runs:

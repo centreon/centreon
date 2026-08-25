@@ -2048,12 +2048,6 @@ jobs:
         shell: bash
 
       - name: Attest provenance + SBOM on ghcr.io (best-effort, non-blocking)
-        # MON-207622: generates GitHub-native, Sigstore-signed provenance and
-        # SBOM attestations against the image just promoted above. Only runs
-        # when the promote step actually succeeded. continue-on-error keeps
-        # an attestation-side failure from blocking the release — the image
-        # is already live on ghcr.io either way; the warning below is worded
-        # distinctly from the "was NOT published" one above.
         if: steps.promote-ghcr.outcome == 'success' && steps.promote-ghcr.outputs.digest != ''
         continue-on-error: true
         id: attest-ghcr

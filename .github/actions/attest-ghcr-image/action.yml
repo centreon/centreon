@@ -1,17 +1,9 @@
 name: "attest ghcr.io image (provenance + SBOM)"
 description: >
-  Generate GitHub-native, Sigstore-signed build provenance and SBOM
-  attestations for an image already promoted to ghcr.io, and push them to
-  the registry as OCI referrers (MON-207622). Meant to be called right after
-  promote-docker-to-ghcr, using its `digest`/`amd64_digest` outputs — callers
-  should wrap this with continue-on-error and warn on failure, distinctly
-  from a promote failure: an attest failure means the image reached ghcr.io
-  but is unattested, not that delivery failed.
-  MON-207622 decision: the Harbor-side attestation manifest that
-  promote-docker-to-ghcr's script deliberately excludes is BuildKit's
-  default, unsigned in-toto provenance — it has no Sigstore trust chain, so
-  copying it would never satisfy `gh attestation verify`. These attestations
-  are generated fresh against the ghcr.io digest instead.
+  Generate provenance + SBOM attestations for an image already promoted to
+  ghcr.io, and push them as OCI referrers. Call after promote-docker-to-ghcr
+  using its digest/amd64_digest outputs — wrap with continue-on-error and a
+  distinct warning, since a failure here doesn't mean delivery failed.
 inputs:
   ghcr_image:
     description: "Image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)"
@@ -43,8 +35,7 @@ runs:
         push-to-registry: true
 
     - name: Attest SBOM
-      # actions/attest-sbom is deprecated in favor of actions/attest — see
-      # https://github.com/actions/attest-sbom (deprecation notice).
+      # attest-sbom is deprecated in favor of attest
       uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
       with:
         subject-name: ${{ inputs.ghcr_image }}

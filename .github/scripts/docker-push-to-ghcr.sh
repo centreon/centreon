@@ -19,23 +19,10 @@
 # registries choke on committing a manifest that includes that attestation
 # subject). Harbor keeps full provenance; only the ghcr.io copy omits it.
 #
-# MON-207622: that Harbor attestation manifest is BuildKit's default,
-# unsigned in-toto provenance — it has no Sigstore/Fulcio/Rekor trust chain,
-# so `gh attestation verify`/`cosign verify-attestation` (which only validate
-# GitHub-native, Sigstore-signed attestations) could never verify it even if
-# it were copied across registries. Decision: leave the exclusion above
-# untouched, and instead generate fresh, GitHub-native provenance + SBOM
-# attestations against the ghcr.io digest after promotion (see the caller
-# composite action `attest-ghcr-image`). To make that possible, this script
-# also resolves and emits the promoted manifest-list digest (and the amd64
-# platform digest, since an SBOM must target a single-platform manifest, not
-# a multi-arch index) as step outputs — resolved from the ghcr.io side after
-# publish, not assumed from Harbor, since imagetools create's cross-registry
-# digest preservation is a property to verify, not to bet delivery on.
-# Resolution failures here are non-fatal (a warning, no outputs): they would
-# only skip attestation, never turn a successful publish into a reported
-# failure — that distinction is what the caller's attest-ghcr-image step and
-# its separate warning message rely on.
+# MON-207622: Harbor's attestation manifest is unsigned (no Sigstore chain),
+# so `gh attestation verify` couldn't validate it even if copied. Provenance
+# + SBOM are instead generated fresh against the ghcr.io digest by the caller
+# (attest-ghcr-image). Digest resolution below is best-effort and non-fatal.
 #
 # Expected env vars:
 #   GHCR_IMAGE   destination image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)
@@ -44,9 +31,9 @@
 #   GHCR_TAGS    space-separated list of tags to create on ghcr.io (e.g. "26.10.5 26.10")
 #   PLATFORMS    comma-separated platform list, informational only (e.g. linux/amd64,linux/arm64)
 #
-# Outputs (written to $GITHUB_OUTPUT, best-effort — may be absent):
-#   digest       digest of the promoted ghcr.io manifest list (identical across all GHCR_TAGS)
-#   amd64_digest digest of the amd64 platform manifest, for SBOM scanning
+# Outputs ($GITHUB_OUTPUT, best-effort — may be absent):
+#   digest       promoted manifest-list digest
+#   amd64_digest amd64 platform digest, for SBOM scanning
 set -euo pipefail
 
 if [[ -z "${GHCR_TAGS// /}" ]]; then
