@@ -137,7 +137,9 @@ try {
             $modelIn = AjaxListingHelper::buildIntInClause(array_values(array_unique($modelIds)), 'model_hid');
             $modelRows = $pearDB->fetchAllAssociative(
                 <<<SQL
-                    SELECT host_id, host_name FROM host WHERE host_id IN ({$modelIn['clause']})
+                    SELECT host_id, host_name
+                    FROM host
+                    WHERE host_register = '0' AND host_id IN ({$modelIn['clause']})
                     SQL,
                 QueryParameters::create($modelIn['parameters'])
             );
