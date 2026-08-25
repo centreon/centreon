@@ -79,13 +79,13 @@ try {
     $hostIds = array_map(static fn (array $host): int => (int) $host['host_id'], $hostRows);
 
     // Service counts, parent templates and icons of the listed templates, all
-    // resolved for the whole page (one query each, or one per inheritance level
-    // for the icons) rather than per row: with a page size of up to MAX_LIMIT
-    // and a 30s auto-refresh, per-row lookups mean thousands of queries per
-    // refresh tick.
+    // resolved for the whole page rather than per row: with a page size of up to
+    // MAX_LIMIT and a 30s auto-refresh, per-row lookups mean thousands of queries
+    // per tick. The icon walk takes two queries per inheritance level.
     $svcCounts       = [];
     $templatesByHost = [];
     $icons           = [];
+    $modelNames      = [];
     if ($hostIds !== []) {
         $svcIn = AjaxListingHelper::buildIntInClause($hostIds, 'svc_hid');
         $svcRows = $pearDB->fetchAllAssociative(
@@ -121,6 +121,30 @@ try {
         }
 
         $icons = HostIconResolver::resolve($pearDB, $hostIds);
+
+        // Legacy "host model" rows carry no host_name of their own and inherit the
+        // one of the model they point at — the legacy listing called getMyHostName()
+        // per row for this. Without the fallback such a row renders as an empty cell
+        // wrapping an invisible but clickable link. Resolved in one query, and only
+        // when the page actually holds one.
+        $modelIds = [];
+        foreach ($hostRows as $host) {
+            if (($host['host_name'] ?? '') === '' && (int) $host['host_template_model_htm_id'] !== 0) {
+                $modelIds[] = (int) $host['host_template_model_htm_id'];
+            }
+        }
+        if ($modelIds !== []) {
+            $modelIn = AjaxListingHelper::buildIntInClause(array_values(array_unique($modelIds)), 'model_hid');
+            $modelRows = $pearDB->fetchAllAssociative(
+                <<<SQL
+                    SELECT host_id, host_name FROM host WHERE host_id IN ({$modelIn['clause']})
+                    SQL,
+                QueryParameters::create($modelIn['parameters'])
+            );
+            foreach ($modelRows as $row) {
+                $modelNames[(int) $row['host_id']] = (string) $row['host_name'];
+            }
+        }
     }
 
     $rows = [];
@@ -129,7 +153,9 @@ try {
 
         $rows[] = [
             'id'        => $hid,
-            'name'      => $host['host_name'] ?: '',
+            'name'      => ($host['host_name'] ?? '') !== ''
+                ? $host['host_name']
+                : ($modelNames[(int) $host['host_template_model_htm_id']] ?? ''),
             'alias'     => $host['host_alias'],
             'svc_count' => $svcCounts[$hid] ?? 0,
             'templates' => $templatesByHost[$hid] ?? [],
