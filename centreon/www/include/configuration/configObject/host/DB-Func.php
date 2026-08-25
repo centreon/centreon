@@ -504,51 +504,52 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     } elseif (file_exists($path . '../service/DB-Func.php')) {
                         require_once $path . '../configObject/service/DB-Func.php';
                     }
-                    $hostInf = $maxId;
-                    $serviceArr = [];
-                    $serviceNbr = [];
-                    // Get all Services link to the Host
-                    $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
-                    $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
-                    $svcRelStatement->execute();
-                    $dbResult = $svcRelStatement;
-                    $countStatement = $pearDB->prepare(
-                        'SELECT COUNT(*)
-                        FROM host_service_relation
-                        WHERE service_service_id = :service_service_id'
-                    );
-                    $insertStatement = $pearDB->prepare(
-                        'INSERT INTO host_service_relation
-                        VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
-                    );
-                    while ($service = $dbResult->fetch()) {
-                        // If the Service is link with several Host, we keep this property and don't duplicate it,
-                        // just create a new relation with the new Host
-                        $countStatement->bindValue(
-                            ':service_service_id',
-                            (int) $service['service_service_id'],
-                            PDO::PARAM_INT
+                    // Register Host -> Duplicate the Service list
+                    if ($row['host_register'] == 1) {
+                        $hostInf = $maxId;
+                        $serviceArr = [];
+                        $serviceNbr = [];
+                        // Get all Services link to the Host
+                        $svcRelStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
+                        $svcRelStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
+                        $svcRelStatement->execute();
+                        $dbResult = $svcRelStatement;
+                        $countStatement = $pearDB->prepare(
+                            'SELECT COUNT(*)
+                            FROM host_service_relation
+                            WHERE service_service_id = :service_service_id'
                         );
-                        $countStatement->execute();
-                        $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
-                        if ($mulHostSv['COUNT(*)'] > 1) {
-                            $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
-                            $insertStatement->bindValue(
+                        $insertStatement = $pearDB->prepare(
+                            'INSERT INTO host_service_relation
+                            VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
+                        );
+                        while ($service = $dbResult->fetch()) {
+                            // If the Service is link with several Host, we keep this property and don't duplicate it,
+                            // just create a new relation with the new Host
+                            $countStatement->bindValue(
                                 ':service_service_id',
                                 (int) $service['service_service_id'],
                                 PDO::PARAM_INT
                             );
-                            $insertStatement->execute();
-                        } else {
-                            $serviceArr[$service['service_service_id']] = $service['service_service_id'];
-                            $serviceNbr[$service['service_service_id']] = 1;
+                            $countStatement->execute();
+                            $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
+                            if ($mulHostSv['COUNT(*)'] > 1) {
+                                $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
+                                $insertStatement->bindValue(
+                                    ':service_service_id',
+                                    (int) $service['service_service_id'],
+                                    PDO::PARAM_INT
+                                );
+                                $insertStatement->execute();
+                            } else {
+                                $serviceArr[$service['service_service_id']] = $service['service_service_id'];
+                                $serviceNbr[$service['service_service_id']] = 1;
+                            }
                         }
-                    }
-                    // Register Host -> Duplicate the Service list
-                    if ($row['host_register'] == 1) {
                         multipleServiceInDB($serviceArr, $serviceNbr, $hostInf, 0);
                     } else {
-                        // Host Template -> Link to the existing Service Template List
+                        // Host Template -> Link to the existing Service Template List. Running the
+                        // shared/exclusive split above too would relate an already-shared service twice.
                         $svcTplStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
                         $svcTplStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
                         $svcTplStatement->execute();
