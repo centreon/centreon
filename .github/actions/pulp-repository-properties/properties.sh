@@ -112,9 +112,9 @@ if [[ "$REPO_BASE" == "plugins" ]]; then
     [[ "$STABILITY_SEGMENT" == "testing-release" ]] && LEGACY_SEGMENT_RPM="testing"
     LEGACY_TESTING_SEGMENT_RPM="$TESTING_SEGMENT"
     [[ "$TESTING_SEGMENT" == "testing-release" ]] && LEGACY_TESTING_SEGMENT_RPM="testing"
-    LEGACY_BASE_PATH_PREFIX="rpm-plugins/$DISTRIB/$LEGACY_SEGMENT_RPM"
-    LEGACY_TESTING_BASE_PATH_PREFIX="rpm-plugins/$DISTRIB/$LEGACY_TESTING_SEGMENT_RPM"
-    LEGACY_STABLE_BASE_PATH_PREFIX="rpm-plugins/$DISTRIB/stable"
+    LEGACY_BASE_PATH_PREFIX="rpm-$REPO_BASE/$DISTRIB/$LEGACY_SEGMENT_RPM"
+    LEGACY_TESTING_BASE_PATH_PREFIX="rpm-$REPO_BASE/$DISTRIB/$LEGACY_TESTING_SEGMENT_RPM"
+    LEGACY_STABLE_BASE_PATH_PREFIX="rpm-$REPO_BASE/$DISTRIB/stable"
   else
     # one deb repository per stability (base path = repository name), suites
     # carry the plain codename only
@@ -136,9 +136,9 @@ if [[ "$REPO_BASE" == "plugins" ]]; then
     STABLE_SUITE="$DISTRIB"
     # legacy (front) paths used by the content verifications: the CI exercises
     # the compatibility rewrites on every delivery
-    LEGACY_BASE_PATH="${DEB_PREFIX}plugins"
-    LEGACY_TESTING_BASE_PATH="${DEB_PREFIX}plugins"
-    LEGACY_STABLE_BASE_PATH="${DEB_PREFIX}plugins-stable"
+    LEGACY_BASE_PATH="${DEB_PREFIX}${REPO_BASE}"
+    LEGACY_TESTING_BASE_PATH="${DEB_PREFIX}${REPO_BASE}"
+    LEGACY_STABLE_BASE_PATH="${DEB_PREFIX}${REPO_BASE}-stable"
     POOL_PATH="pool/$POOL_SEGMENT/$MODULE_NAME"
     TESTING_POOL_PATH="pool/$TESTING_POOL_SEGMENT/$MODULE_NAME"
     STABLE_POOL_PATH="pool/stable/$MODULE_NAME"
