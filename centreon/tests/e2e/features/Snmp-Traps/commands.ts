@@ -88,10 +88,18 @@ Cypress.Commands.add('runTrapsBulkAction', (name: string, action: string) => {
 Cypress.Commands.add(
   'selectTrapSidePanelOption',
   (label: string, option: string) => {
+    // A multi-select keeps its dropdown open after a pick, and clicking the
+    // container again toggles it shut - hiding the very options the next pick
+    // needs. Only click to open when this field's dropdown is closed.
     cy.getTrapSidePanelBody()
       .contains('.cf-field', label)
-      .find('.select2-selection')
-      .click({ force: true });
+      .then(($field) => {
+        if ($field.find('.select2-container--open').length > 0) {
+          return;
+        }
+
+        cy.wrap($field).find('.select2-selection').click({ force: true });
+      });
 
     cy.getTrapSidePanelBody()
       .find('.select2-results__option', { timeout: 20_000 })
@@ -137,9 +145,11 @@ Cypress.Commands.add(
  * in the legacy iframe, so it needs no side-panel drilling.
  */
 Cypress.Commands.add('selectTrapsGeneratePoller', (poller: string) => {
+  // Click the selection itself, not the .select2 container wrapping it: select2
+  // binds its open handler on the selection, and a forced click dispatches the
+  // event on the subject without descending into its children.
   cy.getIframeBody()
-    .find(`${generatePollersField} + .select2, .cf-field .select2-selection`)
-    .first()
+    .find(`${generatePollersField} + .select2 .select2-selection`)
     .click({ force: true });
   cy.getIframeBody()
     .find('.select2-results__option', { timeout: 20_000 })
