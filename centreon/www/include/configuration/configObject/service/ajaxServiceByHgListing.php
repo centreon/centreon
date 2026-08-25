@@ -59,20 +59,6 @@ try {
             SQL
     ) ?: 60);
 
-    // Service icon cache
-    $svcIconCache = [];
-    $svcIconQuery = <<<'SQL'
-        SELECT esi.service_service_id, CONCAT(vid.dir_alias, '/', vi.img_path) AS icon_path
-        FROM extended_service_information esi
-        INNER JOIN view_img vi ON esi.esi_icon_image = vi.img_id
-        INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
-        INNER JOIN view_img_dir vid ON vidr.dir_dir_parent_id = vid.dir_id
-        WHERE esi.esi_icon_image IS NOT NULL
-        SQL;
-    foreach ($pearDB->fetchAllAssociative($svcIconQuery) as $row) {
-        $svcIconCache[(int) $row['service_service_id']] = './img/media/' . $row['icon_path'];
-    }
-
     // Build query
     $joins = ' FROM service sv'
         . ' INNER JOIN host_service_relation hsr ON hsr.service_service_id = sv.service_id'
@@ -164,6 +150,37 @@ try {
         ) as $svc
     ) {
         $results[] = $svc;
+    }
+
+    // Icons for the displayed rows only. Loading the whole extended_service_information
+    // join up front pulls every iconed service on the platform to render at most
+    // $limit of them, on every page turn and every auto-refresh.
+    $svcIconCache = [];
+    $displayedServiceIds = array_values(array_unique(array_map(
+        static fn (array $svc): int => (int) $svc['service_id'],
+        $results
+    )));
+    if ($displayedServiceIds !== []) {
+        $iconPlaceholders = [];
+        $iconParameters   = [];
+        foreach ($displayedServiceIds as $index => $serviceId) {
+            $iconPlaceholders[] = ':icon_svc' . $index;
+            $iconParameters[]   = QueryParameter::int('icon_svc' . $index, $serviceId);
+        }
+        $svcIconQuery = <<<'SQL'
+            SELECT esi.service_service_id, CONCAT(vid.dir_alias, '/', vi.img_path) AS icon_path
+            FROM extended_service_information esi
+            INNER JOIN view_img vi ON esi.esi_icon_image = vi.img_id
+            INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
+            INNER JOIN view_img_dir vid ON vidr.dir_dir_parent_id = vid.dir_id
+            WHERE esi.esi_icon_image IS NOT NULL
+              AND esi.service_service_id IN (
+            SQL . implode(', ', $iconPlaceholders) . ')';
+        foreach (
+            $pearDB->fetchAllAssociative($svcIconQuery, QueryParameters::create($iconParameters)) as $row
+        ) {
+            $svcIconCache[(int) $row['service_service_id']] = './img/media/' . $row['icon_path'];
+        }
     }
 
     // Template chain helper
