@@ -144,6 +144,15 @@ When('the user has applied "Mass Change" operation on several services', () => {
   cy.getIframeBody().find('.cl-more-actions-btn').first().click();
   cy.getIframeBody().find('.cl-more-actions-item[data-value="mc"]').click();
   cy.wait('@massChangeForm', { timeout: 60_000 });
+  // The request landing is not the panel being ready: its iframe still has to
+  // parse and run a form of that size. getFormBody() allows 20s for the body to
+  // fill, which the runner outruns, so the wait is made explicit and generous
+  // here rather than by loosening the shared helper for every suite.
+  cy.get('iframe#main-content', { log: false })
+    .its('0.contentDocument.body', { timeout: 60_000 })
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 60_000 })
+    .should('not.be.empty');
   cy.wait('@getTimeZone');
   cy.getFormBody()
     .find('span[id="select2-command_command_id-container"]', {
