@@ -439,16 +439,11 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $fields['host_name'] = $hostName;
                 }
             }
-            // The name has to be free among BOTH hosts and templates, which is what
-            // the two forms enforce: formHost.php and formHostTemplateModel.php each
-            // apply the 'exist' (hasHostNameNeverUsed) and 'existTemplate'
-            // (hasHostTemplateNeverUsed) rules to host_name.
-            //
-            // Checking only the first one looked at host_register = '1'. Host
-            // templates duplicate through this same function — hostTemplateModel.php
-            // requires this file and calls multipleHostInDB() — and they carry
-            // host_register = '0', so the guard never saw the copy it had just made
-            // and inserted the same name again on every run.
+            // The name has to be free among BOTH hosts and templates. Host templates
+            // duplicate through this same function — hostTemplateModel.php requires
+            // this file and calls multipleHostInDB() — and they carry
+            // host_register = '0', so a host-only check never sees the template copy
+            // it has just made.
             if (hasHostNameNeverUsed($hostName) && hasHostTemplateNeverUsed($hostName)) {
                 $columns = array_keys($row);
                 $placeholders = array_map(fn ($col) => ':' . $col, $columns);
@@ -777,6 +772,13 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         action_type: ActionLog::ACTION_TYPE_ADD
                     );
                 }
+            } else {
+                // Nothing is created and the page reloads unchanged, so the operator
+                // gets no explanation for the copy that never appeared.
+                AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                    'Host duplication skipped: the generated name is already taken by a host or a host template',
+                    ['sourceHostId' => (int) $key, 'name' => $hostName]
+                );
             }
             // if all duplication names are already used, next value is never set
             if (isset($maxId)) {
