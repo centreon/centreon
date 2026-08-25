@@ -43,10 +43,8 @@ $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('htPage', $p);
 
-// No search / Locked restore here: the server-side listing block that used to
-// write $centreon->historySearch is gone, so both keys were never set and the
-// reads always yielded their defaults. CentreonListing restores the term and
-// the filter controls from its own session state in init().
+// CentreonListing restores the search term and the Locked filter client-side,
+// from its own session state, in init().
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);

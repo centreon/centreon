@@ -1362,7 +1362,7 @@ var CentreonForm = (function () {
      *
      * On an editable form that is the input's own checked state. On a read-only
      * one there is no radio or checkbox left to ask: QuickForm renders a frozen
-     * element as its value plus a persistant hidden input, and emits that hidden
+     * element as its value plus a persistent hidden input, and emits that hidden
      * input ONLY for the option that was selected. It keeps the element's id and
      * name, so getElementById() and the [name][value] lookup still land on it —
      * but .checked is false on a hidden input, which is why a read-only form used

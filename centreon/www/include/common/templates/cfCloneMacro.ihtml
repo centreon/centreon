@@ -12,8 +12,8 @@
  * command_inheritance. The cloneSet order is [id, name, value, password, from];
  * cf_idx is the 0-based array key, so 1 = name, 2 = value, 3 = password.
  *}
-{* Derived before anything renders: the row loop below unfreezes its elements, so
-   isFrozen() asked after it would always answer false. *}
+{* Derived before anything renders: the row loop below unfreezes the name and
+   value elements, so a probe placed after it would read a partly thawed set. *}
 {assign var=isFrozen value=0}
 {foreach from=$cloneSet item=v}
     {if $v->isFrozen()}

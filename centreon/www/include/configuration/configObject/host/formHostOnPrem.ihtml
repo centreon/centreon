@@ -77,9 +77,10 @@
 		{/if}
         {* Poller, timezone and geographic coordinates sit OUTSIDE the two gates
            above, on purpose. Mass Change only excludes name / alias / address, and a
-           host template still carries a poller and a timezone — that is what the
-           legacy form renders. Gating them here silently dropped three fields from
-           the Mass Change form and the timezone from the template form. *}
+           host template still carries a timezone — that is what the legacy form
+           renders, and why each field below is guarded on its own presence. Gating
+           them here dropped three fields from the Mass Change form and the timezone
+           from the template form. *}
 		{if $o == "mc" && isset($form.nagios_server_id.label)}
             <div class="cf-row-inline">
                 <div class="cf-field" style="max-width:320px;">

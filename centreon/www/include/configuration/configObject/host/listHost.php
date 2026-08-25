@@ -60,10 +60,8 @@ $tpl->assign('State', _('State'));
 // template, so no returnSvg() assignment is needed here — only its tooltip.
 $tpl->assign('HelpServices', _('Display all Services for this host'));
 
-// No search restore here: the server-side listing block that used to write
-// $centreon->historySearch is gone, so the key was never set and the read always
-// yielded ''. CentreonListing restores the term (and the filter values) from its
-// own session state in init().
+// CentreonListing restores the search term and the filter values client-side,
+// from its own session state, in init().
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
@@ -73,13 +71,11 @@ $form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 
-// Select2 filters
-// No 'defaultDataset' / 'linkedObject' on these filters. Nothing writes the
-// historySearch keys they used to read, so the server-side pre-selection never
-// fired; the selected value is restored client-side by CentreonListing, from its
-// own session state (which also carries the option's label).
+// No 'defaultDataset' / 'linkedObject' on these filters: the selected value is
+// restored client-side by CentreonListing, from its own session state, which also
+// carries the option's label.
 //
-// Leaving them is not neutral. For an AJAX source with no defaultDatasetRoute,
+// Adding them back is not neutral. For an AJAX source with no defaultDatasetRoute,
 // select2.php calls setDefaultFixedDatas(), which asks the linked class for its
 // default dataset — and a class whose getObjectForSelect2() only applies its
 // WHERE clause when the value set is non-empty then returns EVERY row, all
@@ -90,8 +86,8 @@ $form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
 // empty set, so the host filters were spared — but each still cost a pointless
 // query per page load.
 //
-// On the static `status` filter, defaultDataset => '' was worse than dead:
-// setDefaultFixedDatas() only skips on null, so it ran foreach over a string.
+// And on the static `status` filter an empty-string defaultDataset would be worse
+// than useless: setDefaultFixedDatas() only skips on null, so it iterates a string.
 $hgRoute = './api/internal.php?object=centreon_configuration_hostgroup&action=list';
 $form->addElement('select2', 'hostgroup', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $hgRoute, 'multiple' => false]);
 

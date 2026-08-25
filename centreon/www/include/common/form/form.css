@@ -1505,8 +1505,8 @@
 .cf-side-panel-title {
     font-size: 16px;
     font-weight: 600;
-    /* Centreon blue, like .cf-page-title — resolves to the light-theme primary
-       blue in light and to --color-malibu-2 in Centreon-Dark. */
+    /* The same blue as the listing's +Add button, in both themes: this token is
+       what the button itself uses, so the two cannot drift apart. */
     color: var(--bt-info-background-color, #2E68AA);
 }
 
