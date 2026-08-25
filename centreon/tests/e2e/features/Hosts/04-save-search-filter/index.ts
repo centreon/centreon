@@ -5,6 +5,11 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 const searchWordOnHostTemplate = 'generic-host';
 const searchWordOnTraps = 'ccm';
 
+// The SNMP traps listing runs on the modernized listing framework: a live search
+// field (no Search button) whose term is persisted client-side by listing.js and
+// restored on the next visit. The host template listing is still the legacy one.
+const trapsSearchInput = '#clSearchInput';
+
 beforeEach(() => {
   cy.startContainers();
   cy.intercept({
@@ -15,6 +20,14 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  // Typing in the field triggers a debounced GET carrying the term, and that
+  // request is what writes the search into the persisted listing state - so it
+  // is the signal to wait on before navigating away.
+  cy.intercept({
+    method: 'GET',
+    query: { search: searchWordOnTraps },
+    url: INTERCEPTORS.ajax.traps_listing
+  }).as('searchTrapsListing');
 });
 
 afterEach(() => {
@@ -58,12 +71,9 @@ Then(
 
 Given('a search on the traps listing', () => {
   cy.visit(PAGES.configuration.snmpTrapsLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
-  cy.getIframeBody()
-    .find('input[name="searchT"]')
-    .clear()
-    .type(searchWordOnTraps);
-  cy.getIframeBody().find('input[value="Search"]').click();
+  cy.waitForElementInIframe('#main-content', trapsSearchInput);
+  cy.getIframeBody().find(trapsSearchInput).clear().type(searchWordOnTraps);
+  cy.wait('@searchTrapsListing');
 });
 
 When('the user goes back to the traps listing', () => {
@@ -71,8 +81,8 @@ When('the user goes back to the traps listing', () => {
 });
 
 Then('the search on the traps page is filled with the previous search', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
+  cy.waitForElementInIframe('#main-content', trapsSearchInput);
   cy.getIframeBody()
-    .find('input[name="searchT"]')
+    .find(trapsSearchInput)
     .should('have.value', searchWordOnTraps);
 });
