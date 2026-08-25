@@ -80,9 +80,9 @@ Given(
     // grants exist in the configuration and nowhere the endpoints can see them.
     cy.fixture('resources/clapi/config-ACL/hosts-acl-user.json').then(
       (actions: Array<ActionClapi>) => {
-        actions.forEach((action) =>
-          cy.executeActionViaClapi({ bodyContent: action })
-        );
+        actions.forEach((action) => {
+          cy.executeActionViaClapi({ bodyContent: action });
+        });
       }
     );
 
