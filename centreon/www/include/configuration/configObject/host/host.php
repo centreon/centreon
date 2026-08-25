@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -94,6 +97,61 @@ $hgs = $acl->getHostGroupAclConf(null, 'broker');
 $aclHostString = $acl->getHostsString('ID', $dbmon);
 $aclPollerString = $acl->getPollerString();
 
+/**
+ * Keep a write action to the hosts the caller may actually write.
+ *
+ * The topology check upstream admits read-only access to this page, and none of
+ * the branches below look at the ids they are handed — the CSRF token is their
+ * only gate. So a reader could reach every bulk action, on any host id it posted.
+ *
+ * Returns the granted subset, so an action carrying a mix acts on the allowed
+ * part rather than failing whole, which is how the AJAX endpoints behave too.
+ *
+ * @param array<int, mixed> $selection Host ids as keys, as getSelectOption() returns
+ *
+ * @return array<int, mixed>
+ */
+function keepWritableHosts(array $selection): array
+{
+    global $acl, $dbmon, $centreon, $p;
+
+    if ($selection === []) {
+        return [];
+    }
+
+    if ($acl->page($p) != 1) {
+        Logger::create(LogChannelEnum::WEB)->warning(
+            'Hosts page: bulk action refused, no write access',
+            ['userId' => (int) $centreon->user->get_id(), 'pageId' => $p]
+        );
+
+        return [];
+    }
+
+    if ($centreon->user->admin) {
+        return $selection;
+    }
+
+    $granted = array_flip(array_filter(array_map(
+        'intval',
+        explode(',', (string) $acl->getHostsString('ID', $dbmon, false))
+    )));
+    $writable = array_intersect_key($selection, $granted);
+
+    if (count($writable) !== count($selection)) {
+        Logger::create(LogChannelEnum::WEB)->warning(
+            'Hosts page: bulk action narrowed to the caller ACL',
+            [
+                'userId' => (int) $centreon->user->get_id(),
+                'submitted' => count($selection),
+                'granted' => count($writable),
+            ]
+        );
+    }
+
+    return $writable;
+}
+
 switch ($o) {
     case HOST_ADD:
     case HOST_WATCH:
@@ -105,7 +163,9 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostInDB($host_id);
+            // Same guard as the bulk branches: this one took the id straight
+            // from the request too.
+            enableHostInDB(null, keepWritableHosts($host_id ? [$host_id => '1'] : []));
         } else {
             unvalidFormMessage();
         }
@@ -115,7 +175,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostInDB(null, $select ?? []);
+            enableHostInDB(null, keepWritableHosts($select ?? []));
         } else {
             unvalidFormMessage();
         }
@@ -125,7 +185,9 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostInDB($host_id);
+            // Same guard as the bulk branches: this one took the id straight
+            // from the request too.
+            disableHostInDB(null, keepWritableHosts($host_id ? [$host_id => '1'] : []));
         } else {
             unvalidFormMessage();
         }
@@ -135,7 +197,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostInDB(null, $select ?? []);
+            disableHostInDB(null, keepWritableHosts($select ?? []));
         } else {
             unvalidFormMessage();
         }
@@ -145,7 +207,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleHostInDB($select ?? [], $dupNbr);
+            multipleHostInDB(keepWritableHosts($select ?? []), $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -158,7 +220,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostInApi(hosts: is_array($select) ? array_keys($select) : []);
+            deleteHostInApi(hosts: array_keys(keepWritableHosts(is_array($select) ? $select : [])));
         } else {
             unvalidFormMessage();
         }
@@ -168,7 +230,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            applytpl(array_keys($select) ?? []);
+            applytpl(array_keys(keepWritableHosts($select ?? [])));
         } else {
             unvalidFormMessage();
         }
