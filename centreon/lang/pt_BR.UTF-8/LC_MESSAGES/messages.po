@@ -24066,3 +24066,290 @@ msgstr "Você está prestes a duplicar <strong>{{ count }} categorias de host</s
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Você está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
 
+#: unknown
+msgid "Add a host dependency"
+msgstr "Adicionar uma dependência de host"
+
+#: unknown
+msgid "Add a host group dependency"
+msgstr "Adicionar uma dependência de grupos de hosts"
+
+#: unknown
+msgid "Add a meta service dependency"
+msgstr "Adicionar uma dependência de meta serviços"
+
+#: unknown
+msgid "Add a service dependency"
+msgstr "Adicionar uma dependência de serviços"
+
+#: unknown
+msgid "Add a service group dependency"
+msgstr "Adicionar uma dependência de grupos de serviços"
+
+#: unknown
+msgid "Add an escalation"
+msgstr "Adicionar uma escala"
+
+#: unknown
+msgid "Delete escalation"
+msgstr "Excluir escala"
+
+#: unknown
+msgid "Delete escalations"
+msgstr "Excluir escalas"
+
+#: unknown
+msgid "Delete host dependencies"
+msgstr "Excluir dependências de host"
+
+#: unknown
+msgid "Delete host dependency"
+msgstr "Excluir dependência de host"
+
+#: unknown
+msgid "Delete host group dependencies"
+msgstr "Excluir dependências de grupos de hosts"
+
+#: unknown
+msgid "Delete host group dependency"
+msgstr "Excluir dependência de grupos de hosts"
+
+#: unknown
+msgid "Delete meta service dependencies"
+msgstr "Excluir dependências de meta serviços"
+
+#: unknown
+msgid "Delete meta service dependency"
+msgstr "Excluir dependência de meta serviços"
+
+#: unknown
+msgid "Delete service dependencies"
+msgstr "Excluir dependências de serviços"
+
+#: unknown
+msgid "Delete service dependency"
+msgstr "Excluir dependência de serviços"
+
+#: unknown
+msgid "Delete service group dependencies"
+msgstr "Excluir dependências de grupos de serviços"
+
+#: unknown
+msgid "Delete service group dependency"
+msgstr "Excluir dependência de grupos de serviços"
+
+#: unknown
+msgid "Duplicate escalation"
+msgstr "Duplicar escala"
+
+#: unknown
+msgid "Duplicate escalations"
+msgstr "Duplicar escalas"
+
+#: unknown
+msgid "Duplicate host dependencies"
+msgstr "Duplicar dependências de host"
+
+#: unknown
+msgid "Duplicate host dependency"
+msgstr "Duplicar dependência de host"
+
+#: unknown
+msgid "Duplicate host group dependencies"
+msgstr "Duplicar dependências de grupos de hosts"
+
+#: unknown
+msgid "Duplicate host group dependency"
+msgstr "Duplicar dependência de grupos de hosts"
+
+#: unknown
+msgid "Duplicate meta service dependencies"
+msgstr "Duplicar dependências de meta serviços"
+
+#: unknown
+msgid "Duplicate meta service dependency"
+msgstr "Duplicar dependência de meta serviços"
+
+#: unknown
+msgid "Duplicate service dependencies"
+msgstr "Duplicar dependências de serviços"
+
+#: unknown
+msgid "Duplicate service dependency"
+msgstr "Duplicar dependência de serviços"
+
+#: unknown
+msgid "Duplicate service group dependencies"
+msgstr "Duplicar dependências de grupos de serviços"
+
+#: unknown
+msgid "Duplicate service group dependency"
+msgstr "Duplicar dependência de grupos de serviços"
+
+#: unknown
+msgid "Escalate notifications to additional contacts when problems persist."
+msgstr "Encaminhe as notificações para contatos adicionais quando os problemas persistirem."
+
+#: unknown
+msgid "Escalation Options"
+msgstr "Opções de escala"
+
+#: unknown
+msgid "Host dependencies"
+msgstr "Dependências de host"
+
+#: unknown
+msgid "Host group dependencies"
+msgstr "Dependências de grupos de hosts"
+
+#: unknown
+msgid "Meta service dependencies"
+msgstr "Dependências de meta serviços"
+
+#: unknown
+msgid "Modify a host dependency"
+msgstr "Modificar uma dependência de host"
+
+#: unknown
+msgid "Modify a host group dependency"
+msgstr "Modificar uma dependência de grupos de hosts"
+
+#: unknown
+msgid "Modify a meta service dependency"
+msgstr "Modificar uma dependência de meta serviços"
+
+#: unknown
+msgid "Modify a service dependency"
+msgstr "Modificar uma dependência de serviços"
+
+#: unknown
+msgid "Modify a service group dependency"
+msgstr "Modificar uma dependência de grupos de serviços"
+
+#: unknown
+msgid "Modify an escalation"
+msgstr "Modificar uma escala"
+
+#: unknown
+msgid "Service dependencies"
+msgstr "Dependências de serviços"
+
+#: unknown
+msgid "Service group dependencies"
+msgstr "Dependências de grupos de serviços"
+
+#: unknown
+msgid "Suppress host notifications based on the state of other hosts."
+msgstr "Suprima as notificações de host com base no estado de outros hosts."
+
+#: unknown
+msgid "Suppress notifications based on the state of other host groups."
+msgstr "Suprima as notificações com base no estado de outros grupos de hosts."
+
+#: unknown
+msgid "Suppress notifications based on the state of other meta services."
+msgstr "Suprima as notificações com base no estado de outros meta serviços."
+
+#: unknown
+msgid "Suppress notifications based on the state of other service groups."
+msgstr "Suprima as notificações com base no estado de outros grupos de serviços."
+
+#: unknown
+msgid "Suppress service notifications based on the state of other services."
+msgstr "Suprima as notificações de serviço com base no estado de outros serviços."
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} escalations.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} escalas</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} host dependencies.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} dependências de host</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} host group dependencies.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} dependências de grupos de hosts</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} meta service dependencies.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} dependências de meta serviços</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service dependencies.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} dependências de serviços</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service group dependencies.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Você está prestes a excluir <strong>{{ count }} dependências de grupos de serviços</strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> escalation. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a escala <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> host dependency. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a dependência de host <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> host group dependency. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a dependência de grupos de hosts <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> meta service dependency. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a dependência de meta serviços <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service dependency. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a dependência de serviços <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service group dependency. This action cannot be undone. Do you want to delete it?"
+msgstr "Você está prestes a excluir a dependência de grupos de serviços <strong>{{ name }}</strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} escalations.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} escalas</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} host dependencies.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} dependências de host</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} host group dependencies.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} dependências de grupos de hosts</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} meta service dependencies.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} dependências de meta serviços</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service dependencies.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} dependências de serviços</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service group dependencies.</strong> Do you want to duplicate them?"
+msgstr "Você está prestes a duplicar <strong>{{ count }} dependências de grupos de serviços</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> escalation. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a escala <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host dependency. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a dependência de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host group dependency. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a dependência de grupos de hosts <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> meta service dependency. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a dependência de meta serviços <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service dependency. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a dependência de serviços <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service group dependency. Do you want to duplicate it?"
+msgstr "Você está prestes a duplicar a dependência de grupos de serviços <strong>{{ name }}</strong>. Deseja duplicá-la?"
