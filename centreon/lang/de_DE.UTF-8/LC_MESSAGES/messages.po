@@ -21781,7 +21781,7 @@ msgstr "Datenbank erzeugen"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
 msgid "Apply & Signal"
-msgstr "Übernehmen & Signal"
+msgstr "Übernehmen und Signal senden"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Apply configuration"
@@ -21793,7 +21793,7 @@ msgstr "Signal an centreontrapd senden"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
 msgid "Please select at least one action (Generate, Apply or Signal)."
-msgstr "Bitte wählen Sie mindestens eine Aktion aus (Erzeugen, Übernehmen oder Signal)."
+msgstr "Bitte wählen Sie mindestens eine Aktion aus (Erzeugen, Übernehmen oder Signal senden)."
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Configuration applied"

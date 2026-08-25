@@ -25391,7 +25391,7 @@ msgstr "Envoyer un signal à centreontrapd"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
 msgid "Please select at least one action (Generate, Apply or Signal)."
-msgstr "Veuillez sélectionner au moins une action (Générer, Appliquer ou Signal)."
+msgstr "Veuillez sélectionner au moins une action (Générer, Appliquer ou Signaler)."
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Configuration applied"

@@ -24069,27 +24069,27 @@ msgstr "Você está prestes a duplicar a categoria de host <strong>{{ name }}</s
 
 #: www/include/configuration/configObject/traps/listTraps.ihtml
 msgid "Add a trap"
-msgstr "Adiciona um trap"
+msgstr "Adicionar um trap"
 
 #: www/include/configuration/configObject/traps/listTraps.ihtml
 msgid "Modify a trap"
-msgstr "Modifica um trap"
+msgstr "Modificar um trap"
 
 #: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
 msgid "Add a vendor"
-msgstr "Adiciona um fabricante"
+msgstr "Adicionar um fabricante"
 
 #: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
 msgid "Modify a vendor"
-msgstr "Modifica um fabricante"
+msgstr "Modificar um fabricante"
 
 #: www/include/configuration/configObject/traps-groups/listGroups.ihtml
 msgid "Add a trap group"
-msgstr "Adiciona um grupo de traps"
+msgstr "Adicionar um grupo de traps"
 
 #: www/include/configuration/configObject/traps-groups/listGroups.ihtml
 msgid "Modify a trap group"
-msgstr "Modifica um grupo de traps"
+msgstr "Modificar um grupo de traps"
 
 #: www/include/configuration/configObject/traps/listTraps.php
 msgid "Delete trap"

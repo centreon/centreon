@@ -25659,7 +25659,7 @@ msgstr "Generar base de datos"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
 msgid "Apply & Signal"
-msgstr "Aplicar y señal"
+msgstr "Aplicar y enviar señal"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Send signal to centreontrapd"
@@ -25667,7 +25667,7 @@ msgstr "Enviar señal a centreontrapd"
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
 msgid "Please select at least one action (Generate, Apply or Signal)."
-msgstr "Seleccione al menos una acción (Generar, Aplicar o Señal)."
+msgstr "Seleccione al menos una acción (Generar, Aplicar o Enviar señal)."
 
 #: www/include/configuration/configGenerateTraps/formGenerateTraps.php
 msgid "Configuration applied"
