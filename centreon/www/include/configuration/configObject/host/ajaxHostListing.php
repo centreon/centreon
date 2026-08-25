@@ -39,9 +39,10 @@ $params = $helper->getParams();
 $search    = $params['search'];
 $num       = $params['num'];
 $limit     = $params['limit'];
-// Absent means "no filter" (0); present but not an integer is a bad request. The
-// two must not collapse into the same value: answering an unfiltered list to
-// `poller=abc` presents every host as though the filter had been applied.
+// Absent or empty means "no filter" (0) — a cleared select2 sends an empty value.
+// Anything else must be a non-negative integer: collapsing an unparseable value
+// into 0 answered an unfiltered list to `poller=abc`, presenting every host as
+// though the filter had been applied.
 $filters = [];
 foreach (['hostgroup', 'poller', 'template', 'status'] as $filter) {
     if (! isset($_GET[$filter]) || $_GET[$filter] === '') {
@@ -219,9 +220,13 @@ try {
     // monitoring data on a *configuration* page, so a centstorage outage must
     // degrade the live badge, not 500 the whole listing whose config rows have
     // already been read successfully from pearDB.
+    // null until a lookup was actually attempted: a page with no rows must not
+    // claim the monitoring source is healthy, or the client clears its warning
+    // on an empty search in the middle of an outage.
     $rtmStatus      = [];
-    $rtmUnavailable = false;
+    $rtmUnavailable = null;
     if ($hostIds !== []) {
+        $rtmUnavailable = false;
         try {
             $rtIn = AjaxListingHelper::buildIntInClause($hostIds, 'rid');
             $rtRows = (new CentreonDB('centstorage'))->fetchAllAssociative(
@@ -243,9 +248,16 @@ try {
                 ];
             }
         } catch (ConnectionException $exception) {
-            // Narrow on purpose: a broken centstorage degrades the badge, but a
-            // TypeError from our own code must not hide behind that label and
-            // regress silently — it belongs in the endpoint's 500 handler.
+            // Narrow on purpose: a TypeError from our own code must not hide behind
+            // a "centstorage unavailable" label and regress silently — it belongs in
+            // the endpoint's 500 handler.
+            //
+            // This covers a reachable centstorage answering badly: `resources`
+            // missing without unified_sql, a denied grant, a schema drift. It does
+            // NOT cover an unreachable one: CentreonDB's constructor prints an HTML
+            // error page and exits under a web SAPI instead of throwing, which no
+            // catch here can intercept. The client sees that as a parse error and
+            // reports it — see the fetch error handler in listing.js.
             Logger::create(LogChannelEnum::WEB)->error(
                 'AJAX listing: real-time host status unavailable, listing rendered without it',
                 ['exception' => $exception]
@@ -281,8 +293,15 @@ try {
     }
 
     // Without this the client cannot tell "this host is not monitored" from "we
-    // could not read the monitoring data": both render an empty status cell.
-    $helper->jsonResponse($rows, $total, $num, $limit, ['rtm_available' => ! $rtmUnavailable]);
+    // could not read the monitoring data": both render the same dimmed dash.
+    // Absent when no lookup was attempted, so the client leaves its state alone.
+    $helper->jsonResponse(
+        $rows,
+        $total,
+        $num,
+        $limit,
+        $rtmUnavailable === null ? [] : ['rtm_available' => ! $rtmUnavailable]
+    );
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'AJAX listing: failed to fetch hosts',
