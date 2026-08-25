@@ -12,13 +12,11 @@ import ListingSkeleton from './ListingSkeleton';
 const useStyles = makeStyles()((theme) => {
   return {
     filters: {
-      borderBottom: `1px solid ${theme.palette.divider}`,
       margin: theme.spacing(0, 3)
     },
     listing: {
       margin: theme.spacing(0, 3),
-      overflowY: 'auto',
-      paddingTop: theme.spacing(1)
+      overflowY: 'auto'
     },
     page: {
       display: 'grid',
