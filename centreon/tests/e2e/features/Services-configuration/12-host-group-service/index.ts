@@ -97,9 +97,8 @@ Given('some service categories are configured', () => {
   );
 });
 
-// The listing has no legacy search input to wait on and its bulk actions go
-// through the hidden o1 select, whose onchange has to be overridden to reach the
-// legacy dispatcher.
+// Bulk actions go through the More actions menu (cy.runListingBulkAction), which
+// runs the path a user takes: menu, confirmation modal, submit.
 const runBulkActionOnRow = (name: string, action: string): void => {
   // Queries only — find and filter are replayed, so the chain survives the
   // timed refresh replacing the table. The row is matched on the exact link

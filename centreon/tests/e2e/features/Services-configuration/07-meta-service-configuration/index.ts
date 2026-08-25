@@ -393,7 +393,7 @@ Then('the meta service is enabled again', () => {
 
 When('the user duplicates a meta service', () => {
   cy.openMetaServicesListing();
-  cy.selectMetaServiceRowAndRunBulkAction(data.default.name, 'Duplicate');
+  cy.selectMetaServiceRowAndRunBulkAction(data.default.name, 'm');
   cy.wait('@getTimeZone');
 });
 
@@ -472,7 +472,7 @@ Then('the new meta service has the same properties', () => {
 
 When('the user deletes a meta service', () => {
   cy.openMetaServicesListing();
-  cy.selectMetaServiceRowAndRunBulkAction(data.default.name, 'Delete');
+  cy.selectMetaServiceRowAndRunBulkAction(data.default.name, 'd');
   cy.wait('@getTimeZone');
 });
 

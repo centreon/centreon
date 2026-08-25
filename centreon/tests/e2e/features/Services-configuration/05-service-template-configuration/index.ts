@@ -38,14 +38,7 @@ const runBulkActionOn = (name: string, action: string): void => {
       `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
     )
     .click({ force: true });
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+  cy.runListingBulkAction(action);
 };
 
 // Single-select fields are select2 widgets: open the selection, then pick the
@@ -127,7 +120,7 @@ Then('the properties are updated', () => {
 
 When('the user duplicates a service template', () => {
   waitForTemplatesListing();
-  runBulkActionOn(templateName, 'Duplicate');
+  runBulkActionOn(templateName, 'm');
 });
 
 Then('the new service template has the same properties', () => {
@@ -142,7 +135,7 @@ Then('the new service template has the same properties', () => {
 
 When('the user deletes a service template', () => {
   waitForTemplatesListing();
-  runBulkActionOn(templateName, 'Delete');
+  runBulkActionOn(templateName, 'd');
 });
 
 Then('the deleted service template is not displayed in the list', () => {

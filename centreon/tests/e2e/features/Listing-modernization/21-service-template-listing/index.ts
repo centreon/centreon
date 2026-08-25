@@ -247,16 +247,7 @@ When('the user selects a service template and duplicates it', () => {
       `#clTableBody tr:contains("${templateAlpha}") .cl-col-picker input[type="checkbox"]`
     )
     .click({ force: true });
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate', { force: true });
+  cy.runListingBulkAction('m');
 });
 
 Then('a duplicated service template appears in the listing', () => {
@@ -278,16 +269,7 @@ When('the user selects a service template and deletes it', () => {
       `#clTableBody tr:contains("${templateBeta}") .cl-col-picker input[type="checkbox"]`
     )
     .click({ force: true });
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete', { force: true });
+  cy.runListingBulkAction('d');
 });
 
 Then('the service template is removed from the listing', () => {

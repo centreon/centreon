@@ -688,16 +688,7 @@ Cypress.Commands.add(
         `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
       )
       .click({ force: true });
-    cy.getIframeBody()
-      .find('select[name="o1"]')
-      .invoke(
-        'attr',
-        'onchange',
-        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-      );
-    cy.getIframeBody()
-      .find('select[name="o1"]')
-      .select(action, { force: true });
+    cy.runListingBulkAction(action);
   }
 );
 
@@ -744,18 +735,7 @@ Cypress.Commands.add(
         `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
       )
       .click({ force: true });
-    cy.getIframeBody()
-      .find('select[name="o1"]')
-      .invoke(
-        'attr',
-        'onchange',
-        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-      );
-    // The native o1 select is hidden (replaced by the .cl-more-actions menu);
-    // the overridden onchange turns a value change into setO + submit.
-    cy.getIframeBody()
-      .find('select[name="o1"]')
-      .select(action, { force: true });
+    cy.runListingBulkAction(action);
   }
 );
 

@@ -192,16 +192,7 @@ When('the user selects a service group and duplicates it', () => {
     )
     .click({ force: true });
 
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate', { force: true });
+  cy.runListingBulkAction('m');
 });
 
 Then('a duplicated service group appears in the listing', () => {
@@ -224,16 +215,7 @@ When('the user selects a service group and deletes it', () => {
     )
     .click({ force: true });
 
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Delete', { force: true });
+  cy.runListingBulkAction('d');
 });
 
 Then('the service group is removed from the listing', () => {

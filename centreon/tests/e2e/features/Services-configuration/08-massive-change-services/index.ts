@@ -60,7 +60,7 @@ const checkServicesProperties = (name) => {
 // Select the row of a named service. The listing groups its rows by host, so
 // positional indexes no longer identify a service.
 const selectServiceRow = (name: string): void => {
-  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // One query, not a chain: the listing auto-refreshes on a timer and a
   // contains -> parents -> find chain loses its subject when the table is
   // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
@@ -139,8 +139,9 @@ When('the user has applied "Mass Change" operation on several services', () => {
   // Mass Change is the one bulk action that does not submit the form: the
   // framework opens the side panel on the selected ids instead, so there is
   // neither a confirmation modal nor a POST — hence the menu driven here rather
-  // than cy.runListingBulkAction(). Selecting on the hidden <select> made the
-  // panel open mid-chain, detaching the subject of whatever came next.
+  // than cy.runListingBulkAction(). Selecting on the hidden <select> bypasses
+  // the menu interception entirely and submits the whole page, and that reload
+  // detaches the subject of whatever came next.
   // The panel then loads the mass change form in its iframe, and that form is
   // heavy: getFormBody() only waits 20s for a body to stop being empty, which a
   // busy CI platform outruns. Synchronising on the request itself removes the

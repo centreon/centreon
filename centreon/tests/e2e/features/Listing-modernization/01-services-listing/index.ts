@@ -182,7 +182,7 @@ Then('the pagination info shows the total count', () => {
 // ---------------------------------------------------------------------------
 
 When('the user selects a service and duplicates it', () => {
-  // One query, not a chain: the listing auto-refreshes every 30s and a
+  // One query, not a chain: the listing auto-refreshes on a timer and a
   // contains -> parents -> find chain loses its subject when the table is
   // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
@@ -190,16 +190,7 @@ When('the user selects a service and duplicates it', () => {
       `#clTableBody tr:contains("${servicePing}") .cl-col-picker input[type="checkbox"]`
     )
     .click({ force: true });
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .select('Duplicate', { force: true });
+  cy.runListingBulkAction('m');
 });
 
 Then('a duplicated service appears in the listing', () => {

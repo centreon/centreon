@@ -50,8 +50,8 @@ const modifiedName = 'test_modified';
 const modifiedAlias = 'description_modified';
 const linkedService = 'Centreon-Server - Memory';
 
-// The listing is AJAX-driven and its bulk actions go through the hidden o1
-// select, whose onchange has to be overridden to reach the legacy dispatcher.
+// Bulk actions go through the More actions menu (cy.runListingBulkAction),
+// which runs the path a user takes: menu, confirmation modal, submit.
 const runBulkActionOn = (name: string, action: string): void => {
   // One query, not a chain: the listing auto-refreshes every 30s and a
   // contains -> parents -> find chain loses its subject when the table is
@@ -61,14 +61,7 @@ const runBulkActionOn = (name: string, action: string): void => {
       `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
     )
     .click({ force: true });
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody().find('select[name="o1"]').select(action, { force: true });
+  cy.runListingBulkAction(action);
 };
 
 When('the user changes the properties of a service group', () => {
@@ -113,7 +106,7 @@ Then('the properties of the service group are updated', () => {
 
 When('the user duplicates a service group', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesGroupsLegacy);
-  runBulkActionOn(serviceGroupName, 'Duplicate');
+  runBulkActionOn(serviceGroupName, 'm');
 });
 
 Then('the new service group has the same properties', () => {
@@ -133,7 +126,7 @@ Then('the new service group has the same properties', () => {
 
 When('the user deletes a service group', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesGroupsLegacy);
-  runBulkActionOn(serviceGroupName, 'Delete');
+  runBulkActionOn(serviceGroupName, 'd');
 });
 
 Then(

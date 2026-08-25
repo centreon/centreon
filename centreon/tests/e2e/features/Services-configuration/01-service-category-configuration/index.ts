@@ -174,7 +174,7 @@ When('the user duplicates a service category', () => {
   cy.openServiceCategoriesListing();
   cy.selectServiceCategoryRowAndRunBulkAction(
     serviceCategories.default.name,
-    'Duplicate'
+    'm'
   );
   cy.wait('@getTimeZone');
 });
@@ -191,7 +191,7 @@ When('the user deletes a service category', () => {
   cy.openServiceCategoriesListing();
   cy.selectServiceCategoryRowAndRunBulkAction(
     serviceCategories.default.name,
-    'Delete'
+    'd'
   );
   cy.wait('@getTimeZone');
 });
