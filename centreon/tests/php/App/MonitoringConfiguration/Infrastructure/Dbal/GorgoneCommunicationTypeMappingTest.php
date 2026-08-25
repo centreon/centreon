@@ -45,6 +45,13 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     private const COLUMN_REDECLARATION_PATTERN = '/(?:ADD|MODIFY|CHANGE)(?:\\s+COLUMN)?\\s+'
         . '`?gorgone_communication_type`?\\s+(?:(?!enum\\b)`?\\w+`?\\s+)?enum\\s*\\([^)]*\\)[^;]*/i';
 
+    /**
+     * Update-next.php carries the release under development, so it outranks every numbered
+     * script. Giving it a version above any Centreon release keeps the ordering a plain
+     * version_compare rather than a special case threaded through the sort.
+     */
+    private const RELEASE_UNDER_DEVELOPMENT_VERSION = '99999';
+
     #[DataProvider('provideCommunicationTypes')]
     public function testFromDatabaseMapsEveryColumnValue(
         string $databaseValue,
@@ -193,54 +200,57 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     {
         $allowedByFreshInstall = $this->communicationTypesAllowedBySchema();
 
-        foreach ($this->communicationTypesAllowedByUpgradeScripts() as $script => $allowedByUpgrade) {
+        foreach ($this->columnRedeclarationsByUpgradeScript() as $redeclaration) {
+            $allowedByUpgrade = $this->enumValues($redeclaration['definition']);
+
             self::assertSame(
                 [],
                 array_values(array_diff($allowedByUpgrade, $allowedByFreshInstall)),
-                "{$script} widens gorgone_communication_type beyond createTables.sql, so upgraded "
-                . 'platforms would hold values a fresh install never produces'
+                "{$redeclaration['script']} widens gorgone_communication_type beyond "
+                . 'createTables.sql, so upgraded platforms would hold values a fresh install '
+                . 'never produces'
             );
         }
     }
 
     /**
-     * The script for the release under development is the one platforms are about to run, so it
-     * has to land them on exactly the schema a fresh install produces. Narrowing matters here and
-     * not on shipped scripts: it would leave existing rows outside the enum, which is how MySQL
-     * ends up storing the empty error member.
+     * The last script to redeclare the column is the one an upgraded platform ends up with, so it
+     * has to land on exactly the schema a fresh install produces. Narrowing matters here and not
+     * on the scripts it supersedes: it would leave existing rows outside the enum, which is how
+     * MySQL ends up storing the empty error member.
      */
-    public function testTheCurrentUpgradeScriptLandsOnTheFreshInstallSchema(): void
+    public function testTheLatestUpgradeScriptLandsOnTheFreshInstallSchema(): void
     {
-        $definition = $this->currentUpgradeScriptDefinition();
+        ['script' => $script, 'definition' => $definition] = $this->latestColumnRedeclaration();
 
         self::assertEqualsCanonicalizing(
             $this->communicationTypesAllowedBySchema(),
             $this->enumValues($definition),
-            'Update-next.php and createTables.sql do not allow the same gorgone_communication_type '
+            "{$script} and createTables.sql do not allow the same gorgone_communication_type "
             . 'values, so upgraded and freshly installed platforms would disagree'
         );
     }
 
     /**
      * The comment shipped to upgraded platforms is what an operator reads with SHOW FULL COLUMNS,
-     * and an inverted one is the defect this guard exists for. Shipped scripts are deliberately
+     * and an inverted one is the defect this guard exists for. Superseded scripts are deliberately
      * left alone — Update-26.07.0.php still carries the inverted comment and is corrected forward
-     * rather than rewritten — so only the current script is held to the mapping.
+     * rather than rewritten — so only the last redeclaration is held to the mapping.
      */
-    public function testTheCurrentUpgradeScriptDocumentsTheMappingItApplies(): void
+    public function testTheLatestUpgradeScriptDocumentsTheMappingItApplies(): void
     {
-        $definition = $this->currentUpgradeScriptDefinition();
+        ['script' => $script, 'definition' => $definition] = $this->latestColumnRedeclaration();
 
         self::assertSame(
             1,
             preg_match("/COMMENT '([^']+)'/i", $definition, $comment),
-            'Update-next.php redeclares gorgone_communication_type without documenting its values'
+            "{$script} redeclares gorgone_communication_type without documenting its values"
         );
 
         self::assertGreaterThanOrEqual(
             1,
             preg_match_all('/(\d+)\s*:\s*(\w+)/', $comment[1], $documentedPairs, PREG_SET_ORDER),
-            "unreadable column comment in Update-next.php: {$comment[1]}"
+            "unreadable column comment in {$script}: {$comment[1]}"
         );
 
         foreach ($documentedPairs as $documentedPair) {
@@ -249,28 +259,51 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
             self::assertSame(
                 mb_strtolower($documentedPair[2]),
                 mb_strtolower($communicationType->name),
-                "Update-next.php documents '{$documentedPair[1]}: {$documentedPair[2]}' but the "
+                "{$script} documents '{$documentedPair[1]}: {$documentedPair[2]}' but the "
                 . "mapping reads that value as {$communicationType->name}"
             );
         }
     }
 
     /**
-     * @return string the ALTER that Update-next.php applies to the column, comment included
+     * Naming Update-next.php here would guard nothing one release from now: the release chore
+     * renames it to Update-<version>.php and resets Update-next.php from its template, so both
+     * guards above would read an empty skeleton and go green. What has to match the mapping is
+     * the last script to redeclare the column, whichever file that turns out to be.
+     *
+     * @return array{script: string, version: string, definition: string}
      */
-    private function currentUpgradeScriptDefinition(): string
+    private function latestColumnRedeclaration(): array
     {
-        $scriptPath = dirname(__DIR__, 6) . '/www/install/php/Update-next.php';
-        self::assertFileExists($scriptPath, "Update-next.php not found at {$scriptPath}");
+        $redeclarations = $this->columnRedeclarationsByUpgradeScript();
+
+        // usort is stable since PHP 8.0, so several ALTERs in one script keep their execution
+        // order and the last one applied wins, as it does on a platform.
+        usort(
+            $redeclarations,
+            static fn (array $left, array $right): int => version_compare($left['version'], $right['version'])
+        );
+
+        return end($redeclarations);
+    }
+
+    /**
+     * @return string the release a script upgrades to, comparable with version_compare
+     */
+    private function upgradeScriptVersion(string $script): string
+    {
+        if (preg_match('/^Update-(?:DB-)?next\./i', $script) === 1) {
+            return self::RELEASE_UNDER_DEVELOPMENT_VERSION;
+        }
 
         self::assertSame(
             1,
-            preg_match(self::COLUMN_REDECLARATION_PATTERN, (string) file_get_contents($scriptPath), $definition),
-            'Update-next.php no longer redeclares gorgone_communication_type, so the guards below '
-            . 'about the current upgrade script guard nothing'
+            preg_match('/^Update-(?:DB-)?(.+)\.(?:php|sql)$/i', $script, $version),
+            "cannot tell which release {$script} upgrades to, so it cannot be ordered against the "
+            . 'other upgrade scripts'
         );
 
-        return $definition[0];
+        return $version[1];
     }
 
     /**
@@ -310,9 +343,11 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     }
 
     /**
-     * @return array<string, list<string>> upgrade script name => values its ALTERs allow
+     * Every ALTER that redeclares the column, across both upgrade-script families.
+     *
+     * @return non-empty-list<array{script: string, version: string, definition: string}>
      */
-    private function communicationTypesAllowedByUpgradeScripts(): array
+    private function columnRedeclarationsByUpgradeScript(): array
     {
         $scripts = array_merge(
             glob(dirname(__DIR__, 6) . '/www/install/php/Update-*.php') ?: [],
@@ -320,7 +355,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         );
         self::assertNotSame([], $scripts, 'no upgrade script found, the glob no longer resolves');
 
-        $allowed = [];
+        $redeclarations = [];
         foreach ($scripts as $script) {
             $matched = preg_match_all(
                 self::COLUMN_REDECLARATION_PATTERN,
@@ -329,18 +364,21 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
                 PREG_SET_ORDER
             );
             for ($index = 0; $index < $matched; $index++) {
-                $allowed[basename($script) . ($index === 0 ? '' : " (ALTER #{$index})")]
-                    = $this->enumValues($definitions[$index][0]);
+                $redeclarations[] = [
+                    'script' => basename($script) . ($index === 0 ? '' : " (ALTER #{$index})"),
+                    'version' => $this->upgradeScriptVersion(basename($script)),
+                    'definition' => $definitions[$index][0],
+                ];
             }
         }
 
         self::assertNotSame(
             [],
-            $allowed,
+            $redeclarations,
             'no upgrade script redeclares gorgone_communication_type any more, this guard guards nothing'
         );
 
-        return $allowed;
+        return $redeclarations;
     }
 
     /**
