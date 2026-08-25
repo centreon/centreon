@@ -45,7 +45,7 @@ Feature: VendorConfiguration
 
   @MON-159081
   Scenario: Associate an existing vendor with an existing SNMP Trap and passive service
-    Given a vendor "update" is configured
+    Given a vendor "associate" is configured
     And an SNMP Trap is linked to the vendor
     And a passive service is linked to the vendor
     When the user goes to "Configuration > SNMP Traps > Generate"

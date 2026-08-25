@@ -19,17 +19,28 @@ const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }
 };
 
+// Read back in before(): the passive-service step addresses the service by id,
+// and cy.addService() does not return the one it just created.
+let serviceOkId: string;
+
 const secondVendorName = 'OtherVendor';
 const centralPollerId = '1';
 
 // This feature shares one container across its scenarios (before/after, not
-// beforeEach), and both the listing search and the bulk-action helper match on
-// a substring. Each scenario therefore gets a name that is not contained in any
-// other one, nor in the "_1" copy the duplication scenario leaves behind.
+// beforeEach), so nothing resets between them: a name seeded twice is a CLAPI
+// 409, and the vendor form rejects duplicates too ("Name is already in use").
+// Every scenario therefore owns its vendor. Both the listing search and the
+// bulk-action helper match on a substring, so no name here may be contained in
+// another one, nor in the "_1" copy the duplication scenario leaves behind.
 const vendorNames = {
+  associate: 'VendorToAssociate',
+  create: 'VendorToCreate',
   delete: 'VendorToDelete',
   duplicate: 'VendorToDuplicate',
-  update: data.default.name
+  listing: 'VendorForListing',
+  renamed: 'VendorRenamed',
+  search: 'VendorForSearch',
+  update: 'VendorToUpdate'
 };
 
 before(() => {
@@ -50,6 +61,16 @@ before(() => {
       template: services.serviceOk.template
     })
     .applyPollerConfiguration();
+
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'SHOW',
+      object: 'SERVICE',
+      values: `${services.serviceOk.host};${services.serviceOk.name}`
+    }
+  }).then((response) => {
+    serviceOkId = response.body.result[0].id;
+  });
 });
 
 beforeEach(() => {
@@ -88,7 +109,7 @@ Given('a vendor is configured through the API', () => {
     bodyContent: {
       action: 'ADD',
       object: 'VENDOR',
-      values: `${data.default.name};${data.default.alias}`
+      values: `${vendorNames.listing};${data.default.alias}`
     }
   });
 });
@@ -99,7 +120,7 @@ Given('two vendors are configured through the API', () => {
     bodyContent: {
       action: 'ADD',
       object: 'VENDOR',
-      values: `${data.default.name};${data.default.alias}`
+      values: `${vendorNames.search};${data.default.alias}`
     }
   });
   cy.executeActionViaClapi({
@@ -121,19 +142,19 @@ Then('the AJAX listing table is displayed with the configured vendor', () => {
   cy.getIframeBody().find(listingTable).should('exist');
   cy.getIframeBody()
     .find(listingTableBody)
-    .contains(data.default.name)
+    .contains(vendorNames.listing)
     .should('exist');
 });
 
 // Scenario: The search filters the vendors by name
 When('the user searches for the first vendor', () => {
-  cy.searchInTrapsListing(data.default.name);
+  cy.searchInTrapsListing(vendorNames.search);
 });
 
 Then('only the matching vendor is displayed', () => {
   cy.getIframeBody()
     .find(listingTableBody)
-    .contains(data.default.name)
+    .contains(vendorNames.search)
     .should('exist');
   cy.getIframeBody()
     .find(listingTableBody)
@@ -144,14 +165,14 @@ Then('only the matching vendor is displayed', () => {
 // Scenario: Create a new vendor
 When('the user adds a new vendor', () => {
   cy.openTrapsAddForm('input[name="name"]');
-  AddOrUpdateVendor(data.default);
+  AddOrUpdateVendor({ ...data.default, name: vendorNames.create });
 });
 
 Then('the vendor configuration is added to the listing page', () => {
   cy.waitForElementInIframe('#main-content', listingTable);
   cy.getIframeBody()
     .find(listingTableBody)
-    .contains(data.default.name)
+    .contains(vendorNames.create)
     .should('be.visible');
 });
 
@@ -177,14 +198,14 @@ Given('a vendor {string} is configured', (step) => {
 
 // Scenario: Change the properties of a vendor
 When('the user changes the properties of the vendor', () => {
-  cy.openTrapsRowForm(data.default.name, 'input[name="name"]');
-  AddOrUpdateVendor(data.vendor);
+  cy.openTrapsRowForm(vendorNames.update, 'input[name="name"]');
+  AddOrUpdateVendor({ ...data.vendor, name: vendorNames.renamed });
 });
 
 Then('the properties are updated', () => {
   cy.waitForElementInIframe('#main-content', listingTable);
-  cy.openTrapsRowForm(data.vendor.name, 'input[name="name"]');
-  CheckVendorFieldsValues(data.vendor.name, data.vendor);
+  cy.openTrapsRowForm(vendorNames.renamed, 'input[name="name"]');
+  CheckVendorFieldsValues(vendorNames.renamed, data.vendor);
 });
 
 // Scenario: Duplicate one existing vendor
@@ -237,15 +258,21 @@ Given('an SNMP Trap is linked to the vendor', () => {
     .find('input[name="traps_args"]')
     .clear()
     .type(traps.snmp1.output);
-  cy.selectTrapSidePanelOption('Vendor Name', data.default.name);
+  cy.selectTrapSidePanelOption('Vendor Name', vendorNames.associate);
   cy.getTrapSidePanelBody().find(saveButton).first().click();
   cy.exportConfig();
   cy.wait('@getTimeZone');
 });
 
 Given('a passive service is linked to the vendor', () => {
+  expect(serviceOkId, 'the service id was read back in before()').to.be.a(
+    'string'
+  );
+
   // make the already created service a passive service
-  cy.setPassiveResource('/centreon/api/latest/configuration/services/31');
+  cy.setPassiveResource(
+    `/centreon/api/latest/configuration/services/${serviceOkId}`
+  );
   cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(services.serviceOk.name).click();
@@ -256,8 +283,14 @@ Given('a passive service is linked to the vendor', () => {
   cy.getIframeBody()
     .find('input[placeholder="Service Trap Relation"]')
     .click({ force: true });
+  // The picker is fed by a paginated AJAX datasource (60 entries per page,
+  // ordered by vendor name), so the entry this scenario needs is not in the page
+  // rendered on open. Type the trap name to let the datasource filter it in.
   cy.getIframeBody()
-    .find(`div[title="${data.default.name} - ${traps.snmp1.name}"]`)
+    .find('input[placeholder="Service Trap Relation"]')
+    .type(traps.snmp1.name);
+  cy.getIframeBody()
+    .find(`div[title="${vendorNames.associate} - ${traps.snmp1.name}"]`)
     .click();
   cy.getIframeBody().find(saveButton).eq(0).click();
   cy.exportConfig();
