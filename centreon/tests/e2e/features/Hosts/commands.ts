@@ -258,9 +258,14 @@ Cypress.Commands.add('visitHostsListingPage', () => {
 // Modernized listing commands (hosts and host templates)
 // ---------------------------------------------------------------------------
 
-const openListing = (url: string): void => {
+const openListing = (url: string, alias: string): void => {
   cy.visit(url);
   cy.wait('@getTimeZone');
+  // Consume the listing fetch this visit triggers. Left in the queue it would
+  // be handed to the next cy.wait(alias) — the one meant to await a search or a
+  // filter — which would then assert against the rows from before that action,
+  // since listing.js only re-renders "Loading..." on the first fetch.
+  cy.wait(alias);
   cy.waitForElementInIframe('#main-content', listingSelectors.table);
   // Wait on the "Loading..." row disappearing, not on row checkboxes: the table
   // and that row are rendered server-side, so counting <tr> is satisfied before
@@ -272,11 +277,14 @@ const openListing = (url: string): void => {
 };
 
 Cypress.Commands.add('openHostsListing', () => {
-  openListing(PAGES.configuration.hostsLegacy);
+  openListing(PAGES.configuration.hostsLegacy, '@getHostListing');
 });
 
 Cypress.Commands.add('openHostTemplatesListing', () => {
-  openListing(PAGES.configuration.hostsTemplatesLegacy);
+  openListing(
+    PAGES.configuration.hostsTemplatesLegacy,
+    '@getHostTemplateListing'
+  );
 });
 
 /**

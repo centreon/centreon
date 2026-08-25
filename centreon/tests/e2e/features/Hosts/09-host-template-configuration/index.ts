@@ -15,6 +15,14 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_listing
+  }).as('getHostListing');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_template_listing
+  }).as('getHostTemplateListing');
 });
 
 afterEach(() => {
