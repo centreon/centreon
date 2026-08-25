@@ -85,21 +85,36 @@ try {
         AjaxListingHelper::jsonError('Object not found', 404);
     }
 
-    $pearDB->executeStatement(
-        <<<'SQL'
-            UPDATE host SET host_activate = :activate WHERE host_id = :id
-            SQL,
-        QueryParameters::create([
-            QueryParameter::string('activate', $activate),
-            QueryParameter::int('id', $objId),
-        ])
-    );
+    // The flag write and the poller signal travel together: a host whose row
+    // flipped while no poller got marked for export keeps being monitored as it
+    // was, and the operator is left with a toggle that reported success.
+    $pearDB->startTransaction();
 
-    // Flag the pollers as needing an export, as enableHostInDB()/disableHostInDB()
-    // do: without it the change never reaches Export configuration and the host
-    // keeps being monitored as it was.
-    signalConfigurationChange('host', $objId, [], $action === 's');
+    try {
+        $pearDB->executeStatement(
+            <<<'SQL'
+                UPDATE host SET host_activate = :activate WHERE host_id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('activate', $activate),
+                QueryParameter::int('id', $objId),
+            ])
+        );
 
+        // Flag the pollers as needing an export, as enableHostInDB()/disableHostInDB()
+        // do: without it the change never reaches Export configuration and the host
+        // keeps being monitored as it was.
+        signalConfigurationChange('host', $objId, [], $action === 's');
+
+        $pearDB->commitTransaction();
+    } catch (Throwable $exception) {
+        $pearDB->rollBackTransaction();
+
+        throw $exception;
+    }
+
+    // Logged after the commit: a failure to write the audit trail must not undo
+    // a toggle that already took.
     $helper->logToggleAction('host', $objId, (string) $objName, $action === 's' ? 'enable' : 'disable');
 
     echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);
