@@ -39,9 +39,11 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-$newToken = $helper->validateCsrfToken();
-
 $helper->requireWriteAccess(60101);
+
+// Authorization first: denying before the token is consumed means a read-only
+// user cannot burn a valid token on every attempt, nor rotate tokens at will.
+$newToken = $helper->validateCsrfToken();
 
 $activate = ($action === 's') ? '1' : '0';
 
@@ -101,14 +103,22 @@ try {
             ])
         );
 
-        // Flag the pollers as needing an export, as enableHostInDB()/disableHostInDB()
-        // do: without it the change never reaches Export configuration and the host
-        // keeps being monitored as it was.
+        // Flag the pollers as needing an export, as enableHostInDB()/disableHostInDB() do.
         signalConfigurationChange('host', $objId, [], $action === 's');
 
         $pearDB->commitTransaction();
     } catch (Throwable $exception) {
-        $pearDB->rollBackTransaction();
+        // rollBackTransaction() throws on failure, so it cannot be left to run
+        // bare: it would replace the exception that actually broke the write and
+        // the root cause would never reach the log.
+        try {
+            $pearDB->rollBackTransaction();
+        } catch (Throwable $rollbackException) {
+            Logger::create(LogChannelEnum::WEB)->error(
+                sprintf('AJAX toggle: rollback failed after a failed activation write (host#%d)', $objId),
+                ['exception' => $rollbackException, 'original' => $exception]
+            );
+        }
 
         throw $exception;
     }
