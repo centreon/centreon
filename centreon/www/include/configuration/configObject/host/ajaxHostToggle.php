@@ -62,6 +62,7 @@ try {
             : [];
 
         if ($aclGroupIds === []) {
+            $helper->logAccessDenial('host toggle (no ACL group)', 60101);
             AjaxListingHelper::jsonError('Object not found', 404);
         }
 
@@ -84,6 +85,12 @@ try {
     );
 
     if ($objName === false) {
+        // Covers "does not exist" and "outside your ACL" with one answer, so no
+        // existence oracle appears — which is also why the server has to record
+        // which of the two it was.
+        if (! $helper->isAdmin()) {
+            $helper->logAccessDenial('host toggle (object outside ACL, or absent)', 60101);
+        }
         AjaxListingHelper::jsonError('Object not found', 404);
     }
 

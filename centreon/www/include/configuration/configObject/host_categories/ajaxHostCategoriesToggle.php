@@ -62,6 +62,7 @@ try {
             : [];
 
         if ($hcIds === []) {
+            $helper->logAccessDenial('category toggle (no ACL category)', 60104);
             AjaxListingHelper::jsonError('Object not found', 404);
         }
 
@@ -70,7 +71,8 @@ try {
         $conditions .= " AND hc_id IN ({$hcIn['clause']})";
     }
 
-    // Fetch the name (also acts as the existence check) then flip the activation flag.
+    // Fetch the name — now also the authorization check, since the lookup is
+    // ACL-scoped: a false answer covers "absent" and "not yours" alike.
     $objName = $pearDB->fetchOne(
         <<<SQL
             SELECT hc_name FROM hostcategories WHERE {$conditions}
@@ -79,6 +81,9 @@ try {
     );
 
     if ($objName === false) {
+        if (! $helper->isAdmin()) {
+            $helper->logAccessDenial('category toggle (object outside ACL, or absent)', 60104);
+        }
         AjaxListingHelper::jsonError('Object not found', 404);
     }
 
