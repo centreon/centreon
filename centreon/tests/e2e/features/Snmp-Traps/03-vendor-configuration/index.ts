@@ -176,7 +176,7 @@ Then('the vendor configuration is added to the listing page', () => {
     .should('be.visible');
 });
 
-Given('a vendor {string} is configured', (step) => {
+Given('a vendor {string} is configured', (step: keyof typeof vendorNames) => {
   const vendorName = vendorNames[step];
 
   expect(vendorName, `no vendor name declared for "${step}"`).to.be.a('string');
