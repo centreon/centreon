@@ -1230,7 +1230,7 @@ if ($valid) {
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('inheritance', $inheritanceMode['value']);
-    $tpl->assign('custom_macro_label', _('Custom Macros'));
+    $tpl->assign('custom_macro_label', _('Custom macros'));
     $tpl->assign('template_inheritance', _('Template inheritance'));
     $tpl->assign('command_inheritance', _('Command inheritance'));
     $tpl->assign('cloneSetMacro', $cloneSetMacro);

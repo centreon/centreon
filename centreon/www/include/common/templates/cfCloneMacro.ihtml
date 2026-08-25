@@ -4,13 +4,15 @@
  * Scoped variant of cloneMacro.ihtml for the migrated forms only: it authors
  * the cf-macro-* layout (column headers, pill rows, SVG action buttons and the
  * inheritance legend) directly, instead of relying on the runtime JS restructure
- * used for the legacy template. Legacy forms (services, ...) keep including
- * cloneMacro.ihtml, so they are not impacted.
+ * used for the legacy template. The migrated service form
+ * (formServiceOnPrem.ihtml) is its only consumer; the host forms and the cloud
+ * service form still include cloneMacro.ihtml, so they are not impacted.
  *
  * Expects the same context as cloneMacro.ihtml (cloneId, cloneSet) plus the
- * host form assignments: custom_macro_label, template_inheritance,
- * command_inheritance. The cloneSet order is [id, name, value, password, from];
- * cf_idx is the 0-based array key, so 1 = name, 2 = value, 3 = password.
+ * assignments made by formService.php: custom_macro_label,
+ * template_inheritance, command_inheritance. The cloneSet order is
+ * [id, name, value, password, from]; cf_idx is the 0-based array key, so
+ * 1 = name, 2 = value, 3 = password.
  *}
 <div class="cf-macro-header">
     <div class="cf-macro-header-left">
@@ -74,11 +76,16 @@
         <input type='hidden' id='isFrozen_#index#' name='isFrozen_#index#' value="{$isFrozen}" />
         <span class="cf-macro-actions">
             {if $isFrozen == 0}
+            {* Reserved, invisible slot revealed by the form only on a macro
+               inherited from a template: the handler drops cf-macro-action-slot
+               and adds cf-macro-reset-icon to turn it into the undo button. *}
+            <span class="cf-macro-action-btn cf-macro-reset-slot cf-macro-action-slot"></span>
             <span class="cf-macro-action-btn cf-macro-erase" title="{t}Clear value{/t}"></span>
             <span id="{$cloneId}_remove_current" class="cf-macro-action-btn cf-macro-action-btn--danger" title="{t}Delete{/t}">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </span>
             {else}
+            <span class="cf-macro-action-btn cf-macro-action-slot"></span>
             <span class="cf-macro-action-btn cf-macro-action-slot"></span>
             <span class="cf-macro-action-btn cf-macro-action-slot"></span>
             {/if}
