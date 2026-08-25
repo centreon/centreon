@@ -182,7 +182,9 @@ var hostListing = new CentreonListing({
                 var d = Math.floor(dur/86400), h = Math.floor((dur%86400)/3600), m = Math.floor((dur%3600)/60);
                 tip += '\n' + hostMonI18n.duration + ': ' + (d ? d+'d ':'') + h+'h '+m+'m';
             }
-            if (row.mon_output) tip += '\n' + hostMonI18n.output + ': ' + l.escape(row.mon_output).substring(0,120);
+            // Truncate before escaping: cutting escaped text can land inside an
+            // entity and leave a dangling "&am" in the attribute.
+            if (row.mon_output) tip += '\n' + hostMonI18n.output + ': ' + l.escape(String(row.mon_output).substring(0,120));
             return '<span class="cl-mon-badge '+cls+'" data-cl-tooltip="'+tip.replace(/"/g,'&quot;')+'" style="cursor:help;"></span>';
         }},
         { id:'alias' },
