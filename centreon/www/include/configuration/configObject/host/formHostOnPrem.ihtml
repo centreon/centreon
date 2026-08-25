@@ -499,13 +499,15 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <!-- Same shape as the Scheduling section: the Yes/No/Default switches
-                 share one row, then the numeric fields they drive share the next.
-                 Mixing a switch and its threshold fields in a single row squeezed
-                 the switch (clipping "Default") and left too little width for the
-                 threshold labels, which then wrapped over their own input. -->
-            <div class="cf-row-inline" style="justify-content:space-between;">
-                <div class="cf-segmented-row cf-segmented-row--half">
+            <!-- Each switch is followed by the thresholds it drives, the shape the
+                 Cloud form already uses. Pairing the two switches on one row and
+                 all three thresholds on the next put every threshold next to a
+                 control it has nothing to do with.
+                 Thresholds stay 300px each: wide enough for their (translated)
+                 floating label to stay on one line, and they wrap onto the next
+                 line rather than shrink when the form gets narrow. -->
+            <div class="cf-row">
+                <div class="cf-segmented-row">
                     <span>{$form.host_check_freshness.label}</span>
                     <div class="cf-segmented" data-radio-name="host_check_freshness">
                         <button type="button" data-value="1">{t}Yes{/t}</button>
@@ -515,7 +517,16 @@
                     <span style="display:none;">{$form.host_check_freshness.html}</span>
                     <img class="helpTooltip" name="check_freshness">
                 </div>
-                <div class="cf-segmented-row cf-segmented-row--half">
+            </div>
+            <div class="cf-row-inline">
+                <div class="cf-field" style="flex:0 1 300px;">
+                    {$form.host_freshness_threshold.html}
+                    <label class="cf-label-float">{$form.host_freshness_threshold.label}</label>
+                    <img class="helpTooltip" name="freshness_threshold">
+                </div>
+            </div>
+            <div class="cf-row">
+                <div class="cf-segmented-row">
                     <span>{t}Flap Detection{/t}</span>
                     <div class="cf-segmented" data-radio-name="host_flap_detection_enabled">
                         <button type="button" data-value="1">{t}Yes{/t}</button>
@@ -526,15 +537,7 @@
                     <img class="helpTooltip" name="flap_detection_enabled">
                 </div>
             </div>
-            <!-- Thresholds: 300px each — wide enough for their (translated)
-                 floating label to stay on one line, and they wrap onto the next
-                 line rather than shrink when the form gets narrow. -->
             <div class="cf-row-inline">
-                <div class="cf-field" style="flex:0 1 300px;">
-                    {$form.host_freshness_threshold.html}
-                    <label class="cf-label-float">{$form.host_freshness_threshold.label}</label>
-                    <img class="helpTooltip" name="freshness_threshold">
-                </div>
                 <div class="cf-field" style="flex:0 1 300px;">
                     {$form.host_low_flap_threshold.html}
                     <label class="cf-label-float">{$form.host_low_flap_threshold.label}</label>
