@@ -22,6 +22,8 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 
 require_once __DIR__ . '/AjaxListingHelper.php';
 
@@ -39,11 +41,11 @@ require_once __DIR__ . '/AjaxListingHelper.php';
  * lookup:
  *
  * - `host_template_relation` is not guaranteed acyclic (a cycle is reachable
- *   through CLAPI or an import). Each object therefore carries its own visited
- *   set and the walk is capped: an unguarded recursion would run until the
- *   worker exhausts its memory, an E_ERROR no `catch (Throwable)` can rescue.
- *   The legacy CentreonHost inheritance helpers guard cycles the same way
- *   (`$alreadyProcessed`).
+ *   through CLAPI or an import), so each object carries its own visited set —
+ *   that alone makes the walk finite, and is how the legacy CentreonHost
+ *   inheritance helpers guard cycles too (`$alreadyProcessed`). MAX_NODES_PER_OBJECT
+ *   is a separate ceiling on depth: past it the object keeps the default glyph,
+ *   which resolve() logs, since only abnormal data reaches it.
  * - every row of the page shares the same two queries at each step — the icons
  *   of the nodes being looked at, and their templates — so a listing of N rows
  *   costs a constant number of queries per step instead of N × the size of its
@@ -66,11 +68,25 @@ final class HostIconResolver
             return [];
         }
 
-        return self::walk(
+        $truncated = null;
+        $resolved  = self::walk(
             $hostIds,
             static fn (array $nodes): array => self::fetchDirectIcons($db, $nodes),
-            static fn (array $nodes): array => self::fetchTemplates($db, $nodes)
+            static fn (array $nodes): array => self::fetchTemplates($db, $nodes),
+            $truncated
         );
+
+        if (! empty($truncated)) {
+            // Only a chain deeper than the cap, or a cycle, gets here. The symptom
+            // an operator sees — this row shows the default glyph while the object's
+            // own form shows the right icon — is unexplainable without this line.
+            Logger::create(LogChannelEnum::WEB)->warning(
+                'Host icon inheritance gave up: template chain deeper than the node cap',
+                ['objectIds' => $truncated, 'cap' => self::MAX_NODES_PER_OBJECT]
+            );
+        }
+
+        return $resolved;
     }
 
     /**
@@ -82,15 +98,22 @@ final class HostIconResolver
      * @param callable(int[]): array<int, string> $fetchIcons Icon path of those given nodes that define one
      * @param callable(int[]): array<int, int[]> $fetchTemplates Templates of the given nodes, in `order`
      *
+     * @param int[]|null $truncated Set to the ids whose chain hit the depth cap,
+     *                              so the caller can report data it cannot resolve
+     *
      * @return array<int, string> Icon path indexed by requested id
      */
-    public static function walk(array $hostIds, callable $fetchIcons, callable $fetchTemplates): array
-    {
+    public static function walk(
+        array $hostIds,
+        callable $fetchIcons,
+        callable $fetchTemplates,
+        ?array &$truncated = null,
+    ): array {
         // $pending maps each requested id to the nodes it still has to inspect,
-        // in depth-first order; $visited holds the nodes already inspected for
-        // it. $icons caches what the icon source answered — a null meaning
-        // "asked about, carries none" — so a template shared by many rows is
-        // only ever asked about once.
+        // in depth-first order; $visited holds the nodes already enqueued for it,
+        // so a node is never queued twice. $icons caches what the icon source
+        // answered — a null meaning "asked about, carries none" — so a template
+        // shared by many rows is only ever asked about once.
         $resolved = [];
         $pending  = [];
         $visited  = [];
@@ -148,6 +171,10 @@ final class HostIconResolver
                 $pending[$hostId] = $stack;
             }
         }
+
+        // Whatever is still pending ran out of steps rather than out of chain, and
+        // would otherwise be indistinguishable from an object carrying no icon.
+        $truncated = array_keys($pending);
 
         return $resolved;
     }
@@ -220,6 +247,14 @@ final class HostIconResolver
             $dir  = (string) $row['dir_alias'];
             $file = (string) $row['img_path'];
             if ($dir === '' || $file === '') {
+                // A media row with only half a path is inconsistent data, not a
+                // missing icon: without a trace, "this object lost its icon" has
+                // no explanation anywhere.
+                Logger::create(LogChannelEnum::WEB)->warning(
+                    'Host icon skipped: media row carries an empty directory or file name',
+                    ['objectId' => (int) $row['host_host_id']]
+                );
+
                 continue;
             }
             $icons[(int) $row['host_host_id']] = './img/media/' . $dir . '/' . $file;
@@ -237,6 +272,10 @@ final class HostIconResolver
      */
     private static function fetchTemplates(CentreonDB $db, array $hostIds): array
     {
+        if ($hostIds === []) {
+            return [];
+        }
+
         $in = AjaxListingHelper::buildIntInClause($hostIds, 'icon_hid');
 
         $rows = $db->fetchAllAssociative(
