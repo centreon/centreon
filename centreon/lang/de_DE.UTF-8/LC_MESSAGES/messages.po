@@ -21626,7 +21626,7 @@ msgstr "Definieren Sie wiederverwendbare Konfigurationen, um gemeinsame Einstell
 
 #: unknown
 msgid "Host templates"
-msgstr "Host-Vorlagen"
+msgstr "Hostvorlagen"
 
 #: unknown
 msgid "Advanced filters"
