@@ -181,13 +181,26 @@ Cypress.Commands.add(
 // select2 fields are addressed by their visible label: the placeholder is the
 // generic "Search"/"Select", and index-based lookups break as soon as a field
 // is added to the form.
+//
+// A plain contains('.cf-field', label) is not enough: labels overlap (the
+// escalation form has both "Hosts" and, earlier in the DOM, the "Hosts
+// Escalation Options" checkbox group), and contains() returns the first match.
+// Restricting to fields that actually hold a <select> picks the select2 one.
+const sidePanelSelect2Field = (label: string): Cypress.Chainable =>
+  cy
+    .getSidePanelBody()
+    .find('.cf-field')
+    .filter(
+      (_index, element) =>
+        (element.textContent || '').includes(label) &&
+        element.querySelector('select') !== null
+    )
+    .first();
+
 Cypress.Commands.add(
   'pickSidePanelOption',
   (label: string, option: string): Cypress.Chainable => {
-    cy.getSidePanelBody()
-      .contains('.cf-field', label)
-      .find('.select2-selection')
-      .click({ force: true });
+    sidePanelSelect2Field(label).find('.select2-selection').click({ force: true });
 
     return cy
       .getSidePanelBody()
@@ -200,9 +213,7 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'clearSidePanelSelection',
   (label: string): Cypress.Chainable => {
-    return cy
-      .getSidePanelBody()
-      .contains('.cf-field', label)
+    return sidePanelSelect2Field(label)
       .find('.select2-selection__choice__remove')
       .click({ force: true, multiple: true });
   }

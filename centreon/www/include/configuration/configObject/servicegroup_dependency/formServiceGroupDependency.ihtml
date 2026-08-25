@@ -91,7 +91,6 @@
                 <div class="cf-field">
                     {$form.dep_comment.html}
                     <label class="cf-label-float">{$form.dep_comment.label}</label>
-                    <img class="helpTooltip" name="comment">
                 </div>
             </div>
         </div>
