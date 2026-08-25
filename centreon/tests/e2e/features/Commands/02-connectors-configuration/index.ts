@@ -79,7 +79,8 @@ const submitConnectorForm = (): void => {
 const selectRowAndRunBulkAction = (
   name: string,
   action: 'm' | 'd',
-  expectedTitle: string
+  expectedTitle: string,
+  duplications?: number
 ): void => {
   cy.getIframeBody()
     .find('#clTableBody')
@@ -88,6 +89,10 @@ const selectRowAndRunBulkAction = (
     // Scoped to the picker: the row also holds the activation toggle checkbox.
     .find('.cl-col-picker input[type="checkbox"]')
     .click({ force: true });
+
+  if (duplications !== undefined) {
+    rowDuplicationInput(name).clear().type(String(duplications));
+  }
 
   cy.getIframeBody().find('.cl-more-actions-btn').click();
   cy.getIframeBody()
@@ -104,6 +109,14 @@ const selectRowAndRunBulkAction = (
   cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
   cy.wait('@listConnectors');
 };
+
+const rowDuplicationInput = (name: string) =>
+  cy
+    .getIframeBody()
+    .find('#clTableBody')
+    .contains('a', listingRowAnchor(name))
+    .closest('tr')
+    .find('.cl-dup-input');
 
 const rowToggle = (name: string) =>
   cy
@@ -234,6 +247,77 @@ Then('the new connector is updated with {string} status', (type: string) => {
   );
 });
 
+When('the user duplicates a connector three times from the listing', () => {
+  openConnectorsListing();
+  selectRowAndRunBulkAction(
+    data.connectorForSearch.name,
+    'm',
+    'Duplicate connector',
+    3
+  );
+});
+
+Then('the three copies are listed', () => {
+  openConnectorsListing();
+  // The count is what is under test, so the copy beyond it has to be absent too:
+  // a batch that ignored the field would still create _1 and pass on it alone.
+  [1, 2, 3].forEach((index) => {
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(
+        'a',
+        listingRowAnchor(`${data.connectorForSearch.name}_${index}`)
+      )
+      .should('exist');
+  });
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', listingRowAnchor(`${data.connectorForSearch.name}_4`))
+    .should('not.exist');
+});
+
+When('the user types a duplication count and the listing re-renders', () => {
+  openConnectorsListing();
+  rowDuplicationInput(data.connectorForSearch.name).clear().type('7');
+  // Any re-render goes through the same restore path as the 30s auto-refresh,
+  // and a search keeps the row on screen, which the refresh alone would not.
+  searchListing(data.connectorForSearch.name);
+});
+
+Then('the typed count is still there', () => {
+  rowDuplicationInput(data.connectorForSearch.name).should('have.value', '7');
+});
+
+When('the listing is opened on a page that no longer exists', () => {
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy, {
+    onBeforeLoad: (win) => {
+      // Exactly the state an operator is left with once the rows behind their
+      // stored page are deleted: page 4 of a listing that now holds one page.
+      win.localStorage.setItem('conn_listing_limit', '10');
+      win.sessionStorage.setItem(
+        'cl_state_conn_listing_limit',
+        JSON.stringify({ limit: 10, num: 3, search: '' })
+      );
+    }
+  });
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  // The out-of-range page is requested first, then the clamp refetches page 0.
+  cy.wait('@listConnectors')
+    .its('response.body')
+    .should('have.property', 'num', 3);
+  cy.wait('@listConnectors')
+    .its('response.body')
+    .should('have.property', 'num', 0);
+});
+
+Then('the first page is displayed with its rows', () => {
+  cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', listingRowAnchor(data.connectorForSearch.name))
+    .should('exist');
+});
+
 When('the user deletes a connector', () => {
   openConnectorsListing();
   selectRowAndRunBulkAction(
@@ -347,6 +431,11 @@ Then(
       }).then((toggle) => {
         expect(toggle.status).to.equal(403);
         expect(toggle.body).to.have.property('error', 'Write access denied');
+        // The refused call consumed the token, so the replacement has to travel
+        // with the error or the next legitimate action dies on a stale one.
+        expect(toggle.body.centreon_token)
+          .to.be.a('string')
+          .and.not.to.equal(listing.body.centreon_token);
       });
     });
   }

@@ -47,6 +47,21 @@ Feature: Configuration of a connector
     When the status change of a connector fails on the server
     Then the toggle returns to its previous state and an error is displayed
 
+  @MON-206501
+  Scenario: Duplicating a connector honours the typed count
+    When the user duplicates a connector three times from the listing
+    Then the three copies are listed
+
+  @MON-206501
+  Scenario: A typed duplication count survives a listing re-render
+    When the user types a duplication count and the listing re-renders
+    Then the typed count is still there
+
+  @MON-206501
+  Scenario: A stored page past the end falls back to a page that holds rows
+    When the listing is opened on a page that no longer exists
+    Then the first page is displayed with its rows
+
   @MON-160511
   Scenario: Delete one existing connector
     When the user deletes a connector
