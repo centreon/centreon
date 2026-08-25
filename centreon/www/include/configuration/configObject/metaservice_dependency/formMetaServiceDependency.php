@@ -239,6 +239,9 @@ $form->addRule('notification_failure_criteria', _('Required Field'), 'required')
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
+
 // Just watch a Dependency information
 if ($o == WATCH_DEPENDENCY) {
     if ($centreon->user->access->page($p) != 2) {

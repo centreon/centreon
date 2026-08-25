@@ -1,3 +1,4 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 {$form.javascript}
 
 <form {$form.attributes}>
@@ -31,19 +32,17 @@
                 </div>
             </div>
             <div class="cf-row-inline">
-                <div class="cf-field" style="max-width:200px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.first_notification.html}
                     <label class="cf-label-float">{$form.first_notification.label}</label>
                     <img class="helpTooltip" name="first_notification">
                 </div>
-                <div class="cf-field" style="max-width:200px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.last_notification.html}
                     <label class="cf-label-float">{$form.last_notification.label}</label>
                     <img class="helpTooltip" name="last_notification">
                 </div>
-            </div>
-            <div class="cf-row">
-                <div class="cf-field" style="max-width:260px;">
+                <div class="cf-field" style="flex:0 1 300px;">
                     {$form.notification_interval.html}{$time_unit}
                     <label class="cf-label-float">{$form.notification_interval.label}</label>
                     <img class="helpTooltip" name="notification_interval">

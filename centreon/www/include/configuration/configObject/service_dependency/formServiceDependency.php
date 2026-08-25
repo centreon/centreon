@@ -223,6 +223,9 @@ $form->addRule('notification_failure_criteria', _('Required Field'), 'required')
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
+
 $tpl->assign('sort1', _('Information'));
 $tpl->assign('sort2', _('Service Description'));
 
