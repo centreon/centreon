@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
 use App\MonitoringConfiguration\Infrastructure\Dbal\Exception\InvalidGorgoneCommunicationTypeException;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -160,210 +159,18 @@ final class DbalPollerTransformerTest extends TestCase
         self::assertNull($poller->centralAddress);
     }
 
-    #[DataProvider('provideGorgoneCommunicationTypes')]
-    public function testTransformMapsGorgoneCommunicationType(
-        string $databaseValue,
-        GorgoneCommunicationTypeEnum $expectedCommunicationType,
-    ): void {
-        $row = $this->buildRow(['gorgone_communication_type' => $databaseValue]);
-
-        $poller = $this->transformer->transform($row);
-
-        self::assertSame($expectedCommunicationType, $poller->gorgoneConfiguration->communicationType);
-    }
-
     /**
-     * @return iterable<string, array{string, GorgoneCommunicationTypeEnum}>
+     * The mapping itself is covered by GorgoneCommunicationTypeMappingTest; what matters here is
+     * that hydration lets the rejection through instead of defaulting the poller to ZMQ.
      */
-    public static function provideGorgoneCommunicationTypes(): iterable
+    public function testTransformPropagatesAnUnmappableCommunicationType(): void
     {
-        yield 'zmq' => ['1', GorgoneCommunicationTypeEnum::ZMQ];
-
-        yield 'ssh' => ['2', GorgoneCommunicationTypeEnum::SSH];
-
-        yield 'pull' => ['3', GorgoneCommunicationTypeEnum::Pull];
-
-        yield 'pullwss' => ['4', GorgoneCommunicationTypeEnum::PullWss];
-    }
-
-    #[DataProvider('provideUnmappableGorgoneCommunicationTypes')]
-    public function testTransformRejectsUnmappableGorgoneCommunicationType(string $databaseValue): void
-    {
-        $row = $this->buildRow(['gorgone_communication_type' => $databaseValue]);
+        $row = $this->buildRow(['gorgone_communication_type' => '']);
 
         $this->expectException(InvalidGorgoneCommunicationTypeException::class);
-        $this->expectExceptionMessage(sprintf('"%s" read from the database for poller #42', $databaseValue));
+        $this->expectExceptionMessage('for poller #42');
 
         $this->transformer->transform($row);
-    }
-
-    /**
-     * Without strict mode MySQL stores the error member '' instead of rejecting a value
-     * outside the enum, so that one is readable in production too.
-     *
-     * @return iterable<string, array{string}>
-     */
-    public static function provideUnmappableGorgoneCommunicationTypes(): iterable
-    {
-        yield 'out of range' => ['5'];
-
-        yield 'zero' => ['0'];
-
-        yield 'mysql error member' => [''];
-    }
-
-    /**
-     * The 26.07 upgrade added the values 3 and 4 to the column and migrated every cloud
-     * poller to 4 while the enum still stopped at 2, so every poller read answered an
-     * HTTP 500. The three tests below keep the column and the enum in lockstep.
-     */
-    public function testEveryCommunicationTypeAllowedBySchemaIsMapped(): void
-    {
-        $mappedCases = [];
-        foreach ($this->communicationTypesAllowedBySchema() as $databaseValue) {
-            try {
-                $mappedCases[] = $this->transformer->transform(
-                    $this->buildRow(['gorgone_communication_type' => $databaseValue])
-                )->gorgoneConfiguration->communicationType;
-            } catch (InvalidGorgoneCommunicationTypeException) {
-                self::fail(
-                    "createTables.sql allows gorgone_communication_type '{$databaseValue}' "
-                    . 'but GorgoneCommunicationTypeEnum has no case for it'
-                );
-            }
-        }
-
-        self::assertEqualsCanonicalizing(
-            GorgoneCommunicationTypeEnum::cases(),
-            $mappedCases,
-            'nagios_server.gorgone_communication_type and GorgoneCommunicationTypeEnum have drifted apart'
-        );
-    }
-
-    public function testSchemaCommentDocumentsTheMappingUsedByTheTransformer(): void
-    {
-        // Comparing the two sets cannot see two values swapped, and a wrong comment is
-        // exactly what made 1 and 2 look inverted for a whole release.
-        foreach ($this->communicationTypesDocumentedBySchema() as $databaseValue => $documentedName) {
-            $communicationType = $this->transformer->transform(
-                $this->buildRow(['gorgone_communication_type' => (string) $databaseValue])
-            )->gorgoneConfiguration->communicationType;
-
-            self::assertSame(
-                mb_strtolower($documentedName),
-                mb_strtolower($communicationType->name),
-                "createTables.sql documents '{$databaseValue}: {$documentedName}' but the transformer "
-                . "maps that value to {$communicationType->name}"
-            );
-        }
-    }
-
-    public function testNoUpgradeScriptAllowsACommunicationTypeAFreshInstallRejects(): void
-    {
-        $allowedByFreshInstall = $this->communicationTypesAllowedBySchema();
-
-        foreach ($this->communicationTypesAllowedByUpgradeScripts() as $script => $allowedByUpgrade) {
-            self::assertSame(
-                [],
-                array_values(array_diff($allowedByUpgrade, $allowedByFreshInstall)),
-                "{$script} widens gorgone_communication_type beyond createTables.sql, so upgraded "
-                . 'platforms would hold values a fresh install never produces'
-            );
-        }
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function communicationTypesAllowedBySchema(): array
-    {
-        return $this->enumValues($this->columnDefinitionFromSchema());
-    }
-
-    /**
-     * @return array<array-key, string> database value => case name documented by the column comment
-     */
-    private function communicationTypesDocumentedBySchema(): array
-    {
-        $definition = $this->columnDefinitionFromSchema();
-
-        self::assertSame(
-            1,
-            preg_match("/COMMENT '([^']+)'/i", $definition, $comment),
-            'the gorgone_communication_type column of createTables.sql no longer documents its values'
-        );
-
-        preg_match_all('/(\d+)\s*:\s*(\w+)/', $comment[1], $documentedPairs, PREG_SET_ORDER);
-
-        $documented = [];
-        foreach ($documentedPairs as $documentedPair) {
-            $documented[$documentedPair[1]] = $documentedPair[2];
-        }
-
-        self::assertNotSame([], $documented, "unreadable column comment: {$comment[1]}");
-
-        return $documented;
-    }
-
-    /**
-     * @return array<string, list<string>> upgrade script name => values its ALTER allows
-     */
-    private function communicationTypesAllowedByUpgradeScripts(): array
-    {
-        $allowed = [];
-        foreach (glob(dirname(__DIR__, 6) . '/www/install/php/Update-*.php') ?: [] as $script) {
-            $matched = preg_match(
-                '/MODIFY COLUMN\s+`?gorgone_communication_type`?\s+(enum\s*\([^)]*\))/i',
-                (string) file_get_contents($script),
-                $definition
-            );
-
-            if ($matched === 1) {
-                $allowed[basename($script)] = $this->enumValues($definition[1]);
-            }
-        }
-
-        self::assertNotSame(
-            [],
-            $allowed,
-            'no upgrade script redeclares gorgone_communication_type any more, this guard guards nothing'
-        );
-
-        return $allowed;
-    }
-
-    private function columnDefinitionFromSchema(): string
-    {
-        $schemaPath = dirname(__DIR__, 6) . '/www/install/createTables.sql';
-        self::assertFileExists($schemaPath, "createTables.sql not found at {$schemaPath}");
-
-        self::assertSame(
-            1,
-            preg_match(
-                '/CREATE TABLE `nagios_server` \([^;]*?(`?gorgone_communication_type`?\s+enum\s*\([^)]*\)[^\n]*)/is',
-                (string) file_get_contents($schemaPath),
-                $column
-            ),
-            'the gorgone_communication_type column is no longer parsable in the nagios_server table'
-        );
-
-        return $column[1];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function enumValues(string $definition): array
-    {
-        self::assertSame(
-            1,
-            preg_match('/enum\s*\(([^)]*)\)/i', $definition, $enum),
-            "no enum definition found in: {$definition}"
-        );
-
-        preg_match_all("/'([^']*)'/", $enum[1], $values);
-
-        return $values[1];
     }
 
     /**

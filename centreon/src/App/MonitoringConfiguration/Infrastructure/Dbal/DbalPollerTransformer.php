@@ -28,7 +28,6 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -49,6 +48,9 @@ use App\Shared\Infrastructure\TransformerInterface;
  */
 final readonly class DbalPollerTransformer implements TransformerInterface
 {
+    /**
+     * @throws InvalidGorgoneCommunicationTypeException When the stored communication type maps to no enum case
+     */
     public function transform(mixed $from): mixed
     {
         return new Poller(
@@ -86,7 +88,7 @@ final readonly class DbalPollerTransformer implements TransformerInterface
                 snmpTrapPathConf: $from['snmp_trapd_path_conf'],
             ),
             gorgoneConfiguration: new GorgoneConfiguration(
-                communicationType: $this->communicationTypeFromDatabase(
+                communicationType: GorgoneCommunicationTypeMapping::fromDatabase(
                     $from['gorgone_communication_type'],
                     $from['poller_id']
                 ),
@@ -99,8 +101,9 @@ final readonly class DbalPollerTransformer implements TransformerInterface
     }
 
     /**
-     * Rows written before the scheme rejection may carry a full URL:
-     * the modal used to send window.location.href on cloud platforms. Reduce them
+     * CentralAddress accepts no scheme, but rows written by the older install
+     * modal may carry a full URL: it used to send window.location.href on cloud
+     * platforms. Reduce them
      * to host[:port] so hydration keeps working — their base path cannot be told
      * apart from the page path of the stored URL. Unreadable values become null,
      * which downstream reports as "no central address configured".
@@ -125,19 +128,5 @@ final readonly class DbalPollerTransformer implements TransformerInterface
         } catch (\InvalidArgumentException) {
             return null;
         }
-    }
-
-    /**
-     * @throws InvalidGorgoneCommunicationTypeException When the stored value has no matching enum case
-     */
-    private function communicationTypeFromDatabase(string $value, int $pollerId): GorgoneCommunicationTypeEnum
-    {
-        return match ($value) {
-            '1' => GorgoneCommunicationTypeEnum::ZMQ,
-            '2' => GorgoneCommunicationTypeEnum::SSH,
-            '3' => GorgoneCommunicationTypeEnum::Pull,
-            '4' => GorgoneCommunicationTypeEnum::PullWss,
-            default => throw InvalidGorgoneCommunicationTypeException::fromDatabaseValue($value, $pollerId),
-        };
     }
 }
