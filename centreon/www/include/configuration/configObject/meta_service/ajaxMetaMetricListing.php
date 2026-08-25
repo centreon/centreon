@@ -39,6 +39,14 @@ if (! $metaId) {
 }
 
 try {
+    // ACL: require at least read access on the meta services page (60204).
+    if (! $helper->isAdmin()) {
+        $pageAcl = $helper->getAcl();
+        if ($pageAcl === null || $pageAcl->page(60204) === 0) {
+            AjaxListingHelper::jsonError('Access denied', 403);
+        }
+    }
+
     $metaInfo = $pearDB->fetchAssociative(
         <<<'SQL'
             SELECT meta_name, calcul_type FROM meta_service WHERE meta_id = :meta_id
@@ -47,6 +55,21 @@ try {
     );
     if (! $metaInfo) {
         AjaxListingHelper::jsonError('Meta service not found', 404);
+    }
+
+    // The metric rows are ACL-filtered below, but meta_name is echoed back
+    // unconditionally in the response and rendered in the page header. Without
+    // this check, iterating meta_id enumerates the names of meta services the
+    // caller cannot see. Same ACL source as ajaxMetaMetricToggle.php.
+    if (! $helper->isAdmin()) {
+        $scopeAcl   = $helper->getAcl();
+        $grantedIds = $scopeAcl !== null
+            ? array_values(array_filter(array_map('intval', array_keys($scopeAcl->getMetaServices()))))
+            : [];
+
+        if (! in_array($metaId, $grantedIds, true)) {
+            AjaxListingHelper::jsonError('Access denied', 403);
+        }
     }
 
     $relationParameters = [QueryParameter::int('meta_id', $metaId)];

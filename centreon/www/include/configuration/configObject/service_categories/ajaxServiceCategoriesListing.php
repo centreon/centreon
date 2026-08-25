@@ -38,6 +38,16 @@ $num    = $params['num'];
 $limit  = $params['limit'];
 
 try {
+    // ACL: require at least read access on the service categories page (60209).
+    // Row-level scoping below is not a substitute: without this, any
+    // authenticated session can query the endpoint directly.
+    if (! $helper->isAdmin()) {
+        $pageAcl = $helper->getAcl();
+        if ($pageAcl === null || $pageAcl->page(60209) === 0) {
+            AjaxListingHelper::jsonError('Access denied', 403);
+        }
+    }
+
     $conditions = [];
     $parameters = [];
 

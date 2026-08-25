@@ -44,6 +44,16 @@ $hostStatus = filter_var($_GET['hostStatus'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 $hostId    = filter_var($_GET['hostId'] ?? null, FILTER_VALIDATE_INT) ?: 0;
 
 try {
+    // ACL: require at least read access on the services by host page (60201).
+    // Row-level scoping below is not a substitute: without this, any
+    // authenticated session can query the endpoint directly.
+    if (! $helper->isAdmin()) {
+        $pageAcl = $helper->getAcl();
+        if ($pageAcl === null || $pageAcl->page(60201) === 0) {
+            AjaxListingHelper::jsonError('Access denied', 403);
+        }
+    }
+
     // Interval length from options table
     $intervalLength = (int) ($pearDB->fetchOne(
         <<<'SQL'
