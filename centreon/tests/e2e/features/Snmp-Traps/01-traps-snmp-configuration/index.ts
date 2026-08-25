@@ -9,7 +9,8 @@ import {
   listingTableBody,
   submitForm,
   trapsSnmpConfiguration,
-  UpdateTrapsSnmpConfiguration
+  UpdateTrapsSnmpConfiguration,
+  waitForListingRow
 } from '../common';
 
 // Must not contain data.snmp1.name: the listing search is a LIKE %term%, so a
@@ -371,7 +372,7 @@ When('the user has duplicated one existing SNMP trap definition', () => {
 });
 
 Then('all SNMP trap properties are unchanged except the name', () => {
-  cy.waitForElementInIframe('#main-content', listingTable);
+  waitForListingRow(`${data.snmp1.name}_1`, true);
   cy.openTrapsRowForm(`${data.snmp1.name}_1`, 'input[name="traps_name"]');
   cy.getTrapSidePanelBody()
     .find('input[name="traps_name"]')
@@ -403,7 +404,7 @@ When('the user has deleted one existing SNMP trap definition', () => {
 });
 
 Then('this definition disappears from the SNMP trap list', () => {
-  cy.waitForElementInIframe('#main-content', listingTable);
+  waitForListingRow(data.snmp1.name, false);
   cy.getIframeBody()
     .find(listingTableBody)
     .contains(data.snmp1.name)

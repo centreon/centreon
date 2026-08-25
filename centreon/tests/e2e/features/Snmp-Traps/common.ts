@@ -207,6 +207,36 @@ interface Vendor {
   description: string;
 }
 
+/**
+ * Wait for the listing to settle on the expected state for one row.
+ *
+ * A bulk action submits the legacy form, so the whole #main-content document is
+ * replaced. Waiting on the table itself resolves straight away - it is already
+ * there, in the document about to be discarded - and the next `.find()` then runs
+ * against a detached body. Poll on the row instead, re-querying the iframe every
+ * time so the check can only pass once the new document is in place.
+ */
+const waitForListingRow = (
+  name: string,
+  shouldExist: boolean
+): Cypress.Chainable =>
+  cy.waitUntil(
+    () =>
+      cy
+        .getIframeBody()
+        .then(
+          ($body) =>
+            $body.find(listingTableBody).text().includes(name) === shouldExist
+        ),
+    {
+      errorMsg: `the listing never settled with "${name}" ${
+        shouldExist ? 'present' : 'absent'
+      }`,
+      interval: 1000,
+      timeout: 30_000
+    }
+  );
+
 export {
   advancedFiltersButton,
   advancedSearchButton,
@@ -228,5 +258,6 @@ export {
   sidePanelFrame,
   submitForm,
   trapsSnmpConfiguration,
-  UpdateTrapsSnmpConfiguration
+  UpdateTrapsSnmpConfiguration,
+  waitForListingRow
 };
