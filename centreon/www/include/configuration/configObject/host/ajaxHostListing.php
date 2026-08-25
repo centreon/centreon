@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
@@ -38,18 +39,38 @@ $params = $helper->getParams();
 $search    = $params['search'];
 $num       = $params['num'];
 $limit     = $params['limit'];
-$hostgroup = filter_var($_GET['hostgroup'] ?? null, FILTER_VALIDATE_INT) ?: 0;
-$poller    = filter_var($_GET['poller'] ?? null, FILTER_VALIDATE_INT) ?: 0;
-$template  = filter_var($_GET['template'] ?? null, FILTER_VALIDATE_INT) ?: 0;
-$status    = filter_var($_GET['status'] ?? null, FILTER_VALIDATE_INT) ?: 0;
+// Absent means "no filter" (0); present but not an integer is a bad request. The
+// two must not collapse into the same value: answering an unfiltered list to
+// `poller=abc` presents every host as though the filter had been applied.
+$filters = [];
+foreach (['hostgroup', 'poller', 'template', 'status'] as $filter) {
+    if (! isset($_GET[$filter]) || $_GET[$filter] === '') {
+        $filters[$filter] = 0;
+
+        continue;
+    }
+
+    $value = filter_var($_GET[$filter], FILTER_VALIDATE_INT);
+    if ($value === false || $value < 0) {
+        AjaxListingHelper::jsonError('Invalid parameters', 400);
+    }
+
+    $filters[$filter] = $value;
+}
+
+$hostgroup = $filters['hostgroup'];
+$poller    = $filters['poller'];
+$template  = $filters['template'];
+$status    = $filters['status'];
 
 try {
-    // Build the JOIN / WHERE fragments and their bound parameters.
     $joins      = '';
     $conditions = "h.host_register = '1'";
     $parameters = [];
 
-    // ACL filtering for non-admin users.
+    // A non-admin only sees the hosts its ACL groups grant, through the same
+    // centreon_acl join the toggle endpoint uses.
+    $aclPollerIds = [];
     if (! $helper->isAdmin()) {
         $acl         = $helper->getAcl();
         $aclGroupIds = $acl !== null
@@ -57,8 +78,22 @@ try {
             : [];
 
         if ($aclGroupIds === []) {
+            // Indistinguishable from a platform with no hosts, so the operator
+            // reading "0 host" needs this line to tell a misconfigured ACL from
+            // an empty inventory.
+            Logger::create(LogChannelEnum::WEB)->warning(
+                'AJAX listing: user has read access to the hosts page but no ACL group, listing is empty',
+                ['pageId' => 60101]
+            );
             $helper->jsonResponse([], 0, $num, $limit);
         }
+
+        // Poller names are ACL-filtered too, as the legacy listing did: a host may
+        // be granted while the poller running it is not.
+        $aclPollerIds = array_values(array_filter(array_map(
+            'intval',
+            explode(',', (string) $acl?->getPollerString('ID'))
+        )));
 
         $aclDbName = $pearDB->getConnectionConfig()->getDatabaseNameRealTime();
         $aclIn     = AjaxListingHelper::buildIntInClause($aclGroupIds, 'acl_gid');
@@ -126,24 +161,30 @@ try {
     $hostIds = array_map(static fn (array $host): int => (int) $host['host_id'], $hostResults);
 
     // Pollers, parent templates and icons of the listed hosts, resolved for the
-    // whole page (one query each, or one per inheritance level for the icons)
-    // rather than per row: with a page size of up to MAX_LIMIT and a 15s
-    // auto-refresh, a per-row lookup means thousands of queries per refresh tick.
-    // Pollers and templates are scoped to the page's ids; the icon walk reaches
-    // arbitrary ancestors, so it reads the objects carrying an icon in one go.
+    // whole page rather than per row: with a page size of up to MAX_LIMIT and a
+    // 15s auto-refresh, a per-row lookup means thousands of queries per tick.
+    // Pollers and templates take one query each; the icon walk climbs the
+    // template chain and takes two per level (see HostIconResolver).
     $hostPollers     = [];
     $templatesByHost = [];
     $icons           = [];
     if ($hostIds !== []) {
         $pollerIn = AjaxListingHelper::buildIntInClause($hostIds, 'poller_hid');
+        $pollerParameters = $pollerIn['parameters'];
+        $pollerCondition  = '';
+        if ($aclPollerIds !== []) {
+            $aclPollerIn      = AjaxListingHelper::buildIntInClause($aclPollerIds, 'acl_pid');
+            $pollerParameters = [...$pollerParameters, ...$aclPollerIn['parameters']];
+            $pollerCondition  = " AND nshr.nagios_server_id IN ({$aclPollerIn['clause']})";
+        }
         $pollerRows = $pearDB->fetchAllAssociative(
             <<<SQL
                 SELECT nshr.host_host_id, ns.name
                 FROM ns_host_relation nshr
                 INNER JOIN nagios_server ns ON ns.id = nshr.nagios_server_id
-                WHERE nshr.host_host_id IN ({$pollerIn['clause']})
+                WHERE nshr.host_host_id IN ({$pollerIn['clause']}){$pollerCondition}
                 SQL,
-            QueryParameters::create($pollerIn['parameters'])
+            QueryParameters::create($pollerParameters)
         );
         foreach ($pollerRows as $row) {
             $hostPollers[(int) $row['host_host_id']] = $row['name'];
@@ -178,7 +219,8 @@ try {
     // monitoring data on a *configuration* page, so a centstorage outage must
     // degrade the live badge, not 500 the whole listing whose config rows have
     // already been read successfully from pearDB.
-    $rtmStatus = [];
+    $rtmStatus      = [];
+    $rtmUnavailable = false;
     if ($hostIds !== []) {
         try {
             $rtIn = AjaxListingHelper::buildIntInClause($hostIds, 'rid');
@@ -200,12 +242,16 @@ try {
                     'since'      => $row['last_status_change'] ? (int) $row['last_status_change'] : null,
                 ];
             }
-        } catch (Throwable $exception) {
-            Logger::create(LogChannelEnum::WEB)->warning(
+        } catch (ConnectionException $exception) {
+            // Narrow on purpose: a broken centstorage degrades the badge, but a
+            // TypeError from our own code must not hide behind that label and
+            // regress silently — it belongs in the endpoint's 500 handler.
+            Logger::create(LogChannelEnum::WEB)->error(
                 'AJAX listing: real-time host status unavailable, listing rendered without it',
                 ['exception' => $exception]
             );
-            $rtmStatus = [];
+            $rtmStatus     = [];
+            $rtmUnavailable = true;
         }
     }
 
@@ -234,7 +280,9 @@ try {
         ];
     }
 
-    $helper->jsonResponse($rows, $total, $num, $limit);
+    // Without this the client cannot tell "this host is not monitored" from "we
+    // could not read the monitoring data": both render an empty status cell.
+    $helper->jsonResponse($rows, $total, $num, $limit, ['rtm_available' => ! $rtmUnavailable]);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'AJAX listing: failed to fetch hosts',
