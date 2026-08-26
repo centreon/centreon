@@ -42,7 +42,7 @@ suite_sha_file() {
   local base_path=$1 suite=$2 out release_file arches arch pkg_file rc
   out=$(mktemp)
   release_file=$(mktemp)
-  fetch_index "$PULP_CONTENT_URL/$PULP_DOMAIN/$base_path/dists/$suite/Release" "$release_file" && rc=0 || rc=$?
+  fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" "$release_file" && rc=0 || rc=$?
   if [[ $rc -eq 2 ]]; then
     echo "$out"
     return 0
@@ -53,7 +53,7 @@ suite_sha_file() {
   arches=$(awk -F': ' '/^Architectures:/ {print $2}' "$release_file")
   for arch in $arches; do
     pkg_file=$(mktemp)
-    if ! fetch_index "$PULP_CONTENT_URL/$PULP_DOMAIN/$base_path/dists/$suite/main/binary-$arch/Packages" "$pkg_file"; then
+    if ! fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$arch/Packages" "$pkg_file"; then
       echo "::error::Cannot fetch the $suite binary-$arch Packages index; refusing to promote from a partial view." >&2
       return 1
     fi
@@ -70,17 +70,17 @@ suite_sha_file() {
 download_testing_package() {
   local sha256=$1 arch=$2 dest=$3 filename
   filename=$(
-    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
+    content_curl -fsSL --retry 3 --retry-delay 5 "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/dists/$TESTING_SUITE/main/binary-$arch/Packages" |
       awk -v sha="$sha256" 'BEGIN { RS = ""; FS = "\n" } index($0, "SHA256: " sha) { for (i = 1; i <= NF; i++) if ($i ~ /^Filename: /) { sub(/^Filename: /, "", $i); print $i; exit } }'
   )
   if [[ -z "$filename" ]]; then
     echo "::error::Cannot locate the published file for sha256 $sha256 in $TESTING_SUITE ($arch)" >&2
     return 1
   fi
-  content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/$TESTING_DOMAIN/$BASE_PATH/$filename"
+  content_curl -fsSL --retry 3 --retry-delay 5 -o "$dest" "$PULP_CONTENT_URL/${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}/$filename"
 }
 
-TESTING_SHAS_FILE=$(suite_sha_file "$BASE_PATH" "$TESTING_SUITE")
+TESTING_SHAS_FILE=$(suite_sha_file "${LEGACY_TESTING_BASE_PATH:-$TESTING_DOMAIN/$BASE_PATH}" "$TESTING_SUITE")
 
 # paginated: the repository keeps every delivered version across all suites,
 # so the module listing can exceed a single page
@@ -133,6 +133,78 @@ if ! pulp_resource_exists "repositories/deb/apt" "$STABLE_REPOSITORY_NAME"; then
   exit 1
 fi
 STABLE_REPOSITORY_HREF=$(pulp deb repository show --name "$STABLE_REPOSITORY_NAME" | jq -r '.pulp_href')
+
+# 24.x standard clients use the dedicated legacy repository form
+# (apt-standard-24.10-stable/ with a plain-codename suite, provisioned by
+# create-repos): mirror every candidate package association into that suite so
+# both suites always list the same stable content. Idempotent (rerun safe).
+ensure_legacy_suite_associations() {
+  [[ -z "${STABLE_LEGACY_REPOSITORY_NAME:-}" ]] && return 0
+  refresh_pulp_token
+  if ! pulp_resource_exists "repositories/deb/apt" "$STABLE_LEGACY_REPOSITORY_NAME"; then
+    echo "::error::Dedicated legacy repository $STABLE_LEGACY_REPOSITORY_NAME does not exist. Pulp repositories are provisioned centrally by delivery-tooling create-repos; run create-repos before promoting."
+    return 1
+  fi
+  local legacy_repo_href latest legacy_rc
+  legacy_repo_href=$(pulp deb repository show --name "$STABLE_LEGACY_REPOSITORY_NAME" | jq -r '.pulp_href')
+  latest=$(pulp deb repository show --name "$STABLE_LEGACY_REPOSITORY_NAME" | jq -r '.latest_version_href')
+  legacy_rc=$(
+    curl -fsSL --retry 3 --retry-delay 5 -H "Authorization: Bearer $PULP_TOKEN" \
+      "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/release_components/?$(
+        printf 'repository_version=%s&distribution=%s&component=main&limit=1' \
+          "$(jq -rn --arg v "$latest" '$v | @uri')" "$(jq -rn --arg v "$STABLE_LEGACY_SUITE" '$v | @uri')"
+      )" | jq -r '.results[0].pulp_href // empty'
+  )
+  if [[ -z "$legacy_rc" ]]; then
+    echo "::error::Cannot resolve the $STABLE_LEGACY_SUITE/main release component of $STABLE_LEGACY_REPOSITORY_NAME (provisioned by create-repos)"
+    return 1
+  fi
+  echo "[INFO] Mirroring $PACKAGES_COUNT package association(s) into $STABLE_LEGACY_REPOSITORY_NAME $STABLE_LEGACY_SUITE/main"
+  local units_file body_file sha href out code body prc n=0
+  units_file=$(mktemp)
+  while read -r sha; do
+    if ((n % 40 == 0)); then refresh_pulp_token; fi
+    n=$((n + 1))
+    href=$(lookup_deb_content "packages" "--data-urlencode sha256=$sha")
+    if [[ -z "$href" ]]; then
+      echo "::error::Cannot resolve the promoted package (sha256 $sha) for the $STABLE_LEGACY_SUITE mirror"
+      return 1
+    fi
+    out=$(post_json "$PULP_URL/$PULP_DOMAIN/api/v3/content/deb/package_release_components/" \
+      "{\"package\": \"$href\", \"release_component\": \"$legacy_rc\"}") || out=$'\n000'
+    code="${out##*$'\n'}"
+    body="${out%$'\n'*}"
+    prc=""
+    if [[ "$code" == 2* ]]; then
+      prc=$(echo "$body" | jq -r '.pulp_href // empty' 2>/dev/null) || prc=""
+    fi
+    if [[ -z "$prc" ]]; then
+      # the api answers 500 on a duplicate synchronous create; expected on a rerun
+      prc=$(lookup_deb_content "package_release_components" \
+        "--data-urlencode package=$href --data-urlencode release_component=$legacy_rc")
+    fi
+    if [[ -z "$prc" ]]; then
+      echo "::error::Legacy suite association failed for sha256 $sha (HTTP $code)"
+      return 1
+    fi
+    printf '%s\n%s\n' "$href" "$prc" >> "$units_file"
+  done < <(echo "$PACKAGES" | jq -r '.[].sha256')
+  body_file=$(mktemp)
+  jq -R . "$units_file" | jq -cs '{add_content_units: ([.[] | select(. != "")] | unique)}' > "$body_file"
+  rm -f "$units_file"
+  local task rc
+  for _ in 1 2 3; do
+    task=$(start_modify_task "$PULP_URL${legacy_repo_href}modify/" "$body_file")
+    wait_task_race "$task" && rc=0 || rc=$?
+    if [[ $rc -eq 0 ]]; then
+      rm -f "$body_file"
+      create_publication deb "$STABLE_LEGACY_REPOSITORY_NAME" --structured
+      return 0
+    fi
+  done
+  echo "::error::Cannot add the $STABLE_LEGACY_SUITE mirror associations to $STABLE_LEGACY_REPOSITORY_NAME"
+  return 1
+}
 
 # "already promoted" is decided against the stable repository's OWN version
 # (it's always dedicated, never shared, so it only ever receives stable content)
@@ -206,12 +278,13 @@ if ((${#UNPROMOTED_HREFS[@]} == 0)); then
   echo "[INFO] All $PACKAGES_COUNT package(s) are already promoted to $STABLE_SUITE; republishing only"
   while read -r PACKAGE; do
     manifest_add "$(echo "$PACKAGE" | jq -c \
-      --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+      --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" \
       --arg suite "$STABLE_SUITE" \
       '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
   done < <(echo "$PACKAGES" | jq -c '.[]')
+  ensure_legacy_suite_associations
   create_publication deb "$STABLE_REPOSITORY_NAME" --structured
-  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+  echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}/ $STABLE_SUITE main"
   manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
   exit 0
 fi
@@ -308,8 +381,9 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
     # a promotion interrupted after its repository modify only misses the
     # publication: republish and re-check every candidate before giving up
     echo "[WARN] Cannot deduce the $STABLE_SUITE/main release component (got: ${STABLE_RC_SET:-none}); republishing to check for an interrupted promotion"
+    ensure_legacy_suite_associations
     create_publication deb "$STABLE_REPOSITORY_NAME" --structured
-    RECHECK_SHAS_FILE=$(suite_sha_file "$STABLE_BASE_PATH" "$STABLE_SUITE")
+    RECHECK_SHAS_FILE=$(suite_sha_file "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" "$STABLE_SUITE")
     MISSING_COUNT=0
     while read -r sha; do
       grep -qxF "$sha" "$RECHECK_SHAS_FILE" || MISSING_COUNT=$((MISSING_COUNT + 1))
@@ -319,11 +393,11 @@ if ((${#BATCH_PACKAGES[@]} > 0)); then
       echo "[INFO] Every candidate package is published in $STABLE_SUITE; the interrupted promotion only missed the publication"
       while read -r PACKAGE; do
         manifest_add "$(echo "$PACKAGE" | jq -c \
-          --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+          --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" \
           --arg suite "$STABLE_SUITE" \
           '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
       done < <(echo "$PACKAGES" | jq -c '.[]')
-      echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+      echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}/ $STABLE_SUITE main"
       manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
       exit 0
     fi
@@ -412,14 +486,15 @@ fi
 # verification step verifies exactly this set against the stable suite
 while read -r PACKAGE; do
   manifest_add "$(echo "$PACKAGE" | jq -c \
-    --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "$STABLE_BASE_PATH" \
+    --arg repository "$STABLE_REPOSITORY_NAME" --arg base_path "${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}" \
     --arg suite "$STABLE_SUITE" \
     '{filename: (.relative_path | sub(".*/"; "")), name: .package, version, arch: .architecture, sha256, repository: $repository, base_path: $base_path, suite: $suite, relative_path}')"
 done < <(echo "$PACKAGES" | jq -c '.[]')
 
+ensure_legacy_suite_associations
 echo "[INFO] Publishing repository $STABLE_REPOSITORY_NAME"
 create_publication deb "$STABLE_REPOSITORY_NAME" --structured
 
-echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH/ $STABLE_SUITE main"
+echo "::notice::Packages are available with: deb $PULP_CONTENT_URL/${LEGACY_STABLE_BASE_PATH:-$PULP_STABLE_DOMAIN/$STABLE_BASE_PATH}/ $STABLE_SUITE main"
 
 manifest_write "$MODULE_NAME" "${DISTRIB:-}" "deb" "$STABILITY" "promote" "$PULP_CONTENT_URL"
