@@ -252,6 +252,19 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         self::assertStringNotContainsString('--cloud', $fromValueObjects->generate());
     }
 
+    public function testItRejectsACentralUrlWithoutAScheme(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        PollerInstallationCommandFactory::fromPoller(
+            poller: $this->createPoller(PollerTypeEnum::VM),
+            pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            centralUrl: 'centreon.example.com/centreon',
+        );
+    }
+
     private function createPoller(PollerTypeEnum $type): Poller
     {
         return new Poller(

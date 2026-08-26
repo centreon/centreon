@@ -31,13 +31,16 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 // Keep in sync with engine_context_path (config/services.yaml) and
 // upgrade.engine_context_path (config.new/services/upgrade.php): this endpoint
@@ -118,9 +121,9 @@ try {
 
     try {
         // central_address is written by the remote-server wizard without format validation;
-        // PollerAddress enforces the same IP-or-hostname invariant as the API endpoint,
-        // so no value able to alter the generated shell command can get through.
-        $centralAddress = new PollerAddress($poller['central_address']);
+        // CentralAddress enforces the same invariant as the API endpoint, so no value able
+        // to alter the generated shell command can get through.
+        $centralAddress = new CentralAddress($poller['central_address']);
     } catch (InvalidArgumentException) {
         sendJsonResponse(400, ['error' => 'Invalid central address configured for this poller']);
     }
@@ -157,6 +160,12 @@ try {
 
     $engineSecrets = new FsEngineSecretsRepository(ENGINE_CONTEXT_PATH);
 
+    // This endpoint does not boot the Symfony kernel, so the factory is built by hand
+    // over the current request: the scheme and the base URI must be resolved the same way
+    // as in the API, or the two commands diverge.
+    $requestStack = new RequestStack();
+    $requestStack->push(Request::createFromGlobals());
+
     $factory = new PollerInstallationCommandFactory(
         pollerUid: $pollerUid,
         pollerName: new PollerName($poller['name']),
@@ -165,7 +174,7 @@ try {
         appSecret: $engineSecrets->getAppSecret(),
         salt: $engineSecrets->getSalt(),
         isCloudPlatform: $isCloudPlatform,
-        centralUrl: $centralAddress->value,
+        centralUrl: (new CentralUrlFactory($requestStack, $isCloudPlatform))->create($centralAddress),
     );
 
     sendJsonResponse(200, ['command' => $factory->generate()]);

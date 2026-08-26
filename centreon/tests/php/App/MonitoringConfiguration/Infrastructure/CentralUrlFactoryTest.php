@@ -116,6 +116,70 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
+    public function testItIgnoresABaseUriContainingDotSegments(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/../api/latest/configuration/pollers');
+
+        self::assertSame(
+            'https://10.25.11.198',
+            $factory->create(new CentralAddress('10.25.11.198'))
+        );
+    }
+
+    public function testItResolvesTheBaseUriFromTheLegacyEntryPoint(): void
+    {
+        $factory = $this->createFactory(
+            'https://central.example.com/centreon/include/configuration/configServers/copyInstallCommand.php?id=1'
+        );
+
+        self::assertSame(
+            'https://10.25.11.198/centreon',
+            $factory->create(new CentralAddress('10.25.11.198'))
+        );
+    }
+
+    public function testItKeepsTheAddressBasePathOverThePlatformOne(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');
+
+        self::assertSame(
+            'https://10.0.0.1/custom',
+            $factory->create(new CentralAddress('10.0.0.1/custom'))
+        );
+    }
+
+    public function testItUpgradesToHttpsWhenAProxyForwardsIt(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create(
+            'http://central.example.com/centreon/api/latest/configuration/pollers',
+            server: ['HTTP_X_FORWARDED_PROTO' => 'https, http']
+        ));
+
+        $factory = new CentralUrlFactory($requestStack);
+
+        self::assertSame(
+            'https://10.25.11.198/centreon',
+            $factory->create(new CentralAddress('10.25.11.198'))
+        );
+    }
+
+    public function testItNeverDowngradesAnHttpsRequestToHttp(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create(
+            'https://central.example.com/centreon/api/latest/configuration/pollers',
+            server: ['HTTP_X_FORWARDED_PROTO' => 'http']
+        ));
+
+        $factory = new CentralUrlFactory($requestStack);
+
+        self::assertSame(
+            'https://10.25.11.198/centreon',
+            $factory->create(new CentralAddress('10.25.11.198'))
+        );
+    }
+
     private function createFactory(string $requestUrl): CentralUrlFactory
     {
         $requestStack = new RequestStack();

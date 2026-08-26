@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
+use Webmozart\Assert\Assert;
 
 final readonly class PollerInstallationCommandFactory
 {
@@ -42,6 +43,14 @@ final readonly class PollerInstallationCommandFactory
         private string $centralUrl,
         private bool $isCloudPlatform = false,
     ) {
+        // The command interpolates centralUrl unquoted and never prepends a scheme, so a
+        // caller passing a bare address would emit a one-liner that curl downloads over
+        // plain HTTP before piping it into a root shell. Fail here instead.
+        Assert::regex(
+            $centralUrl,
+            '~^https?://~',
+            'The central URL must carry its scheme: build it with CentralUrlFactory.'
+        );
     }
 
     /**
@@ -73,11 +82,9 @@ final readonly class PollerInstallationCommandFactory
         // Only `name` is escaped with escapeshellarg(): it is the sole free-form,
         // user-provided value. The other parameters are controlled and cannot carry
         // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
-        // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl is built
-        // by CentralUrlFactory from a validated CentralAddress by every call site.
-        //
-        // centralUrl already carries its scheme: the command must never prepend one, or an
-        // address that came in with a scheme would end up with two of them.
+        // pollerType is an enum, appSecret/salt are read verbatim from the engine context
+        // file, and centralUrl is asserted to be a scheme-bearing URL built from a
+        // validated CentralAddress.
         $command = sprintf(
             'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
             $this->centralUrl,
