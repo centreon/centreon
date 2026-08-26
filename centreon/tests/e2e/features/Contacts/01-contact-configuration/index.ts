@@ -14,12 +14,21 @@ import {
 } from '../common';
 
 const listingTestContacts = ['test_contact_alpha', 'test_contact_beta'];
+const massChangeAddress = 'mass-change-only-selected';
 let isAdmin = true;
 let contactPageIndex = 3;
 let accessGroup = 'user-ACLGROUP';
 const visitContactsListing = () => {
   cy.visitContactsPage(contactPageIndex);
   waitForListingXhr(listingAlias.contacts);
+};
+
+/** Open a contact's form in the side panel from the listing. */
+const openContactForm = (contactName: string | RegExp) => {
+  waitForListingXhr(listingAlias.contacts);
+  cy.getIframeBody().find('#clTableBody').contains('a', contactName).click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
 };
 
 /** Close the form side panel and come back to the listing. */
@@ -478,6 +487,55 @@ Then('the admin user toggle is disabled', () => {
     .parents('tr')
     .find('.cl-toggle input[type="checkbox"]')
     .should('be.disabled');
+});
+
+When('the user mass changes the address of the test contacts', () => {
+  listingTestContacts.forEach((contactName) => {
+    cy.checkListingRow(contactName);
+  });
+
+  cy.getIframeBody().find('.cl-more-actions-btn').click();
+  cy.getIframeBody()
+    .find('.cl-more-actions-item')
+    .contains('Mass Change')
+    .click({ force: true });
+
+  // Mass Change opens the form in the side panel — no confirm modal, unlike
+  // every other bulk action, so cy.runListingBulkAction does not fit here.
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  // The address lives in "Additional information", which renders collapsed.
+  cy.getSidePanelBody().find('#cf-sec-additional .cf-section-header').click();
+  cy.getSidePanelBody()
+    .find('input[data-testid="contact_address1"]')
+    .should('be.visible')
+    .clear()
+    .type(massChangeAddress);
+  // Named, not positional: the form renders submitC, submitA or submitMC
+  // depending on the mode, and only this one carries the selected ids.
+  cy.getSidePanelBody().find('input[name="submitMC"]').click();
+  cy.wait('@getTimeZone');
+});
+
+Then('both test contacts carry the new address', () => {
+  listingTestContacts.forEach((contactName) => {
+    openContactForm(contactName);
+    cy.getSidePanelBody()
+      .find('input[data-testid="contact_address1"]')
+      .should('have.value', massChangeAddress);
+    closeSidePanel();
+  });
+});
+
+// The half that gives the scenario its worth: the ids used to reach the form as
+// a positional list, so a selection of two rows was written onto ids 0 and 1 —
+// and id 1 is admin on a default install. Asserting only the two test contacts
+// would pass just as well with the wrong ids.
+Then('the admin account keeps its own address', () => {
+  openContactForm(/^admin$/);
+  cy.getSidePanelBody()
+    .find('input[data-testid="contact_address1"]')
+    .should('not.have.value', massChangeAddress);
+  closeSidePanel();
 });
 
 Then('the contacts search field still contains the search term', () => {

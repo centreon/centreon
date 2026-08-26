@@ -113,6 +113,15 @@ Feature: ContactConfiguration
     Then the admin user toggle is disabled
 
   @MON-200035
+  Scenario: A mass change only writes to the selected contacts
+    Given a "admin" user is logged in a Centreon server
+    And test contacts exist
+    When the user displays the contacts listing
+    And the user mass changes the address of the test contacts
+    Then both test contacts carry the new address
+    And the admin account keeps its own address
+
+  @MON-200035
   Scenario: The contacts search term survives navigating away and back
     Given a "admin" user is logged in a Centreon server
     And test contacts exist
