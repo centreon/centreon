@@ -99,6 +99,9 @@ const waitForListingRefresh = (alias: string): void => {
  * Scoped to the name column on purpose: the Templates column renders parent
  * template names as links of their own, so an unscoped lookup can return the
  * row *inheriting* from that name rather than the row itself.
+ *
+ * `contains` matches a substring: on a listing holding both a name and a name
+ * that extends it (foo and foo_1), only DOM order keeps this on the right row.
  */
 const getListingRow = (name: string): Cypress.Chainable =>
   cy

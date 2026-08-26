@@ -499,13 +499,9 @@
             <span class="cf-section-chevron">&#9660;</span>
         </div>
         <div class="cf-section-body">
-            <!-- Each switch is followed by the thresholds it drives, the shape the
-                 Cloud form already uses. Pairing the two switches on one row and
-                 all three thresholds on the next put every threshold next to a
-                 control it has nothing to do with.
-                 Thresholds stay 300px each: wide enough for their (translated)
-                 floating label to stay on one line, and they wrap onto the next
-                 line rather than shrink when the form gets narrow. -->
+            <!-- Check Freshness and Flap Detection each keep their own row, followed
+                 by the thresholds they drive — the pairing the Cloud form uses for
+                 its freshness fields. Thresholds are 300px, as in Scheduling. -->
             <div class="cf-row">
                 <div class="cf-segmented-row">
                     <span>{$form.host_check_freshness.label}</span>

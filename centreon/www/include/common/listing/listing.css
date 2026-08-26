@@ -1558,14 +1558,9 @@
 .cl-status-pending { color: var(--color-pending, #1EBEB3); }
 
 /* ==========================================================================
-   Name cell: object icon followed by its label.
-
-   Both stay inline so the cell keeps its own text-overflow:ellipsis on long
-   names — an inline-flex link would be an atomic box the ellipsis cannot
-   reach. Which is why they are centred against each other with a shared
-   vertical-align instead: on the icon alone it lines the icon up with the
-   parent's x-height, an axis that sits above the middle of the text, and the
-   icon then rides visibly high.
+   Name cell: icon and label stay inline so the cell's text-overflow:ellipsis
+   still reaches long names — an inline-flex link would be an atomic box. Both
+   carry vertical-align, otherwise they are not centred on each other.
    ========================================================================== */
 
 .cl-name-icon {

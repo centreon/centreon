@@ -549,7 +549,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         multipleServiceInDB($serviceArr, $serviceNbr, $hostInf, 0);
                     } else {
                         // Host Template -> Link to the existing Service Template List. Running the
-                        // shared/exclusive split above too would relate an already-shared service twice.
+                        // host branch's COUNT(*) > 1 test here too would relate a shared service twice.
                         $svcTplStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
                         $svcTplStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
                         $svcTplStatement->execute();
