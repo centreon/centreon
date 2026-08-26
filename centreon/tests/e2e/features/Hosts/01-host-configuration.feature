@@ -14,13 +14,9 @@ Feature: HostConfiguration
 
   @MON-177106
   Scenario: Duplicate one existing host
-    When the admin duplicates a host
-    Then a new host is created with identical fields
-
-  Scenario: Duplicating a host relates a shared service instead of copying it
     Given one of its services is shared with a second host
     When the admin duplicates a host
-    Then the copy relates the shared service rather than a copy of it
+    Then the copy owns the exclusive services and relates the shared one
 
   @MON-177107
   Scenario: Delete one existing host

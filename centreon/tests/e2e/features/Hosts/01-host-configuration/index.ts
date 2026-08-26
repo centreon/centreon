@@ -149,35 +149,38 @@ When('the admin duplicates a host', () => {
   cy.exportConfig();
 });
 
-/** Number of service relations a host carries, from the configuration database. */
-const serviceRelationCount = (name: string) =>
+const sharedServiceHost = 'host-sharing-a-service';
+
+/**
+ * Service relations of a host, split by whether the service is one the source
+ * already carried. A duplicated service gets a fresh id while a shared one
+ * keeps its own, so the split tells "copied" from "related" — a plain total
+ * cannot, and stays at three whichever branch ran.
+ */
+const serviceRelations = (hostName: string) =>
   cy
     .requestOnDatabase({
       database: 'centreon',
-      query: `SELECT COUNT(*) AS link_count
-              FROM host_service_relation
-              INNER JOIN host ON host.host_id = host_service_relation.host_host_id
-              WHERE host.host_name = "${name}"`
+      query: `SELECT COUNT(*) AS total,
+                     SUM(CASE WHEN rel.service_service_id IN (
+                       SELECT src_rel.service_service_id
+                       FROM host_service_relation src_rel
+                       INNER JOIN host src ON src.host_id = src_rel.host_host_id
+                       WHERE src.host_name = '${services.serviceOk.host}'
+                         AND src.host_register = '1'
+                     ) THEN 1 ELSE 0 END) AS inherited
+              FROM host_service_relation rel
+              INNER JOIN host h ON h.host_id = rel.host_host_id
+              WHERE h.host_name = '${hostName}' AND h.host_register = '1'`
     })
-    .then(([rows]) => Number(rows[0].link_count));
-
-Then('a new host is created with identical fields', () => {
-  const copyName = `${services.serviceOk.host}_1`;
-
-  cy.getIframeBody().contains(copyName).should('exist');
-
-  // The three services of the source are exclusive to it, so the copy gets its
-  // own duplicates of them. Asserting on the name alone let a duplication that
-  // creates no service relation at all pass as a success.
-  serviceRelationCount(copyName).should('eq', 3);
-});
-
-const sharedServiceHost = 'host-sharing-a-service';
+    .then(([rows]) => ({
+      inherited: Number(rows[0].inherited ?? 0),
+      total: Number(rows[0].total)
+    }));
 
 Given('one of its services is shared with a second host', () => {
   // A service attached to more than one host is related to the copy instead of
-  // being duplicated. Only real hosts reach that branch, and nothing else in
-  // the suite links one service to two hosts, so it was never exercised.
+  // being duplicated, and only real hosts reach that branch.
   cy.addHost({
     hostGroup: 'Linux-Servers',
     name: sharedServiceHost,
@@ -188,45 +191,53 @@ Given('one of its services is shared with a second host', () => {
     database: 'centreon',
     query: `INSERT INTO host_service_relation
               (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
-            SELECT NULL, second.host_id, NULL, hsr.service_service_id
+            SELECT NULL,
+                   (SELECT host_id FROM host
+                    WHERE host_name = '${sharedServiceHost}' AND host_register = '1'),
+                   NULL,
+                   hsr.service_service_id
             FROM host source
             INNER JOIN host_service_relation hsr
               ON hsr.host_host_id = source.host_id
             INNER JOIN service svc
               ON svc.service_id = hsr.service_service_id
-            INNER JOIN host second ON second.host_name = '${sharedServiceHost}'
             WHERE source.host_name = '${services.serviceOk.host}'
+              AND source.host_register = '1'
               AND svc.service_description = '${services.serviceOk.name}'`
   }).then(([result]) => {
-    if (!result || result.affectedRows === 0) {
+    // An INSERT ... SELECT that matches nothing is an OK packet with no row, and
+    // either operand can be the missing one — name both, or the message accuses
+    // an object that is fine.
+    if (!result || result.affectedRows !== 1) {
       throw new Error(
-        `No service named ${services.serviceOk.name} to share from ${services.serviceOk.host}`
+        `Expected to share ${services.serviceOk.name} of ${services.serviceOk.host}` +
+          ` with ${sharedServiceHost}, shared ${result?.affectedRows ?? 0}`
       );
     }
   });
 });
 
-Then('the copy relates the shared service rather than a copy of it', () => {
-  // The shared service keeps its identity: the copy points at the very same
-  // service_id, the one the second host also carries. Had it been duplicated,
-  // the copy would reference a fresh id and this count would be 0.
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: `SELECT COUNT(*) AS link_count
-            FROM host_service_relation copy_rel
-            INNER JOIN host copy ON copy.host_id = copy_rel.host_host_id
-            WHERE copy.host_name = '${services.serviceOk.host}_1'
-              AND copy_rel.service_service_id IN (
-                SELECT shared_rel.service_service_id
-                FROM host_service_relation shared_rel
-                INNER JOIN host shared ON shared.host_id = shared_rel.host_host_id
-                WHERE shared.host_name = '${sharedServiceHost}'
-              )`
-  }).then(([rows]) => {
+Then('the copy owns the exclusive services and relates the shared one', () => {
+  const copyName = `${services.serviceOk.host}_1`;
+
+  cy.getIframeBody().contains(copyName).should('exist');
+
+  // Of the source's three services one is shared, so the copy relates that one
+  // and owns fresh duplicates of the other two. Asserting the total alone would
+  // survive a duplication that relates every service instead of copying it.
+  serviceRelations(copyName).then((relations) => {
+    expect(relations.total, `service relations of ${copyName}`).to.eq(3);
     expect(
-      Number(rows[0].link_count),
-      'shared service related to the copy, not duplicated'
+      relations.inherited,
+      `services ${copyName} still shares with its source`
     ).to.eq(1);
+  });
+
+  serviceRelations(services.serviceOk.host).then((relations) => {
+    expect(
+      relations.total,
+      `${services.serviceOk.host} keeps its own services`
+    ).to.eq(3);
   });
 });
 
