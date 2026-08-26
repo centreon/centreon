@@ -304,6 +304,7 @@ Cypress.Commands.add('openListingRowForm', (name: string) => {
   // Scoped to the name column, like getListingRow: the Templates column renders
   // parent template names as links of their own, so an unscoped lookup can open
   // the wrong object — and the host_name assertion below would still pass.
+  // Same substring caveat as getListingRow.
   cy.getIframeBody()
     .find(`${listingSelectors.tableBody} tr td:nth-child(2)`)
     .contains('a', name)

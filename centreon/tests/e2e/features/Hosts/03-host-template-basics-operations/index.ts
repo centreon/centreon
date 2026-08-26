@@ -22,11 +22,13 @@ const activeChecksRadio = 'host_active_checks_enabled';
 const massChangedMaxCheckAttempts = '7';
 const massChangedRetryInterval = '3';
 
-// Nothing the platform installs is guaranteed to be a service template.
+// A service template of this spec's own: the assertion counts the links to this
+// exact description, and a shipped one could already be linked elsewhere.
 const serviceTemplateName = 'host-template-service';
 
 const createServiceTemplate = (): void => {
   cy.addServiceTemplate({
+    description: serviceTemplateName,
     name: serviceTemplateName,
     template: 'generic-service'
   });
