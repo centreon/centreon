@@ -37,12 +37,25 @@ services:
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:11.8}"
     ports: ["3306"]
     environment:
-      MARIADB_EXTRA_FLAGS: "--skip-ssl"
+      # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
+      # Set both so swapping MYSQL_IMAGE to a mysql variant doesn't silently
+      # drop the --skip-ssl behavior.
+      #
+      # ${…:-} interpolates the perf-tuning string from .env (--skip-name-resolve,
+      # --innodb-flush-method=nosync, etc.) and appends --skip-ssl. Without the
+      # interpolation, this inline value would override env_file: and silently
+      # drop the perf flags.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --skip-ssl"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --skip-ssl"
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/3306 && sleep 3 && </dev/tcp/127.0.0.1/3306'"]
       interval: 10s
       timeout: 15s
       retries: 20
+    ulimits:
+      nofile:
+        soft: "32000"
+        hard: "32000"
     deploy:
       resources:
         limits:
@@ -152,7 +165,7 @@ services:
       CENTRAL_API_PASSWORD: ${CENTRAL_API_PASSWORD:-Centreon!2021}
       REMOTE_SERVER_NAME: ${REMOTE_SERVER_NAME:-remote-server}
     volumes:
-      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh:ro
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 5s
@@ -167,7 +180,10 @@ services:
     ports: ["3306"]
     profiles: ["remote-server"]
     environment:
-      MARIADB_EXTRA_FLAGS: "--skip-ssl"
+      # See db service: same ${…:-} interpolation pattern so the .env perf flags
+      # are appended-to rather than overridden.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --skip-ssl"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --skip-ssl"
     deploy:
       resources:
         limits:
