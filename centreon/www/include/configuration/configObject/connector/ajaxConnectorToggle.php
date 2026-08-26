@@ -77,12 +77,13 @@ try {
         ])
     );
 
-    // Answer before auditing: the toggle is already committed, so an audit
-    // failure must not be reported to the operator as a failed toggle.
-    echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);
-
     $auditName   = (string) $objName;
     $auditAction = $action === 's' ? ActionLog::ACTION_TYPE_ENABLE : ActionLog::ACTION_TYPE_DISABLE;
+
+    // Answered last, and before auditing: the toggle is already committed, so an
+    // audit failure must not be reported as a failed toggle, and nothing that can
+    // throw is left to send the catch below chasing an already-sent response.
+    echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'AJAX toggle: failed to update connector activation',
@@ -99,6 +100,10 @@ if ($auditName !== null && $auditAction !== null) {
     // Close the response first. A centstorage outage inside the audit path answers
     // with an HTML error page and exit(), which would otherwise be appended to the
     // JSON body above and turn a committed toggle into a client-side parse error.
+    // The session lock goes with it: nothing writes to the session past this point,
+    // and holding it would block the operator's next click for as long as the dead
+    // connection takes to time out.
+    session_write_close();
     if (function_exists('fastcgi_finish_request')) {
         fastcgi_finish_request();
     }
