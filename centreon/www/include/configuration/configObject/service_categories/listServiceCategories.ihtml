@@ -103,7 +103,9 @@ var scListing = new CentreonListing({
         }},
         { id:'svc_count', align:'center', render: function(row) { return row.svc_count; }},
         { id:'level', align:'center', render: function(row, l) {
-            return row.level ? l.escape('Severity (' + row.level + ')') : 'Regular';
+            return row.level
+                ? l.escape('{/literal}{t escape='js'}Severity{/t}{literal} (' + row.level + ')')
+                : '{/literal}{t escape='js'}Regular{/t}{literal}';
         }}
     ],
     renderOptions: function(row, l) {
