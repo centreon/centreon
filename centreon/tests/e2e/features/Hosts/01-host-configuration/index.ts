@@ -149,8 +149,85 @@ When('the admin duplicates a host', () => {
   cy.exportConfig();
 });
 
+/** Number of service relations a host carries, from the configuration database. */
+const serviceRelationCount = (name: string) =>
+  cy
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT COUNT(*) AS link_count
+              FROM host_service_relation
+              INNER JOIN host ON host.host_id = host_service_relation.host_host_id
+              WHERE host.host_name = "${name}"`
+    })
+    .then(([rows]) => Number(rows[0].link_count));
+
 Then('a new host is created with identical fields', () => {
-  cy.getIframeBody().contains(`${services.serviceOk.host}_1`).should('exist');
+  const copyName = `${services.serviceOk.host}_1`;
+
+  cy.getIframeBody().contains(copyName).should('exist');
+
+  // The three services of the source are exclusive to it, so the copy gets its
+  // own duplicates of them. Asserting on the name alone let a duplication that
+  // creates no service relation at all pass as a success.
+  serviceRelationCount(copyName).should('eq', 3);
+});
+
+const sharedServiceHost = 'host-sharing-a-service';
+
+Given('one of its services is shared with a second host', () => {
+  // A service attached to more than one host is related to the copy instead of
+  // being duplicated. Only real hosts reach that branch, and nothing else in
+  // the suite links one service to two hosts, so it was never exercised.
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: sharedServiceHost,
+    template: 'generic-host'
+  });
+
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO host_service_relation
+              (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+            SELECT NULL, second.host_id, NULL, hsr.service_service_id
+            FROM host source
+            INNER JOIN host_service_relation hsr
+              ON hsr.host_host_id = source.host_id
+            INNER JOIN service svc
+              ON svc.service_id = hsr.service_service_id
+            INNER JOIN host second ON second.host_name = '${sharedServiceHost}'
+            WHERE source.host_name = '${services.serviceOk.host}'
+              AND svc.service_description = '${services.serviceOk.name}'`
+  }).then(([result]) => {
+    if (!result || result.affectedRows === 0) {
+      throw new Error(
+        `No service named ${services.serviceOk.name} to share from ${services.serviceOk.host}`
+      );
+    }
+  });
+});
+
+Then('the copy relates the shared service rather than a copy of it', () => {
+  // The shared service keeps its identity: the copy points at the very same
+  // service_id, the one the second host also carries. Had it been duplicated,
+  // the copy would reference a fresh id and this count would be 0.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT COUNT(*) AS link_count
+            FROM host_service_relation copy_rel
+            INNER JOIN host copy ON copy.host_id = copy_rel.host_host_id
+            WHERE copy.host_name = '${services.serviceOk.host}_1'
+              AND copy_rel.service_service_id IN (
+                SELECT shared_rel.service_service_id
+                FROM host_service_relation shared_rel
+                INNER JOIN host shared ON shared.host_id = shared_rel.host_host_id
+                WHERE shared.host_name = '${sharedServiceHost}'
+              )`
+  }).then(([rows]) => {
+    expect(
+      Number(rows[0].link_count),
+      'shared service related to the copy, not duplicated'
+    ).to.eq(1);
+  });
 });
 
 When('the admin deletes the host', () => {
