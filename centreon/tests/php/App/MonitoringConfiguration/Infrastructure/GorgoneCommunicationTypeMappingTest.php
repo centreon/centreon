@@ -35,6 +35,11 @@ use PHPUnit\Framework\TestCase;
  * platforms. The guards named testEveryCommunicationTypeAllowedBySchemaIsMapped,
  * testSchemaCommentDocumentsTheMappingItApplies and testTheLatestUpgradeScript* hold the column,
  * the comment that documents it, the upgrade scripts and the enum to each other.
+ *
+ * Widening the column was only half of what 26.07 did; the other half was the UPDATE that stored
+ * '4' in every row, and that is the half a read path meets. The values scripts write are covered
+ * by testEveryValueWrittenByAnUpgradeScriptIsMapped, and the one the column writes on their
+ * behalf by testTheColumnDefaultIsMapped.
  */
 final class GorgoneCommunicationTypeMappingTest extends TestCase
 {
@@ -48,6 +53,17 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
      */
     private const COLUMN_REDECLARATION_PATTERN = '/(?:ADD|MODIFY|CHANGE)(?:\\s+COLUMN)?\\s+'
         . '`?gorgone_communication_type`?\\s+(?:(?!enum\\b)`?\\w+`?\\s+)?enum\\s*\\([^)]*\\)[^;]*/i';
+
+    /**
+     * The SET clause of an UPDATE on nagios_server, stopping at the WHERE or at the statement's
+     * end. It reads the shapes the upgrade scripts use and does not claim to read every one: a
+     * value passed as a placeholder or built from a PHP variable is not a literal and cannot be
+     * checked here, and an UPDATE that reaches the table through an alias or a join is not
+     * matched at all. What it does cover is the shape that shipped the defect — a bare UPDATE
+     * assigning a constant to every row.
+     */
+    private const COLUMN_WRITE_PATTERN = '/UPDATE\\s+`?nagios_server`?\\s+SET\\s+'
+        . '(?<assignments>[^;]*?)(?=\\bWHERE\\b|;|$)/is';
 
     /**
      * Update-next.php carries the release under development, so it outranks every numbered
@@ -91,12 +107,19 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
 
     /**
      * This test cannot see an inversion: a round trip through a bijection and its inverse is the
-     * identity, so relabelling both directions consistently survives it. The table of
-     * expectations above is what catches that, and it alone.
+     * identity, so relabelling both directions consistently survives it. What catches an inversion
+     * is the hand-written table above, and the two guards that read the SQL comment — three
+     * expectations written down independently of the mapping.
      *
-     * What this adds is totality over two sets the hand-written table does not derive from —
-     * GorgoneCommunicationTypeEnum::cases() and the values createTables.sql allows. A case added
-     * on one side only fails here, and nowhere else.
+     * Nor is it what holds the two match arms exhaustive: neither has a default over the enum, so
+     * PHPStan reports match.unhandled on a case added without an arm, and backend-lint fails
+     * before any test runs.
+     *
+     * What it adds is totality over two sets the table above is not derived from —
+     * GorgoneCommunicationTypeEnum::cases() and the values createTables.sql allows. The table is
+     * written by hand, so it only ever covers the cases someone remembered to add to it; the two
+     * loops below cover a fifth case the day it appears, in whichever direction it was wired
+     * inconsistently.
      */
     public function testTheTwoDirectionsAreReciprocal(): void
     {
@@ -219,6 +242,72 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
                 "{$redeclaration['script']} widens gorgone_communication_type beyond "
                 . 'createTables.sql, so upgraded platforms would hold values a fresh install '
                 . 'never produces'
+            );
+        }
+    }
+
+    /**
+     * Redeclaring the column is only half of what an upgrade script does to it; the other half is
+     * writing rows. 26.07 did both — it widened the enum to '1'..'4' and then set every cloud
+     * poller to '4' — and it is the write that reached the read path and answered a 500. A script
+     * may only store a value the mapping can read back.
+     *
+     * This is deliberately held against today's mapping rather than against the column as the
+     * script left it: a value that was legal when it was written and is no longer mapped is
+     * precisely the state that produces the 500, and it stays true of every platform that ran
+     * that script.
+     */
+    public function testEveryValueWrittenByAnUpgradeScriptIsMapped(): void
+    {
+        $writes = $this->columnWritesByUpgradeScript();
+
+        self::assertNotSame(
+            [],
+            $writes,
+            'no upgrade script writes gorgone_communication_type any more, this guard guards nothing'
+        );
+
+        foreach ($writes as $write) {
+            try {
+                GorgoneCommunicationTypeMapping::fromDatabase($write['value'], 42);
+            } catch (\Throwable $throwable) {
+                self::fail(
+                    "{$write['script']} stores gorgone_communication_type '{$write['value']}', "
+                    . "which the mapping cannot read back: {$throwable->getMessage()}"
+                );
+            }
+        }
+    }
+
+    /**
+     * The legacy poller form omits the column when the field is absent, so the default is a value
+     * the read path meets on real rows without anyone ever having chosen it. Comparing the upgrade
+     * script's default to the schema's, as the guard below does, would let the two drift together
+     * onto a value the mapping does not read.
+     */
+    public function testTheColumnDefaultIsMapped(): void
+    {
+        $definition = $this->columnDefinitionFromSchema();
+        $default = $this->columnConstraints($definition)['default'];
+
+        self::assertNotNull(
+            $default,
+            'gorgone_communication_type no longer declares a DEFAULT, so a row written without it '
+            . 'would fall back to a value this guard cannot predict'
+        );
+
+        self::assertContains(
+            $default,
+            $this->enumValues($definition),
+            "gorgone_communication_type defaults to '{$default}', which its own enum does not allow"
+        );
+
+        try {
+            GorgoneCommunicationTypeMapping::fromDatabase($default, 42);
+        } catch (\Throwable $throwable) {
+            self::fail(
+                "gorgone_communication_type defaults to '{$default}', which the mapping cannot "
+                . "read: {$throwable->getMessage()}"
             );
         }
     }
@@ -403,14 +492,8 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
      */
     private function columnRedeclarationsByUpgradeScript(): array
     {
-        $scripts = array_merge(
-            glob(dirname(__DIR__, 5) . '/www/install/php/Update-*.php') ?: [],
-            glob(dirname(__DIR__, 5) . '/www/install/sql/centreon/Update-DB-*.sql') ?: [],
-        );
-        self::assertNotSame([], $scripts, 'no upgrade script found, the glob no longer resolves');
-
         $redeclarations = [];
-        foreach ($scripts as $script) {
+        foreach ($this->upgradeScripts() as $script) {
             $matched = preg_match_all(
                 self::COLUMN_REDECLARATION_PATTERN,
                 (string) file_get_contents($script),
@@ -434,6 +517,54 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         );
 
         return $redeclarations;
+    }
+
+    /**
+     * Both families, because a platform runs both: the php scripts and the configuration SQL.
+     *
+     * @return non-empty-list<string>
+     */
+    private function upgradeScripts(): array
+    {
+        $scripts = array_merge(
+            glob(dirname(__DIR__, 5) . '/www/install/php/Update-*.php') ?: [],
+            glob(dirname(__DIR__, 5) . '/www/install/sql/centreon/Update-DB-*.sql') ?: [],
+        );
+        self::assertNotSame([], $scripts, 'no upgrade script found, the glob no longer resolves');
+
+        return $scripts;
+    }
+
+    /**
+     * @return list<array{script: string, value: string}> every literal value an upgrade script
+     *                                                    stores in the column
+     */
+    private function columnWritesByUpgradeScript(): array
+    {
+        $writes = [];
+        foreach ($this->upgradeScripts() as $script) {
+            $matched = preg_match_all(
+                self::COLUMN_WRITE_PATTERN,
+                (string) file_get_contents($script),
+                $statements,
+                PREG_SET_ORDER
+            );
+            for ($index = 0; $index < $matched; $index++) {
+                $found = preg_match_all(
+                    "/`?gorgone_communication_type`?\s*=\s*'([^']*)'/i",
+                    $statements[$index]['assignments'],
+                    $assignments
+                );
+                for ($assignment = 0; $assignment < $found; $assignment++) {
+                    $writes[] = [
+                        'script' => basename($script),
+                        'value' => $assignments[1][$assignment],
+                    ];
+                }
+            }
+        }
+
+        return $writes;
     }
 
     /**
