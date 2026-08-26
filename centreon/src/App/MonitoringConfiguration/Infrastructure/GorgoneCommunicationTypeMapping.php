@@ -26,10 +26,13 @@ namespace App\MonitoringConfiguration\Infrastructure;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 
 /**
- * Both directions of the nagios_server.gorgone_communication_type mapping. They used to
- * live apart — the read side in DbalPollerTransformer, the write side in DbalPollerRepository —
- * so nothing required them to stay reciprocal, which is the shape the inverted 1/2 documentation
- * already took once. Side by side, a round-trip test can hold them to it.
+ * Both directions of the nagios_server.gorgone_communication_type mapping. They used to live
+ * apart — the read side in DbalPollerTransformer, the write side in DbalPollerRepository — where
+ * adding a case to one and forgetting the other was a silent edit. Under one roof the two match
+ * arms sit in the same field of view, and a test can iterate the enum across both.
+ *
+ * This is where the column's encoding lives, and the only place: the domain enum is unbacked on
+ * purpose, so there is no ->value to persist by accident at some other boundary.
  */
 final readonly class GorgoneCommunicationTypeMapping
 {

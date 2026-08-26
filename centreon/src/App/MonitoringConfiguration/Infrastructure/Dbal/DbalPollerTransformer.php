@@ -102,12 +102,11 @@ final readonly class DbalPollerTransformer implements TransformerInterface
     }
 
     /**
-     * CentralAddress accepts no scheme, but rows written by the older install
-     * modal may carry a full URL: it used to send window.location.href on cloud
-     * platforms. Reduce them
-     * to host[:port] so hydration keeps working — their base path cannot be told
-     * apart from the page path of the stored URL. Unreadable values become null,
-     * which downstream reports as "no central address configured".
+     * CentralAddress accepts no scheme, but rows written by the older install modal may carry a
+     * full URL: it used to send window.location.href on cloud platforms. Reduce them to
+     * host[:port] so hydration keeps working — their base path cannot be told apart from the
+     * page path of the stored URL. Unreadable values become null, which the installation-command
+     * endpoint reports as "no central address configured".
      */
     private function centralAddressFromDatabase(mixed $value): ?CentralAddress
     {

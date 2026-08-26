@@ -32,15 +32,19 @@ use PHPUnit\Framework\TestCase;
 /**
  * 26.07 widened nagios_server.gorgone_communication_type to '1'..'4' and set every cloud poller
  * to '4' while the enum still stopped at SSH, so poller reads answered an HTTP 500 on cloud
- * platforms. The guards at the bottom of this file hold the column, the comment that documents
- * it, the upgrade scripts and the enum to each other.
+ * platforms. The guards named testEveryCommunicationTypeAllowedBySchemaIsMapped,
+ * testSchemaCommentDocumentsTheMappingItApplies and testTheLatestUpgradeScript* hold the column,
+ * the comment that documents it, the upgrade scripts and the enum to each other.
  */
 final class GorgoneCommunicationTypeMappingTest extends TestCase
 {
     /**
-     * Every ALTER shape that can redeclare the column, in both upgrade-script families: a
-     * guard that silently finds nothing is worse than no guard. The capture runs to the end
-     * of the statement so the COMMENT travels with the enum.
+     * The ALTER shapes the upgrade scripts actually use, in both families. It does not claim to
+     * match every conceivable one: a CHANGE that renames another column into this one, or a
+     * redeclaration to a type other than enum, would slip through.
+     *
+     * The capture runs to the next semicolon, so the COMMENT travels with the enum even when the
+     * two sit on separate lines.
      */
     private const COLUMN_REDECLARATION_PATTERN = '/(?:ADD|MODIFY|CHANGE)(?:\\s+COLUMN)?\\s+'
         . '`?gorgone_communication_type`?\\s+(?:(?!enum\\b)`?\\w+`?\\s+)?enum\\s*\\([^)]*\\)[^;]*/i';
@@ -86,9 +90,13 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     }
 
     /**
-     * The two directions used to live in separate files, so an inverted pair went unnoticed on
-     * one side. Comparing each direction against a table of expectations cannot see them drift
-     * together; composing them can.
+     * This test cannot see an inversion: a round trip through a bijection and its inverse is the
+     * identity, so relabelling both directions consistently survives it. The table of
+     * expectations above is what catches that, and it alone.
+     *
+     * What this adds is totality over two sets the hand-written table does not derive from —
+     * GorgoneCommunicationTypeEnum::cases() and the values createTables.sql allows. A case added
+     * on one side only fails here, and nowhere else.
      */
     public function testTheTwoDirectionsAreReciprocal(): void
     {
@@ -137,7 +145,8 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     /**
      * '5' and '0' cannot occur in a column declared enum('1','2','3','4'); '' can, because
      * without strict mode MySQL stores the empty error member instead of rejecting an
-     * out-of-enum write — CLAPI reaches that path today.
+     * out-of-enum write. An ALTER that narrows the enum over existing rows produces exactly
+     * that, which is what testNoUpgradeScriptWidensBeyondAFreshInstall watches for.
      *
      * @return iterable<string, array{string}>
      */
@@ -173,8 +182,9 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
 
     /**
      * Comparing the two sets cannot see two values swapped, and a wrong comment is exactly what
-     * made 1 and 2 read as inverted for a whole release. The comparison is case-insensitive
-     * because the comment spells the protocol PullWSS while the case is PullWss.
+     * shipped for a whole release: createTables.sql and Update-26.07.0.php both documented
+     * '1: SSH, 2: ZMQ' while the mapping has always read '1' as ZMQ. The comparison is
+     * case-insensitive because the comment spells the protocol PullWSS while the case is PullWss.
      */
     public function testSchemaCommentDocumentsTheMappingItApplies(): void
     {
@@ -229,6 +239,16 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
             "{$script} and createTables.sql do not allow the same gorgone_communication_type "
             . 'values, so upgraded and freshly installed platforms would disagree'
         );
+
+        // The allowed values alone are not "exactly the schema": the legacy poller form omits
+        // the column when the field is absent, so a DEFAULT that drifted would silently label
+        // the protocol of pollers created on upgraded platforms.
+        self::assertSame(
+            $this->columnConstraints($this->columnDefinitionFromSchema()),
+            $this->columnConstraints($definition),
+            "{$script} and createTables.sql disagree on the nullability or the default of "
+            . 'gorgone_communication_type'
+        );
     }
 
     /**
@@ -253,6 +273,13 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
             "unreadable column comment in {$script}: {$comment[1]}"
         );
 
+        self::assertEqualsCanonicalizing(
+            $this->enumValues($definition),
+            array_column($documentedPairs, 1),
+            "{$script} redeclares gorgone_communication_type without documenting every value it "
+            . 'allows'
+        );
+
         foreach ($documentedPairs as $documentedPair) {
             $communicationType = GorgoneCommunicationTypeMapping::fromDatabase($documentedPair[1], 42);
 
@@ -267,28 +294,34 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
 
     /**
      * Naming Update-next.php here would guard nothing one release from now: the release chore
-     * renames it to Update-<version>.php and resets Update-next.php from its template, so both
-     * guards above would read an empty skeleton and go green. What has to match the mapping is
-     * the last script to redeclare the column, whichever file that turns out to be.
+     * renames it to Update-<version>.php and resets Update-next.php from its template, so
+     * testTheLatestUpgradeScriptLandsOnTheFreshInstallSchema and
+     * testTheLatestUpgradeScriptDocumentsTheMappingItApplies would read an empty skeleton and go
+     * green. What has to match the mapping is the last script to redeclare the column, whichever
+     * file that turns out to be.
      *
-     * @return array{script: string, version: string, definition: string}
+     * @return array{script: string, version: string, family: int, definition: string}
      */
     private function latestColumnRedeclaration(): array
     {
         $redeclarations = $this->columnRedeclarationsByUpgradeScript();
 
-        // usort is stable since PHP 8.0, so several ALTERs in one script keep their execution
-        // order and the last one applied wins, as it does on a platform.
+        // Same version, two families: the platform runs the php script before the configuration
+        // SQL, so 'family' breaks the tie explicitly rather than leaving it to the order the two
+        // globs happen to be merged in. usort is stable since PHP 8.0, so several ALTERs within
+        // one script keep their execution order and the last one applied wins.
         usort(
             $redeclarations,
             static fn (array $left, array $right): int => version_compare($left['version'], $right['version'])
+                ?: $left['family'] <=> $right['family']
         );
 
         return end($redeclarations);
     }
 
     /**
-     * @return string the release a script upgrades to, comparable with version_compare
+     * @return string a version_compare-able rank: the release the script upgrades to, or a
+     *                sentinel above every release for the one under development
      */
     private function upgradeScriptVersion(string $script): string
     {
@@ -304,6 +337,20 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         );
 
         return $version[1];
+    }
+
+    /**
+     * @return array{nullability: string, default: string|null} the parts of a column definition
+     *                                                          that are not its allowed values
+     */
+    private function columnConstraints(string $definition): array
+    {
+        return [
+            'nullability' => preg_match('/\bNOT\s+NULL\b/i', $definition) === 1 ? 'NOT NULL' : 'NULL',
+            'default' => preg_match("/\bDEFAULT\s+'([^']*)'/i", $definition, $default) === 1
+                ? $default[1]
+                : null,
+        ];
     }
 
     /**
@@ -339,13 +386,20 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
             $documented[$documentedPair[1]] = $documentedPair[2];
         }
 
+        // Checking the pairs that ARE documented would pass on a comment that documents one
+        // value and forgets the rest — including the 1/2 pair this whole file exists for.
+        self::assertEqualsCanonicalizing(
+            $this->enumValues($definition),
+            array_map(strval(...), array_keys($documented)),
+            'the gorgone_communication_type comment in createTables.sql does not document every '
+            . 'value the column allows'
+        );
+
         return $documented;
     }
 
     /**
-     * Every ALTER that redeclares the column, across both upgrade-script families.
-     *
-     * @return non-empty-list<array{script: string, version: string, definition: string}>
+     * @return non-empty-list<array{script: string, version: string, family: int, definition: string}>
      */
     private function columnRedeclarationsByUpgradeScript(): array
     {
@@ -367,6 +421,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
                 $redeclarations[] = [
                     'script' => basename($script) . ($index === 0 ? '' : " (ALTER #{$index})"),
                     'version' => $this->upgradeScriptVersion(basename($script)),
+                    'family' => str_ends_with($script, '.sql') ? 1 : 0,
                     'definition' => $definitions[$index][0],
                 ];
             }
@@ -382,6 +437,10 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     }
 
     /**
+     * `[^;]*?` rather than `.*?` keeps the search inside the CREATE TABLE: with /s a dot would
+     * cross the statement's terminating semicolon and find a same-named column in any later
+     * table, so dropping the column from nagios_server would go unnoticed.
+     *
      * The capture stops at the end of the line, so the COMMENT has to sit on the same line as the
      * column definition. That is how createTables.sql is written throughout; a reformat that
      * breaks the line would fail this guard rather than the change under test.
@@ -394,7 +453,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         self::assertSame(
             1,
             preg_match(
-                '/CREATE TABLE `nagios_server` \(.*?(`?gorgone_communication_type`?\s+enum\s*\([^)]*\)[^\n]*)/is',
+                '/CREATE TABLE `nagios_server` \([^;]*?(`?gorgone_communication_type`?\s+enum\s*\([^)]*\)[^\n]*)/is',
                 (string) file_get_contents($schemaPath),
                 $column
             ),
