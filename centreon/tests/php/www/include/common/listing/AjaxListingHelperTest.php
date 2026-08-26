@@ -47,6 +47,12 @@ function helperWithDefaultLimit(int $defaultLimit = 30): AjaxListingHelper
     return $helper;
 }
 
+// phpunit.xml sets backupGlobals="false", so the request state written below would
+// otherwise carry into whatever test runs next.
+afterEach(function (): void {
+    $_GET = [];
+});
+
 /**
  * The term is bound as a query parameter and never echoed, so it is deliberately not
  * HTML-encoded: htmlspecialchars() turned a search for the characters command lines are
@@ -82,8 +88,9 @@ it('clamps a crafted page index to its ceiling', function (
     'not a number'  => ['abc', 0],
     'empty'         => ['', 0],
     'in range'      => [7, 7],
-    // Without the ceiling, num * limit overflows to float and the int-typed query
-    // parameter throws, answering a crafted request with a 500 and a stack trace.
+    // The ceiling keeps num * limit an int: filter_var accepts up to PHP_INT_MAX,
+    // and past roughly 3e14 the product becomes a float the int-typed query
+    // parameter rejects, answering a crafted request with a 500.
     'above ceiling' => [999999999, 100000],
 ]);
 

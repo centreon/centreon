@@ -289,6 +289,12 @@ When('the user duplicates a connector three times from the listing', () => {
   // first free name, so a retried attempt would create _4.._6 and a hardcoded
   // "_4 must not exist" would then fail on the retry instead of on the bug.
   searchListing(data.connectorForSearch.name);
+  // The tbody is only blanked on a first load, so the previous rows are still on
+  // screen while the filtered response is in flight. Wait — retryably — for a row
+  // the filter removes to be gone, or the count below freezes the stale one.
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .should('not.contain', data.connectorUpdated.name);
   cy.getIframeBody()
     .find('#clTableBody tr')
     .its('length')
@@ -319,12 +325,12 @@ When('the user types a duplication count and the listing re-renders', () => {
   // Any re-render goes through the same restore path as the 30s auto-refresh,
   // and a search keeps the row on screen, which the refresh alone would not.
   searchListing(data.connectorForSearch.name);
-  // Anchored on a row the filter removes: the value assertion is true both
-  // before and after the re-render, so without this it would pass even with
-  // restoreRowInputValues() deleted.
+  // Anchored on a row that exists and that the filter removes, so this only turns
+  // true once the re-render landed. connector.name would be a dead anchor: an
+  // earlier scenario renames it, so it is absent whatever happens here.
   cy.getIframeBody()
     .find('#clTableBody')
-    .should('not.contain', data.connector.name);
+    .should('not.contain', data.connectorUpdated.name);
 });
 
 Then('the typed count is still there', () => {
@@ -351,6 +357,9 @@ When('the listing is opened on a page that no longer exists', () => {
   cy.wait('@listConnectors').then(({ response }) => {
     expect(response?.body).to.have.property('num', 3);
     const lastPage = Math.ceil(response?.body.total / response?.body.limit) - 1;
+    // Bounded independently of the formula above, which production shares: on its
+    // own the derivation would still hold if the clamp were off by one.
+    expect(lastPage).to.be.within(0, 2);
     cy.wait('@listConnectors')
       .its('response.body')
       .should('have.property', 'num', lastPage);
