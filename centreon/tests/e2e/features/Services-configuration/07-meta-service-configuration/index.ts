@@ -173,8 +173,15 @@ Then(
 );
 
 When('the user searches for the first meta service', () => {
+  // Live search (debounced AJAX) — no submit button, the table refreshes on type.
+  // The debounce means nothing has been requested yet when typing ends, so
+  // asserting on the absence of "Loading" held against the rows still on screen
+  // and the next step could read them as the search result. Wait on the request.
+  cy.intercept('GET', '**/ajaxMetaServiceListing.php*').as(
+    'searchMetaServices'
+  );
   cy.getIframeBody().find('#clSearchInput').clear().type(data.default.name);
-  cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
+  cy.wait('@searchMetaServices');
 });
 
 Then('only the matching meta service is displayed', () => {

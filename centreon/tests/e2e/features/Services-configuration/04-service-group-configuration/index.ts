@@ -100,8 +100,8 @@ Then('the properties of the service group are updated', () => {
     .should('have.value', modifiedAlias);
   cy.getListingSidePanelBody()
     .find('select#sg_hServices')
-    .contains(linkedService)
-    .should('exist');
+    .find('option:selected')
+    .should('contain.text', linkedService);
 });
 
 When('the user duplicates a service group', () => {
@@ -120,8 +120,8 @@ Then('the new service group has the same properties', () => {
     .should('have.value', serviceGroupName);
   cy.getListingSidePanelBody()
     .find('select#sg_hServices')
-    .contains(data.hosts.host1.name)
-    .should('exist');
+    .find('option:selected')
+    .should('contain.text', data.hosts.host1.name);
 });
 
 When('the user deletes a service group', () => {

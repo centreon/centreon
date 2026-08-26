@@ -105,8 +105,9 @@ Then('the properties are updated', () => {
     .should('have.value', modifiedDescription);
   cy.getListingSidePanelBody()
     .find('select#service_template_model_stm_id')
-    .contains('Ping-WAN')
-    .should('exist');
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', 'Ping-WAN');
   cy.getListingSidePanelBody()
     .find('.cf-tab-nav a[href="#cf-sec-notif"]')
     .click();
