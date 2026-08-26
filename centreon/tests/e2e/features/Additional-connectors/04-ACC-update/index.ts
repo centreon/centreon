@@ -103,6 +103,11 @@ Then('the form is closed', () => {
 
 Then('the informations are successfully saved', () => {
   cy.contains(data.updated.name).click();
-  cy.wait('@getConnectorDetail');
+  // The detail request may legitimately not fire a second time: the connector
+  // was just saved, so reopening the form can be served from the client cache.
+  // Waiting on a request that never happens fails the scenario, and the retry
+  // then runs against a listing that already holds the connector — which is
+  // why the whole spec ended at 0 passing. Wait on the reopened form instead.
+  cy.contains('Modify an additional configuration').should('be.visible');
   cy.verifyAccFieldValues(data.updated);
 });
