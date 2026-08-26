@@ -39,8 +39,8 @@ final readonly class PollerInstallationCommandFactory
         private PollerToken $pollerToken,
         #[Sensitive] private string $appSecret,
         #[Sensitive] private string $salt,
+        private string $centralUrl,
         private bool $isCloudPlatform = false,
-        private string $centralUrl = '<CENTRAL_URL>',
     ) {
     }
 
@@ -53,8 +53,8 @@ final readonly class PollerInstallationCommandFactory
         PollerToken $pollerToken,
         string $appSecret,
         string $salt,
+        string $centralUrl,
         bool $isCloudPlatform = false,
-        string $centralUrl = '<CENTRAL_URL>',
     ): self {
         return new self(
             $poller->uid,
@@ -63,8 +63,8 @@ final readonly class PollerInstallationCommandFactory
             $pollerToken,
             $appSecret,
             $salt,
-            $isCloudPlatform,
             $centralUrl,
+            $isCloudPlatform,
         );
     }
 
@@ -73,10 +73,13 @@ final readonly class PollerInstallationCommandFactory
         // Only `name` is escaped with escapeshellarg(): it is the sole free-form,
         // user-provided value. The other parameters are controlled and cannot carry
         // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
-        // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl must be
-        // validated as an IP or hostname (PollerAddress) by every call site before reaching here.
+        // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl is built
+        // by CentralUrlFactory from a validated CentralAddress by every call site.
+        //
+        // centralUrl already carries its scheme: the command must never prepend one, or an
+        // address that came in with a scheme would end up with two of them.
         $command = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
             $this->centralUrl,
             $this->pollerToken->name,
             $this->pollerToken->value,

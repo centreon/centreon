@@ -37,6 +37,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
@@ -63,6 +64,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        private CentralUrlFactory $centralUrlFactory,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -109,8 +111,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $token,
             $appSecret,
             $salt,
+            $this->centralUrlFactory->create($centralAddress),
             $this->isCloudPlatform,
-            $centralAddress->value,
         );
 
         $resource = $this->transformer->transform($model);

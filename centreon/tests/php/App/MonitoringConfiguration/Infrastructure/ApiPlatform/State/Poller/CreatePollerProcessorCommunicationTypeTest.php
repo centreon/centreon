@@ -46,6 +46,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ResourcePollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\UserId;
@@ -55,6 +56,7 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 {
@@ -161,6 +163,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
+            centralUrlFactory: new CentralUrlFactory(new RequestStack(), $isCloudPlatform),
             isCloudPlatform: $isCloudPlatform,
         );
     }

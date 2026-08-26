@@ -43,7 +43,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PollerInstallationCommandFactoryTest extends TestCase
 {
-    private const CENTRAL_URL = 'centreon.example.com';
+    private const CENTRAL_URL = 'https://centreon.example.com/centreon';
     private const POLLER_TOKEN = 'my-secure-poller-token';
     private const APP_SECRET = 'my-app-secret';
     private const SALT = 'my-salt';
@@ -63,7 +63,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         $command = $factory->generate();
 
         self::assertStringContainsString('curl -fsSL', $command);
-        self::assertStringContainsString('https://' . self::CENTRAL_URL . '/poller/install.sh', $command);
+        self::assertStringContainsString(self::CENTRAL_URL . '/poller/install.sh', $command);
         self::assertStringContainsString('| bash -s --', $command);
     }
 
@@ -182,7 +182,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         );
 
         $expected = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
             self::CENTRAL_URL,
             self::POLLER_TOKEN,
             self::POLLER_UID,
@@ -228,13 +228,14 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         $poller = $this->createPoller(PollerTypeEnum::Docker);
         $token = new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false);
 
-        // isCloudPlatform and centralUrl are intentionally omitted: their defaults are
-        // duplicated in both signatures, and this test pins them to the same values.
+        // isCloudPlatform is intentionally omitted: its default is duplicated in
+        // both signatures, and this test pins them to the same value.
         $fromPoller = PollerInstallationCommandFactory::fromPoller(
             poller: $poller,
             pollerToken: $token,
             appSecret: self::APP_SECRET,
             salt: self::SALT,
+            centralUrl: self::CENTRAL_URL,
         );
 
         $fromValueObjects = new PollerInstallationCommandFactory(
@@ -244,10 +245,10 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerToken: $token,
             appSecret: self::APP_SECRET,
             salt: self::SALT,
+            centralUrl: self::CENTRAL_URL,
         );
 
         self::assertSame($fromPoller->generate(), $fromValueObjects->generate());
-        self::assertStringContainsString('--central_url <CENTRAL_URL>', $fromValueObjects->generate());
         self::assertStringNotContainsString('--cloud', $fromValueObjects->generate());
     }
 
