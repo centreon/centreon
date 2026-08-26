@@ -764,7 +764,7 @@ jQuery(function() {
                 jQuery(elem).find('.cf-macro-reset-slot')
                     .removeClass('cf-macro-action-slot')
                     .addClass('cf-macro-reset-icon')
-                    .attr('title', '{/literal}{t}Reset to template value{/t}{literal}')
+                    .attr('title', '{/literal}{t escape='js'}Reset to template value{/t}{literal}')
                     .on('click',function() {
                         jQuery(elem).find("input[name^='macroValue']").val(tplValue);
                         jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
@@ -918,7 +918,7 @@ jQuery(function() {
                         jQuery(elem).find('.cf-macro-reset-slot')
                             .removeClass('cf-macro-action-slot')
                             .addClass('cf-macro-reset-icon')
-                            .attr('title', '{/literal}{t}Reset to template value{/t}{literal}')
+                            .attr('title', '{/literal}{t escape='js'}Reset to template value{/t}{literal}')
                             .on('click',function() {
                                 jQuery(elem).find("input[name^='macroValue']").val(tplValue);
                                 jQuery(elem).find("input[name^='macroInput']").val(tplInput);
