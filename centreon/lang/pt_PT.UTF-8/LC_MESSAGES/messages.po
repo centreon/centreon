@@ -6,15 +6,16 @@ msgstr ""
 "Project-Id-Version: Centreon web 10.18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2018-10-24 11:53+0100\n"
-"Last-Translator: Luiz Costa <me@luizgustavo.pro.br>\n"
-"Language-Team: Centreon team\n"
+"PO-Revision-Date: 2026-08-26 12:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Portuguese (Portugal) <https://weblate.prod.centreon.io/"
+"projects/centreon-infra-monitoring/25-10/web-messages-25-10/pt_PT/>\n"
 "Language: pt_PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -140,8 +141,8 @@ msgid ""
 "selected hostgroup(s)."
 msgstr ""
 "<b><i>Ajuda :</i></b> Selecione hosts e grupo de hosts que podem ser vistos "
-"por utilizadores associados. Você também tem a possibilidade de excluir "
-"host(s) do grupo(s) de hosts selecionado."
+"por utilizadores associados. Você também tem a possibilidade de excluir host"
+"(s) do grupo(s) de hosts selecionado."
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid ""
@@ -3605,8 +3606,8 @@ msgid ""
 "Congratulations, you have successfully upgraded to Centreon version <b>%s</"
 "b>."
 msgstr ""
-"Parabéns, você efetuou com sucesso a atualização do Centreon para versão "
-"<b>%s</b>."
+"Parabéns, você efetuou com sucesso a atualização do Centreon para versão <b>"
+"%s</b>."
 
 #: centreon/www/install/front_translate.php
 msgid "Connect"
@@ -10076,8 +10077,7 @@ msgstr "Latencia"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Latency detected, check configuration for better optimization"
-msgstr ""
-"Latência detectada, verifique a configuração para uma melhor otimização"
+msgstr "Latência detectada, verifique a configuração para uma melhor otimização"
 
 #: centreon/www/include/home/customViews/index.php
 msgid "Layout"
@@ -17335,8 +17335,8 @@ msgid ""
 "This description is in conflict with another one that is already defined in "
 "the selected relation(s)"
 msgstr ""
-"Esta descrição está em conflito com outra que já está definida na(s) "
-"relação(ões) selecionada(s)"
+"Esta descrição está em conflito com outra que já está definida na(s) relação"
+"(ões) selecionada(s)"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This directive can be used multiple times, see nagios documentation."
@@ -20385,8 +20385,7 @@ msgstr "Coordenadas 3D"
 #: unknown
 msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
 msgstr ""
-"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
-"vers"
+"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée vers"
 
 #: unknown
 msgid "<br><b>Centreon : </b>Cannot send signal to "
@@ -20399,18 +20398,18 @@ msgid ""
 "<br>&nbsp;&nbsp;&nbsp;- Only aggregation functions work in VDEF rpn "
 "expressions."
 msgstr ""
-"<br><i><b><font color=\"#B22222\">Notas </font>:</b></"
-"i><br>&nbsp;&nbsp;&nbsp;- Não misture métricas de diferentes fontes."
-"<br>&nbsp;&nbsp;&nbsp;- Somente funções de agregação funcionam em "
-"expressões rnp em VDEF."
+"<br><i><b><font color=\"#B22222\">Notas </font>:</b></i><br>"
+"&nbsp;&nbsp;&nbsp;- Não misture métricas de diferentes fontes.<br>"
+"&nbsp;&nbsp;&nbsp;- Somente funções de agregação funcionam em expressões rnp "
+"em VDEF."
 
 #: unknown
 msgid ""
 "<p>Currently upgrading database... please do not interrupt this process.</"
 "p>"
 msgstr ""
-"<p>Efetuando atualização de banco de dados ... por favor não interrompa "
-"este processo.</p>"
+"<p>Efetuando atualização de banco de dados ... por favor não interrompa este "
+"processo.</p>"
 
 #: unknown
 msgid "ACL rules"
@@ -20710,8 +20709,8 @@ msgid ""
 "that the new envelope size will only be applied from now on. The old "
 "envelope will stay the same."
 msgstr ""
-"Tem certeza de que deseja alterar o tamanho do envelope? O novo tamanho "
-"de envelope será aplicado imediatamente."
+"Tem certeza de que deseja alterar o tamanho do envelope? O novo tamanho de "
+"envelope será aplicado imediatamente."
 
 #: unknown
 msgid ""
@@ -20901,16 +20900,16 @@ msgstr "Informações sobre o Broker Centreon"
 msgid "Centreon Broker socket path"
 msgstr "Caminho do soquete Centreon Broker Unix"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
 "                                             be created for monitoring "
 "engine '%s'. Please check it's path or create it"
 msgstr ""
-"O diretorio de configuração '%s' do Centreon Broker não existe ou não "
-"pôde ser\n"
+"O diretorio de configuração '%s' do Centreon Broker não existe ou não pôde "
+"ser\n"
 "                                             criado pelo o motor de "
 "monitoramento '%s'. Por favor, verifique o caminho"
 
@@ -21040,8 +21039,7 @@ msgstr "Comando"
 
 #: unknown
 msgid "Color for host Down (Service view)"
-msgstr ""
-"Cor para hosts em status problemático (página de supervisão de serviço)"
+msgstr "Cor para hosts em status problemático (página de supervisão de serviço)"
 
 #: unknown
 msgid "Color for host Unreachable (Service view)"
@@ -21092,8 +21090,8 @@ msgid ""
 "Connection to Wiki database failed, please contact your administrator or "
 "read the Centreon online documentation to configure wiki access"
 msgstr ""
-"Conexão com a base de dados da Wiki falhou, por favor entre em contacto "
-"com o seu administrador ou leia a documentação online do Centreon parar "
+"Conexão com a base de dados da Wiki falhou, por favor entre em contacto com "
+"o seu administrador ou leia a documentação online do Centreon parar "
 "configurar o acesso ao Wiki."
 
 #: unknown
@@ -21123,8 +21121,8 @@ msgstr "Correlação passiva"
 #: unknown
 msgid "Could not find CENTREON_ETC. Session probably expired."
 msgstr ""
-"Não foi possivel encontrar a variavel CENTREON_ETC . A sessão "
-"provavelmente expirou."
+"Não foi possivel encontrar a variavel CENTREON_ETC . A sessão provavelmente "
+"expirou."
 
 #: unknown
 msgid "Could not find configuration database. Session probably expired."
@@ -21132,8 +21130,8 @@ msgstr ""
 "Não foi possivel encontrar a configurações do banco de dados. A sessão "
 "provavelmente expirou."
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -21156,14 +21154,13 @@ msgstr "Não foi possivel encontrar a macro"
 #: unknown
 msgid "Could not find storage database. Session probably expired."
 msgstr ""
-"Não foi possivel encontrar o banco de dados. A sessão provavelmente "
-"expirou."
+"Não foi possivel encontrar o banco de dados. A sessão provavelmente expirou."
 
 #: unknown
 msgid "Could not find utils database. Session probably expired."
 msgstr ""
-"Não é possível encontrar o banco de dados do Broker. A sessão "
-"provavelmente expirou."
+"Não é possível encontrar o banco de dados do Broker. A sessão provavelmente "
+"expirou."
 
 #: unknown
 msgid "Could not import ndo2db"
@@ -21194,8 +21191,8 @@ msgid ""
 "Currently installing database and generating cache... please do not "
 "interrupt this process.<br/><br/>"
 msgstr ""
-"Efetuando a instalação do banco de dados e gerando o cache ... por favor "
-"não interrompa este processo.<br/><br/>"
+"Efetuando a instalação do banco de dados e gerando o cache ... por favor não "
+"interrompa este processo.<br/><br/>"
 
 #: unknown
 msgid "Currently running?"
@@ -21479,8 +21476,7 @@ msgstr "Erro durante a inserção de configuração no central-rrd"
 
 #: unknown
 msgid "Error while inserting poller-module configuration"
-msgstr ""
-"Erro durante a inserção de configuração do modulo Broker do coletor."
+msgstr "Erro durante a inserção de configuração do modulo Broker do coletor."
 
 #: unknown
 msgid "Error while saving configuration."
@@ -21503,8 +21499,8 @@ msgstr "Erro enquanto buscava por versões de widgets da plataforma Centreon"
 #: unknown
 msgid "Error: Cannot Execute this command due to a path security problem."
 msgstr ""
-"Erro: Não é possível executar este comando devido a um problema de "
-"segurança do caminho."
+"Erro: Não é possível executar este comando devido a um problema de segurança "
+"do caminho."
 
 #: unknown
 msgid "Escalations View"
@@ -21740,13 +21736,11 @@ msgstr "Modo de Ficheiro de Dados de Performance do Host"
 
 #: unknown
 msgid "Host Performance Data File Processing Command"
-msgstr ""
-"Comando de processamento de Ficheiro de Dados de Performance do Host"
+msgstr "Comando de processamento de Ficheiro de Dados de Performance do Host"
 
 #: unknown
 msgid "Host Performance Data File Processing Interval"
-msgstr ""
-"Intervalo de processamento de Ficheiro de Dados de Performance do Host"
+msgstr "Intervalo de processamento de Ficheiro de Dados de Performance do Host"
 
 #: unknown
 msgid "Host Performance Data File Template"
@@ -21861,8 +21855,8 @@ msgid ""
 "In order to complete your upgrade (%s), unzip the downloaded file, and "
 "follow the instructions in README\n"
 msgstr ""
-"Para concluir a atualização (%s), descompacte o ficheiro baixado e siga "
-"as instruções no ficheiro README\n"
+"Para concluir a atualização (%s), descompacte o ficheiro baixado e siga as "
+"instruções no ficheiro README\n"
 
 #: unknown
 msgid "Include Comments"
@@ -21905,8 +21899,8 @@ msgid ""
 "Indeed, it's the only way to make a difference between Check and "
 "Notification Commands."
 msgstr ""
-"De fato, essa é a única maneira de diferenciar os comandos de notificação "
-"e verificação."
+"De fato, essa é a única maneira de diferenciar os comandos de notificação e "
+"verificação."
 
 #: unknown
 msgid "Indicators"
@@ -22024,12 +22018,11 @@ msgstr "Última vez em um estado desconhecido"
 msgid "Last warning time"
 msgstr "Última vez em estado de alerta"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
-"Latência detectada em %s, verifique a configuração para uma melhor "
-"otimização"
+"Latência detectada em %s, verifique a configuração para uma melhor otimização"
 
 #: unknown
 msgid "Legend Properties"
@@ -22337,8 +22330,7 @@ msgstr "Comando de processamento pós-checagem de Host"
 
 #: unknown
 msgid "Obsessive Compulsive Host Processor Timeout"
-msgstr ""
-"Tempo máximo de execução de um comando de controle pós-checagem de Host"
+msgstr "Tempo máximo de execução de um comando de controle pós-checagem de Host"
 
 #: unknown
 msgid "Obsessive Compulsive Service Processor Command"
@@ -22367,9 +22359,8 @@ msgid ""
 "status. If you modify a template, it won't tell you the configuration had "
 "changed."
 msgstr ""
-"Apenas serviços e hosts são considerados para calcular esse status. Se "
-"você modificar um modelo, ele não informará que a configuração foi "
-"alterada."
+"Apenas serviços e hosts são considerados para calcular esse status. Se você "
+"modificar um modelo, ele não informará que a configuração foi alterada."
 
 #: unknown
 msgid "Optimize"
@@ -22477,8 +22468,7 @@ msgstr "Ping"
 
 #: unknown
 msgid "Please define autologin authentication key in your profile."
-msgstr ""
-"Por favor, defina uma chave de autenticação automatica no seu perfil."
+msgstr "Por favor, defina uma chave de autenticação automatica no seu perfil."
 
 #: unknown
 msgid "Please select an user in order to display resources"
@@ -22873,8 +22863,7 @@ msgstr "Modo de Ficheiro de Dados de Performance do Serviço"
 
 #: unknown
 msgid "Service Performance Data File Processing Command"
-msgstr ""
-"Comando de processamento de Ficheiro de Dados de Performance do Serviço"
+msgstr "Comando de processamento de Ficheiro de Dados de Performance do Serviço"
 
 #: unknown
 msgid "Service Performance Data File Processing Interval"
@@ -22966,8 +22955,8 @@ msgid ""
 "Some database poller updates are not active; check your Monitoring "
 "platform"
 msgstr ""
-"Alguns coletores não atualizaram o banco de dados; Verifique sua "
-"plataforma de Monitoramento"
+"Alguns coletores não atualizaram o banco de dados; Verifique sua plataforma "
+"de Monitoramento"
 
 #: unknown
 msgid "Sort by Name"
@@ -23125,8 +23114,8 @@ msgstr "Cor do texto"
 msgid "The CSRF * token is invalid, please click"
 msgstr "O token * CSRF é inválido, por favor clique aqui"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "The SQL files are located in %s"
 msgstr "Os ficheiros SQL estão localizados em %s"
 
@@ -23152,8 +23141,7 @@ msgstr ""
 
 #: unknown
 msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
-msgstr ""
-"A lista de coletores esta em <a href=\"./main.php?p=60901\">ici</a>."
+msgstr "A lista de coletores esta em <a href=\"./main.php?p=60901\">ici</a>."
 
 #: unknown
 msgid "The port must be numeric"
