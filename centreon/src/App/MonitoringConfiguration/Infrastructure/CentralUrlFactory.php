@@ -82,14 +82,8 @@ final readonly class CentralUrlFactory
             return self::DEFAULT_SCHEME;
         }
 
-        // This kernel declares no trusted_proxies, so getScheme() cannot see through a
-        // TLS-terminating proxy. Honour the header to upgrade only: a spoofed value can
-        // make the command fail loudly, never downgrade a poller to plain HTTP.
-        $forwarded = $request->headers->get('X-Forwarded-Proto');
-        if (is_string($forwarded) && mb_strtolower(trim(explode(',', $forwarded)[0])) === self::DEFAULT_SCHEME) {
-            return self::DEFAULT_SCHEME;
-        }
-
+        // X-Forwarded-Proto is already resolved here, but only from the proxies
+        // config/packages/framework.yaml declares trusted.
         return $request->getScheme();
     }
 

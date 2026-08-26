@@ -31,6 +31,31 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 final class CentralUrlFactoryTest extends TestCase
 {
+    /** @var array<string> */
+    private array $trustedProxies = [];
+
+    private int $trustedHeaderSet = 0;
+
+    /**
+     * Request holds the trusted proxies statically, and the integration suite boots the
+     * kernel, which declares them process-wide: without this the scheme resolved here
+     * would depend on which tests ran before.
+     */
+    protected function setUp(): void
+    {
+        $this->trustedProxies = Request::getTrustedProxies();
+        $this->trustedHeaderSet = Request::getTrustedHeaderSet();
+        Request::setTrustedProxies([], Request::HEADER_X_FORWARDED_FOR);
+    }
+
+    protected function tearDown(): void
+    {
+        /** @var int-mask-of<Request::HEADER_*> $trustedHeaderSet */
+        $trustedHeaderSet = $this->trustedHeaderSet;
+
+        Request::setTrustedProxies($this->trustedProxies, $trustedHeaderSet);
+    }
+
     public function testItAppendsThePlatformBaseUriToABareAddress(): void
     {
         $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');
@@ -148,15 +173,14 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
-    public function testItUpgradesToHttpsWhenAProxyForwardsIt(): void
+    public function testItFollowsTheSchemeForwardedByATrustedProxy(): void
     {
-        $requestStack = new RequestStack();
-        $requestStack->push(Request::create(
+        $this->trustTheKernelProxies();
+
+        $factory = $this->createFactory(
             'http://central.example.com/centreon/api/latest/configuration/pollers',
-            server: ['HTTP_X_FORWARDED_PROTO' => 'https, http']
-        ));
-
-        $factory = new CentralUrlFactory($requestStack);
+            ['HTTP_X_FORWARDED_PROTO' => 'https, http']
+        );
 
         self::assertSame(
             'https://10.25.11.198/centreon',
@@ -164,15 +188,12 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
-    public function testItNeverDowngradesAnHttpsRequestToHttp(): void
+    public function testItIgnoresASchemeForwardedByAnUntrustedClient(): void
     {
-        $requestStack = new RequestStack();
-        $requestStack->push(Request::create(
+        $factory = $this->createFactory(
             'https://central.example.com/centreon/api/latest/configuration/pollers',
-            server: ['HTTP_X_FORWARDED_PROTO' => 'http']
-        ));
-
-        $factory = new CentralUrlFactory($requestStack);
+            ['HTTP_X_FORWARDED_PROTO' => 'http']
+        );
 
         self::assertSame(
             'https://10.25.11.198/centreon',
@@ -180,10 +201,27 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
-    private function createFactory(string $requestUrl): CentralUrlFactory
+    /**
+     * Mirrors what the kernel applies from config/packages/framework.yaml.
+     */
+    private function trustTheKernelProxies(): void
+    {
+        Request::setTrustedProxies(
+            ['127.0.0.1', 'REMOTE_ADDR'],
+            Request::HEADER_X_FORWARDED_FOR
+            | Request::HEADER_X_FORWARDED_HOST
+            | Request::HEADER_X_FORWARDED_PROTO
+            | Request::HEADER_X_FORWARDED_PORT
+        );
+    }
+
+    /**
+     * @param array<string, string> $server
+     */
+    private function createFactory(string $requestUrl, array $server = []): CentralUrlFactory
     {
         $requestStack = new RequestStack();
-        $requestStack->push(Request::create($requestUrl));
+        $requestStack->push(Request::create($requestUrl, server: $server));
 
         return new CentralUrlFactory($requestStack);
     }
