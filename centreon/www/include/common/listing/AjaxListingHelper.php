@@ -22,7 +22,6 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
@@ -269,18 +268,12 @@ class AjaxListingHelper
     public function logToggleAction(string $objectType, int $objectId, string $objectName, string $actionType): void
     {
         try {
-            // Factory rather than `new CentreonDB('centstorage')`: that constructor
-            // answers a connection failure with an HTML page and exit(), which would
-            // kill the request after the caller already committed its write. This one
-            // throws, so the catch below can keep the request alive.
-            $storageDb = CentreonDB::connectToCentreonStorageDb(new ConnectionConfig(
-                host: hostCentstorage,
-                user: user,
-                password: password,
-                databaseNameConfiguration: dbcstg,
-                databaseNameRealTime: dbcstg,
-                port: port ?? 3306,
-            ));
+            // Neither this constructor nor CentreonDB's storage factory can be made
+            // to throw here: on a connection failure the constructor answers with an
+            // HTML error page and exit() for every non-CLI SAPI, so the catch below
+            // never sees it. Callers must therefore close their response before
+            // calling this method — see ajaxConnectorToggle.php.
+            $storageDb = new CentreonDB('centstorage');
 
             $auditOpt = $storageDb->fetchOne('SELECT `audit_log_option` FROM `config` LIMIT 1');
             if ($auditOpt === false || $auditOpt === null) {

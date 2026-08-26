@@ -96,6 +96,13 @@ try {
 }
 
 if ($auditName !== null && $auditAction !== null) {
+    // Close the response first. A centstorage outage inside the audit path answers
+    // with an HTML error page and exit(), which would otherwise be appended to the
+    // JSON body above and turn a committed toggle into a client-side parse error.
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    }
+
     $helper->logToggleAction(ActionLog::OBJECT_TYPE_CONNECTOR, (int) $objId, $auditName, $auditAction);
 }
 
