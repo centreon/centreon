@@ -23,19 +23,17 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Legacy;
 
+use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException;
 use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use App\Shared\Infrastructure\Legacy\LegacyContainer;
 use Centreon\Domain\Gorgone\Command\NodesSync;
+use Centreon\Domain\Gorgone\GorgoneException;
 use Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface;
 use Webmozart\Assert\Assert;
 
 /**
- * Sends `centreon::nodes::sync` through the legacy Gorgone client, the single implementation
- * of the Gorgone API protocol on the platform (also used by the legacy poller form and the
- * remote server wizard).
- *
- * The legacy service is resolved per call rather than in the constructor so that injecting
- * this adapter never boots the legacy kernel on its own.
+ * Resolves the legacy Gorgone client per call, never in the constructor: LegacyContainer boots
+ * the legacy kernel on first use and is only spared by its #[Lazy] proxy.
  */
 final readonly class LegacyGorgoneNodesSynchronizer implements GorgoneNodesSynchronizer
 {
@@ -46,9 +44,19 @@ final readonly class LegacyGorgoneNodesSynchronizer implements GorgoneNodesSynch
 
     public function synchronize(): void
     {
+        // Resolution and assertion stay outside the try: a missing or mistyped legacy service
+        // is a wiring error, and callers absorbing GorgoneNodesSyncFailedException must not
+        // absorb that too.
         $gorgoneService = $this->legacyContainer->get(GorgoneServiceInterface::class);
         Assert::isInstanceOf($gorgoneService, GorgoneServiceInterface::class);
 
-        $gorgoneService->send(new NodesSync());
+        try {
+            $gorgoneService->send(new NodesSync());
+        } catch (GorgoneException $exception) {
+            throw new GorgoneNodesSyncFailedException(
+                'Gorgone did not accept the nodes sync command',
+                previous: $exception,
+            );
+        }
     }
 }

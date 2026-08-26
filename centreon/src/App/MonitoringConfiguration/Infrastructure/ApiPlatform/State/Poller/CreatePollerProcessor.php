@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
@@ -109,13 +110,9 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
 
-        // In PullWSS the Central only accepts the poller's websocket once Gorgone has
-        // re-read its node list, so every creation must trigger the sync — same as the
-        // legacy poller form. It is sent from here, after the command bus committed, and
-        // not from a PollerCreated handler: those run inside the create-poller
-        // transaction, where Gorgone — reading the database on its own connection —
-        // would not see the new poller yet.
-        $this->synchronizeGorgoneNodes($model);
+        // Not from a PollerCreated handler: those run inside the create-poller transaction,
+        // and Gorgone reads the database on its own connection.
+        $this->synchronizeGorgoneNodes($model->id(), $model->name);
 
         // Use the normalized value, not the raw input: the stored poller and the
         // returned command must match what GET /installation-command/{id} generates.
@@ -135,25 +132,27 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
     }
 
     /**
-     * A Gorgone outage must not fail a creation that is already committed: the poller is
-     * persisted and returned, and it is picked up by the next sync (legacy poller form save,
-     * configuration export or Gorgone restart).
+     * Fire-and-forget: the poller is already committed, so a Gorgone outage must not fail the
+     * creation. There is no automatic retry — the only re-sync paths are manual operator
+     * actions — so the record has to carry the consequence and the remedy.
      *
-     * Logged at error level, not warning: the record must escape the fingers_crossed buffer
-     * so an operator sees that this poller was not announced to the Central.
+     * Logged at error level, not warning: the record must escape the fingers_crossed buffer.
+     * Only GorgoneNodesSyncFailedException is absorbed; a wiring error still propagates.
      */
-    private function synchronizeGorgoneNodes(Poller $poller): void
+    private function synchronizeGorgoneNodes(PollerId $pollerId, PollerName $pollerName): void
     {
         try {
             $this->gorgoneNodesSynchronizer->synchronize();
-        } catch (\Throwable $exception) {
-            /** @var PollerId $pollerId */
-            $pollerId = $poller->id();
-
-            $this->logger->error('Failed to trigger Gorgone nodes sync', [
-                'poller_id' => $pollerId->value,
-                'exception' => ExceptionFormatter::format($exception),
-            ]);
+        } catch (GorgoneNodesSyncFailedException $exception) {
+            $this->logger->error(
+                'Poller created but not announced to the Central: re-save it from the legacy poller form to retry',
+                [
+                    'poller_id' => $pollerId->value,
+                    'poller_name' => $pollerName->value,
+                    'source' => 'poller_api',
+                    'exception' => ExceptionFormatter::format($exception),
+                ]
+            );
         }
     }
 }

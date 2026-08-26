@@ -38,6 +38,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException;
+use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
@@ -56,10 +58,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
-/**
- * The Central only accepts a PullWSS poller once Gorgone re-read its node list, so a creation
- * must always trigger the sync — and only after the poller has been persisted.
- */
 final class CreatePollerProcessorGorgoneSyncTest extends TestCase
 {
     private FakeGorgoneNodesSynchronizer $synchronizer;
@@ -86,7 +84,7 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
      * Gorgone reads the poller list on its own database connection: a sync sent while the
      * create-poller transaction is still open would find nothing to register.
      */
-    public function testItSynchronizesOnlyOnceThePollerIsPersisted(): void
+    public function testItSynchronizesAfterTheCommandBusReturns(): void
     {
         $this->buildProcessor($this->createMock(LoggerInterface::class))
             ->process($this->buildInput(), new Post());
@@ -97,17 +95,27 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
 
     public function testItCreatesThePollerEvenWhenGorgoneIsUnreachable(): void
     {
-        $this->synchronizer->throwable = new \RuntimeException('Error when connecting to the Gorgone server');
+        $this->synchronizer->throwable = new GorgoneNodesSyncFailedException(
+            'Gorgone did not accept the nodes sync command',
+            previous: new \RuntimeException('Error when connecting to the Gorgone server')
+        );
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())
             ->method('error')
             ->with(
-                'Failed to trigger Gorgone nodes sync',
+                'Poller created but not announced to the Central: re-save it from the legacy poller form to retry',
                 self::callback(static function (array $context): bool {
                     self::assertSame(42, $context['poller_id']);
+                    self::assertSame('TestPoller', $context['poller_name']);
+                    self::assertSame('poller_api', $context['source']);
                     self::assertIsArray($context['exception']);
-                    self::assertArrayHasKey('exceptions', $context['exception']);
+
+                    // The operator has nothing but this record: the cause must survive into it.
+                    self::assertStringContainsString(
+                        'Error when connecting to the Gorgone server',
+                        json_encode($context['exception'], JSON_THROW_ON_ERROR)
+                    );
 
                     return true;
                 })
@@ -116,11 +124,41 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
         $resource = $this->buildProcessor($logger)->process($this->buildInput(), new Post());
 
         self::assertSame('TestPoller', $resource->name);
+        self::assertNotEmpty($resource->installationCommand);
     }
 
-    private function buildProcessor(LoggerInterface $logger): CreatePollerProcessor
+    public function testItPropagatesAWiringErrorInsteadOfSwallowingIt(): void
     {
-        $poller = new Poller(
+        // A missing legacy service is a deployment bug, not a Gorgone outage: swallowing it
+        // would degrade every creation silently behind a 201.
+        $this->synchronizer->throwable = new \RuntimeException('Service not found');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('error');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Service not found');
+
+        $this->buildProcessor($logger)->process($this->buildInput(), new Post());
+    }
+
+    public function testItDoesNotSynchronizeWhenThePollerAlreadyExists(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $processor = $this->buildProcessor($logger, $this->buildPoller());
+
+        $this->expectException(PollerAlreadyExistsException::class);
+
+        try {
+            $processor->process($this->buildInput(), new Post());
+        } finally {
+            self::assertSame(0, $this->synchronizer->synchronizeCalls);
+        }
+    }
+
+    private function buildPoller(): Poller
+    {
+        return new Poller(
             id: new PollerId(42),
             name: new PollerName('TestPoller'),
             address: new PollerAddress('192.168.1.1'),
@@ -138,6 +176,11 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
             pollerCommands: new Collection([], PollerCommand::class),
             centralAddress: new CentralAddress('192.168.1.254'),
         );
+    }
+
+    private function buildProcessor(LoggerInterface $logger, ?Poller $existingPoller = null): CreatePollerProcessor
+    {
+        $poller = $this->buildPoller();
 
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->method('execute')
@@ -170,7 +213,7 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
         $engineSecretsRepository->method('getSalt')->willReturn('salt');
 
         $pollerRepository = $this->createMock(PollerRepository::class);
-        $pollerRepository->method('findOneByName')->willReturn(null);
+        $pollerRepository->method('findOneByName')->willReturn($existingPoller);
 
         return new CreatePollerProcessor(
             commandBus: $commandBus,

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Service;
 
+use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException;
+
 interface GorgoneNodesSynchronizer
 {
     /**
@@ -32,7 +34,10 @@ interface GorgoneNodesSynchronizer
      * it once the poller rows are committed — Gorgone reads the database on its own
      * connection and would otherwise miss the new node.
      *
-     * @throws \Throwable when Gorgone is unreachable or rejects the command
+     * Returns once Gorgone has accepted the request, not once the reload has happened: the
+     * reload is asynchronous and its outcome is not observable from here.
+     *
+     * @throws GorgoneNodesSyncFailedException when Gorgone refuses the command or is unreachable
      */
     public function synchronize(): void;
 }

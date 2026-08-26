@@ -21,25 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
-
-use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
 /**
- * Counting {@see GorgoneNodesSynchronizer} test double.
+ * Gorgone did not accept a command. Distinct from a wiring or configuration error, which
+ * must keep propagating: only this one is safe for a caller to absorb.
  */
-final class FakeGorgoneNodesSynchronizer implements GorgoneNodesSynchronizer
+final class GorgoneNodesSyncFailedException extends \RuntimeException
 {
-    public int $synchronizeCalls = 0;
-
-    public ?\Throwable $throwable = null;
-
-    public function synchronize(): void
-    {
-        $this->synchronizeCalls++;
-
-        if ($this->throwable instanceof \Throwable) {
-            throw $this->throwable;
-        }
-    }
 }
