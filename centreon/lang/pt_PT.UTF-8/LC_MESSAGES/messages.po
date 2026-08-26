@@ -23946,7 +23946,7 @@ msgstr "Eliminar os meta-serviços"
 
 #: unknown
 msgid "Delete service categories"
-msgstr "Eliminar os categorias de serviço"
+msgstr "Eliminar as categorias de serviço"
 
 #: unknown
 msgid "Delete service groups"
@@ -23970,7 +23970,7 @@ msgstr "Duplicar os meta-serviços"
 
 #: unknown
 msgid "Duplicate service categories"
-msgstr "Duplicar os categorias de serviço"
+msgstr "Duplicar as categorias de serviço"
 
 #: unknown
 msgid "Duplicate service groups"
