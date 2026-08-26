@@ -39,7 +39,11 @@ $tpl->assign('headerMenu_metric', _('Metrics'));
 $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('msPage', $p);
-$tpl->assign('metaId', $meta_id);
+// metaService.php leaves $meta_id at false when the request value is rejected,
+// and the template interpolates it raw into extraParams: { meta_id: {$metaId} }.
+// An empty value there is a JavaScript syntax error that takes the whole
+// listing script down, so it is cast to an int rather than left to render.
+$tpl->assign('metaId', (int) $meta_id);
 
 // Form for bulk actions
 $form = new HTML_QuickFormCustom('Form', 'POST', '?p=' . $p);
