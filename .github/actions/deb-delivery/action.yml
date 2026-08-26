@@ -25,6 +25,10 @@ inputs:
   is_cloud:
     description: "Release context (cloud or not cloud)"
     required: true
+  delivery_type:
+    description: "Delivery to feature or standard repository"
+    required: false
+    default: "standard"
 
 runs:
   using: "composite"
@@ -55,6 +59,7 @@ runs:
         IS_CLOUD: ${{ inputs.is_cloud }}
         RELEASE_TYPE: ${{ inputs.release_type }}
         STABILITY: ${{ inputs.stability }}
+        DELIVERY_TYPE: ${{ inputs.delivery_type }}
         ARTIFACTORY_TOKEN: ${{ inputs.artifactory_token }}
         DISTRIB_FAMILY: ${{ steps.parse-distrib.outputs.distrib_family }}
       run: |
@@ -67,11 +72,20 @@ runs:
         echo "[DEBUG] - is_cloud: $IS_CLOUD"
         echo "[DEBUG] - release_type: $RELEASE_TYPE"
         echo "[DEBUG] - stability: $STABILITY"
+        echo "[DEBUG] - delivery_type: $DELIVERY_TYPE"
 
         # Make sure all required inputs are NOT empty
         if [[ -z "$MODULE_NAME" || -z "$DISTRIB" || -z "$STABILITY" || -z "$VERSION" || -z "$IS_CLOUD" ]]; then
           echo "::error::some mandatory inputs are empty, please check the logs."
           exit 1
+        fi
+
+        # There is no apt feature repository: a feature delivery has no deb
+        # counterpart, so skip it instead of falling back to a testing delivery.
+        if [[ "$DELIVERY_TYPE" == "feature" ]]; then
+          echo "::warning::Feature (canary) delivery is not supported for deb packages: skipping delivery of $MODULE_NAME for $DISTRIB. RPM feature delivery is unaffected."
+          echo "Feature (canary) delivery is not supported for deb packages: \`$MODULE_NAME\` was **not** delivered for \`$DISTRIB\`." >> "$GITHUB_STEP_SUMMARY"
+          exit 0
         fi
 
         if [[ "$STABILITY" != "testing" && "$STABILITY" != "unstable" ]]; then
