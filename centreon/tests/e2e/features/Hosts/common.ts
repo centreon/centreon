@@ -25,6 +25,7 @@ const listingSelectors = {
   limitSelect: '#clPaginationTop select.cl-limit-select',
   moreActionsButton: '.cl-more-actions-btn',
   moreActionsItem: '.cl-more-actions-item',
+  optionsCell: '.cl-options-cell',
   pageInfo: '#clPaginationTop .cl-page-info',
   rowCheckbox: '.cl-col-picker input[type="checkbox"]',
   rowToggle: '.cl-toggle input[type="checkbox"]',

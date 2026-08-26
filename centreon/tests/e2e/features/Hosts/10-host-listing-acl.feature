@@ -4,7 +4,7 @@ Feature: Host listing access control
   So that I cannot read or change a host that was not granted to me
 
   Background:
-    Given two hosts exist and only one of them is granted to a non-admin user
+    Given two hosts exist and only one of them is granted to non-admin users
 
   Scenario: The listing only shows the granted host
     Given the non-admin user is logged in
@@ -21,3 +21,9 @@ Feature: Host listing access control
     Given the non-admin user is logged in
     When the user posts a bulk disable for the host it was not granted
     Then the activation of that host is unchanged
+
+  Scenario: A read-only user gets the row stripped of its write controls
+    Given the read-only user is logged in
+    When the user opens the hosts listing
+    Then the row toggle is disabled and carries no handler
+    And the row still links to the services of that host

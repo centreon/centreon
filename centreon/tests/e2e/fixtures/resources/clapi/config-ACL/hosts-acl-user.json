@@ -45,6 +45,51 @@
         "values": "name=hosts-ACLRESOURCE;host-acl-granted"
     },
     {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "hosts-acl-ro-user;hosts-acl-ro-user;hosts-acl-ro-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "hosts-ro-ACLGROUP;hosts-ro-ACLGROUP"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "hosts-ro-ACLMENU;hosts-ro-ACLMENU"
+    },
+    {
+        "action": "GRANTRO",
+        "object": "ACLMENU",
+        "values": "hosts-ro-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "hosts-ro-ACLGROUP;hosts-ro-ACLMENU"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "hosts-ro-ACLGROUP;hosts-acl-ro-user"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=hosts-ro-ACLRESOURCE;acl_group=hosts-ro-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "hosts-ro-ACLGROUP;name=hosts-ro-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_HOST",
+        "object": "ACLRESOURCE",
+        "values": "name=hosts-ro-ACLRESOURCE;host-acl-granted"
+    },
+    {
         "action": "RELOAD",
         "object": "ACL",
         "values": ""

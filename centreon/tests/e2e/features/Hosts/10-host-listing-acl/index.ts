@@ -63,7 +63,7 @@ afterEach(() => {
 });
 
 Given(
-  'two hosts exist and only one of them is granted to a non-admin user',
+  'two hosts exist and only one of them is granted to non-admin users',
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: false });
 
@@ -92,6 +92,10 @@ Given(
 
 Given('the non-admin user is logged in', () => {
   cy.loginByTypeOfUser({ jsonName: 'hosts-acl-user', loginViaApi: false });
+});
+
+Given('the read-only user is logged in', () => {
+  cy.loginByTypeOfUser({ jsonName: 'hosts-acl-ro-user', loginViaApi: false });
 });
 
 When('the user opens the hosts listing', () => {
@@ -169,4 +173,30 @@ When('the user posts a bulk disable for the host it was not granted', () => {
         });
       });
   });
+});
+
+/**
+ * The row is rendered with its toggle and its onchange whatever the access level;
+ * the read-only pass is what takes them away. Asserting the attribute as well as
+ * the property keeps this on that pass rather than on the browser's own handling
+ * of a disabled control.
+ */
+Then('the row toggle is disabled and carries no handler', () => {
+  getListingRow(grantedHost)
+    .find(listingSelectors.rowToggle)
+    .should('be.disabled')
+    .and('not.have.attr', 'onchange');
+});
+
+/**
+ * Stripping those controls re-parses the whole options cell, so a parse that
+ * dropped nodes would take this link with them — and a listing missing only its
+ * options would still pass every other assertion here.
+ */
+Then('the row still links to the services of that host', () => {
+  getListingRow(grantedHost)
+    .find(`${listingSelectors.optionsCell} a`)
+    .should('have.length', 1)
+    .and('have.attr', 'href')
+    .and('include', encodeURIComponent(grantedHost));
 });
