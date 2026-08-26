@@ -125,11 +125,13 @@ Then('each row displays a service icon', () => {
 // ---------------------------------------------------------------------------
 
 Then('service template rows show the parent template chain as links', () => {
+  // The chain links open the form in the side panel like every other link on
+  // this listing, so the page id travels in data-panel-url and the href is '#'.
   cy.getIframeBody()
     .find('#clTableBody')
     .contains(templateAlpha)
     .parents('tr')
-    .find('a[href*="p=60206"]')
+    .find('a[data-panel-url*="p=60206"]')
     .should('have.length.greaterThan', 0);
 });
 
