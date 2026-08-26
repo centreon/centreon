@@ -6,16 +6,16 @@ msgstr ""
 "Project-Id-Version: Centreon web 2.x\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-03-20 10:46+0000\n"
-"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
-"Language-Team: Spanish <https://translate.apps.centreon.com/projects/"
-"centreon-infra-monitoring/develop/web-messages/es/>\n"
+"PO-Revision-Date: 2026-08-26 09:49+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: Spanish <https://weblate.prod.centreon.io/projects/centreon-"
+"infra-monitoring/develop/web-messages/es/>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -3612,8 +3612,8 @@ msgid ""
 "Congratulations, you have successfully upgraded to Centreon version <b>%s</"
 "b>."
 msgstr ""
-"Enhorabuena, ha actualizado correctamente a la versión de Centreon <b>%s </"
-"b>."
+"Enhorabuena, ha actualizado correctamente a la versión de Centreon <b>%s </b>"
+"."
 
 #: centreon/www/install/front_translate.php
 msgid "Connect"
@@ -18555,8 +18555,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This option must be disable in order to avoid latency problem."
-msgstr ""
-"Esta opción debe estar deshabilitada para evitar problemas de latencia."
+msgstr "Esta opción debe estar deshabilitada para evitar problemas de latencia."
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "This option must be enabled for Centreon Dashboard module."
@@ -21532,8 +21531,8 @@ msgstr "$HOSTADDRESS$"
 #: unknown
 msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
 msgstr ""
-"* Falsificación de solicitudes entre sitios: las solicitudes no "
-"autorizadas se han reenviado"
+"* Falsificación de solicitudes entre sitios: las solicitudes no autorizadas "
+"se han reenviado"
 
 #: unknown
 msgid "2d Coords"
@@ -21558,8 +21557,8 @@ msgid ""
 "<br>&nbsp;&nbsp;&nbsp;- Only aggregation functions work in VDEF rpn "
 "expressions."
 msgstr ""
-"<br><i><b><font color=\"#B22222\"> Notas </font>:</b></"
-"i><br>&nbsp;&nbsp;&nbsp; - No mezcle métricas de diferentes fuentes. <br> "
+"<br><i><b><font color=\"#B22222\"> Notas </font>:</b></i><br>"
+"&nbsp;&nbsp;&nbsp; - No mezcle métricas de diferentes fuentes. <br> "
 "&nbsp;&nbsp;&nbsp; - Solo las funciones de agregación funcionan en "
 "expresiones rpn VDEF."
 
@@ -21640,8 +21639,8 @@ msgid ""
 "Add open_files_limit=32000 in my.cnf file under the [mysqld] section and "
 "restart MySQL Server."
 msgstr ""
-"Agregue open_files_limit=32000 en el archivo my.cnf en la sección "
-"[mysqld] y reinicie el servidor MySQL."
+"Agregue open_files_limit=32000 en el archivo my.cnf en la sección [mysqld] y "
+"reinicie el servidor MySQL."
 
 #: unknown
 msgid "Add viewer / viewer group"
@@ -22416,8 +22415,7 @@ msgid ""
 "Are you sure you want to change this parameter? Please read the help "
 "before."
 msgstr ""
-"¿Seguro que quieres cambiar este parámetro? Por favor, lea la ayuda "
-"primero."
+"¿Seguro que quieres cambiar este parámetro? Por favor, lea la ayuda primero."
 
 #: unknown
 msgid "Are you sure you want to uninstall this widget?"
@@ -22603,10 +22601,9 @@ msgid ""
 "                                             be created for monitoring "
 "engine '%s'. Please check it's path or create it"
 msgstr ""
-"El directorio de configuración de Centreon Broker '%s' no existe y no "
-"pudo\n"
-"                                              ser creado para monitorear "
-"el motor '%s'. Por favor, compruebe su camino o créelo"
+"El directorio de configuración de Centreon Broker '%s' no existe y no pudo\n"
+"                                              ser creado para monitorear el "
+"motor '%s'. Por favor, compruebe su camino o créelo"
 
 #: unknown
 msgid "Centreon DataBase Statistics"
@@ -22739,8 +22736,7 @@ msgstr "orden"
 #: unknown
 msgid "Color for host Down (Service view)"
 msgstr ""
-"Color para hosts en estado problemático (página de supervisión de "
-"servicio)"
+"Color para hosts en estado problemático (página de supervisión de servicio)"
 
 #: unknown
 msgid "Color for host Unreachable (Service view)"
@@ -22912,8 +22908,8 @@ msgstr "En progreso?"
 #: unknown
 msgid "Daemon core dumps"
 msgstr ""
-"Habilitar la posibilidad de lograr un 'volcado de núcleo' (no compatible "
-"con Centreon Engine)"
+"Habilitar la posibilidad de lograr un 'volcado de núcleo' (no compatible con "
+"Centreon Engine)"
 
 #: unknown
 msgid "Data Source Choice"
@@ -22949,8 +22945,7 @@ msgstr "Zona horaria predeterminada del host"
 
 #: unknown
 msgid "Delete all configuration for the chosen type of files"
-msgstr ""
-"Eliminar toda la configuración de los tipos de archivos seleccionados"
+msgstr "Eliminar toda la configuración de los tipos de archivos seleccionados"
 
 #: unknown
 msgid "Dependencies Management"
@@ -23002,8 +22997,7 @@ msgstr "Detener el procesamiento de datos de rendimiento"
 
 #: unknown
 msgid "Disable submit result if no matched rules"
-msgstr ""
-"Deshabilite la actualización del servicio si ninguna regla es válida"
+msgstr "Deshabilite la actualización del servicio si ninguna regla es válida"
 
 #: unknown
 msgid "Disabled HostGroups"
@@ -23075,8 +23069,7 @@ msgstr "Intérprete Perl integrado"
 
 #: unknown
 msgid "Enable Centstorage Engine (require restart of centstorage)"
-msgstr ""
-"Habilitar el motor de Centstorage (requiere el reinicio de centtorage)"
+msgstr "Habilitar el motor de Centstorage (requiere el reinicio de centtorage)"
 
 #: unknown
 msgid "Enable Check"
@@ -23148,24 +23141,20 @@ msgstr "Error durante la recuperación del sondeador central"
 
 #: unknown
 msgid "Error while inserting central-broker configuration"
-msgstr ""
-"Error al insertar la configuración del módulo Centreon Broker Master"
+msgstr "Error al insertar la configuración del módulo Centreon Broker Master"
 
 #: unknown
 msgid "Error while inserting central-module configuration"
-msgstr ""
-"Error durante la inserción de las configuraciones del módulo central."
+msgstr "Error durante la inserción de las configuraciones del módulo central."
 
 #: unknown
 msgid "Error while inserting central-rrd configuration"
-msgstr ""
-"Error al insertar la configuración del módulo RRD de Centreon Broker"
+msgstr "Error al insertar la configuración del módulo RRD de Centreon Broker"
 
 #: unknown
 msgid "Error while inserting poller-module configuration"
 msgstr ""
-"Error al insertar la configuración del módulo Centreon Broker del "
-"recopilador"
+"Error al insertar la configuración del módulo Centreon Broker del recopilador"
 
 #: unknown
 msgid "Error while saving configuration."
@@ -23174,8 +23163,8 @@ msgstr "Error al guardar la configuración."
 #: unknown
 msgid "Error: Cannot Execute this command due to a path security problem."
 msgstr ""
-"Error: no se puede ejecutar este comando debido a un problema de "
-"seguridad en la ruta."
+"Error: no se puede ejecutar este comando debido a un problema de seguridad "
+"en la ruta."
 
 #: unknown
 msgid "Escalations View"
@@ -23287,9 +23276,9 @@ msgid ""
 "importance because it is not handled.<br />Avoid to begin with a "
 "definition."
 msgstr ""
-"Al enviar un archivo, asegúrese de que la primera línea de cada archivo "
-"no sea importante porque no se tiene en cuenta. <br /> Evite comenzar con "
-"una definición."
+"Al enviar un archivo, asegúrese de que la primera línea de cada archivo no "
+"sea importante porque no se tiene en cuenta. <br /> Evite comenzar con una "
+"definición."
 
 #: unknown
 msgid ""
@@ -23297,8 +23286,7 @@ msgid ""
 "support.centreon.com\">Centreon Support Center</a>."
 msgstr ""
 "Para obtener asistencia profesional, póngase en contacto con <a "
-"href=\"http://support.centreon.com\"> Centro de asistencia de Centreon </"
-"a>."
+"href=\"http://support.centreon.com\"> Centro de asistencia de Centreon </a>."
 
 #: unknown
 msgid "Force Reload"
@@ -23412,8 +23400,7 @@ msgstr "Modo de archivo de datos de rendimiento del host"
 
 #: unknown
 msgid "Host Performance Data File Processing Command"
-msgstr ""
-"Comando de procesamiento de archivos de datos de rendimiento del host"
+msgstr "Comando de procesamiento de archivos de datos de rendimiento del host"
 
 #: unknown
 msgid "Host Performance Data File Processing Interval"
@@ -23604,8 +23591,8 @@ msgid ""
 "It is recommended to upload all the Command definitions first by "
 "specifying their types."
 msgstr ""
-"Se recomienda que primero envíe las definiciones de comando especificando "
-"su tipo."
+"Se recomienda que primero envíe las definiciones de comando especificando su "
+"tipo."
 
 #: unknown
 msgid "Job groups"
@@ -23997,8 +23984,7 @@ msgstr "Orden de servicio post control"
 
 #: unknown
 msgid "Obsessive Compulsive Service Processor Timeout"
-msgstr ""
-"Tiempo máximo para ejecutar un comando de control posterior al servicio"
+msgstr "Tiempo máximo para ejecutar un comando de control posterior al servicio"
 
 #: unknown
 msgid "Official website"
@@ -24300,8 +24286,7 @@ msgstr "Informes de visualización"
 
 #: unknown
 msgid "Reporting retention duration (dashboard)"
-msgstr ""
-"Duración de retención de la información de informes (Panel de control)"
+msgstr "Duración de retención de la información de informes (Panel de control)"
 
 #: unknown
 msgid "Reporting time period"
@@ -24374,8 +24359,8 @@ msgstr "Ruta de los archivos de retención."
 #: unknown
 msgid "Right Click here to add an autologin link directly to your bookmarks"
 msgstr ""
-"Haga clic derecho aquí para agregar un enlace de inicio de sesión "
-"automático directamente en sus marcadores"
+"Haga clic derecho aquí para agregar un enlace de inicio de sesión automático "
+"directamente en sus marcadores"
 
 #: unknown
 msgid "Row Color for Service CRITICAL"
@@ -24383,8 +24368,7 @@ msgstr "Color de la línea para un servicio CRÍTICO."
 
 #: unknown
 msgid "Rrdcached configuration : work only with Centreon Broker"
-msgstr ""
-"Configuración del módulo RRDCached: solo funciona con Centreon Broker"
+msgstr "Configuración del módulo RRDCached: solo funciona con Centreon Broker"
 
 #: unknown
 msgid "Rules"
@@ -24440,13 +24424,11 @@ msgstr "Solo SSO"
 
 #: unknown
 msgid "SSO pattern matching login"
-msgstr ""
-"Patrón de búsqueda (patrón) para la autenticación (inicio de sesión)"
+msgstr "Patrón de búsqueda (patrón) para la autenticación (inicio de sesión)"
 
 #: unknown
 msgid "SSO pattern replace login"
-msgstr ""
-"Cadena de reemplazo (patrón) para la autenticación (inicio de sesión)"
+msgstr "Cadena de reemplazo (patrón) para la autenticación (inicio de sesión)"
 
 #: unknown
 msgid "SSO trusted client addresses"
@@ -24637,8 +24619,7 @@ msgid ""
 "Sorry, your command line does not contain any $_SERVICE$ macro or $_HOST$ "
 "macro."
 msgstr ""
-"Lo sentimos, su línea de comando no contiene una macro $_SERVICE$ o "
-"$_HOST$."
+"Lo sentimos, su línea de comando no contiene una macro $_SERVICE$ o $_HOST$."
 
 #: unknown
 msgid "Sort by Name"
@@ -24808,8 +24789,8 @@ msgstr ""
 #: unknown
 msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
 msgstr ""
-"La lista de coleccionistas está disponible <a href=\"./main.php?"
-"p=60901\"> aquí </a>."
+"La lista de coleccionistas está disponible <a href=\"./main.php?p=60901\"> "
+"aquí </a>."
 
 #: unknown
 msgid "The port must be numeric"
@@ -25391,71 +25372,55 @@ msgstr ""
 msgid "Loading..."
 msgstr ""
 
-#: unknown
 # msgid "Create new poller"
 # msgstr ""
-
-#: unknown
 # msgid "Enter your poller's name and address"
 # msgstr ""
-
-#: unknown
 # msgid "Select your poller's environment"
 # msgstr ""
-
-#: unknown
 # msgid "VM or physical"
 # msgstr ""
-
-#: unknown
 # msgid "Docker compose"
 # msgstr ""
-
-#: unknown
 # msgid "Select token"
 # msgstr ""
-
-#: unknown
 # msgid "Generate installation command"
 # msgstr ""
-
-#: unknown
 # msgid "The command is being generated…"
 # msgstr ""
-
-#: unknown
 # msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
 # msgstr ""
-
-#: unknown
 # msgid "Generating..."
 # msgstr ""
-
-#: unknown
 # msgid "Copy the following command and run it on your poller to register it."
 # msgstr ""
-
-#: unknown
 # msgid "Failed to create poller"
 # msgstr ""
-
-#: unknown
 # msgid "Enter your poller information"
 # msgstr ""
-
-#: unknown
 # msgid "Poller name"
 # msgstr ""
-
-#: unknown
 # msgid "Poller address"
 # msgstr ""
-
-#: unknown
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
-
 # Host categories - modernized listing/form (UX/UI migration)
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Duplicate host category"
 msgstr "Duplicar categoría de host"
@@ -25491,4 +25456,3 @@ msgstr "Está a punto de duplicar <strong>{{ count }} categorías de host</stron
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
-
