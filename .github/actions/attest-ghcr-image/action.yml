@@ -33,6 +33,10 @@ runs:
         subject-name: ${{ inputs.ghcr_image }}
         subject-digest: ${{ inputs.digest }}
         push-to-registry: true
+        # No artifact-metadata:write permission granted (least privilege) —
+        # the storage record is an optional catalog entry, not needed for
+        # gh attestation verify/download.
+        create-storage-record: false
 
     - name: Attest SBOM
       # attest-sbom is deprecated in favor of attest
@@ -42,3 +46,4 @@ runs:
         subject-digest: ${{ inputs.digest }}
         sbom-path: sbom.spdx.json
         push-to-registry: true
+        create-storage-record: false
