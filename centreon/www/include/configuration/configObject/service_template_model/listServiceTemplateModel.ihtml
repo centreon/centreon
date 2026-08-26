@@ -138,7 +138,8 @@ var stListing = new CentreonListing({
             var parts = [];
             for (var i = 0; i < row.templates.length; i++) {
                 var t = row.templates[i];
-                parts.push('<a href="main.php?p={/literal}{$stPage}{literal}&o=c&service_id='+t.id+'">'+l.escape(t.name)+'</a>');
+                var tplLink = 'main.get.php?p={/literal}{$stPage}{literal}&o=c&service_id=' + t.id;
+                parts.push('<a href="#" data-panel-url="'+clEscapeAttr(tplLink)+'" data-panel-title="{/literal}{t}Modify a Service Template Model{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(t.name)+'</a>');
             }
             return parts.join(' &rarr; ');
         }}
