@@ -48,6 +48,12 @@ beforeEach(() => {
 afterEach(() => {
   // The scenarios create these; without an explicit cleanup the suite only
   // stays green because the containers are recreated between runs.
+  for (const name of ['cg-in-acl-scope', 'cg-out-of-acl-scope']) {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'DEL', object: 'CG', values: name },
+      failOnError: false
+    });
+  }
   for (const base of [groups.defaultGroup.name, groups.GroupForUpdate.name]) {
     for (const name of [base, `${base}_1`, `${base}-1`]) {
       cy.executeActionViaClapi({
@@ -241,4 +247,47 @@ When('the user clicks the toggle to disable the contact group', () => {
 Then('the contact group toggle switches to disabled', () => {
   cy.get('@toggleContactGroup').its('response.statusCode').should('eq', 200);
   expectRowToggleUnchecked(groups.defaultGroup.name);
+});
+
+// The non-admin branch of ajaxContactGroupListing.php answers early when the
+// user's contact group scope is empty, so without a granted group the listing
+// never runs its ACL query at all — which is why this path went uncovered.
+const aclScopedContactGroups = {
+  granted: 'cg-in-acl-scope',
+  withheld: 'cg-out-of-acl-scope'
+};
+
+Given('the non-admin user is granted one contact group out of two', () => {
+  cy.setUserTokenApiV1()
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contacts-management-acl-user.json'
+    )
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contact-group-acl-scope.json'
+    );
+  cy.loginByTypeOfUser({
+    jsonName: 'contacts-management-acl-user',
+    loginViaApi: false
+  });
+});
+
+When('the non-admin user displays the contact groups listing', () => {
+  visitContactGroupsListing();
+});
+
+Then('only the contact group within their ACL is listed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', aclScopedContactGroups.granted)
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', aclScopedContactGroups.withheld)
+    .should('not.exist');
+  // The group the Background created is outside the scope too, so a listing
+  // that ignored the ACL would show it.
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', groups.defaultGroup.name)
+    .should('not.exist');
 });

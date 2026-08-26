@@ -38,3 +38,9 @@ Feature: ContactGroupConfiguration
     When the user displays the contact groups listing
     And the user clicks the toggle to disable the contact group
     Then the contact group toggle switches to disabled
+
+  @MON-200035
+  Scenario: A non-admin only sees the contact groups within their ACL
+    Given the non-admin user is granted one contact group out of two
+    When the non-admin user displays the contact groups listing
+    Then only the contact group within their ACL is listed

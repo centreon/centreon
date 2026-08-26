@@ -1,0 +1,22 @@
+[
+    {
+        "action": "ADD",
+        "object": "CG",
+        "values": "cg-in-acl-scope;cg-in-acl-scope"
+    },
+    {
+        "action": "ADD",
+        "object": "CG",
+        "values": "cg-out-of-acl-scope;cg-out-of-acl-scope"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "CG",
+        "values": "cg-in-acl-scope;contacts-user"
+    },
+    {
+        "action": "SETCONTACTGROUP",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP;cg-in-acl-scope"
+    }
+]
