@@ -45,8 +45,12 @@ $tpl->assign('headerMenu_options', _('Options'));
 
 $tpl->assign('svcHgPage', $p);
 
-$searchHG = $centreon->historySearch[$url]['searchHG'] ?? '';
-$searchS  = $centreon->historySearch[$url]['searchS'] ?? '';
+// The listing keeps its filters client-side, so the only server-side pre-fill
+// left is the one a bulk action posts back — the two inputs travel with the
+// form, so the round-trip keeps its context. historySearch was read here for
+// keys nothing writes, which left both fields empty on the way back.
+$searchHG = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHG'] ?? '');
+$searchS  = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchS'] ?? '');
 $tpl->assign('searchHG', $searchHG);
 $tpl->assign('searchS', $searchS);
 
