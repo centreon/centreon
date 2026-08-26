@@ -65,11 +65,17 @@ Then(
 
 When('the user searches for the first service category', () => {
   // Live search (debounced AJAX) — no submit button, the table refreshes on type.
+  // The debounce means nothing has been requested yet when typing ends, so
+  // asserting on the absence of "Loading" held against the rows still on screen
+  // and the next step could read them as the search result. Wait on the request.
+  cy.intercept('GET', '**/ajaxServiceCategoriesListing.php*').as(
+    'searchCategories'
+  );
   cy.getIframeBody()
     .find('#clSearchInput')
     .clear()
     .type(serviceCategories.default.name);
-  cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
+  cy.wait('@searchCategories');
 });
 
 Then('only the matching service category is displayed', () => {
