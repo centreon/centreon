@@ -5,15 +5,16 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2022-08-19 12:55+0200\n"
-"Last-Translator: Johannes Reiter <reiterjohannes3@googlemail.com>\n"
-"Language-Team: Centreon Team\n"
-"Language: de\n"
+"PO-Revision-Date: 2026-08-26 09:47+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"Language-Team: German <https://weblate.prod.centreon.io/projects/centreon-"
+"infra-monitoring/develop/web-messages/de/>\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -187,8 +188,8 @@ msgstr ""
 #: centreon/www/install/step_upgrade/step4.php
 msgid "<p>Currently upgrading... please do not interrupt this process.</p>"
 msgstr ""
-"<p>Upgrade wird durchgeführt... bitte unterbrechen Sie diesen Prozess nicht."
-"</p>"
+"<p>Upgrade wird durchgeführt... bitte unterbrechen Sie diesen Prozess "
+"nicht.</p>"
 
 #: centreon/www/install/front_translate.php
 msgid "@$!%*?&"
@@ -2335,8 +2336,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 msgid "Cannot set parent id to a central server"
-msgstr ""
-"Für einen zentralen Server kann keine übergeordnete ID angegeben werden"
+msgstr "Für einen zentralen Server kann keine übergeordnete ID angegeben werden"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformPending.php
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
@@ -5013,8 +5013,7 @@ msgstr "SSL-Zertifikatsvalidierung nicht überprüfen"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Do not use configured proxy to connect to this server"
-msgstr ""
-"Konfigurierte Proxy für die Verbindung mit diesem Server nicht benutzen"
+msgstr "Konfigurierte Proxy für die Verbindung mit diesem Server nicht benutzen"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Do not use proxy defined in global configuration"
@@ -6388,8 +6387,7 @@ msgstr "Fehler bei der Verknüpfung des Templates %s mit dem Host (id: %d)"
 #: centreon/src/Centreon/Infrastructure/HostConfiguration/Repository/HostConfigurationRepositoryRDB.php
 #, php-format
 msgid "Error while linking template (id: %d) to host (id: %d)"
-msgstr ""
-"Fehler bei der Verknüpfung des Templates (id: %d) mit dem Host (id: %d)"
+msgstr "Fehler bei der Verknüpfung des Templates (id: %d) mit dem Host (id: %d)"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "Error while listing notification resources"
@@ -16330,8 +16328,7 @@ msgstr ""
 #: centreon/src/Centreon/Domain/PlatformTopology/Model/PlatformRegistered.php
 #, php-format
 msgid "The address '%s' of '%s' is not valid or not resolvable"
-msgstr ""
-"Die Adresse '%s' von '%s' ist ungültig bzw. kann nicht aufgelöst werden"
+msgstr "Die Adresse '%s' von '%s' ist ungültig bzw. kann nicht aufgelöst werden"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "The address is already registered"
@@ -17302,8 +17299,7 @@ msgstr "Bis"
 
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 msgid "To manually request a LDAP synchronization of a contact"
-msgstr ""
-"Um manuell eine LDAP-Synchronisierung beim nächsten Login durchzuführen"
+msgstr "Um manuell eine LDAP-Synchronisierung beim nächsten Login durchzuführen"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid ""
@@ -17590,8 +17586,7 @@ msgstr "Der Verschlüsselungsschlüssel konnte nicht gefunden werden."
 #: centreon/src/Core/Application/RealTime/UseCase/FindService/FindService.php
 #, php-format
 msgid "Unable to hide passwords in command (Reason: %s)"
-msgstr ""
-"Die Passwörter im Befehl konnten nicht entfernt werden (Begründung: %s)"
+msgstr "Die Passwörter im Befehl konnten nicht entfernt werden (Begründung: %s)"
 
 #: centreon/src/Centreon/Domain/PlatformTopology/Exception/PlatformTopologyException.php
 #, php-format
@@ -18721,8 +18716,9 @@ msgid ""
 "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
 "\\nDo you confirm the deletion ?"
 msgstr ""
-"Sie sind im Begriff einen oder mehrere Poller zu löschen.\\nDiese Aktion ist "
-"UNUMKEHRBAR.\\nBestätigen Sie die Löschung?"
+"Sie sind im Begriff einen oder mehrere Poller zu löschen.\\n"
+"Diese Aktion ist UNUMKEHRBAR.\\n"
+"Bestätigen Sie die Löschung?"
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -20060,8 +20056,8 @@ msgid ""
 "<br>&nbsp;&nbsp;&nbsp;- Only aggregation functions work in VDEF rpn "
 "expressions."
 msgstr ""
-"<br><i><b><font color=\"#B22222\">Notizen </font>:</b></"
-"i><br>&nbsp;&nbsp;&nbsp;- Vermischen Sie keine Metriken aus verschiedenen "
+"<br><i><b><font color=\"#B22222\">Notizen </font>:</b></i><br>"
+"&nbsp;&nbsp;&nbsp;- Vermischen Sie keine Metriken aus verschiedenen "
 "Quellen.<br>&nbsp;&nbsp;&nbsp;- In VDEF RPN Ausdrücken funktionieren "
 "ausschließlich Aggregationsfunktionen."
 
@@ -20070,8 +20066,8 @@ msgid ""
 "A host can have multiple templates, their orders have a significant "
 "importance"
 msgstr ""
-"Ein Host kann mehrere Templates verwenden, die Reihenfolge der Templates "
-"ist wichtig"
+"Ein Host kann mehrere Templates verwenden, die Reihenfolge der Templates ist "
+"wichtig"
 
 #: unknown
 msgid "Active Color"
@@ -20631,8 +20627,8 @@ msgid ""
 "Are you sure you want to change this parameter? Please read the help "
 "before."
 msgstr ""
-"Sind Sie sich sicher, dass Sie diesen Parameter ändern möchten? Bitte "
-"lesen Sie vorher die Hilfe dazu."
+"Sind Sie sich sicher, dass Sie diesen Parameter ändern möchten? Bitte lesen "
+"Sie vorher die Hilfe dazu."
 
 #: unknown
 msgid "Argument Descriptions"
@@ -20694,17 +20690,17 @@ msgstr "Centcore-Optionen"
 msgid "Centcore properties"
 msgstr "Centcore-Eigenschaften"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
 "                                             be created for monitoring "
 "engine '%s'. Please check it's path or create it"
 msgstr ""
-"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' "
-"existiert nicht und konnte nicht erstellt werden. Bitte überprüfen Sie "
-"den Pfad oder erstellen Sie diesen"
+"Das Konfigurationsverzeichnis '%s' für die Monitoring Engine '%s' existiert "
+"nicht und konnte nicht erstellt werden. Bitte überprüfen Sie den Pfad oder "
+"erstellen Sie diesen"
 
 #: unknown
 msgid "Centreon Map"
@@ -20753,8 +20749,7 @@ msgstr "Befehlstyp"
 #: unknown
 msgid "Commands definitions can contain Macros but they have to be valid."
 msgstr ""
-"Befehlsdefinitionen können Makros enthalten, diese müssen jedoch gültig "
-"sein."
+"Befehlsdefinitionen können Makros enthalten, diese müssen jedoch gültig sein."
 
 #: unknown
 msgid "Compulsory Command Line"
@@ -20768,8 +20763,8 @@ msgstr "Konfigurationsaktionen"
 msgid "Contact Templates"
 msgstr "Kontakttemplates"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
@@ -20833,15 +20828,14 @@ msgstr "Shell aktivieren"
 #: unknown
 msgid "Enable the one-click export button for poller configuration [BETA]"
 msgstr ""
-"Aktiviere den \"ein-Klick\" Exportknopf für die Poller Konfiguration "
-"[BETA]"
+"Aktiviere den \"ein-Klick\" Exportknopf für die Poller Konfiguration [BETA]"
 
 #: unknown
 msgid "End Session Endpoint"
 msgstr "Sessionendeendpunkt"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Error when updating the user's theme"
 msgstr "Fehler beim Aktualisieren der Oberfläche des Benutzers"
 
@@ -21106,8 +21100,8 @@ msgid ""
 "Optimized mode is not possible, BBDOv3 and unified SQL output must be "
 "configured"
 msgstr ""
-"Verbesserter Modus ist nicht möglich, BBDOv3 und einheitliche SQL "
-"Ausgaben müssen konfiguriert sein"
+"Verbesserter Modus ist nicht möglich, BBDOv3 und einheitliche SQL Ausgaben "
+"müssen konfiguriert sein"
 
 #: unknown
 msgid "Overview"
@@ -21377,8 +21371,7 @@ msgstr "Unix-Socket"
 
 #: unknown
 msgid "Use Basic Auth for Token Endpoint Authentication"
-msgstr ""
-"Basic-Authentifizierung für Token-Endpunkt Authentifizierung verwenden"
+msgstr "Basic-Authentifizierung für Token-Endpunkt Authentifizierung verwenden"
 
 #: unknown
 msgid "Use large installation tweaks"
@@ -21483,20 +21476,18 @@ msgstr ""
 #: unknown
 msgid "You must at least add one resource provider"
 msgstr ""
-"Sie müssen mindestens eine Ressourcenanbieter (resource provider) "
-"hinzufügen"
+"Sie müssen mindestens eine Ressourcenanbieter (resource provider) hinzufügen"
 
 #: unknown
 msgid "You must set a poller for generate configuration."
 msgstr ""
-"Sie müssen einen Poller festlegen, damit die Konfiguration erstellt "
-"werden kann."
+"Sie müssen einen Poller festlegen, damit die Konfiguration erstellt werden "
+"kann."
 
-#, php-format
 #: unknown
+#, php-format
 msgid "[%s] Error when calculating string length of \"%s\" in %s"
-msgstr ""
-"[%s] Fehler bei der Kalkulation der Zeichenkettenlänge von \"%s\" in %s"
+msgstr "[%s] Fehler bei der Kalkulation der Zeichenkettenlänge von \"%s\" in %s"
 
 #: unknown
 msgid "default"
@@ -21513,71 +21504,56 @@ msgstr ""
 #: packages/ui/src/Listing/translatedLabels.ts
 msgid "Loading..."
 msgstr ""
-#: unknown
+
 # msgid "Create new poller"
 # msgstr ""
-
-#: unknown
 # msgid "Enter your poller's name and address"
 # msgstr ""
-
-#: unknown
 # msgid "Select your poller's environment"
 # msgstr ""
-
-#: unknown
 # msgid "VM or physical"
 # msgstr ""
-
-#: unknown
 # msgid "Docker compose"
 # msgstr ""
-
-#: unknown
 # msgid "Select token"
 # msgstr ""
-
-#: unknown
 # msgid "Generate installation command"
 # msgstr ""
-
-#: unknown
 # msgid "The command is being generated…"
 # msgstr ""
-
-#: unknown
 # msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
 # msgstr ""
-
-#: unknown
 # msgid "Generating..."
 # msgstr ""
-
-#: unknown
 # msgid "Copy the following command and run it on your poller to register it."
 # msgstr ""
-
-#: unknown
 # msgid "Failed to create poller"
 # msgstr ""
-
-#: unknown
 # msgid "Enter your poller information"
 # msgstr ""
-
-#: unknown
 # msgid "Poller name"
 # msgstr ""
-
-#: unknown
 # msgid "Poller address"
 # msgstr ""
-
-#: unknown
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
-
 # Host categories - modernized listing/form (UX/UI migration)
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
+#: unknown
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Duplicate host category"
 msgstr "Hostkategorie duplizieren"
@@ -21613,4 +21589,3 @@ msgstr "Sie sind dabei, <strong>{{ count }} Hostkategorien</strong> zu duplizier
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Sie sind dabei, die Hostkategorie <strong>{{ name }}</strong> zu duplizieren. Möchten Sie sie duplizieren?"
-
