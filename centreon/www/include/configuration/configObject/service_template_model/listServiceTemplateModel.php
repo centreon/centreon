@@ -46,7 +46,7 @@ $tpl->assign('defaultLimit', $defaultLimit);
 $tpl->assign('stPage', $p);
 
 // Search filters (for initial display)
-$search = htmlspecialchars($_POST['searchST'] ?? $_GET['searchST'] ?? $centreon->historySearch[$url]['search'] ?? '');
+$search = $_POST['searchST'] ?? $_GET['searchST'] ?? $centreon->historySearch[$url]['search'] ?? '';
 $displayLocked = filter_var(
     $_POST['displayLocked'] ?? $_GET['displayLocked'] ?? 'off',
     FILTER_VALIDATE_BOOLEAN
@@ -66,7 +66,7 @@ $centreon->historySearch[$url] = [
     'displayLocked' => $displayLocked,
 ];
 
-$tpl->assign('searchST', $search);
+$tpl->assign('searchST', htmlspecialchars($search));
 $tpl->assign('displayLocked', $displayLocked);
 
 // Messages
