@@ -934,7 +934,8 @@ jobs:
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   dockerize:
-    runs-on: ubuntu-24.04
+    # self-hosted: the image is built against an internal-only packages host
+    runs-on: centreon-ubuntu-22.04
     needs: [get-environment, changes, package]
     permissions:
       contents: read
