@@ -110,7 +110,7 @@ Given('a meta service is configured', () => {
     .find('span[aria-labelledby="select2-check_period-container"]')
     .click();
   cy.getMetaServiceSidePanelBody()
-    .find(`div[title=${data.default.check_period}]`)
+    .find(`div[title="${data.default.check_period}"]`)
     .click();
   cy.getMetaServiceSidePanelBody()
     .find('input[name="max_check_attempts"]')
@@ -235,16 +235,16 @@ When('the user changes the properties of a meta service', () => {
     .type('20');
   cy.selectFormSegment('notifications_enabled', '2');
   cy.getMetaServiceSidePanelBody()
-    .find(`li[title=${data.default.contact_groups}]`)
+    .find(`li[title="${data.default.contact_groups}"]`)
     .find('span[class*="choice__remove"]')
     .click();
   cy.getMetaServiceSidePanelBody().contains('Supervisors').click();
   cy.getMetaServiceSidePanelBody()
-    .find(`li[title=${data.default.contacts}]`)
+    .find(`li[title="${data.default.contacts}"]`)
     .find('span[class*="choice__remove"]')
     .click();
   cy.getMetaServiceSidePanelBody()
-    .find(`div[title=${data.default.contact_groups}]`)
+    .find(`div[title="${data.default.contact_groups}"]`)
     .click();
   // Removing a chip re-opens the multi-select it belongs to, and its result list
   // then hangs over the fields below — notification_interval among them.
@@ -400,10 +400,11 @@ When('the user duplicates a meta service', () => {
 Then('the new meta service has the same properties', () => {
   cy.reload();
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  cy.openMetaServiceForm('metaServiceName_1');
+  const duplicatedName = `${data.default.name}_1`;
+  cy.openMetaServiceForm(duplicatedName);
   cy.getMetaServiceSidePanelBody()
     .find('input[name="meta_name"]')
-    .should('have.value', 'metaServiceName_1');
+    .should('have.value', duplicatedName);
   cy.getMetaServiceSidePanelBody()
     .find('input[name="meta_display"]')
     .should('have.value', data.default.output_format);
@@ -444,11 +445,11 @@ Then('the new meta service has the same properties', () => {
     .find('input[name*="notifications_enabled"][value="1"]')
     .should('be.checked');
   cy.getMetaServiceSidePanelBody()
-    .find(`li[title=${data.default.contacts}]`)
+    .find(`li[title="${data.default.contacts}"]`)
     .contains(data.default.contacts)
     .should('exist');
   cy.getMetaServiceSidePanelBody()
-    .find(`li[title=${data.default.contact_groups}]`)
+    .find(`li[title="${data.default.contact_groups}"]`)
     .contains(data.default.contact_groups)
     .should('exist');
   cy.getMetaServiceSidePanelBody()
