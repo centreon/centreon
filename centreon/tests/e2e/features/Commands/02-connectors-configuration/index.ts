@@ -247,8 +247,52 @@ Then('the new connector is updated with {string} status', (type: string) => {
   );
 });
 
+When(
+  'the server answers the status change with a 200 that is not a success',
+  () => {
+    openConnectorsListing();
+    // A half-broken endpoint answers 200 with an error body. Without the success
+    // check the switch stays flipped over a row the server never changed.
+    cy.intercept(
+      { method: 'POST', url: INTERCEPTORS.ajax.connector_toggle },
+      { body: { error: 'nope' }, statusCode: 200 }
+    ).as('toggleNotASuccess');
+    rowToggle(data.connectorUpdated.name).should('be.checked').click({
+      force: true
+    });
+    cy.wait('@toggleNotASuccess');
+  }
+);
+
+When('the listing endpoint answers with a 200 that carries no rows', () => {
+  cy.intercept(
+    { method: 'GET', url: INTERCEPTORS.ajax.connector_listing },
+    { body: {}, statusCode: 200 }
+  ).as('malformedListing');
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.wait('@malformedListing');
+});
+
+Then('the listing reports an error instead of an empty page', () => {
+  // "No results found" here would mean the malformed body was read as an empty
+  // page — which also blanks the CSRF token every later action depends on.
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .should('contain.text', 'Error loading data')
+    .and('not.contain.text', 'No results found');
+});
+
 When('the user duplicates a connector three times from the listing', () => {
   openConnectorsListing();
+  // Counted, not pinned on fixed suffixes: copy() walks the suffix up to the
+  // first free name, so a retried attempt would create _4.._6 and a hardcoded
+  // "_4 must not exist" would then fail on the retry instead of on the bug.
+  searchListing(data.connectorForSearch.name);
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .its('length')
+    .as('rowsBeforeDuplication');
   selectRowAndRunBulkAction(
     data.connectorForSearch.name,
     'm',
@@ -259,21 +303,14 @@ When('the user duplicates a connector three times from the listing', () => {
 
 Then('the three copies are listed', () => {
   openConnectorsListing();
-  // The count is what is under test, so the copy beyond it has to be absent too:
-  // a batch that ignored the field would still create _1 and pass on it alone.
-  [1, 2, 3].forEach((index) => {
+  searchListing(data.connectorForSearch.name);
+  // Exactly three: the field carries 1 by default, so a batch that ignored it
+  // would land on +1, and one that read it twice on +6.
+  cy.get('@rowsBeforeDuplication').then((before) => {
     cy.getIframeBody()
-      .find('#clTableBody')
-      .contains(
-        'a',
-        listingRowAnchor(`${data.connectorForSearch.name}_${index}`)
-      )
-      .should('exist');
+      .find('#clTableBody tr')
+      .should('have.length', Number(before) + 3);
   });
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', listingRowAnchor(`${data.connectorForSearch.name}_4`))
-    .should('not.exist');
 });
 
 When('the user types a duplication count and the listing re-renders', () => {
@@ -282,6 +319,12 @@ When('the user types a duplication count and the listing re-renders', () => {
   // Any re-render goes through the same restore path as the 30s auto-refresh,
   // and a search keeps the row on screen, which the refresh alone would not.
   searchListing(data.connectorForSearch.name);
+  // Anchored on a row the filter removes: the value assertion is true both
+  // before and after the re-render, so without this it would pass even with
+  // restoreRowInputValues() deleted.
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .should('not.contain', data.connector.name);
 });
 
 Then('the typed count is still there', () => {
@@ -301,13 +344,17 @@ When('the listing is opened on a page that no longer exists', () => {
     }
   });
   cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
-  // The out-of-range page is requested first, then the clamp refetches page 0.
-  cy.wait('@listConnectors')
-    .its('response.body')
-    .should('have.property', 'num', 3);
-  cy.wait('@listConnectors')
-    .its('response.body')
-    .should('have.property', 'num', 0);
+  // The out-of-range page is requested first, then the clamp refetches the last
+  // page that holds rows. Derived from the payload rather than hardcoded: one row
+  // more or less moves that page, and a literal would fail on the arithmetic
+  // instead of on the clamp.
+  cy.wait('@listConnectors').then(({ response }) => {
+    expect(response?.body).to.have.property('num', 3);
+    const lastPage = Math.ceil(response?.body.total / response?.body.limit) - 1;
+    cy.wait('@listConnectors')
+      .its('response.body')
+      .should('have.property', 'num', lastPage);
+  });
 });
 
 Then('the first page is displayed with its rows', () => {

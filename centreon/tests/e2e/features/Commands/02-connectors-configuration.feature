@@ -48,6 +48,16 @@ Feature: Configuration of a connector
     Then the toggle returns to its previous state and an error is displayed
 
   @MON-206501
+  Scenario: A status change refused inside a 200 response is not shown as applied
+    When the server answers the status change with a 200 that is not a success
+    Then the toggle returns to its previous state and an error is displayed
+
+  @MON-206501
+  Scenario: A malformed listing response is reported, not read as an empty page
+    When the listing endpoint answers with a 200 that carries no rows
+    Then the listing reports an error instead of an empty page
+
+  @MON-206501
   Scenario: Duplicating a connector honours the typed count
     When the user duplicates a connector three times from the listing
     Then the three copies are listed
