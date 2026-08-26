@@ -33,9 +33,7 @@
                     <th>{$headerMenu_host}</th>
                     <th>{$headerMenu_service}</th>
                     <th class="cl-col-center">{$headerMenu_metric}</th>
-                    { if $mode_access == 'w' }
                     <th class="cl-col-right">{t}Actions{/t}</th>
-                    { /if }
                 </tr>
             </thead>
             <tbody id="clTableBody">
