@@ -92,10 +92,13 @@ Then('the properties are updated', () => {
   cy.openListingRowForm(modifiedName)
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('have.value', modifiedName);
+  // The selected option, not any option: the template list always holds both
+  // Ping-WAN and Ping-LAN, so contains() passed even when nothing was saved.
   cy.getListingSidePanelBody()
     .find('select#service_template_model_stm_id')
-    .contains('Ping-WAN')
-    .should('exist');
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', 'Ping-WAN');
   cy.getListingSidePanelBody()
     .find('.cf-tab-nav a[href="#cf-sec-notif"]')
     .click();
@@ -120,10 +123,13 @@ Then('the new service has the same properties', () => {
   cy.openListingRowForm(`${serviceName}_1`)
     .find('input[name="service_description"]', { timeout: 20_000 })
     .should('have.value', `${serviceName}_1`);
+  // The selected option, not any option: the template list always holds both
+  // Ping-WAN and Ping-LAN, so contains() passed even when nothing was saved.
   cy.getListingSidePanelBody()
     .find('select#service_template_model_stm_id')
-    .contains('Ping-LAN')
-    .should('exist');
+    .find('option:selected')
+    .should('have.length', 1)
+    .and('have.text', 'Ping-LAN');
 });
 
 When('the user deletes a service', () => {
