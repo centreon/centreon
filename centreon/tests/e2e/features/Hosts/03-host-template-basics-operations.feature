@@ -21,7 +21,7 @@ Feature: HostTemplateBasicsOperations
     Given a second host template is configured
     And both host templates carry the same service template
     When the user duplicates the configured host template
-    Then the copy links the service template exactly once
+    Then the source and its copy link the service template exactly once
 
   @MON-151109
   Scenario: Deletion of a host template

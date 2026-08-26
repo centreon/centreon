@@ -22,15 +22,13 @@ const activeChecksRadio = 'host_active_checks_enabled';
 const massChangedMaxCheckAttempts = '7';
 const massChangedRetryInterval = '3';
 
-// Nothing the platform installs is guaranteed to be a service template, and the
-// duplication path only misbehaves once the source template carries one.
+// Nothing the platform installs is guaranteed to be a service template.
 const serviceTemplateName = 'host-template-service';
 
 const createServiceTemplate = (): void => {
-  cy.requestOnDatabase({
-    database: 'centreon',
-    query: `INSERT INTO service (service_description, service_register, service_activate)
-            VALUES ('${serviceTemplateName}', '0', '1')`
+  cy.addServiceTemplate({
+    name: serviceTemplateName,
+    template: 'generic-service'
   });
 };
 
@@ -63,7 +61,10 @@ const expectServiceTemplateLinks = (
     query: `SELECT COUNT(*) AS link_count
             FROM host_service_relation
             INNER JOIN host ON host.host_id = host_service_relation.host_host_id
-            WHERE host.host_name = '${hostTemplateName}'`
+            INNER JOIN service
+              ON service.service_id = host_service_relation.service_service_id
+            WHERE host.host_name = '${hostTemplateName}'
+              AND service.service_description = '${serviceTemplateName}'`
   }).then(([rows]) => {
     expect(
       Number(rows[0].link_count),
@@ -241,22 +242,19 @@ Then('the properties are updated', () => {
     .should('be.checked');
 });
 
-// Sharing the service template between two objects up front is what arms the
-// defect: the copy then used to earn a relation from the shared-service branch
-// on top of the one the template branch makes. Duplicating the source twice
-// would arm it too, but the second pass cannot name its target — the listing
-// holds the copy by then, and a name lookup matches it on the shared prefix.
+// Sharing the service template is what arms the defect: the copy then used to
+// earn a relation from the shared-service branch on top of the template one.
 Given('both host templates carry the same service template', () => {
   createServiceTemplate();
   linkServiceTemplate(hostTemplates.defaultHostTemplate.name);
   linkServiceTemplate(secondTemplateName);
 });
 
-Then('the copy links the service template exactly once', () => {
+Then('the source and its copy link the service template exactly once', () => {
   const sourceName = hostTemplates.defaultHostTemplate.name;
 
-  expectServiceTemplateLinks(`${sourceName}_1`, 1);
   expectServiceTemplateLinks(sourceName, 1);
+  expectServiceTemplateLinks(`${sourceName}_1`, 1);
 });
 
 When('the user duplicates the configured host template', () => {
