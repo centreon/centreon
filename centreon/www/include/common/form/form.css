@@ -27,6 +27,13 @@
     flex-direction: column;
 }
 
+/* Opt out of that bottom anchoring: for a form whose main action is not a
+   Save/Reset bar closing a long panel (MIB import), a viewport-tall wrapper
+   just strands the button hundreds of pixels below the fields. */
+.cf-form-wrapper--fit {
+    min-height: 0;
+}
+
 /* ==========================================================================
    Page title
    ========================================================================== */

@@ -2,7 +2,7 @@
 {$form.javascript}
 
 <form {$form.attributes}>
-<div class="cf-form-wrapper">
+<div class="cf-form-wrapper cf-form-wrapper--fit">
 
     <h1 class="cf-page-title">{$form.header.title}</h1>
 
@@ -30,17 +30,6 @@
         </div>
     </div>
 
-    <!-- Action buttons -->
-    <div class="cf-actions">
-        {if isset($form.generate)}
-            {$form.generate.html}
-        {/if}
-        {$form.submit.html}
-        {if isset($form.reset)}
-            {$form.reset.html}
-        {/if}
-    </div>
-
     {if isset($msg)}
     <!-- Section: Status -->
     <div class="cf-section" id="cf-sec-status">
@@ -53,6 +42,17 @@
         </div>
     </div>
     {/if}
+
+    <!-- Action buttons -->
+    <div class="cf-actions">
+        {if isset($form.generate)}
+            {$form.generate.html}
+        {/if}
+        {$form.submit.html}
+        {if isset($form.reset)}
+            {$form.reset.html}
+        {/if}
+    </div>
 
 </div>
 
