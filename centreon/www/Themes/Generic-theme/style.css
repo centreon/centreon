@@ -682,7 +682,6 @@ p.description a, p.description a:visited {
 .btc {
     border-radius: 4px !important;
     padding: 4px 10px ;
-    border: none !important;
     outline: none !important;
     color: var(--btc-color) !important;
     cursor: pointer;
@@ -693,19 +692,20 @@ p.description a, p.description a:visited {
 }
 
 .bt_default {
-    background: var(--bt-default-background-color) !important;
+    color: var(--bt-default-color) !important;
+    border-color: var(--bt-default-color) !important;
 }
 
 .bt_default:hover {
-    background: var(--bt-default-hover-background-color) !important;
-    color: var(--bt-default-hover-font-color) !important;
+    background: rgb(46, 104, 170, 0.06) !important;
 }
 
 .bt_success {
     background: var(--bt-success-background-color) !important;
+    color: var(--bt-success-font-color) !important;
+    border-color: var(--bt-success-font-color) !important;
 }
 .bt_success:hover {
-    background: var(--bt-action-hover-background-color) !important;
     color: var(--bt-success-hover-font-color) !important;
 }
 
@@ -720,10 +720,10 @@ p.description a, p.description a:visited {
 
 .bt_info {
     background: var(--bt-info-background-color) !important;
+    border-color: var(--bt-info-font-color) !important;
 }
 
 .bt_info:hover {
-    background: var(--bt-info-hover-background-color) !important;
     color: var(--bt-info-hover-font-color) !important;
 }
 

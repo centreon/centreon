@@ -218,12 +218,15 @@
     /** START : Buttons **/
     --btc-color: var(--color-white);
     --a-btc-color: var(--color-white);
+    --bt-default-color: var(--color-primary-light);
     --bt-default-background-color: var(--color-primary-light);
     --bt-default-hover-background-color: var(--color-primary-hover);
     --bt-default-hover-font-color: var(--color-white);
     --btc-hover-color: var(--color-white);
     --bt-success-background-color: var(--color-primary-light);
+    --bt-success-font-color: var(--color-white);
     --bt-danger-background-color: var(--color-primary-light);
+     --bt-info-font-color: var(--color-white);
     --bt-info-background-color: var(--color-primary-light);
     --bt-info-hover-background-color: var(--color-primary-hover);
     --bt-info-hover-font-color: var(--color-white);
