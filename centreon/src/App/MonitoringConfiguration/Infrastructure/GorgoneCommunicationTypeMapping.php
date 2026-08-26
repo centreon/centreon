@@ -21,10 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
-use App\MonitoringConfiguration\Infrastructure\Dbal\Exception\InvalidGorgoneCommunicationTypeException;
 
 /**
  * Both directions of the nagios_server.gorgone_communication_type mapping. They used to

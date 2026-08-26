@@ -27,7 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationType
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerTransformer;
-use App\MonitoringConfiguration\Infrastructure\Dbal\Exception\InvalidGorgoneCommunicationTypeException;
+use App\MonitoringConfiguration\Infrastructure\InvalidGorgoneCommunicationTypeException;
 use PHPUnit\Framework\TestCase;
 
 /**

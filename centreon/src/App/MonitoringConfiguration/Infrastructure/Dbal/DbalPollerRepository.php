@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;

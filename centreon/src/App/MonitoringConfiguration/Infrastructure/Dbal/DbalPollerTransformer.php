@@ -37,7 +37,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
-use App\MonitoringConfiguration\Infrastructure\Dbal\Exception\InvalidGorgoneCommunicationTypeException;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
+use App\MonitoringConfiguration\Infrastructure\InvalidGorgoneCommunicationTypeException;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 

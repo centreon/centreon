@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace Tests\App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
-use App\MonitoringConfiguration\Infrastructure\Dbal\Exception\InvalidGorgoneCommunicationTypeException;
-use App\MonitoringConfiguration\Infrastructure\Dbal\GorgoneCommunicationTypeMapping;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
+use App\MonitoringConfiguration\Infrastructure\InvalidGorgoneCommunicationTypeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -350,8 +350,8 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     private function columnRedeclarationsByUpgradeScript(): array
     {
         $scripts = array_merge(
-            glob(dirname(__DIR__, 6) . '/www/install/php/Update-*.php') ?: [],
-            glob(dirname(__DIR__, 6) . '/www/install/sql/centreon/Update-DB-*.sql') ?: [],
+            glob(dirname(__DIR__, 5) . '/www/install/php/Update-*.php') ?: [],
+            glob(dirname(__DIR__, 5) . '/www/install/sql/centreon/Update-DB-*.sql') ?: [],
         );
         self::assertNotSame([], $scripts, 'no upgrade script found, the glob no longer resolves');
 
@@ -388,7 +388,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
      */
     private function columnDefinitionFromSchema(): string
     {
-        $schemaPath = dirname(__DIR__, 6) . '/www/install/createTables.sql';
+        $schemaPath = dirname(__DIR__, 5) . '/www/install/createTables.sql';
         self::assertFileExists($schemaPath, "createTables.sql not found at {$schemaPath}");
 
         self::assertSame(

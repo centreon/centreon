@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal\Exception;
+namespace App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 
