@@ -1391,6 +1391,8 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
+      id-token: write
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
@@ -1490,6 +1492,7 @@ jobs:
         shell: bash
 
       - name: Docker build and push
+        id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         env:
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
@@ -1501,6 +1504,11 @@ jobs:
           platforms: linux/amd64,linux/arm64
           pull: true
           push: true
+          # Disabled: BuildKit's own attestation manifests would make this
+          # digest diverge from the ghcr.io one docker-push-to-ghcr.sh
+          # reconstructs later.
+          provenance: false
+          sbom: false
           # version_tag is deliberately NOT pushed here: it's only applied by
           # promote-docker-version-tag below, once docker-boot-test/
           # docker-config-wiring-test have validated this exact image. Pushing
@@ -1508,6 +1516,18 @@ jobs:
           # pick up an unvalidated candidate on a later, separate stable run.
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
+
+      - name: Attest build provenance (deterministic candidate only)
+        # Only for builds with a version_tag (real promotion candidates).
+        # push-to-registry:false since ghcr.io doesn't have this image yet;
+        # discoverable later by digest once promoted.
+        if: steps.compute-tag.outputs.version_tag != ''
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ghcr.io/centreon/${{ matrix.component }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: false
+          create-storage-record: false
 
   docker-boot-test:
     needs: [get-environment, dockerize-trapd-image]
@@ -2047,7 +2067,7 @@ jobs:
           echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }}. This release is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io stable' step for the missing-candidate or push error, and investigate before relying on public delivery for this version."
         shell: bash
 
-      - name: Attest provenance + SBOM on ghcr.io (best-effort, non-blocking)
+      - name: Attest SBOM on ghcr.io (best-effort, non-blocking)
         if: steps.promote-ghcr.outcome == 'success' && steps.promote-ghcr.outputs.digest != ''
         continue-on-error: true
         id: attest-ghcr
@@ -2060,5 +2080,5 @@ jobs:
       - name: Warn if ghcr.io attestation failed
         if: steps.attest-ghcr.outcome == 'failure'
         run: |
-          echo "::warning::Provenance/SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested — see the 'Attest provenance + SBOM on ghcr.io' step and investigate before relying on gh attestation verify for this version."
+          echo "::warning::SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested — see the 'Attest SBOM on ghcr.io' step and investigate before relying on gh attestation verify for this version."
         shell: bash

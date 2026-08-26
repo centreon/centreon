@@ -1,9 +1,10 @@
-name: "attest ghcr.io image (provenance + SBOM)"
+name: "attest ghcr.io image (SBOM)"
 description: >
-  Generate provenance + SBOM attestations for an image already promoted to
-  ghcr.io, and push them as OCI referrers. Call after promote-docker-to-ghcr
-  using its digest/amd64_digest outputs — wrap with continue-on-error and a
-  distinct warning, since a failure here doesn't mean delivery failed.
+  Generate an SBOM attestation for an image already promoted to ghcr.io, and
+  push it as an OCI referrer. Call after promote-docker-to-ghcr using its
+  digest/amd64_digest outputs — wrap with continue-on-error and a distinct
+  warning, since a failure here doesn't mean delivery failed. Build
+  provenance is attested separately, at build time.
 inputs:
   ghcr_image:
     description: "Image ref on ghcr.io, no tag (e.g. ghcr.io/centreon/centreon-snmptrapd)"
@@ -26,17 +27,6 @@ runs:
         format: spdx-json
         output-file: sbom.spdx.json
         upload-artifact: false
-
-    - name: Attest build provenance
-      uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-      with:
-        subject-name: ${{ inputs.ghcr_image }}
-        subject-digest: ${{ inputs.digest }}
-        push-to-registry: true
-        # No artifact-metadata:write permission granted (least privilege) —
-        # the storage record is an optional catalog entry, not needed for
-        # gh attestation verify/download.
-        create-storage-record: false
 
     - name: Attest SBOM
       # attest-sbom is deprecated in favor of attest
