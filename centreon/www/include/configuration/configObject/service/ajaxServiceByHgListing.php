@@ -119,10 +119,18 @@ try {
     $whereClause = 'WHERE ' . implode(' AND ', $conditions);
     $distinct = $helper->isAdmin() ? '' : 'DISTINCT';
 
+    // Count the pairs the listing actually renders, not the services behind them.
+    // Each data row is one (service, host group) pair, and for a non-admin the
+    // centreon_acl join repeats a pair once per access group — which is why the
+    // data query is DISTINCT. Counting distinct sv.service_id instead collapsed
+    // a service shared across several host groups into one, so total came out below
+    // the number of rows and the last page went unreachable.
     $countQuery = <<<SQL
-        SELECT COUNT({$distinct} sv.service_id) AS total
-        {$joins}
-        {$whereClause}
+        SELECT COUNT(*) AS total FROM (
+            SELECT {$distinct} sv.service_id, hg.hg_id
+            {$joins}
+            {$whereClause}
+        ) AS counted
         SQL;
     $total = (int) $pearDB->fetchOne($countQuery, QueryParameters::create($parameters));
 
