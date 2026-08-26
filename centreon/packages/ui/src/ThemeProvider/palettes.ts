@@ -45,6 +45,7 @@ declare module '@mui/material/styles' {
       main: string;
     };
     statusBackground: StatusBackground;
+    tile: TypeTile;
   }
   interface StatusBackground {
     error: string;
@@ -64,6 +65,13 @@ declare module '@mui/material/styles' {
       main: string;
     };
     statusBackground: StatusBackground;
+    tile: TypeTile;
+  }
+
+  interface TypeTile {
+    background: string;
+    border: string;
+    borderHover: string;
   }
 
   interface TypeBackground {
@@ -298,6 +306,11 @@ export const lightPalette: PaletteOptions = {
     primary: '#000000',
     secondary: '#666666'
   },
+  tile: {
+    background: '#FFFFFF',
+    border: '#E3E3E3',
+    borderHover: '#CCCCCC'
+  },
   warning: {
     contrastText: '#000',
     dark: '#B16C1B',
@@ -443,6 +456,11 @@ export const darkPalette: PaletteOptions = {
     disabled: '#666666',
     primary: '#FFFFFF',
     secondary: '#CCCCCC'
+  },
+  tile: {
+    background: '#2E2E2E',
+    border: '#4A4A4A',
+    borderHover: '#6D6D6D'
   },
   warning: {
     contrastText: '#fff',

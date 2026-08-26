@@ -298,9 +298,6 @@ label {
 .main {
     padding: 0px 15px;
 }
-.pathway {
-    padding: 10px 0;
-}
 pre.wrap {
     white-space: -moz-pre-wrap;
     white-space: -pre-wrap;
@@ -1360,6 +1357,16 @@ div.oreonbutton{
     border-radius: 0;
 }
 
+#globalView {
+    /*
+     * The legacy breadcrumb (pathway) used to reserve vertical space at the top
+     * of every legacy page. It now lives in the React top banner, so reserve the
+     * equivalent space here to keep the absolutely-positioned edit-mode toggle
+     * (.toggleEdit, top: 12px) from overlapping the custom-view content below it.
+     */
+    padding-top: 40px;
+}
+
 .toggleEdit {
     position: absolute;
     right: 16px;
@@ -1446,17 +1453,6 @@ div.oreonbutton{
     padding:10px;
 }
 .help       {position:absolute;right:15px;top:15px;}
-
-.pathWay {
-    padding:0px;
-    margin:0px;
-    color:var(--path-way-font-color);
-    font-size: small;
-}
-
-.pathWay :hover {
-    text-decoration: underline;
-}
 
 .imgPathWay {border:0;margin:0 0 -2px;padding:0;}
 

@@ -50,3 +50,5 @@ export const labelPollerName = 'Poller name';
 export const labelPollerAddress = 'Poller adress';
 export const labelCentralAddress =
   'Centreon Central adress, as seen by this poller';
+export const labelPollersOverview =
+  'Current status of the pollers and monitoring engines';
