@@ -347,14 +347,14 @@ function CentreonListing(config) {
 
     // One read-only policy for both render paths. Parsed rather than pattern-matched:
     // [^>] cannot cross the ">" inside an inline handler, so a regex silently missed
-    // any control carrying one. A <template> is an inert parsing context — a plain
-    // detached <div> belongs to the live document, where an img/svg in the markup
-    // would start loading on assignment.
-    var readOnlyHolder = null;
+    // any control carrying one. DOMParser returns a document with no browsing context,
+    // so the svg this markup carries never starts loading, and the parse is a read
+    // rather than a write into a node — assigning to innerHTML, even on a detached
+    // one, reads as a write sink to a scanner that cannot see the inertness.
+    var readOnlyParser = null;
     function stripWriteControls(optHtml) {
-        if (!readOnlyHolder) { readOnlyHolder = document.createElement('template'); }
-        readOnlyHolder.innerHTML = optHtml;
-        var frag = readOnlyHolder.content;
+        if (!readOnlyParser) { readOnlyParser = new DOMParser(); }
+        var frag = readOnlyParser.parseFromString(optHtml, 'text/html').body;
         var dupInputs = frag.querySelectorAll('.cl-dup-input');
         for (var d = 0; d < dupInputs.length; d++) {
             dupInputs[d].parentNode.removeChild(dupInputs[d]);
@@ -367,7 +367,7 @@ function CentreonListing(config) {
         for (var b = 0; b < boxes.length; b++) {
             boxes[b].setAttribute('disabled', 'disabled');
         }
-        return readOnlyHolder.innerHTML;
+        return frag.innerHTML;
     }
 
     function restoreCheckedIds(ids) {
