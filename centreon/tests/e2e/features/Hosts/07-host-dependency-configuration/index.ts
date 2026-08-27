@@ -131,10 +131,7 @@ When('the user searches for a term matching no host dependency', () => {
 });
 
 Then('no host dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.name)
-    .should('not.exist');
+  cy.listingShouldBeEmpty();
 });
 
 When('the user searches for the configured host dependency', () => {
@@ -143,10 +140,7 @@ When('the user searches for the configured host dependency', () => {
 });
 
 Then('only the matching host dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.name)
-    .should('exist');
+  cy.listingShouldContainOnly(data.default.name);
 });
 
 Then('the pagination information shows the total count', () => {

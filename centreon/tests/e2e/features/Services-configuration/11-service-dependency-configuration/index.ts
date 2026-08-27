@@ -159,10 +159,7 @@ When('the user searches for a term matching no service dependency', () => {
 });
 
 Then('no service dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.dependency.name)
-    .should('not.exist');
+  cy.listingShouldBeEmpty();
 });
 
 When('the user searches for the configured service dependency', () => {
@@ -174,10 +171,7 @@ When('the user searches for the configured service dependency', () => {
 });
 
 Then('only the matching service dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.dependency.name)
-    .should('exist');
+  cy.listingShouldContainOnly(data.default.dependency.name);
 });
 
 When('the user opens the service group dependencies listing', () => {

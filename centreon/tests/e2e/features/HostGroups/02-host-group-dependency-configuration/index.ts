@@ -93,10 +93,7 @@ When('the user searches for a term matching no host group dependency', () => {
 });
 
 Then('no host group dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.name)
-    .should('not.exist');
+  cy.listingShouldBeEmpty();
 });
 
 When('the user searches for the configured host group dependency', () => {
@@ -105,10 +102,7 @@ When('the user searches for the configured host group dependency', () => {
 });
 
 Then('only the matching host group dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.name)
-    .should('exist');
+  cy.listingShouldContainOnly(data.default.name);
 });
 
 Then('the pagination information shows the total count', () => {

@@ -232,6 +232,29 @@ Cypress.Commands.add(
   }
 );
 
+// The empty state, the "Loading..." placeholder and the load-error row are all
+// rendered as one full-width cell, so a data row is a <tr> without a colspan
+// cell. Counting rows this way lets a search assert its whole result set
+// instead of only the presence of the row it expects.
+const listingDataRows = (): Cypress.Chainable =>
+  cy
+    .getIframeBody()
+    .find('#clTableBody tr')
+    .filter((_index, element) => element.querySelector('td[colspan]') === null);
+
+Cypress.Commands.add('listingShouldBeEmpty', (): Cypress.Chainable => {
+  return listingDataRows().should('have.length', 0);
+});
+
+Cypress.Commands.add(
+  'listingShouldContainOnly',
+  (name: string): Cypress.Chainable => {
+    listingDataRows().should('have.length', 1);
+
+    return listingDataRows().contains('a', exactRowText(name)).should('exist');
+  }
+);
+
 Cypress.Commands.add(
   'runListingBulkAction',
   (name: string, action: string): Cypress.Chainable => {
@@ -308,6 +331,8 @@ declare global {
         action: string
       ) => Cypress.Chainable;
       listingRowShouldNotExist: (name: string) => Cypress.Chainable;
+      listingShouldBeEmpty: () => Cypress.Chainable;
+      listingShouldContainOnly: (name: string) => Cypress.Chainable;
       pickSidePanelOption: (
         label: string,
         option: string

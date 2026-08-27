@@ -181,10 +181,7 @@ When('the user searches for a term matching no escalation', () => {
 });
 
 Then('no escalation is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.name)
-    .should('not.exist');
+  cy.listingShouldBeEmpty();
 });
 
 When('the user searches for the configured escalation', () => {
@@ -193,10 +190,7 @@ When('the user searches for the configured escalation', () => {
 });
 
 Then('only the matching escalation is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.default.name)
-    .should('exist');
+  cy.listingShouldContainOnly(data.default.name);
 });
 
 When('the user opens the escalation form and comes back to the listing', () => {

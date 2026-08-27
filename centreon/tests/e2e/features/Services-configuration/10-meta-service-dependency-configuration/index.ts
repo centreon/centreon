@@ -113,10 +113,7 @@ When('the user searches for a term matching no meta service dependency', () => {
 });
 
 Then('no meta service dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.defaultMetaServiceDep.name)
-    .should('not.exist');
+  cy.listingShouldBeEmpty();
 });
 
 When('the user searches for the configured meta service dependency', () => {
@@ -128,10 +125,7 @@ When('the user searches for the configured meta service dependency', () => {
 });
 
 Then('only the matching meta service dependency is displayed', () => {
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .contains(data.defaultMetaServiceDep.name)
-    .should('exist');
+  cy.listingShouldContainOnly(data.defaultMetaServiceDep.name);
 });
 
 Then('the pagination information shows the total count', () => {
