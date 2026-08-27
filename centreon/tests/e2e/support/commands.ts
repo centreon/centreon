@@ -148,6 +148,20 @@ Cypress.Commands.add('waitForModernListing', (): Cypress.Chainable => {
     .should('not.contain', 'Loading');
 });
 
+// listing.js clones the toolbar "+Add" button into the empty state (same
+// .cl-btn-add class, plus --empty), so on an empty listing - which is what a
+// fresh CI stack always starts from - a bare .cl-btn-add lookup matches two
+// elements and click() refuses to act. Address the toolbar one, the way
+// listing.js does.
+Cypress.Commands.add('openListingAddForm', (): Cypress.Chainable => {
+  cy.waitForModernListing();
+
+  return cy
+    .getIframeBody()
+    .find('.cl-actions-left a.cl-btn-add')
+    .click();
+});
+
 Cypress.Commands.add('getSidePanelBody', (): Cypress.Chainable => {
   return cy
     .getIframeBody()
@@ -216,12 +230,26 @@ Cypress.Commands.add(
     // Options are matched on their exact text: contains() matches a substring,
     // so asking for "workhours" picks "nonworkhours" (it comes first in the
     // timeperiod list), and "service_group" picks "service_group_2".
-    return cy
-      .getSidePanelBody()
+    cy.getSidePanelBody()
       .find('.select2-results__option', { timeout: 20_000 })
       .filter((_index, element) => element.textContent?.trim() === option)
       .first()
       .click({ force: true });
+
+    // centreon-select2.js sets closeOnSelect:false on every multi-select of a
+    // modernized form, so the result list deliberately stays open to allow
+    // picking several values in a row — and covers the fields underneath,
+    // which makes a following type() fail on "covered by another element".
+    // Close it, the way a user moving on to the next field would.
+    return sidePanelSelect2Field(label)
+      .find('.select2-container')
+      .then(($container) => {
+        if (!$container.hasClass('select2-container--open')) {
+          return;
+        }
+
+        cy.wrap($container).find('.select2-selection').click({ force: true });
+      });
   }
 );
 
@@ -336,6 +364,7 @@ declare global {
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       waitForModernListing: () => Cypress.Chainable;
+      openListingAddForm: () => Cypress.Chainable;
       getSidePanelBody: () => Cypress.Chainable<JQuery<HTMLElement>>;
       openSidePanelForm: (
         name: string,

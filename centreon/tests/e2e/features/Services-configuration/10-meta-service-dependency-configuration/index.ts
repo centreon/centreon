@@ -55,9 +55,7 @@ Given('some meta services are configured', () => {
 Given('a meta service dependency is configured', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
   cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
-  cy.waitForModernListing();
-  // The +Add button opens the form in the side panel, not in #main-content.
-  cy.getIframeBody().find('a.cl-btn-add').click();
+  cy.openListingAddForm();
   cy.addMetaserviceDependency({
     ...data.defaultMetaServiceDep,
     dependentMetaServicesNames: data.defaultMetaServiceDep.dependentMSNames,

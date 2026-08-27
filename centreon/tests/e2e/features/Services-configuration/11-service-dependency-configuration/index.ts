@@ -96,9 +96,7 @@ Given('some hosts and services and service groups are configured', () => {
 
 Given('a service dependency is configured', () => {
   cy.visit(PAGES.configuration.servicesDependenciesLegacy);
-  cy.waitForModernListing();
-  // The +Add button opens the form in the side panel, not in #main-content.
-  cy.getIframeBody().find('a.cl-btn-add').click();
+  cy.openListingAddForm();
   cy.addServiceDependency({
     dependency: {
       comment: data.default.dependency.comment,
@@ -333,9 +331,7 @@ Then('the deleted service dependency is not displayed in the list', () => {
 
 Given('a service group dependency is configured', () => {
   cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
-  cy.waitForModernListing();
-  // The +Add button opens the form in the side panel, not in #main-content.
-  cy.getIframeBody().find('a.cl-btn-add').click();
+  cy.openListingAddForm();
   cy.addServiceGroupDependency({
     ...data.defaultSGDependency,
     dependency: {

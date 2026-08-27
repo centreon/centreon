@@ -43,9 +43,7 @@ Given('some hosts groups are configured', () => {
 
 Given('a host group dependency is configured', () => {
   cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
-  cy.waitForModernListing();
-  // The +Add button opens the form in the side panel, not in #main-content.
-  cy.getIframeBody().find('a.cl-btn-add').click();
+  cy.openListingAddForm();
   cy.addHostGroupDependency({
     comment: data.default.comment,
     dependentHostGroupsNames: data.default.dependentHostGrpsNames,
@@ -113,6 +111,7 @@ Then('the pagination information shows the total count', () => {
 });
 
 When('the user changes the properties of a host group dependency', () => {
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.openSidePanelForm(data.default.name, 'input[name="dep_name"]');
   cy.updateHostGroupDependency({
     comment: data.HostGrpDependency1.comment,
@@ -138,6 +137,7 @@ When('the user changes the properties of a host group dependency', () => {
 });
 
 Then('the properties are updated', () => {
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.openSidePanelForm(data.HostGrpDependency1.name, 'input[name="dep_name"]');
   cy.getSidePanelBody()
     .find('input[name="dep_name"]')
@@ -169,12 +169,14 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a host group dependency', () => {
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.runListingBulkAction(data.default.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the new object has the same properties', () => {
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.openSidePanelForm(`${data.default.name}_1`, 'input[name="dep_name"]');
   cy.getSidePanelBody()
     .find('input[name="dep_name"]')
@@ -200,6 +202,7 @@ Then('the new object has the same properties', () => {
 });
 
 When('the user deletes a host group dependency', () => {
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.runListingBulkAction(data.default.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();

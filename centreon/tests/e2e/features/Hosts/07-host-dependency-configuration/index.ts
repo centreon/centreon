@@ -81,8 +81,7 @@ Given('some hosts and services are configured', () => {
 
 Given('a host dependency is configured', () => {
   cy.visit(PAGES.configuration.hostsDependenciesLegacy);
-  cy.waitForModernListing();
-  cy.getIframeBody().find('a.cl-btn-add').click();
+  cy.openListingAddForm();
   cy.addHostDependency({
     comment: data.default.comment,
     dependentHostNames: data.default.dependentHostNames,

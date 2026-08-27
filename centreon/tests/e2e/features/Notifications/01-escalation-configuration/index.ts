@@ -127,9 +127,7 @@ Given('some meta services are configured', () => {
 
 When('the user fills all the properties of an escalation', () => {
   cy.visit(PAGES.configuration.escalationsLegacy);
-  cy.waitForModernListing();
-  // The +Add button opens the form in the side panel, not in #main-content.
-  cy.getIframeBody().find('a.cl-btn-add').click();
+  cy.openListingAddForm();
   cy.addEscalation(escalationProperties(data.default));
 });
 
