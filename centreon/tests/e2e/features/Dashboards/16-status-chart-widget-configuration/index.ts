@@ -14,7 +14,7 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 const greenCssBackground = 'background: rgb(159, 199, 78)';
 const orangeCssBackground = 'background: rgb(252, 196, 129)';
 const redCssBackground = 'background: rgb(255, 110, 110)';
-const blueCssBackground = 'background: rgb(30, 190, 59)';
+const blueCssBackground = 'background: rgb(30, 190, 179)';
 
 const hostGroupName = 'Linux-Servers';
 
