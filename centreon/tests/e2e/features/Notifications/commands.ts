@@ -1,5 +1,6 @@
 // The escalation form is rendered in the side panel — a second iframe nested in
 // #main-content — so every field lookup goes through cy.getSidePanelBody().
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 // The tab labels are translated strings kept in sync with their section
 // headers, so the tabs are addressed by the section they scroll to: matching
@@ -115,6 +116,10 @@ Cypress.Commands.add('updateEscalation', (body: Escalation) => {
 Cypress.Commands.add(
   'checkValuesOfEscalation',
   (name: string, body: Escalation) => {
+    // Reload the listing first: this runs right after a save and an
+    // exportConfig, so the side panel iframe is being torn down and reopening
+    // it on the spot races with that.
+    cy.visit(PAGES.configuration.escalationsLegacy);
     cy.openSidePanelForm(name, 'input[name="esc_name"]');
     cy.getSidePanelBody()
       .find('input[name="esc_name"]')
@@ -205,5 +210,3 @@ declare global {
     }
   }
 }
-
-export {};
