@@ -4,6 +4,8 @@ ARG MAJOR_VERSION
 ARG PHP_VERSION=8.4
 ARG IS_CLOUD
 ARG STABILITY
+# packages host: the pulp dev stack serves the same legacy layout as production
+ARG PACKAGES_URL=https://packages-dev.int.centreon.com
 
 RUN bash -e <<EOF
 
@@ -21,9 +23,16 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
+  dnf config-manager --add-repo ${PACKAGES_URL}/rpm-standard-internal/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}-internal.repo
 else
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
+  dnf config-manager --add-repo ${PACKAGES_URL}/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
+fi
+
+if [[ "${PACKAGES_URL}" != "https://packages.centreon.com" ]]; then
+  # the served .repo files carry production baseurls: point them at the same
+  # packages host this image is built against, and skip the gpg checks until
+  # that stack publishes its signing keys
+  sed -i -e "s|https://packages.centreon.com|${PACKAGES_URL}|g" -e "s|gpgcheck=1|gpgcheck=0|g" /etc/yum.repos.d/centreon-*.repo
 fi
 
 dnf config-manager --set-enabled 'centreon*'
