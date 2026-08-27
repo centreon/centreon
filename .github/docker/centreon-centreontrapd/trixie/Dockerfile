@@ -7,23 +7,21 @@ ARG USE_SOURCE_TRAPD=false
 #############################################
 FROM debian:13-slim AS extractor
 
+# Install dpkg and extract .deb packages from bind mount in one layer
+# NOTE: Uses --mount=type=bind to avoid copying large .deb files into build context
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    bash -e <<EOF
+    --mount=type=bind,source=packages-centreon,target=/packages \
+    bash -e <<'EOF'
 apt-get update
-apt-get install -y --no-install-recommends \
-        dpkg
+apt-get install -y --no-install-recommends dpkg
 rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
+mkdir -p /extracted
+cd /packages
+for deb in centreon-trap*.deb centreon-perl-libs*.deb; do
+    dpkg-deb -x "$deb" /extracted/
+done
 EOF
-
-# Extract .deb packages from bind mount
-# NOTE: Uses --mount=type=bind to avoid copying large .deb files into build context
-RUN --mount=type=bind,source=packages-centreon,target=/packages \
-    mkdir -p /extracted && \
-    cd /packages && \
-    for deb in centreon-trap*.deb centreon-perl-libs*.deb; do \
-        dpkg-deb -x "$deb" /extracted/; \
-    done
 
 #############################################
 # Stage 1b/1c: Centreon Perl libs selector
