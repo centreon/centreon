@@ -26,7 +26,7 @@ CentreonForm.detectSidePanelClose();
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-                    <input type="text" id="clSearchInput" name="searchE" value="{$searchE}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
+                    <input type="text" id="clSearchInput" name="searchE" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
                 </div>
             </div>
             <div class="cl-toolbar-right">

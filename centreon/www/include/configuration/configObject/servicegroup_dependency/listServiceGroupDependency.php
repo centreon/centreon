@@ -38,8 +38,10 @@ $tpl->assign('headerMenu_desc', _('Description'));
 
 $tpl->assign('depSGDPage', $p);
 
-$search = $centreon->historySearch[$url]['search'] ?? '';
-$tpl->assign('searchSGD', $search);
+// No server-side search seed: the search term travels to ajax*Listing.php,
+// never to this controller, so $centreon->historySearch is never written and
+// reading it would always yield ''. CentreonListing restores the term itself
+// from sessionStorage (cl_state_<storageKey>), which is per tab.
 
 $defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
 $tpl->assign('defaultLimit', $defaultLimit);
