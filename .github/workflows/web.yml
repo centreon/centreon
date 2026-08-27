@@ -1276,10 +1276,10 @@ jobs:
 
   # The centreon-snmptrapd / centreon-centreontrapd product images (MON-207531):
   # folded into this workflow, rather than kept in a standalone docker-trapd.yml,
-  # so they inherit the same trigger paths and, more importantly, the same
-  # e2e-test gate below — they only build/push once the e2e suite has passed or
-  # was skipped (no e2e-relevant changes), never after a real e2e-test failure,
-  # instead of racing ahead of it as the old standalone workflow did.
+  # so they inherit the same trigger paths. Not gated on e2e-test: that suite
+  # only exercises centreon-web, not these images — see dockerize-trapd-image
+  # below for the actual validation gate (docker-boot-test/
+  # docker-config-wiring-test).
   package-centreon-trap:
     needs: [get-environment]
     if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
@@ -1374,14 +1374,14 @@ jobs:
 
   dockerize-trapd-image:
     # Named "dockerize-trapd-image" (not "dockerize") to avoid colliding with the
-    # internal centreon-web-testing-* dependency image job above. Depends on
-    # e2e-test (in addition to the two package jobs) so this only runs once
-    # e2e-test has passed or was skipped (no e2e-relevant changes) — never after
-    # a real failure — instead of racing ahead of it. This job alone doesn't
-    # guarantee the resulting image is validated: docker-boot-test/
-    # docker-config-wiring-test below are what actually gate version_tag and
-    # promote-docker-tag/promote-docker-to-ghcr.
-    needs: [get-environment, package-centreon-trap, package-perl-libs, e2e-test]
+    # internal centreon-web-testing-* dependency image job above. Not gated on
+    # e2e-test: that suite only exercises centreon-web (image_name: centreon-web),
+    # never centreon-snmptrapd/centreon-centreontrapd, so waiting on it here would
+    # just serialize this job behind an unrelated test run for no validation
+    # value. This job alone doesn't guarantee the resulting image is validated:
+    # docker-boot-test/docker-config-wiring-test below are what actually gate
+    # version_tag and promote-docker-tag/promote-docker-to-ghcr.
+    needs: [get-environment, package-centreon-trap, package-perl-libs]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
@@ -1481,9 +1481,10 @@ jobs:
           # deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
           # pulls this exact tag on the eventual stable event — computed the same
           # way from the same version file, so no release_type reconstruction is
-          # needed to find the candidate to promote. This job only runs after
-          # e2e-test succeeds, so this candidate is e2e-tested before it can ever
-          # be promoted to ghcr.io stable.
+          # needed to find the candidate to promote. version_tag is only ever
+          # applied by promote-docker-tag below, once docker-boot-test/
+          # docker-config-wiring-test have validated this exact image — that's
+          # the real gate before this candidate can be promoted to ghcr.io stable.
           if [[ "$RAW_REF" =~ ^(release|hotfix)-[0-9]+\.[0-9]+-next$ ]]; then
             echo "version_tag=${MAJOR_VERSION}.${MINOR_VERSION}" >> "$GITHUB_OUTPUT"
           else
@@ -2212,8 +2213,9 @@ jobs:
 
       - name: Promote to ghcr.io stable (best-effort, non-blocking)
         # Fails hard if no Harbor candidate is found under the deterministic
-        # version_tag from dockerize-trapd-image (only produced after e2e-test
-        # passed) or if the ghcr.io push itself fails — continue-on-error
+        # version_tag from dockerize-trapd-image (only ever applied by
+        # promote-docker-tag, once docker-boot-test/docker-config-wiring-test
+        # have passed) or if the ghcr.io push itself fails — continue-on-error
         # swallows that into a warning below, mirroring how
         # promote-to-stable-pulp is called. Deliberately no fallback to the
         # legacy release_type-based tag: that tag is written at build time,
