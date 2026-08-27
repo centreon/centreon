@@ -1611,8 +1611,18 @@ jobs:
           IMAGE: ${{ env.TRAPD_IMAGE }}
           PLATFORM: ${{ matrix.platform }}
           COMPONENT: ${{ matrix.component }}
+          SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
         run: ./.github/scripts/centreon-trapd-docker-boot-test.sh
         shell: bash
+
+      - name: Upload summary fragment
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-summary-fragment-${{ matrix.component }}-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          path: /tmp/summary-fragment.md
+          retention-days: 1
+          if-no-files-found: ignore
 
       - name: Upload debug artifacts on failure
         if: failure()
@@ -1664,12 +1674,65 @@ jobs:
         shell: bash
 
       - name: Run config/wiring test scenarios
+        env:
+          SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
         run: ./.github/scripts/centreon-trapd-docker-config-wiring-test.sh
         shell: bash
+
+      - name: Upload summary fragment
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-summary-fragment-wiring-${{ matrix.operating_system }}
+          path: /tmp/summary-fragment.md
+          retention-days: 1
+          if-no-files-found: ignore
 
       - name: Dump compose logs on failure
         if: failure()
         run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
+
+  docker-test-summary:
+    # Combines the docker-boot-test matrix (4 legs) and docker-config-wiring-test
+    # into ONE Step Summary block. GitHub renders one Step Summary block per job
+    # unconditionally, so merging what several jobs write is only possible from
+    # a downstream job that collects their output - not by changing what each
+    # job writes into its own summary. Keeps docker-boot-test/
+    # docker-config-wiring-test as separate parallel jobs (same speed, same
+    # per-leg pass/fail granularity as distinct PR checks); this job only
+    # affects the Summary tab.
+    needs: [get-environment, docker-boot-test, docker-config-wiring-test]
+    if: |
+      always() &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (needs.docker-boot-test.result != 'skipped' || needs.docker-config-wiring-test.result != 'skipped')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Download all summary fragments
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: test-summary-fragment-*
+          path: fragments
+        continue-on-error: true
+
+      - name: Combine fragments into one Step Summary
+        run: |
+          {
+            echo "## Docker trapd test results"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          shopt -s nullglob
+          found=false
+          for frag in fragments/*/summary-fragment.md; do
+            found=true
+            cat "$frag" >> "$GITHUB_STEP_SUMMARY"
+          done
+          if [ "$found" != "true" ]; then
+            echo "_No test summary fragments were found - the boot-test/wiring-test legs may have failed before producing a report; check their individual job logs._" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        shell: bash
 
   docker-trivy-cves:
     # PoC (centreon#11136): informational CVE scan + SBOM generation via
