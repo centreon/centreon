@@ -378,7 +378,7 @@ describe('Business activities', () => {
     cy.get('[data-status="pending"]')
       .parent()
       .parent()
-      .should('have.css', 'background-color', 'rgb(30, 190, 59)');
+      .should('have.css', 'background-color', 'rgb(30, 190, 179)');
 
     cy.contains('ba3').should('be.visible');
     cy.get('[data-status="unknown"]').should('be.visible');
