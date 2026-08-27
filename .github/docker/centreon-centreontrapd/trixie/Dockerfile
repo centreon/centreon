@@ -134,14 +134,19 @@ ENV PERL5LIB=/usr/share/perl5:/usr/lib/perl5 \
 ARG BUILD_DATE
 ARG BUILD_VERSION=unknown
 ARG PACKAGE_SOURCES=unknown
+ARG GIT_REVISION=unknown
 
 LABEL org.opencontainers.image.title="Centreon TRAPD" \
       org.opencontainers.image.description="Centreon trap handler and SNMP v1/v2c/v3 receiver" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.version="${BUILD_VERSION}" \
+      org.opencontainers.image.revision="${GIT_REVISION}" \
+      org.opencontainers.image.source="https://github.com/centreon/centreon" \
+      org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.vendor="Centreon" \
       org.centreon.package-sources="${PACKAGE_SOURCES}" \
-      org.centreon.base-image="debian:13-slim"
+      org.centreon.base-image="debian:13-slim" \
+      org.centreon.release-stage="beta"
 
 WORKDIR /etc/centreon
 
