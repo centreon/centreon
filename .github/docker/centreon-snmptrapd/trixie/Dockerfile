@@ -7,6 +7,15 @@ ARG USE_SOURCE_TRAPD=false
 #############################################
 FROM debian:13-slim AS extractor
 
+# Configure APT for optimal container usage
+COPY <<EOF /etc/apt/apt.conf.d/99custom
+Acquire::Retries "10";
+Acquire::https::Timeout "300";
+Acquire::http::Timeout "300";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+EOF
+
 # Install dpkg and extract .deb packages from bind mount in one layer
 # NOTE: Uses --mount=type=bind to avoid copying large .deb files into build context
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -42,6 +51,15 @@ FROM centreon-perl-${USE_SOURCE_TRAPD} AS centreon-perl-selected
 # Stage 2: Runtime - Debian 13 slim image
 #############################################
 FROM debian:13-slim AS snmptrapd
+
+# Configure APT for optimal container usage
+COPY <<EOF /etc/apt/apt.conf.d/99custom
+Acquire::Retries "10";
+Acquire::https::Timeout "300";
+Acquire::http::Timeout "300";
+APT::Install-Recommends "false";
+APT::Install-Suggests "false";
+EOF
 
 # Create system user and group (UUID matches other Centreon containers for volume consistency)
 # centreon: Primary service account for spool/config management
