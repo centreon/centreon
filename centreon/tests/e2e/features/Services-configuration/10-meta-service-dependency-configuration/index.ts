@@ -136,6 +136,7 @@ Then('the pagination information shows the total count', () => {
 When(
   'the user changes the properties of the configured meta service dependency',
   () => {
+    cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
     cy.openSidePanelForm(
       data.defaultMetaServiceDep.name,
       'input[name="dep_name"]'
@@ -167,6 +168,7 @@ When(
 );
 
 Then('the properties are updated', () => {
+  cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
   cy.openSidePanelForm(data.MetaServiceDep1.name, 'input[name="dep_name"]');
   cy.getSidePanelBody()
     .find('input[name="dep_name"]')
@@ -189,6 +191,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured meta service dependency', () => {
+  cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
   cy.runListingBulkAction(data.defaultMetaServiceDep.name, 'Duplicate');
   cy.wait('@getTimeZone');
 });
@@ -196,6 +199,7 @@ When('the user duplicates the configured meta service dependency', () => {
 Then(
   'a new meta service dependency is created with identical properties',
   () => {
+    cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
     cy.openSidePanelForm(
       `${data.defaultMetaServiceDep.name}_1`,
       'input[name="dep_name"]'
@@ -224,6 +228,7 @@ Then(
 );
 
 When('the user deletes the configured meta service dependency', () => {
+  cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
   cy.runListingBulkAction(data.defaultMetaServiceDep.name, 'Delete');
   cy.wait('@getTimeZone');
 });

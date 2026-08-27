@@ -150,6 +150,7 @@ Then('the pagination information shows the total count', () => {
 });
 
 When('the user changes the properties of a host dependency', () => {
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
   cy.openSidePanelForm(data.default.name, 'input[name="dep_name"]');
   cy.updateHostDependency({
     comment: data.HostDependency1.comment,
@@ -176,6 +177,7 @@ When('the user changes the properties of a host dependency', () => {
 });
 
 Then('the properties are updated', () => {
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
   cy.openSidePanelForm(data.HostDependency1.name, 'input[name="dep_name"]');
   cy.getSidePanelBody()
     .find('input[name="dep_name"]')
@@ -212,12 +214,14 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a host dependency', () => {
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
   cy.runListingBulkAction(data.default.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the new host dependency has the same properties', () => {
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
   cy.openSidePanelForm(`${data.default.name}_1`, 'input[name="dep_name"]');
   cy.getSidePanelBody()
     .find('input[name="dep_name"]')
@@ -246,6 +250,7 @@ Then('the new host dependency has the same properties', () => {
 });
 
 When('the user deletes a host dependency', () => {
+  cy.visit(PAGES.configuration.hostsDependenciesLegacy);
   cy.runListingBulkAction(data.default.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();

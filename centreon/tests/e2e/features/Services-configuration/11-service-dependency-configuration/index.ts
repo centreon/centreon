@@ -196,6 +196,7 @@ Then('the pagination information shows the total count', () => {
 });
 
 When('the user changes the properties of a service dependency', () => {
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.openSidePanelForm(data.default.dependency.name, 'input[name="dep_name"]');
   cy.updateServiceDependency({
     ...data.ServDependency1,
@@ -232,6 +233,7 @@ When('the user changes the properties of a service dependency', () => {
 });
 
 Then('the properties are updated', () => {
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.openSidePanelForm(
     data.ServDependency1.dependency.name,
     'input[name="dep_name"]'
@@ -272,12 +274,14 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a service dependency', () => {
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.runListingBulkAction(data.default.dependency.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the new service dependency has the same properties', () => {
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.openSidePanelForm(
     `${data.default.dependency.name}_1`,
     'input[name="dep_name"]'
@@ -318,6 +322,7 @@ Then('the new service dependency has the same properties', () => {
 });
 
 When('the user deletes a service dependency', () => {
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.runListingBulkAction(data.default.dependency.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -371,6 +376,7 @@ Given('a service group dependency is configured', () => {
 });
 
 When('the user changes the properties of a service group dependency', () => {
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.openSidePanelForm(
     data.defaultSGDependency.dependency.name,
     'input[name="dep_name"]'
@@ -412,6 +418,7 @@ When('the user changes the properties of a service group dependency', () => {
 });
 
 Then('the properties of the service group dependency are updated', () => {
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.openSidePanelForm(
     data.SGDependency1.dependency.name,
     'input[name="dep_name"]'
@@ -442,6 +449,7 @@ Then('the properties of the service group dependency are updated', () => {
 });
 
 When('the user duplicates a service group dependency', () => {
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.runListingBulkAction(
     data.defaultSGDependency.dependency.name,
     'Duplicate'
@@ -450,6 +458,7 @@ When('the user duplicates a service group dependency', () => {
 });
 
 Then('the new service group dependency has the same properties', () => {
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.openSidePanelForm(
     `${data.defaultSGDependency.dependency.name}_1`,
     'input[name="dep_name"]'
@@ -482,6 +491,7 @@ Then('the new service group dependency has the same properties', () => {
 });
 
 When('the user deletes a service group dependency', () => {
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.runListingBulkAction(data.defaultSGDependency.dependency.name, 'Delete');
   cy.wait('@getTimeZone');
 });

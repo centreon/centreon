@@ -256,22 +256,48 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'clearSidePanelSelection',
   (label: string): Cypress.Chainable => {
-    return sidePanelSelect2Field(label)
-      .find('.select2-selection__choice__remove')
-      .click({ force: true, multiple: true });
+    // Removing a chip makes select2 re-render the whole list, so a single
+    // click({multiple:true}) detaches the remaining targets mid-flight ("they
+    // disappeared from the page"). Count the chips, then remove them one at a
+    // time, re-querying the first one after each removal. Reading the count
+    // from the field also keeps a field with no selection a no-op, where
+    // find() on its own would fail the implicit existence assertion.
+    return sidePanelSelect2Field(label).then(($field) => {
+      const chipCount = $field.find('.select2-selection__choice__remove').length;
+
+      for (let index = 0; index < chipCount; index += 1) {
+        sidePanelSelect2Field(label)
+          .find('.select2-selection__choice__remove')
+          .first()
+          .click({ force: true });
+      }
+    });
   }
 );
 
 Cypress.Commands.add(
   'listingRowShouldNotExist',
   (name: string): Cypress.Chainable => {
-    cy.waitForModernListing();
+    // This runs right after a delete, so the listing page may still be
+    // reloading: a body captured once detaches mid-assertion ("cannot requery
+    // the page after cy.find()"). Re-read the iframe document on every retry
+    // instead, and require the table to be loaded — an absent or still-loading
+    // table has no rows either, and would pass for the wrong reason.
+    return cy.get('iframe#main-content').should(($iframe) => {
+      const iframeDocument = ($iframe[0] as HTMLIFrameElement).contentDocument;
+      const tableBody = iframeDocument?.querySelector('#clTableBody');
 
-    return cy
-      .getIframeBody()
-      .find('#clTableBody a')
-      .filter((_index, element) => element.textContent?.trim() === name)
-      .should('have.length', 0);
+      expect(tableBody, 'listing table body').to.not.be.null;
+      expect(tableBody?.textContent, 'listing still loading').to.not.contain(
+        'Loading'
+      );
+
+      const matchingRows = Array.from(
+        tableBody?.querySelectorAll('a') ?? []
+      ).filter((row) => row.textContent?.trim() === name);
+
+      expect(matchingRows, `row "${name}"`).to.have.length(0);
+    });
   }
 );
 
