@@ -51,4 +51,3 @@ We want to thank all [reporters and pentesters](https://github.com/centreon/.git
 <h2> License </h2>
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE.md) file for details.
-
