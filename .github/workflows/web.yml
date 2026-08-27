@@ -1382,13 +1382,9 @@ jobs:
     # docker-boot-test/docker-config-wiring-test below are what actually gate
     # version_tag and promote-docker-tag/promote-docker-to-ghcr.
     needs: [get-environment, package-centreon-trap, package-perl-libs]
-    # TEMP-CVE-VALIDATION: the stability check
-    # (contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability))
-    # is temporarily removed below so this job (and docker-trivy-cves
-    # downstream) runs on this canary PoC branch for validation. MUST be
-    # restored before merge.
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
