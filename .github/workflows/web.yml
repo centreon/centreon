@@ -1386,9 +1386,12 @@ jobs:
     # docker-boot-test/docker-config-wiring-test below are what actually gate
     # version_tag and promote-docker-tag/promote-docker-to-ghcr.
     needs: [get-environment, package-centreon-trap, package-perl-libs]
+    # stability != 'stable' matches the dockerize job's own gate above, so this
+    # runs on canary/feature branches the same way centreon-web images do,
+    # instead of the narrower testing/unstable-only allowlist this job used to have.
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
-      contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
+      needs.get-environment.outputs.stability != 'stable' &&
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled')
