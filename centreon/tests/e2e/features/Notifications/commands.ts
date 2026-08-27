@@ -1,6 +1,13 @@
 // The escalation form is rendered in the side panel — a second iframe nested in
 // #main-content — so every field lookup goes through cy.getSidePanelBody().
 
+// The tab labels are translated strings kept in sync with their section
+// headers, so the tabs are addressed by the section they scroll to: matching
+// them on their text broke this suite when "Impacted Resources" was renamed
+// "Resources".
+const openResourcesTab = (): Cypress.Chainable =>
+  cy.getSidePanelBody().find('a[href="#cf-sec-resources"]').click();
+
 Cypress.Commands.add('addEscalation', (body: Escalation) => {
   cy.getSidePanelBody()
     .find('input[name="esc_name"]', { timeout: 20_000 })
@@ -26,7 +33,7 @@ Cypress.Commands.add('addEscalation', (body: Escalation) => {
   cy.pickSidePanelOption('Linked Contact Groups', body.contactGroups);
   cy.getSidePanelBody().find('textarea[name="esc_comment"]').type(body.comment);
 
-  cy.getSidePanelBody().contains('a', 'Impacted Resources').click();
+  openResourcesTab();
   cy.getSidePanelBody()
     .find('input[name="host_inheritance_to_services"]')
     .click({ force: true });
@@ -79,7 +86,7 @@ Cypress.Commands.add('updateEscalation', (body: Escalation) => {
     .clear()
     .type(body.comment);
 
-  cy.getSidePanelBody().contains('a', 'Impacted Resources').click();
+  openResourcesTab();
   cy.getSidePanelBody()
     .find('input[name="host_inheritance_to_services"]')
     .click({ force: true });
@@ -142,7 +149,7 @@ Cypress.Commands.add(
       .find('textarea[name="esc_comment"]')
       .should('have.value', body.comment);
 
-    cy.getSidePanelBody().contains('a', 'Impacted Resources').click();
+    openResourcesTab();
     cy.getSidePanelBody()
       .find('input[name="host_inheritance_to_services"]')
       .should('not.be.checked');
