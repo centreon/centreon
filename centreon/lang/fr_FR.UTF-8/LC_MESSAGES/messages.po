@@ -25223,23 +25223,23 @@ msgstr "Copier la commande d'installation"
 
 #: unknown
 msgid "Add a host dependency"
-msgstr "Ajouter une dépendance d'hôtes"
+msgstr "Ajouter une dépendance d'hôte"
 
 #: unknown
 msgid "Add a host group dependency"
-msgstr "Ajouter une dépendance de groupes d'hôtes"
+msgstr "Ajouter une dépendance de groupe d'hôtes"
 
 #: unknown
 msgid "Add a meta service dependency"
-msgstr "Ajouter une dépendance de méta-services"
+msgstr "Ajouter une dépendance de méta-service"
 
 #: unknown
 msgid "Add a service dependency"
-msgstr "Ajouter une dépendance de services"
+msgstr "Ajouter une dépendance de service"
 
 #: unknown
 msgid "Add a service group dependency"
-msgstr "Ajouter une dépendance de groupes de services"
+msgstr "Ajouter une dépendance de groupe de services"
 
 #: unknown
 msgid "Add an escalation"
@@ -25255,43 +25255,43 @@ msgstr "Supprimer les escalades"
 
 #: unknown
 msgid "Delete host dependencies"
-msgstr "Supprimer les dépendances d'hôtes"
+msgstr "Supprimer les dépendances d'hôte"
 
 #: unknown
 msgid "Delete host dependency"
-msgstr "Supprimer la dépendance d'hôtes"
+msgstr "Supprimer la dépendance d'hôte"
 
 #: unknown
 msgid "Delete host group dependencies"
-msgstr "Supprimer les dépendances de groupes d'hôtes"
+msgstr "Supprimer les dépendances de groupe d'hôtes"
 
 #: unknown
 msgid "Delete host group dependency"
-msgstr "Supprimer la dépendance de groupes d'hôtes"
+msgstr "Supprimer la dépendance de groupe d'hôtes"
 
 #: unknown
 msgid "Delete meta service dependencies"
-msgstr "Supprimer les dépendances de méta-services"
+msgstr "Supprimer les dépendances de méta-service"
 
 #: unknown
 msgid "Delete meta service dependency"
-msgstr "Supprimer la dépendance de méta-services"
+msgstr "Supprimer la dépendance de méta-service"
 
 #: unknown
 msgid "Delete service dependencies"
-msgstr "Supprimer les dépendances de services"
+msgstr "Supprimer les dépendances de service"
 
 #: unknown
 msgid "Delete service dependency"
-msgstr "Supprimer la dépendance de services"
+msgstr "Supprimer la dépendance de service"
 
 #: unknown
 msgid "Delete service group dependencies"
-msgstr "Supprimer les dépendances de groupes de services"
+msgstr "Supprimer les dépendances de groupe de services"
 
 #: unknown
 msgid "Delete service group dependency"
-msgstr "Supprimer la dépendance de groupes de services"
+msgstr "Supprimer la dépendance de groupe de services"
 
 #: unknown
 msgid "Duplicate escalation"
@@ -25303,43 +25303,43 @@ msgstr "Dupliquer les escalades"
 
 #: unknown
 msgid "Duplicate host dependencies"
-msgstr "Dupliquer les dépendances d'hôtes"
+msgstr "Dupliquer les dépendances d'hôte"
 
 #: unknown
 msgid "Duplicate host dependency"
-msgstr "Dupliquer la dépendance d'hôtes"
+msgstr "Dupliquer la dépendance d'hôte"
 
 #: unknown
 msgid "Duplicate host group dependencies"
-msgstr "Dupliquer les dépendances de groupes d'hôtes"
+msgstr "Dupliquer les dépendances de groupe d'hôtes"
 
 #: unknown
 msgid "Duplicate host group dependency"
-msgstr "Dupliquer la dépendance de groupes d'hôtes"
+msgstr "Dupliquer la dépendance de groupe d'hôtes"
 
 #: unknown
 msgid "Duplicate meta service dependencies"
-msgstr "Dupliquer les dépendances de méta-services"
+msgstr "Dupliquer les dépendances de méta-service"
 
 #: unknown
 msgid "Duplicate meta service dependency"
-msgstr "Dupliquer la dépendance de méta-services"
+msgstr "Dupliquer la dépendance de méta-service"
 
 #: unknown
 msgid "Duplicate service dependencies"
-msgstr "Dupliquer les dépendances de services"
+msgstr "Dupliquer les dépendances de service"
 
 #: unknown
 msgid "Duplicate service dependency"
-msgstr "Dupliquer la dépendance de services"
+msgstr "Dupliquer la dépendance de service"
 
 #: unknown
 msgid "Duplicate service group dependencies"
-msgstr "Dupliquer les dépendances de groupes de services"
+msgstr "Dupliquer les dépendances de groupe de services"
 
 #: unknown
 msgid "Duplicate service group dependency"
-msgstr "Dupliquer la dépendance de groupes de services"
+msgstr "Dupliquer la dépendance de groupe de services"
 
 #: unknown
 msgid "Escalate notifications to additional contacts when problems persist."
@@ -25351,35 +25351,35 @@ msgstr "Options d'escalade"
 
 #: unknown
 msgid "Host dependencies"
-msgstr "Dépendances d'hôtes"
+msgstr "Dépendances d'hôte"
 
 #: unknown
 msgid "Host group dependencies"
-msgstr "Dépendances de groupes d'hôtes"
+msgstr "Dépendances de groupe d'hôtes"
 
 #: unknown
 msgid "Meta service dependencies"
-msgstr "Dépendances de méta-services"
+msgstr "Dépendances de méta-service"
 
 #: unknown
 msgid "Modify a host dependency"
-msgstr "Modifier une dépendance d'hôtes"
+msgstr "Modifier une dépendance d'hôte"
 
 #: unknown
 msgid "Modify a host group dependency"
-msgstr "Modifier une dépendance de groupes d'hôtes"
+msgstr "Modifier une dépendance de groupe d'hôtes"
 
 #: unknown
 msgid "Modify a meta service dependency"
-msgstr "Modifier une dépendance de méta-services"
+msgstr "Modifier une dépendance de méta-service"
 
 #: unknown
 msgid "Modify a service dependency"
-msgstr "Modifier une dépendance de services"
+msgstr "Modifier une dépendance de service"
 
 #: unknown
 msgid "Modify a service group dependency"
-msgstr "Modifier une dépendance de groupes de services"
+msgstr "Modifier une dépendance de groupe de services"
 
 #: unknown
 msgid "Modify an escalation"
@@ -25387,11 +25387,11 @@ msgstr "Modifier une escalade"
 
 #: unknown
 msgid "Service dependencies"
-msgstr "Dépendances de services"
+msgstr "Dépendances de service"
 
 #: unknown
 msgid "Service group dependencies"
-msgstr "Dépendances de groupes de services"
+msgstr "Dépendances de groupe de services"
 
 #: unknown
 msgid "Suppress host notifications based on the state of other hosts."
@@ -25419,23 +25419,23 @@ msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} escalades</stro
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} host dependencies.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances d'hôte</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} host group dependencies.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de groupes d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de groupe d'hôtes</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} meta service dependencies.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de méta-services</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de méta-service</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} service dependencies.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de services</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de service</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
 #: unknown
 msgid "You are about to delete <strong>{{ count }} service group dependencies.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de groupes de services</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
+msgstr "Vous êtes sur le point de supprimer <strong>{{ count }} dépendances de groupe de services</strong>. Cette action est irréversible. Voulez-vous les supprimer ?"
 
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> escalation. This action cannot be undone. Do you want to delete it?"
@@ -25443,23 +25443,23 @@ msgstr "Vous êtes sur le point de supprimer l'escalade <strong>{{ name }}</stro
 
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> host dependency. This action cannot be undone. Do you want to delete it?"
-msgstr "Vous êtes sur le point de supprimer la dépendance d'hôtes <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+msgstr "Vous êtes sur le point de supprimer la dépendance d'hôte <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> host group dependency. This action cannot be undone. Do you want to delete it?"
-msgstr "Vous êtes sur le point de supprimer la dépendance de groupes d'hôtes <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+msgstr "Vous êtes sur le point de supprimer la dépendance de groupe d'hôtes <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> meta service dependency. This action cannot be undone. Do you want to delete it?"
-msgstr "Vous êtes sur le point de supprimer la dépendance de méta-services <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+msgstr "Vous êtes sur le point de supprimer la dépendance de méta-service <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> service dependency. This action cannot be undone. Do you want to delete it?"
-msgstr "Vous êtes sur le point de supprimer la dépendance de services <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+msgstr "Vous êtes sur le point de supprimer la dépendance de service <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid "You are about to delete the <strong>{{ name }}</strong> service group dependency. This action cannot be undone. Do you want to delete it?"
-msgstr "Vous êtes sur le point de supprimer la dépendance de groupes de services <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+msgstr "Vous êtes sur le point de supprimer la dépendance de groupe de services <strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} escalations.</strong> Do you want to duplicate them?"
@@ -25467,23 +25467,23 @@ msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} escalades</stro
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} host dependencies.</strong> Do you want to duplicate them?"
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances d'hôtes</strong>. Voulez-vous les dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances d'hôte</strong>. Voulez-vous les dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} host group dependencies.</strong> Do you want to duplicate them?"
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de groupes d'hôtes</strong>. Voulez-vous les dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de groupe d'hôtes</strong>. Voulez-vous les dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} meta service dependencies.</strong> Do you want to duplicate them?"
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de méta-services</strong>. Voulez-vous les dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de méta-service</strong>. Voulez-vous les dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} service dependencies.</strong> Do you want to duplicate them?"
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de services</strong>. Voulez-vous les dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de service</strong>. Voulez-vous les dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate <strong>{{ count }} service group dependencies.</strong> Do you want to duplicate them?"
-msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de groupes de services</strong>. Voulez-vous les dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} dépendances de groupe de services</strong>. Voulez-vous les dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> escalation. Do you want to duplicate it?"
@@ -25491,20 +25491,20 @@ msgstr "Vous êtes sur le point de dupliquer l'escalade <strong>{{ name }}</stro
 
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host dependency. Do you want to duplicate it?"
-msgstr "Vous êtes sur le point de dupliquer la dépendance d'hôtes <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer la dépendance d'hôte <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host group dependency. Do you want to duplicate it?"
-msgstr "Vous êtes sur le point de dupliquer la dépendance de groupes d'hôtes <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer la dépendance de groupe d'hôtes <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> meta service dependency. Do you want to duplicate it?"
-msgstr "Vous êtes sur le point de dupliquer la dépendance de méta-services <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer la dépendance de méta-service <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> service dependency. Do you want to duplicate it?"
-msgstr "Vous êtes sur le point de dupliquer la dépendance de services <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer la dépendance de service <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
 
 #: unknown
 msgid "You are about to duplicate the <strong>{{ name }}</strong> service group dependency. Do you want to duplicate it?"
-msgstr "Vous êtes sur le point de dupliquer la dépendance de groupes de services <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
+msgstr "Vous êtes sur le point de dupliquer la dépendance de groupe de services <strong>{{ name }}</strong>. Voulez-vous la dupliquer ?"
