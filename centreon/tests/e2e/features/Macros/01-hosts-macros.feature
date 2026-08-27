@@ -84,3 +84,9 @@ Feature: Host and Host Template Macros Configuration
     When the export configuration is done with success
     Then the new value of the inherited normal macro is exported to the file "/var/cache/centreon/config/engine/1/hosts.cfg"
     And  the old values of macros are exported to the host template file "/var/cache/centreon/config/engine/1/hostTemplates.cfg"
+    When the non-admin user returns to the configured host
+    And the non-admin user resets the inherited normal macro
+    And the non-admin user tries to close the host form
+    Then a confirmation to discard unsaved changes is displayed
+    When the non-admin user stays on the host form
+    Then the host form remains open

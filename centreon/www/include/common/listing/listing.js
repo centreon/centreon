@@ -317,7 +317,7 @@ function CentreonListing(config) {
 
     function getCheckedIds() {
         var ids = [];
-        jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').each(function () {
+        jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked:not(:disabled)').each(function () {
             var name = jQuery(this).attr('name');
             if (name) ids.push(name);
         });
@@ -1066,7 +1066,7 @@ function CentreonListing(config) {
 
     this.checkUncheckAll = function (masterCheckbox) {
         var table = jQuery(masterCheckbox).closest('table');
-        table.find('tbody .cl-col-picker input[type=checkbox]').each(function () {
+        table.find('tbody .cl-col-picker input[type=checkbox]:not(:disabled)').each(function () {
             jQuery(this).prop('checked', masterCheckbox.checked);
         });
     };

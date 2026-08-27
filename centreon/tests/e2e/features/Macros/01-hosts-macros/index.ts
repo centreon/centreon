@@ -555,3 +555,43 @@ Then(
     );
   }
 );
+
+When('the non-admin user returns to the configured host', () => {
+  cy.visitHostsListingPage(0);
+  openRowForm(hostMacros.default_host.name);
+});
+
+When('the non-admin user resets the inherited normal macro', () => {
+  const macroName = hostMacros.default_host.normalMacro.name;
+  const getNormalMacroRow = (): Cypress.Chainable<JQuery<HTMLElement>> =>
+    getFormBody()
+      .find(`#macro input[id^="macroInput"][value="${macroName}"]`)
+      .parents('li');
+
+  getNormalMacroRow()
+    .find('input[id^="macroValue"]')
+    .should('have.value', hostMacros.updated_host.normalMacro.value);
+  getNormalMacroRow().find('.cf-macro-reset-icon').click();
+  getNormalMacroRow()
+    .find('input[id^="macroValue"]')
+    .should('have.value', hostMacros.default_host.normalMacro.value);
+});
+
+When('the non-admin user tries to close the host form', () => {
+  pageBody().find('#cfSidePanel .cf-side-panel-close').click();
+});
+
+Then('a confirmation to discard unsaved changes is displayed', () => {
+  pageBody().find('.cl-confirm-modal').should('be.visible');
+  pageBody().find('.cl-confirm-cancel').should('be.visible');
+  pageBody().find('.cl-confirm-confirm-btn').should('be.visible');
+});
+
+When('the non-admin user stays on the host form', () => {
+  pageBody().find('.cl-confirm-cancel').click();
+});
+
+Then('the host form remains open', () => {
+  pageBody().find('#cfSidePanel').should('have.class', 'open');
+  waitForHostForm();
+});

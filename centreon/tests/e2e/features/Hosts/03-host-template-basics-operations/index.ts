@@ -439,6 +439,11 @@ Then('the locked host template cannot be selected nor duplicated', () => {
   getListingRow(hostTemplates.defaultHostTemplate.name)
     .find(listingSelectors.duplicateInput)
     .should('not.exist');
+
+  cy.getIframeBody().find('#checkall').check({ force: true });
+  getListingRow(hostTemplates.defaultHostTemplate.name)
+    .find(listingSelectors.rowCheckbox)
+    .should('not.be.checked');
 });
 
 Then(
