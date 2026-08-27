@@ -7,8 +7,8 @@
     <h1 class="cf-page-title">{$form.header.title}</h1>
 
     <div class="cf-tab-nav">
-        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{t}Informations{/t}</a>
-        <a href="#cf-sec-resources" onclick="cfScrollTo('cf-sec-resources', this); return false;">{t}Impacted Resources{/t}</a>
+        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$form.header.information}</a>
+        <a href="#cf-sec-resources" onclick="cfScrollTo('cf-sec-resources', this); return false;">{t}Resources{/t}</a>
         <a href="#cf-sec-misc" onclick="cfScrollTo('cf-sec-misc', this); return false;">{t}Misc{/t}</a>
     </div>
 

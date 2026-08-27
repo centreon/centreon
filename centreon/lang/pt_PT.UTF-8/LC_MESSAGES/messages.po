@@ -23837,7 +23837,7 @@ msgstr ""
 
 #: packages/ui/src/Listing/translatedLabels.ts
 msgid "Loading..."
-msgstr ""
+msgstr "A carregar..."
 
 #: unknown
 # msgid "Create new poller"
