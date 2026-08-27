@@ -2076,6 +2076,7 @@ jobs:
           ghcr_image: ghcr.io/centreon/${{ matrix.component }}
           digest: ${{ steps.promote-ghcr.outputs.digest }}
           amd64_digest: ${{ steps.promote-ghcr.outputs.amd64_digest }}
+          arm64_digest: ${{ steps.promote-ghcr.outputs.arm64_digest }}
 
       - name: Warn if ghcr.io attestation failed
         if: steps.attest-ghcr.outcome == 'failure'

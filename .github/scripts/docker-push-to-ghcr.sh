@@ -34,6 +34,7 @@
 # Outputs ($GITHUB_OUTPUT, best-effort — may be absent):
 #   digest       promoted manifest-list digest
 #   amd64_digest amd64 platform digest, for SBOM scanning
+#   arm64_digest arm64 platform digest, for SBOM scanning
 set -euo pipefail
 
 if [[ -z "${GHCR_TAGS// /}" ]]; then
@@ -83,6 +84,7 @@ echo "::endgroup::"
 echo "::group::Resolve promoted digest (for attestation, best-effort)"
 GHCR_DIGEST=""
 AMD64_DIGEST=""
+ARM64_DIGEST=""
 DIGEST_RESOLUTION_OK=true
 for tag in $GHCR_TAGS; do
   [[ -z "$tag" ]] && continue
@@ -95,18 +97,20 @@ for tag in $GHCR_TAGS; do
   if [[ -z "$GHCR_DIGEST" ]]; then
     GHCR_DIGEST="$tag_digest"
     AMD64_DIGEST=$(echo "$DEST_MANIFEST" | jq -r '.manifests[]? | select(.platform.architecture == "amd64") | .digest' | head -n1)
+    ARM64_DIGEST=$(echo "$DEST_MANIFEST" | jq -r '.manifests[]? | select(.platform.architecture == "arm64") | .digest' | head -n1)
   elif [[ "$tag_digest" != "$GHCR_DIGEST" ]]; then
     echo "::warning::Published tags resolved to different digests ($GHCR_DIGEST vs $tag_digest for tag $tag) — skipping attestation for this promote run (ambiguous subject, image is still published)"
     DIGEST_RESOLUTION_OK=false
     break
   fi
 done
-if [[ "$DIGEST_RESOLUTION_OK" == true && "$GHCR_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && -n "$AMD64_DIGEST" ]]; then
-  echo "Resolved digest: $GHCR_DIGEST (amd64 platform digest for SBOM: $AMD64_DIGEST)"
+if [[ "$DIGEST_RESOLUTION_OK" == true && "$GHCR_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && -n "$AMD64_DIGEST" && -n "$ARM64_DIGEST" ]]; then
+  echo "Resolved digest: $GHCR_DIGEST (amd64: $AMD64_DIGEST, arm64: $ARM64_DIGEST)"
   echo "digest=$GHCR_DIGEST" >> "$GITHUB_OUTPUT"
   echo "amd64_digest=$AMD64_DIGEST" >> "$GITHUB_OUTPUT"
+  echo "arm64_digest=$ARM64_DIGEST" >> "$GITHUB_OUTPUT"
 else
-  echo "::warning::Could not resolve a usable digest/amd64_digest for $GHCR_IMAGE — attestation step will be skipped for this promote run (image is still published)"
+  echo "::warning::Could not resolve a usable digest/amd64_digest/arm64_digest for $GHCR_IMAGE — attestation step will be skipped for this promote run (image is still published)"
 fi
 echo "::endgroup::"
 

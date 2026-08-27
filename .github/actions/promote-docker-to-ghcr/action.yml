@@ -37,6 +37,9 @@ outputs:
   amd64_digest:
     description: "Digest of the amd64 platform manifest, for SBOM scanning"
     value: ${{ steps.promote.outputs.amd64_digest }}
+  arm64_digest:
+    description: "Digest of the arm64 platform manifest, for SBOM scanning"
+    value: ${{ steps.promote.outputs.arm64_digest }}
 
 runs:
   using: "composite"
