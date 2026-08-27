@@ -15,14 +15,14 @@ CentreonForm.detectSidePanelClose();
     </div>
     <div class="cl-listing-container">
         <div class="cl-actions-bar cl-actions-bar--centered">
-            { if $mode_access == 'w' }
+            {if $mode_access == 'w'}
             <div class="cl-actions-left">
                 <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$escPage}&o=a" data-panel-title="{t}Add an escalation{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
                 {$form.o1.html}
             </div>
-            { else }
+            {else}
             <div class="cl-actions-left">&nbsp;</div>
-            { /if }
+            {/if}
             <div class="cl-toolbar-center">
                 <div class="cl-search cl-search--wide">
                     <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
