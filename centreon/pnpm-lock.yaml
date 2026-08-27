@@ -12,7 +12,8 @@ overrides:
   validator: 13.15.26
   lodash: 4.18.1
   lodash-es: 4.18.1
-  protobufjs@<8: 7.6.4
+  protobufjs@<8: 7.6.5
+  protobufjs@>=8 <8.6.6: 8.6.6
   find-cypress-specs@<=1.54.9: 1.54.9
   undici@<=6.27.0: 6.27.0
   glob@10: 10.5.0
@@ -12411,12 +12412,12 @@ packages:
   property-expr@2.0.6:
     resolution: {integrity: sha512-SVtmxhRE/CGkn3eZY1T6pC8Nln6Fr/lu1mKSgRud0eC73whjGfoAogbn78LkD8aFL0zz3bAFerKSnOl7NlErBA==}
 
-  protobufjs@7.6.4:
-    resolution: {integrity: sha512-RJJPTTpvFfHcWLkIa2JFWK4XvtSzS0yEWDmunqHXli1h3JlkbcQZXDZdcWxv+JK3Xsl5/UFDPZ0iGm7DAengYw==}
+  protobufjs@7.6.5:
+    resolution: {integrity: sha512-/FPD0nUc9jH6rfFjji9IBqOz4pcSE3CsT1m7Ep6Mdb0LxSUMj8hgl6GomOvZzpNpAqqGaXA0P3VSrZLFzIhQrw==}
     engines: {node: '>=12.0.0'}
 
-  protobufjs@8.6.3:
-    resolution: {integrity: sha512-alQyzT0j401LGBtwsqu6uprjR6pfNH1UJf9N6GBFMjIcd+HzTe0/HrjAbFCqun+zvnfLarrxAtMM2xvZ+kFZ5A==}
+  protobufjs@8.6.6:
+    resolution: {integrity: sha512-RkLIhE+Tdc2Kpq1F4Uw6OnpAXPca7B+GSDov/GqGCqNBpVyDskQ9yReZfgM+C7xw9AAix873iQZXbBWXj6NzYQ==}
     engines: {node: '>=12.0.0'}
 
   proxy-addr@2.0.7:
@@ -17602,14 +17603,14 @@ snapshots:
     dependencies:
       lodash.camelcase: 4.3.0
       long: 5.3.2
-      protobufjs: 7.6.4
+      protobufjs: 7.6.5
       yargs: 17.7.2
 
   '@grpc/proto-loader@0.8.0':
     dependencies:
       lodash.camelcase: 4.3.0
       long: 5.3.2
-      protobufjs: 7.6.4
+      protobufjs: 7.6.5
       yargs: 17.7.2
 
   '@hapi/hoek@9.3.0': {}
@@ -18613,7 +18614,7 @@ snapshots:
       '@opentelemetry/sdk-logs': 0.53.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 1.26.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.26.0(@opentelemetry/api@1.9.0)
-      protobufjs: 7.6.4
+      protobufjs: 7.6.5
 
   '@opentelemetry/propagator-b3@1.26.0(@opentelemetry/api@1.9.0)':
     dependencies:
@@ -24076,7 +24077,7 @@ snapshots:
       '@grpc/grpc-js': 1.14.4
       '@grpc/proto-loader': 0.7.15
       docker-modem: 5.0.6
-      protobufjs: 7.6.4
+      protobufjs: 7.6.5
       tar-fs: 2.1.4
       uuid: 11.1.1
     transitivePeerDependencies:
@@ -25631,7 +25632,7 @@ snapshots:
       '@grpc/grpc-js': 1.14.4
       google-protobuf: 4.0.2
       lodash: 4.18.1
-      protobufjs: 8.6.3
+      protobufjs: 8.6.6
 
   gzip-size@6.0.0:
     dependencies:
@@ -29320,7 +29321,7 @@ snapshots:
 
   property-expr@2.0.6: {}
 
-  protobufjs@7.6.4:
+  protobufjs@7.6.5:
     dependencies:
       '@protobufjs/aspromise': 1.1.2
       '@protobufjs/base64': 1.1.2
@@ -29334,7 +29335,7 @@ snapshots:
       '@types/node': 24.13.2
       long: 5.3.2
 
-  protobufjs@8.6.3:
+  protobufjs@8.6.6:
     dependencies:
       long: 5.3.2
 
