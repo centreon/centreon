@@ -218,6 +218,9 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
+
 // Just watch a Dependency information
 if ($o == WATCH_DEPENDENCY) {
     if ($centreon->user->access->page($p) != 2) {
@@ -282,7 +285,6 @@ if ($valid) {
 ?>
 <script type="text/javascript">
     function applyNotificationRules(object) {
-      console.log(object.id);
         if (object.id === "nNone" && object.checked) {
             document.getElementById('nOk').checked = false;
             document.getElementById('nWarning').checked = false;

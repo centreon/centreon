@@ -8,6 +8,21 @@ Feature: Host Group Dependency Configuration
     And some hosts groups are configured
     And a host group dependency is configured
 
+  Scenario: The host group dependencies listing loads through the AJAX framework
+    When the user opens the host group dependencies listing
+    Then the AJAX listing table is displayed with the configured host group dependency
+
+  Scenario: The search filters the host group dependencies by name
+    When the user opens the host group dependencies listing
+    And the user searches for a term matching no host group dependency
+    Then no host group dependency is displayed
+    When the user searches for the configured host group dependency
+    Then only the matching host group dependency is displayed
+
+  Scenario: The listing shows pagination information
+    When the user opens the host group dependencies listing
+    Then the pagination information shows the total count
+
   @MON-156507
   Scenario: Change the properties of a host group dependency
     When the user changes the properties of a host group dependency

@@ -175,6 +175,9 @@ $form->addRule('notification_interval', _('Must be a positive integer or 0'), 'p
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
+
 // Just watch an Escalation information
 if ($o == 'w') {
     if ($centreon->user->access->page($p) != 2) {

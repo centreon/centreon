@@ -20,6 +20,24 @@ const services = {
   }
 };
 
+const unmatchedSearchTerm = 'no-such-escalation';
+
+const escalationProperties = (
+  properties: typeof data.default | typeof data.escalation1
+) => ({
+  ...properties,
+  contactGroups: properties.contactgroups,
+  escalationPeriod: properties.escalation_period,
+  firstNotification: properties.first_notification,
+  hostGroupInheritanceToServices: properties.hostgroup_inheritance_to_services,
+  hostGroups: properties.hostgroups,
+  hostInheritanceToServices: properties.host_inheritance_to_services,
+  lastNotification: properties.last_notification,
+  metaServices: properties.metaservices,
+  notificationInterval: properties.notification_interval,
+  serviceGroups: properties.servicegroups
+});
+
 before(() => {
   cy.startContainers();
 });
@@ -37,6 +55,10 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.pages.centreon_configuration_timeperiod}&action=list*`
   }).as('getTimePeriods');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.escalation_listing
+  }).as('getEscalations');
 });
 
 after(() => {
@@ -105,103 +127,112 @@ Given('some meta services are configured', () => {
 
 When('the user fills all the properties of an escalation', () => {
   cy.visit(PAGES.configuration.escalationsLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchE"]');
-  cy.getIframeBody().contains('a', 'Add').eq(0).click();
-  cy.addEscalation({
-    ...data.default,
-    contactGroups: data.default.contactgroups,
-    escalationPeriod: data.default.escalation_period,
-    firstNotification: data.default.first_notification,
-    hostGroupInheritanceToServices:
-      data.default.hostgroup_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    lastNotification: data.default.last_notification,
-    metaServices: data.default.metaservices,
-    notificationInterval: data.default.notification_interval,
-    serviceGroups: data.default.servicegroups
-  });
+  cy.openListingAddForm();
+  cy.addEscalation(escalationProperties(data.default));
 });
 
 When('the user clicks on save', () => {
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the escalation is displayed on the listing', () => {
-  cy.waitForElementInIframe(
-    '#main-content',
-    `a:contains("${data.default.name}")`
-  );
-  cy.getIframeBody().contains(data.default.name).should('exist');
+  cy.waitForModernListing();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(data.default.name)
+    .should('exist');
+});
+
+When('the user opens the escalations listing', () => {
+  cy.visit(PAGES.configuration.escalationsLegacy);
+  cy.waitForModernListing();
+});
+
+Then(
+  'the AJAX listing table is displayed with the configured escalation',
+  () => {
+    cy.getIframeBody().find('table.cl-listing-table').should('exist');
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(data.default.name)
+      .should('exist');
+  }
+);
+
+Then('the pagination information shows the total count', () => {
+  cy.getIframeBody()
+    .find('#clPaginationTop')
+    .invoke('text')
+    .should('match', /\d+-\d+ of \d+/);
+});
+
+When('the user searches for a term matching no escalation', () => {
+  // Live search (debounced AJAX) — there is no submit button, the table
+  // refreshes as the user types.
+  cy.getIframeBody().find('#clSearchInput').clear().type(unmatchedSearchTerm);
+  cy.wait('@getEscalations');
+});
+
+Then('no escalation is displayed', () => {
+  cy.listingShouldBeEmpty();
+});
+
+When('the user searches for the configured escalation', () => {
+  cy.getIframeBody().find('#clSearchInput').clear().type(data.default.name);
+  cy.wait('@getEscalations');
+});
+
+Then('only the matching escalation is displayed', () => {
+  cy.listingShouldContainOnly(data.default.name);
+});
+
+When('the user opens the escalation form and comes back to the listing', () => {
+  cy.openSidePanelForm(data.default.name, 'input[name="esc_name"]');
+  cy.visit(PAGES.configuration.escalationsLegacy);
+  cy.waitForModernListing();
+});
+
+Then('the search field still contains the search term', () => {
+  cy.getIframeBody()
+    .find('#clSearchInput')
+    .should('have.value', data.default.name);
 });
 
 When('the user changes the properties of the configured escalation', () => {
   cy.visit(PAGES.configuration.escalationsLegacy);
-  cy.getIframeBody().contains(data.default.name).click();
-  cy.updateEscalation({
-    ...data.escalation1,
-    contactGroups: data.default.contactgroups,
-    escalationPeriod: data.default.escalation_period,
-    firstNotification: data.default.first_notification,
-    hostGroupInheritanceToServices:
-      data.default.hostgroup_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    lastNotification: data.default.last_notification,
-    metaServices: data.default.metaservices,
-    notificationInterval: data.default.notification_interval,
-    serviceGroups: data.default.servicegroups
-  });
+  cy.openSidePanelForm(data.default.name, 'input[name="esc_name"]');
+  cy.updateEscalation(escalationProperties(data.escalation1));
 });
 
 Then('the properties are updated', () => {
-  cy.checkValuesOfEscalation(data.escalation1.name, {
-    ...data.escalation1,
-    contactGroups: data.default.contactgroups,
-    escalationPeriod: data.default.escalation_period,
-    firstNotification: data.default.first_notification,
-    hostGroupInheritanceToServices:
-      data.default.hostgroup_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    lastNotification: data.default.last_notification,
-    metaServices: data.default.metaservices,
-    notificationInterval: data.default.notification_interval,
-    serviceGroups: data.default.servicegroups
-  });
+  cy.checkValuesOfEscalation(
+    data.escalation1.name,
+    escalationProperties(data.escalation1)
+  );
 });
 
 When('the user duplicates the configured escalation', () => {
   cy.visit(PAGES.configuration.escalationsLegacy);
-  cy.checkFirstRowFromListing('searchE');
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.runListingBulkAction(data.escalation1.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('a new escalation is created with identical properties', () => {
-  cy.checkValuesOfEscalation(`${data.escalation1.name}_1`, {
-    ...data.escalation1,
-    contactGroups: data.default.contactgroups,
-    escalationPeriod: data.default.escalation_period,
-    firstNotification: data.default.first_notification,
-    hostGroupInheritanceToServices:
-      data.default.hostgroup_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    lastNotification: data.default.last_notification,
-    metaServices: data.default.metaservices,
-    notificationInterval: data.default.notification_interval,
-    serviceGroups: data.default.servicegroups
-  });
+  cy.checkValuesOfEscalation(
+    `${data.escalation1.name}_1`,
+    escalationProperties(data.escalation1)
+  );
 });
 
 When('the user deletes the configured escalation', () => {
   cy.visit(PAGES.configuration.escalationsLegacy);
-  cy.checkFirstRowFromListing('searchE');
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.runListingBulkAction(data.escalation1.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -209,6 +240,8 @@ When('the user deletes the configured escalation', () => {
 Then(
   'the deleted escalation is not displayed in the list of escalations',
   () => {
-    cy.getIframeBody().find('a[href*="esc_id=1"]').should('not.exist');
+    // The duplicate created earlier is "<name>_1", so the deleted row has to be
+    // matched on its exact name rather than as a substring.
+    cy.listingRowShouldNotExist(data.escalation1.name);
   }
 );

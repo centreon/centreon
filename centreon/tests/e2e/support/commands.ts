@@ -130,6 +130,228 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
+// ---------------------------------------------------------------------------
+// Modernized listing / side-panel form helpers
+//
+// The migrated configuration pages (AJAX listing + side-panel form) render the
+// form inside a second iframe nested in #main-content, and hide the native
+// "more actions" select behind a custom menu. These helpers hold the selector
+// knowledge so the step definitions stay declarative.
+// ---------------------------------------------------------------------------
+
+Cypress.Commands.add('waitForModernListing', (): Cypress.Chainable => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+
+  return cy
+    .getIframeBody()
+    .find('#clTableBody td')
+    .should('not.contain', 'Loading');
+});
+
+// listing.js clones the toolbar "+Add" button into the empty state (same
+// .cl-btn-add class, plus --empty), so on an empty listing - which is what a
+// fresh CI stack always starts from - a bare .cl-btn-add lookup matches two
+// elements and click() refuses to act. Address the toolbar one, the way
+// listing.js does.
+Cypress.Commands.add('openListingAddForm', (): Cypress.Chainable => {
+  cy.waitForModernListing();
+
+  return cy
+    .getIframeBody()
+    .find('.cl-actions-left a.cl-btn-add')
+    .click();
+});
+
+Cypress.Commands.add('getSidePanelBody', (): Cypress.Chainable => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+// Row names often share a prefix (a duplicate is "<name>_1"), so rows are
+// matched on the exact link text rather than with a substring contains().
+const exactRowText = (name: string): RegExp =>
+  new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`);
+
+Cypress.Commands.add(
+  'openSidePanelForm',
+  (name: string, fieldSelector: string): Cypress.Chainable => {
+    cy.waitForModernListing();
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', exactRowText(name))
+      .click();
+
+    return cy
+      .getSidePanelBody()
+      .find(fieldSelector, { timeout: 20_000 })
+      .should('be.visible');
+  }
+);
+
+// select2 fields are addressed by their visible label: the placeholder is the
+// generic "Search"/"Select", and index-based lookups break as soon as a field
+// is added to the form.
+//
+// A plain contains('.cf-field', label) is not enough: labels overlap (the
+// escalation form has both "Hosts" and, earlier in the DOM, the "Hosts
+// Escalation Options" checkbox group), and contains() returns the first match.
+// Restricting to fields that actually hold a <select> picks the select2 one.
+const sidePanelSelect2Field = (label: string): Cypress.Chainable =>
+  cy
+    .getSidePanelBody()
+    .find('.cf-field')
+    .filter(
+      (_index, element) =>
+        (element.textContent || '').includes(label) &&
+        element.querySelector('select') !== null
+    )
+    .first();
+
+Cypress.Commands.add(
+  'pickSidePanelOption',
+  (label: string, option: string): Cypress.Chainable => {
+    // Clicking the selection toggles the dropdown, so it must only be clicked
+    // when the field is closed: removing a chip leaves select2 open, and an
+    // unconditional click would close the very list the option is picked from.
+    sidePanelSelect2Field(label)
+      .find('.select2-container')
+      .then(($container) => {
+        if ($container.hasClass('select2-container--open')) {
+          return;
+        }
+
+        cy.wrap($container).find('.select2-selection').click({ force: true });
+      });
+
+    // Options are matched on their exact text: contains() matches a substring,
+    // so asking for "workhours" picks "nonworkhours" (it comes first in the
+    // timeperiod list), and "service_group" picks "service_group_2".
+    cy.getSidePanelBody()
+      .find('.select2-results__option', { timeout: 20_000 })
+      .filter((_index, element) => element.textContent?.trim() === option)
+      .first()
+      .click({ force: true });
+
+    // centreon-select2.js sets closeOnSelect:false on every multi-select of a
+    // modernized form, so the result list deliberately stays open to allow
+    // picking several values in a row — and covers the fields underneath,
+    // which makes a following type() fail on "covered by another element".
+    // Close it, the way a user moving on to the next field would.
+    return sidePanelSelect2Field(label)
+      .find('.select2-container')
+      .then(($container) => {
+        if (!$container.hasClass('select2-container--open')) {
+          return;
+        }
+
+        cy.wrap($container).find('.select2-selection').click({ force: true });
+      });
+  }
+);
+
+Cypress.Commands.add(
+  'clearSidePanelSelection',
+  (label: string): Cypress.Chainable => {
+    // Removing a chip makes select2 re-render the whole list, so a single
+    // click({multiple:true}) detaches the remaining targets mid-flight ("they
+    // disappeared from the page"). Count the chips, then remove them one at a
+    // time, re-querying the first one after each removal. Reading the count
+    // from the field also keeps a field with no selection a no-op, where
+    // find() on its own would fail the implicit existence assertion.
+    return sidePanelSelect2Field(label).then(($field) => {
+      const chipCount = $field.find('.select2-selection__choice__remove').length;
+
+      for (let index = 0; index < chipCount; index += 1) {
+        sidePanelSelect2Field(label)
+          .find('.select2-selection__choice__remove')
+          .first()
+          .click({ force: true });
+      }
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'listingRowShouldNotExist',
+  (name: string): Cypress.Chainable => {
+    // This runs right after a delete, so the listing page may still be
+    // reloading: a body captured once detaches mid-assertion ("cannot requery
+    // the page after cy.find()"). Re-read the iframe document on every retry
+    // instead, and require the table to be loaded — an absent or still-loading
+    // table has no rows either, and would pass for the wrong reason.
+    return cy.get('iframe#main-content').should(($iframe) => {
+      const iframeDocument = ($iframe[0] as HTMLIFrameElement).contentDocument;
+      const tableBody = iframeDocument?.querySelector('#clTableBody');
+
+      expect(tableBody, 'listing table body').to.not.be.null;
+      expect(tableBody?.textContent, 'listing still loading').to.not.contain(
+        'Loading'
+      );
+
+      const matchingRows = Array.from(
+        tableBody?.querySelectorAll('a') ?? []
+      ).filter((row) => row.textContent?.trim() === name);
+
+      expect(matchingRows, `row "${name}"`).to.have.length(0);
+    });
+  }
+);
+
+// The empty state, the "Loading..." placeholder and the load-error row are all
+// rendered as one full-width cell, so a data row is a <tr> without a colspan
+// cell. Counting rows this way lets a search assert its whole result set
+// instead of only the presence of the row it expects.
+const listingDataRows = (): Cypress.Chainable =>
+  cy
+    .getIframeBody()
+    .find('#clTableBody tr')
+    .filter((_index, element) => element.querySelector('td[colspan]') === null);
+
+Cypress.Commands.add('listingShouldBeEmpty', (): Cypress.Chainable => {
+  return listingDataRows().should('have.length', 0);
+});
+
+Cypress.Commands.add(
+  'listingShouldContainOnly',
+  (name: string): Cypress.Chainable => {
+    listingDataRows().should('have.length', 1);
+
+    return listingDataRows().contains('a', exactRowText(name)).should('exist');
+  }
+);
+
+Cypress.Commands.add(
+  'runListingBulkAction',
+  (name: string, action: string): Cypress.Chainable => {
+    cy.waitForModernListing();
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', exactRowText(name))
+      .parents('tr')
+      // The real checkbox is visibility:hidden behind its md-checkbox label.
+      .find('.cl-col-picker input[type="checkbox"]')
+      .click({ force: true });
+    cy.getIframeBody()
+      .find('select[name="o1"]')
+      .invoke(
+        'attr',
+        'onchange',
+        "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
+      );
+
+    // The native o1 select is hidden (replaced by the .cl-more-actions menu);
+    // the overridden onchange above turns a value change into setO + submit.
+    return cy
+      .getIframeBody()
+      .find('select[name="o1"]')
+      .select(action, { force: true });
+  }
+);
+
 Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
   cy.getIframeBody()
   .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
@@ -167,6 +389,25 @@ declare global {
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
+      waitForModernListing: () => Cypress.Chainable;
+      openListingAddForm: () => Cypress.Chainable;
+      getSidePanelBody: () => Cypress.Chainable<JQuery<HTMLElement>>;
+      openSidePanelForm: (
+        name: string,
+        fieldSelector: string
+      ) => Cypress.Chainable;
+      runListingBulkAction: (
+        name: string,
+        action: string
+      ) => Cypress.Chainable;
+      listingRowShouldNotExist: (name: string) => Cypress.Chainable;
+      listingShouldBeEmpty: () => Cypress.Chainable;
+      listingShouldContainOnly: (name: string) => Cypress.Chainable;
+      pickSidePanelOption: (
+        label: string,
+        option: string
+      ) => Cypress.Chainable;
+      clearSidePanelSelection: (label: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
     }

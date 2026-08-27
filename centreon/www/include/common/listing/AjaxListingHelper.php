@@ -184,6 +184,34 @@ class AjaxListingHelper
     }
 
     /**
+     * Require read access on a given topology page. Exits 403 when the user's
+     * ACL grants neither read nor read-write on it. Admins always pass.
+     *
+     * A listing endpoint is reachable on its own URL, so the topology check
+     * main.get.php performs does not apply to it: without this, a user whose
+     * menu ACL denies the page could still read its rows over AJAX.
+     *
+     * @param int $pageId The topology page number (e.g. 60401 for escalations)
+     */
+    public function requireReadAccess(int $pageId): void
+    {
+        if ($this->isAdmin()) {
+            return;
+        }
+        $acl = $this->getAcl();
+        if (
+            ! $acl
+            || ! in_array(
+                $acl->page($pageId),
+                [CentreonACL::ACL_ACCESS_READ_ONLY, CentreonACL::ACL_ACCESS_READ_WRITE],
+                true
+            )
+        ) {
+            self::jsonError('Read access denied', 403);
+        }
+    }
+
+    /**
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
