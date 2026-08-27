@@ -1524,7 +1524,7 @@ jobs:
         if: steps.compute-tag.outputs.version_tag != ''
         continue-on-error: true
         id: attest-build-provenance
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-name: ghcr.io/centreon/${{ matrix.component }}
           subject-digest: ${{ steps.build.outputs.digest }}
