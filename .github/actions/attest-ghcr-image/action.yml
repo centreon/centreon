@@ -32,6 +32,10 @@ runs:
         format: spdx-json
         output-file: sbom-amd64.spdx.json
         upload-artifact: false
+        # Defaults to true and would need contents:write on tag pushes with a
+        # matching GitHub Release; we deliver via the attestation, not a
+        # release asset.
+        upload-release-assets: false
 
     - name: Attest SBOM (amd64)
       # attest-sbom is deprecated in favor of attest
@@ -51,6 +55,7 @@ runs:
         format: spdx-json
         output-file: sbom-arm64.spdx.json
         upload-artifact: false
+        upload-release-assets: false
 
     - name: Attest SBOM (arm64)
       uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
