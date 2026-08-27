@@ -1532,8 +1532,8 @@
 }
 
 .cl-mon-pending {
-    background: var(--color-pending, #1EBE3B);
-    box-shadow: 0 0 4px var(--color-pending, #1EBE3B);
+    background: var(--color-pending, #1EBEB3);
+    box-shadow: 0 0 4px var(--color-pending, #1EBEB3);
 }
 
 /* ==========================================================================
@@ -1555,7 +1555,7 @@
 .cl-status-warning { color: var(--color-warning, #FD9B27); }
 .cl-status-critical { color: var(--color-danger, #FF4A4A); }
 .cl-status-unknown { color: var(--color-aluminium, #818285); }
-.cl-status-pending { color: var(--color-pending, #1EBE3B); }
+.cl-status-pending { color: var(--color-pending, #1EBEB3); }
 
 /* ==========================================================================
    Object icons (host.svg, service.svg, ...): loaded via <img>, so they carry
