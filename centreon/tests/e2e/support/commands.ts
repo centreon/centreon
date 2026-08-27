@@ -200,12 +200,27 @@ const sidePanelSelect2Field = (label: string): Cypress.Chainable =>
 Cypress.Commands.add(
   'pickSidePanelOption',
   (label: string, option: string): Cypress.Chainable => {
-    sidePanelSelect2Field(label).find('.select2-selection').click({ force: true });
+    // Clicking the selection toggles the dropdown, so it must only be clicked
+    // when the field is closed: removing a chip leaves select2 open, and an
+    // unconditional click would close the very list the option is picked from.
+    sidePanelSelect2Field(label)
+      .find('.select2-container')
+      .then(($container) => {
+        if ($container.hasClass('select2-container--open')) {
+          return;
+        }
 
+        cy.wrap($container).find('.select2-selection').click({ force: true });
+      });
+
+    // Options are matched on their exact text: contains() matches a substring,
+    // so asking for "workhours" picks "nonworkhours" (it comes first in the
+    // timeperiod list), and "service_group" picks "service_group_2".
     return cy
       .getSidePanelBody()
       .find('.select2-results__option', { timeout: 20_000 })
-      .contains(option)
+      .filter((_index, element) => element.textContent?.trim() === option)
+      .first()
       .click({ force: true });
   }
 );
