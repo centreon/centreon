@@ -612,6 +612,7 @@ flowchart LR
 | `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
 | `PASSWORD` | `password` | `password` | `prod.password.log` |
 | `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `POLLER_INSTALL` | `poller-install` | `poller-install` | `prod.poller-install.log` |
 | `TOKEN` | `token` | `token` | `prod.token.log` |
 | `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
 | `WEB` | `web` | `web` | `prod.web.log` |

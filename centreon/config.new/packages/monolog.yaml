@@ -7,6 +7,7 @@ monolog:
         - password
         - upgrade
         - plugin-pack-manager
+        - poller-install
 
     # Declared at top level so integration tests resolve the service in any env.
     handlers:
@@ -27,6 +28,7 @@ monolog:
                 - "!token"
                 - "!password"
                 - "!plugin-pack-manager"
+                - "!poller-install"
                 - "!upgrade"
             bubble: false
         web_file:
@@ -57,6 +59,7 @@ when@dev:
                     - "!token"
                     - "!password"
                     - "!plugin-pack-manager"
+                    - "!poller-install"
                     - "!upgrade"
                 bubble: false
             web_file:
@@ -109,6 +112,13 @@ when@dev:
                 type: rotating_file
                 channels: [plugin-pack-manager]
                 path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                max_files: 14
+                level: debug
+                formatter: monolog.formatter.line
+            poller-install:
+                type: rotating_file
+                channels: [poller-install]
+                path: "%kernel.logs_dir%/%kernel.environment%.poller-install.log"
                 max_files: 14
                 level: debug
                 formatter: monolog.formatter.line
@@ -168,5 +178,11 @@ when@prod:
                 type: stream
                 channels: [plugin-pack-manager]
                 path: "%kernel.logs_dir%/%kernel.environment%.plugin-pack-manager.log"
+                level: info
+                formatter: monolog.formatter.line
+            poller-install:
+                type: stream
+                channels: [poller-install]
+                path: "%kernel.logs_dir%/%kernel.environment%.poller-install.log"
                 level: info
                 formatter: monolog.formatter.line
