@@ -725,7 +725,7 @@ Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** 
 | `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
-| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `error` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `warning`, `error` |
 
 They exist for two reasons:
 
@@ -958,6 +958,7 @@ The legacy web upgrade splits the flow across two steps: `process_step4.php` run
 use Adaptation\Log\LoggerUpgrade;
 
 LoggerUpgrade::create()->info($version, "Adding column X to table Y");
+LoggerUpgrade::create()->warning($version, "Central address could not be resolved, falling back");
 LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
 
 LoggerUpgrade::create()->stepFailure($version, $stepName, $message, $exception);
@@ -973,6 +974,7 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 | `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
 | `stepFailure($version, $stepName, $message, $e)` | `ERROR` | A bracketed step threw. Emitted by the step bracket itself (e.g. `UpdateCommandHandler::runStep`, `DbWriteUpdateRepository::executeStep`, or `process_step5.php` for `post_update`). An upgrade script must **not** re-emit it for `php_script` (the bracket already logs the re-thrown exception); a script only emits it for `php_script_rollback`, when the rollback itself fails. |
 | **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
+| **`warning($version, $message)`** | `WARNING` | **Signal a degraded but non-fatal outcome** (a value could not be resolved and a fallback was used, an optional step was skipped). The upgrade carries on and the operator gets a line to check afterwards. |
 | **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
 
 ### Recommended pattern
