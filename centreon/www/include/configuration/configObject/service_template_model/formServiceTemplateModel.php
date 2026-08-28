@@ -840,7 +840,10 @@ $form->addElement(
     $extImg,
     [
         'id' => 'esi_icon_image',
-        'onChange' => "showLogo('esi_icon_image_img',this.value)",
+        // The OnPrem template shows the icon inside the select2 selection and so
+        // has no external preview image; the Cloud one still renders it. Guard the
+        // preview refresh: showLogo() dereferences its target with no null check.
+        'onChange' => "if (document.getElementById('esi_icon_image_img')) showLogo('esi_icon_image_img',this.value)",
         'onkeyup' => 'this.blur();this.focus();',
     ]
 );
@@ -934,6 +937,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path2);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 unset($service['service_template_model_stm_id']);
 // Just watch a host information
@@ -1065,7 +1069,9 @@ if ($valid) {
     ?>
     <script type="text/javascript">
         setTimeout('transformForm()', 200);
-        showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        if (document.getElementById('esi_icon_image_img')) {
+            showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        }
 
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {

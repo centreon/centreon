@@ -5,7 +5,6 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import serviceCategories from '../../../fixtures/services/category.json';
 import data from '../../../fixtures/services/host_group.json';
 import servicesData from '../../../fixtures/services/service.json';
-import htmldata from './data.json';
 
 const services = {
   serviceCritical: {
@@ -98,6 +97,26 @@ Given('some service categories are configured', () => {
   );
 });
 
+// Bulk actions go through the More actions menu (cy.runListingBulkAction), which
+// runs the path a user takes: menu, confirmation modal, submit.
+const runBulkActionOnRow = (name: string, action: string): void => {
+  // Queries only — find and filter are replayed, so the chain survives the
+  // timed refresh replacing the table. The row is matched on the exact link
+  // text: once a service has been duplicated, :contains(name) also matches the
+  // copy named <name>_1. The checkbox is visibility:hidden behind its
+  // md-checkbox label, hence the forced click.
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .filter((_index, row) =>
+      Array.from(row.querySelectorAll('a')).some(
+        (link) => link.textContent?.trim() === name
+      )
+    )
+    .find('.cl-col-picker input[type="checkbox"]')
+    .click({ force: true });
+  cy.runListingBulkAction(action);
+};
+
 When(
   'the user goes to Configuration > Services > Services by host group',
   () => {
@@ -107,8 +126,7 @@ When(
 );
 
 When('the user Add a new host group service', () => {
-  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
-  cy.getIframeBody().contains('a', 'Add').eq(0).click();
+  cy.clickListingAddButton();
   cy.wait('@getTimeZone');
   cy.createOrUpdateHostGroupService(
     {
@@ -136,27 +154,26 @@ When('the user Add a new host group service', () => {
       serviceGroups: data.default.servicegroups,
       serviceTrap: data.default.servicetrap
     },
-    false,
-    htmldata.dataForCreation.map((elt) => ({
-      ...elt,
-      valueOrIndex: String(elt.valueOrIndex)
-    }))
+    false
   );
 });
 
 Then('the host group service is added to the listing page', () => {
-  cy.getIframeBody().contains('a', data.default.name).should('exist');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.waitForListingToShow(data.default.name);
 });
 
 Given('a host group service is configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
-  cy.getIframeBody().contains('a', data.default.name).should('exist');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+  cy.waitForListingToShow(data.default.name);
 });
 
 When('the user changes the properties of the host group service', () => {
-  cy.getIframeBody().contains('a', data.default.name).click();
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', data.default.name)
+    .click();
   cy.createOrUpdateHostGroupService(
     {
       ...data.hostgroupservice,
@@ -183,8 +200,7 @@ When('the user changes the properties of the host group service', () => {
       serviceGroups: data.hostgroupservice.servicegroups,
       serviceTrap: data.hostgroupservice.servicetrap
     },
-    true,
-    htmldata.dataForUpdate
+    true
   );
 });
 
@@ -217,9 +233,8 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the host group service', () => {
-  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.checkFirstRowFromListing('hostgroups');
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+  runBulkActionOnRow(data.hostgroupservice.name, 'm');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -253,13 +268,14 @@ Then('the new duplicated host group service has the same properties', () => {
 });
 
 When('the user deletes the host group service', () => {
-  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-  cy.checkFirstRowFromListing('hostgroups');
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+  runBulkActionOnRow(data.hostgroupservice.name, 'd');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the deleted host group service is not displayed in the list', () => {
-  cy.getIframeBody().find('a[href*="service_id=29"]').should('not.exist');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.waitForListingToDrop(data.hostgroupservice.name);
 });

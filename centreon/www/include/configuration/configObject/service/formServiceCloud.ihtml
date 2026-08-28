@@ -1,3 +1,5 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
+
 {$form.javascript}
 {$javascript}
 <div id="popin"><p id="msg-wrapper"></p></div>

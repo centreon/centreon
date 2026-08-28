@@ -104,16 +104,17 @@ Cypress.Commands.add('checkValuesOfCommands', (name: string, body: Cmd) => {
   cy.get('#Comments').should('have.value', body.comments);
 });
 
-Cypress.Commands.add(
-  'addCommandToResource',
-  (index: number, command: string) => {
-    cy.getIframeBody().find('span[title="Clear field"]').eq(index).click();
-    // Click on the check command field in the form
-    cy.getIframeBody().find('span[title="Check Command"]').click();
-    // Chose a check command
-    cy.getIframeBody().find(`div[title="${command}"]`).click();
-  }
-);
+Cypress.Commands.add('addCommandToResource', (command: string) => {
+  // Both the host and the service form name their check command field
+  // command_command_id. Clearing it through the field survives the migrated
+  // form rebuilding its erasers inside the select2 container, which is what
+  // broke picking them by their rank among all the erasers of the page.
+  cy.clearFormSelect('command_command_id');
+  // Click on the check command field in the form
+  cy.getFormBody().find('span[title="Check Command"]').click();
+  // Chose a check command
+  cy.getFormBody().find(`div[title="${command}"]`).click();
+});
 
 Cypress.Commands.add('addConnectors', (body: Ctr) => {
   // Wait for the "Connector Name" input to be charged on the DOM
@@ -227,10 +228,7 @@ declare global {
       searchForCommandsByName: (name: string) => Cypress.Chainable;
       addOrUpdateCommands: (body: Cmd) => Cypress.Chainable;
       checkValuesOfCommands: (name: string, body: Cmd) => Cypress.Chainable;
-      addCommandToResource: (
-        index: number,
-        command: string
-      ) => Cypress.Chainable;
+      addCommandToResource: (command: string) => Cypress.Chainable;
       addConnectors: (body: Ctr) => Cypress.Chainable;
       updateConnectors: (body: Ctr) => Cypress.Chainable;
       checkValuesOfConnectors: (name: string, body: Ctr) => Cypress.Chainable;

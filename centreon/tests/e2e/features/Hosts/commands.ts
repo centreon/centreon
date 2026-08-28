@@ -20,12 +20,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('checkLegacyRadioButton', (label: string) => {
-  cy.getIframeBody()
+  cy.getFormBody()
     .contains('label', label)
     .should('exist')
     .then(($label) => {
       const radioId = $label.attr('for');
-      cy.getIframeBody()
+      cy.getFormBody()
         .find(`input[type="radio"][id="${radioId}"]`)
         .should('be.checked');
     });
@@ -228,10 +228,6 @@ interface HostGroupDependency {
   dependentHostGroupsNames: Array<string>;
   comment: string;
 }
-
-// ---------------------------------------------------------------------------
-// Host categories commands
-// ---------------------------------------------------------------------------
 
 Cypress.Commands.add('openHostCategoriesListing', () => {
   cy.visit(PAGES.configuration.hostCategoriesLegacy);

@@ -25,8 +25,6 @@ if (! isset($centreon)) {
 
 include_once './class/centreonUtils.class.php';
 
-include './include/common/autoNumLimit.php';
-
 $search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchMS'] ?? $_GET['searchMS'] ?? null
 );
@@ -40,132 +38,38 @@ if (isset($_POST['searchMS']) || isset($_GET['searchMS'])) {
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-// Meta Service list
-$searchBindValues = [];
-$rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM meta_service ';
-if ($search) {
-    $rq .= 'WHERE meta_name LIKE :searchName '
-        . $acl->queryBuilder('AND', 'meta_id', $metaStr);
-    $searchBindValues[':searchName'] = '%' . $search . '%';
-} else {
-    $rq .= $acl->queryBuilder('WHERE', 'meta_id', $metaStr);
-}
-$rq .= ' ORDER BY meta_name LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit;
-
-$stmt = $pearDB->prepare($rq);
-foreach ($searchBindValues as $param => $value) {
-    $stmt->bindValue($param, $value);
-}
-$stmt->execute();
-$dbResult = $stmt;
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-include './include/common/checkPagination.php';
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// start header menu
 $tpl->assign('headerMenu_name', _('Name'));
 $tpl->assign('headerMenu_type', _('Calculation Type'));
 $tpl->assign('headerMenu_levelw', _('Warning Level'));
 $tpl->assign('headerMenu_levelc', _('Critical Level'));
-$tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-$calcType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' => _('Max')];
+$tpl->assign('msPage', $p);
 
-// Meta Service list
-$conditionStr = '';
-$metaStrParams = [];
-// binding query params for non admin  acl rules
-$searchIsNull = $search === null || $search === '';
-// the metaStr are the metas linked to the user's ACL
-if ($acl->admin === '0' || $acl->admin === false) {
-    if ($metaStr === "''" || $metaStr === '') {
-        $queryParams = '0';
-    } else {
-        $metaStrList = explode(',', $metaStr);
-        foreach ($metaStrList as $index => $metaId) {
-            $metaStrParams[':meta_' . $index] = (int) str_replace("'", '', $metaId);
-        }
-        $queryParams = implode(',', array_keys($metaStrParams));
-    }
-    $conditionStr = ! $searchIsNull ? 'AND meta_id IN (' . $queryParams . ')' : 'WHERE meta_id IN (' . $queryParams . ')';
-}
-if (! $searchIsNull) {
-    $statement = $pearDB->prepare('SELECT * FROM meta_service '
-        . 'WHERE meta_name LIKE :search ' . $conditionStr
-        . ' ORDER BY meta_name LIMIT :offset, :limit');
-    $statement->bindValue(':search', '%' . $search . '%', PDO::PARAM_STR);
-} else {
-    $statement = $pearDB->prepare('SELECT * FROM meta_service ' . $conditionStr
-        . ' ORDER BY meta_name LIMIT :offset, :limit');
-}
-foreach ($metaStrParams as $key => $metaId) {
-    $statement->bindValue($key, $metaId, PDO::PARAM_INT);
-}
-$statement->bindValue(':offset', (int) $num * (int) $limit, PDO::PARAM_INT);
-$statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-$statement->execute();
+// Restore search from history
+$search = $centreon->historySearch[$url]['search'] ?? '';
+$tpl->assign('searchMS', $search);
 
-$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
+// Default limit from DB
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
 
-// Different style between each lines
-$style = 'one';
+// Form for bulk actions
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 $attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
 $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$centreonToken = createCSRFToken();
+$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
 
-for ($i = 0; $ms = $statement->fetch(PDO::FETCH_ASSOC); $i++) {
-    $moptions = '';
-    $selectedElements = $form->addElement('checkbox', 'select[' . $ms['meta_id'] . ']');
-    if ($ms['meta_select_mode'] == 1) {
-        $moptions = "<a href='main.php?p=" . $p . '&meta_id=' . $ms['meta_id'] . '&o=ci&search='
-            . $search . "'><img src='img/icons/redirect.png' class='ico-16' border='0' alt='"
-            . _('View') . "'></a>&nbsp;&nbsp;";
-    } else {
-        $moptions = '';
-    }
-
-    if ($ms['meta_activate']) {
-        $moptions .= "<a href='main.php?p=" . $p . '&meta_id=' . $ms['meta_id'] . '&o=u&limit=' . $limit
-            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' "
-            . "border='0' alt='" . _('Disabled') . "'></a>&nbsp;&nbsp;";
-    } else {
-        $moptions .= "<a href='main.php?p=" . $p . '&meta_id=' . $ms['meta_id'] . '&o=s&limit=' . $limit
-            . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' "
-            . "border='0' alt='" . _('Enabled') . "'></a>&nbsp;&nbsp;";
-    }
-    $moptions .= '&nbsp;';
-
-    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
-        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" "
-        . "name='dupNbr[" . $ms['meta_id'] . "]' />";
-
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($ms['meta_name']), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&meta_id=' . $ms['meta_id'], 'RowMenu_type' => CentreonUtils::escapeSecure($calcType[$ms['calcul_type']]), 'RowMenu_levelw' => isset($ms['warning']) && $ms['warning'] ? $ms['warning'] : '-', 'RowMenu_levelc' => isset($ms['critical']) && $ms['critical'] ? $ms['critical'] : '-', 'RowMenu_status' => $ms['meta_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $ms['meta_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
-    $style = $style != 'two' ? 'two' : 'one';
-}
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
-$tpl->assign(
-    'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
-);
-
-// Toolbar select
 ?>
 <script type="text/javascript">
     function setO(_i) {
@@ -174,60 +78,29 @@ $tpl->assign(
 </script>
 <?php
 
-$attrs1 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o1'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . "else if (this.form.elements['o1'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "
-    . ''];
-$form->addElement(
-    'select',
-    'o1',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-    $attrs1
-);
-$form->setDefaults(['o1' => null]);
-
-$attrs2 = ['onchange' => 'javascript: '
-    . ' var bChecked = isChecked(); '
-    . " if (this.form.elements['o2'].selectedIndex != 0 && !bChecked) {"
-    . " alert('" . _('Please select one or more items') . "'); return false;} "
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('"
-    . _('Do you confirm the duplication ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 2 && confirm('"
-    . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . "else if (this.form.elements['o2'].selectedIndex == 3) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "
-    . ''];
-$form->addElement(
-    'select',
-    'o2',
-    null,
-    [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete')],
-    $attrs2
-);
-$form->setDefaults(['o2' => null]);
-
-$o1 = $form->getElement('o1');
-$o1->setValue(null);
-$o1->setSelected(null);
-
-$o2 = $form->getElement('o2');
-$o2->setValue(null);
-$o2->setSelected(null);
-
-$tpl->assign('limit', $limit);
-$tpl->assign('searchMS', $search);
+foreach (['o1'] as $option) {
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete meta service'),
+        'data-title-delete-many' => _('Delete meta services'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> meta service. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} meta services.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate-one' => _('Duplicate meta service'),
+        'data-title-duplicate-many' => _('Duplicate meta services'),
+        'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> meta service. Do you want to duplicate it?'),
+        'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} meta services.</strong> Do you want to duplicate them?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+    ];
+    $form->addElement('select', $option, null,
+        [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')], $attrs);
+    $form->setDefaults([$option => null]);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
+}
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

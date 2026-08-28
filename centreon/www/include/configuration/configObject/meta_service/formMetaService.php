@@ -89,13 +89,17 @@ $calType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' =
 // Data source type
 $dsType = [0 => 'GAUGE', 1 => 'COUNTER', 2 => 'DERIVE', 3 => 'ABSOLUTE'];
 
-// Graphs Template comes from DB -> Store in $graphTpls Array
 $graphTpls = [null => null];
-$DBRESULT = $pearDB->query('SELECT graph_id, name FROM giv_graphs_template ORDER BY name');
-while ($graphTpl = $DBRESULT->fetchRow()) {
+foreach (
+    $pearDB->fetchAllAssociative(
+        <<<'SQL'
+            SELECT graph_id, name FROM giv_graphs_template ORDER BY name
+            SQL,
+        QueryParameters::create([])
+    ) as $graphTpl
+) {
     $graphTpls[$graphTpl['graph_id']] = $graphTpl['name'];
 }
-$DBRESULT->closeCursor();
 
 // Init Styles
 $attrsText = ['size' => '30'];
@@ -251,6 +255,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $tpl->assign(
     'helpattr',
@@ -272,7 +277,6 @@ $toggleScript = <<<'JS'
     document.addEventListener("DOMContentLoaded", function() {
         function toggleFields() {
             var selectedRadio = document.querySelector('input[name="meta_select_mode[meta_select_mode]"]:checked');
-            console.log(selectedRadio);
             if (!selectedRadio) {
                 // No radio button is selected, so exit or set a default behavior.
                 return;
@@ -288,7 +292,6 @@ $toggleScript = <<<'JS'
         }
 
         var radios = document.getElementsByName("meta_select_mode[meta_select_mode]");
-        console.log(radios);
         if (radios.length > 0) {
             for (var i = 0; i < radios.length; i++){
                 radios[i].addEventListener("change", toggleFields);
@@ -333,10 +336,6 @@ if ($form->validate()) {
     $msObj = $form->getElement('meta_id');
     if ($form->getSubmitValue('submitA')) {
         $msObj->setValue(insertMetaServiceInDB());
-        // Update ACL and meta service string for the next listing
-        $acl = new CentreonACL($centreon->user->get_id(), $centreon->user->admin === '1');
-        $aclDbName = $acl->getNameDBAcl();
-        $metaStr = $acl->getMetaServiceString();
     } elseif ($form->getSubmitValue('submitC')) {
         updateMetaServiceInDB($msObj->getValue());
     }

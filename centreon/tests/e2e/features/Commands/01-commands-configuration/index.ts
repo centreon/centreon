@@ -175,43 +175,45 @@ Then(
 );
 
 Given('a service being configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  // Click on the "Add" button
-  cy.getIframeBody().contains('a', 'Add').click();
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  // Click on the "Add" button, which opens the form in the side panel
+  cy.clickListingAddButton();
   // Wait for the "Service description" to be in the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  // Type value on the service description field
-  cy.getIframeBody().find('input[name="service_description"]').type('service2');
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
+    // Type value on the service description field
+    .type('service2');
   // Click on the service template field
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getFormBody().find('input[class="select2-search__field"]').eq(0).click();
   // Chose a template
-  cy.getIframeBody().find('div[title="generic-active-host"]').click();
+  cy.getFormBody().find('div[title="generic-active-host"]').click();
 });
 
 When('the admin user selects a check command on the service form', () => {
   // Click on the check command field in the form
-  cy.getIframeBody().find('span[title="Check Command"]').click();
+  cy.getFormBody().find('span[title="Check Command"]').click();
   // Chose a check command
-  cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();
+  cy.getFormBody().find('div[title="check_centreon_dummy"]').click();
 });
 
+// The service form is the migrated one: it opens in the side panel, so its
+// fields — the command arguments included — live in that document and not in
+// the listing the steps above reach through getIframeBody().
 Then('Arguments of this command are displayed for the service', () => {
   // Check that the first arg of the check command is displayed
-  cy.getIframeBody().find('input[name="ARG1"]').should('be.visible');
+  cy.getFormBody().find('input[name="ARG1"]').should('be.visible');
   // Check that the second arg of the check command is displayed
-  cy.getIframeBody().find('input[name="ARG2"]').should('be.visible');
+  cy.getFormBody().find('input[name="ARG2"]').should('be.visible');
 });
 
 Then('the admin user can configure those arguments on the service form', () => {
   // Type a value in the first arg
-  cy.getIframeBody().find('input[name="ARG1"]').type('0');
+  cy.getFormBody().find('input[name="ARG1"]').type('0');
   // Type a value in the second arg
-  cy.getIframeBody().find('input[name="ARG2"]').type('OK');
+  cy.getFormBody().find('input[name="ARG2"]').type('OK');
   // Click on the first "Save" button
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[class="btc bt_success"][name^="submit"]')
     .eq(0)
     .click();
@@ -261,33 +263,30 @@ Given('a check command is configured', () => {
 });
 
 Given('a service is configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
   // Wait for the "Configured Service" to be in the DOM
-  cy.waitForElementInIframe('#main-content', 'a:contains("service2")');
+  cy.getIframeBody().find('#clTableBody').contains('a', 'service2');
 });
 
 When('the admin user opens the service in edit mode', () => {
-  cy.getIframeBody().contains('service2').click();
-  // Wait for the "Service description" to be in the DOM
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  // Wait for the "Service description" to be in the DOM of the side panel
+  cy.openListingRowForm('service2')
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
 });
 
 When(
   'the admin user sets the configured check command as the check command of the service',
   () => {
-    cy.addCommandToResource(2, data.check_updated.name);
+    cy.addCommandToResource(data.check_updated.name);
   }
 );
 
 When('the admin user saves the configuration', () => {
   // Click on the first "Save" button
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[class="btc bt_success"][name^="submit"]')
-    .eq(0)
+    .first()
     .click();
 });
 
@@ -318,7 +317,7 @@ When('the admin user opens the host in edit mode', () => {
 When(
   'the admin user sets the configured check command as the check command of the host',
   () => {
-    cy.addCommandToResource(1, data.check_updated.name);
+    cy.addCommandToResource(data.check_updated.name);
   }
 );
 

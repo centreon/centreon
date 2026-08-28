@@ -41,41 +41,31 @@ Given('a service associated to a host is configured', () => {
 });
 
 Given('the user is in the "Notifications" tab', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
-  cy.getIframeBody()
-    .find('tr[class*="list_"]')
-    .contains(`${data.services.service1.name}`)
-    .click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-  cy.getIframeBody().find('li#c2').click();
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  cy.openListingRowForm(data.services.service1.name)
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
+  // The tab strip became scroll anchors over one long form: target the anchor by
+  // its section id, the labels are translated (and 'Extended Info' is now 'Misc').
+  cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
 });
 
 When('the user checks case yes to enable Notifications', () => {
-  cy.getIframeBody()
-    .find('input[name*="service_notifications_enabled"][value="1"]')
-    .parent()
-    .click();
+  cy.selectFormSegment('service_notifications_enabled', '1');
 });
 
 When('the case Inherit contacts is checked', () => {
-  cy.getIframeBody()
-    .find('input[name*="service_use_only_contacts_from_host"][value="1"]')
-    .parent()
-    .click();
+  cy.selectFormSegment('service_use_only_contacts_from_host', '1');
 });
 
 Then('the field "Implied Contacts" is disabled', () => {
-  cy.getIframeBody()
-    .find('input[placeholder="Implied Contacts"]')
-    .should('be.disabled');
+  // Assert on the real <select>: that is what the form disables, the select2
+  // search input only mirrors it.
+  cy.getFormBody().find('select#service_cs').should('be.disabled');
 });
 
 Then('the field "Implied Contact Groups" is disabled', () => {
-  cy.getIframeBody().find('select#service_cgs').should('be.disabled');
+  cy.getListingSidePanelBody().find('select#service_cgs').should('be.disabled');
 });
 
 afterEach(() => {

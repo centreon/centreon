@@ -23940,3 +23940,250 @@ msgstr "Está prestes a duplicar <strong>{{ count }} categorias de host</strong>
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
 
+#: unknown
+msgid "Delete meta services"
+msgstr "Eliminar os meta-serviços"
+
+#: unknown
+msgid "Delete service categories"
+msgstr "Eliminar as categorias de serviço"
+
+#: unknown
+msgid "Delete service groups"
+msgstr "Eliminar os grupos de serviço"
+
+#: unknown
+msgid "Delete meta service"
+msgstr "Eliminar o meta-serviço"
+
+#: unknown
+msgid "Delete service category"
+msgstr "Eliminar a categoria de serviço"
+
+#: unknown
+msgid "Delete service group"
+msgstr "Eliminar o grupo de serviço"
+
+#: unknown
+msgid "Duplicate meta services"
+msgstr "Duplicar os meta-serviços"
+
+#: unknown
+msgid "Duplicate service categories"
+msgstr "Duplicar as categorias de serviço"
+
+#: unknown
+msgid "Duplicate service groups"
+msgstr "Duplicar os grupos de serviço"
+
+#: unknown
+msgid "Duplicate meta service"
+msgstr "Duplicar o meta-serviço"
+
+#: unknown
+msgid "Duplicate service category"
+msgstr "Duplicar a categoria de serviço"
+
+#: unknown
+msgid "Duplicate service group"
+msgstr "Duplicar o grupo de serviço"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} meta services.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} meta-serviços.</strong> Esta ação não pode ser anulada. Deseja eliminá-los?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> meta service. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar o meta-serviço <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-lo?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} categorias de serviço.</strong> Esta ação não pode ser anulada. Deseja eliminá-las?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service category. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar a categoria de serviço <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-la?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} grupos de serviço.</strong> Esta ação não pode ser anulada. Deseja eliminá-los?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service group. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar o grupo de serviço <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-lo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} meta services.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} meta-serviços.</strong> Deseja duplicá-los?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> meta service. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar o meta-serviço <strong>{{ name }}</strong>. Deseja duplicá-lo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service categories.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} categorias de serviço.</strong> Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service category. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar a categoria de serviço <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service groups.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} grupos de serviço.</strong> Deseja duplicá-los?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service group. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar o grupo de serviço <strong>{{ name }}</strong>. Deseja duplicá-lo?"
+
+#: unknown
+msgid "Delete service"
+msgstr "Eliminar serviço"
+
+#: unknown
+msgid "Delete services"
+msgstr "Eliminar serviços"
+
+#: unknown
+msgid "Duplicate service"
+msgstr "Duplicar serviço"
+
+#: unknown
+msgid "Duplicate services"
+msgstr "Duplicar serviços"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar o serviço <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-lo?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} services.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} serviços.</strong> Esta ação não pode ser anulada. Deseja eliminá-los?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar o serviço <strong>{{ name }}</strong>. Deseja duplicá-lo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} services.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} serviços.</strong> Deseja duplicá-los?"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Filtros avançados"
+
+#: unknown
+msgid "Select"
+msgstr "Selecionar"
+
+#: unknown
+msgid "Group services together to manage them collectively."
+msgstr "Agrupe os serviços para os gerir coletivamente."
+
+#: unknown
+msgid "Service categories"
+msgstr "Categorias de Serviço"
+
+#: unknown
+msgid "Group services into categories to organize and filter your configuration."
+msgstr "Agrupe os serviços em categorias para organizar e filtrar a sua configuração."
+
+#: unknown
+msgid "Meta services"
+msgstr "Meta-serviços"
+
+#: unknown
+msgid "Build virtual services that aggregate metrics from other services."
+msgstr "Crie serviços virtuais que agregam métricas de outros serviços."
+
+#: unknown
+msgid "Components"
+msgstr "Componentes"
+
+#: unknown
+msgid "Delete metric"
+msgstr "Eliminar a métrica"
+
+#: unknown
+msgid "Delete metrics"
+msgstr "Eliminar as métricas"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> metric. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar a métrica <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-la?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} metrics.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} métricas.</strong> Esta ação não pode ser anulada. Deseja eliminá-las?"
+
+#: unknown
+msgid "Configure the services monitored on your hosts."
+msgstr "Configure os serviços monitorizados nos seus hosts."
+
+#: unknown
+msgid "Configure services grouped by host group."
+msgstr "Configure os serviços agrupados por grupo de hosts."
+
+#: unknown
+msgid "Service templates"
+msgstr "Modelos de Serviço"
+
+#: unknown
+msgid "Define reusable service configurations to apply across your services."
+msgstr "Defina configurações de serviço reutilizáveis para aplicar aos seus serviços."
+
+#: unknown
+msgid "Add a Service Template"
+msgstr "Adicionar um modelo de serviço"
+
+#: unknown
+msgid "Delete service template"
+msgstr "Eliminar o modelo de serviço"
+
+#: unknown
+msgid "Delete service templates"
+msgstr "Eliminar os modelos de serviço"
+
+#: unknown
+msgid "Duplicate service template"
+msgstr "Duplicar o modelo de serviço"
+
+#: unknown
+msgid "Duplicate service templates"
+msgstr "Duplicar os modelos de serviço"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> service template. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar o modelo de serviço <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-lo?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} service templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} modelos de serviço.</strong> Esta ação não pode ser anulada. Deseja eliminá-los?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> service template. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar o modelo de serviço <strong>{{ name }}</strong>. Deseja duplicá-lo?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} service templates.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} modelos de serviço.</strong> Deseja duplicá-los?"
+
+#: unknown
+msgid "Back to metrics"
+msgstr "Voltar às métricas"
+
+#: unknown
+msgid "Command Arguments"
+msgstr "Argumentos do comando"
+
+#: unknown
+msgid "Inherit only contacts from host"
+msgstr "Herdar apenas os contactos do host"
+
+#: unknown
+msgid "Notification delay"
+msgstr "Atraso de notificação"
+
+#: unknown
+msgid "Reset to template value"
+msgstr "Repor para o valor do modelo"

@@ -130,12 +130,12 @@ Then(
 );
 
 Given('a service is configured', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
-  // Wait until the 'Hosts' search field is visible in the DOM page
-  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
   // Check that a configured service is existed
-  cy.getIframeBody().contains('a', services.serviceOk.name).should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', services.serviceOk.name)
+    .should('exist');
 });
 
 When('the user adds a procedure concerning this service in MediaWiki', () => {
@@ -174,19 +174,17 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
 Then(
   'a link towards this service procedure is available in configuration',
   () => {
-    cy.visit(PAGES.configuration.servicesByHostLegacy);
-    cy.wait('@getTimeZone');
-    // Wait until the 'Hosts' search field is visible in the DOM page
-    cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
-    // Click on the service to open its details
-    cy.getIframeBody().contains('a', services.serviceOk.name).click();
-    // Wait until the tab 'Extended Infos' is visible
-    cy.waitForElementInIframe('#main-content', 'a:contains("Extended Info")');
-    cy.getIframeBody().contains('a', 'Extended Info').click();
-    // Click outside the form
-    cy.get('body').click(0, 0);
+    cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+    // Click on the service to open its details in the side panel, then wait
+    // until the tab 'Extended Infos' is visible
+    cy.openListingRowForm(services.serviceOk.name);
+    // Tab anchors are targeted by section id: the labels are translated and
+    // 'Extended Info' is now 'Misc'.
+    cy.getFormBody()
+      .find('.cf-tab-nav a[href="#cf-sec-extended"]', { timeout: 20_000 })
+      .click();
     // Check that the 'Note URL' contains the url of the mediawiki
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="esi_notes_url"]')
       .should('have.value', serviceNoteUrl);
   }

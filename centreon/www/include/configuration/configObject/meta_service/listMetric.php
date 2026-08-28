@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,154 +19,77 @@
  *
  */
 
-$calcType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' => _('Max')];
-
 if (! isset($oreon)) {
     exit();
 }
 
 include_once './class/centreonUtils.class.php';
 
-include './include/common/autoNumLimit.php';
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-require_once './class/centreonDB.class.php';
-$pearDBO = new CentreonDB('centstorage');
-
-$DBRESULT = $pearDB->prepare('SELECT * FROM meta_service WHERE meta_id = :meta_id');
-$DBRESULT->bindValue(':meta_id', $meta_id, PDO::PARAM_INT);
-$DBRESULT->execute();
-
-$meta = $DBRESULT->fetchRow();
-$tpl->assign('meta', ['meta' => _('Meta Service'), 'name' => $meta['meta_name'], 'calc_type' => $calcType[$meta['calcul_type']]]);
-$DBRESULT->closeCursor();
-
-// start header menu
 $tpl->assign('headerMenu_host', _('Host'));
 $tpl->assign('headerMenu_service', _('Services'));
 $tpl->assign('headerMenu_metric', _('Metrics'));
-$tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-$aclFrom = '';
-$aclCond = '';
-if (! $oreon->user->admin) {
-    $aclFrom = ", `{$aclDbName}`.centreon_acl acl ";
-    $aclCond = ' AND acl.host_id = msr.host_id
-                 AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
-}
+$tpl->assign('msPage', $p);
+// metaService.php leaves $meta_id at false when the request value is rejected,
+// and the template interpolates it raw into extraParams: { meta_id: {$metaId} }.
+// An empty value there is a JavaScript syntax error that takes the whole
+// listing script down, so it is cast to an int rather than left to render.
+$tpl->assign('metaId', (int) $meta_id);
 
-$statement = $pearDB->prepare(
-    "SELECT DISTINCT msr.*
-    FROM `meta_service_relation` msr {$aclFrom}
-    WHERE msr.meta_id = :meta_id
-    {$aclCond}
-    ORDER BY host_id"
-);
-$statement->bindValue(':meta_id', $meta_id, PDO::PARAM_INT);
-$statement->execute();
-
-$ar_relations = [];
-
+// Form for bulk actions
 $form = new HTML_QuickFormCustom('Form', 'POST', '?p=' . $p);
 
-// Construct request
-
-$metrics = [];
-
-while ($row = $statement->fetchRow()) {
-    $ar_relations[$row['metric_id']][] = ['activate' => $row['activate'], 'msr_id' => $row['msr_id']];
-    $metrics[] = $row['metric_id'];
-}
-$in_statement = implode(',', $metrics);
-
-if ($in_statement != '') {
-    $query = 'SELECT * FROM metrics m, index_data i '
-        . "WHERE m.metric_id IN ({$in_statement}) "
-        . 'AND m.index_id=i.id ORDER BY i.host_name, i.service_description, m.metric_name';
-    $DBRESULTO = $pearDBO->query($query);
-    // Different style between each lines
-    $style = 'one';
-    // Fill a tab with a mutlidimensionnal Array we put in $tpl
-    $elemArr1 = [];
-    $i = 0;
-    $centreonToken = createCSRFToken();
-
-    while ($metric = $DBRESULTO->fetchRow()) {
-        foreach ($ar_relations[$metric['metric_id']] as $relation) {
-            $moptions = '';
-            $selectedElements = $form->addElement('checkbox', 'select[' . $relation['msr_id'] . ']');
-            if ($relation['activate']) {
-                $moptions .= "<a href='main.php?p=" . $p . '&msr_id=' . $relation['msr_id']
-                    . '&o=us&meta_id=' . $meta_id . '&metric_id=' . $metric['metric_id']
-                    . '&centreon_token=' . $centreonToken
-                    . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' border='0' alt='"
-                    . _('Disabled') . "'></a>&nbsp;&nbsp;";
-            } else {
-                $moptions .= "<a href='main.php?p=" . $p . '&msr_id=' . $relation['msr_id']
-                    . '&o=ss&meta_id=' . $meta_id . '&metric_id=' . $metric['metric_id']
-                    . '&centreon_token=' . $centreonToken
-                    . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' border='0' alt='"
-                    . _('Enabled') . "'></a>&nbsp;&nbsp;";
-            }
-            $metric['service_description'] = str_replace('#S#', '/', $metric['service_description']);
-            $metric['service_description'] = str_replace('#BS#', '\\', $metric['service_description']);
-            $elemArr1[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_host' => htmlentities($metric['host_name'], ENT_QUOTES, 'UTF-8'), 'RowMenu_link' => 'main.php?p=' . $p . '&o=cs&msr_id=' . $relation['msr_id'], 'RowMenu_service' => htmlentities($metric['service_description'], ENT_QUOTES, 'UTF-8'), 'RowMenu_metric' => CentreonUtils::escapeSecure($metric['metric_name'] . ' (' . $metric['unit_name'] . ')'), 'RowMenu_status' => $relation['activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $relation['activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
-            $style = $style != 'two' ? 'two' : 'one';
-            $i++;
-        }
-    }
-}
-if (isset($elemArr1)) {
-    $tpl->assign('elemArr1', $elemArr1);
-} else {
-    $tpl->assign('elemArr1', []);
-}
-
-// Different messages we put in the template
-$tpl->assign('msg', ['addL1' => 'main.php?p=' . $p . '&o=as&meta_id=' . $meta_id, 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]);
+$tpl->assign('msg', [
+    'addL1' => 'main.php?p=' . $p . '&o=as&meta_id=' . $meta_id,
+    'addT' => _('Add'),
+]);
 
 // Element we need when we reload the page
 $form->addElement('hidden', 'p');
 $form->addElement('hidden', 'meta_id');
-$tab = ['p' => $p, 'meta_id' => $meta_id];
-$form->setDefaults($tab);
+$form->setDefaults(['p' => $p, 'meta_id' => $meta_id]);
 
-// Toolbar select
 ?>
-    <script type="text/javascript">
-        function setO(_i) {
-            document.forms['form'].elements['o'].value = _i;
-        }
-    </SCRIPT>
+<script type="text/javascript">
+    function setO(_i) {
+        // metaService.php reserves 'd' for deleting meta services; deleting a
+        // metric is 'ds'. clMoreAction only raises its confirmation modal for
+        // the generic 'd'/'m' codes, so the option carries 'd' and the page
+        // maps it back to the action its own dispatcher expects.
+        document.forms['form'].elements['o'].value = (_i === 'd') ? 'ds' : _i;
+    }
+</script>
 <?php
-$attrs1 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o1'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o1'].value); submit();} "];
-$form->addElement('select', 'o1', null, [null => _('More actions...'), 'ds' => _('Delete')], $attrs1);
-$form->setDefaults(['o1' => null]);
 
-$attrs2 = ['onchange' => 'javascript: '
-    . "if (this.form.elements['o2'].selectedIndex == 1 && confirm('" . _('Do you confirm the deletion ?') . "')) {"
-    . " 	setO(this.form.elements['o2'].value); submit();} "];
-$form->addElement('select', 'o2', null, [null => _('More actions...'), 'ds' => _('Delete')], $attrs2);
-$form->setDefaults(['o2' => null]);
-
-$o1 = $form->getElement('o1');
-$o1->setValue(null);
-$o1->setSelected(null);
-
-$o2 = $form->getElement('o2');
-$o2->setValue(null);
-$o2->setSelected(null);
-
-$tpl->assign('limit', $limit);
+// Styled, secure confirmation modal (clMoreAction in listing.js) replaces the
+// native confirm()/alert(); messages passed as data-* attributes so the handler
+// stays locale-independent (keyed on the option value).
+foreach (['o1'] as $option) {
+    $attrs = [
+        'onchange' => 'clMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete metric'),
+        'data-title-delete-many' => _('Delete metrics'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> metric. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} metrics.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-label-cancel' => _('Cancel'),
+    ];
+    $form->addElement('select', $option, null, [null => _('More actions'), 'd' => _('Delete')], $attrs);
+    $form->setDefaults([$option => null]);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
+}
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

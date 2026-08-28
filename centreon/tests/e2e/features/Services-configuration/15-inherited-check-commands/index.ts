@@ -59,42 +59,43 @@ Given('a host group is configured', () => {
 });
 
 When('the admin adds a new service linked to the configured host', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('Add').click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
-
-  cy.getIframeBody()
-    .find('input[name="service_description"]')
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  cy.clickListingAddButton();
+  cy.getListingSidePanelBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
     .clear()
     .type(services.serviceByHost.name);
 
-  cy.getIframeBody().find('input[placeholder="Hosts"]').click();
-  cy.getIframeBody()
-    .find(`div[title="${services.serviceByHost.host}"]`)
-    .click();
+  cy.selectFormOption('service_hPars', services.serviceByHost.host);
 });
 
 When('the admin selects the configured service template as parent', () => {
-  cy.getIframeBody()
-    .find('td.FormRowValue')
+  cy.getListingSidePanelBody()
     .find('select#service_template_model_stm_id')
     .next()
-    .click();
-  cy.getIframeBody().contains(services.serviceByHost.template).click();
+    .find('.select2-selection')
+    .click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains(services.serviceByHost.template)
+    .click({ force: true });
 });
 
 When('the admin saves the configuration', () => {
-  cy.getIframeBody().find('input[value="Save"]').eq(1).click();
+  cy.getListingSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the service is successfully created', () => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
   cy.getIframeBody()
+    .find('#clTableBody')
     .contains('a', services.serviceByHost.name)
     .should('be.visible');
 });
@@ -102,30 +103,23 @@ Then('the service is successfully created', () => {
 When(
   'the admin adds a new service by host group linked to the configured host group',
   () => {
-    cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
-    cy.wait('@getTimeZone');
-    cy.getIframeBody().contains('Add').click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
-
-    cy.getIframeBody()
-      .find('input[name="service_description"]')
+    cy.visitListingAndWait(PAGES.configuration.servicesByHostGroupsLegacy);
+    cy.clickListingAddButton();
+    cy.getListingSidePanelBody()
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible')
       .clear()
       .type(services.serviceByHostGroup.name);
 
-    cy.getIframeBody()
-      .find('input[placeholder="Linked with Host Groups"]')
-      .click();
-    cy.getIframeBody()
-      .find(`div[title="${services.serviceByHostGroup.host}"]`)
-      .click();
+    cy.selectFormOption('service_hgPars', services.serviceByHostGroup.host);
   }
 );
 
 Then('the service by host group is successfully created', () => {
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
   cy.getIframeBody()
+    .find('#clTableBody')
     .contains('a', services.serviceByHostGroup.name)
     .should('be.visible');
 });

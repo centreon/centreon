@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 interface Dependency {
   name: string;
   description: string;
@@ -94,13 +96,6 @@ interface HostGroupService {
   geoCoords: string;
   geoCoordsTruncated: string;
   comment: string;
-}
-
-interface HtmlElt {
-  tag: string;
-  attribut: string;
-  attributValue: string;
-  valueOrIndex: string;
 }
 
 Cypress.Commands.add(
@@ -207,14 +202,23 @@ Cypress.Commands.add('checkFieldsOfVm', (body: VirtualMetric) => {
 });
 
 Cypress.Commands.add('addMetaService', (body: MetaService) => {
-  cy.getIframeBody().find('a.bt_success').contains('Add').click();
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="meta_name"]');
-  cy.getIframeBody().find('input[name="meta_name"]').type(body.name);
-  cy.getIframeBody()
+  // Wait for the modernized listing so external callers (which visit the page
+  // but don't wait for it) don't race the Add click. Target the toolbar button
+  // rather than the one the framework clones into the empty state: on an empty
+  // listing both are present and .cl-btn-add matches two elements.
+  cy.waitForElementInIframe('#main-content', '.cl-actions-left .cl-btn-add');
+  cy.getIframeBody().find('.cl-actions-left .cl-btn-add').click();
+  cy.getMetaServiceSidePanelBody()
+    .find('input[name="meta_name"]', { timeout: 20_000 })
+    .should('be.visible')
+    .type(body.name);
+  cy.getMetaServiceSidePanelBody()
     .find('input[name="max_check_attempts"]')
     .type(body.maxCheckAttempts);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getMetaServiceSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
 });
 
@@ -424,105 +428,90 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'createOrUpdateHostGroupService',
-  (body: HostGroupService, isUpdate: boolean, htmldata: Array<HtmlElt>) => {
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
-    cy.fillFieldInIframe(htmldata[0]);
-    [htmldata[1], htmldata[2], htmldata[3], htmldata[4]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getIframeBody()
-      .find('#select2-service_template_model_stm_id-container')
-      .click();
-    [htmldata[5], htmldata[6]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getIframeBody().find('#select2-command_command_id-container').click();
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(6)
-      .type(body.checkCommand);
-    cy.clickOnFieldInIframe(htmldata[7]);
-    cy.getIframeBody().find('#macro_add').click();
-    cy.waitForElementInIframe('#main-content', '#macroInput_0');
-    cy.getIframeBody().find('#macroInput_0').clear().type(body.macroName);
-    cy.getIframeBody().find('#macroValue_0').clear().type(`${body.macroValue}`);
-    cy.clickOnFieldInIframe(htmldata[8]);
-    cy.getIframeBody().find('#select2-timeperiod_tp_id-container').click();
-    cy.clickOnFieldInIframe(htmldata[9]);
-    [htmldata[10], htmldata[11], htmldata[12]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
+  (body: HostGroupService, isUpdate: boolean) => {
+    // The suite used to drive this form through a list of (tag, attribute,
+    // index) triples, clicking every "Clear field" eraser by its rank among all
+    // of them. The migrated form rebuilds those erasers — initSingleSelectClear
+    // drops the ones select2 rendered and creates its own inside the widget's
+    // container — so that rank no longer names the same field. Naming the field
+    // is what survives the rebuild.
+    // The help tooltip of a field carries the field's own name attribute, so the
+    // input has to be named as one: a bare [name=…] matches the tooltip too.
+    const fillFormField = (name: string, value: number | string): void => {
+      cy.getFormBody()
+        .find(`input[name="${name}"], textarea[name="${name}"]`)
+        .clear()
+        .type(`${value}`);
+    };
+
+    cy.getFormBody()
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible');
+    fillFormField('service_description', body.name);
+    cy.replaceFormOption('service_hgPars', body.hostGroups);
+    cy.replaceFormOption('service_template_model_stm_id', body.template);
+    cy.replaceFormOption('command_command_id', body.checkCommand);
+    cy.getFormBody().find('#macro_add').click();
+    cy.getFormBody().find('#macroInput_0', { timeout: 20_000 }).should('exist');
+    cy.getFormBody().find('#macroInput_0').clear().type(body.macroName);
+    cy.getFormBody().find('#macroValue_0').clear().type(`${body.macroValue}`);
+    cy.replaceFormOption('timeperiod_tp_id', body.checkPeriod);
+    fillFormField('service_max_check_attempts', body.maxCheckAttempts);
+    fillFormField('service_normal_check_interval', body.normalCheckInterval);
+    fillFormField('service_retry_check_interval', body.retryCheckInterval);
     if (isUpdate) {
-      cy.getIframeBody().contains('label', 'No').eq(0).click();
+      // The radio labels are hidden behind the generated segmented buttons;
+      // keep the original intent (the form's first "No") without having to name
+      // the field it belongs to.
+      cy.getFormBody()
+        .find('.cf-segmented button')
+        .filter(':contains("No")')
+        .first()
+        .click({ force: true });
     }
     //Notifications
-    cy.getIframeBody().contains('a', 'Notifications').click();
-    cy.get('body').click(0, 0);
-    cy.clickOnFieldInIframe(htmldata[13]);
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(1)
-      .click({ force: true });
-    [htmldata[14], htmldata[15]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(2)
-      .click({ force: true });
-    cy.clickOnFieldInIframe(htmldata[16]);
-    cy.fillFieldInIframe(htmldata[17]);
-    cy.clickOnFieldInIframe(htmldata[18]);
-    cy.getIframeBody().find('#select2-timeperiod_tp_id2-container').click();
-    cy.clickOnFieldInIframe(htmldata[19]);
-    cy.getIframeBody().find('#notifC').click({ force: true });
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
+    cy.replaceFormOption('service_cs', body.contacts);
+    cy.replaceFormOption('service_cgs', body.contactGroups);
+    fillFormField('service_notification_interval', body.notificationInterval);
+    cy.replaceFormOption('timeperiod_tp_id2', body.notificationPeriod);
+    cy.getFormBody().find('#notifC').click({ force: true });
     if (isUpdate) {
-      cy.getIframeBody().find('#notifC').click({ force: true });
-      cy.getIframeBody().find('#notifU').click({ force: true });
+      cy.getFormBody().find('#notifC').click({ force: true });
+      cy.getFormBody().find('#notifU').click({ force: true });
     }
-    [htmldata[20], htmldata[21]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
+    fillFormField(
+      'service_first_notification_delay',
+      body.firstNotificationDelay
+    );
+    fillFormField(
+      'service_recovery_notification_delay',
+      body.recoveryNotificationDelay
+    );
     //Relations
-    cy.getIframeBody().contains('a', 'Relations').click();
-    cy.get('body').click(0, 0);
-    cy.clickOnFieldInIframe(htmldata[22]);
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(3)
-      .click({ force: true });
-    [htmldata[23], htmldata[24]].forEach((elt) => {
-      cy.clickOnFieldInIframe(elt);
-    });
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(4)
-      .click({ force: true });
-    cy.clickOnFieldInIframe(htmldata[25]);
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-relations"]').click();
+    cy.replaceFormOption('service_sgs', body.serviceGroups);
+    cy.replaceFormOption('service_traps', body.serviceTrap);
     //Data Processing
-    cy.getIframeBody().contains('a', 'Data Processing').click();
-    cy.get('body').click(0, 0);
-    cy.fillFieldInIframe(htmldata[26]);
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-data"]').click();
+    fillFormField('service_freshness_threshold', body.freshnessThreshold);
     //Extended Info
-    cy.getIframeBody().contains('a', 'Extended Info').click();
-    cy.get('body').click(0, 0);
-    cy.clickOnFieldInIframe(htmldata[27]);
-    cy.getIframeBody()
-      .find('input[class="select2-search__field"]')
-      .eq(5)
-      .click({ force: true });
-    cy.clickOnFieldInIframe(htmldata[28]);
-    [htmldata[29], htmldata[30], htmldata[31]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
-    cy.getIframeBody().find('#esi_icon_image').select('1');
-    [htmldata[32], htmldata[33], htmldata[34]].forEach((elt) => {
-      cy.fillFieldInIframe(elt);
-    });
-    cy.getIframeBody().find('input[value="Save"]').eq(1).click();
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-extended"]').click();
+    cy.replaceFormOption('service_categories', body.serviceCategories);
+    fillFormField('esi_notes_url', body.noteUrl);
+    fillFormField('esi_notes', body.note);
+    fillFormField('esi_action_url', body.actionUrl);
+    // The icon picker is a select2 now: the real <select> is hidden behind the
+    // widget, so the native selection has to be forced onto it. select2 syncs
+    // itself from the change event it fires.
+    cy.getFormBody().find('#esi_icon_image').select('1', { force: true });
+    fillFormField('esi_icon_image_alt', body.atlIcon);
+    fillFormField('geo_coords', body.geoCoords);
+    fillFormField('service_comment', body.comment);
+    cy.getFormBody()
+      .find('input.btc.bt_success[name^="submit"]')
+      .first()
+      .click();
     cy.wait('@getTimeZone');
     cy.exportConfig();
   }
@@ -531,128 +520,204 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   'checkValuesOfHostGroupService',
   (name: string, body: HostGroupService) => {
-    cy.waitForElementInIframe('#main-content', `a:contains("${name}")`);
-    cy.getIframeBody().contains(name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'input[name="service_description"]'
-    );
-    cy.getIframeBody()
+    cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+    cy.waitForListingRefresh();
+    cy.openListingRowForm(name)
+      .find('input[name="service_description"]', { timeout: 20_000 })
+      .should('be.visible');
+    cy.getFormBody()
       .find('input[name="service_description"]')
       .should('have.value', name);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#service_hgPars')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.hostGroups);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#service_template_model_stm_id')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.template);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#command_command_id')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.checkCommand);
-    cy.getIframeBody()
-      .find('#macroInput_0')
-      .should('have.value', body.macroName);
-    cy.getIframeBody()
+    cy.getFormBody().find('#macroInput_0').should('have.value', body.macroName);
+    cy.getFormBody()
       .find('#macroValue_0')
       .should('have.value', body.macroValue);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#timeperiod_tp_id')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.checkPeriod);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_max_check_attempts"]')
       .should('have.value', body.maxCheckAttempts);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_normal_check_interval"]')
       .should('have.value', body.normalCheckInterval);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_retry_check_interval"]')
       .should('have.value', body.retryCheckInterval);
-    cy.checkLegacyRadioButton('No');
+    // A yes/no field is a segmented button in the migrated form, and the label
+    // the legacy helper keys on is now a floating label carrying no `for`. The
+    // state is read where the update wrote it: the first "No" segment.
+    cy.getFormBody()
+      .find('.cf-segmented button')
+      .filter(':contains("No")')
+      .first()
+      .should('have.class', 'active');
     //Notifications
-    cy.getIframeBody().contains('a', 'Notifications').click();
-    cy.get('body').click(0, 0);
-    cy.getIframeBody()
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-notif"]').click();
+    cy.getFormBody()
       .find('#service_cs')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.contacts);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#service_cgs')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.contactGroups);
 
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_notification_interval"]')
       .should('have.value', body.notificationInterval);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#timeperiod_tp_id2')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.notificationPeriod);
-    cy.getIframeBody().find('#notifC').should('be.checked');
-    cy.getIframeBody().find('#notifU').should('be.checked');
-    cy.getIframeBody()
+    cy.getFormBody().find('#notifC').should('be.checked');
+    cy.getFormBody().find('#notifU').should('be.checked');
+    cy.getFormBody()
       .find('input[name="service_first_notification_delay"]')
       .should('have.value', body.firstNotificationDelay);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="service_recovery_notification_delay"]')
       .should('have.value', body.recoveryNotificationDelay);
     //Relations
-    cy.getIframeBody().contains('a', 'Relations').click();
-    cy.get('body').click(0, 0);
-    cy.getIframeBody()
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-relations"]').click();
+    cy.getFormBody()
       .find('#service_sgs')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.serviceGroups);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('#service_traps')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.serviceTrap);
     //Data Processing
-    cy.getIframeBody().contains('a', 'Data Processing').click();
-    cy.get('body').click(0, 0);
-    cy.getIframeBody()
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-data"]').click();
+    cy.getFormBody()
       .find('input[name="service_freshness_threshold"]')
       .should('have.value', body.freshnessThreshold);
     //Extended Info
-    cy.getIframeBody().contains('a', 'Extended Info').click();
-    cy.get('body').click(0, 0);
-    cy.getIframeBody()
+    cy.getFormBody().find('.cf-tab-nav a[href="#cf-sec-extended"]').click();
+    cy.getFormBody()
       .find('#service_categories')
       .find('option:selected')
       .should('have.length', 1)
       .and('have.text', body.serviceCategories);
 
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="esi_notes_url"]')
       .should('have.value', body.noteUrl);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="esi_notes"]')
       .should('have.value', body.note);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="esi_action_url"]')
       .should('have.value', body.actionUrl);
-    cy.getIframeBody().find('#esi_icon_image').should('have.value', '1');
-    cy.getIframeBody()
+    cy.getFormBody().find('#esi_icon_image').should('have.value', '1');
+    cy.getFormBody()
       .find('input[name="esi_icon_image_alt"]')
       .should('have.value', body.atlIcon);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('input[name="geo_coords"]')
       .should('have.value', body.geoCoordsTruncated);
-    cy.getIframeBody()
+    cy.getFormBody()
       .find('textarea[name="service_comment"]')
       .should('have.value', body.comment);
+  }
+);
+
+Cypress.Commands.add('openMetaServicesListing', () => {
+  cy.visit(PAGES.configuration.metaServicesLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
+});
+
+Cypress.Commands.add('getMetaServiceSidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openMetaServiceForm', (name: string) => {
+  cy.openListingRowForm(name)
+    .find('input[name="meta_name"]', { timeout: 20_000 })
+    .should('be.visible');
+});
+
+Cypress.Commands.add(
+  'selectMetaServiceRowAndRunBulkAction',
+  (name: string, action: string) => {
+    // One query, not a chain: the listing auto-refreshes on a timer and a
+    // contains -> parents -> find chain loses its subject when the table is
+    // replaced mid-way. Cypress retries a single find() atomically.
+    cy.getIframeBody()
+      .find(
+        `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+      )
+      .click({ force: true });
+    cy.runListingBulkAction(action);
+  }
+);
+
+Cypress.Commands.add('openServiceCategoriesListing', () => {
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.getIframeBody()
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
+});
+
+Cypress.Commands.add('getServiceCategorySidePanelBody', () => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 20_000 })
+    .should('not.be.empty')
+    .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
+});
+
+Cypress.Commands.add('openServiceCategoryForm', (name: string) => {
+  cy.openListingRowForm(name);
+  cy.getServiceCategorySidePanelBody()
+    .find('input[name="sc_name"]', { timeout: 20000 })
+    .should('be.visible');
+});
+
+Cypress.Commands.add(
+  'selectServiceCategoryRowAndRunBulkAction',
+  (name: string, action: string) => {
+    cy.getIframeBody()
+      .find(
+        `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+      )
+      .click({ force: true });
+    cy.runListingBulkAction(action);
   }
 );
 
@@ -660,6 +725,20 @@ declare global {
   // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
+      openMetaServicesListing(): Chainable<void>;
+      getMetaServiceSidePanelBody(): Chainable<JQuery<HTMLElement>>;
+      openMetaServiceForm(name: string): Chainable<void>;
+      selectMetaServiceRowAndRunBulkAction(
+        name: string,
+        action: string
+      ): Chainable<void>;
+      openServiceCategoriesListing(): Chainable<void>;
+      getServiceCategorySidePanelBody(): Chainable<JQuery<HTMLElement>>;
+      openServiceCategoryForm(name: string): Chainable<void>;
+      selectServiceCategoryRowAndRunBulkAction(
+        name: string,
+        action: string
+      ): Chainable<void>;
       addOrUpdateVirtualMetric: (
         body: VirtualMetric,
         showGraph: boolean
@@ -684,8 +763,7 @@ declare global {
       ) => Cypress.Chainable;
       createOrUpdateHostGroupService: (
         body: HostGroupService,
-        isUpdate: boolean,
-        htmldata: Array<HtmlElt>
+        isUpdate: boolean
       ) => Cypress.Chainable;
       checkValuesOfHostGroupService: (
         name: string,
@@ -694,5 +772,3 @@ declare global {
     }
   }
 }
-
-export {};

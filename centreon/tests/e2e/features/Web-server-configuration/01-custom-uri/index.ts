@@ -105,23 +105,26 @@ Then(
         .should('be.gte', 21);
     });
 
-    cy.visit(
+    // The services listing is AJAX-driven: reaching a populated table already
+    // proves its endpoint resolves under the custom URI. Its default service
+    // pictogram is a 14px inline svg, not the 18px image of the legacy page.
+    cy.visitListingAndWait(
       replaceCustomUri(PAGES.configuration.servicesByHostLegacy, '/monitor')
     );
 
-    cy.wait('@getTimeZone').then(() => {
-      cy.getIframeBody()
-        .contains(service)
-        .find('svg')
-        .invoke('width')
-        .should('be.gte', 18);
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', service)
+      .find('svg')
+      .invoke('width')
+      .should('be.gte', 14);
 
-      cy.getIframeBody()
-        .contains(service)
-        .find('svg')
-        .invoke('height')
-        .should('be.gte', 18);
-    });
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', service)
+      .find('svg')
+      .invoke('height')
+      .should('be.gte', 14);
   }
 );
 

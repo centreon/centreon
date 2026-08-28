@@ -80,14 +80,74 @@ function clInitAdvSelectClear() {
 
         var $ = window.jQuery;
         var isOpen = false;
+        function isEmpty() { return selectEl.value === '' || selectEl.value == null; }
         function syncFilled() {
-            field.classList.toggle('cl-adv-filled', selectEl.value !== '' && selectEl.value != null);
+            field.classList.toggle('cl-adv-filled', !isEmpty());
         }
         function setActive(on) { field.classList.toggle('cl-adv-active', on); }
+
+        // Clearing a filter must not survive a reload. The applied filters are
+        // persisted to sessionStorage on fetch, and the restore step re-appends
+        // the saved option as selected — so a field cleared WITHOUT a refetch came
+        // back on the next page load. That happens with every clear control that
+        // does not go through the panel's Search button: centreon-select2's eraser
+        // (it only blanks the <select>, and for an AJAX source drops its options),
+        // select2's own cross, or any programmatic reset.
+        //
+        // Rather than special-casing one control, drop the key from the persisted
+        // state as soon as the field goes empty. Path-agnostic, and it never
+        // fetches, so it cannot double-fetch with a Search click.
+        var wasEmpty = isEmpty();
+        // Scoped to the current listing's own state entry. Filter element ids are
+        // generic and reused across pages (template, status, ...), so sweeping
+        // every cl_state_* key would clear a namesake filter persisted by another
+        // migrated listing.
+        function forgetPersistedFilter() {
+            var name = selectEl.id || selectEl.name;
+            var key = window.clCurrentStateKey;
+            if (!name || !key) return;
+            try {
+                var state = JSON.parse(sessionStorage.getItem(key) || 'null');
+                if (!state) return;
+                var touched = false;
+                if (state.extra && state.extra[name] !== undefined) { delete state.extra[name]; touched = true; }
+                if (state.labels && state.labels[name] !== undefined) { delete state.labels[name]; touched = true; }
+                if (touched) sessionStorage.setItem(key, JSON.stringify(state));
+            } catch (e) {
+                // Storage unavailable or the entry is not the JSON we wrote: the
+                // cleared filter stays persisted and comes back on the next load,
+                // which is the very bug this function exists to prevent. Nothing
+                // to retry, but it must not pass unnoticed.
+                if (window.console) {
+                    console.warn('[CentreonListing] could not forget persisted filter', name, e);
+                }
+            }
+        }
+
+        // The eraser additionally re-runs the search, so the rows stop showing a
+        // filter the field no longer displays. It is told apart from a normal
+        // selection by the extra argument it passes to trigger('change', values):
+        // select2 picks and the panel's Clear button (which re-runs the search
+        // itself) pass none, so neither double-fetches here.
+        function onFilterChange(e, clearedValues) {
+            var nowEmpty = isEmpty();
+            if (nowEmpty && !wasEmpty) {
+                forgetPersistedFilter();
+            }
+            wasEmpty = nowEmpty;
+
+            if (clearedValues === undefined || clearedValues === null || clearedValues.length === 0) {
+                return;
+            }
+            var panel = field.closest('.cl-adv-panel');
+            var searchBtn = panel && panel.querySelector('.cl-adv-search');
+            if (searchBtn) searchBtn.click();
+        }
 
         syncFilled();
         if ($) {
             $(selectEl).on('change', syncFilled);
+            $(selectEl).on('change', onFilterChange);
             $(selectEl).on('select2:open', function () { isOpen = true; setActive(true); });
             $(selectEl).on('select2:close', function () {
                 isOpen = false;
@@ -95,6 +155,7 @@ function clInitAdvSelectClear() {
             });
         } else {
             selectEl.addEventListener('change', syncFilled);
+            selectEl.addEventListener('change', onFilterChange);
         }
         // While the dropdown is open select2 moves focus to a search field in
         // <body>, so focusout must not deactivate then.
@@ -201,6 +262,11 @@ function CentreonListing(config) {
 
     // Restore state from sessionStorage (survives navigation, cleared on browser close)
     var stateKey   = 'cl_state_' + cfg.storageKey;
+    // Published for the advanced-filter helpers, which run outside this closure
+    // and must only ever touch the state of the listing on the current page.
+    // One listing per page, and the instance is built by the page's inline
+    // script, so this is set before any filter interaction can happen.
+    window.clCurrentStateKey = stateKey;
     var savedState = null;
     try { savedState = JSON.parse(sessionStorage.getItem(stateKey)); } catch(e) {}
 
@@ -458,9 +524,16 @@ function CentreonListing(config) {
         // carried them via POST.
         function openMassChangePanel(label) {
             var addBtn = document.querySelector('.cl-actions-left .cl-btn-add');
-            var onclickAttr = (addBtn && addBtn.getAttribute('onclick')) || '';
-            var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec(onclickAttr);
-            if (!urlMatch || typeof window.cfOpenPanel !== 'function') return false;
+            // Aligned pages carry the URL in data-panel-url — building the
+            // onclick with the title inline in a JS string breaks on an
+            // apostrophe. Reading the attribute is only a fallback for a page
+            // still on the old inline form.
+            var addUrl = (addBtn && addBtn.getAttribute('data-panel-url')) || '';
+            if (!addUrl) {
+                var urlMatch = /cfOpenPanel\(\s*'([^']*)'/.exec((addBtn && addBtn.getAttribute('onclick')) || '');
+                addUrl = urlMatch ? urlMatch[1] : '';
+            }
+            if (!addUrl || typeof window.cfOpenPanel !== 'function') return false;
 
             var ids = [];
             jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').each(function () {
@@ -470,7 +543,7 @@ function CentreonListing(config) {
             });
             if (!ids.length) return false;
 
-            var url = urlMatch[1].replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
+            var url = addUrl.replace(/([?&]o=)[^&]*/, '$1mc') + '&select=' + ids.map(encodeURIComponent).join(',');
             window.cfOpenPanel(url, label);
             return true;
         }
@@ -691,9 +764,7 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    // Disable toggles and hide dup inputs for read-only users
-                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
-                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                    optHtml = clStripWriteControls(optHtml);
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -737,8 +808,7 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
-                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                    optHtml = clStripWriteControls(optHtml);
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -858,10 +928,19 @@ function CentreonListing(config) {
                 centreon_token: csrfToken
             },
             success: function (response) {
-                if (response.centreon_token) {
+                if (response && response.centreon_token) {
                     csrfToken = response.centreon_token;
                 }
                 toggle.disabled = false;
+                // The toggles answer {success: true}; anything else on a 200 —
+                // an empty body, a redirect to a login page parsed as JSON —
+                // means the row was not flipped. Check for the acknowledgement
+                // rather than trusting the status code, otherwise the switch
+                // ends up showing the opposite of the database.
+                if (!response || response.success !== true) {
+                    toggle.checked = !isChecked;
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
             },
             error: function (xhr, status, err) {
                 // Revert the optimistic switch and re-enable it (kept), but tell
@@ -1272,6 +1351,24 @@ function clToast(message, type) {
 function clListingLabel(key, fallback) {
     var l = window.clI18n && window.clI18n.listing;
     return (l && l[key]) || fallback;
+}
+
+// Strip the write-only controls from a rendered options cell. Parsing the
+// fragment beats rewriting it: the duplication input carries an onKeypress
+// holding ">" characters, which a <input[^>]*> regex stops at, so the field
+// survived and read-only users kept seeing it.
+function clStripWriteControls(optHtml) {
+    var holder = document.createElement('div');
+    holder.innerHTML = optHtml;
+    Array.prototype.forEach.call(holder.querySelectorAll('.cl-dup-input'), function (el) {
+        el.parentNode.removeChild(el);
+    });
+    Array.prototype.forEach.call(holder.querySelectorAll('input[type="checkbox"]'), function (el) {
+        el.removeAttribute('onchange');
+        el.setAttribute('disabled', 'disabled');
+    });
+
+    return holder.innerHTML;
 }
 
 function clEscape(str) {

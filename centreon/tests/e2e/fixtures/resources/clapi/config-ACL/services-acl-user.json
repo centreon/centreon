@@ -1,0 +1,87 @@
+[
+    {
+        "action": "ADD",
+        "object": "HOST",
+        "values": "acl-host-granted;acl-host-granted;127.0.0.1;generic-host;Central;"
+    },
+    {
+        "action": "ADD",
+        "object": "HOST",
+        "values": "acl-host-denied;acl-host-denied;127.0.0.2;generic-host;Central;"
+    },
+    {
+        "action": "ADD",
+        "object": "SERVICE",
+        "values": "acl-host-granted;acl-service-granted;Ping-LAN"
+    },
+    {
+        "action": "ADD",
+        "object": "SERVICE",
+        "values": "acl-host-denied;acl-service-denied;Ping-LAN"
+    },
+    {
+        "action": "SETPARAM",
+        "object": "SERVICE",
+        "values": "acl-host-granted;acl-service-granted;activate;1"
+    },
+    {
+        "action": "SETPARAM",
+        "object": "SERVICE",
+        "values": "acl-host-denied;acl-service-denied;activate;1"
+    },
+    {
+        "action": "ADD",
+        "object": "SC",
+        "values": "acl-service-category;acl-service-category"
+    },
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "services-acl-user;services-acl-user;services-acl-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "services-ACLGROUP;services-ACLGROUP"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "services-ACLGROUP;services-acl-user"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "services-ACLMENU;services-ACLMENU"
+    },
+    {
+        "action": "GRANTRW",
+        "object": "ACLMENU",
+        "values": "services-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "services-ACLGROUP;services-ACLMENU"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=services-ACLRESOURCE;acl_group=services-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "services-ACLGROUP;name=services-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_HOST",
+        "object": "ACLRESOURCE",
+        "values": "name=services-ACLRESOURCE;acl-host-granted"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]

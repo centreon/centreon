@@ -32,23 +32,39 @@ const resultsToSubmit = [
 ];
 
 const checkServicesProperties = (name) => {
-  cy.getIframeBody().contains(name).click();
-  cy.waitForElementInIframe(
-    '#main-content',
-    'input[name="service_description"]'
-  );
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  // Not a plain click: this helper runs three times in a row, and each run
+  // submits the form, which closes the panel. closePanel() only resets the
+  // iframe src 300ms later, so clicking inside that window lets the pending
+  // timeout overwrite the src cfOpenPanel just set and the panel loads blank
+  // for good. openListingRowForm waits for that reset before opening the next.
+  cy.openListingRowForm(name);
+  cy.getFormBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible');
 
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('span[id="select2-command_command_id-container"]')
     .should('have.attr', 'title', 'check_http');
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[name="service_max_check_attempts"]')
     .should('have.value', '2');
-  cy.getIframeBody()
+  cy.getFormBody()
     .find('input[name="service_retry_check_interval"]')
     .should('have.value', '3');
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  cy.getFormBody().find('input.btc.bt_success[name^="submit"]').first().click();
   cy.wait('@getTimeZone');
+};
+
+// Select the row of a named service. The listing groups its rows by host, so
+// positional indexes no longer identify a service.
+const selectServiceRow = (name: string): void => {
+  cy.getIframeBody()
+    .find(
+      `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+    )
+    .click({ force: true });
 };
 
 beforeEach(() => {
@@ -112,25 +128,46 @@ Given('several services have been created with mandatory properties', () => {
 });
 
 When('the user has applied "Mass Change" operation on several services', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(13).click();
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(14).click();
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(12).click();
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  selectServiceRow(services.serviceOk.name);
+  selectServiceRow(services.serviceWarning.name);
+  selectServiceRow(services.serviceCritical.name);
 
-  cy.getIframeBody().find('select[name="o1"]').select('Mass Change');
+  // Mass Change is the one bulk action that does not submit the form: the
+  // framework opens the side panel on the selected ids instead, so there is
+  // neither a confirmation modal nor a POST — hence the menu driven here rather
+  // than cy.runListingBulkAction(). Selecting on the hidden <select> bypasses
+  // the menu interception entirely and submits the whole page, and that reload
+  // detaches the subject of whatever came next.
+  // The panel then loads the mass change form in its iframe, and that form is
+  // heavy: getFormBody() only waits 20s for a body to stop being empty, which a
+  // busy CI platform outruns. Synchronising on the request itself removes the
+  // guesswork.
+  cy.intercept('GET', '**/main.get.php*o=mc*').as('massChangeForm');
+  cy.getIframeBody().find('.cl-more-actions-btn').first().click();
+  cy.getIframeBody().find('.cl-more-actions-item[data-value="mc"]').click();
+  cy.wait('@massChangeForm', { timeout: 60_000 });
+  // The request landing is not the panel being ready: its iframe still has to
+  // parse and run a form of that size. getFormBody() allows 20s for the body to
+  // fill, which the runner outruns, so the wait is made explicit and generous
+  // here rather than by loosening the shared helper for every suite.
+  cy.get('iframe#main-content', { log: false })
+    .its('0.contentDocument.body', { timeout: 60_000 })
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body', { timeout: 60_000 })
+    .should('not.be.empty');
   cy.wait('@getTimeZone');
-  cy.getIframeBody()
-    .find('span[id="select2-command_command_id-container"]')
+  cy.getFormBody()
+    .find('span[id="select2-command_command_id-container"]', {
+      timeout: 20_000
+    })
     .click();
-  cy.getIframeBody().find('div[title="check_http"]').click();
-  cy.getIframeBody().find('input[name="service_max_check_attempts"]').type('2');
-  cy.getIframeBody()
-    .find('input[name="service_retry_check_interval"]')
-    .type('3');
-  cy.getIframeBody()
+  cy.getFormBody().find('div[title="check_http"]').click();
+  cy.getFormBody().find('input[name="service_max_check_attempts"]').type('2');
+  cy.getFormBody().find('input[name="service_retry_check_interval"]').type('3');
+  cy.getFormBody()
     .find('input.btc.bt_success[name="submitMC"]')
-    .eq(1)
+    .first()
     .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -138,8 +175,6 @@ When('the user has applied "Mass Change" operation on several services', () => {
 
 Then('all selected services are updated with the same values', () => {
   checkServicesProperties(services.serviceOk.name);
-  cy.waitForElementInIframe('#main-content', 'a[href*="service_id=28"]');
   checkServicesProperties(services.serviceWarning.name);
-  cy.waitForElementInIframe('#main-content', 'a[href*="service_id=29"]');
   checkServicesProperties(services.serviceCritical.name);
 });

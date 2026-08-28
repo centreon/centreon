@@ -25,392 +25,110 @@ if (! isset($centreon)) {
 
 require_once './class/centreonUtils.class.php';
 
-$hostgroupsFilter ??= null;
-$statusHostFilter ??= null;
+// Filter state belongs to the client: CentreonListing keeps it in sessionStorage
+// and the AJAX endpoint reads it from the request. It must NOT be mirrored into
+// the PHP session — a filter cleared in the UI never reaches the session, so the
+// stale value came back on the next page load and looked impossible to clear.
+//
+// Two server-side pre-fills remain, both one-shot:
+// - the host name carried by the "Display all Services for this host" link
+//   (main.php?p=602&search=<host name>), which wins over the client state,
+// - the values a bulk action posts back, so the round-trip keeps its context.
+$deepLinkSearch = isset($_GET['search']) && $_GET['search'] !== '';
 
-// Object init
-$mediaObj = new CentreonMedia($pearDB);
+$searchH = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchH'] ?? $_GET['search'] ?? '');
+$searchS = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchS'] ?? '');
 
-// Get Extended informations
-$ehiCache = [];
-$dbResult = $pearDB->query('SELECT ehi_icon_image, host_host_id FROM extended_host_information');
-while ($ehi = $dbResult->fetch()) {
-    $ehiCache[$ehi['host_host_id']] = $ehi['ehi_icon_image'];
-}
-$dbResult->closeCursor();
-
-$hostgroups = null;
-
-$template = filter_var(
-    $_POST['template'] ?? $_GET['template'] ?? 0,
-    FILTER_VALIDATE_INT
-);
-
-$searchH = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchH'] ?? $_GET['search'] ?? null
-);
-
-$searchS = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchS'] ?? $_GET['searchS'] ?? null
-);
-
-$status = filter_var(
-    $_POST['status'] ?? $_GET['status'] ?? 0,
-    FILTER_VALIDATE_INT
-);
-
-if (isset($_POST['search']) || isset($_GET['search'])) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['template'] = $template;
-    $centreon->historySearch[$url]['searchH'] = $searchH;
-    $centreon->historySearch[$url]['searchS'] = $searchS;
-    $hostStatus = isset($_POST['statusHostFilter']) ? 1 : 0;
-    $centreon->historySearch[$url]['hostStatus'] = $hostStatus;
-    $centreon->historySearch[$url]['status'] = $status;
-} else {
-    // restoring saved values
-    $template = $centreon->historySearch[$url]['template'] ?? 0;
-    $searchH = $centreon->historySearch[$url]['searchH'] ?? null;
-    $searchS = $centreon->historySearch[$url]['searchS'] ?? null;
-    $hostStatus = $centreon->historySearch[$url]['hostStatus'] ?? 0;
-    $status = $centreon->historySearch[$url]['status'] ?? 0;
-}
-
-$searchH_SQL = '';
-$searchBindValues = [];
-if ($searchH) {
-    $searchH_SQL = 'AND (host.host_name LIKE :searchH1 OR host_alias LIKE :searchH2 OR host_address LIKE :searchH3)';
-    $searchBindValues[':searchH1'] = '%' . $searchH . '%';
-    $searchBindValues[':searchH2'] = '%' . $searchH . '%';
-    $searchBindValues[':searchH3'] = '%' . $searchH . '%';
-}
-
-$searchS_SQL = '';
-if ($searchS) {
-    $searchS_SQL = 'AND (sv.service_alias LIKE :searchS1 OR sv.service_description LIKE :searchS2)';
-    $searchBindValues[':searchS1'] = '%' . $searchS . '%';
-    $searchBindValues[':searchS2'] = '%' . $searchS . '%';
-}
-
-// Host Status Filter
-$hostStatusChecked = '';
-$sqlFilterCase2 = "AND host.host_activate = '1'";
-if ($hostStatus == 1) {
-    $hostStatusChecked = 'checked';
-    $sqlFilterCase2 = '';
-}
-
-// Status Filter
-$statusFilter = [1 => _('Disabled'), 2 => _('Enabled')];
-$sqlFilterCase = '';
-if ($status == 2) {
-    $sqlFilterCase = " AND sv.service_activate = '1' ";
-} elseif ($status == 1) {
-    $sqlFilterCase = " AND sv.service_activate = '0' ";
-}
-
-require_once './class/centreonHost.class.php';
-
-// Init Objects
-$host_method = new CentreonHost($pearDB);
-$service_method = new CentreonService($pearDB);
-
-include './include/common/autoNumLimit.php';
-
-// Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-// Access level
-$lvl_access = ($centreon->user->access->page($p) == 1)
-    ? 'w'
-    : 'r';
+// Centreon path for i18n includes
+$tpl->assign('centreon_path', _CENTREON_PATH_);
+
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// start header menu
+// Menu ACL on the linked pages (0 = no access, 1 = read/write, 2 = read-only;
+// admins get read/write). Drives whether the host and the service templates are
+// clickable in the listing and, if so, in edit (o=c) or view (o=w) mode.
+$tpl->assign('hostAccess', (int) $centreon->user->access->page(60101));
+$tpl->assign('svcTplAccess', (int) $centreon->user->access->page(60206));
+
 $tpl->assign('headerMenu_name', _('Host'));
 $tpl->assign('headerMenu_desc', _('Service'));
-$tpl->assign('headerMenu_retry', _('Scheduling'));
+$tpl->assign('headerMenu_sched', _('Scheduling'));
 $tpl->assign('headerMenu_parent', _('Template'));
-$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_mon', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
-$aclFilter = '';
-$distinct = '';
-if (! $centreon->user->admin) {
-    $aclFilter = ' AND host.host_id = acl.host_id '
-        . 'AND acl.service_id = sv.service_id '
-        . 'AND acl.group_id IN (' . $acl->getAccessGroupsString() . ') ';
-    $distinct = ' DISTINCT ';
-}
+$tpl->assign('svcPage', $p);
 
-// Host/service list
-$queryFieldsToSelect = 'esi.esi_icon_image, sv.service_id, sv.service_description, sv.service_activate, '
-    . 'sv.service_template_model_stm_id, '
-    . 'host.host_id, host.host_name, host.host_template_model_htm_id, sv.service_normal_check_interval, '
-    . 'sv.service_retry_check_interval, sv.service_max_check_attempts ';
-
-$queryTablesToFetch = 'FROM service sv, host'
-    . ((isset($hostgroups) && $hostgroups) ? ', hostgroup_relation hogr, ' : ', ')
-    . ($centreon->user->admin ? '' : '`' . $aclDbName . '`' . '.centreon_acl acl, ')
-    . 'host_service_relation hsr '
-    . 'LEFT JOIN extended_service_information esi ON esi.service_service_id = hsr.service_service_id ';
-
-$queryWhereClause = "WHERE host.host_register = '1' " . $searchH_SQL . ' ' . $sqlFilterCase2
-    . ' AND host.host_id = hsr.host_host_id AND hsr.service_service_id = sv.service_id'
-    . " AND sv.service_register = '1' " . $searchS_SQL . ' ' . $sqlFilterCase
-    . ((isset($template) && $template) ? " AND service_template_model_stm_id = '{$template}' " : '')
-    . ((isset($hostgroups) && $hostgroups)
-        ? " AND hogr.hostgroup_hg_id = '{$hostgroups}' AND hogr.host_host_id = host.host_id "
-        : '')
-    . $aclFilter;
-
-$rq_body = $queryFieldsToSelect
-    . $queryTablesToFetch
-    . $queryWhereClause
-    . ' ORDER BY host.host_name, service_description';
-
-$stmt = $pearDB->prepare(
-    'SELECT SQL_CALC_FOUND_ROWS ' . $distinct . $rq_body
-    . ' LIMIT ' . (int) ($num * $limit) . ', ' . (int) $limit
-);
-foreach ($searchBindValues as $param => $value) {
-    $stmt->bindValue($param, $value);
-}
-$stmt->execute();
-$dbResult = $stmt;
-
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
-
-if (! ($dbResult->rowCount())) {
-    $stmt2 = $pearDB->prepare(
-        'SELECT ' . $distinct . $rq_body . ' LIMIT ' . (int) (floor($rows / $limit) * $limit) . ', ' . (int) $limit
-    );
-    foreach ($searchBindValues as $param => $value) {
-        $stmt2->bindValue($param, $value);
-    }
-    $stmt2->execute();
-    $dbResult = $stmt2;
-}
-
-include './include/common/checkPagination.php';
-$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-
-// Different style between each lines
-$style = 'one';
-
-// select2 Service template
-$route = './api/internal.php?object=centreon_configuration_servicetemplate&action=list';
-$attrServicetemplates = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $route, 'multiple' => false, 'defaultDataset' => $template, 'linkedObject' => 'centreonServicetemplates'];
-$form->addElement('select2', 'template', '', [], $attrServicetemplates);
-
-// select2 Service Status
-$attrServiceStatus = null;
-if ($status) {
-    $statusDefault = [$statusFilter[$status] => $status];
-    $attrServiceStatus = ['defaultDataset' => $statusDefault];
-}
-$form->addElement('select2', 'status', '', $statusFilter, $attrServiceStatus);
-
-$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
-
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$fgHost = ['value' => null, 'print' => null];
-
-$interval_length = $centreon->optGen['interval_length'];
-
-$centreonToken = createCSRFToken();
-
-$statement = $pearDB->prepare(
-    'SELECT COUNT(*) FROM host_service_relation WHERE service_service_id = :service_id'
-);
-for ($i = 0; $service = $dbResult->fetch(); $i++) {
-    // Get Number of Hosts linked to this one.
-    $statement->bindValue(':service_id', $service['service_id'], PDO::PARAM_INT);
-    $statement->execute();
-    $data = $statement->fetch(PDO::FETCH_ASSOC);
-    $service['nbr'] = $data['COUNT(*)'];
-    $statement->closeCursor();
-    unset($data);
-
-    /**
-     * If the name of our Host is in the Template definition, we have to catch it, whatever the level of it :-)
-     */
-    $fgHost['value'] != $service['host_name']
-        ? ($fgHost['print'] = true && $fgHost['value'] = $service['host_name'])
-        : $fgHost['print'] = false;
-    $selectedElements = $form->addElement('checkbox', 'select[' . $service['service_id'] . ']');
-    $moptions = '';
-
-    if ($service['service_activate']) {
-        $moptions .= "<a href='main.php?p=" . $p . '&service_id=' . $service['service_id'] . '&o=u&limit='
-            . $limit . '&num=' . $num . '&hostgroups=' . $hostgroups . "&template={$template}&status=" . $status
-            . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' border='0' alt='"
-            . _('Disabled') . "'></a>";
-    } else {
-        $moptions .= "<a href='main.php?p=" . $p . '&service_id=' . $service['service_id'] . '&o=s&limit='
-            . $limit . '&num=' . $num . '&hostgroups=' . $hostgroups . "&template={$template}&status=" . $status
-            . '&centreon_token=' . $centreonToken
-            . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' border='0' alt='" . _('Enabled') . "'></a>";
-    }
-    $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
-        . 'return false;" onKeyUp="syncInputField(this.name, this.value);" maxlength="3" size="3" '
-        . "value='1' style=\"margin-bottom:0px;\" name='dupNbr[" . $service['service_id'] . "]' />";
-
-    /*If the description of our Service is in the Template definition,
-     we have to catch it, whatever the level of it :-) */
-    if (! $service['service_description']) {
-        $service['service_description'] = getMyServiceAlias($service['service_template_model_stm_id']);
-    } else {
-        $service['service_description'] = str_replace('#S#', '/', $service['service_description']);
-        $service['service_description'] = str_replace('#BS#', '\\', $service['service_description']);
-    }
-
-    // TPL List
-    $tplArr = [];
-    $tplStr = null;
-    $tplArr = getMyServiceTemplateModels($service['service_template_model_stm_id']);
-    if ($tplArr && count($tplArr)) {
-        foreach ($tplArr as $key => $value) {
-            $tplStr .= "&nbsp;->&nbsp;<a href='main.php?p=60206&o=c&service_id=" . $key . "'>" . $value . '</a>';
-        }
-    }
-
-    // Get service intervals in seconds
-    $normal_check_interval
-        = getMyServiceField($service['service_id'], 'service_normal_check_interval') * $interval_length;
-    $retry_check_interval
-        = getMyServiceField($service['service_id'], 'service_retry_check_interval') * $interval_length;
-
-    if ($normal_check_interval % 60 == 0) {
-        $normal_units = 'min';
-        $normal_check_interval = $normal_check_interval / 60;
-    } else {
-        $normal_units = 'sec';
-    }
-
-    if ($retry_check_interval % 60 == 0) {
-        $retry_units = 'min';
-        $retry_check_interval = $retry_check_interval / 60;
-    } else {
-        $retry_units = 'sec';
-    }
-
-    $isHostSvgFile = true;
-    if ((isset($ehiCache[$service['host_id']]) && $ehiCache[$service['host_id']])) {
-        $isHostSvgFile = false;
-        $host_icone = './img/media/' . $mediaObj->getFilename($ehiCache[$service['host_id']]);
-    } elseif (
-        $icone = $host_method->replaceMacroInString(
-            $service['host_id'],
-            getMyHostExtendedInfoImage($service['host_id'], 'ehi_icon_image', 1)
-        )
-    ) {
-        $isHostSvgFile = false;
-        $host_icone = './img/media/' . $icone;
-    } else {
-        $isHostSvgFile = true;
-        $host_icone = returnSvg('www/img/icons/host.svg', 'var(--icons-fill-color)', 21, 21);
-    }
-
-    $isServiceSvgFile = true;
-    if (isset($service['esi_icon_image']) && $service['esi_icon_image']) {
-        $isServiceSvgFile = false;
-        $svc_icon = './img/media/' . $mediaObj->getFilename($service['esi_icon_image']);
-    } elseif (
-        $icone = $mediaObj->getFilename(
-            getMyServiceExtendedInfoField(
-                $service['service_id'],
-                'esi_icon_image'
-            )
-        )
-    ) {
-        $isServiceSvgFile = false;
-        $svc_icon = './img/media/' . $icone;
-    } else {
-        $isServiceSvgFile = true;
-        $svc_icon = returnSvg('www/img/icons/service.svg', 'var(--icons-fill-color)', 18, 18);
-    }
-
-    $elemArr[$i] = ['MenuClass' => 'list_' . ($service['nbr'] > 1 ? 'three' : $style), 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($service['host_name']), 'RowMenu_icone' => $host_icone, 'RowMenu_sicon' => $svc_icon, 'RowMenu_link' => 'main.php?p=60101&o=c&host_id=' . $service['host_id'], 'RowMenu_link2' => 'main.php?p=' . $p . '&o=c&service_id=' . $service['service_id'], 'RowMenu_parent' => CentreonUtils::escapeSecure($tplStr), 'RowMenu_retry' => CentreonUtils::escapeSecure(
-        "{$normal_check_interval} {$normal_units} / {$retry_check_interval} {$retry_units}"
-    ), 'RowMenu_desc' => CentreonUtils::escapeSecure($service['service_description']), 'RowMenu_status' => $service['service_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $service['service_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions, 'isHostSvgFile' => $isHostSvgFile, 'isServiceSvgFile' => $isServiceSvgFile];
-    $fgHost['print'] ? null : $elemArr[$i]['RowMenu_name'] = null;
-    $style = $style != 'two' ? 'two' : 'one';
-}
-$tpl->assign('elemArr', $elemArr);
-
-// Different messages we put in the template
-$tpl->assign(
-    'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
-);
-
-// Toolbar select
-?>
-    <script type="text/javascript">
-        function setO(_i) {
-            document.forms['form'].elements['o'].value = _i;
-        }
-    </script>
-<?php
-foreach (['o1', 'o2'] as $option) {
-    $attrs1 = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . " if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-        . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 6 && confirm('"
-        . _('Are you sure you want to detach the service ?') . "')) {"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3 || this.form.elements['"
-        . $option . "'].selectedIndex == 4 ||this.form.elements['" . $option . "'].selectedIndex == 5){"
-        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
-    $form->addElement(
-        'select',
-        $option,
-        null,
-        [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable'), 'dv' => _('Detach')],
-        $attrs1
-    );
-
-    $o1 = $form->getElement($option);
-    $o1->setValue(null);
-}
-
-$tpl->assign('limit', $limit);
-
-// Apply a template definition
-if (isset($searchH) && $searchH) {
-    $searchH = html_entity_decode($searchH);
-    $searchH = stripslashes(str_replace('"', '&quot;', $searchH));
-}
-if (isset($searchS) && $searchS) {
-    $searchS = html_entity_decode($searchS);
-    $searchS = stripslashes(str_replace('"', '&quot;', $searchS));
-}
 $tpl->assign('searchH', $searchH);
 $tpl->assign('searchS', $searchS);
-$tpl->assign('hostgroupsFilter', $hostgroupsFilter);
-$tpl->assign('statusHostFilter', $statusHostFilter);
-$tpl->assign('hostStatusChecked', $hostStatusChecked);
+// A deep link is a fresh filter: the template restores nothing from the client
+// state in that case, and starts back on page 1.
+$tpl->assign('deepLinkSearch', $deepLinkSearch ? 1 : 0);
+
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'SearchB', _('Search'), $attrBtnSuccess);
+
+// Service template select2 (AJAX datasource). The element label is the select2
+// placeholder, and allowClear is left to its default so the centreon-select2
+// eraser is the one revealed on focus (clInitAdvSelectClear).
+// Both select2 filters start empty: CentreonListing re-applies the selected
+// option (and its label) from its own session state on init.
+$tplRoute = './api/internal.php?object=centreon_configuration_servicetemplate&action=list';
+// No 'linkedObject' here on purpose: with an AJAX source and no
+// defaultDatasetRoute, select2.php resolves the linked class' default
+// dataset, and centreonServicetemplates::getObjectForSelect2(null) returns
+// every service template — all rendered as <option selected>, leaving the
+// filter applied on arrival. The options come from availableDatasetRoute and
+// the selected value is restored client-side by CentreonListing.
+$form->addElement('select2', 'template', _('Select'), [], ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $tplRoute, 'multiple' => false]);
+
+// Status select2 (static options)
+$statusFilter = ['' => '', 1 => _('Disabled'), 2 => _('Enabled')];
+$form->addElement('select2', 'status', _('Select'), $statusFilter);
+
+$tpl->assign('msg', ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add')]);
+
+?>
+<script type="text/javascript">
+    function setO(_i) {
+        document.forms['form'].elements['o'].value = _i;
+    }
+</script>
+<?php
+
+// Styled, secure confirmation modal (clMoreAction in listing.js) replaces the
+// native confirm()/alert(); messages passed as data-* attributes so the handler
+// stays locale-independent (keyed on the option value).
+$attrs = [
+    'onchange' => 'clMoreAction(this);',
+    'data-msg-select' => _('Please select one or more items'),
+    'data-title-delete-one' => _('Delete service'),
+    'data-title-delete-many' => _('Delete services'),
+    'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> service. This action cannot be undone. Do you want to delete it?'),
+    'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} services.</strong> This action cannot be undone. Do you want to delete them?'),
+    'data-label-delete' => _('Delete'),
+    'data-title-duplicate-one' => _('Duplicate service'),
+    'data-title-duplicate-many' => _('Duplicate services'),
+    'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> service. Do you want to duplicate it?'),
+    'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} services.</strong> Do you want to duplicate them?'),
+    'data-label-duplicate' => _('Duplicate'),
+    'data-label-cancel' => _('Cancel'),
+];
+$form->addElement('select', 'o1', null,
+    [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable'), 'dv' => _('Detach')], $attrs);
+$form->setDefaults(['o1' => null]);
+$el = $form->getElement('o1');
+$el->setValue(null);
+$el->setSelected(null);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('Hosts', _('Hosts'));
-$tpl->assign('ServiceTemplates', _('Templates'));
-$tpl->assign('ServiceStatus', _('Status'));
-$tpl->assign('HostStatus', _('Disabled hosts'));
-$tpl->assign('Services', _('Services'));
 $tpl->display('listService.ihtml');

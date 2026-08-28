@@ -19,6 +19,11 @@
  *
  */
 
+declare(strict_types=1);
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -37,12 +42,12 @@ if (! $oreon->user->admin) {
 // Database retrieve information for Contact
 $cct = [];
 if (($o == 'c' || $o == 'w') && $sc_id) {
-    $DBRESULT = $pearDB->prepare('SELECT * FROM `service_categories` WHERE `sc_id` = :sc_id LIMIT 1');
-    $DBRESULT->bindValue(':sc_id', $sc_id, PDO::PARAM_INT);
-    $DBRESULT->execute();
+    $sc_data = $pearDB->fetchAssociative(
+        'SELECT * FROM `service_categories` WHERE `sc_id` = :sc_id LIMIT 1',
+        QueryParameters::create([QueryParameter::int('sc_id', (int) $sc_id)])
+    );
     // Set base value
-    $sc = array_map('myDecode', $DBRESULT->fetchRow());
-    $DBRESULT->closeCursor();
+    $sc = $sc_data ? array_map('myDecode', $sc_data) : [];
     $sc['sc_severity_level'] = $sc['level'];
     $sc['sc_severity_icon'] = $sc['icon_id'];
 
@@ -145,6 +150,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $tpl->assign(
     'helpattr',

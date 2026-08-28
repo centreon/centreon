@@ -32,43 +32,25 @@ Given('a service with notifications enabled', () => {
     name: data.hosts.host1.name,
     template: 'generic-host'
   });
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.getIframeBody()
-    .find('tr.ToolbarTR')
-    .find('.btc.bt_success')
-    .contains('Add')
-    .click();
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('table.formTable')
-    .find('td.FormRowValue')
-    .find('input[name="service_description"]')
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
+  cy.clickListingAddButton();
+  cy.getListingSidePanelBody()
+    .find('input[name="service_description"]', { timeout: 20_000 })
+    .should('be.visible')
     .type('service');
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('table.formTable')
-    .find('td.FormRowValue')
-    .find('p.oreonbutton')
-    .find('span.selection')
-    .find('input[placeholder="Hosts"]')
-    .click();
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('button.btc.bt_info')
-    .click();
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
-    .find('button.btc.bt_success')
-    .click();
-  cy.get('iframe#main-content')
-    .its('0.contentDocument.body')
+  cy.openFormSelect2('service_hPars');
+  cy.getListingSidePanelBody().find('button.btc.bt_info').click();
+  cy.getListingSidePanelBody().find('button.btc.bt_success').click();
+  cy.getListingSidePanelBody()
     .find('span[aria-labelledby="select2-command_command_id-container"]')
     .click();
-  cy.getIframeBody().contains('check_centreon_ping').click();
-  cy.getIframeBody()
-    .find('div#validForm')
-    .find('p.oreonbutton')
-    .find('.btc.bt_success[name="submitA"]')
+  cy.getListingSidePanelBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains('check_centreon_ping')
+    .click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
   cy.setUserTokenApiV1();
   cy.setServiceParameters({

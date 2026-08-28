@@ -56,31 +56,39 @@ Given('the host is disabled', () => {
 });
 
 When('the user visit the menu of services configuration', () => {
-  cy.visit(PAGES.configuration.servicesByHostLegacy);
-  cy.wait('@getTimeZone');
+  cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
 });
 
 Then('the services of disabled hosts are not displayed', () => {
-  cy.getIframeBody().contains(services.serviceOk.name).should('not.exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(services.serviceOk.name)
+    .should('not.exist');
 });
 
 When('the user activates the visibility filter of disabled hosts', () => {
   cy.reload();
-  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  // The filter is now a toggle inside the advanced-filters popover, which has
+  // to be opened before its fields are reachable.
   cy.getIframeBody()
-    .find('label[for="statusHostFilter"]')
-    .click({ force: true });
+    .find('.cl-adv-icon-btn[data-cl-adv-panel="clAdvPanel"]')
+    .click();
+  cy.getIframeBody().find('#hostStatusCb').click({ force: true });
 });
 
 When('the user clicks on the Search button', () => {
-  cy.getIframeBody().find('input[type="submit"][value="Search"]').click();
-  cy.wait('@getTimeZone');
+  cy.getIframeBody().find('#clSearchBtn').click();
+  cy.waitForListingRefresh();
 });
 
 Then('the services of disabled hosts are displayed', () => {
   cy.waitForElementInIframe(
     '#main-content',
-    `a:contains("${services.serviceOk.name}")`
+    `#clTableBody a:contains("${services.serviceOk.name}")`
   );
-  cy.getIframeBody().contains(services.serviceOk.name).should('be.visible');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(services.serviceOk.name)
+    .should('be.visible');
 });

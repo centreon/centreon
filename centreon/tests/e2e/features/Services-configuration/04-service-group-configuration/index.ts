@@ -45,169 +45,93 @@ Then('a service group is configured', () => {
     });
 });
 
+const serviceGroupName = data.service_group.service1.name;
+const modifiedName = 'test_modified';
+const modifiedAlias = 'description_modified';
+const linkedService = 'Centreon-Server - Memory';
+
+// Bulk actions go through the More actions menu (cy.runListingBulkAction),
+// which runs the path a user takes: menu, confirmation modal, submit.
+const runBulkActionOn = (name: string, action: string): void => {
+  cy.getIframeBody()
+    .find(
+      `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
+    )
+    .click({ force: true });
+  cy.runListingBulkAction(action);
+};
+
 When('the user changes the properties of a service group', () => {
-  cy.visit(PAGES.configuration.servicesGroupsLegacy);
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_one')
-    .find('td.ListColLeft')
-    .contains(data.service_group.service1.name)
-    .click();
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_one')
-    .find('td.FormRowValue')
-    .find('input[name="sg_name"]')
+  cy.visitListingAndWait(PAGES.configuration.servicesGroupsLegacy);
+  cy.openListingRowForm(serviceGroupName)
+    .find('input[name="sg_name"]', { timeout: 20_000 })
+    .should('be.visible')
     .clear()
-    .type('test_modified');
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_two')
-    .find('td.FormRowValue')
+    .type(modifiedName);
+  cy.getListingSidePanelBody()
     .find('input[name="sg_alias"]')
     .clear()
-    .type('description_modified');
-  cy.enterIframe('iframe#main-content')
-    .find('td.FormRowValue')
+    .type(modifiedAlias);
+  cy.getListingSidePanelBody()
     .find('select#sg_hServices')
     .next()
-    .click();
-  cy.getIframeBody().contains('Centreon-Server - Memory').click();
-  cy.getIframeBody()
-    .find('div#validForm')
-    .find('p.oreonbutton')
-    .find('.btc.bt_success[name="submitC"]')
+    .find('.select2-selection')
+    .click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains(linkedService)
+    .click({ force: true });
+  cy.getListingSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
     .click();
 });
 
 Then('the properties of the service group are updated', () => {
-  cy.visit(PAGES.configuration.servicesGroupsLegacy);
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_one')
-    .find('td.ListColLeft')
-    .contains('test_modified')
-    .click();
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_one')
-    .find('td.FormRowValue')
-    .find('input[name="sg_name"]')
-    .should('have.value', 'test_modified');
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_two')
-    .find('td.FormRowValue')
+  cy.visitListingAndWait(PAGES.configuration.servicesGroupsLegacy);
+  cy.openListingRowForm(modifiedName)
+    .find('input[name="sg_name"]', { timeout: 20_000 })
+    .should('have.value', modifiedName);
+  cy.getListingSidePanelBody()
     .find('input[name="sg_alias"]')
-    .should('have.value', 'description_modified');
-  cy.enterIframe('iframe#main-content')
-    .find('table tr.list_one')
-    .find('td.FormRowValue')
+    .should('have.value', modifiedAlias);
+  cy.getListingSidePanelBody()
     .find('select#sg_hServices')
-    .contains('Centreon-Server - Memory')
-    .should('exist');
+    .find('option:selected')
+    .should('contain.text', linkedService);
 });
 
 When('the user duplicates a service group', () => {
-  cy.visit(PAGES.configuration.servicesGroupsLegacy);
-  cy.enterIframe('iframe#main-content')
-    .find('table tbody')
-    .find('tr.list_one')
-    .each((row) => {
-      cy.wrap(row)
-        .find('td.ListColLeft')
-        .then((td) => {
-          if (td.text().includes(data.service_group.service1.name)) {
-            cy.wrap(row)
-              .find('td.ListColPicker')
-              .find('div.md-checkbox')
-              .click();
-          }
-        });
-    });
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Duplicate');
+  cy.visitListingAndWait(PAGES.configuration.servicesGroupsLegacy);
+  runBulkActionOn(serviceGroupName, 'm');
 });
 
 Then('the new service group has the same properties', () => {
-  cy.enterIframe('iframe#main-content')
-    .find('table.ListTable')
-    .find('tr.list_two')
-    .find('td.ListColLeft')
-    .contains(`${data.service_group.service1.name}_1`)
-    .click();
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_one')
-    .find('td.FormRowValue')
-    .find('input[name="sg_name"]')
-    .should('have.value', `${data.service_group.service1.name}_1`);
-  cy.enterIframe('iframe#main-content')
-    .find('table.formTable')
-    .find('tr.list_two')
-    .find('td.FormRowValue')
+  cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+  cy.waitForListingRefresh();
+  cy.openListingRowForm(`${serviceGroupName}_1`)
+    .find('input[name="sg_name"]', { timeout: 20_000 })
+    .should('have.value', `${serviceGroupName}_1`);
+  cy.getListingSidePanelBody()
     .find('input[name="sg_alias"]')
-    .should('have.value', `${data.service_group.service1.name}`);
-  cy.enterIframe('iframe#main-content')
-    .find('table tr.list_one')
-    .find('td.FormRowValue')
+    .should('have.value', serviceGroupName);
+  cy.getListingSidePanelBody()
     .find('select#sg_hServices')
-    .contains(`${data.hosts.host1.name}`)
-    .should('exist');
+    .find('option:selected')
+    .should('contain.text', data.hosts.host1.name);
 });
 
 When('the user deletes a service group', () => {
-  cy.visit(PAGES.configuration.servicesGroupsLegacy);
-  cy.enterIframe('iframe#main-content')
-    .find('table tbody')
-    .find('tr.list_one')
-    .each((row) => {
-      cy.wrap(row)
-        .find('td.ListColLeft')
-        .then((td) => {
-          if (td.text().includes(data.service_group.service1.name)) {
-            cy.wrap(row)
-              .find('td.ListColPicker')
-              .find('div.md-checkbox')
-              .click();
-          }
-        });
-    });
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o2'].value); this.form.submit(); }"
-    );
-  cy.enterIframe('iframe#main-content')
-    .find('table.ToolbarTable tbody')
-    .find('td.Toolbar_TDSelectAction_Bottom')
-    .find('select')
-    .select('Delete');
+  cy.visitListingAndWait(PAGES.configuration.servicesGroupsLegacy);
+  runBulkActionOn(serviceGroupName, 'd');
 });
 
 Then(
   'the deleted service group is not displayed in the service group list',
   () => {
-    cy.enterIframe('iframe#main-content')
-      .find('table.ListTable tbody')
-      .contains(data.service_group.service1.name)
-      .should('not.exist');
+    cy.waitForElementInIframe('#main-content', 'table.cl-listing-table');
+    cy.waitForListingRefresh();
+    cy.waitForListingToDrop(serviceGroupName);
   }
 );
 
