@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -52,7 +52,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsCurlScript(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -69,7 +69,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsPollerToken(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -82,7 +82,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsPollerUid(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -95,7 +95,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsPollerName(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -108,7 +108,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsVmType(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -121,7 +121,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsDockerType(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::Docker),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -134,7 +134,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsCentralUrl(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -147,7 +147,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsAppSecret(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -160,7 +160,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsSalt(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -173,7 +173,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandHasExpectedFormat(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -197,7 +197,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandContainsCloudFlagWhenCloudPlatform(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -211,7 +211,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
 
     public function testGenerateCommandDoesNotContainCloudFlagWhenOnPremise(): void
     {
-        $factory = new PollerInstallationCommandFactory(
+        $factory = PollerInstallationCommandFactory::fromPoller(
             poller: $this->createPoller(PollerTypeEnum::VM),
             pollerToken: new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
             appSecret: self::APP_SECRET,
@@ -221,6 +221,34 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         );
 
         self::assertStringNotContainsString('--cloud', $factory->generate());
+    }
+
+    public function testConstructorAndFromPollerShareTheSameDefaults(): void
+    {
+        $poller = $this->createPoller(PollerTypeEnum::Docker);
+        $token = new PollerToken(name: 'test-token', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false);
+
+        // isCloudPlatform and centralUrl are intentionally omitted: their defaults are
+        // duplicated in both signatures, and this test pins them to the same values.
+        $fromPoller = PollerInstallationCommandFactory::fromPoller(
+            poller: $poller,
+            pollerToken: $token,
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+        );
+
+        $fromValueObjects = new PollerInstallationCommandFactory(
+            pollerUid: $poller->uid,
+            pollerName: $poller->name,
+            pollerType: $poller->pollerType,
+            pollerToken: $token,
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+        );
+
+        self::assertSame($fromPoller->generate(), $fromValueObjects->generate());
+        self::assertStringContainsString('--central_url <CENTRAL_URL>', $fromValueObjects->generate());
+        self::assertStringNotContainsString('--cloud', $fromValueObjects->generate());
     }
 
     private function createPoller(PollerTypeEnum $type): Poller
@@ -235,7 +263,7 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             pollerType: $type,
             uid: new PollerUid(self::POLLER_UID),
             globalMacros: new Collection([], GlobalMacro::class),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),

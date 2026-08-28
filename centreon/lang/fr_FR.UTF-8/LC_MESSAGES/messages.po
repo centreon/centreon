@@ -25324,3 +25324,7 @@ msgstr "Adresse du collecteur"
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Centreon Central address, as seen by this poller"
 msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
+
+#: www/include/configuration/configServers/listServers.ihtml
+msgid "Copy installation command"
+msgstr "Copier la commande d'installation"

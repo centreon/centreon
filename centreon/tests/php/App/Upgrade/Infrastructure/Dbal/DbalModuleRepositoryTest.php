@@ -35,8 +35,6 @@ final class DbalModuleRepositoryTest extends TestCase
 {
     private Connection&MockObject $configConnection;
 
-    private Connection&MockObject $realtimeConnection;
-
     private Filesystem $filesystem;
 
     private string $modulesDir;
@@ -46,7 +44,6 @@ final class DbalModuleRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->configConnection = $this->createMock(Connection::class);
-        $this->realtimeConnection = $this->createMock(Connection::class);
         $this->filesystem = new Filesystem();
 
         $baseTmpDir = sys_get_temp_dir() . '/centreon-module-test-' . uniqid();
@@ -56,7 +53,6 @@ final class DbalModuleRepositoryTest extends TestCase
 
         $this->repository = new DbalModuleRepository(
             $this->configConnection,
-            $this->realtimeConnection,
             $this->modulesDir,
             new ConnectionConfig('localhost', 'centreon', 'password', 'centreon', 'centreon_storage'),
             '/usr/share/centreon/',

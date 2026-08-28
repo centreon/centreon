@@ -50,10 +50,14 @@ parameters:
               - { type: classNameRegex, value: '#^Security\\#' }
               - { type: classNameRegex, value: '#^Utility\\#' }
 
+        - name: AdaptationLog # hexagonal-arch adapters for logging
+          collectors:
+              - { type: classNameRegex, value: '#^Adaptation\\Log\\#' }
+
     ruleset:
         Domain: [ Helpers ]
         Application: [ Domain, Helpers ]
-        Infrastructure: [ Domain, Application, Vendors, Helpers ]
+        Infrastructure: [ Domain, Application, Vendors, Helpers, AdaptationLog ]
 
     skip_violations:
         App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
@@ -64,5 +68,7 @@ parameters:
             - Centreon\Domain\Exception\EntityNotFoundException
         App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
+            - Core\Common\Application\Repository\WriteVaultRepositoryInterface
+            - Core\Common\Application\VaultEligibilityService
         App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
             - Security\TokenAPIAuthenticator

@@ -36,9 +36,11 @@ final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+    private ?string $configFingerprint = null;
+
     public function getCacheDir(): string
     {
-        return '/var/cache/centreon/symfony.new';
+        return '/var/cache/centreon/symfony.new/' . $this->getConfigFingerprint();
     }
 
     public function getLogDir(): string
@@ -103,5 +105,10 @@ final class Kernel extends BaseKernel
     private function getConfigDir(): string
     {
         return $this->getProjectDir() . '/config.new';
+    }
+
+    private function getConfigFingerprint(): string
+    {
+        return $this->configFingerprint ??= ConfigFingerprint::ofConfigDir($this->getConfigDir());
     }
 }

@@ -1,79 +1,48 @@
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { SvgIconProps } from '@mui/material';
-import { Badge, ClickAwayListener } from '@mui/material';
+import { ClickAwayListener, Tooltip } from '@mui/material';
 
-import { ComponentType, useEffect, useState } from 'react';
+import type { ComponentType, MouseEvent } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
 
 import useCloseOnLegacyPage from './useCloseOnLegacyPage';
 
 const useStyles = makeStyles()((theme) => ({
-  button: {
-    '& > svg': {
-      height: '0.9em',
-      margin: `-${theme.spacing(0.5)}`,
-      [theme.breakpoints.down(1025)]: {
-        margin: `-${theme.spacing(0.5)}`
-      }
-    },
-    appearance: 'none',
-    background: 'none',
-    border: 0,
-    color: theme.palette.common.white,
-    cursor: 'pointer',
-    display: 'flex',
-
-    [theme.breakpoints.up(1025)]: {
-      alignItems: 'center',
-      flexFlow: 'row no-wrap',
-      marginTop: theme.spacing(0.5)
-    },
-
-    [theme.breakpoints.down(1025)]: {
-      alignItems: 'center',
-      flexFlow: 'column wrap',
-      order: 1
-    },
-
-    padding: '0'
-  },
   container: {
+    alignItems: 'center',
+    display: 'flex',
     position: 'relative'
   },
-  header: {
-    [theme.breakpoints.down(1025)]: {
-      display: 'flex',
-      flexFlow: 'row no-wrap'
-    }
-  },
-  iconWrapper: {
-    [theme.breakpoints.up(1025)]: {
-      position: 'absolute',
-      top: '0'
-    }
+  icon: {
+    '& > svg': {
+      display: 'block',
+      height: '16px',
+      width: '16px'
+    },
+    alignItems: 'center',
+    color: 'inherit',
+    display: 'inline-flex',
+    textDecoration: 'none'
   },
   indicators: {
+    alignItems: 'center',
+    display: 'inline-flex',
     lineHeight: 1,
     [theme.breakpoints.down(600)]: {
       display: 'none'
-    },
-    [theme.breakpoints.down(1025)]: {
-      flex: 'initial',
-      marginLeft: theme.spacing(0.5),
-      order: 2
-    },
-    [theme.breakpoints.up(1025)]: {
-      height: theme.spacing(2.5),
-      marginLeft: theme.spacing(3.75)
     }
   },
   subMenu: {
     backgroundColor: theme.palette.background.default,
+    borderRadius: theme.spacing(1),
     boxShadow: theme.shadows[3],
     boxSizing: 'border-box',
     left: 0,
     minWidth: theme.spacing(20),
+    overflow: 'hidden',
     position: 'absolute',
     textAlign: 'left',
     top: `calc(100% + ${theme.spacing(1.25)})`,
@@ -83,38 +52,53 @@ const useStyles = makeStyles()((theme) => ({
   subMenuOpen: {
     visibility: 'visible'
   },
-  textWrapper: {
+  tile: {
+    '& > svg': {
+      height: '16px',
+      width: '16px'
+    },
+    '&:hover': {
+      borderColor: theme.palette.tile.borderHover
+    },
     alignItems: 'center',
+    appearance: 'none',
+    background: theme.palette.tile.background,
+    border: `1px solid ${theme.palette.tile.border}`,
+    borderRadius: theme.spacing(1),
+    color: theme.palette.text.primary,
     display: 'inline-flex',
-    flex: '100%',
-    fontSize: theme.typography.body1.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    lineHeight: '1',
-    whiteSpace: 'nowrap',
-    [theme.breakpoints.down(1025)]: {
-      display: 'none'
-    }
+    flexFlow: 'row nowrap',
+    gap: theme.spacing(1),
+    padding: '5px 9px'
+  },
+  tileButton: {
+    cursor: 'pointer'
   }
 }));
 
 interface TopCounterLayoutProps {
   Icon: ComponentType<SvgIconProps>;
+  iconLink?: string;
+  iconOnClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
   renderIndicators: () => JSX.Element;
-  renderSubMenu: (params: { closeSubMenu: () => void }) => JSX.Element;
-  showPendingBadge?: boolean;
+  renderSubMenu?: (params: { closeSubMenu: () => void }) => JSX.Element;
   title: string;
+  tooltipDescription?: string;
 }
 
 const TopCounterLayout = ({
   Icon,
   title,
+  iconLink,
+  iconOnClick,
   renderIndicators,
   renderSubMenu,
-  showPendingBadge
+  tooltipDescription
 }: TopCounterLayoutProps): JSX.Element => {
   const { classes, cx } = useStyles();
   const [toggled, setToggled] = useState(false);
   const subMenuId = title.replace(/[^A-Za-z]/, '-');
+  const isExpandable = Boolean(renderSubMenu);
   useCloseOnLegacyPage({ setToggled });
 
   useEffect(() => {
@@ -137,6 +121,38 @@ const TopCounterLayout = ({
     };
   }, [toggled]);
 
+  const iconWithTooltip = (
+    <Tooltip
+      disableInteractive
+      enterDelay={500}
+      enterNextDelay={500}
+      placement="bottom"
+      title={tooltipDescription ?? title}
+    >
+      <Icon />
+    </Tooltip>
+  );
+
+  if (!isExpandable) {
+    return (
+      <div className={classes.tile}>
+        {iconLink ? (
+          <Link
+            aria-label={title}
+            className={classes.icon}
+            onClick={iconOnClick}
+            to={iconLink}
+          >
+            {iconWithTooltip}
+          </Link>
+        ) : (
+          <span className={classes.icon}>{iconWithTooltip}</span>
+        )}
+        <span className={classes.indicators}>{renderIndicators()}</span>
+      </div>
+    );
+  }
+
   return (
     <ClickAwayListener
       onClickAway={(): void => {
@@ -147,40 +163,27 @@ const TopCounterLayout = ({
       }}
     >
       <div className={classes.container}>
-        <div className={classes.header}>
-          <div className={classes.indicators}>{renderIndicators()}</div>
-          <button
-            aria-controls={`${subMenuId}-menu`}
-            aria-expanded={toggled}
-            aria-haspopup="true"
-            aria-label={title}
-            className={classes.button}
-            id={`${subMenuId}-button`}
-            onClick={(): void => setToggled(!toggled)}
-            type="button"
-          >
-            <span className={classes.iconWrapper}>
-              <Badge
-                anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-                color="pending"
-                invisible={!showPendingBadge}
-                overlap="circular"
-                variant="dot"
-              >
-                <Icon />
-              </Badge>
-            </span>
-            <span className={classes.textWrapper}>{title}</span>
-            {toggled ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </button>
-        </div>
+        <button
+          aria-controls={`${subMenuId}-menu`}
+          aria-expanded={toggled}
+          aria-haspopup="true"
+          aria-label={title}
+          className={cx(classes.tile, classes.tileButton)}
+          id={`${subMenuId}-button`}
+          onClick={(): void => setToggled(!toggled)}
+          type="button"
+        >
+          <span className={classes.icon}>{iconWithTooltip}</span>
+          <span className={classes.indicators}>{renderIndicators()}</span>
+          {toggled ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </button>
         <div
           aria-labelledby={`${subMenuId}-button`}
           className={cx(classes.subMenu, { [classes.subMenuOpen]: toggled })}
           id={`${subMenuId}-menu`}
           role="menu"
         >
-          {renderSubMenu({ closeSubMenu: () => setToggled(false) })}
+          {renderSubMenu?.({ closeSubMenu: () => setToggled(false) })}
         </div>
       </div>
     </ClickAwayListener>

@@ -15,9 +15,14 @@ export interface NamedEntity {
   name: string;
 }
 
+export interface Creator {
+  id: number | null;
+  name: string;
+}
+
 export interface Token {
   creationDate: string;
-  creator: NamedEntity;
+  creator: Creator;
   expirationDate: string | null;
   isRevoked: boolean;
   name: string;
