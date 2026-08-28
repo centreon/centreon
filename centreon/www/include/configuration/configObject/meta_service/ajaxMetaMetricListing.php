@@ -172,6 +172,9 @@ try {
     $total = count($rows);
     $rows  = array_slice($rows, $num * $limit, $limit);
 
+    // JSON_INVALID_UTF8_SUBSTITUTE mirrors AjaxListingHelper::jsonResponse(), which
+    // this endpoint bypasses to carry meta_name/meta_calc_type: without it a single
+    // non-UTF-8 byte in a metric or host name turns the whole panel into a 500.
     $centreonToken = createCSRFToken();
     echo json_encode([
         'rows'           => array_values($rows),
@@ -183,7 +186,7 @@ try {
         // Raw code (AVE/SOM/MIN/MAX): the template holds the translated labels,
         // so mapping it here would ship an untranslated English string instead.
         'meta_calc_type' => $metaInfo['calcul_type'],
-    ], JSON_THROW_ON_ERROR);
+    ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error('AJAX listing: failed to fetch meta metrics', ['exception' => $exception]);
     AjaxListingHelper::jsonError('Internal error', 500);

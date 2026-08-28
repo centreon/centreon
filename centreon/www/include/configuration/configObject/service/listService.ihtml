@@ -252,8 +252,8 @@ svcListing.renderRows = function(rows) {
             // mon_output is attribute-escaped only: the tooltip renders it through
             // document.createTextNode, so HTML-escaping it here would show the
             // entities literally ("load 5 < 10" displayed as "load 5 &lt; 10").
-            tr += '<td class="cl-col-center"><span class="cl-mon-badge '+mCls+'" data-cl-tooltip="'+tip.replace(/"/g,'&quot;')+'"'
-                + (mOut ? ' data-cl-tooltip-text="'+mOut.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"' : '')
+            tr += '<td class="cl-col-center"><span class="cl-mon-badge '+mCls+'" data-cl-tip-html="'+tip.replace(/"/g,'&quot;')+'"'
+                + (mOut ? ' data-cl-tip-text="'+mOut.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"' : '')
                 + ' style="cursor:help;"></span></td>';
         }
 
@@ -306,12 +306,14 @@ jQuery('#clSearchH, #clSearchS').on('keypress', function(e) {
 svcListing.init();
 CentreonForm.initSidePanel(svcListing);
 
-// Instant tooltip
+// Instant tooltip. Deliberately not named data-cl-tooltip: listing.js is loaded
+// on every page and claims that attribute with a textContent handler, which would
+// print this markup literally in a second popup stacked on this one.
 (function() {
     var tip = null;
-    jQuery(document).on('mouseenter', '[data-cl-tooltip]', function() {
-        var content = jQuery(this).attr('data-cl-tooltip');
-        var extra = jQuery(this).attr('data-cl-tooltip-text');
+    jQuery(document).on('mouseenter', '[data-cl-tip-html]', function() {
+        var content = jQuery(this).attr('data-cl-tip-html');
+        var extra = jQuery(this).attr('data-cl-tip-text');
         if (!content && !extra) return;
         if (tip) tip.remove();
         tip = jQuery('<div></div>').css({
@@ -334,7 +336,7 @@ CentreonForm.initSidePanel(svcListing);
         var t = r.top - tip.outerHeight() - 6;
         if (t < 0) t = r.bottom + 6;
         tip.css({ top:t+'px', left:(r.left + r.width/2 - tip.outerWidth()/2)+'px' });
-    }).on('mouseleave', '[data-cl-tooltip]', function() {
+    }).on('mouseleave', '[data-cl-tip-html]', function() {
         if (tip) { tip.remove(); tip = null; }
     });
 })();
