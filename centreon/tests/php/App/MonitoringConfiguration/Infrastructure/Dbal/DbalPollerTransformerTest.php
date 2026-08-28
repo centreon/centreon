@@ -161,14 +161,16 @@ final class DbalPollerTransformerTest extends TestCase
 
     /**
      * The mapping itself is covered by GorgoneCommunicationTypeMappingTest; what matters here is
-     * that hydration lets the rejection through instead of defaulting the poller to ZMQ.
+     * that hydration propagates the rejection instead of swallowing it, and that the poller it
+     * names is the one being read. The id differs from the fixture's default on purpose —
+     * asserting the default would hold just as well against a hardcoded one.
      */
     public function testTransformPropagatesAnUnmappableCommunicationType(): void
     {
-        $row = $this->buildRow(['gorgone_communication_type' => '']);
+        $row = $this->buildRow(['poller_id' => 7, 'gorgone_communication_type' => '']);
 
         $this->expectException(InvalidGorgoneCommunicationTypeException::class);
-        $this->expectExceptionMessage('for poller #42');
+        $this->expectExceptionMessage('for poller #7');
 
         $this->transformer->transform($row);
     }

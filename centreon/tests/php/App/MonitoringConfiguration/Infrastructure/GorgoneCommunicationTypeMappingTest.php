@@ -44,12 +44,21 @@ use PHPUnit\Framework\TestCase;
 final class GorgoneCommunicationTypeMappingTest extends TestCase
 {
     /**
-     * The ALTER shapes the upgrade scripts actually use, in both families. It does not claim to
-     * match every conceivable one: a CHANGE that renames another column into this one, or a
-     * redeclaration to a type other than enum, would slip through.
+     * One ALTER TABLE on nagios_server, up to the statement's end. Anchoring the table is what
+     * makes the guard about *this* column: without it, an ALTER on any other table carrying a
+     * same-named column would be read as the latest redeclaration of nagios_server's.
      *
-     * The capture runs to the next semicolon, so the COMMENT travels with the enum even when the
-     * two sit on separate lines.
+     * The end is whichever comes first: a semicolon, the next ALTER TABLE, or the heredoc
+     * terminator — the php scripts close their statement with the heredoc, not with a semicolon.
+     */
+    private const ALTER_NAGIOS_SERVER_PATTERN = '/ALTER\\s+TABLE\\s+`?nagios_server`?\\s+'
+        . '(?<clauses>.*?)(?=;|\\bALTER\\s+TABLE\\b|\\n\\s*SQL\\b|$)/is';
+
+    /**
+     * The ALTER shapes the upgrade scripts actually use, in both families, searched inside one
+     * ALTER TABLE nagios_server. It does not claim to match every conceivable one: a CHANGE that
+     * renames another column into this one, or a redeclaration to a type other than enum, would
+     * slip through.
      */
     private const COLUMN_REDECLARATION_PATTERN = '/(?:ADD|MODIFY|CHANGE)(?:\\s+COLUMN)?\\s+'
         . '`?gorgone_communication_type`?\\s+(?:(?!enum\\b)`?\\w+`?\\s+)?enum\\s*\\([^)]*\\)[^;]*/i';
@@ -58,9 +67,9 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
      * The SET clause of an UPDATE on nagios_server, stopping at the WHERE or at the statement's
      * end. It reads the shapes the upgrade scripts use and does not claim to read every one: a
      * value passed as a placeholder or built from a PHP variable is not a literal and cannot be
-     * checked here, and an UPDATE that reaches the table through an alias or a join is not
-     * matched at all. What it does cover is the shape that shipped the defect — a bare UPDATE
-     * assigning a constant to every row.
+     * checked here; an UPDATE reaching the table through an alias or a join is not matched; and an
+     * INSERT is not read at all, so seed data is out of scope. What it does cover is the shape that
+     * shipped the defect — a bare UPDATE assigning a constant to every row.
      */
     private const COLUMN_WRITE_PATTERN = '/UPDATE\\s+`?nagios_server`?\\s+SET\\s+'
         . '(?<assignments>[^;]*?)(?=\\bWHERE\\b|;|$)/is';
@@ -111,9 +120,10 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
      * is the hand-written table above, and the two guards that read the SQL comment — three
      * expectations written down independently of the mapping.
      *
-     * Nor is it what holds the two match arms exhaustive: neither has a default over the enum, so
-     * PHPStan reports match.unhandled on a case added without an arm, and backend-lint fails
-     * before any test runs.
+     * Nor is it what holds toDatabase exhaustive: its match has no default over the enum, so
+     * PHPStan reports match.unhandled on a case added without an arm and backend-lint fails before
+     * any test runs. fromDatabase matches over a string and does have a default, so nothing static
+     * covers the read direction — only the loops below do.
      *
      * What it adds is totality over two sets the table above is not derived from —
      * GorgoneCommunicationTypeEnum::cases() and the values createTables.sql allows. The table is
@@ -169,7 +179,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
      * '5' and '0' cannot occur in a column declared enum('1','2','3','4'); '' can, because
      * without strict mode MySQL stores the empty error member instead of rejecting an
      * out-of-enum write. An ALTER that narrows the enum over existing rows produces exactly
-     * that, which is what testNoUpgradeScriptWidensBeyondAFreshInstall watches for.
+     * that, which is what testTheLatestUpgradeScriptLandsOnTheFreshInstallSchema watches for.
      *
      * @return iterable<string, array{string}>
      */
@@ -188,7 +198,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         foreach ($this->communicationTypesAllowedBySchema() as $databaseValue) {
             try {
                 $mappedCases[] = GorgoneCommunicationTypeMapping::fromDatabase($databaseValue, 42);
-            } catch (\Throwable $throwable) {
+            } catch (InvalidGorgoneCommunicationTypeException $throwable) {
                 self::fail(
                     "createTables.sql allows gorgone_communication_type '{$databaseValue}' but the "
                     . "mapping rejects it: {$throwable->getMessage()}"
@@ -270,7 +280,7 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         foreach ($writes as $write) {
             try {
                 GorgoneCommunicationTypeMapping::fromDatabase($write['value'], 42);
-            } catch (\Throwable $throwable) {
+            } catch (InvalidGorgoneCommunicationTypeException $throwable) {
                 self::fail(
                     "{$write['script']} stores gorgone_communication_type '{$write['value']}', "
                     . "which the mapping cannot read back: {$throwable->getMessage()}"
@@ -280,8 +290,8 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     }
 
     /**
-     * The legacy poller form omits the column when the field is absent, so the default is a value
-     * the read path meets on real rows without anyone ever having chosen it. Comparing the upgrade
+     * Rows can be inserted without the column — the e2e poller fixtures do exactly that — so the
+     * DEFAULT is a value the read path meets without anyone having chosen it. Comparing the upgrade
      * script's default to the schema's, as the guard below does, would let the two drift together
      * onto a value the mapping does not read.
      */
@@ -304,11 +314,114 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
 
         try {
             GorgoneCommunicationTypeMapping::fromDatabase($default, 42);
-        } catch (\Throwable $throwable) {
+        } catch (InvalidGorgoneCommunicationTypeException $throwable) {
             self::fail(
                 "gorgone_communication_type defaults to '{$default}', which the mapping cannot "
                 . "read: {$throwable->getMessage()}"
             );
+        }
+    }
+
+    /**
+     * The whole file reads the upgrade scripts as text, which proves an ALTER is written down, never
+     * that it runs. A closure declared and not called is dead code the guards cannot see: the column
+     * would keep its inverted comment on every upgraded platform while the suite stays green.
+     */
+    public function testTheLatestUpgradeScriptInvokesWhatRedeclaresTheColumn(): void
+    {
+        ['script' => $script] = $this->latestColumnRedeclaration();
+        if (! str_ends_with($script, '.php')) {
+            self::markTestSkipped("{$script} is plain SQL, it has no closure to invoke");
+        }
+
+        $contents = (string) file_get_contents(dirname(__DIR__, 5) . '/www/install/php/' . $script);
+
+        $declared = preg_match_all(
+            '/\$(?<name>\w+)\s*=\s*(?:static\s+)?function\s*\([^)]*\)[^{]*\{(?<body>.*?)\n\};/s',
+            $contents,
+            $closures,
+            PREG_SET_ORDER
+        );
+        self::assertIsInt($declared, "unreadable {$script}: " . preg_last_error_msg());
+
+        $touching = 0;
+        foreach ($closures as $closure) {
+            if (! str_contains($closure['body'], 'gorgone_communication_type')) {
+                continue;
+            }
+
+            $touching++;
+            self::assertSame(
+                1,
+                preg_match('/^\s*\$' . preg_quote($closure['name'], '/') . '\s*\(\s*\)\s*;/m', $contents),
+                "{$script} declares \${$closure['name']}(), which redeclares "
+                . 'gorgone_communication_type, but never calls it — the upgrade would do nothing'
+            );
+        }
+
+        self::assertGreaterThan(
+            0,
+            $touching,
+            "{$script} redeclares gorgone_communication_type outside any closure, so this guard no "
+            . 'longer checks that the redeclaration is reachable'
+        );
+    }
+
+    /**
+     * The error path names the accepted values from a constant instead of calling toDatabase(), so
+     * that a case left without an arm cannot turn the actionable message into an UnhandledMatchError.
+     * That constant is a second copy of the table, and this is what stops the copies from drifting.
+     */
+    public function testAcceptedDatabaseValuesAgreeWithBothDirections(): void
+    {
+        $accepted = GorgoneCommunicationTypeMapping::acceptedDatabaseValues();
+
+        self::assertEqualsCanonicalizing(
+            array_map(
+                static fn (GorgoneCommunicationTypeEnum $case): string => $case->name,
+                GorgoneCommunicationTypeEnum::cases()
+            ),
+            array_column($accepted, 1),
+            'acceptedDatabaseValues() and GorgoneCommunicationTypeEnum::cases() have drifted apart'
+        );
+
+        foreach ($accepted as [$databaseValue, $caseName]) {
+            $communicationType = GorgoneCommunicationTypeMapping::fromDatabase($databaseValue, 42);
+
+            self::assertSame(
+                $caseName,
+                $communicationType->name,
+                "acceptedDatabaseValues() says '{$databaseValue}' is {$caseName}, but fromDatabase "
+                . "reads it as {$communicationType->name}"
+            );
+            self::assertSame(
+                $databaseValue,
+                GorgoneCommunicationTypeMapping::toDatabase($communicationType),
+                "acceptedDatabaseValues() says {$caseName} is '{$databaseValue}', but toDatabase "
+                . 'writes something else'
+            );
+        }
+    }
+
+    /**
+     * The message's second sentence is the only non-trivial thing the exception builds, and it is
+     * what tells the operator which values the column takes. Asserting the first sentence alone
+     * would let it disappear.
+     */
+    public function testTheRejectionNamesTheAcceptedColumnValues(): void
+    {
+        try {
+            GorgoneCommunicationTypeMapping::fromDatabase('9', 42);
+            self::fail('an unmappable value was accepted');
+        } catch (InvalidGorgoneCommunicationTypeException $exception) {
+            foreach (GorgoneCommunicationTypeMapping::acceptedDatabaseValues() as [$databaseValue, $caseName]) {
+                self::assertStringContainsString(
+                    "'{$databaseValue}' ({$caseName})",
+                    $exception->getMessage(),
+                    'the rejection does not tell the operator that the column takes '
+                    . "'{$databaseValue}' ({$caseName})"
+                );
+            }
         }
     }
 
@@ -329,9 +442,9 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
             . 'values, so upgraded and freshly installed platforms would disagree'
         );
 
-        // The allowed values alone are not "exactly the schema": the legacy poller form omits
-        // the column when the field is absent, so a DEFAULT that drifted would silently label
-        // the protocol of pollers created on upgraded platforms.
+        // The allowed values alone are not "exactly the schema": a row inserted without the
+        // column takes the DEFAULT, so a DEFAULT that drifted would silently relabel the
+        // protocol of pollers created on upgraded platforms.
         self::assertSame(
             $this->columnConstraints($this->columnDefinitionFromSchema()),
             $this->columnConstraints($definition),
@@ -494,20 +607,33 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
     {
         $redeclarations = [];
         foreach ($this->upgradeScripts() as $script) {
-            $matched = preg_match_all(
-                self::COLUMN_REDECLARATION_PATTERN,
-                (string) file_get_contents($script),
-                $definitions,
-                PREG_SET_ORDER
-            );
-            for ($index = 0; $index < $matched; $index++) {
-                $redeclarations[] = [
-                    'script' => basename($script) . ($index === 0 ? '' : " (ALTER #{$index})"),
-                    'version' => $this->upgradeScriptVersion(basename($script)),
-                    'family' => str_ends_with($script, '.sql') ? 1 : 0,
-                    'definition' => $definitions[$index][0],
-                ];
+            $contents = (string) file_get_contents($script);
+
+            $alters = preg_match_all(self::ALTER_NAGIOS_SERVER_PATTERN, $contents, $statements, PREG_SET_ORDER);
+            self::assertIsInt($alters, "unreadable {$script}: " . preg_last_error_msg());
+
+            $found = 0;
+            for ($statement = 0; $statement < $alters; $statement++) {
+                $matched = preg_match_all(
+                    self::COLUMN_REDECLARATION_PATTERN,
+                    $statements[$statement]['clauses'],
+                    $definitions,
+                    PREG_SET_ORDER
+                );
+                self::assertIsInt($matched, "unreadable {$script}: " . preg_last_error_msg());
+
+                for ($index = 0; $index < $matched; $index++) {
+                    $redeclarations[] = [
+                        'script' => basename($script) . ($found === 0 ? '' : " (ALTER #{$found})"),
+                        'version' => $this->upgradeScriptVersion(basename($script)),
+                        'family' => str_ends_with($script, '.sql') ? 1 : 0,
+                        'definition' => $definitions[$index][0],
+                    ];
+                    $found++;
+                }
             }
+
+            $this->assertNoUnreadableRedeclaration($script, $contents, $found);
         }
 
         self::assertNotSame(
@@ -517,6 +643,27 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
         );
 
         return $redeclarations;
+    }
+
+    /**
+     * The non-emptiness guards below only fire when NO script is readable, and a 2020 file satisfies
+     * them on its own for good. So a future script that touches the column in a shape these regexes
+     * cannot read would drop out of the collection in silence, and the "latest" redeclaration would
+     * quietly become the previous one — the very drift this file exists to catch. Per script: if it
+     * mentions the column near an ALTER or an UPDATE but yielded nothing, say so and name it.
+     */
+    private function assertNoUnreadableRedeclaration(string $script, string $contents, int $found): void
+    {
+        if ($found > 0) {
+            return;
+        }
+
+        self::assertSame(
+            0,
+            preg_match('/(?:ALTER\s+TABLE|UPDATE)[^;]*gorgone_communication_type/is', $contents),
+            basename($script) . ' touches gorgone_communication_type in a shape this guard cannot '
+            . 'read, so it would silently drop out of the scripts held to the mapping'
+        );
     }
 
     /**
@@ -549,12 +696,16 @@ final class GorgoneCommunicationTypeMappingTest extends TestCase
                 $statements,
                 PREG_SET_ORDER
             );
+            self::assertIsInt($matched, "unreadable {$script}: " . preg_last_error_msg());
+
             for ($index = 0; $index < $matched; $index++) {
                 $found = preg_match_all(
                     "/`?gorgone_communication_type`?\s*=\s*'([^']*)'/i",
                     $statements[$index]['assignments'],
                     $assignments
                 );
+                self::assertIsInt($found, "unreadable {$script}: " . preg_last_error_msg());
+
                 for ($assignment = 0; $assignment < $found; $assignment++) {
                     $writes[] = [
                         'script' => basename($script),
