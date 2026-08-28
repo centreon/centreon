@@ -29,10 +29,6 @@ afterEach(() => {
   cy.stopContainers();
 });
 
-// ---------------------------------------------------------------------------
-// Background
-// ---------------------------------------------------------------------------
-
 Given('an admin user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
@@ -54,10 +50,6 @@ Given('hosts with services exist', () => {
     template: 'generic-service'
   });
 });
-
-// ---------------------------------------------------------------------------
-// Services by host
-// ---------------------------------------------------------------------------
 
 When('the user navigates to the services by host listing', () => {
   cy.visitListingAndWait(svcByHostPage);
@@ -86,10 +78,6 @@ Then('only the matching services are displayed', () => {
   cy.waitForListingToShow(servicePing);
   cy.waitForListingToDrop(serviceCpu);
 });
-
-// ---------------------------------------------------------------------------
-// Toggle disables
-// ---------------------------------------------------------------------------
 
 When('the user clicks the toggle to disable a service', () => {
   cy.getIframeBody()
@@ -120,10 +108,6 @@ Then('the toggle response is successful', () => {
     .should('have.property', 'success', true);
 });
 
-// ---------------------------------------------------------------------------
-// Toggle enables
-// ---------------------------------------------------------------------------
-
 When('the service is disabled', () => {
   cy.requestOnDatabase({
     database: 'centreon',
@@ -153,10 +137,6 @@ Then('the service toggle switches to enabled', () => {
     .should('be.checked');
 });
 
-// ---------------------------------------------------------------------------
-// RTM badges
-// ---------------------------------------------------------------------------
-
 Then('service rows have monitoring status badges', () => {
   // Badges may show "-" if no monitoring data, but the column should exist
   cy.getIframeBody()
@@ -166,10 +146,6 @@ Then('service rows have monitoring status badges', () => {
     .should('have.length.greaterThan', 3);
 });
 
-// ---------------------------------------------------------------------------
-// Pagination
-// ---------------------------------------------------------------------------
-
 Then('the pagination info shows the total count', () => {
   cy.getIframeBody()
     .find('#clPaginationTop .cl-page-info')
@@ -177,14 +153,7 @@ Then('the pagination info shows the total count', () => {
     .should('match', /\d+-\d+ of \d+/);
 });
 
-// ---------------------------------------------------------------------------
-// Bulk duplication
-// ---------------------------------------------------------------------------
-
 When('the user selects a service and duplicates it', () => {
-  // One query, not a chain: the listing auto-refreshes on a timer and a
-  // contains -> parents -> find chain loses its subject when the table is
-  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
     .find(
       `#clTableBody tr:contains("${servicePing}") .cl-col-picker input[type="checkbox"]`
@@ -199,10 +168,6 @@ Then('a duplicated service appears in the listing', () => {
   cy.waitForListingToShow(duplicatedServicePing);
 });
 
-// ---------------------------------------------------------------------------
-// Click navigates to edit form
-// ---------------------------------------------------------------------------
-
 When('the user clicks on a service name', () => {
   cy.getIframeBody().find('#clTableBody').contains('a', servicePing).click();
 });
@@ -214,10 +179,6 @@ Then('the service edit form is displayed', () => {
     .should('have.value', servicePing);
 });
 
-// ---------------------------------------------------------------------------
-// Services by hostgroup
-// ---------------------------------------------------------------------------
-
 When('the user navigates to the services by hostgroup listing', () => {
   cy.visitListingAndWait(svcByHgPage);
 });
@@ -228,10 +189,6 @@ Then('the AJAX listing table is displayed with hostgroup service rows', () => {
     .find('#clTableBody tr')
     .should('have.length.greaterThan', 0);
 });
-
-// ---------------------------------------------------------------------------
-// Session state persistence
-// ---------------------------------------------------------------------------
 
 When('the user navigates back to the services by host listing', () => {
   cy.visit(svcByHostPage);

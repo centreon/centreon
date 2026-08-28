@@ -42,10 +42,6 @@ afterEach(() => {
   cy.stopContainers();
 });
 
-// ---------------------------------------------------------------------------
-// Background
-// ---------------------------------------------------------------------------
-
 Given('an admin user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
@@ -77,10 +73,6 @@ Given('a locked service template exists', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Listing loads via AJAX
-// ---------------------------------------------------------------------------
-
 When('the user navigates to the service templates listing', () => {
   cy.visitListingAndWait(stPage);
 });
@@ -89,10 +81,6 @@ Then('the AJAX listing table is displayed with service template rows', () => {
   cy.getIframeBody().find('table.cl-listing-table').should('exist');
   cy.waitForListingToShow(templateAlpha);
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Search
-// ---------------------------------------------------------------------------
 
 When('the user searches for a specific service template', () => {
   // Live search (the listing declares liveSearch): the Search button lives in
@@ -106,10 +94,6 @@ Then('only the matching service template is displayed', () => {
   cy.waitForListingToDrop(templateBeta);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Icon display
-// ---------------------------------------------------------------------------
-
 Then('each row displays a service icon', () => {
   // A template with no media icon of its own renders the default pictogram as an
   // inline svg; only a template carrying one renders an <img>.
@@ -119,10 +103,6 @@ Then('each row displays a service icon', () => {
     .find('img[src*="service"], svg')
     .should('exist');
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Template chain
-// ---------------------------------------------------------------------------
 
 Then('service template rows show the parent template chain as links', () => {
   // The chain links open the form in the side panel like every other link on
@@ -135,10 +115,6 @@ Then('service template rows show the parent template chain as links', () => {
     .should('have.length.greaterThan', 0);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Scheduling intervals
-// ---------------------------------------------------------------------------
-
 Then('service template rows show scheduling intervals', () => {
   cy.getIframeBody()
     .find('#clTableBody')
@@ -147,10 +123,6 @@ Then('service template rows show scheduling intervals', () => {
     .invoke('text')
     .should('match', /min|sec/);
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Locked checkbox
-// ---------------------------------------------------------------------------
 
 When('the locked checkbox is checked', () => {
   openAdvancedFilters();
@@ -190,10 +162,6 @@ Then('locked service templates are hidden', () => {
     .should('not.exist');
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Locked rows disabled
-// ---------------------------------------------------------------------------
-
 Then('locked rows have disabled selection checkboxes', () => {
   // Scoped to the locked row: counting disabled checkboxes across the whole
   // table also passed when the disabling applied to the wrong rows.
@@ -218,17 +186,9 @@ Then('locked rows have disabled duplication inputs', () => {
     .should('not.be.disabled');
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: No toggle
-// ---------------------------------------------------------------------------
-
 Then('no toggle switch is present in the listing', () => {
   cy.getIframeBody().find('#clTableBody .cl-toggle').should('not.exist');
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Pagination
-// ---------------------------------------------------------------------------
 
 Then('the pagination info shows the total count', () => {
   cy.getIframeBody()
@@ -248,14 +208,7 @@ Then('at most 10 rows are displayed', () => {
   cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Bulk duplication
-// ---------------------------------------------------------------------------
-
 When('the user selects a service template and duplicates it', () => {
-  // One query, not a chain: the listing auto-refreshes every 30s and a
-  // contains -> parents -> find chain loses its subject when the table is
-  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
     .find(
       `#clTableBody tr:contains("${templateAlpha}") .cl-col-picker input[type="checkbox"]`
@@ -270,14 +223,7 @@ Then('a duplicated service template appears in the listing', () => {
   cy.waitForListingToShow(duplicatedTemplateAlpha);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Bulk deletion
-// ---------------------------------------------------------------------------
-
 When('the user selects a service template and deletes it', () => {
-  // One query, not a chain: the listing auto-refreshes every 30s and a
-  // contains -> parents -> find chain loses its subject when the table is
-  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
     .find(
       `#clTableBody tr:contains("${templateBeta}") .cl-col-picker input[type="checkbox"]`
@@ -292,10 +238,6 @@ Then('the service template is removed from the listing', () => {
   cy.waitForListingToDrop(templateBeta);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Click navigates to edit form
-// ---------------------------------------------------------------------------
-
 When('the user clicks on a service template name', () => {
   cy.getIframeBody().find('#clTableBody').contains('a', templateAlpha).click();
 });
@@ -306,10 +248,6 @@ Then('the service template edit form is displayed', () => {
     .should('be.visible')
     .and('have.value', templateAlpha);
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Session state persistence
-// ---------------------------------------------------------------------------
 
 When('the user navigates back to the service templates listing', () => {
   cy.visit(stPage);

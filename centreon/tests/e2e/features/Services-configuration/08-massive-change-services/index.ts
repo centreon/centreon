@@ -60,9 +60,6 @@ const checkServicesProperties = (name) => {
 // Select the row of a named service. The listing groups its rows by host, so
 // positional indexes no longer identify a service.
 const selectServiceRow = (name: string): void => {
-  // One query, not a chain: the listing auto-refreshes on a timer and a
-  // contains -> parents -> find chain loses its subject when the table is
-  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
     .find(
       `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`

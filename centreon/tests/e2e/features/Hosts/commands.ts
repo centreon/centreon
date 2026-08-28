@@ -229,10 +229,6 @@ interface HostGroupDependency {
   comment: string;
 }
 
-// ---------------------------------------------------------------------------
-// Host categories commands
-// ---------------------------------------------------------------------------
-
 Cypress.Commands.add('openHostCategoriesListing', () => {
   cy.visit(PAGES.configuration.hostCategoriesLegacy);
   cy.wait('@getTimeZone');

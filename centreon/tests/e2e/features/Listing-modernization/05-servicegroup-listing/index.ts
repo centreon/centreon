@@ -37,10 +37,6 @@ afterEach(() => {
   cy.stopContainers();
 });
 
-// ---------------------------------------------------------------------------
-// Background
-// ---------------------------------------------------------------------------
-
 Given('an admin user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
@@ -60,10 +56,6 @@ Given('several service groups exist', () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Listing loads via AJAX
-// ---------------------------------------------------------------------------
-
 When('the user navigates to the service groups listing', () => {
   cy.visitListingAndWait(sgPage);
 });
@@ -73,10 +65,6 @@ Then('the AJAX listing table is displayed with service group rows', () => {
   cy.waitForListingToShow(serviceGroupAlpha);
   cy.waitForListingToShow(serviceGroupBeta);
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Search filters
-// ---------------------------------------------------------------------------
 
 When('the user searches for a specific service group', () => {
   // Live search (debounced AJAX): this listing has no advanced-filter panel, so
@@ -89,10 +77,6 @@ Then('only the matching service group is displayed', () => {
   cy.waitForListingToShow(serviceGroupAlpha);
   cy.waitForListingToDrop(serviceGroupBeta);
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Toggle disables
-// ---------------------------------------------------------------------------
 
 When('the user clicks the toggle to disable a service group', () => {
   serviceGroupToggle().should('be.checked').click({ force: true });
@@ -111,10 +95,6 @@ Then('the AJAX response is successful', () => {
     .should('have.property', 'success', true);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Toggle enables
-// ---------------------------------------------------------------------------
-
 When('the service group is disabled', () => {
   cy.requestOnDatabase({
     database: 'centreon',
@@ -132,10 +112,6 @@ When('the user clicks the toggle to enable the service group', () => {
 Then('the toggle switches to enabled state', () => {
   serviceGroupToggle().should('be.checked');
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: CSRF rotation — two consecutive toggles
-// ---------------------------------------------------------------------------
 
 When('the user toggles a service group off then on', () => {
   // Two consecutive waits on the same alias consume the two requests in order,
@@ -156,10 +132,6 @@ Then('both toggle requests succeed', () => {
     .should('have.property', 'success', true);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Pagination
-// ---------------------------------------------------------------------------
-
 Then('the pagination info shows the total count', () => {
   cy.getIframeBody()
     .find('#clPaginationTop .cl-page-info')
@@ -178,14 +150,7 @@ Then('at most 10 rows are displayed', () => {
   cy.getIframeBody().find('#clTableBody tr').should('have.length.at.most', 10);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Bulk duplication
-// ---------------------------------------------------------------------------
-
 When('the user selects a service group and duplicates it', () => {
-  // One query, not a chain: the listing auto-refreshes every 30s and a
-  // contains -> parents -> find chain loses its subject when the table is
-  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
     .find(
       `#clTableBody tr:contains("${serviceGroupAlpha}") .cl-col-picker input[type="checkbox"]`
@@ -201,14 +166,7 @@ Then('a duplicated service group appears in the listing', () => {
   cy.waitForListingToShow(duplicatedServiceGroupAlpha);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Bulk deletion
-// ---------------------------------------------------------------------------
-
 When('the user selects a service group and deletes it', () => {
-  // One query, not a chain: the listing auto-refreshes every 30s and a
-  // contains -> parents -> find chain loses its subject when the table is
-  // replaced mid-way. Cypress retries a single find() atomically.
   cy.getIframeBody()
     .find(
       `#clTableBody tr:contains("${serviceGroupBeta}") .cl-col-picker input[type="checkbox"]`
@@ -224,10 +182,6 @@ Then('the service group is removed from the listing', () => {
   cy.waitForListingToDrop(serviceGroupBeta);
 });
 
-// ---------------------------------------------------------------------------
-// Scenario: Click navigates to edit form
-// ---------------------------------------------------------------------------
-
 When('the user clicks on a service group name', () => {
   cy.getIframeBody()
     .find('#clTableBody')
@@ -241,10 +195,6 @@ Then('the service group edit form is displayed', () => {
     .should('be.visible')
     .and('have.value', serviceGroupAlpha);
 });
-
-// ---------------------------------------------------------------------------
-// Scenario: Session state persistence
-// ---------------------------------------------------------------------------
 
 When('the user navigates back to the service groups listing', () => {
   cy.visit(sgPage);

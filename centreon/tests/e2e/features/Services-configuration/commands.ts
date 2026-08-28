@@ -645,10 +645,6 @@ Cypress.Commands.add(
   }
 );
 
-// ---------------------------------------------------------------------------
-// Meta services commands (modernized AJAX listing + side-panel form)
-// ---------------------------------------------------------------------------
-
 Cypress.Commands.add('openMetaServicesListing', () => {
   cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.wait('@getTimeZone');
@@ -667,10 +663,6 @@ Cypress.Commands.add('getMetaServiceSidePanelBody', () => {
     .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
 });
 
-// openListingRowForm waits for the panel to have released its iframe before
-// clicking: a click made while the closing transition is still pending lets that
-// timeout blank the src cfOpenPanel just set, and the panel then loads empty for
-// good — which is what a scenario opening a second form runs into.
 Cypress.Commands.add('openMetaServiceForm', (name: string) => {
   cy.openListingRowForm(name)
     .find('input[name="meta_name"]', { timeout: 20_000 })
@@ -680,7 +672,7 @@ Cypress.Commands.add('openMetaServiceForm', (name: string) => {
 Cypress.Commands.add(
   'selectMetaServiceRowAndRunBulkAction',
   (name: string, action: string) => {
-    // One query, not a chain: the listing auto-refreshes every 30s and a
+    // One query, not a chain: the listing auto-refreshes on a timer and a
     // contains -> parents -> find chain loses its subject when the table is
     // replaced mid-way. Cypress retries a single find() atomically.
     cy.getIframeBody()
@@ -691,10 +683,6 @@ Cypress.Commands.add(
     cy.runListingBulkAction(action);
   }
 );
-
-// ---------------------------------------------------------------------------
-// Service categories commands (modernized AJAX listing + side-panel form)
-// ---------------------------------------------------------------------------
 
 Cypress.Commands.add('openServiceCategoriesListing', () => {
   cy.visit(PAGES.configuration.servicesCategoriesLegacy);
@@ -714,9 +702,6 @@ Cypress.Commands.add('getServiceCategorySidePanelBody', () => {
     .then((body) => cy.wrap<JQuery<HTMLElement>>(body));
 });
 
-// openListingRowForm waits for the panel to have released its iframe: clicking
-// during the closing transition lets the pending reset blank the src that was
-// just set, and the panel then loads empty for good.
 Cypress.Commands.add('openServiceCategoryForm', (name: string) => {
   cy.openListingRowForm(name);
   cy.getServiceCategorySidePanelBody()
@@ -727,9 +712,6 @@ Cypress.Commands.add('openServiceCategoryForm', (name: string) => {
 Cypress.Commands.add(
   'selectServiceCategoryRowAndRunBulkAction',
   (name: string, action: string) => {
-    // One query, not a chain: the listing auto-refreshes every 30s and a
-    // contains -> parents -> find chain loses its subject when the table is
-    // replaced mid-way. Cypress retries a single find() atomically.
     cy.getIframeBody()
       .find(
         `#clTableBody tr:contains("${name}") .cl-col-picker input[type="checkbox"]`
