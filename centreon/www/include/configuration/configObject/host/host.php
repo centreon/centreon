@@ -89,14 +89,19 @@ $aclHostString = $acl->getHostsString('ID', $dbmon);
 $aclPollerString = $acl->getPollerString();
 
 /**
- * Keep a write action to the hosts the caller may actually write.
+ * Narrow a selection to the hosts the caller can see, once page-level write
+ * access is established.
  *
- * The topology check upstream admits read-only access to this page, and none of
- * the branches below look at the ids they are handed — the CSRF token is their
- * only gate. So a reader could reach every bulk action, on any host id it posted.
+ * The topology check upstream admits read-only access to this page, and the
+ * branches below took their ids straight from the request, gated by the CSRF
+ * token alone. Every path that writes must therefore route its selection
+ * through here first — see the single call site above the switch.
  *
- * Returns the granted subset, so an action carrying a mix acts on the allowed
- * part rather than failing whole, which is how the AJAX endpoints behave too.
+ * Returns the granted subset, so a selection carrying a mix acts on the allowed
+ * part rather than failing whole: one denied id does not cancel the rest.
+ *
+ * Reads $acl, $centreon, $dbmon and $p from the global scope; $p must hold this
+ * page's topology id, since the write check is $acl->page($p).
  *
  * @param array<int, mixed> $selection Host ids as keys, as getSelectOption() returns
  *
@@ -143,6 +148,11 @@ function keepWritableHosts(array $selection): array
     return $writable;
 }
 
+// formHost.php runs its mass-change loop on the presence of the submitMC field
+// rather than on $o, so a request declaring any other action still reaches it.
+// Filtering once here covers every branch instead of each one guarding itself.
+$select = keepWritableHosts($select ?? []);
+
 switch ($o) {
     case HOST_ADD:
     case HOST_WATCH:
@@ -150,7 +160,6 @@ switch ($o) {
         require_once $path . 'formHost.php';
         break;
     case HOST_MASSIVE_CHANGE:
-        $select = keepWritableHosts($select ?? []);
         require_once $path . 'formHost.php';
         break;
     case HOST_ACTIVATION:
@@ -169,7 +178,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostInDB(null, keepWritableHosts($select ?? []));
+            enableHostInDB(null, $select);
         } else {
             unvalidFormMessage();
         }
@@ -191,7 +200,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostInDB(null, keepWritableHosts($select ?? []));
+            disableHostInDB(null, $select);
         } else {
             unvalidFormMessage();
         }
@@ -201,7 +210,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleHostInDB(keepWritableHosts($select ?? []), $dupNbr);
+            multipleHostInDB($select, $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -214,7 +223,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostInApi(hosts: array_keys(keepWritableHosts(is_array($select) ? $select : [])));
+            deleteHostInApi(hosts: array_keys($select));
         } else {
             unvalidFormMessage();
         }
@@ -224,7 +233,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            applytpl(array_keys(keepWritableHosts($select ?? [])));
+            applytpl(array_keys($select));
         } else {
             unvalidFormMessage();
         }
