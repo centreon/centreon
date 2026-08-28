@@ -952,9 +952,11 @@ if ($o === SERVICE_ADD) {
 $form->addElement('text', 'esi_notes', _('Note'), $attrsText);
 $form->addElement('text', 'esi_notes_url', _('Note URL'), $attrsTextURL);
 $form->addElement('text', 'esi_action_url', _('Action URL'), $attrsTextURL);
+// showLogo() dereferences its target with no null check: guard the preview
+// refresh so a template without the preview node does not break the form.
 $form->addElement('select', 'esi_icon_image', _('Icon'), $extImg, [
     'id' => 'esi_icon_image',
-    'onChange' => "showLogo('esi_icon_image_img',this.value)",
+    'onChange' => "if (document.getElementById('esi_icon_image_img')) showLogo('esi_icon_image_img',this.value)",
     'onkeyup' => 'this.blur();this.focus();',
 ]);
 
@@ -1249,7 +1251,9 @@ if ($valid) {
     ?>
     <script type="text/javascript">
         setTimeout('transformForm()', 200);
-        showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        if (document.getElementById('esi_icon_image_img')) {
+            showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        }
 
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {

@@ -840,7 +840,9 @@ $form->addElement(
     $extImg,
     [
         'id' => 'esi_icon_image',
-        'onChange' => "showLogo('esi_icon_image_img',this.value)",
+        // showLogo() dereferences its target with no null check: guard the preview
+        // refresh so a template without the preview node does not break the form.
+        'onChange' => "if (document.getElementById('esi_icon_image_img')) showLogo('esi_icon_image_img',this.value)",
         'onkeyup' => 'this.blur();this.focus();',
     ]
 );
@@ -1065,7 +1067,9 @@ if ($valid) {
     ?>
     <script type="text/javascript">
         setTimeout('transformForm()', 200);
-        showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        if (document.getElementById('esi_icon_image_img')) {
+            showLogo('esi_icon_image_img', document.getElementById('esi_icon_image').value);
+        }
 
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {
