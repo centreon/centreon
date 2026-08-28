@@ -2233,6 +2233,10 @@ msgstr "CA Common Name (CN)"
 msgid "CMA authentication token(s)"
 msgstr "CMA authentication token(s)"
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Could not change status"
+msgstr "Could not change status"
+
 #: centreon/www/include/monitoring/status/Services/xml/makeXMLForOneService.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 msgid "CRITICAL"
@@ -5974,6 +5978,10 @@ msgstr "Error in hour definition"
 #: centreon/src/Core/Application/Configuration/User/Exception/UserException.php
 msgid "Error in reading the themes available to the user"
 msgstr "Error in reading the themes available to the user"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Error loading data"
+msgstr "Error loading data"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Error messages"
@@ -16173,6 +16181,34 @@ msgstr "Syslog Logging Option"
 msgid "System Logs"
 msgstr "System Logs"
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The list could not be refreshed — the rows shown may be out of date."
+msgstr "The list could not be refreshed — the rows shown may be out of date."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The page state expired — the list was refreshed, please try again."
+msgstr "The page state expired — the list was refreshed, please try again."
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not within your access groups"
+msgstr "This contact group is not within your access groups"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "This object no longer exists."
+msgstr "This object no longer exists."
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group no longer exists"
+msgstr "This contact group no longer exists"
+
+#: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
+msgid "This time period could not be displayed, please try again"
+msgstr "This time period could not be displayed, please try again"
+
+#: centreon/www/include/configuration/configObject/timeperiod/renderTimeperiod.php
+msgid "This time period no longer exists"
+msgstr "This time period no longer exists"
+
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/install/front_translate.php
 msgid "TLS"
@@ -18904,6 +18940,10 @@ msgstr "You are not allowed to add tokens"
 msgid "You are not allowed to add tokens linked to user ID %d"
 msgstr "You are not allowed to add tokens linked to user ID %d"
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are not allowed to change this status."
+msgstr "You are not allowed to change this status."
+
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to create service categories"
 msgstr "You are not allowed to create service categories"
@@ -19223,6 +19263,10 @@ msgstr "You need to select a least one polling instance."
 msgid "You need to send '%s' in the request."
 msgstr "You need to send '%s' in the request."
 
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You no longer have access to this page."
+msgstr "You no longer have access to this page."
+
 #: centreon/www/install/step_upgrade/step4.php
 msgid "You seem to be having trouble with your upgrade."
 msgstr "You seem to be having trouble with your upgrade."
@@ -19352,6 +19396,10 @@ msgstr "Your rights only allow you to view the properties of a widget."
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Your session has expired"
 msgstr "Your session has expired"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Your session has expired — please reload the page."
+msgstr "Your session has expired — please reload the page."
 
 #: centreon/www/install/front_translate.php
 msgid "Your widget has been created successfully!"
@@ -20101,3 +20149,207 @@ msgstr "You are about to duplicate <strong>{{ count }} host categories.</strong>
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 
+
+#: unknown
+msgid "The synchronization request was refused. Check that LDAP authentication is enabled in the general options."
+msgstr "The synchronization request was refused. Check that LDAP authentication is enabled in the general options."
+
+#: unknown
+msgid "Delete contact"
+msgstr "Delete contact"
+
+#: unknown
+msgid "Delete contacts"
+msgstr "Delete contacts"
+
+#: unknown
+msgid "Duplicate contact"
+msgstr "Duplicate contact"
+
+#: unknown
+msgid "Duplicate contacts"
+msgstr "Duplicate contacts"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> contact. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> contact. This action cannot be undone. Do you want to delete it?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} contacts.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} contacts.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> contact. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> contact. Do you want to duplicate it?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} contacts.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} contacts.</strong> Do you want to duplicate them?"
+
+#: unknown
+msgid "Delete contact template"
+msgstr "Delete contact template"
+
+#: unknown
+msgid "Delete contact templates"
+msgstr "Delete contact templates"
+
+#: unknown
+msgid "Duplicate contact template"
+msgstr "Duplicate contact template"
+
+#: unknown
+msgid "Duplicate contact templates"
+msgstr "Duplicate contact templates"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> contact template. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> contact template. This action cannot be undone. Do you want to delete it?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} contact templates.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} contact templates.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> contact template. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> contact template. Do you want to duplicate it?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} contact templates.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} contact templates.</strong> Do you want to duplicate them?"
+
+#: unknown
+msgid "Delete contact group"
+msgstr "Delete contact group"
+
+#: unknown
+msgid "Delete contact groups"
+msgstr "Delete contact groups"
+
+#: unknown
+msgid "Duplicate contact group"
+msgstr "Duplicate contact group"
+
+#: unknown
+msgid "Duplicate contact groups"
+msgstr "Duplicate contact groups"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> contact group. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> contact group. This action cannot be undone. Do you want to delete it?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} contact groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} contact groups.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> contact group. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> contact group. Do you want to duplicate it?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} contact groups.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} contact groups.</strong> Do you want to duplicate them?"
+
+#: unknown
+msgid "Delete time period"
+msgstr "Delete time period"
+
+#: unknown
+msgid "Delete time periods"
+msgstr "Delete time periods"
+
+#: unknown
+msgid "Duplicate time period"
+msgstr "Duplicate time period"
+
+#: unknown
+msgid "Duplicate time periods"
+msgstr "Duplicate time periods"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> time period. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> time period. This action cannot be undone. Do you want to delete it?"
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} time periods.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} time periods.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> time period. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> time period. Do you want to duplicate it?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} time periods.</strong> Do you want to duplicate them?"
+
+#: unknown
+msgid "Add a Contact Template"
+msgstr "Add a Contact Template"
+
+#: unknown
+msgid "Modify a Contact"
+msgstr "Modify a Contact"
+
+#: unknown
+msgid "Modify a Contact Template"
+msgstr "Modify a Contact Template"
+
+#: unknown
+msgid "View notifications"
+msgstr "View notifications"
+
+#: unknown
+msgid "Graphical view"
+msgstr "Graphical view"
+
+#: unknown
+msgid "API Access"
+msgstr "API Access"
+
+#: unknown
+msgid "Access Restriction"
+msgstr "Access Restriction"
+
+#: unknown
+msgid "Advanced filters"
+msgstr "Advanced filters"
+
+#: unknown
+msgid "Autologin"
+msgstr "Autologin"
+
+#: unknown
+msgid "Configure the users and notification contacts of your platform."
+msgstr "Configure the users and notification contacts of your platform."
+
+#: unknown
+msgid "Contact Templates"
+msgstr "Contact Templates"
+
+#: unknown
+msgid "Day range"
+msgstr "Day range"
+
+#: unknown
+msgid "Define reusable contact configurations to apply across your users."
+msgstr "Define reusable contact configurations to apply across your users."
+
+#: unknown
+msgid "Define time ranges used to schedule checks and notifications."
+msgstr "Define time ranges used to schedule checks and notifications."
+
+#: unknown
+msgid "Global Access Right"
+msgstr "Global Access Right"
+
+#: unknown
+msgid "Group contacts together to manage notifications collectively."
+msgstr "Group contacts together to manage notifications collectively."
+
+#: unknown
+msgid "Select"
+msgstr "Select"
+
+#: unknown
+msgid "Time range (HH:MM-HH:MM)"
+msgstr "Time range (HH:MM-HH:MM)"

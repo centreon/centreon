@@ -21,3 +21,20 @@ Feature: ContactTemplateConfiguration
   Scenario: Delete one existing contact template
     When the user deletes the configured contact template
     Then the deleted contact template is not visible anymore on the contact template page
+
+  @MON-200035
+  Scenario: The contact templates listing loads its rows over AJAX
+    When the user displays the contact templates listing
+    Then the listing table is displayed with contact template rows
+
+  @MON-200035
+  Scenario: Searching filters the contact templates listing
+    When the user displays the contact templates listing
+    And the user searches for the configured contact template
+    Then only the matching contact template is displayed
+
+  @MON-200035
+  Scenario: Toggling a contact template disables it
+    When the user displays the contact templates listing
+    And the user clicks the toggle to disable the contact template
+    Then the contact template toggle switches to disabled

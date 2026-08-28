@@ -72,7 +72,10 @@ Then(
       .find('form')
       .within(() => {
         cy.contains('Centreon Authentication').click();
-        cy.get('#tab2 #generateAutologinKeyButton').should('be.exist');
+        // #tab2 was the legacy tab container of the contact form, which the
+        // modernized form replaced with cf-sec-* sections; the button itself is
+        // unchanged.
+        cy.get('#generateAutologinKeyButton').should('be.exist');
         cy.get('#aKey').should('be.exist');
       });
   }

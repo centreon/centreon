@@ -162,6 +162,7 @@ $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // prepare event data
 $eventData = [
@@ -689,6 +690,13 @@ if ($valid) {
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
+    // Paint the toggle's initial state server-side: on a frozen radio group the
+    // toggle has no input to read it from. The submitted value wins, so a failed
+    // validation does not redisplay the persisted one. addGroup makes
+    // getSubmitValue() return an array, hence the scalar branch below.
+    $submitted = $form->getSubmitValue('contact_activate');
+    $activate = is_array($submitted) ? ($submitted['contact_activate'] ?? null) : $submitted;
+    $tpl->assign('contactActivateOn', ($activate ?? $cct['contact_activate'] ?? '1') === '1');
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->display('formContactTemplateModel.ihtml');

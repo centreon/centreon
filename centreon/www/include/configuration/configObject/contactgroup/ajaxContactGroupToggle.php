@@ -28,9 +28,9 @@ use Adaptation\Log\Logger;
 
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
 
 $objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
@@ -41,7 +41,25 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
 
 $newToken = $helper->validateCsrfToken();
 
-$helper->requireWriteAccess(60104, $newToken);
+$helper->requireWriteAccess(60302, $newToken);
+
+// ACL: at the resource level, a non-admin user may only toggle contact groups
+// covered by their access groups. Page-level access alone would allow toggling
+// any contact group by id (IDOR).
+if (! $helper->isAdmin()) {
+    try {
+        $cgAcl = $helper->getAcl()->getContactGroupAclConf(['fields' => ['cg_id'], 'keys' => ['cg_id']]);
+    } catch (Throwable $exception) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'AJAX toggle: failed to resolve the contact group ACL scope',
+            ['exception' => $exception]
+        );
+        AjaxListingHelper::jsonError('Internal error', 500, $newToken);
+    }
+    if (! isset($cgAcl[$objId])) {
+        AjaxListingHelper::jsonError('Access denied', 403, $newToken);
+    }
+}
 
 $activate = ($action === 's') ? '1' : '0';
 
@@ -49,7 +67,7 @@ try {
     // Fetch the name (also acts as the existence check) then flip the activation flag.
     $objName = $pearDB->fetchOne(
         <<<'SQL'
-            SELECT hc_name FROM hostcategories WHERE hc_id = :id
+            SELECT cg_name FROM contactgroup WHERE cg_id = :id AND cg_type = 'local'
             SQL,
         QueryParameters::create([QueryParameter::int('id', $objId)])
     );
@@ -60,7 +78,7 @@ try {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            UPDATE hostcategories SET hc_activate = :activate WHERE hc_id = :id
+            UPDATE contactgroup SET cg_activate = :activate WHERE cg_id = :id AND cg_type = 'local'
             SQL,
         QueryParameters::create([
             QueryParameter::string('activate', $activate),
@@ -68,12 +86,12 @@ try {
         ])
     );
 
-    $helper->logToggleAction('hostcategories', $objId, (string) $objName, $action === 's' ? 'enable' : 'disable');
+    $helper->logToggleAction('contactgroup', $objId, (string) $objName, $action === 's' ? 'enable' : 'disable');
 
     echo json_encode(['success' => true, 'centreon_token' => $newToken], JSON_THROW_ON_ERROR);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
-        'AJAX toggle: failed to update host category activation',
+        'AJAX toggle: failed to update contact group activation',
         ['exception' => $exception]
     );
     AjaxListingHelper::jsonError('Internal error', 500, $newToken);

@@ -68,10 +68,27 @@ var CentreonForm = (function () {
         var panel   = document.getElementById('cfSidePanel');
 
         if (!titleEl || !frameEl || !overlay || !panel) {
+            // A silent return here kills every create/edit entry point; log which
+            // id is missing.
+            if (window.console) {
+                console.error('[CentreonForm] side panel markup missing', {
+                    cfSidePanelTitle: !!titleEl,
+                    cfSidePanelFrame: !!frameEl,
+                    cfSideOverlay: !!overlay,
+                    cfSidePanel: !!panel
+                });
+            }
+
             return;
         }
 
         titleEl.textContent = title || '';
+        // Name the frame after what it actually holds — a form, the notification
+        // matrix, the graphical view. Always assign: keeping the previous value
+        // when opened untitled would announce the panel opened before this one.
+        frameEl.title = title
+            || (window.clI18n && window.clI18n.form && window.clI18n.form.panelTitle)
+            || 'Form';
         frameEl.src = url;
         overlay.classList.add('open');
         panel.classList.add('open');
@@ -686,8 +703,12 @@ var CentreonForm = (function () {
 
         if (!toggle || !radioOn) return;
 
-        // Set initial state from the checked radio
-        toggle.checked = radioOn.checked;
+        // Set initial state from the checked radio. On a frozen form QuickForm
+        // renders the checked option as static text plus a persistant
+        // <input type="hidden"> carrying the same name and value, and .checked is
+        // always false on a hidden input — reading it would clear the state the
+        // server rendered on the toggle, which is then the only status display.
+        toggle.checked = radioOn.checked || radioOn.type === 'hidden';
 
         // Update hidden radio on toggle change
         toggle.addEventListener('change', function () {

@@ -1,113 +1,193 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 <script type="text/javascript" src="./include/common/javascript/tool.js"></script>
-<form name='form' method='POST'>
-    <table class="ajaxOption table">
-        <tbody>
-        <tr>
-            <th><h5>{t}Filters{/t}</h5></th>
-        </tr>
-        <tr>
-            <td><h4>{t}Contact{/t}</h4></td>
-            <td><h4>{t}Contact group{/t}</h4></td>
-        </tr>
-        <tr>
-            <td><input type="text" name="searchC" value="{$searchC}"></td>
-            <td>{$form.contactGroup.html}</td>
-            <td>{$form.Search.html}</td>
-        </tr>
-        </tbody>
-    </table>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
-            { if $mode_access == 'w' }
-            <td>
-                {$form.o1.html}
-                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="btc bt_info ml-2">{$msg.ldap_importT}</a>{/if}
-                <a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
-                <a href='#' class="btc bt_info ml-2"
-                   onclick="window.open('main.php?p=60301&o=dn&min=1', '', 'toolbar=no, location=no, directories=no, status=no, scrollbars=yes, resizable=yes, copyhistory=no, width=500, height=700');">
-                   {$msg.view_notif}
-               </a>
-            </td>
-            { else }
-            <td>&nbsp;</td>
-            { /if }
-            {pagination}
-        </tr>
-    </table>
-    <table class="ListTable">
-        <tr class="ListHeader">
-            <td class="ListColHeaderPicker">
-                <div class="md-checkbox md-checkbox-inline">
-                    <input type="checkbox" id="checkall" name="checkall" onclick="checkUncheckAll(this);"/>
-                    <label class="empty-label" for="checkall"></label>
-                </div>
-            </td>
-            <td class="ListColHeaderLeft">{$headerMenu_desc}</td>
-            <td class="ListColHeaderLeft">{$headerMenu_name}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_email}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_hostNotif}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_svNotif}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_lang}</td>
-            <td class="ListColHeaderCenter" title="{$headerMenu_accessTooltip}">{$headerMenu_access}</td>
-            <td class="ListColHeaderCenter">{$headerMenu_admin}</td>
-            {if $isAdmin}
-                <td class="ListColHeaderCenter" title="{$headerMenu_refreshLdapTitleTooltip}">{$headerMenu_refreshLdap}</td>
-            {/if}
-            {if $isAdmin && $blockedContactsCount}
-                <td class="ListColHeaderCenter">{$headerMenu_unblock}</td>
-            {/if}
-            <td class="ListColHeaderCenter">{$headerMenu_status}</td>
-            <td class="ListColHeaderRight">{$headerMenu_options}</td>
-        </tr>
-        {section name=elem loop=$elemArr}
-        <tr class={$elemArr[elem].MenuClass}>
-            <td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
-            <td class="ListColLeft" style='white-space:nowrap;'>
-                <span class='ico-22 margin_right' title='{$elemArr[elem].RowMenu_ico_title}'>
-                    {$elemArr[elem].RowMenu_ico}
-                </span>
-                <a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_desc}</a>
-            </td>
-            <td class="ListColLeft"><a href="{$elemArr[elem].RowMenu_link}">{$elemArr[elem].RowMenu_name}</a></td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_email}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_hostNotif}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_svNotif}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_lang}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_access}</td>
-            <td class="ListColCenter">{$elemArr[elem].RowMenu_admin}</td>
-            {if $isAdmin}
-                <td class="ListColCenter">{$elemArr[elem].RowMenu_refreshLdap}</td>
-            {/if}
-            {if $isAdmin && $blockedContactsCount}
-                <td class="ListColCenter">{$elemArr[elem].RowMenu_unblock}</td>
-            {/if}
-            <td class="ListColCenter">
-                <span class="badge {$elemArr[elem].RowMenu_badge}">{$elemArr[elem].RowMenu_status}</span>
-            </td>
-            <td class="ListColRight">{if $mode_access == 'w' }{$elemArr[elem].RowMenu_options}{else}&nbsp;{/if}</td>
-        </tr>
-        {/section}
-    </table>
-    <table class="ToolbarTable table">
-        <tr class="ToolbarTR">
-            { if $mode_access == 'w' }
-            <td>
-                {$form.o2.html}
-                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="btc bt_info ml-2">{$msg.ldap_importT}</a>{/if}
-                <a href="{$msg.addL}" class="btc bt_success ml-2">{$msg.addT}</a>
-            </td>
-            { else }
-            <td>&nbsp;</td>
-            { /if }
-            {pagination}
-        </tr>
-    </table>
-    <input type='hidden' name='o' id='o' value='42'>
-    <input type='hidden' id='limit' name='limit' value='{$limit}'>
-    {$form.hidden}
-</form>
+
 {literal}
-<script type='text/javascript'>
-    setDisabledRowStyle();
+<script type="text/javascript">
+CentreonForm.detectSidePanelClose();
+</script>
+{/literal}
+
+<form name='form' method='POST'>
+    <div class="cl-page-header">
+        <h1 class="cl-page-title">{t}Contacts{/t}</h1>
+        <span class="cl-page-title-sep"></span>
+        <p class="cl-page-desc">{t}Configure the users and notification contacts of your platform.{/t}</p>
+    </div>
+    <div class="cl-listing-container">
+        <div class="cl-actions-bar cl-actions-bar--centered">
+            { if $mode_access == 'w' }
+            <div class="cl-actions-left">
+                <a href="#" class="cl-btn-add" data-panel-url="main.get.php?p={$contactPage}&o=a" data-panel-title="{t}Add a contact{/t}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.addT}</a>
+                {if isset($ldap) && $ldap == "1" }<a href="{$msg.ldap_importL}" class="cl-btn-secondary">{$msg.ldap_importT}</a>{/if}
+                <a href="#" class="cl-btn-secondary" data-panel-url="main.get.php?p={$contactPage}&o=dn&min=1" data-panel-title="{$msg.view_notif|escape}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">{$msg.view_notif}</a>
+                {$form.o1.html}
+            </div>
+            { else }
+            <div class="cl-actions-left">&nbsp;</div>
+            { /if }
+            <div class="cl-toolbar-center">
+                <div class="cl-search cl-search--with-adv">
+                    <span class="cl-search-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                    <input type="text" id="clSearchInput" name="searchC" value="{$searchC|escape}" class="cl-search-simple" placeholder="{t}Search{/t}" autocomplete="off">
+                    <button type="button" class="cl-adv-icon-btn" data-cl-adv-panel="clAdvPanel" onclick="clToggleAdvancedFilters(this)" title="{t}Advanced filters{/t}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                        <span class="cl-adv-badge"></span>
+                    </button>
+
+                    <div class="cl-adv-panel cl-adv-panel--popover" id="clAdvPanel">
+                        <div class="cl-adv-inner">
+                            <div class="cl-adv-fields">
+                                <div class="cl-adv-field">
+                                    <label>{t}Contact group{/t}</label>
+                                    <div class="cl-adv-control">
+                                        {$form.contactGroup.html}
+                                        <button type="button" class="cl-adv-clear-field" onclick="jQuery('#contactGroup').val('').trigger('change');" title="{t}Clear{/t}">&times;</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cl-adv-actions">
+                                <button type="button" class="cl-adv-clear" onclick="jQuery('#contactGroup').val('').trigger('change'); document.getElementById('clSearchBtn').click();">{t}Clear{/t}</button>
+                                <button type="button" id="clSearchBtn" class="cl-adv-search">{t}Search{/t}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cl-toolbar-right">
+                <div class="cl-pagination" id="clPaginationTop"></div>
+            </div>
+        </div>
+
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    <th class="cl-col-picker">
+                        <div class="md-checkbox md-checkbox-inline">
+                            <input type="checkbox" id="checkall" name="checkall" onclick="contactListing.checkUncheckAll(this);"/>
+                            <label class="empty-label" for="checkall"></label>
+                        </div>
+                    </th>
+                    <th>{$headerMenu_desc}</th>
+                    <th>{$headerMenu_name}</th>
+                    <th class="cl-col-center">{$headerMenu_email}</th>
+                    <th class="cl-col-center">{$headerMenu_hostNotif}</th>
+                    <th class="cl-col-center">{$headerMenu_svNotif}</th>
+                    <th class="cl-col-center">{$headerMenu_lang}</th>
+                    <th class="cl-col-center" title="{$headerMenu_accessTooltip|escape}">{$headerMenu_access}</th>
+                    <th class="cl-col-center">{$headerMenu_admin}</th>
+                    { if $isAdmin }
+                    <th class="cl-col-center" title="{$headerMenu_refreshLdapTitleTooltip}">{$headerMenu_refreshLdap}</th>
+                    { /if }
+                    <th class="cl-col-right">{t}Actions{/t}</th>
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="{if $isAdmin}11{else}10{/if}" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+
+    </div>
+
+<input type='hidden' name='o' id='o' value=''>
+<input type='hidden' id='limit' name='limit' value=''>
+{$form.hidden}
+</form>
+
+<div class="cf-side-overlay" id="cfSideOverlay" onclick="cfClosePanel();"></div>
+<div class="cf-side-panel" id="cfSidePanel">
+    <div class="cf-side-panel-resize" id="cfSidePanelResize"></div>
+    <div class="cf-side-panel-header">
+        <span class="cf-side-panel-title" id="cfSidePanelTitle"></span>
+        <button class="cf-side-panel-close" onclick="cfClosePanel();" aria-label="{t}Close{/t}">&times;</button>
+    </div>
+    <div class="cf-side-panel-body">
+        <iframe id="cfSidePanelFrame" src="about:blank" title="{t}Form{/t}"></iframe>
+    </div>
+</div>
+
+{literal}
+<script type="text/javascript">
+
+var contactListing = new CentreonListing({
+    instanceName:  'contactListing',
+    ajaxListUrl:   './include/configuration/configObject/contact/ajaxContactListing.php',
+    ajaxToggleUrl: './include/configuration/configObject/contact/ajaxContactToggle.php',
+    pageId:        {/literal}'{$contactPage}'{literal},
+    writeAccess:   {/literal}'{$mode_access}'{literal} === 'w',
+    defaultLimit:  {/literal}{$defaultLimit}{literal},
+    storageKey:    'contact_listing_limit',
+    extraParams:   function() { var cg = jQuery('#contactGroup').val(); return (cg && cg !== '') ? { contactGroup: cg } : {}; },
+    autoRefresh:   30000,
+    liveSearch:    true,
+    rowIdField:    'id',
+    // The legacy page rendered the current user's selection checkbox disabled;
+    // without this a user can include themselves in a bulk delete.
+    lockedField:   'is_current_user',
+    columns: [
+        { id:'alias', render: function(row, l) {
+            var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
+            var icon = row.admin ? './img/icons/admin.svg' : './img/icons/user.svg';
+            var title = row.admin ? '{/literal}{t escape='js'}Administrator{/t}{literal}' : '{/literal}{t escape='js'}User{/t}{literal}';
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;"><img src="'+icon+'" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" title="'+title+'" />'+l.escape(row.alias||'')+'</a>';
+        }},
+        { id:'name', render: function(row, l) {
+            var editUrl = 'main.get.php?p={/literal}{$contactPage}{literal}&o=c&contact_id=' + row.id;
+            return '<a href="#" data-panel-url="'+clEscapeAttr(editUrl)+'" data-panel-title="{/literal}{t}Modify a Contact{/t}{literal}" onclick="cfOpenPanel(this.dataset.panelUrl, this.dataset.panelTitle); return false;">'+l.escape(row.name)+'</a>';
+        }},
+        { id:'email', align:'center' },
+        { id:'host_notif', align:'center', render: function(row, l) { return row.host_notif ? l.escape(row.host_notif) : '-'; }},
+        { id:'svc_notif', align:'center', render: function(row, l) { return row.svc_notif ? l.escape(row.svc_notif) : '-'; }},
+        { id:'lang', align:'center' },
+        { id:'access', align:'center', render: function(row) {
+            return row.access
+                ? '<span class="cl-tag cl-tag--success">{/literal}{t escape='js'}Enabled{/t}{literal}</span>'
+                : '<span class="cl-tag cl-tag--neutral">{/literal}{t escape='js'}Disabled{/t}{literal}</span>';
+        }},
+        { id:'admin', align:'center', render: function(row) {
+            return row.admin
+                ? '<span class="cl-tag cl-tag--info">{/literal}{t escape='js'}Yes{/t}{literal}</span>'
+                : '<span class="cl-tag cl-tag--neutral">{/literal}{t escape='js'}No{/t}{literal}</span>';
+        }}
+        {/literal}{if $isAdmin}{literal},
+        // LDAP synchronization, admin only. Three sites share this condition and
+        // must move together: this column, the header cell, and the colspan of
+        // the loading row.
+        { id:'ldap_sync', align:'center', render: function(row) {
+            if (row.auth_type !== 'ldap') {
+                return '<span title="{/literal}{$refreshLdapHelpNone|escape}{literal}">-</span>';
+            }
+            if (row.ldap_sync === 1) {
+                return '<span class="ico-18" style="opacity:.4;" title="{/literal}{$refreshLdapHelpRequested|escape}{literal}">'
+                    + '<img src="./img/icons/refresh.svg" width="18" height="18" alt="" /></span>';
+            }
+            return '<span class="ico-18" style="cursor:pointer;" title="{/literal}{$refreshLdapHelpAvailable|escape}{literal}"'
+                + ' onclick="submitSync({/literal}{$contactPage}{literal}, ' + parseInt(row.id, 10) + ');">'
+                + '<img src="./img/icons/refresh.svg" width="18" height="18" alt="" /></span>';
+        }}
+        {/literal}{/if}{literal}
+    ],
+    renderOptions: function(row, l) {
+        var checked = row.activate ? ' checked' : '';
+        // Unblock action for locked users (admin only); full reload after the action.
+        var unblock = '';
+        if (row.blocked) {
+            unblock = '<a href="main.get.php?p={/literal}{$contactPage}{literal}&o=un&contact_id=' + row.id + '&centreon_token={/literal}{$centreonToken}{literal}" title="{/literal}{t}Unblock{/t}{literal}" class="cl-unblock" style="margin-right:8px;" onclick="unblockContact(this.href); return false;"><img src="./img/icons/lock_closed.png" class="ico-14"/></a>';
+        }
+        var dup = '<input onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))event.returnValue=false;if(event.which>31&&(event.which<45||event.which>57))return false;" maxlength="3" size="3" value="1" class="cl-dup-input" name="dupNbr['+row.id+']"/>';
+        if (row.is_current_user) {
+            return unblock + '<label class="cl-toggle"><input type="checkbox"'+checked+' disabled /><span class="cl-toggle-slider"></span></label>' + dup;
+        }
+        return unblock + '<label class="cl-toggle"><input type="checkbox" data-row-id="'+row.id+'"'+checked+' onchange="contactListing.toggleActivation(this);"/><span class="cl-toggle-slider"></span></label>' + dup;
+    }
+});
+contactListing.init();
+CentreonForm.initSidePanel(contactListing);
+
+jQuery('#clClearBtn').on('click', function() {
+    jQuery('#clSearchInput').val('');
+    jQuery('#contactGroup').val('').trigger('change');
+    var state = contactListing.getState();
+    contactListing.fetch(0, state.limit, '');
+});
 </script>
 {/literal}

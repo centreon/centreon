@@ -1,27 +1,32 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import contactTemplates from '../../../fixtures/users/contact.json';
+import {
+  contactTemplatesPage,
+  expectRowToggleUnchecked,
+  expectSegmentedChoice,
+  listingAlias,
+  searchListing,
+  toggleListingRow,
+  visitListing,
+  waitForListingXhr
+} from '../common';
 
-const checkContactTemplateFromListing = (contactTemplateName: string) => {
-  cy.visit(PAGES.configuration.contactTemplatesLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody()
-    .contains('tr', contactTemplateName)
-    .find('div.md-checkbox.md-checkbox-inline')
-    .click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
+const visitContactTemplatesListing = () => {
+  visitListing(contactTemplatesPage, listingAlias.contactTemplates);
 };
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactTemplateListing.php*'
+  }).as('getContactTemplateListing');
   cy.startContainers();
+  cy.intercept({
+    method: 'POST',
+    url: '**/ajaxContactTemplateToggle.php'
+  }).as('toggleContactTemplate');
   cy.intercept({
     method: 'GET',
     url: INTERCEPTORS.api.navigation_list
@@ -41,6 +46,19 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // The scenarios create these; without an explicit cleanup the suite only
+  // stays green because the containers are recreated between runs.
+  for (const base of [
+    contactTemplates.defaultTemplate.alias,
+    contactTemplates.templateForUpdate.alias
+  ]) {
+    for (const alias of [base, `${base}_1`, `${base}-1`]) {
+      cy.executeActionViaClapi({
+        bodyContent: { action: 'DEL', object: 'CONTACTTPL', values: alias },
+        failOnError: false
+      });
+    }
+  }
   cy.stopContainers();
 });
 
@@ -52,9 +70,8 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact template is configured', () => {
-  cy.visit(PAGES.configuration.contactTemplatesLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('a', 'Add').click();
+  visitListing(contactTemplatesPage, listingAlias.contactTemplates);
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addOrUpdateContactTemplate({
     ...contactTemplates.defaultTemplate,
     notCommands: contactTemplates.defaultTemplate.NotCommands,
@@ -65,7 +82,11 @@ When('a contact template is configured', () => {
 When(
   'the user updates the properties of the configured contact template',
   () => {
-    cy.getIframeBody().contains(contactTemplates.defaultTemplate.alias).click();
+    waitForListingXhr(listingAlias.contactTemplates);
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', contactTemplates.defaultTemplate.alias)
+      .click();
     cy.addOrUpdateContactTemplate({
       ...contactTemplates.templateForUpdate,
       notCommands: contactTemplates.templateForUpdate.NotCommands,
@@ -75,34 +96,38 @@ When(
 );
 
 Then('the properties are updated', () => {
+  waitForListingXhr(listingAlias.contactTemplates);
   cy.getIframeBody()
-    .contains(contactTemplates.templateForUpdate.alias)
-    .should('exist');
-  cy.getIframeBody().contains(contactTemplates.templateForUpdate.alias).click();
+    .find('#clTableBody')
+    .contains('a', contactTemplates.templateForUpdate.alias)
+    .click();
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
-  cy.getIframeBody()
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="contact_alias"]')
     .should('have.value', contactTemplates.templateForUpdate.alias);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="contact_name"]')
     .should('have.value', contactTemplates.templateForUpdate.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="contact_template_id"]')
     .should('have.value', contactTemplates.templateForUpdate.usedCTemplate);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="default_page"]')
     .should('have.value', contactTemplates.templateForUpdate.defaultPage);
-  cy.checkLegacyRadioButton(contactTemplates.templateForUpdate.isNotEnabled);
-  cy.getIframeBody().find('input[id="hDown"]').should('not.be.checked');
-  cy.getIframeBody()
+  expectSegmentedChoice(
+    'contact_enable_notifications',
+    contactTemplates.templateForUpdate.isNotEnabled
+  );
+  cy.getSidePanelBody().find('input[id="hDown"]').should('not.be.checked');
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .should(
       'have.attr',
       'title',
       contactTemplates.templateForUpdate.timePeriod
     );
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#contact_hostNotifCmds')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -114,15 +139,15 @@ Then('the properties are updated', () => {
         contactTemplates.templateForUpdate.NotCommands
       ]);
     });
-  cy.getIframeBody().find('input[id="sWarning"]').should('not.be.checked');
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('input[id="sWarning"]').should('not.be.checked');
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id2-container"]')
     .should(
       'have.attr',
       'title',
       contactTemplates.templateForUpdate.timePeriod
     );
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#contact_svNotifCmds')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -137,39 +162,45 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured contact template', () => {
-  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  visitContactTemplatesListing();
+  cy.runListingBulkAction(
+    contactTemplates.defaultTemplate.alias,
+    'Duplicate',
+    'Duplicate contact template'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('a new contact template is created with identical properties', () => {
+  waitForListingXhr(listingAlias.contactTemplates);
   cy.getIframeBody()
-    .contains(`${contactTemplates.defaultTemplate.alias}_1`)
-    .should('exist');
-  cy.getIframeBody()
-    .contains(`${contactTemplates.defaultTemplate.alias}_1`)
+    .find('#clTableBody')
+    .contains('a', `${contactTemplates.defaultTemplate.alias}_1`)
     .click();
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
-  cy.getIframeBody()
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="contact_alias"]')
     .should('have.value', `${contactTemplates.defaultTemplate.alias}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="contact_name"]')
     .should('have.value', `${contactTemplates.defaultTemplate.name}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="contact_template_id"]')
     .should('have.value', contactTemplates.defaultTemplate.usedCTemplate);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="default_page"]')
     .should('have.value', contactTemplates.defaultTemplate.defaultPage);
-  cy.checkLegacyRadioButton(contactTemplates.defaultTemplate.isNotEnabled);
-  cy.getIframeBody().find('input[id="hDown"]').should('be.checked');
-  cy.getIframeBody()
+  expectSegmentedChoice(
+    'contact_enable_notifications',
+    contactTemplates.defaultTemplate.isNotEnabled
+  );
+  cy.getSidePanelBody().find('input[id="hDown"]').should('be.checked');
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .should('have.attr', 'title', contactTemplates.defaultTemplate.timePeriod);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#contact_hostNotifCmds')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -180,11 +211,11 @@ Then('a new contact template is created with identical properties', () => {
         contactTemplates.defaultTemplate.NotCommands
       ]);
     });
-  cy.getIframeBody().find('input[id="sWarning"]').should('be.checked');
-  cy.getIframeBody()
+  cy.getSidePanelBody().find('input[id="sWarning"]').should('be.checked');
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id2-container"]')
     .should('have.attr', 'title', contactTemplates.defaultTemplate.timePeriod);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#contact_svNotifCmds')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -198,8 +229,12 @@ Then('a new contact template is created with identical properties', () => {
 });
 
 When('the user deletes the configured contact template', () => {
-  checkContactTemplateFromListing(contactTemplates.defaultTemplate.alias);
-  cy.getIframeBody().find('select[name="o1"').select('Delete');
+  visitContactTemplatesListing();
+  cy.runListingBulkAction(
+    contactTemplates.defaultTemplate.alias,
+    'Delete',
+    'Delete contact template'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -207,8 +242,57 @@ When('the user deletes the configured contact template', () => {
 Then(
   'the deleted contact template is not visible anymore on the contact template page',
   () => {
+    waitForListingXhr(listingAlias.contactTemplates);
+    // Anchored: contains() is substring-based and would still match the
+    // '<alias>_1' left by the duplication scenario.
     cy.getIframeBody()
-      .contains(contactTemplates.defaultTemplate.alias)
+      .find('#clTableBody')
+      .contains(new RegExp(`^${contactTemplates.defaultTemplate.alias}$`))
       .should('not.exist');
   }
 );
+
+// ---------------------------------------------------------------------------
+// Modernized listing
+// ---------------------------------------------------------------------------
+
+When('the user displays the contact templates listing', () => {
+  visitListing(contactTemplatesPage, listingAlias.contactTemplates);
+});
+
+Then('the listing table is displayed with contact template rows', () => {
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(contactTemplates.defaultTemplate.name)
+    .should('exist');
+});
+
+When('the user searches for the configured contact template', () => {
+  // The endpoint filters on contact_name, as the legacy page did — searching by
+  // alias would match nothing even though the alias is the first column.
+  searchListing(
+    contactTemplates.defaultTemplate.name,
+    listingAlias.contactTemplates
+  );
+});
+
+Then('only the matching contact template is displayed', () => {
+  // A retried length assertion, not .each(): .each() snapshots the row list and
+  // would iterate the pre-search rows.
+  cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(contactTemplates.defaultTemplate.name)
+    .should('exist');
+});
+
+When('the user clicks the toggle to disable the contact template', () => {
+  toggleListingRow(contactTemplates.defaultTemplate.alias);
+  cy.wait('@toggleContactTemplate');
+});
+
+Then('the contact template toggle switches to disabled', () => {
+  cy.get('@toggleContactTemplate').its('response.statusCode').should('eq', 200);
+  expectRowToggleUnchecked(contactTemplates.defaultTemplate.alias);
+});

@@ -1,7 +1,6 @@
-
-
 import 'cypress-wait-until';
 import '../../../packages/js-config/cypress/e2e/commands';
+
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/ACLs/commands';
 import '../features/Api-Token/commands';
@@ -22,7 +21,6 @@ import '../features/Additional-connectors/commands';
 import '../features/Macros/commands';
 
 import type { ActionClapi } from '../commons';
-
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {
   return cy.get(refreshButton).click();
@@ -101,24 +99,23 @@ interface Serviceparams {
 }
 
 Cypress.Commands.add(
-  "setServiceParameters",
+  'setServiceParameters',
   ({ name, paramName, paramValue }: Serviceparams): Cypress.Chainable => {
     return cy.executeActionViaClapi({
       bodyContent: {
-        action: "SETPARAM",
-        object: "HOST",
-        values: `${name};${paramName};${paramValue}`,
-      },
+        action: 'SETPARAM',
+        object: 'HOST',
+        values: `${name};${paramName};${paramValue}`
+      }
     });
   }
 );
 
-Cypress.Commands.add("enterIframe", (iframeSelector): Cypress.Chainable => {
-  return cy.get(iframeSelector)
-    .its("0.contentDocument");
+Cypress.Commands.add('enterIframe', (iframeSelector): Cypress.Chainable => {
+  return cy.get(iframeSelector).its('0.contentDocument');
 });
 
-Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
+Cypress.Commands.add('checkFirstRowFromListing', (waitElt) => {
   cy.waitForElementInIframe('#main-content', `input[name=${waitElt}]`);
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -130,22 +127,87 @@ Cypress.Commands.add("checkFirstRowFromListing", (waitElt) => {
     );
 });
 
-Cypress.Commands.add('fillFieldInIframe',(body: HtmlElt)=> {
-  cy.getIframeBody()
-  .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
-  .clear()
-  .type(body.valueOrIndex);
+/**
+ * Body of the form side panel, which the modernized listings open instead of
+ * navigating to a full page. It is an iframe nested inside #main-content, so
+ * getIframeBody() alone cannot reach it.
+ */
+Cypress.Commands.add('getSidePanelBody', (): Cypress.Chainable => {
+  return cy
+    .getIframeBody()
+    .find('#cfSidePanelFrame')
+    .its('0.contentDocument.body')
+    .should('not.be.empty')
+    .then(cy.wrap);
 });
 
-Cypress.Commands.add('clickOnFieldInIframe',(body: HtmlElt)=> {
-  cy.getIframeBody().find(`${body.tag}[${body.attribut}="${body.attributValue}"]`).eq(Number(body.valueOrIndex)).click();
+/**
+ * Tick a row's checkbox on a modernized listing. The real input sits behind its
+ * md-checkbox label and is not visible, hence the forced click.
+ */
+Cypress.Commands.add(
+  'checkListingRow',
+  (rowLabel: string): Cypress.Chainable => {
+    return cy
+      .getIframeBody()
+      .find('#clTableBody')
+      .contains('tr', rowLabel)
+      .find('.cl-col-picker input[type="checkbox"]')
+      .click({ force: true });
+  }
+);
+
+/**
+ * Run a "More actions" bulk action the way a user does: tick the row, open the
+ * styled .cl-more-actions menu, then confirm in the modal. The native select is
+ * display:none, and re-wiring its onchange would submit straight through and
+ * leave the menu, the modal and the translated data-* wording it renders
+ * untested.
+ */
+Cypress.Commands.add(
+  'runListingBulkAction',
+  (name: string, action: string, expectedTitle: string): void => {
+    cy.checkListingRow(name);
+
+    cy.getIframeBody().find('.cl-more-actions-btn').click();
+    cy.getIframeBody()
+      .find('.cl-more-actions-item')
+      .contains(action)
+      .click({ force: true });
+
+    cy.getIframeBody()
+      .find('.cl-confirm-modal', { timeout: 10_000 })
+      .should('be.visible');
+    cy.getIframeBody()
+      .find('.cl-confirm-title')
+      .should('have.text', expectedTitle);
+    // {{ name }} is interpolated in bold. Asserting the element carries content
+    // proves the translated message rendered, without pinning which column the
+    // framework reads the label from.
+    cy.getIframeBody().find('.cl-confirm-body strong').should('not.be.empty');
+    cy.getIframeBody().find('.cl-confirm-confirm-btn').click();
+  }
+);
+
+Cypress.Commands.add('fillFieldInIframe', (body: HtmlElt) => {
+  cy.getIframeBody()
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .clear()
+    .type(body.valueOrIndex);
+});
+
+Cypress.Commands.add('clickOnFieldInIframe', (body: HtmlElt) => {
+  cy.getIframeBody()
+    .find(`${body.tag}[${body.attribut}="${body.attributValue}"]`)
+    .eq(Number(body.valueOrIndex))
+    .click();
 });
 
 interface HtmlElt {
-  tag: string,
-  attribut: string,
-  attributValue: string,
-  valueOrIndex: string
+  tag: string;
+  attribut: string;
+  attributValue: string;
+  valueOrIndex: string;
 }
 
 declare global {
@@ -163,12 +225,19 @@ declare global {
       setServiceParameters: ({
         name,
         paramName,
-        paramValue,
+        paramValue
       }: Serviceparams) => Cypress.Chainable;
       enterIframe: (iframeSelector: string) => Cypress.Chainable;
       checkFirstRowFromListing: (waitElt: string) => Cypress.Chainable;
       fillFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
       clickOnFieldInIframe: (body: HtmlElt) => Cypress.Chainable;
+      getSidePanelBody: () => Cypress.Chainable;
+      checkListingRow: (rowLabel: string) => Cypress.Chainable;
+      runListingBulkAction: (
+        name: string,
+        action: string,
+        expectedTitle: string
+      ) => void;
     }
   }
 }

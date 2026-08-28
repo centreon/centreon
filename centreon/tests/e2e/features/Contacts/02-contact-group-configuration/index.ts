@@ -1,23 +1,27 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import groups from '../../../fixtures/users/contact.json';
+import {
+  contactGroupsPage,
+  expectActivation,
+  expectRowToggleUnchecked,
+  listingAlias,
+  searchListing,
+  toggleListingRow,
+  visitListing,
+  waitForListingXhr
+} from '../common';
 
-const checkFirstContactGroupFromListing = () => {
-  cy.visit(PAGES.configuration.contactGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
+const visitContactGroupsListing = () => {
+  visitListing(contactGroupsPage, listingAlias.contactGroups);
 };
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactGroupListing.php*'
+  }).as('getContactGroupListing');
   cy.startContainers();
   cy.intercept({
     method: 'GET',
@@ -35,9 +39,29 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.pages.centreon_administration_aclgroup}*`
   }).as('getACLGroups');
+  cy.intercept({
+    method: 'POST',
+    url: '**/ajaxContactGroupToggle.php'
+  }).as('toggleContactGroup');
 });
 
 afterEach(() => {
+  // The scenarios create these; without an explicit cleanup the suite only
+  // stays green because the containers are recreated between runs.
+  for (const name of ['cg-in-acl-scope', 'cg-out-of-acl-scope']) {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'DEL', object: 'CG', values: name },
+      failOnError: false
+    });
+  }
+  for (const base of [groups.defaultGroup.name, groups.GroupForUpdate.name]) {
+    for (const name of [base, `${base}_1`, `${base}-1`]) {
+      cy.executeActionViaClapi({
+        bodyContent: { action: 'DEL', object: 'CG', values: name },
+        failOnError: false
+      });
+    }
+  }
   cy.stopContainers();
 });
 
@@ -49,29 +73,35 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact group is configured', () => {
-  cy.visit(PAGES.configuration.contactGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('a', 'Add').click();
+  visitListing(contactGroupsPage, listingAlias.contactGroups);
+  cy.getIframeBody().find('a.cl-btn-add').click();
   cy.addOrUpdateContactGroup(groups.defaultGroup);
 });
 
 When('the user updates the properties of the configured contact group', () => {
-  cy.getIframeBody().contains(groups.defaultGroup.name).click();
+  waitForListingXhr(listingAlias.contactGroups);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', groups.defaultGroup.name)
+    .click();
   cy.addOrUpdateContactGroup(groups.GroupForUpdate);
 });
 
 Then('the properties are updated', () => {
-  cy.getIframeBody().contains(groups.GroupForUpdate.name).should('exist');
-  cy.getIframeBody().contains(groups.GroupForUpdate.name).click();
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="cg_name"]');
+  waitForListingXhr(listingAlias.contactGroups);
   cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', groups.GroupForUpdate.name)
+    .click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="cg_name"]')
     .should('have.value', groups.GroupForUpdate.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="cg_alias"]')
     .should('have.value', groups.GroupForUpdate.alias);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_contacts')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -83,7 +113,7 @@ Then('the properties are updated', () => {
         groups.GroupForUpdate.linkedContact
       ]);
     });
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_acl_groups')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -92,31 +122,41 @@ Then('the properties are updated', () => {
       );
       expect(selectedTexts).to.include.members(['ALL']);
     });
-  cy.checkLegacyRadioButton(groups.GroupForUpdate.status);
-  cy.getIframeBody()
+  expectActivation(
+    'cf-cg-activate-toggle',
+    groups.GroupForUpdate.status === 'Enabled'
+  );
+  cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .should('have.value', groups.GroupForUpdate.comment);
 });
 
 When('the user duplicates the configured contact group', () => {
-  checkFirstContactGroupFromListing();
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  visitContactGroupsListing();
+  cy.runListingBulkAction(
+    groups.defaultGroup.name,
+    'Duplicate',
+    'Duplicate contact group'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('a new contact group is created with identical properties', () => {
-  cy.getIframeBody().contains(`${groups.defaultGroup.name}_1`).should('exist');
-  cy.getIframeBody().contains(`${groups.defaultGroup.name}_1`).click();
-  cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="cg_name"]');
+  waitForListingXhr(listingAlias.contactGroups);
   cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', `${groups.defaultGroup.name}_1`)
+    .click();
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="cg_name"]')
     .should('have.value', `${groups.defaultGroup.name}_1`);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="cg_alias"]')
     .should('have.value', groups.defaultGroup.alias);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_contacts')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -127,7 +167,7 @@ Then('a new contact group is created with identical properties', () => {
         groups.defaultGroup.linkedContact
       ]);
     });
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('#cg_acl_groups')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -136,15 +176,22 @@ Then('a new contact group is created with identical properties', () => {
       );
       expect(selectedTexts).to.include.members(['ALL']);
     });
-  cy.checkLegacyRadioButton(groups.defaultGroup.status);
-  cy.getIframeBody()
+  expectActivation(
+    'cf-cg-activate-toggle',
+    groups.defaultGroup.status === 'Enabled'
+  );
+  cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .should('have.value', groups.defaultGroup.comment);
 });
 
 When('the user deletes the configured contact group', () => {
-  checkFirstContactGroupFromListing();
-  cy.getIframeBody().find('select[name="o1"').select('Delete');
+  visitContactGroupsListing();
+  cy.runListingBulkAction(
+    groups.defaultGroup.name,
+    'Delete',
+    'Delete contact group'
+  );
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -152,6 +199,98 @@ When('the user deletes the configured contact group', () => {
 Then(
   'the deleted contact group is not visible anymore on the contact group page',
   () => {
-    cy.getIframeBody().contains(groups.defaultGroup.name).should('not.exist');
+    waitForListingXhr(listingAlias.contactGroups);
+    // Anchored: contains() is substring-based and would still match the
+    // '<name>_1' left by the duplication scenario.
+    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains(new RegExp(`^${groups.defaultGroup.name}$`))
+      .should('not.exist');
   }
 );
+
+// ---------------------------------------------------------------------------
+// Modernized listing
+// ---------------------------------------------------------------------------
+
+When('the user displays the contact groups listing', () => {
+  visitListing(contactGroupsPage, listingAlias.contactGroups);
+});
+
+Then('the listing table is displayed with contact group rows', () => {
+  cy.getIframeBody().find('table.cl-listing-table').should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(groups.defaultGroup.name)
+    .should('exist');
+});
+
+When('the user searches for the configured contact group', () => {
+  searchListing(groups.defaultGroup.name, listingAlias.contactGroups);
+});
+
+Then('only the matching contact group is displayed', () => {
+  // A retried length assertion, not .each(): .each() snapshots the row list and
+  // would iterate the pre-search rows.
+  cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains(groups.defaultGroup.name)
+    .should('exist');
+});
+
+When('the user clicks the toggle to disable the contact group', () => {
+  toggleListingRow(groups.defaultGroup.name);
+  cy.wait('@toggleContactGroup');
+});
+
+Then('the contact group toggle switches to disabled', () => {
+  cy.get('@toggleContactGroup').its('response.statusCode').should('eq', 200);
+  expectRowToggleUnchecked(groups.defaultGroup.name);
+});
+
+// The non-admin branch of ajaxContactGroupListing.php answers early when the
+// user's contact group scope is empty, so without a granted group the listing
+// never runs its ACL query at all — which is why this path went uncovered.
+const aclScopedContactGroups = {
+  granted: 'cg-in-acl-scope',
+  withheld: 'cg-out-of-acl-scope'
+};
+
+Given('the non-admin user is granted one contact group out of two', () => {
+  cy.setUserTokenApiV1()
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contacts-management-acl-user.json'
+    )
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contact-group-acl-scope.json'
+    );
+  // The Background's admin session is still open, and loginByTypeOfUser goes
+  // through the login form, which never renders while a session is active.
+  cy.logout();
+  cy.loginByTypeOfUser({
+    jsonName: 'contacts-management-acl-user',
+    loginViaApi: false
+  });
+});
+
+When('the non-admin user displays the contact groups listing', () => {
+  visitContactGroupsListing();
+});
+
+Then('only the contact group within their ACL is listed', () => {
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', aclScopedContactGroups.granted)
+    .should('exist');
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', aclScopedContactGroups.withheld)
+    .should('not.exist');
+  // The group the Background created is outside the scope too, so a listing
+  // that ignored the ACL would show it.
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', groups.defaultGroup.name)
+    .should('not.exist');
+});

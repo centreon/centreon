@@ -123,6 +123,7 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 $tpl->assign(
     'helpattr',
@@ -181,6 +182,13 @@ if ($valid) {
     $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
+    // Paint the toggle's initial state server-side, before syncToggle() runs.
+    // The submitted value wins, so a failed validation does not redisplay the
+    // persisted one. addGroup makes getSubmitValue() return an array, hence the
+    // scalar branch below.
+    $submitted = $form->getSubmitValue('cg_activate');
+    $activate = is_array($submitted) ? ($submitted['cg_activate'] ?? null) : $submitted;
+    $tpl->assign('cgActivateOn', ($activate ?? $cg['cg_activate'] ?? '1') === '1');
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->display('formContactGroup.ihtml');

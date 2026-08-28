@@ -42,6 +42,9 @@
             text: "{t escape='js'}You haven't configured any %s yet. Add your first one below and Centreon will start monitoring it right away.{/t}",
             textFallback: "{t escape='js'}Nothing configured yet. Add your first entry below to get started.{/t}"
         {rdelim},
+        form: {ldelim}
+            panelTitle: "{t escape='js'}Form{/t}"
+        {rdelim},
         selectPlaceholder: {ldelim}
             single: "{t escape='js'}Select{/t}",
             multiple: "{t escape='js'}Search{/t}"
@@ -57,7 +60,12 @@
             ok: "{t escape='js'}OK{/t}",
             loadError: "{t escape='js'}Error loading data{/t}",
             toggleError: "{t escape='js'}Could not change status{/t}",
-            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}"
+            toggleForbidden: "{t escape='js'}You are not allowed to change this status.{/t}",
+            toggleExpired: "{t escape='js'}The page state expired — the list was refreshed, please try again.{/t}",
+            toggleMissing: "{t escape='js'}This object no longer exists.{/t}",
+            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}",
+            accessDenied: "{t escape='js'}You no longer have access to this page.{/t}",
+            staleData: "{t escape='js'}The list could not be refreshed — the rows shown may be out of date.{/t}"
         {rdelim}
     {rdelim};
 </script>

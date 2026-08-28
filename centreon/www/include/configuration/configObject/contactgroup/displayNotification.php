@@ -26,14 +26,24 @@ if (! isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/class/centreonNotification.class.php';
 
 /**
- * Get user list
+ * Get contact group list (ACL-filtered for non-admin users)
  */
 $contact = ['' => null];
-$DBRESULT = $pearDB->query('SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias');
-while ($ct = $DBRESULT->fetchRow()) {
-    $contact[$ct['cg_id']] = $ct['cg_name'];
+if ($centreon->user->admin) {
+    $DBRESULT = $pearDB->query('SELECT cg_id, cg_name FROM contactgroup cg ORDER BY cg_alias');
+    while ($ct = $DBRESULT->fetchRow()) {
+        $contact[$ct['cg_id']] = $ct['cg_name'];
+    }
+    $DBRESULT->closeCursor();
+} else {
+    $cgAcl = $centreon->user->access->getContactGroupAclConf(
+        ['fields' => ['cg_id', 'cg_name'], 'keys' => ['cg_id'], 'order' => ['cg_alias']],
+        false
+    );
+    foreach ($cgAcl as $cgId => $cg) {
+        $contact[$cgId] = $cg['cg_name'];
+    }
 }
-$DBRESULT->closeCursor();
 
 // Object init
 $mediaObj = new CentreonMedia($pearDB);
@@ -55,9 +65,38 @@ $style = 'one';
 $groups = "''";
 if (isset($_POST['contact'])) {
     $contactgroup_id = (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8');
+} elseif (isset($_GET['contact'])) {
+    // The contact group selector submits its form through GET
+    $contactgroup_id = (int) $_GET['contact'];
+} elseif (isset($_GET['cg_id'])) {
+    $contactgroup_id = (int) $_GET['cg_id'];
 } else {
     $contactgroup_id = 0;
-    $formData = ['contact' => $contactgroup_id];
+}
+
+// Downgrading an unusable id to "nothing selected" without a word would show
+// "please select a user" to someone who did select one — reachable through a
+// bookmarked panel URL, or a deletion between the listing render and the click.
+// The list above holds every group the user may see, so a miss means either the
+// group is gone or it is out of scope; only the second is an ACL matter, and for
+// an admin the list is exhaustive, so it can only ever be the first.
+$contactGroupRefused = false;
+$contactGroupMissing = false;
+if ($contactgroup_id && ! array_key_exists($contactgroup_id, $contact)) {
+    $contactGroupExists = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
+        'SELECT 1 FROM contactgroup WHERE cg_id = :cgId',
+        Adaptation\Database\Connection\Collection\QueryParameters::create([
+            Adaptation\Database\Connection\ValueObject\QueryParameter::int('cgId', $contactgroup_id),
+        ])
+    );
+    Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
+        $contactGroupExists
+            ? 'Notification view: contact group outside the access scope'
+            : 'Notification view: unknown contact group requested',
+        ['cg_id' => $contactgroup_id, 'user_id' => $centreon->user->get_id()]
+    );
+    $contactgroup_id = 0;
+    $contactGroupExists ? $contactGroupRefused = true : $contactGroupMissing = true;
 }
 
 $formData = ['contact' => $contactgroup_id];
@@ -130,7 +169,13 @@ $labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('msgSelect', _('Please select a user in order to view his notifications'));
+$msgSelect = _('Please select a user in order to view his notifications');
+if ($contactGroupRefused) {
+    $msgSelect = _('This contact group is not within your access groups');
+} elseif ($contactGroupMissing) {
+    $msgSelect = _('This contact group no longer exists');
+}
+$tpl->assign('msgSelect', $msgSelect);
 $tpl->assign('p', $p);
 $tpl->assign('contact', $contactgroup_id);
 $tpl->assign('labels', $labels);

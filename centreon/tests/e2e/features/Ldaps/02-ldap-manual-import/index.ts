@@ -23,6 +23,10 @@ beforeEach(() => {
     method: 'POST',
     url: INTERCEPTORS.pages.ldap_search
   }).as('getLdaps');
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactListing.php*'
+  }).as('getContactListing');
 });
 
 after(() => {
@@ -140,18 +144,24 @@ Then('this user can log in to Centreon Web', () => {
 });
 
 Given('the ldap user has rights to access the contacts listing page', () => {
-  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
-  cy.wait('@getTimeZone');
-  // Click on the 'All' access group
-  cy.getIframeBody().contains('a', 'ALL').click();
-  // Wait for the 'Group Name' to be visible in the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="acl_group_name"]');
-  // Select the ldap user from the Linked Contacts list
-  cy.getIframeBody().find('select#cg_contacts-f').select(ldapLogin);
-  // Add the selected ldap user
-  cy.getIframeBody().find('input[name="add"]').eq(0).click();
-  // Click on the first 'Save' button
-  cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
+  // Link the contact to the access group through CLAPI rather than the ACL
+  // form. That form offers only the contacts *not yet linked* to the group, and
+  // it pages, so driving it depends on platform state: an imported user already
+  // carrying the group, or an "ALL" entry pushed off the first page, makes the
+  // select find nothing. ADDCONTACT is idempotent, so this holds either way.
+  //
+  // The token CLAPI authenticates with lives in localStorage, and the previous
+  // scenario logged out to sign in as the LDAP user, which cleared it; the
+  // background then signs the admin back in through the UI only. Mint it again,
+  // otherwise the call goes out unauthenticated and answers 403.
+  cy.setUserTokenApiV1();
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'ADDCONTACT',
+      object: 'ACLGROUP',
+      values: `ALL;${ldapLogin}`
+    }
+  });
   cy.exportConfig();
   // Go to the default page
   cy.visit('/');
@@ -185,25 +195,31 @@ Given('the ldap user has rights to access the contacts listing page', () => {
 When('the ldap user goes to the contacts listing page', () => {
   cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
+  // The listing is AJAX-driven; its rows only exist once the fetch has landed.
+  cy.wait('@getContactListing');
+  cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
 });
 
 Then('the ldap user cannot update the contact dn', () => {
-  // Click on the ldap user
+  // The contact form now opens in the side panel instead of replacing the
+  // listing, so every field of it lives in the #cfSidePanelFrame document.
   cy.getIframeBody().contains('a', ldapLogin).click();
-  cy.wait('@getTimeZone');
-  // Wait for the 'Alias / Login' field to be visible in the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
+    .find('input[name="contact_alias"]', { timeout: 20_000 })
+    .should('be.visible');
   // Click on the 'Centreon Authentication' tab
-  cy.getIframeBody().contains('a', 'Centreon Authentication').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
+  cy.getSidePanelBody().contains('a', 'Centreon Authentication').click();
   // Check that the 'DN' field is hidden
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input#contact_ldap_dn')
     .should('have.attr', 'type', 'hidden');
 });
 
 Then('the ldap user cannot update the contact password', () => {
+  // Anchor on a field the tab does render, so the negative assertion below
+  // cannot pass on a panel that closed or never opened the right tab.
+  cy.getSidePanelBody().find('input#contact_ldap_dn').should('exist');
   // Check that the 'password' field doesn't exist
-  cy.getIframeBody().find('input#paswd1').should('not.exist');
+  cy.getSidePanelBody().find('input#passwd1').should('not.exist');
 });

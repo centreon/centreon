@@ -1,10 +1,19 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import contacts from '../../../fixtures/users/contact.json';
+import {
+  contactsPage,
+  listingAlias,
+  searchListing,
+  visitListing
+} from '../common';
 
 beforeEach(() => {
+  cy.intercept({
+    method: 'GET',
+    url: '**/ajaxContactListing.php*'
+  }).as('getContactListing');
   cy.startContainers();
   cy.intercept({
     method: 'GET',
@@ -17,6 +26,33 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // The suite creates this contact; without an explicit cleanup it only stays
+  // green because the containers are recreated between runs.
+  for (const alias of [
+    'user-with-access-to-allmodules',
+    'user-with-access-to-allmodules_1'
+  ]) {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'DEL', object: 'CONTACT', values: alias },
+      failOnError: false
+    });
+  }
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'ACLMENU',
+      values: 'name-non-admin-ACLMENU'
+    },
+    failOnError: false
+  });
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'DEL',
+      object: 'ACLGROUP',
+      values: 'name-non-admin-ACLGROUP'
+    },
+    failOnError: false
+  });
   cy.stopContainers();
 });
 
@@ -36,10 +72,15 @@ When('one non admin contact has been created', () => {
 When(
   'the user has changed the contact alias by adding a special character',
   () => {
-    cy.visit(PAGES.configuration.contactsUsersLegacy);
-    cy.getIframeBody().contains('user-with-access-to-allmodules').click();
-    cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+    visitListing(contactsPage, listingAlias.contacts);
+    // The listing pages at 30 rows and this contact sorts past the first page.
+    searchListing('user-with-access-to-allmodules', listingAlias.contacts);
     cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', 'user-with-access-to-allmodules')
+      .click();
+    cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
+    cy.getSidePanelBody()
       .find('input.btc.bt_success[name^="submit"]')
       .eq(0)
       .click();
@@ -51,22 +92,36 @@ When(
 Then(
   'the new record is displayed in the users list with the new alias value',
   () => {
+    // The contact was just renamed, so the listing is still filtered on the old
+    // alias; search again on the new one.
+    searchListing(
+      contacts.contactWithSpecialAlias.alias,
+      listingAlias.contacts
+    );
     cy.getIframeBody()
-      .contains(contacts.contactWithSpecialAlias.alias)
-      .should('be.visible');
-    cy.getIframeBody().contains(contacts.contactWithSpecialAlias.alias).click();
-    cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
-    cy.getIframeBody()
+      .find('#clTableBody')
+      .contains('a', contacts.contactWithSpecialAlias.alias)
+      .should('be.visible')
+      .click();
+    cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+    cy.getSidePanelBody()
       .find('input[id="contact_alias"]')
       .should('have.value', contacts.contactWithSpecialAlias.alias);
   }
 );
 
 Given('the contact alias contains an accent', () => {
-  cy.visit(PAGES.configuration.contactsUsersLegacy);
-  cy.getIframeBody().contains('user-with-access-to-allmodules').click();
+  visitListing(contactsPage, listingAlias.contacts);
+  searchListing('user-with-access-to-allmodules', listingAlias.contacts);
+  cy.getIframeBody()
+    .find('#clTableBody')
+    .contains('a', 'user-with-access-to-allmodules')
+    .click();
   cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(0)
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
   cy.logout();

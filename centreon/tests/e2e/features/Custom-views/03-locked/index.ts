@@ -181,13 +181,26 @@ Given('a custom view shared in read only with a group', () => {
   cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'custom-view-acl-user').click();
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
-  cy.getIframeBody()
-    .find('input[placeholder="Linked to Contact Groups"]')
+  // The contact form now opens in the side panel, a nested iframe, so the fields
+  // are no longer part of the #main-content document.
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody().find('input[name="contact_alias"]').should('exist');
+  // Anchored on the field: the modernized form labels it "Contact Groups" and
+  // the select2 no longer carries the QuickForm label as a placeholder. The
+  // selection container is the click target, its inline search input being
+  // covered by the "Select all" header.
+  cy.getSidePanelBody()
+    .contains('.cf-field', 'Contact Groups')
+    .find('.select2-selection--multiple')
     .click();
   cy.wait('@getContactGroups');
-  cy.getIframeBody().contains('Guest').click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getSidePanelBody().contains('Guest').click();
+  // A multi-select dropdown stays open after a pick and covers the action bar,
+  // so the submit is clicked through it rather than dismissed first.
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .eq(0)
+    .click({ force: true });
   cy.wait('@getTimeZone');
   cy.exportConfig();
 

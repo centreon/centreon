@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -22,316 +23,225 @@ if (! isset($centreon)) {
     exit();
 }
 
-/**
- * allowed access
- */
-const WRITE = 'w';
-const READ = 'r';
-
-/**
- * specific action available to admins
- */
-const LDAP_SYNC = 'sync';
-
-include_once './class/centreonUtils.class.php';
-
-include './include/common/autoNumLimit.php';
-
-// Create Timeperiod Cache
-$tpCache = ['' => ''];
-$dbResult = $pearDB->query('SELECT tp_name, tp_id FROM timeperiod');
-while ($data = $dbResult->fetch()) {
-    $tpCache[$data['tp_id']] = $data['tp_name'];
-}
-unset($data);
-$dbResult->closeCursor();
-
-$selectedContact = filter_var(
-    $_GET['selectedContact'] ?? null,
-    FILTER_VALIDATE_INT
-);
-
-$searchContact = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchC'] ?? $_GET['searchC'] ?? null
-);
-
-$search = HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['Search'] ?? $_GET['Search'] ?? null
-);
-
-$contactGroup = filter_var(
-    $_POST['contactGroup'] ?? $_GET['contactGroup'] ?? 0,
-    FILTER_VALIDATE_INT
-);
-
-if ($search) {
-    // saving filters values
-    $centreon->historySearch[$url] = [];
-    $centreon->historySearch[$url]['search'] = $searchContact;
-    $centreon->historySearch[$url]['contactGroup'] = $contactGroup;
-} else {
-    // restoring saved values
-    $searchContact = $centreon->historySearch[$url]['search'] ?? null;
-    $contactGroup = $centreon->historySearch[$url]['contactGroup'] ?? 0;
-}
-
-$clauses = [];
-if ($searchContact) {
-    $clauses = ['contact_name' => ['LIKE', '%' . $searchContact . '%'], 'contact_alias' => ['OR', 'LIKE', '%' . $searchContact . '%']];
-}
-
-$join = [];
-if (! empty($contactGroup)) {
-    $join = [['table' => 'contactgroup_contact_relation', 'condition' => 'contact_contact_id = contact_id']];
-    $clauses['contactgroup_cg_id'] = $searchContact ? [') AND (', '=', $contactGroup] : ['=', $contactGroup];
-}
-
-$aclOptions = ['fields' => ['contact_id', 'timeperiod_tp_id', 'timeperiod_tp_id2', 'contact_name', 'contact_alias', 'contact_lang', 'contact_oreon', 'contact_host_notification_options', 'contact_service_notification_options', 'contact_activate', 'contact_email', 'contact_admin', 'contact_register', 'contact_auth_type', 'contact_ldap_required_sync', 'blocking_time'], 'keys' => ['contact_id'], 'order' => ['contact_name'], 'conditions' => $clauses, 'join' => $join];
-$contacts = $acl->getContactAclConf($aclOptions);
-$rows = count($contacts);
-
-include './include/common/checkPagination.php';
-
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$tpl->assign('centreon_path', _CENTREON_PATH_);
 
 // Access level
-$lvl_access = ($centreon->user->access->page($p) == 1) ? WRITE : READ;
+$lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
-// massive contacts data synchronization request using the event handler
-$chosenContact = [];
-if ($centreon->user->admin && $selectedContact && $o === 'sync') {
-    $chosenContact[$selectedContact] = 1;
-    synchronizeContactWithLdap($chosenContact);
-}
-
-// start header menu
 $tpl->assign('headerMenu_name', _('Full Name'));
 $tpl->assign('headerMenu_desc', _('Alias / Login'));
 $tpl->assign('headerMenu_email', _('Email'));
 $tpl->assign('headerMenu_hostNotif', _('Host Notification Period'));
 $tpl->assign('headerMenu_svNotif', _('Services Notification Period'));
 $tpl->assign('headerMenu_lang', _('Language'));
-$tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_access', _('Access'));
 $tpl->assign('headerMenu_accessTooltip', _("Contacts with the 'Reach Centreon Front-end' option enabled"));
 $tpl->assign('headerMenu_admin', _('Admin'));
 $tpl->assign('headerMenu_options', _('Options'));
-
-// header title displayed only to admins
-if ($centreon->user->admin) {
-    $tpl->assign('headerMenu_refreshLdap', _('Refresh'));
-    $tpl->assign('headerMenu_unblock', _('Unblock'));
-    $tpl->assign('headerMenu_refreshLdapTitleTooltip', _('To manually request a LDAP synchronization of a contact'));
-}
-
-// Contact list
-$aclOptions['pages'] = $num * $limit . ', ' . $limit;
-$contacts = $acl->getContactAclConf($aclOptions);
-
-$searchContact = tidySearchKey($searchContact, $advanced_search);
-
-$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
-
-$contactGrRoute = './api/internal.php?object=centreon_configuration_contactgroup&action=list';
-$attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactGrRoute, 'multiple' => false, 'defaultDataset' => $contactGroup, 'linkedObject' => 'centreonContactgroup'];
-$form->addElement('select2', 'contactGroup', '', [], $attrContactgroups);
-
-// Different style between each lines
-$style = 'one';
-
-$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
-$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
-
-$contactTypeIcon = [1 => returnSvg('www/img/icons/admin.svg', 'var(--icons-fill-color)', 22, 22), 2 => returnSvg('www/img/icons/user.svg', 'var(--icons-fill-color)', 22, 22), 3 => returnSvg('www/img/icons/user-template.svg', 'var(--icons-fill-color)', 22, 22)];
-$contactTypeIconTitle = [1 => _('This user is an administrator.'), 2 => _('This user is a simple user.'), 3 => _('This is a contact template.')];
-
-// refresh LDAP icon and tooltip
-$refreshLdapHelp = [0 => _("This user isn't linked to a LDAP"), 1 => _('Manually request to synchronize this contact with his LDAP'), 2 => _('Already requested, please wait the CRON execution or for the user to login')];
-
-// setting a default value for non admin users
-$refreshLdapBadge = [0 => ''];
-
-// Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = [];
-$centreonToken = createCSRFToken();
-
-// Get the count of blocked contacts
-$blockedContactsCount = count(array_filter(array_column($contacts, 'blocking_time')));
-
-foreach ($contacts as $contact) {
-    if ($centreon->user->get_id() == $contact['contact_id']) {
-        $selectedElements = $form->addElement(
-            'checkbox',
-            'select[' . $contact['contact_id'] . ']',
-            '',
-            '',
-            'disabled'
-        );
-    } else {
-        $selectedElements = $form->addElement('checkbox', 'select[' . $contact['contact_id'] . ']');
-    }
-    $moptions = '';
-    if ($contact['contact_id'] != $centreon->user->get_id()) {
-        if ($contact['contact_activate']) {
-            $moptions .= "<a href='main.php?p=" . $p . '&contact_id=' . $contact['contact_id']
-                . '&o=u&limit=' . $limit . '&num=' . $num . '&search=' . $searchContact
-                . '&centreon_token=' . $centreonToken
-                . "'><img src='img/icons/disabled.png' class='ico-14 margin_right' border='0' alt='"
-                . _('Disabled') . "'></a>&nbsp;&nbsp;";
-        } else {
-            $moptions .= "<a href='main.php?p=" . $p . '&contact_id=' . $contact['contact_id']
-                . '&o=s&limit=' . $limit . '&num=' . $num . '&search=' . $searchContact
-                . '&centreon_token=' . $centreonToken
-                . "'><img src='img/icons/enabled.png' class='ico-14 margin_right' border='0' alt='"
-                 . _('Enabled') . "'></a>&nbsp;&nbsp;";
-        }
-    } else {
-        $moptions .= '&nbsp;&nbsp;';
-    }
-    $moptions .= '&nbsp;&nbsp;&nbsp;';
-    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
-        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) '
-        . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
-        . $contact['contact_id'] . "]' />";
-
-    $blockedUserIcon = "
-    <a href='./main.get.php?p=" . $p . '&o=un&contact_id=' . $contact['contact_id'] . '&centreon_token=' . $centreonToken . "' class='unblockUserLink' onclick=\"if(confirm('" . _('Do you really want to unblock this user?') . "')) {
-        window.location.href = this.href;
-    }\" >
-        <img src='img/icons/lock_closed.png' class='ico-22 margin_auto' border='0'>
-    </a>";
-
-    $contact_type = 0;
-    if ($contact['contact_register']) {
-        $contact_type = $contact['contact_admin'] == 1 ? 1 : 2;
-    } else {
-        $contact_type = 3;
-    }
-
-    // linking the user to its LDAP badge
-    $isLinkedToLdap = 0;
-    // options displayed only to admins for contacts linked to an LDAP
-    if ($centreon->user->admin && $contact['contact_auth_type'] === 'ldap') {
-        // synchronization is already required
-        if ($contact['contact_ldap_required_sync'] === '1') {
-            $isLinkedToLdap = 2;
-            $refreshLdapBadge[2]
-                = "<span class='ico-18'>"
-                . returnSvg(
-                    'www/img/icons/refresh.svg',
-                    'var(--icons-disabled-fill-color)',
-                    18,
-                    18
-                )
-                . '</span>';
-        } else {
-            $isLinkedToLdap = 1;
-            $refreshLdapBadge[1]
-                = "<span class='ico-18' onclick='submitSync(" . $p . ', ' . $contact['contact_id'] . ")'>"
-                . returnSvg(
-                    'www/img/icons/refresh.svg',
-                    'var(--icons-fill-color)',
-                    18,
-                    18
-                )
-                . '</span>';
-        }
-    }
-
-    $elemArr[] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure(
-        html_entity_decode($contact['contact_name'], ENT_QUOTES, 'UTF-8'),
-        CentreonUtils::ESCAPE_ILLEGAL_CHARS
-    ), 'RowMenu_ico' => $contactTypeIcon[$contact_type] ?? '', 'RowMenu_ico_title' => $contactTypeIconTitle[$contact_type] ?? '', 'RowMenu_type' => $contact_type, 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&contact_id=' . $contact['contact_id'], 'RowMenu_desc' => CentreonUtils::escapeSecure(
-        html_entity_decode($contact['contact_alias'], ENT_QUOTES, 'UTF-8'),
-        CentreonUtils::ESCAPE_ILLEGAL_CHARS
-    ), 'RowMenu_email' => $contact['contact_email'], 'RowMenu_hostNotif' => html_entity_decode(
-        $tpCache[($contact['timeperiod_tp_id'] ?? '')],
-        ENT_QUOTES,
-        'UTF-8'
-    ) . ' (' . ($contact['contact_host_notification_options'] ?? '') . ')', 'RowMenu_svNotif' => html_entity_decode(
-        $tpCache[($contact['timeperiod_tp_id2'] ?? '')],
-        ENT_QUOTES,
-        'UTF-8'
-    ) . ' (' . ($contact['contact_service_notification_options'] ?? '') . ')', 'RowMenu_lang' => $contact['contact_lang'], 'RowMenu_access' => $contact['contact_oreon'] ? _('Enabled') : _('Disabled'), 'RowMenu_admin' => $contact['contact_admin'] ? _('Yes') : _('No'), 'RowMenu_status' => $contact['contact_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $contact['contact_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_refreshLdap' => $isLinkedToLdap ? $refreshLdapBadge[$isLinkedToLdap] : '', 'RowMenu_refreshLdapHelp' => $isLinkedToLdap ? $refreshLdapHelp[$isLinkedToLdap] : '', 'RowMenu_options' => $moptions, 'RowMenu_unblock' => $contact['blocking_time'] !== null ? $blockedUserIcon : '-'];
-    $style = $style != 'two' ? 'two' : 'one';
-}
 $tpl->assign('isAdmin', $centreon->user->admin);
-$tpl->assign('blockedContactsCount', $blockedContactsCount);
-$tpl->assign('elemArr', $elemArr);
 
-// Different messages we put in the template
+$tpl->assign('headerMenu_refreshLdap', _('Refresh'));
 $tpl->assign(
-    'msg',
-    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'ldap_importL' => 'main.php?p=' . $p . '&o=li', 'ldap_importT' => _('LDAP Import'), 'view_notif' => _('View contact notifications')]
+    'headerMenu_refreshLdapTitleTooltip',
+    _('To manually request a LDAP synchronization of a contact')
+);
+$tpl->assign('refreshLdapHelpNone', _("This user isn't linked to a LDAP"));
+$tpl->assign('refreshLdapHelpAvailable', _('Manually request to synchronize this contact with his LDAP'));
+$tpl->assign(
+    'refreshLdapHelpRequested',
+    _('Already requested, please wait the CRON execution or for the user to login')
 );
 
-// Display import ldap users button if ldap is configured
-$res = $pearDB->query(
-    'SELECT count(ar_id) as count_ldap '
-    . 'FROM auth_ressource '
-);
+$tpl->assign('contactPage', $p);
+
+$tpl->assign('centreonToken', createCSRFToken());
+
+// The term is restored client-side from the listing's own session state;
+// the template only needs the key to exist.
+$tpl->assign('searchC', '');
+
+$defaultLimit = (int) ($centreon->optGen['maxViewConfiguration'] ?? 30) ?: 30;
+$tpl->assign('defaultLimit', $defaultLimit);
+
+$res = $pearDB->query('SELECT count(ar_id) as count_ldap FROM auth_ressource');
 $row = $res->fetch();
 if ($row['count_ldap'] > 0) {
     $tpl->assign('ldap', '1');
 }
 
+// The Unblock bulk action is offered only when at least one contact is blocked.
+// The listing is AJAX now, so the count no longer falls out of the page query.
+// It only drives a menu entry for admins, so it must never abort the render.
+$blockedContactsCount = 0;
+if ($centreon->user->admin) {
+    try {
+        // Quoted, not a heredoc: xgettext desyncs on heredoc and would drop
+        // every _() below.
+        $blockedContactsCount = (int) $pearDB->fetchOne(
+            "SELECT COUNT(*) FROM contact WHERE contact_register = '1' AND blocking_time IS NOT NULL"
+        );
+    } catch (Throwable $exception) {
+        Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->error(
+            'Contacts listing: failed to count blocked contacts',
+            ['exception' => $exception]
+        );
+    }
+}
+
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
+
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
+
+$contactGrRoute = './api/internal.php?object=centreon_configuration_contactgroup&action=list';
+// No linkedObject / defaultDataset here: the filter must start empty, and the
+// listing restores the chosen value and its label from its own session state.
+$attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $contactGrRoute, 'multiple' => false];
+$form->addElement('select2', 'contactGroup', _('Select'), [], $attrContactgroups);
+
+$tpl->assign(
+    'msg',
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'ldap_importL' => 'main.php?p=' . $p . '&o=li', 'ldap_importT' => _('LDAP Import'), 'view_notif' => _('View contact notifications')]
+);
+
 ?>
 <script type="text/javascript">
-
     function setO(_i) {
         document.forms['form'].elements['o'].value = _i;
     }
 
-    // ask for confirmation when requesting to resynchronize contact data from the LDAP
+    // The shared modal only confirms Delete and Duplicate. The legacy page also
+    // confirmed the two admin bulk actions — one of them disconnects every
+    // session of the selected contacts — so they keep their prompt here rather
+    // than in the framework.
+    function clContactMoreAction(select) {
+        var prompts = {
+            sync: ['data-title-sync', 'data-msg-sync'],
+            mun: ['data-title-unblock', 'data-msg-unblock']
+        };
+        var value = select.value;
+        if (!prompts[value]) {
+            clMoreAction(select);
+
+            return;
+        }
+        var attr = function (name, fallback) { return select.getAttribute(name) || fallback; };
+        var form = select.form;
+        var scope = form || document;
+        var checked = scope.querySelectorAll('.cl-col-picker input[type="checkbox"][name^="select["]:checked');
+        if (checked.length === 0) {
+            clShowConfirmModal({
+                alert: true,
+                title: '',
+                message: attr('data-msg-select', 'Please select one or more items')
+            });
+            select.selectedIndex = 0;
+
+            return;
+        }
+        clShowConfirmModal({
+            title: attr(prompts[value][0], ''),
+            message: attr(prompts[value][1], ''),
+            confirmLabel: attr(prompts[value][0], ''),
+            cancelLabel: attr('data-label-cancel', 'Cancel')
+        }, function (confirmed) {
+            if (!confirmed) {
+                select.selectedIndex = 0;
+
+                return;
+            }
+            if (typeof window.setO === 'function') {
+                window.setO(value);
+            }
+            if (form) {
+                HTMLFormElement.prototype.submit.call(form);
+            }
+        });
+    }
+
+    // The two row-level admin actions confirm through the same styled modal as
+    // the bulk ones, where the legacy page used a native confirm(). The request
+    // is no longer synchronous either: the modal already gates it on an answer.
     function submitSync(p, contactId) {
-        // msg = localized message to be displayed in the confirmation popup
-        let msg = "<?= _('If the contact is connected, all his instances will be closed. Are you sure you want to '
-            . 'request a data synchronization at the next login of this Contact ?'); ?>";
-        if (confirm(msg)) {
+        clShowConfirmModal({
+            title: <?= json_encode(_('Synchronize LDAP'), JSON_THROW_ON_ERROR); ?>,
+            message: <?= json_encode(_('If the contact is connected, all his instances will be closed. Are you sure you want to '
+                . 'request a data synchronization at the next login of this Contact ?'), JSON_THROW_ON_ERROR); ?>,
+            confirmLabel: <?= json_encode(_('Synchronize LDAP'), JSON_THROW_ON_ERROR); ?>
+        }, function (confirmed) {
+            if (!confirmed) {
+                return;
+            }
+            var syncFailed = function () {
+                clShowConfirmModal({
+                    alert: true,
+                    title: <?= json_encode(_('Synchronize LDAP'), JSON_THROW_ON_ERROR); ?>,
+                    message: <?= json_encode(_('The synchronization request was refused. Check that LDAP authentication is '
+                        . 'enabled in the general options.'), JSON_THROW_ON_ERROR); ?>
+                });
+            };
+
             $.ajax({
                 url: './api/internal.php?object=centreon_ldap_synchro&action=requestLdapSynchro',
                 type: 'POST',
-                async: false,
                 data: {contactId: contactId},
+                // The endpoint answers false when it refuses; only true meant
+                // success, so silence used to read as one and the admin reclicked.
                 success: function(data) {
                     if (data === true) {
                         window.location.href = "?p=" + p;
+
+                        return;
                     }
-                }
+                    syncFailed();
+                },
+                error: syncFailed
             });
-        }
+        });
+    }
+
+    // Unblock is a plain link on the row: confirm first, then follow it.
+    function unblockContact(url) {
+        clShowConfirmModal({
+            title: <?= json_encode(_('Unblock'), JSON_THROW_ON_ERROR); ?>,
+            message: <?= json_encode(_('Do you really want to unblock this user?'), JSON_THROW_ON_ERROR); ?>,
+            confirmLabel: <?= json_encode(_('Unblock'), JSON_THROW_ON_ERROR); ?>
+        }, function (confirmed) {
+            if (confirmed) {
+                window.location.href = url;
+            }
+        });
     }
 </script>
 <?php
 
-// Manage options
-foreach (['o1', 'o2'] as $option) {
-    $attrs1 = ['onchange' => 'javascript: '
-        . ' var bChecked = isChecked(); '
-        . "if (this.form.elements['" . $option . "'].selectedIndex != 0 && !bChecked) {"
-            . " alert('" . _('Please select one or more items') . "'); return false;} "
-        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
-        . _('Do you confirm the duplication ?') . "')) {"
-            . "   setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
-        . _('Do you confirm the deletion ?') . "')) {"
-            . "   setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3 || this.form.elements['"
-        . $option . "'].selectedIndex == 4 || this.form.elements['" . $option . "'].selectedIndex == 5){"
-            . "   setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 6 && confirm('"
-        . _('The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request ?')
-            . "')) {"
-            . "   setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "else if (this.form.elements['" . $option . "'].selectedIndex == 7 && confirm('"
-        . _('The user(s) will be unblocked. Do you confirm the request?')
-        . "')) {"
-        . "   setO(this.form.elements['" . $option . "'].value); submit();} "
-        . "this.form.elements['" . $option . "'].selectedIndex = 0"];
+foreach (['o1'] as $option) {
+    // Messages travel as data-* attributes so clContactMoreAction stays
+    // locale-independent, keyed on the option value.
+    $attrs = [
+        'onchange' => 'clContactMoreAction(this);',
+        'data-msg-select' => _('Please select one or more items'),
+        'data-title-delete-one' => _('Delete contact'),
+        'data-title-delete-many' => _('Delete contacts'),
+        'data-msg-delete-one' => _('You are about to delete the <strong>{{ name }}</strong> contact. This action cannot be undone. Do you want to delete it?'),
+        'data-msg-delete-many' => _('You are about to delete <strong>{{ count }} contacts.</strong> This action cannot be undone. Do you want to delete them?'),
+        'data-label-delete' => _('Delete'),
+        'data-title-duplicate-one' => _('Duplicate contact'),
+        'data-title-duplicate-many' => _('Duplicate contacts'),
+        'data-msg-duplicate-one' => _('You are about to duplicate the <strong>{{ name }}</strong> contact. Do you want to duplicate it?'),
+        'data-msg-duplicate-many' => _('You are about to duplicate <strong>{{ count }} contacts.</strong> Do you want to duplicate them?'),
+        'data-label-duplicate' => _('Duplicate'),
+        'data-label-cancel' => _('Cancel'),
+        'data-title-sync' => _('Synchronize LDAP'),
+        'data-msg-sync' => _('The chosen contact(s) will be disconnected. Do you confirm the LDAP synchronization request ?'),
+        'data-title-unblock' => _('Unblock'),
+        'data-msg-unblock' => _('The user(s) will be unblocked. Do you confirm the request?'),
+    ];
 
-    $formOptions = [null => _('More actions...'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')];
+    $formOptions = [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete'), 'mc' => _('Mass Change'), 'ms' => _('Enable'), 'mu' => _('Disable')];
     // adding a specific option available only for admin users
     if ($centreon->user->admin) {
         $formOptions['sync'] = _('Synchronize LDAP');
@@ -341,22 +251,12 @@ foreach (['o1', 'o2'] as $option) {
         $formOptions['mun'] = _('Unblock');
     }
 
-    $form->addElement(
-        'select',
-        $option,
-        null,
-        $formOptions,
-        $attrs1
-    );
+    $form->addElement('select', $option, null, $formOptions, $attrs);
     $form->setDefaults([$option => null]);
-
-    $o1 = $form->getElement($option);
-    $o1->setValue(null);
-    $o1->setSelected(null);
+    $el = $form->getElement($option);
+    $el->setValue(null);
+    $el->setSelected(null);
 }
-
-$tpl->assign('limit', $limit);
-$tpl->assign('searchC', $searchContact);
 
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);

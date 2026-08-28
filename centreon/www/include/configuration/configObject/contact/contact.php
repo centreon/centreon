@@ -19,6 +19,8 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use Centreon\Infrastructure\Event\EventDispatcher;
 use Centreon\Infrastructure\Event\EventHandler;
 use Centreon\ServiceProvider;
@@ -69,6 +71,20 @@ $sanitizeInt = static fn ($value): ?int => filter_var($value, FILTER_VALIDATE_IN
 $sanitizeArray = static fn ($value): array => is_array($value) ? array_map('intval', $value) : [];
 
 $fromRequest = static fn (string $key) => $_GET[$key] ?? $_POST[$key] ?? null;
+
+$requireAdminOrFail = static function () use ($centreon): bool {
+    if ($centreon->user->admin) {
+        return true;
+    }
+
+    Logger::create(LogChannelEnum::WEB)->warning(
+        'Privileged contact action refused for a non-admin user',
+        ['user_id' => $centreon->user->get_id()]
+    );
+    echo "<div class='msg' align='center'>" . _("You don't have sufficient permissions for this action") . '</div>';
+
+    return false;
+};
 
 $handleCsrfOrFail = static function (): bool {
     purgeOutdatedCSRFTokens();
@@ -208,7 +224,7 @@ try {
             require_once $path . 'listContact.php';
             break;
         case MASSIVE_UNBLOCK_CONTACT:
-            if ($handleCsrfOrFail()) {
+            if ($requireAdminOrFail() && $handleCsrfOrFail()) {
                 unblockContactInDB($select);
             }
             require_once $path . 'listContact.php';
@@ -240,17 +256,30 @@ try {
             require_once $path . 'displayNotification.php';
             break;
         case SYNC_LDAP_CONTACTS:
-            if ($handleCsrfOrFail()) {
+            // Synchronizing disconnects every session of the selected contacts,
+            // so it is reserved to administrators — as the single-contact variant
+            // below already was. The menu entry is hidden for everyone else, but
+            // the action was still reachable by POST.
+            if ($requireAdminOrFail() && $handleCsrfOrFail()) {
                 $eventDispatcher->notify(
                     'contact.form',
                     EventDispatcher::EVENT_SYNCHRONIZE,
                     ['contact_ids' => $select]
                 );
+
+                // Single-contact variant kept from the legacy page, reachable as
+                // ?o=sync&selectedContact=<id>. It shares the bulk entry point's
+                // guard rather than running from the listing include, which is
+                // reached whether or not that guard passed.
+                $selectedContact = filter_var($_GET['selectedContact'] ?? null, FILTER_VALIDATE_INT);
+                if ($selectedContact) {
+                    synchronizeContactWithLdap([$selectedContact => 1]);
+                }
             }
             require_once $path . 'listContact.php';
             break;
         case UNBLOCK_CONTACT:
-            if ($handleCsrfOrFail()) {
+            if ($requireAdminOrFail() && $handleCsrfOrFail()) {
                 unblockContactInDB($contactId);
             }
             require_once $path . 'listContact.php';

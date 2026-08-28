@@ -48,22 +48,6 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
 }
 
 $acl = $centreon->user->access;
-$allowedContacts = $acl->getContactAclConf(['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'order' => 'contact_name']);
-$allowedAclGroups = $acl->getAccessGroups();
-$contactstring = '';
-if (count($allowedContacts)) {
-    $first = true;
-    foreach ($allowedContacts as $key => $val) {
-        if ($first) {
-            $first = false;
-        } else {
-            $contactstring .= ',';
-        }
-        $contactstring .= "'" . $key . "'";
-    }
-} else {
-    $contactstring = "''";
-}
 
 switch ($o) {
     case 'a':

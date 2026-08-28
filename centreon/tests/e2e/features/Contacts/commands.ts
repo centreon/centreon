@@ -1,5 +1,7 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+import { setOptionChip, setSegmentedChoice } from './common';
+
 interface Contact {
   alias: string;
   name: string;
@@ -27,10 +29,43 @@ interface ContactTemplate {
   notCommands: string;
 }
 
+/**
+ * Open a multi-select by its selection container: the redesigned dropdown adds
+ * a "Select all" header that renders over the tiny inline search input.
+ */
+const openMultiSelect = (index: number): void => {
+  cy.getSidePanelBody().find('.select2-selection--multiple').eq(index).click();
+};
+
+/**
+ * The dropdown stays open after a pick — deliberate for a multi-select — and
+ * its header then overlays the next widget. Escape does not dismiss it; a click
+ * outside does. The tab bar is the one neutral target common to the four forms
+ * (a section header would collapse its section).
+ */
+const closeMultiSelect = (): void => {
+  cy.getSidePanelBody().find('.cf-tab-nav').click();
+};
+
+/**
+ * Activation is driven by the cosmetic cl-toggle now; the QuickForm radio group
+ * it mirrors is hidden, so its labels can no longer be clicked. The real input
+ * sits behind the slider, hence the forced click.
+ */
+const setActivation = (toggleId: string, enabled: boolean): void => {
+  cy.getSidePanelBody()
+    .find(`#${toggleId}`)
+    .then(($toggle) => {
+      if ($toggle.prop('checked') !== enabled) {
+        cy.wrap($toggle).click({ force: true });
+      }
+    });
+};
+
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
-  cy.getIframeBody().within(() => {
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody().within(() => {
     cy.get('input[id="contact_alias"]').type(
       `{selectAll}{backspace}${body.alias}`
     );
@@ -44,70 +79,90 @@ Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
       `{selectAll}{backspace}${body.pager}`
     );
     cy.get('#contact_template_id').select(body.template);
-    cy.contains('label', body.isNotificationsEnabled).click();
   });
+  setSegmentedChoice(
+    'contact_enable_notifications',
+    body.isNotificationsEnabled
+  );
 });
 
 Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="cg_name"]');
-  cy.getIframeBody().find('input[name="cg_name"]').clear().type(body.name);
-  cy.getIframeBody().find('input[name="cg_alias"]').clear().type(body.alias);
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody().find('input[name="cg_name"]').clear().type(body.name);
+  cy.getSidePanelBody().find('input[name="cg_alias"]').clear().type(body.alias);
 
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  openMultiSelect(0);
   cy.wait('@getContacts');
-  cy.getIframeBody().contains('div', body.linkedContact).click();
+  cy.getSidePanelBody().contains('div', body.linkedContact).click();
+  closeMultiSelect();
 
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click();
+  openMultiSelect(1);
   cy.wait('@getACLGroups');
-  cy.getIframeBody().contains('div', 'ALL').click();
+  cy.getSidePanelBody().contains('div', 'ALL').click();
+  closeMultiSelect();
 
-  cy.getIframeBody().contains(body.status).click();
+  setActivation('cf-cg-activate-toggle', body.status === 'Enabled');
 
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('textarea[name="cg_comment"]')
     .clear()
     .type(body.comment);
 
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  // The modernized form renders a single submit (submitA on create, submitC on
+  // modify), where the legacy one rendered a pair.
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Cypress.Commands.add('addOrUpdateContactTemplate', (body: ContactTemplate) => {
   cy.wait('@getTimeZone');
-  cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
-  cy.getIframeBody()
+  cy.waitForElementInIframe('#main-content', 'iframe#cfSidePanelFrame');
+  cy.getSidePanelBody()
     .find('input[name="contact_alias"]')
     .clear()
     .type(body.alias);
-  cy.getIframeBody().find('input[name="contact_name"]').clear().type(body.name);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
+    .find('input[name="contact_name"]')
+    .clear()
+    .type(body.name);
+  cy.getSidePanelBody()
     .find('select[name="contact_template_id"]')
     .select(body.usedContactTemplate);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="default_page"]')
     .select(body.defaultPage);
-  cy.getIframeBody().contains('label', body.isNotEnabled).click();
-  cy.getIframeBody().find('label[for="hDown"]').click();
-  cy.getIframeBody()
+  setSegmentedChoice('contact_enable_notifications', body.isNotEnabled);
+  setOptionChip('Host Notification Options', 'Down');
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id-container"]')
     .click();
   cy.wait('@getTimePeriods');
-  cy.getIframeBody().find(`div[title="${body.timePeriod}"]`).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).click();
+  cy.getSidePanelBody().find(`div[title="${body.timePeriod}"]`).click();
+  openMultiSelect(0);
   cy.wait('@getNotCommands');
-  cy.getIframeBody().find(`div[title="${body.notCommands}"]`).click();
-  cy.getIframeBody().find('label[for="sWarning"]').click();
-  cy.getIframeBody()
+  cy.getSidePanelBody().find(`div[title="${body.notCommands}"]`).click();
+  closeMultiSelect();
+  setOptionChip('Service Notification Options', 'Warning');
+  cy.getSidePanelBody()
     .find('span[id="select2-timeperiod_tp_id2-container"]')
     .click();
   cy.wait('@getTimePeriods');
-  cy.getIframeBody().find(`div[title="${body.timePeriod}"]`).click();
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(1).click();
+  cy.getSidePanelBody().find(`div[title="${body.timePeriod}"]`).click();
+  openMultiSelect(1);
   cy.wait('@getNotCommands');
-  cy.getIframeBody().find(`div[title="${body.notCommands}"]`).click();
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(1).click();
+  cy.getSidePanelBody().find(`div[title="${body.notCommands}"]`).click();
+  closeMultiSelect();
+  // The modernized form renders a single submit (submitA on create, submitC on
+  // modify), where the legacy one rendered a pair.
+  cy.getSidePanelBody()
+    .find('input.btc.bt_success[name^="submit"]')
+    .first()
+    .click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
