@@ -59,22 +59,29 @@ try {
 
     // ACL filtering: a non-admin only sees the service categories granted by its ACL.
     if (! $helper->isAdmin()) {
-        $acl   = $helper->getAcl();
-        $scIds = $acl !== null
-            ? array_values(array_filter(array_map('intval', explode(',', $acl->getServiceCategoriesString('ID')))))
-            : [];
-
-        if ($scIds === []) {
+        $acl = $helper->getAcl();
+        if ($acl === null) {
             $helper->jsonResponse([], 0, $num, $limit);
         }
 
-        $placeholders = [];
-        foreach ($scIds as $index => $scId) {
-            $placeholder    = 'sc_id_' . $index;
-            $placeholders[] = ':' . $placeholder;
-            $parameters[]   = QueryParameter::int($placeholder, $scId);
+        // getServiceCategoriesString() answers "''" when the access groups carry no
+        // acl_resources_sc_relations row. That means categories are unrestricted for
+        // this user, not that none are granted -- the legacy page added its filter
+        // only when the string held ids, and scoping on an empty list hides them all.
+        $scString = $acl->getServiceCategoriesString('ID');
+        if ($scString !== "''") {
+            $scIds = array_values(array_filter(array_map('intval', explode(',', $scString))));
+
+            $placeholders = [];
+            foreach ($scIds as $index => $scId) {
+                $placeholder    = 'sc_id_' . $index;
+                $placeholders[] = ':' . $placeholder;
+                $parameters[]   = QueryParameter::int($placeholder, $scId);
+            }
+            $conditions[] = $placeholders === []
+                ? '1 = 0'
+                : 'sc.sc_id IN (' . implode(', ', $placeholders) . ')';
         }
-        $conditions[] = 'sc.sc_id IN (' . implode(', ', $placeholders) . ')';
     }
 
     $whereClause = $conditions === [] ? '' : 'WHERE ' . implode(' AND ', $conditions);

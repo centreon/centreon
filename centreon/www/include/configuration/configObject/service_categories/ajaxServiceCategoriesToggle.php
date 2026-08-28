@@ -45,13 +45,19 @@ $helper->requireWriteAccess(60209);
 // the caller's scope: checking only the page would let a user toggle any service
 // category by id (IDOR). Same ACL source as ajaxServiceCategoriesListing.php.
 if (! $helper->isAdmin()) {
-    $acl        = $helper->getAcl();
-    $grantedIds = $acl !== null
-        ? array_values(array_filter(array_map('intval', explode(',', $acl->getServiceCategoriesString('ID')))))
-        : [];
-
-    if (! in_array($scId, $grantedIds, true)) {
+    $acl = $helper->getAcl();
+    if ($acl === null) {
         AjaxListingHelper::jsonError('Access denied', 403);
+    }
+
+    // "''" means no acl_resources_sc_relations row at all: categories are then
+    // unrestricted for this user. Only scope the check when the ACL names ids.
+    $scString = $acl->getServiceCategoriesString('ID');
+    if ($scString !== "''") {
+        $grantedIds = array_values(array_filter(array_map('intval', explode(',', $scString))));
+        if (! in_array($scId, $grantedIds, true)) {
+            AjaxListingHelper::jsonError('Access denied', 403);
+        }
     }
 }
 
