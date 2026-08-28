@@ -25170,8 +25170,8 @@ msgid "VM or physical"
 msgstr "VM ou physique"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Docker compose"
-msgstr "Docker compose"
+msgid "Container"
+msgstr "Conteneur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Select token"
@@ -25317,3 +25317,6 @@ msgstr "Vous êtes sur le point de dupliquer le modèle d'hôte <strong>{{ name 
 msgid "You are about to duplicate <strong>{{ count }} host templates.</strong> Do you want to duplicate them?"
 msgstr "Vous êtes sur le point de dupliquer <strong>{{ count }} modèles d'hôtes.</strong> Voulez-vous les dupliquer ?"
 
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Beta"
+msgstr "Beta"

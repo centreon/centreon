@@ -20017,7 +20017,7 @@ msgstr "Loading..."
 # msgstr ""
 
 #: unknown
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 
 #: unknown
@@ -20201,3 +20201,7 @@ msgstr "You are about to duplicate <strong>{{ count }} host templates.</strong> 
 #: unknown
 msgid "Select"
 msgstr "Select"
+
+#: unknown
+# msgid "Beta"
+# msgstr ""

@@ -23983,7 +23983,7 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 
 #: unknown
@@ -24167,3 +24167,7 @@ msgstr "Você está prestes a duplicar <strong>{{ count }} modelos de host</stro
 #: centreon/www/include/configuration/configObject/host/listHost.php
 msgid "Select"
 msgstr "Selecionar"
+
+#: unknown
+# msgid "Beta"
+# msgstr ""
