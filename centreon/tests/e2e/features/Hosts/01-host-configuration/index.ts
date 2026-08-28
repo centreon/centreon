@@ -537,7 +537,20 @@ Then('the pagination range stays within the available hosts', () => {
   // Prove the out-of-range page was actually requested. If the storage key, its
   // schema or the sessionStorage sharing ever drifted, num would fall back to 0
   // and the assertions below would hold trivially without the clamp ever running.
-  cy.wait('@getHostListing').its('request.url').should('include', 'num=99');
+  //
+  // Read every intercepted call rather than waiting on one: openHostsListing has
+  // already consumed the restoring fetch, and the next one in the queue is the
+  // clamp's own refetch, which legitimately carries num=0.
+  cy.get('@getHostListing.all').then((calls) => {
+    const urls = (calls as unknown as Array<{ request: { url: string } }>).map(
+      (call) => call.request.url
+    );
+
+    expect(
+      urls.some((url) => url.includes('num=99')),
+      'the out-of-range page was requested'
+    ).to.equal(true);
+  });
 
   cy.getIframeBody()
     .find(listingSelectors.pageInfo)

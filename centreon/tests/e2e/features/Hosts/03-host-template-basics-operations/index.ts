@@ -507,10 +507,9 @@ When(
   'the configured host template becomes locked during a listing refresh',
   () => {
     cy.lockHostTemplateWithSql(hostTemplates.defaultHostTemplate.name);
-    searchInListing(
-      hostTemplates.defaultHostTemplate.name,
-      '@getHostTemplateListing'
-    );
+    cy.getIframeBody().find(listingSelectors.advancedToggle).click();
+    cy.getIframeBody().find(listingSelectors.advancedSearch).click();
+    waitForListingRefresh('@getHostTemplateListing');
   }
 );
 

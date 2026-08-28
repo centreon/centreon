@@ -3,11 +3,7 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { ActionClapi } from '../../../commons';
-import {
-  confirmModalSelectors,
-  getListingRow,
-  listingSelectors
-} from '../common';
+import { getListingRow, listingSelectors } from '../common';
 
 const grantedHost = 'host-acl-granted';
 const deniedHost = 'host-acl-denied';
@@ -260,10 +256,11 @@ When('the user disables the granted host through the actions menu', () => {
   });
 
   cy.getIframeBody().find(listingSelectors.moreActionsButton).click();
+  // Enable/Disable/Mass Change submit straight away — only Delete and Duplicate
+  // raise the confirmation modal (see clMoreAction in listing.js).
   cy.getIframeBody()
     .contains(listingSelectors.moreActionsItem, 'Disable')
     .click();
-  cy.getIframeBody().find(confirmModalSelectors.confirm).click();
   cy.wait('@getHostListing');
 });
 
