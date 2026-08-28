@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 const grantedService = 'acl-service-granted';
@@ -50,6 +51,12 @@ before(() => {
 });
 
 beforeEach(() => {
+  // loginByTypeOfUser({ loginViaApi: false }) waits on this alias internally, so
+  // it has to be registered before the Background logs in.
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
   cy.intercept('GET', '**/ajaxServiceByHostListing.php*').as('getServices');
   cy.intercept('GET', '**/ajaxServiceCategoriesListing.php*').as(
     'getCategories'
