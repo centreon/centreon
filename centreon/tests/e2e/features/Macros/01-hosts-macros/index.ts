@@ -9,6 +9,21 @@ const clickToAddHost = () => {
   cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
 };
 
+/**
+ * A multi-select keeps its dropdown open after a pick, and its overlay swallows
+ * the next click — which is the one meant for the control underneath (this ate
+ * the first of the two macro-add clicks with no error from Cypress). Close it
+ * and prove it is gone before moving on.
+ */
+const pickAclResourceGroup = (): void => {
+  cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
+  cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+  cy.getIframeBody()
+    .find('input[placeholder="ACL Resource Groups"]')
+    .type('{esc}');
+  cy.getIframeBody().find('.select2-container--open').should('not.exist');
+};
+
 before(() => {
   cy.startContainers();
   cy.setUserTokenApiV1().executeCommandsViaClapi(
@@ -59,8 +74,7 @@ When('the non-admin user fills in all mandatory fields', () => {
     .find('input[name="host_address"]')
     .clear()
     .type(hostMacros.default_host.address);
-  cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
-  cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+  pickAclResourceGroup();
 });
 
 When('the non-admin user adds one normal macro and one password macro', () => {
@@ -356,8 +370,7 @@ When(
       .find('input[name="host_address"]')
       .clear()
       .type(hostMacros.default_host.address);
-    cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
-    cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
+    pickAclResourceGroup();
     cy.getIframeBody().find('#template_add').click();
     cy.getIframeBody().find('span[role="presentation"]').eq(1).click();
     cy.getIframeBody().find(`div[title="${hostTemplate}"]`).click();
