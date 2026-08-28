@@ -18,6 +18,9 @@ export default defineConfig({
         baseURL: galleryUrl,
         reuseContext: true,
         serviceWorkers: 'block',
+        // Date formatting happens in the browser; the Cypress scripts get the
+        // same determinism from TZ=Etc/UTC.
+        timezoneId: 'UTC',
         // Same viewport as cy.adjustViewport(), for comparable screenshots.
         viewport: { height: 590, width: 1280 }
       }

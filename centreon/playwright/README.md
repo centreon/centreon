@@ -49,6 +49,7 @@ short ids like `Inputs/Warning/WithLabel`.
 | `tests/components/authenticationDenied.spec.ts` | Plain rendering plus `toHaveScreenshot()`, replacing `cy.makeSnapshot()` |
 | `tests/components/dashboardsFilter.spec.ts` | Jotai provider owned by the story; the debounced atom value is recorded into a hidden input and asserted with the retrying `toHaveValue()` |
 | `tests/components/widgetWarningField.spec.ts` | Formik + Jotai providers in the story, per-test props via `mount(id, props)`, and `update()` for a prop transition without remounting |
+| `tests/components/addCommentForm.spec.ts` | `page.route()` replacing `cy.interceptAPIRequest`, request body asserted from the route handler, two callbacks recorded by the story, and a screenshot of a portalled dialog |
 
 ## Conventions
 
@@ -57,7 +58,16 @@ short ids like `Inputs/Warning/WithLabel`.
 - Callbacks never cross the Node/browser boundary: the story provides them and
   records the observable outcome into a hidden `<input data-testid=...>`.
 - Screenshot the locator returned by `mount()`, never the page.
+- **Portalled content escapes the mount root.** MUI `Dialog`, `Popover`,
+  `Tooltip` and friends render into `document.body`, so query them from `page`,
+  not from the locator `mount()` returns — and screenshot the dialog itself.
+  The story's hidden recording inputs stay inside the root.
 - Register `page.route()` mocks **before** `mount()`, since mounting navigates.
+- **Centreon endpoints are relative** (`./api/latest/...`), resolved against the
+  gallery URL. Route globs must drop the leading `./`:
+  `` `**/${endpoint.replace(/^\.\//, '')}` ``.
+- Dates are formatted in the browser, so the project pins `timezoneId: 'UTC'`
+  — the equivalent of the `TZ=Etc/UTC` the Cypress scripts export.
 - Baselines live in `playwright/visual-testing-snapshots/` and are committed —
   not `screenshots/`, which the repository `.gitignore` excludes;
   `playwright/results/` is ignored.
