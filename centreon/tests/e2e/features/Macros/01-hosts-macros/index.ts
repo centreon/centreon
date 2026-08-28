@@ -18,9 +18,10 @@ const clickToAddHost = () => {
 const pickAclResourceGroup = (): void => {
   cy.getIframeBody().find('input[placeholder="ACL Resource Groups"]').click();
   cy.getIframeBody().contains('div', 'user-ACLGROUP').click();
-  cy.getIframeBody()
-    .find('input[placeholder="ACL Resource Groups"]')
-    .type('{esc}');
+  // select2 drops the placeholder from its search field once a value is held,
+  // so the field cannot be re-queried by placeholder here. Any mousedown
+  // outside the widget closes the dropdown: a neutral text field does.
+  cy.getIframeBody().find('input[name="host_name"]').click();
   cy.getIframeBody().find('.select2-container--open').should('not.exist');
 };
 
