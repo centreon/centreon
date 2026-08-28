@@ -25,7 +25,7 @@ const Hero = ({ version, showOpenSourceEditionTag }: Props): ReactElement => {
   const { t } = useTranslation();
 
   return (
-    <div className="relative overflow-hidden bg-[#131D5A] p-8">
+    <div className="relative overflow-hidden bg-brand-navy p-8">
       <div className="absolute -top-[120px] -right-20 h-[360px] w-[360px] rounded-full bg-[linear-gradient(100deg,#1F8FD6_0%,#6A4FD6_52%,#27A567_100%)] opacity-55 blur-2xl" />
       <div className="relative flex flex-col items-start gap-6 sm:flex-row sm:justify-between">
         <div className="w-[168px] brightness-0 invert">

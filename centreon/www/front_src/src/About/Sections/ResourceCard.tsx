@@ -33,7 +33,7 @@ const ResourceCard = ({
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded ${
           tone === 'navy'
-            ? 'bg-[#131D5A]'
+            ? 'bg-brand-navy'
             : 'bg-primary-light dark:bg-primary-dark'
         }`}
       >
