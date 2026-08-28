@@ -104,7 +104,8 @@ $aclPollerString = $acl->getPollerString();
  * The topology check upstream admits read-only access to this page, and the
  * branches below took their ids straight from the request, gated by the CSRF
  * token alone. Every path that writes must therefore route its selection
- * through here first — see the single call site above the switch.
+ * through here first: the bulk selection is filtered once above the switch,
+ * and the single-id enable/disable branches call it on their own id.
  *
  * Returns the granted subset, so a selection carrying a mix acts on the allowed
  * part rather than failing whole: one denied id does not cancel the rest.
@@ -144,12 +145,16 @@ function keepWritableHosts(array $selection): array
     $writable = array_intersect_key($selection, $granted);
 
     if (count($writable) !== count($selection)) {
+        // The refused ids are the forensic payload: they are what tells a
+        // misconfigured ACL apart from someone probing ids outside their own.
+        $refusedIds = array_slice(array_keys(array_diff_key($selection, $granted)), 0, 20);
         Logger::create(LogChannelEnum::WEB)->warning(
             'Hosts page: bulk action narrowed to the caller ACL',
             [
                 'userId' => (int) $centreon->user->get_id(),
                 'submitted' => count($selection),
                 'granted' => count($writable),
+                'refusedIds' => $refusedIds,
             ]
         );
     }
@@ -173,8 +178,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            // Same guard as the bulk branches: this one took the id straight
-            // from the request too.
+            // Route the single id through the same ACL guard as the bulk branches.
             enableHostInDB(null, keepWritableHosts($host_id ? [$host_id => '1'] : []));
         } else {
             unvalidFormMessage();
@@ -195,8 +199,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            // Same guard as the bulk branches: this one took the id straight
-            // from the request too.
+            // Route the single id through the same ACL guard as the bulk branches.
             disableHostInDB(null, keepWritableHosts($host_id ? [$host_id => '1'] : []));
         } else {
             unvalidFormMessage();
