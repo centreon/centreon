@@ -191,10 +191,38 @@ try {
         }
     }
 
-    // Template chain helper
-    function getTemplateChainHG(int $tplId, CentreonDB $db, array &$cache, int $depth = 0): array
+    // Icon of one service id, resolved lazily and cached. The batch above only
+    // covers the displayed rows; a service inheriting its icon from a template
+    // needs the chain walked, as the by-host listing already does.
+    function serviceIconPathHG(CentreonDB $db, int $serviceId, array &$cache): ?string
     {
-        if ($depth > 5 || ! $tplId) {
+        if (array_key_exists($serviceId, $cache)) {
+            return $cache[$serviceId];
+        }
+        $row = $db->fetchAssociative(
+            <<<'SQL'
+                SELECT CONCAT(vid.dir_alias, '/', vi.img_path) AS icon_path
+                FROM extended_service_information esi
+                INNER JOIN view_img vi ON esi.esi_icon_image = vi.img_id
+                INNER JOIN view_img_dir_relation vidr ON vi.img_id = vidr.img_img_id
+                INNER JOIN view_img_dir vid ON vidr.dir_dir_parent_id = vid.dir_id
+                WHERE esi.esi_icon_image IS NOT NULL AND esi.service_service_id = :id
+                LIMIT 1
+                SQL,
+            QueryParameters::create([QueryParameter::int('id', $serviceId)])
+        );
+
+        return $cache[$serviceId] = $row ? './img/media/' . $row['icon_path'] : null;
+    }
+
+    // Template chain helper
+    function getTemplateChainHG(int $tplId, CentreonDB $db, array &$cache, array $visited = []): array
+    {
+        // $visited guards a cyclic chain. A depth cap was wrong here: it truncated
+        // long chains silently, and the cache then served that truncated result to
+        // a service reaching the same template higher up, so two services sharing a
+        // template rendered different Template and Scheduling columns.
+        if (! $tplId || isset($visited[$tplId])) {
             return [];
         }
         if (isset($cache[$tplId])) {
@@ -212,11 +240,20 @@ try {
         if (! $tpl) {
             return [];
         }
-        $chain = [['id' => $tplId, 'name' => $tpl['service_description'], 'normal' => $tpl['service_normal_check_interval'], 'retry' => $tpl['service_retry_check_interval']]];
-        if ($tpl['service_template_model_stm_id']) {
-            $chain = array_merge($chain, getTemplateChainHG((int) $tpl['service_template_model_stm_id'], $db, $cache, $depth + 1));
+        $visited[$tplId] = true;
+        $chain    = [['id' => $tplId, 'name' => $tpl['service_description'], 'normal' => $tpl['service_normal_check_interval'], 'retry' => $tpl['service_retry_check_interval']]];
+        $parentId = (int) $tpl['service_template_model_stm_id'];
+        $isPartial = false;
+        if ($parentId !== 0) {
+            $parentChain = getTemplateChainHG($parentId, $db, $cache, $visited);
+            // Empty on a declared parent means the walk stopped early (cycle or a
+            // dangling id): the chain is incomplete and must not be cached.
+            $isPartial = $parentChain === [];
+            $chain     = array_merge($chain, $parentChain);
         }
-        $cache[$tplId] = $chain;
+        if (! $isPartial) {
+            $cache[$tplId] = $chain;
+        }
 
         return $chain;
     }
@@ -263,13 +300,24 @@ try {
             }
         }
 
+        // Own icon first, then the first one found up the template chain.
+        $svcIcon = $svcIconCache[$sid] ?? null;
+        if ($svcIcon === null) {
+            foreach ($templates as $tpl) {
+                $svcIcon = serviceIconPathHG($pearDB, (int) $tpl['id'], $svcIconCache);
+                if ($svcIcon !== null) {
+                    break;
+                }
+            }
+        }
+
         $rows[] = [
             'id'        => $sid,
             'key'       => $svc['hg_id'] . '_' . $sid,
             'hg_id'     => (int) $svc['hg_id'],
             'hg_name'   => $svc['hg_name'],
             'desc'      => $desc,
-            'svc_icon'  => $svcIconCache[$sid] ?? null,
+            'svc_icon'  => $svcIcon,
             'scheduling' => $scheduling,
             'templates' => $templates,
             'activate'  => (int) $svc['service_activate'],

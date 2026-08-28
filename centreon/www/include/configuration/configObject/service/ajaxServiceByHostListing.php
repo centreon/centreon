@@ -209,9 +209,13 @@ try {
     }
 
     // Template chain helper
-    function getTemplateChain(int $tplId, CentreonDB $db, array &$cache, int $depth = 0): array
+    function getTemplateChain(int $tplId, CentreonDB $db, array &$cache, array $visited = []): array
     {
-        if ($depth > 5 || ! $tplId) {
+        // $visited guards a cyclic chain. A depth cap was wrong here: it truncated
+        // long chains silently, and the cache then served that truncated result to
+        // a service reaching the same template higher up, so two services sharing a
+        // template rendered different Template and Scheduling columns.
+        if (! $tplId || isset($visited[$tplId])) {
             return [];
         }
         if (isset($cache[$tplId])) {
@@ -229,11 +233,20 @@ try {
         if ($tpl === false) {
             return [];
         }
-        $chain = [['id' => $tplId, 'name' => $tpl['service_description'], 'normal' => $tpl['service_normal_check_interval'], 'retry' => $tpl['service_retry_check_interval']]];
-        if ($tpl['service_template_model_stm_id']) {
-            $chain = array_merge($chain, getTemplateChain((int) $tpl['service_template_model_stm_id'], $db, $cache, $depth + 1));
+        $visited[$tplId] = true;
+        $chain    = [['id' => $tplId, 'name' => $tpl['service_description'], 'normal' => $tpl['service_normal_check_interval'], 'retry' => $tpl['service_retry_check_interval']]];
+        $parentId = (int) $tpl['service_template_model_stm_id'];
+        $isPartial = false;
+        if ($parentId !== 0) {
+            $parentChain = getTemplateChain($parentId, $db, $cache, $visited);
+            // Empty on a declared parent means the walk stopped early (cycle or a
+            // dangling id): the chain is incomplete and must not be cached.
+            $isPartial = $parentChain === [];
+            $chain     = array_merge($chain, $parentChain);
         }
-        $cache[$tplId] = $chain;
+        if (! $isPartial) {
+            $cache[$tplId] = $chain;
+        }
 
         return $chain;
     }
