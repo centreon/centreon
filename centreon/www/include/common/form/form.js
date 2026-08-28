@@ -1569,6 +1569,14 @@ var cfScrollTo      = CentreonForm.scrollTo;
 document.addEventListener('DOMContentLoaded', function () {
     window.cfFormDirty = false;
     document.querySelectorAll('form').forEach(function (form) {
+        // Submitting is what makes the changes no longer unsaved. Until the
+        // programmatic mutations were tracked, the flag was set only by trusted
+        // input/change and a save navigated away, so it never outlived the form;
+        // now a save that leaves the panel open would keep it set and greet the
+        // next click with the discard prompt for changes already written.
+        form.addEventListener('submit', function () {
+            window.cfFormDirty = false;
+        });
         ['input', 'change'].forEach(function (type) {
             form.addEventListener(type, function (e) {
                 if (e.isTrusted) window.cfFormDirty = true;
