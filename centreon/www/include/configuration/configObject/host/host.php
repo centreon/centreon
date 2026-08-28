@@ -151,7 +151,7 @@ function keepWritableHosts(array $selection): array
 // formHost.php runs its mass-change loop on the presence of the submitMC field
 // rather than on $o, so a request declaring any other action still reaches it.
 // Filtering once here covers every branch instead of each one guarding itself.
-$select = keepWritableHosts($select ?? []);
+$select = keepWritableHosts(is_array($select) ? $select : []);
 
 switch ($o) {
     case HOST_ADD:
