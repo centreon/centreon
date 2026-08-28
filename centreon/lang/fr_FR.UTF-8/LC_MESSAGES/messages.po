@@ -25136,3 +25136,19 @@ msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 #: www/include/configuration/configServers/listServers.ihtml
 msgid "Copy installation command"
 msgstr "Copier la commande d'installation"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not within your access groups"
+msgstr "Ce groupe de contacts ne fait pas partie de vos groupes d'accès"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group no longer exists"
+msgstr "Ce groupe de contacts n'existe plus"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not within your access groups"
+msgstr "Ce contact ne fait pas partie de vos groupes d'accès"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact no longer exists"
+msgstr "Ce contact n'existe plus"

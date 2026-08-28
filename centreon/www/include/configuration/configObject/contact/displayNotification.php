@@ -19,7 +19,7 @@
  *
  */
 
-if (! isset($oreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -29,14 +29,23 @@ require_once _CENTREON_PATH_ . 'www/class/centreonNotification.class.php';
 $pearDBO = new CentreonDB('centstorage');
 
 /**
- * Get user list
+ * Get user list (ACL-filtered for non-admin users)
  */
 $contact = ['' => null];
-$DBRESULT = $pearDB->query('SELECT contact_id, contact_alias FROM contact ORDER BY contact_alias');
-while ($ct = $DBRESULT->fetchRow()) {
-    $contact[$ct['contact_id']] = $ct['contact_alias'];
+if ($centreon->user->admin) {
+    $DBRESULT = $pearDB->query('SELECT contact_id, contact_alias FROM contact ORDER BY contact_alias');
+    while ($ct = $DBRESULT->fetchRow()) {
+        $contact[$ct['contact_id']] = $ct['contact_alias'];
+    }
+    $DBRESULT->closeCursor();
+} else {
+    $ctAcl = $centreon->user->access->getContactAclConf(
+        ['fields' => ['contact_id', 'contact_alias'], 'get_row' => 'contact_alias', 'keys' => ['contact_id'], 'order' => ['contact_alias']]
+    );
+    foreach ($ctAcl as $ctId => $ctAlias) {
+        $contact[$ctId] = $ctAlias;
+    }
 }
-$DBRESULT->closeCursor();
 
 // Object init
 $mediaObj       = new CentreonMedia($pearDB);
@@ -57,6 +66,28 @@ $style = 'one';
 
 $groups = "''";
 $contactId = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
+
+// A miss on the list above is either a deleted contact or one outside the
+// user's scope; only an admin's list is exhaustive enough to rule the
+// second out. Same contract as the contact group notification view.
+$contactRefused = false;
+$contactMissing = false;
+if ($contactId && ! array_key_exists($contactId, $contact)) {
+    $contactExists = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
+        'SELECT 1 FROM contact WHERE contact_id = :contactId',
+        Adaptation\Database\Connection\Collection\QueryParameters::create([
+            Adaptation\Database\Connection\ValueObject\QueryParameter::int('contactId', $contactId),
+        ])
+    );
+    Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
+        $contactExists
+            ? 'Notification view: contact outside the access scope'
+            : 'Notification view: unknown contact requested',
+        ['contact_id' => $contactId, 'user_id' => $centreon->user->get_id()]
+    );
+    $contactId = 0;
+    $contactExists ? $contactRefused = true : $contactMissing = true;
+}
 
 $formData = ['contact' => $contactId];
 
@@ -128,7 +159,13 @@ $labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('msgSelect', _('Please select a user in order to view his notifications'));
+$msgSelect = _('Please select a user in order to view his notifications');
+if ($contactRefused) {
+    $msgSelect = _('This contact is not within your access groups');
+} elseif ($contactMissing) {
+    $msgSelect = _('This contact no longer exists');
+}
+$tpl->assign('msgSelect', $msgSelect);
 $tpl->assign('p', $p);
 $tpl->assign('contact', $contactId);
 $tpl->assign('labels', $labels);
