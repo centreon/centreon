@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 require_once realpath(__DIR__ . '/../../../../../../config/centreon.config.php');
 
 require_once __DIR__ . '/argumentsXmlFunction.php';
@@ -29,6 +32,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreonXML.class.php';
 // Get session
 require_once _CENTREON_PATH_ . 'www/class/centreonSession.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreon.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonACL.class.php';
 
 if (! isset($_SESSION['centreon'])) {
     CentreonSession::start(1);
@@ -38,6 +42,22 @@ if (isset($_SESSION['centreon'])) {
     $oreon = $_SESSION['centreon'];
 } else {
     exit;
+}
+
+// The endpoint hands back persisted command arguments for the ids it is given,
+// so reaching one of the three pages that embed the form is the minimum. The
+// form is included by formService.php (60201 services by host, 60202 by host
+// group) and by formServiceTemplateModel.php (60206).
+if (! $oreon->user->admin) {
+    $access = $oreon->user->access;
+    $reachesForm = $access !== null
+        && ($access->page(60201) !== 0 || $access->page(60202) !== 0 || $access->page(60206) !== 0);
+
+    if (! $reachesForm) {
+        http_response_code(403);
+
+        exit;
+    }
 }
 
 // Get language
@@ -65,6 +85,57 @@ if (isset($_GET['cmdId'], $_GET['svcId'], $_GET['svcTplId'], $_GET['o'])) {
     $svcId = CentreonDB::escape($_GET['svcId']);
     $svcTplId = CentreonDB::escape($_GET['svcTplId']);
     $o = CentreonDB::escape($_GET['o']);
+
+    // Page access alone would let any id be probed, so the service is also
+    // checked against the caller ACL. Templates are skipped deliberately:
+    // service_register = '0' rows carry no centreon_acl entry of their own,
+    // and the template chain is only reachable through the form the page
+    // check above already gates.
+    if ((int) $svcId !== 0 && ! $oreon->user->admin) {
+        $isMonitoredService = (bool) $db->fetchOne(
+            <<<'SQL'
+                SELECT 1 FROM `service`
+                WHERE service_id = :svcId AND service_register = '1'
+                LIMIT 1
+                SQL,
+            QueryParameters::create([QueryParameter::int('svcId', (int) $svcId)])
+        );
+
+        if ($isMonitoredService) {
+            $groupIds = array_values(array_filter(array_map(
+                'intval',
+                array_keys($oreon->user->access->getAccessGroups())
+            )));
+
+            $isGranted = false;
+            if ($groupIds !== []) {
+                $aclDbName       = $db->getConnectionConfig()->getDatabaseNameRealTime();
+                $aclPlaceholders = [];
+                $aclParameters   = [QueryParameter::int('svcId', (int) $svcId)];
+                foreach ($groupIds as $index => $groupId) {
+                    $placeholder       = 'acl_gid' . $index;
+                    $aclPlaceholders[] = ':' . $placeholder;
+                    $aclParameters[]   = QueryParameter::int($placeholder, $groupId);
+                }
+                $aclIn = implode(', ', $aclPlaceholders);
+
+                $isGranted = (bool) $db->fetchOne(
+                    <<<SQL
+                        SELECT 1 FROM `{$aclDbName}`.centreon_acl
+                        WHERE service_id = :svcId AND group_id IN ({$aclIn})
+                        LIMIT 1
+                        SQL,
+                    QueryParameters::create($aclParameters)
+                );
+            }
+
+            if (! $isGranted) {
+                http_response_code(403);
+
+                exit;
+            }
+        }
+    }
 
     $tab = [];
     if (! $cmdId && $svcTplId) {
