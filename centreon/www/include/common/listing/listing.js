@@ -772,11 +772,25 @@ function CentreonListing(config) {
 
                 var httpStatus = xhr && xhr.status;
 
-                // A malformed body on a 200 is how a fatal PHP error reaches us —
-                // typically an HTML page under our JSON content type. Nothing on the
-                // next tick will change that, so report it even on a silent refresh
-                // rather than leave stale rows passing for current ones.
-                if (status === 'parsererror' || (httpStatus >= 400 && httpStatus < 500 && httpStatus !== 401 && httpStatus !== 403)) {
+                // Four answers we cannot render, all reported even on a silent
+                // refresh rather than leave stale rows passing for current ones:
+                //  - a body jQuery cannot parse, which is how a fatal PHP error
+                //    reaches us — an HTML page under our JSON content type;
+                //  - any 4xx other than the 401/403 handled below: a rejected
+                //    filter, a vanished endpoint;
+                //  - a 5xx, which every endpoint here emits as jsonError(500);
+                //  - status 0, the browser's way of saying the request never
+                //    completed (network down, navigation away, blocked).
+                // The last two can clear on their own, but the auto-refresh is
+                // stopped all the same: a table that keeps redrawing the same aged
+                // rows every 15s is indistinguishable from a current one, and the
+                // toast would repeat at every tick.
+                if (
+                    status === 'parsererror'
+                    || (httpStatus >= 400 && httpStatus < 500 && httpStatus !== 401 && httpStatus !== 403)
+                    || httpStatus >= 500
+                    || httpStatus === 0
+                ) {
                     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
                     clToast(clListingLabel('requestRejected', 'The listing could not be loaded — please reload the page.'), 'error');
 

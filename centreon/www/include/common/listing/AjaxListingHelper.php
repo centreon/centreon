@@ -22,6 +22,8 @@
 declare(strict_types=1);
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
@@ -272,6 +274,31 @@ class AjaxListingHelper
     }
 
     /**
+     * Open a real-time connection that fails by throwing.
+     *
+     * `new CentreonDB('centstorage')` cannot be caught: under a web SAPI its
+     * constructor prints an HTML error page and exits, so a catch around it never
+     * runs and the caller emits HTML under a JSON content type. Building the
+     * config here and going through the factory turns an unreachable centstorage
+     * into a ConnectionException the caller can degrade on.
+     *
+     * @throws ConnectionException
+     *
+     * @return CentreonDB
+     */
+    public static function realtimeConnection(): CentreonDB
+    {
+        return CentreonDB::connectToCentreonStorageDb(new ConnectionConfig(
+            host: hostCentstorage,
+            user: user,
+            password: password,
+            databaseNameConfiguration: dbcstg,
+            databaseNameRealTime: dbcstg,
+            port: port ?? 3306
+        ));
+    }
+
+    /**
      * Log a toggle action (enable/disable) to the audit log.
      * Uses direct SQL to avoid dependencies on CentreonLogAction.
      *
@@ -283,7 +310,7 @@ class AjaxListingHelper
     public function logToggleAction(string $objectType, int $objectId, string $objectName, string $actionType): void
     {
         try {
-            $storageDb = new CentreonDB('centstorage');
+            $storageDb = self::realtimeConnection();
 
             // Skip when audit logging is disabled in the configuration. false means
             // the row is missing, which is not the same answer as "disabled" and must

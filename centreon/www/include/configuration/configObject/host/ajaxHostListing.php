@@ -229,7 +229,7 @@ try {
         $rtmUnavailable = false;
         try {
             $rtIn = AjaxListingHelper::buildIntInClause($hostIds, 'rid');
-            $rtRows = (new CentreonDB('centstorage'))->fetchAllAssociative(
+            $rtRows = AjaxListingHelper::realtimeConnection()->fetchAllAssociative(
                 <<<SQL
                     SELECT id AS host_id, status AS state, acknowledged, in_downtime, last_check, output, last_status_change
                     FROM resources
@@ -252,12 +252,12 @@ try {
             // a "centstorage unavailable" label and regress silently — it belongs in
             // the endpoint's 500 handler.
             //
-            // This covers a reachable centstorage answering badly: `resources`
-            // missing without unified_sql, a denied grant, a schema drift. It does
-            // NOT cover an unreachable one: CentreonDB's constructor prints an HTML
-            // error page and exits under a web SAPI instead of throwing, which no
-            // catch here can intercept. The client sees that as a parse error and
-            // reports it — see the fetch error handler in listing.js.
+            // Covers both a reachable centstorage answering badly — `resources`
+            // missing without unified_sql, a denied grant, a schema drift — and an
+            // unreachable one, since realtimeConnection() goes through the factory
+            // that wraps the failure instead of `new CentreonDB('centstorage')`,
+            // whose constructor prints an HTML error page and exits under a web
+            // SAPI, leaving nothing to catch and HTML under our JSON content type.
             Logger::create(LogChannelEnum::WEB)->error(
                 'AJAX listing: real-time host status unavailable, listing rendered without it',
                 ['exception' => $exception]
