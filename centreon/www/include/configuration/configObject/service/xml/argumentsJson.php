@@ -253,7 +253,11 @@ try {
     header('Pragma: no-cache');
     header('Expires: 0');
     header('Cache-Control: no-cache, must-revalidate');
-    echo json_encode(['args' => $args], JSON_THROW_ON_ERROR);
+    // JSON_INVALID_UTF8_SUBSTITUTE like AjaxListingHelper::jsonResponse(): $args
+    // carries raw macro descriptions and command arguments, and one latin-1 byte
+    // in them would throw, answer 500, and leave the form's argument fields
+    // disabled by the error handler until the row is fixed in SQL.
+    echo json_encode(['args' => $args], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'Service form: failed to fetch the command arguments',
