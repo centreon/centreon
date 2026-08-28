@@ -1,0 +1,67 @@
+[
+    {
+        "action": "ADD",
+        "object": "HOST",
+        "values": "ro-host;ro-host;127.0.0.3;generic-host;Central;"
+    },
+    {
+        "action": "ADD",
+        "object": "SERVICE",
+        "values": "ro-host;ro-service;Ping-LAN"
+    },
+    {
+        "action": "ADD",
+        "object": "SG",
+        "values": "ro-service-group;ro-service-group"
+    },
+    {
+        "action": "ADD",
+        "object": "CONTACT",
+        "values": "services-ro-user;services-ro-user;services-ro-user@centreon.test;Centreon!2021User;0;1;en_US;local"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLGROUP",
+        "values": "services-ro-ACLGROUP;services-ro-ACLGROUP"
+    },
+    {
+        "action": "SETCONTACT",
+        "object": "ACLGROUP",
+        "values": "services-ro-ACLGROUP;services-ro-user"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLMENU",
+        "values": "services-ro-ACLMENU;services-ro-ACLMENU"
+    },
+    {
+        "action": "GRANTRO",
+        "object": "ACLMENU",
+        "values": "services-ro-ACLMENU;1;Configuration"
+    },
+    {
+        "action": "ADDMENU",
+        "object": "ACLGROUP",
+        "values": "services-ro-ACLGROUP;services-ro-ACLMENU"
+    },
+    {
+        "action": "ADD",
+        "object": "ACLRESOURCE",
+        "values": "name=services-ro-ACLRESOURCE;acl_group=services-ro-ACLGROUP"
+    },
+    {
+        "action": "ADDRESOURCE",
+        "object": "ACLGROUP",
+        "values": "services-ro-ACLGROUP;name=services-ro-ACLRESOURCE"
+    },
+    {
+        "action": "GRANT_HOST",
+        "object": "ACLRESOURCE",
+        "values": "name=services-ro-ACLRESOURCE;ro-host"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL",
+        "values": ""
+    }
+]
