@@ -6,15 +6,14 @@ export const labelStarOnGithub = 'Star on GitHub';
 export const labelStarCentreonOnGithub = 'Star centreon/centreon on GitHub';
 
 export const labelProjectAndContributors = 'Project & contributors';
-export const labelProjectLeaders = 'Project leaders';
-export const labelManyThanksToAllDevelopers =
-  'Many thanks to all developers & contributors.';
-export const labelSeeFullListOnGithub = 'See the full list on GitHub';
+export const labelProjectLeadersWithCount =
+  'Project leaders <count>({{total}})</count>';
+export const labelContributorsNotice =
+  'Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>';
 
 export const labelSecurity = 'Security';
-export const labelManyThanksToAllContributorsToTheSecurity =
-  'Many thanks to everyone who responsibly disclosed and helped fix security issues.';
-export const labelReportAVulnerability = 'Report a vulnerability';
+export const labelSecurityNotice =
+  'Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>';
 
 export const labelGetMoreFromCentreon = 'Get more from Centreon';
 

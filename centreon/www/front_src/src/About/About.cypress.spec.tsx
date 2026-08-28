@@ -6,7 +6,9 @@ import {
 } from '@centreon/ui-context';
 
 import { renderHook } from '@testing-library/react';
+import i18next from 'i18next';
 import { createStore, Provider, useAtomValue } from 'jotai';
+import { initReactI18next } from 'react-i18next';
 
 import { PlatformVersions } from '../api/models';
 import About from './About';
@@ -52,6 +54,13 @@ const mountComponent = ({
 
 describe('About page', () => {
   beforeEach(() => {
+    // Trans needs an i18next instance to resolve the tags embedded in the
+    // labels. Without resources the keys are returned as-is, in English.
+    i18next.use(initReactI18next).init({
+      lng: 'en',
+      resources: {}
+    });
+
     cy.clock(new Date(2021, 1, 1).getTime());
     cy.document().then((doc) => doc.documentElement.classList.remove('dark'));
   });

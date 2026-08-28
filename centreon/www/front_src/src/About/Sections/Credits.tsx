@@ -1,10 +1,9 @@
 import type { ReactElement } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans } from 'react-i18next';
 
 import {
-  labelManyThanksToAllDevelopers,
-  labelProjectLeaders,
-  labelSeeFullListOnGithub
+  labelContributorsNotice,
+  labelProjectLeadersWithCount
 } from '../translatedLabels';
 
 export const projectLeaders = ['Julien Mathis', 'Romain Le Merlus'];
@@ -13,15 +12,16 @@ const contributorsGraphUrl =
   'https://github.com/centreon/centreon/graphs/contributors';
 
 const Credits = (): ReactElement => {
-  const { t } = useTranslation();
-
   return (
     <div>
       <p className="mb-2 font-bold text-text-primary">
-        {t(labelProjectLeaders)}{' '}
-        <span className="font-normal text-text-secondary">
-          ({projectLeaders.length})
-        </span>
+        <Trans
+          components={{
+            count: <span className="font-normal text-text-secondary" />
+          }}
+          defaults={labelProjectLeadersWithCount}
+          values={{ total: projectLeaders.length }}
+        />
       </p>
       <div className="mb-2 flex flex-wrap items-center gap-2 text-text-secondary">
         {projectLeaders.map((name, index) => (
@@ -32,15 +32,20 @@ const Credits = (): ReactElement => {
         ))}
       </div>
       <p className="text-sm">
-        {t(labelManyThanksToAllDevelopers)}{' '}
-        <a
-          className="text-primary-main hover:underline"
-          href={contributorsGraphUrl}
-          rel="noreferrer noopener"
-          target="_blank"
-        >
-          {t(labelSeeFullListOnGithub)} ↗
-        </a>
+        <Trans
+          components={{
+            contributors: (
+              // biome-ignore lint/a11y/useAnchorContent: Trans fills in the link text
+              <a
+                className="text-primary-main hover:underline"
+                href={contributorsGraphUrl}
+                rel="noreferrer noopener"
+                target="_blank"
+              />
+            )
+          }}
+          defaults={labelContributorsNotice}
+        />
       </p>
     </div>
   );

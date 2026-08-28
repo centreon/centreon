@@ -1185,12 +1185,12 @@ msgid "Made with care by the Centreon team & community"
 msgstr "Conçu avec soin par l'équipe et la communauté Centreon"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Many thanks to all developers & contributors."
-msgstr "Un grand merci à tous les développeurs et contributeurs."
+msgid "Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>"
+msgstr "Un grand merci à tous les développeurs et contributeurs. <contributors>Voir la liste complète sur GitHub ↗</contributors>"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues."
-msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger."
+msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>"
+msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger. <policy>Signaler une vulnérabilité ↗</policy>"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"
@@ -1214,8 +1214,8 @@ msgid "Project & contributors"
 msgstr "Projet et contributeurs"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Report a vulnerability"
-msgstr "Signaler une vulnérabilité"
+msgid "Project leaders <count>({{total}})</count>"
+msgstr "Responsables du projet <count>({{total}})</count>"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Scaling beyond open source?"
@@ -1224,10 +1224,6 @@ msgstr "Besoin d'aller plus loin que l'open source ?"
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Security"
 msgstr "Sécurité"
-
-#: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "See the full list on GitHub"
-msgstr "Voir la liste complète sur GitHub"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Setup, configuration and 700+ Monitoring Connectors."
