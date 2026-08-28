@@ -96,8 +96,8 @@ try {
     }
 
     // A user filter narrows the logs to the contacts whose name or alias
-    // matches. No match must yield no row, not "no filter" — hence the
-    // impossible -1 id.
+    // matches. No match means the result is empty by construction: answer
+    // right away instead of running the log queries for nothing.
     if ($searchUser !== '') {
         $contactIds = $pearDB->fetchFirstColumn(
             <<<'SQL'
@@ -112,7 +112,11 @@ try {
             ])
         );
 
-        $contactIds = $contactIds === [] ? [-1] : array_map('intval', $contactIds);
+        if ($contactIds === []) {
+            $helper->jsonResponse([], 0, $num, $limit);
+        }
+
+        $contactIds = array_map('intval', $contactIds);
 
         $placeholders = [];
         foreach ($contactIds as $index => $contactId) {
