@@ -80,11 +80,7 @@ final class LoggerUpgrade
 
     public function warning(string $version, string $message, ?\Throwable $exception = null): void
     {
-        $this->write(
-            LogLevel::WARNING,
-            $message,
-            $this->versionContext('upgrade.warning', 'warning', $version, $exception)
-        );
+        $this->write(LogLevel::WARNING, $message, $this->versionContext('upgrade.warning', 'warning', $version, $exception));
     }
 
     public function error(string $version, string $message, ?\Throwable $exception = null): void
