@@ -427,6 +427,9 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
         $skippedNames = [];
         for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
+            // Reset per copy: after a skipped name, a stale id from the previous
+            // iteration would replay the ACL update below for the wrong copy.
+            $maxId = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
                 if ($key2 == 'host_name') {
@@ -548,9 +551,9 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         }
                         multipleServiceInDB($serviceArr, $serviceNbr, $hostInf, 0);
                     } else {
-                        // Host Template -> Link to the existing Service Template List. Adding the
-                        // host branch's COUNT(*) > 1 test on top of this insert, as the code did
-                        // before, relates an already-shared service a second time.
+                        // Host Template -> Link to the existing Service Template List. Do not
+                        // reintroduce the host branch's COUNT(*) > 1 insert before this loop: a
+                        // service template shared by several hosts would be related twice.
                         $svcTplStatement = $pearDB->prepare('SELECT DISTINCT service_service_id FROM host_service_relation WHERE host_host_id = :hostId');
                         $svcTplStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
                         $svcTplStatement->execute();
@@ -779,10 +782,9 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                 // Collected, not logged here: $dupCount has no server-side ceiling, so
                 // a forged dupNbr would turn one record per name into a disk-write
                 // amplifier — a logger and a file handle each time round.
-                $skippedNames[] = $hostName;
+                $skippedNames[] = $hostName ?? '(unnamed)';
             }
-            // if all duplication names are already used, next value is never set
-            if (isset($maxId)) {
+            if ($maxId !== null) {
                 $centreon->user->access->updateACL([
                     'type' => 'HOST',
                     'id' => $maxId,
