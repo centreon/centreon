@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -94,6 +97,71 @@ $hgs = $acl->getHostGroupAclConf(null, 'broker');
 $aclHostString = $acl->getHostsString('ID', $dbmon);
 $aclPollerString = $acl->getPollerString();
 
+/**
+ * Narrow a selection to the hosts the caller can see, once page-level write
+ * access is established.
+ *
+ * The topology check upstream admits read-only access to this page, and the
+ * branches below took their ids straight from the request, gated by the CSRF
+ * token alone. Every path that writes must therefore route its selection
+ * through here first — see the single call site above the switch.
+ *
+ * Returns the granted subset, so a selection carrying a mix acts on the allowed
+ * part rather than failing whole: one denied id does not cancel the rest.
+ *
+ * Reads $acl, $centreon, $dbmon and $p from the global scope; $p must hold this
+ * page's topology id, since the write check is $acl->page($p).
+ *
+ * @param array<int, mixed> $selection Host ids as keys, as getSelectOption() returns
+ *
+ * @return array<int, mixed>
+ */
+function keepWritableHosts(array $selection): array
+{
+    global $acl, $dbmon, $centreon, $p;
+
+    if ($selection === []) {
+        return [];
+    }
+
+    if ($acl->page($p) != 1) {
+        Logger::create(LogChannelEnum::WEB)->warning(
+            'Hosts page: bulk action refused, no write access',
+            ['userId' => (int) $centreon->user->get_id(), 'pageId' => $p]
+        );
+
+        return [];
+    }
+
+    if ($centreon->user->admin) {
+        return $selection;
+    }
+
+    $granted = array_flip(array_filter(array_map(
+        'intval',
+        explode(',', (string) $acl->getHostsString('ID', $dbmon, false))
+    )));
+    $writable = array_intersect_key($selection, $granted);
+
+    if (count($writable) !== count($selection)) {
+        Logger::create(LogChannelEnum::WEB)->warning(
+            'Hosts page: bulk action narrowed to the caller ACL',
+            [
+                'userId' => (int) $centreon->user->get_id(),
+                'submitted' => count($selection),
+                'granted' => count($writable),
+            ]
+        );
+    }
+
+    return $writable;
+}
+
+// formHost.php runs its mass-change loop on the presence of the submitMC field
+// rather than on $o, so a request declaring any other action still reaches it.
+// Filtering once here covers every branch instead of each one guarding itself.
+$select = keepWritableHosts(is_array($select) ? $select : []);
+
 switch ($o) {
     case HOST_ADD:
     case HOST_WATCH:
@@ -105,7 +173,9 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostInDB($host_id);
+            // Same guard as the bulk branches: this one took the id straight
+            // from the request too.
+            enableHostInDB(null, keepWritableHosts($host_id ? [$host_id => '1'] : []));
         } else {
             unvalidFormMessage();
         }
@@ -115,7 +185,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            enableHostInDB(null, $select ?? []);
+            enableHostInDB(null, $select);
         } else {
             unvalidFormMessage();
         }
@@ -125,7 +195,9 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostInDB($host_id);
+            // Same guard as the bulk branches: this one took the id straight
+            // from the request too.
+            disableHostInDB(null, keepWritableHosts($host_id ? [$host_id => '1'] : []));
         } else {
             unvalidFormMessage();
         }
@@ -135,7 +207,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            disableHostInDB(null, $select ?? []);
+            disableHostInDB(null, $select);
         } else {
             unvalidFormMessage();
         }
@@ -145,7 +217,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            multipleHostInDB($select ?? [], $dupNbr);
+            multipleHostInDB($select, $dupNbr);
         } else {
             unvalidFormMessage();
         }
@@ -158,7 +230,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            deleteHostInApi(hosts: is_array($select) ? array_keys($select) : []);
+            deleteHostInApi(hosts: array_keys($select));
         } else {
             unvalidFormMessage();
         }
@@ -168,7 +240,7 @@ switch ($o) {
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
-            applytpl(array_keys($select) ?? []);
+            applytpl(array_keys($select));
         } else {
             unvalidFormMessage();
         }
