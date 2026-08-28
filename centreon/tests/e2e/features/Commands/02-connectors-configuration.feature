@@ -70,7 +70,7 @@ Feature: Configuration of a connector
   @MON-206501
   Scenario: A stored page past the end falls back to a page that holds rows
     When the listing is opened on a page that no longer exists
-    Then the first page is displayed with its rows
+    Then a page holding rows is displayed
 
   @MON-160511
   Scenario: Delete one existing connector

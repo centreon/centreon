@@ -133,6 +133,16 @@ const searchListing = (term: string): void => {
   cy.wait('@listConnectors');
 };
 
+/**
+ * Search, and alias the row count the endpoint itself reports. The listing
+ * auto-refreshes every 30s, so a count read from the tbody can be taken from a
+ * table that is about to be replaced — its() does not retry and fails detached.
+ */
+const searchListingAndAliasTotal = (term: string, alias: string): void => {
+  cy.getIframeBody().find('#clSearchInput').clear().type(term);
+  cy.wait('@listConnectors').its('response.body.total').as(alias);
+};
+
 const expectOnlyRowListed = (name: string): void => {
   cy.getIframeBody().find('#clTableBody tr').should('have.length', 1);
   cy.getIframeBody()
@@ -288,17 +298,10 @@ When('the user duplicates a connector three times from the listing', () => {
   // Counted, not pinned on fixed suffixes: copy() walks the suffix up to the
   // first free name, so a retried attempt would create _4.._6 and a hardcoded
   // "_4 must not exist" would then fail on the retry instead of on the bug.
-  searchListing(data.connectorForSearch.name);
-  // The tbody is only blanked on a first load, so the previous rows are still on
-  // screen while the filtered response is in flight. Wait — retryably — for a row
-  // the filter removes to be gone, or the count below freezes the stale one.
-  cy.getIframeBody()
-    .find('#clTableBody')
-    .should('not.contain', data.connectorUpdated.name);
-  cy.getIframeBody()
-    .find('#clTableBody tr')
-    .its('length')
-    .as('rowsBeforeDuplication');
+  searchListingAndAliasTotal(
+    data.connectorForSearch.name,
+    'totalBeforeDuplication'
+  );
   selectRowAndRunBulkAction(
     data.connectorForSearch.name,
     'm',
@@ -309,13 +312,16 @@ When('the user duplicates a connector three times from the listing', () => {
 
 Then('the three copies are listed', () => {
   openConnectorsListing();
-  searchListing(data.connectorForSearch.name);
+  searchListingAndAliasTotal(
+    data.connectorForSearch.name,
+    'totalAfterDuplication'
+  );
   // Exactly three: the field carries 1 by default, so a batch that ignored it
   // would land on +1, and one that read it twice on +6.
-  cy.get('@rowsBeforeDuplication').then((before) => {
-    cy.getIframeBody()
-      .find('#clTableBody tr')
-      .should('have.length', Number(before) + 3);
+  cy.get('@totalBeforeDuplication').then((before) => {
+    cy.get('@totalAfterDuplication').then((after) => {
+      expect(Number(after)).to.equal(Number(before) + 3);
+    });
   });
 });
 
@@ -366,12 +372,14 @@ When('the listing is opened on a page that no longer exists', () => {
   });
 });
 
-Then('the first page is displayed with its rows', () => {
+Then('a page holding rows is displayed', () => {
   cy.getIframeBody().find('#clTableBody td').should('not.contain', 'Loading');
+  // Only that rows came back. Which row lands on the clamped page depends on how
+  // many exist, so naming one would assert the arithmetic, not the clamp — and
+  // the bug being pinned rendered an empty table.
   cy.getIframeBody()
-    .find('#clTableBody')
-    .contains('a', listingRowAnchor(data.connectorForSearch.name))
-    .should('exist');
+    .find('#clTableBody tr')
+    .should('have.length.greaterThan', 0);
 });
 
 When('the user deletes a connector', () => {
