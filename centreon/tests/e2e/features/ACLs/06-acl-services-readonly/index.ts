@@ -46,7 +46,7 @@ Given('a read-only user is logged in', () => {
 
 When('the read-only user opens the service groups listing', () => {
   cy.visit(PAGES.configuration.servicesGroupsLegacy);
-  cy.wait('@getServiceGroups').as('serviceGroupsListing');
+  cy.wait('@getServiceGroups');
 });
 
 When('the read-only user opens the services by host listing', () => {
@@ -107,8 +107,13 @@ Then('every row holds as many cells as the header holds columns', () => {
 When('the read-only user posts a toggle for the listed service', () => {
   // The UI hides the control; this checks the endpoint refuses it too, which is
   // the half of the feature title the rendering assertions cannot cover.
-  cy.wait('@servicesListing').then((interception) => {
-    const token = String(interception.response?.body?.centreon_token);
+  // cy.get, not cy.wait: the alias was created with .as() on a cy.wait, so it
+  // names a command result, not a route — cy.wait would reject it outright.
+  cy.get('@servicesListing').then((interception: unknown) => {
+    const token = String(
+      (interception as { response?: { body?: { centreon_token?: string } } })
+        .response?.body?.centreon_token
+    );
     cy.requestOnDatabase({
       database: 'centreon',
       query: `SELECT service_id FROM service WHERE service_description = '${roService}' AND service_register = '1'`

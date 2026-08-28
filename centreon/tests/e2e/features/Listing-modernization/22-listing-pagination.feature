@@ -40,8 +40,8 @@ Feature: The migrated listings paginate on a real total
   # over a derived table of (service, host) pairs, and the ACL join repeats a
   # pair per access group. Service groups cannot reproduce it.
   # Cloud: identical
-  Scenario: A service on several hosts is counted once per host
-    Given a service is attached to two hosts
+  Scenario: Services on several hosts are counted once per host
+    Given services are attached to two hosts each
     When the user opens the services by host listing at ten per page
     Then the total counts the service once per host it is attached to
     And the last page of the services by host listing is not empty

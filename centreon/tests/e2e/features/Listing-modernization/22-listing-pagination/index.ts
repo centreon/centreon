@@ -13,7 +13,10 @@ const pageSize = 10;
 // leaves the second row behind a page the user cannot reach.
 const sharedHostA = 'pg_host_a';
 const sharedHostB = 'pg_host_b';
-const sharedService = 'pg_shared_service';
+const sharedServicePrefix = 'pg_shared_service_';
+// Six services on two hosts is twelve pairs: more than a page, so the last page
+// is genuinely reachable and the nav arrows are genuinely enabled.
+const sharedServiceCount = 6;
 
 // "1-10 of 42" — the three numbers the count query drives.
 const paginationWindow = (): Cypress.Chainable<Array<number>> =>
@@ -101,22 +104,17 @@ Given('more service groups exist than a single page holds', () => {
   });
 });
 
-Given('a service is attached to two hosts', () => {
-  cy.addHost({
-    hostGroup: '',
-    name: sharedHostA,
-    template: 'generic-host'
-  }).addService({
-    activeCheckEnabled: false,
-    host: sharedHostA,
-    maxCheckAttempts: 1,
-    name: sharedService,
-    template: 'Ping-LAN'
-  });
-  cy.addHost({
-    hostGroup: '',
-    name: sharedHostB,
-    template: 'generic-host'
+Given('services are attached to two hosts each', () => {
+  cy.addHost({ hostGroup: '', name: sharedHostA, template: 'generic-host' });
+  cy.addHost({ hostGroup: '', name: sharedHostB, template: 'generic-host' });
+  Cypress._.range(sharedServiceCount).forEach((index) => {
+    cy.addService({
+      activeCheckEnabled: false,
+      host: sharedHostA,
+      maxCheckAttempts: 1,
+      name: `${sharedServicePrefix}${index}`,
+      template: 'Ping-LAN'
+    });
   });
   // CLAPI attaches a service to a single host; the second link is what makes one
   // service render two rows, so it is inserted directly.
@@ -126,7 +124,7 @@ Given('a service is attached to two hosts', () => {
             SELECT h.host_id, s.service_id
             FROM host h, service s
             WHERE h.host_name = '${sharedHostB}'
-              AND s.service_description = '${sharedService}'
+              AND s.service_description LIKE '${sharedServicePrefix}%'
               AND s.service_register = '1'`
   });
 });
@@ -227,17 +225,25 @@ Then('the total counts the service once per host it is attached to', () => {
   // This listing counts over a derived table of (service, host) pairs. Counting
   // distinct service ids instead reported one row for a shared service and left
   // the extra pairs behind an unreachable page.
+  // Same predicate the endpoint applies with no filter set: host_register,
+  // host_activate and service_register — and NOT service_activate, which it only
+  // constrains when the status filter is used.
   cy.requestOnDatabase({
     database: 'centreon',
     query: `SELECT COUNT(*) AS pairs
             FROM host_service_relation hsr
             INNER JOIN service s ON s.service_id = hsr.service_service_id
             INNER JOIN host h ON h.host_id = hsr.host_host_id
-            WHERE s.service_register = '1'
-              AND s.service_activate = '1'
-              AND h.host_register = '1'`
+            WHERE h.host_register = '1'
+              AND h.host_activate = '1'
+              AND s.service_register = '1'`
   }).then(([rows]) => {
     const expectedPairs = Number(rows[0].pairs);
+    // Floor: an INSERT that matched nothing would leave oracle and display in
+    // agreement on a case that does not exist.
+    expect(expectedPairs, 'seeded pairs reached the database').to.be.at.least(
+      sharedServiceCount * 2
+    );
     paginationWindow().then(([, , total]) => {
       expect(total, 'reported pair total').to.equal(expectedPairs);
     });
@@ -246,6 +252,12 @@ Then('the total counts the service once per host it is attached to', () => {
 
 Then('the last page of the services by host listing is not empty', () => {
   paginationWindow().then(([, , total]) => {
+    // Without more rows than a page, "Last page" is a disabled <span>: the click
+    // would be a no-op, the wait would be satisfied by the 15s auto-refresh, and
+    // every assertion below would hold without a page ever being turned.
+    expect(total, 'pairs span more than one page').to.be.greaterThan(pageSize);
+    navControl('Last page').should('not.have.class', 'cl-page-nav--disabled');
+
     const lastPageIndex = Math.ceil(total / pageSize) - 1;
     navControl('Last page').click();
     cy.wait('@byHostListing');
