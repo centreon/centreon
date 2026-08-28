@@ -764,9 +764,7 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    // Disable toggles and hide dup inputs for read-only users
-                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
-                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                    optHtml = clStripWriteControls(optHtml);
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -810,8 +808,7 @@ function CentreonListing(config) {
             if (cfg.renderOptions) {
                 var optHtml = cfg.renderOptions(row, self, cfg.writeAccess);
                 if (!cfg.writeAccess) {
-                    optHtml = optHtml.replace(/onchange="[^"]*"/g, '').replace(/<input[^>]*cl-dup-input[^>]*>/g, '');
-                    optHtml = optHtml.replace(/<input type="checkbox"/g, '<input type="checkbox" disabled');
+                    optHtml = clStripWriteControls(optHtml);
                 }
                 tr += '<td class="cl-col-right"><div class="cl-options-cell">' + optHtml + '</div></td>';
             }
@@ -1354,6 +1351,24 @@ function clToast(message, type) {
 function clListingLabel(key, fallback) {
     var l = window.clI18n && window.clI18n.listing;
     return (l && l[key]) || fallback;
+}
+
+// Strip the write-only controls from a rendered options cell. Parsing the
+// fragment beats rewriting it: the duplication input carries an onKeypress
+// holding ">" characters, which a <input[^>]*> regex stops at, so the field
+// survived and read-only users kept seeing it.
+function clStripWriteControls(optHtml) {
+    var holder = document.createElement('div');
+    holder.innerHTML = optHtml;
+    Array.prototype.forEach.call(holder.querySelectorAll('.cl-dup-input'), function (el) {
+        el.parentNode.removeChild(el);
+    });
+    Array.prototype.forEach.call(holder.querySelectorAll('input[type="checkbox"]'), function (el) {
+        el.removeAttribute('onchange');
+        el.setAttribute('disabled', 'disabled');
+    });
+
+    return holder.innerHTML;
 }
 
 function clEscape(str) {
