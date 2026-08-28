@@ -265,6 +265,9 @@ Given('the non-admin user is granted one contact group out of two', () => {
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/contact-group-acl-scope.json'
     );
+  // The Background's admin session is still open, and loginByTypeOfUser goes
+  // through the login form, which never renders while a session is active.
+  cy.logout();
   cy.loginByTypeOfUser({
     jsonName: 'contacts-management-acl-user',
     loginViaApi: false
