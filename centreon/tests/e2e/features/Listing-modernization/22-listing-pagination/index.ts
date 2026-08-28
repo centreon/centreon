@@ -42,11 +42,11 @@ const goToFirstPageOfTen = (): void => {
   cy.wait('@listing');
 };
 
-before(() => {
-  cy.startContainers();
-});
-
 beforeEach(() => {
+  cy.startContainers();
+  // CLAPI needs the v1 token; without it cy.addServiceGroup answers 403 and the
+  // Background seeds nothing. startContainers alone does not set it.
+  cy.setUserTokenApiV1();
   // loginByTypeOfUser waits on this alias internally, whatever loginViaApi says.
   cy.intercept({
     method: 'GET',
@@ -57,12 +57,12 @@ beforeEach(() => {
   cy.intercept('GET', '**/ajaxServiceGroupListing.php*').as('listing');
 });
 
-after(() => {
+afterEach(() => {
   cy.stopContainers();
 });
 
 Given('a user is logged in a Centreon server', () => {
-  cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true });
+  cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
 Given('more service groups exist than a single page holds', () => {
