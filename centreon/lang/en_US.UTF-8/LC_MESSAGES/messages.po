@@ -19999,7 +19999,7 @@ msgstr ""
 
 #: packages/ui/src/Listing/translatedLabels.ts
 msgid "Loading..."
-msgstr ""
+msgstr "Loading..."
 #: unknown
 # msgid "Create new poller"
 # msgstr ""
@@ -20101,3 +20101,211 @@ msgstr "You are about to duplicate <strong>{{ count }} host categories.</strong>
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Add a trap"
+msgstr "Add a trap"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Modify a trap"
+msgstr "Modify a trap"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Add a vendor"
+msgstr "Add a vendor"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Modify a vendor"
+msgstr "Modify a vendor"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Add a trap group"
+msgstr "Add a trap group"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Modify a trap group"
+msgstr "Modify a trap group"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Delete trap"
+msgstr "Delete trap"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Delete traps"
+msgstr "Delete traps"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Duplicate trap"
+msgstr "Duplicate trap"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Duplicate traps"
+msgstr "Duplicate traps"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Delete vendor"
+msgstr "Delete vendor"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Delete vendors"
+msgstr "Delete vendors"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Duplicate vendor"
+msgstr "Duplicate vendor"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Duplicate vendors"
+msgstr "Duplicate vendors"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Delete trap group"
+msgstr "Delete trap group"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Delete trap groups"
+msgstr "Delete trap groups"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Duplicate trap group"
+msgstr "Duplicate trap group"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Duplicate trap groups"
+msgstr "Duplicate trap groups"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to delete the <strong>{{ name }}</strong> trap. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> trap. This action cannot be undone. Do you want to delete it?"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to delete <strong>{{ count }} traps.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} traps.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> trap. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> trap. Do you want to duplicate it?"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to duplicate <strong>{{ count }} traps.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} traps.</strong> Do you want to duplicate them?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to delete the <strong>{{ name }}</strong> vendor. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> vendor. This action cannot be undone. Do you want to delete it?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to delete <strong>{{ count }} vendors.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} vendors.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> vendor. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> vendor. Do you want to duplicate it?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to duplicate <strong>{{ count }} vendors.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} vendors.</strong> Do you want to duplicate them?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to delete the <strong>{{ name }}</strong> trap group. This action cannot be undone. Do you want to delete it?"
+msgstr "You are about to delete the <strong>{{ name }}</strong> trap group. This action cannot be undone. Do you want to delete it?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to delete <strong>{{ count }} trap groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "You are about to delete <strong>{{ count }} trap groups.</strong> This action cannot be undone. Do you want to delete them?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> trap group. Do you want to duplicate it?"
+msgstr "You are about to duplicate the <strong>{{ name }}</strong> trap group. Do you want to duplicate it?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to duplicate <strong>{{ count }} trap groups.</strong> Do you want to duplicate them?"
+msgstr "You are about to duplicate <strong>{{ count }} trap groups.</strong> Do you want to duplicate them?"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Advanced filters"
+msgstr "Advanced filters"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Vendor"
+msgstr "Vendor"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Configure the SNMP traps received and processed by your platform."
+msgstr "Configure the SNMP traps received and processed by your platform."
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Trap vendors"
+msgstr "Trap vendors"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Manage the vendors that group your SNMP trap definitions."
+msgstr "Manage the vendors that group your SNMP trap definitions."
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Trap groups"
+msgstr "Trap groups"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Group SNMP traps together to manage them collectively."
+msgstr "Group SNMP traps together to manage them collectively."
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Select"
+msgstr "Select"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Generate SNMP trap configuration"
+msgstr "Generate SNMP trap configuration"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Generate trap database"
+msgstr "Generate trap database"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Generate database"
+msgstr "Generate database"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Apply & Signal"
+msgstr "Apply & Signal"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Apply configuration"
+msgstr "Apply configuration"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Send signal to centreontrapd"
+msgstr "Send signal to centreontrapd"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Please select at least one action (Generate, Apply or Signal)."
+msgstr "Please select at least one action (Generate, Apply or Signal)."
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Configuration applied"
+msgstr "Configuration applied"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Finished with errors"
+msgstr "Finished with errors"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Poller not allowed"
+msgstr "Poller not allowed"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Trap database generation failed"
+msgstr "Trap database generation failed"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "NOK"
+msgstr "NOK"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Could not create the trap directory"
+msgstr "Could not create the trap directory"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "unknown error"
+msgstr "unknown error"

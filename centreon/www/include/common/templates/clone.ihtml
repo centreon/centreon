@@ -18,11 +18,25 @@
         <hr style='margin:2;'/>
         <div class="clone-cell">
             {foreach from=$cloneSet item=v}
+                {* Each label stays grouped with the field it names: a clone row
+                   carrying several fields wraps onto a second line in the
+                   modernized forms, and a bare label text node would be laid
+                   out apart from its own control.
+
+                   A page sizes one field of the row by declaring
+                   'data-clone-width' => 'xs'|'sm'|'md'|'lg' on the element: it
+                   becomes the width modifier of that field's group, and is
+                   dropped before the control renders so it does not leak into
+                   the markup. *}
+                {assign var=cloneWidth value=$v->getAttribute('data-clone-width')}
+                {$v->removeAttribute('data-clone-width')}
+                <span class="clone-field{if $cloneWidth} clone-field--{$cloneWidth}{/if}">
                 {if $v->isFrozen()}
                     {$v->getLabel()} : {$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{$v->toHtml()}
                 {else}
                     {$v->getLabel()}  {$v->toHtml()}
                 {/if}
+                </span>
             {/foreach}
             {if $isFrozen == 0}
                 <span style="margin-left: 4px;cursor: pointer;">

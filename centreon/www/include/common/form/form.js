@@ -34,6 +34,15 @@ var CentreonForm = (function () {
     /** @private localStorage key used to remember the side panel's last width */
     var SIDE_PANEL_WIDTH_KEY = 'cf_side_panel_width';
 
+    /**
+     * @private Pending timer that resets the panel iframe to about:blank once the
+     * close transition is over. Kept here so reopening the panel can cancel it:
+     * otherwise a save followed by a quick reopen (the listing refreshes and the
+     * user clicks a row within 300ms) lets the stale timer blank the form that
+     * has just been loaded, leaving an open panel with an empty iframe.
+     */
+    var _sidePanelResetTimer = null;
+
     /** @private Read the last resized width from localStorage, if any */
     function getSavedSidePanelWidth() {
         try {
@@ -69,6 +78,25 @@ var CentreonForm = (function () {
 
         if (!titleEl || !frameEl || !overlay || !panel) {
             return;
+        }
+
+        // A close that has not finished its transition still has a pending reset
+        // to about:blank; let it run and it would wipe the URL set just below.
+        if (_sidePanelResetTimer !== null) {
+            clearTimeout(_sidePanelResetTimer);
+            _sidePanelResetTimer = null;
+        }
+
+        // Setting src only swaps the document once the new page has loaded, so the
+        // panel would keep showing the previous object's form in the meantime -
+        // confusing to read, and indistinguishable from the new one being ready.
+        // Empty the current document up front so the panel is blank while loading.
+        try {
+            if (frameEl.contentDocument && frameEl.contentDocument.body) {
+                frameEl.contentDocument.body.innerHTML = '';
+            }
+        } catch (err) {
+            // Cross-origin document: nothing to clear.
         }
 
         titleEl.textContent = title || '';
@@ -107,7 +135,11 @@ var CentreonForm = (function () {
         panel.classList.remove('open');
 
         // Reset iframe after the CSS transition completes (300ms)
-        setTimeout(function () {
+        if (_sidePanelResetTimer !== null) {
+            clearTimeout(_sidePanelResetTimer);
+        }
+        _sidePanelResetTimer = setTimeout(function () {
+            _sidePanelResetTimer = null;
             if (frameEl) {
                 frameEl.src = 'about:blank';
             }
@@ -278,6 +310,10 @@ var CentreonForm = (function () {
         // longer drop them back into the field on blur (which looked inconsistent
         // once a field had been focused). This just guarantees the class is set.
         document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function (input) {
+            // A radio group with more options than a segmented control can hold stays
+            // in the field as plain .md-radio > label pairs. Those labels name the
+            // options, not the field, so they must not become floating labels.
+            if (input.closest('.md-radio')) return;
             var label = input.parentElement.querySelector('label');
             if (label) label.classList.add('cf-label-float');
         });
@@ -489,6 +525,23 @@ var CentreonForm = (function () {
                         }
                     });
                 });
+
+                // A native reset restores the radios, but the segmented button stays
+                // highlighted on the previous choice. Re-read the radios on the next
+                // tick, once the browser has applied the reset (same approach as the
+                // toggle and select2 resets).
+                var firstRadio = _findRadio(base, order[0]);
+                var segForm = firstRadio ? firstRadio.form : null;
+                if (segForm) {
+                    segForm.addEventListener('reset', function () {
+                        setTimeout(function () {
+                            Array.prototype.forEach.call(btns, function (b) {
+                                var r = _findRadio(base, b.getAttribute('data-value'));
+                                b.classList.toggle('active', !!(r && r.checked));
+                            });
+                        }, 0);
+                    });
+                }
 
                 // Reuse the field's float label as the inline segment label, keep help icon
                 // The field's real parameter label = a cf-label-float that is NOT a radio's

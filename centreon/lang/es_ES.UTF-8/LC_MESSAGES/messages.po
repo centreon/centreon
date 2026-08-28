@@ -1092,7 +1092,7 @@ msgstr "Troncos"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Advanced matching behavior"
-msgstr "Modo de correspondencia avanzada"
+msgstr "Comportamiento de correspondencia avanzada"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Advanced matching mode"
@@ -1879,7 +1879,7 @@ msgstr "Mal tamaño: el color debe comenzar con"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Bad OID Format"
-msgstr ""
+msgstr "Formato de OID incorrecto"
 
 #: centreon/src/Centreon/Infrastructure/Monitoring/MonitoringRepositoryRDB.php
 msgid "Bad SQL request"
@@ -2133,7 +2133,7 @@ msgstr "Por OID y host"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "By OID, Host and Service"
-msgstr ""
+msgstr "Por OID, host y servicio"
 
 #: centreon/www/install/menu_translation.php
 msgid "By Service Group"
@@ -2835,7 +2835,7 @@ msgstr "Intervalo de control de purga"
 
 #: centreon/www/install/front_translate.php
 msgid "Clear"
-msgstr ""
+msgstr "Borrar"
 
 #  msgid "Acknowledged by"
 #  msgstr ""
@@ -12296,7 +12296,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Mode"
-msgstr ""
+msgstr "Modo"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Modificaton type"
@@ -19178,7 +19178,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Unique"
-msgstr ""
+msgstr "Único"
 
 #: centreon/www/include/Administration/performance/viewMetrics.php
 #: centreon/www/include/views/virtualMetrics/listVirtualMetrics.php
@@ -25389,7 +25389,7 @@ msgstr ""
 
 #: packages/ui/src/Listing/translatedLabels.ts
 msgid "Loading..."
-msgstr ""
+msgstr "Cargando..."
 
 #: unknown
 # msgid "Create new poller"
@@ -25492,3 +25492,207 @@ msgstr "Está a punto de duplicar <strong>{{ count }} categorías de host</stron
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
 
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Add a trap"
+msgstr "Añadir una trampa SNMP"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Modify a trap"
+msgstr "Editar una trampa SNMP"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Add a vendor"
+msgstr "Añadir un fabricante"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Modify a vendor"
+msgstr "Editar un fabricante"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Add a trap group"
+msgstr "Añadir un grupo de trampas SNMP"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Modify a trap group"
+msgstr "Editar un grupo de trampas SNMP"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Delete trap"
+msgstr "Eliminar trampa SNMP"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Delete traps"
+msgstr "Eliminar trampas SNMP"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Duplicate trap"
+msgstr "Duplicar trampa SNMP"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "Duplicate traps"
+msgstr "Duplicar trampas SNMP"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Delete vendor"
+msgstr "Eliminar fabricante"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Delete vendors"
+msgstr "Eliminar fabricantes"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Duplicate vendor"
+msgstr "Duplicar fabricante"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "Duplicate vendors"
+msgstr "Duplicar fabricantes"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Delete trap group"
+msgstr "Eliminar grupo de trampas SNMP"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Delete trap groups"
+msgstr "Eliminar grupos de trampas SNMP"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Duplicate trap group"
+msgstr "Duplicar grupo de trampas SNMP"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "Duplicate trap groups"
+msgstr "Duplicar grupos de trampas SNMP"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to delete the <strong>{{ name }}</strong> trap. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar la trampa SNMP <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarla?"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to delete <strong>{{ count }} traps.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} trampas SNMP</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlas?"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> trap. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar la trampa SNMP <strong>{{ name }}</strong>. ¿Desea duplicarla?"
+
+#: www/include/configuration/configObject/traps/listTraps.php
+msgid "You are about to duplicate <strong>{{ count }} traps.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} trampas SNMP</strong>. ¿Desea duplicarlas?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to delete the <strong>{{ name }}</strong> vendor. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar el fabricante <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to delete <strong>{{ count }} vendors.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} fabricantes</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlos?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> vendor. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar el fabricante <strong>{{ name }}</strong>. ¿Desea duplicarlo?"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.php
+msgid "You are about to duplicate <strong>{{ count }} vendors.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} fabricantes</strong>. ¿Desea duplicarlos?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to delete the <strong>{{ name }}</strong> trap group. This action cannot be undone. Do you want to delete it?"
+msgstr "Está a punto de eliminar el grupo de trampas SNMP <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlo?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to delete <strong>{{ count }} trap groups.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está a punto de eliminar <strong>{{ count }} grupos de trampas SNMP</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlos?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> trap group. Do you want to duplicate it?"
+msgstr "Está a punto de duplicar el grupo de trampas SNMP <strong>{{ name }}</strong>. ¿Desea duplicarlo?"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.php
+msgid "You are about to duplicate <strong>{{ count }} trap groups.</strong> Do you want to duplicate them?"
+msgstr "Está a punto de duplicar <strong>{{ count }} grupos de trampas SNMP</strong>. ¿Desea duplicarlos?"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Advanced filters"
+msgstr "Filtros avanzados"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Vendor"
+msgstr "Fabricante"
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Configure the SNMP traps received and processed by your platform."
+msgstr "Configure las trampas SNMP recibidas y procesadas por su plataforma."
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Trap vendors"
+msgstr "Fabricantes de trampas SNMP"
+
+#: www/include/configuration/configObject/traps-manufacturer/listMnftr.ihtml
+msgid "Manage the vendors that group your SNMP trap definitions."
+msgstr "Gestione los fabricantes que agrupan sus definiciones de trampas SNMP."
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Trap groups"
+msgstr "Grupos de trampas SNMP"
+
+#: www/include/configuration/configObject/traps-groups/listGroups.ihtml
+msgid "Group SNMP traps together to manage them collectively."
+msgstr "Agrupe las trampas SNMP para gestionarlas de forma colectiva."
+
+#: www/include/configuration/configObject/traps/listTraps.ihtml
+msgid "Select"
+msgstr "Seleccionar"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Generate SNMP trap configuration"
+msgstr "Generar la configuración de trampas SNMP"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Generate trap database"
+msgstr "Generar la base de datos de trampas SNMP"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Generate database"
+msgstr "Generar base de datos"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Apply & Signal"
+msgstr "Aplicar y enviar señal"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Send signal to centreontrapd"
+msgstr "Enviar señal a centreontrapd"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.ihtml
+msgid "Please select at least one action (Generate, Apply or Signal)."
+msgstr "Seleccione al menos una acción (Generar, Aplicar o Enviar señal)."
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Configuration applied"
+msgstr "Configuración aplicada"
+
+#: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+msgid "Finished with errors"
+msgstr "Finalizado con errores"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Poller not allowed"
+msgstr "Colector no autorizado"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Trap database generation failed"
+msgstr "Error al generar la base de datos de trampas SNMP"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "NOK"
+msgstr "NOK"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "Could not create the trap directory"
+msgstr "No se pudo crear el directorio de trampas SNMP"
+
+#: www/include/configuration/configGenerateTraps/xml/generateTrapDb.php
+msgid "unknown error"
+msgstr "error desconocido"

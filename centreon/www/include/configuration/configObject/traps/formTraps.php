@@ -23,6 +23,9 @@ if (! isset($centreon)) {
     exit();
 }
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 function myDecodeTrap($arg)
 {
     return html_entity_decode($arg ?? '', ENT_QUOTES, 'UTF-8');
@@ -36,18 +39,34 @@ function myReplace()
 }
 
 $trap = [];
-$initialValues = [];
-$hServices = [];
 
 $cdata = CentreonData::getInstance();
 $preexecArray = [];
 $mrulesArray = [];
 if (($o == TRAP_MODIFY || $o == TRAP_WATCH) && is_int($trapsId)) {
-    $DBRESULT = $pearDB->query("SELECT * FROM traps WHERE traps_id = '{$trapsId}' LIMIT 1");
-    // Set base value
-    $trap = array_map('myDecodeTrap', $DBRESULT->fetchRow());
-    $trap['severity'] = $trap['severity_id'];
-    $DBRESULT->closeCursor();
+    $trapQuery = <<<'SQL'
+        SELECT * FROM traps WHERE traps_id = :trapsId LIMIT 1
+        SQL;
+
+    try {
+        // An id pointing at no trap leaves $trap empty and the form falls back to
+        // its defaults, instead of mapping over the `false` a missing row returns.
+        $row = $pearDB->fetchAssociative(
+            $trapQuery,
+            QueryParameters::create([QueryParameter::int('trapsId', $trapsId)])
+        );
+        if (is_array($row)) {
+            $trap = array_map('myDecodeTrap', $row);
+            $trap['severity'] = $trap['severity_id'];
+        }
+    } catch (Throwable $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error retrieving the SNMP trap',
+            ['trapsId' => $trapsId],
+            $exception
+        );
+    }
 
     $preexecArray = $trapObj->getPreexecFromTrapId($trapsId);
     $mrulesArray = $trapObj->getMatchingRulesFromTrapId($trapsId);
@@ -70,9 +89,6 @@ $cdata->addJsData('clone-count-matchingrules', count($mrulesArray));
 $attrsText = ['size' => '50'];
 $attrsLongText = ['size' => '120'];
 $attrsTextarea = ['rows' => '10', 'cols' => '120'];
-$attrsAdvSelect = ['style' => 'width: 270px; height: 100px;'];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
-    . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_manufacturer&action=list';
 $attrManufacturer = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $route, 'multiple' => false, 'linkedObject' => 'centreonManufacturer'];
@@ -136,7 +152,6 @@ $form->addElement(
     null,
     ['id' => 'traps_advanced_treatment']
 );
-$form->setDefaults(0);
 
 /* *******************************************************************
  * Three possibilities :    - submit result
@@ -145,7 +160,7 @@ $form->setDefaults(0);
  */
 
 // submit result
-$cbt = $form->addElement('checkbox', 'traps_submit_result_enable', _('Submit result'));
+$form->addElement('checkbox', 'traps_submit_result_enable', _('Submit result'));
 $form->setDefaults(['traps_submit_result_enable' => '1']);
 
 // Schedule svc check forced
@@ -204,19 +219,21 @@ $cloneSetMaching[] = $form->addElement(
     _('Regexp'),
     ['size' => '50', 'id' => 'regexp_#index#', 'value' => '//']
 );
+// Both statuses hold a one-word value, so they take a width step instead of an
+// equal share of their line -- the string and the regexp above need the room.
 $cloneSetMaching[] = $form->addElement(
     'select',
     'rulestatus[#index#]',
     _('Status'),
     [0 => _('OK'), 1 => _('Warning'), 2 => _('Critical'), 3 => _('Unknown')],
-    ['id' => 'rulestatus_#index#', 'type' => 'select-one']
+    ['id' => 'rulestatus_#index#', 'type' => 'select-one', 'data-clone-width' => 'sm']
 );
 $cloneSetMaching[] = $form->addElement(
     'select',
     'ruleseverity[#index#]',
     _('Severity'),
     $severityArr,
-    ['id' => 'ruleseverity_#index#', 'type' => 'select-one']
+    ['id' => 'ruleseverity_#index#', 'type' => 'select-one', 'data-clone-width' => 'sm']
 );
 
 $form->addElement(
@@ -248,7 +265,7 @@ $form->addElement(
 
 $form->addElement('textarea', 'traps_customcode', _('Custom code'), $attrsTextarea);
 
-$form->addElement('select', 'traps_advanced_treatment_default', _('Advanced matching behavior'), [0 => _('If no match, submit default status'), 1 => _('If no match, disable submit'), 2 => _('If match, disable submit')], ['id' => 'traps_advanced_treatment']);
+$form->addElement('select', 'traps_advanced_treatment_default', _('Advanced matching behavior'), [0 => _('If no match, submit default status'), 1 => _('If no match, disable submit'), 2 => _('If match, disable submit')], ['id' => 'traps_advanced_treatment_default']);
 
 $excecution_type[] = $form->createElement('radio', 'traps_exec_interval_type', null, _('None'), '0');
 $excecution_type[] = $form->createElement('radio', 'traps_exec_interval_type', null, _('By OID'), '1');
@@ -266,7 +283,10 @@ $excecution_type[] = $form->createElement(
     _('By OID, Host and Service'),
     '3'
 );
-$form->addGroup($excecution_type, 'traps_exec_interval_type', _('Execution type'), '&nbsp;');
+// No separator: the group keeps its radios (four options, so form.js does not turn it into a
+// segmented control) and the .cf-radio-group flex gap spaces them -- a '&nbsp;' separator would
+// add an anonymous flex item that indents the options wrapping onto a second line.
+$form->addGroup($excecution_type, 'traps_exec_interval_type', _('Execution type'), '');
 $form->setDefaults(['traps_exec_interval_type' => '0']);
 
 $excecution_method[] = $form->createElement('radio', 'traps_exec_method', null, _('Parallel'), '0');
@@ -304,13 +324,6 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 $tpl = SmartyBC::createSmartyTemplate($path);
 $tpl->assign('trap_adv_args', _('Advanced matching rules'));
 
-$tpl->assign(
-    'helpattr',
-    'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, "orange", '
-    . 'TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], WIDTH, -300, '
-    . 'SHADOW, true, TEXTALIGN, "justify"'
-);
-
 // prepare help texts
 $helptext = '';
 include_once 'help.php';
@@ -333,13 +346,13 @@ if ($o == TRAP_WATCH) {
     $form->freeze();
 } elseif ($o == TRAP_MODIFY) {
     // Modify a Command information
-    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
+    $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($trap);
 } elseif ($o == TRAP_ADD) {
     // Add a Command information
-    $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
-    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
+    $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+    $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
 $valid = false;
@@ -381,7 +394,7 @@ if ($valid) {
     $tpl->assign('serviceTxt', _('Linked services'));
     $tpl->assign('serviceTemplateTxt', _('Linked service templates'));
     $tpl->assign('admin', $centreon->user->admin);
-    $tpl->assign('centreon_path', $centreon->optGen['oreon_path']);
+    $tpl->assign('centreon_path', _CENTREON_PATH_);
     $tpl->assign('cloneSet', $cloneSet);
     $tpl->assign('cloneSetMaching', $cloneSetMaching);
     $tpl->assign('preexeccmd_str', _('PREEXEC command'));

@@ -145,6 +145,9 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 //
 $tpl = SmartyBC::createSmartyTemplate($path);
 
+// Needed to include the shared cl-/cf- framework translations (clI18n.ihtml).
+$tpl->assign('centreon_path', _CENTREON_PATH_);
+
 $tpl->assign(
     'helpattr',
     'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, "orange", '

@@ -1,21 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
-import { CreateOrUpdateTrapGroup } from '../common';
-
-const checkFirstTrapGroupFromListing = () => {
-  cy.waitForElementInIframe('#main-content', 'a[href*="id=1"]');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
-  cy.getIframeBody()
-    .find('select[name="o1"]')
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
-    );
-};
+import {
+  CreateOrUpdateTrapGroup,
+  listingTable,
+  listingTableBody
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -31,6 +22,14 @@ beforeEach(() => {
     method: 'GET',
     url: `${INTERCEPTORS.pages.centreon_configuration_trap}&action=list*`
   }).as('listTraps');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.trap_groups_listing
+  }).as('listTrapGroupsAjax');
+});
+
+afterEach(() => {
+  cy.stopContainers();
 });
 
 Given('an admin user is logged in a Centreon server', () => {
@@ -38,30 +37,71 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a trap group is configured', () => {
-  cy.visit(PAGES.configuration.snmpTrapsGroupsLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().contains('a', 'Add').click();
+  cy.openTrapGroupsListing();
+  cy.openTrapsAddForm('input[name="name"]');
   CreateOrUpdateTrapGroup(data.snmpGroup1);
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
+Given('a second trap group is configured', () => {
+  cy.openTrapGroupsListing();
+  cy.openTrapsAddForm('input[name="name"]');
+  CreateOrUpdateTrapGroup(data.snmpGroup2);
+  cy.wait('@getTimeZone');
+  cy.exportConfig();
+});
+
+// Scenario: The trap groups listing loads through the AJAX framework
+When('the user opens the trap groups listing', () => {
+  cy.openTrapGroupsListing();
+  cy.wait('@listTrapGroupsAjax');
+});
+
+Then(
+  'the AJAX listing table is displayed with the configured trap group',
+  () => {
+    cy.get('@listTrapGroupsAjax').its('response.statusCode').should('eq', 200);
+    cy.getIframeBody().find(listingTable).should('exist');
+    cy.getIframeBody()
+      .find(listingTableBody)
+      .contains(data.snmpGroup1.name)
+      .should('exist');
+  }
+);
+
+// Scenario: The search filters the trap groups by name
+When('the user searches for the first trap group', () => {
+  cy.searchInTrapsListing(data.snmpGroup1.name);
+});
+
+Then('only the matching trap group is displayed', () => {
+  cy.getIframeBody()
+    .find(listingTableBody)
+    .contains(data.snmpGroup1.name)
+    .should('exist');
+  cy.getIframeBody()
+    .find(listingTableBody)
+    .contains(data.snmpGroup2.name)
+    .should('not.exist');
+});
+
+// Scenario: Edit one existing trap group
 When('the user changes the properties of a trap group', () => {
-  cy.waitForElementInIframe('#main-content', 'a[href*="id=1"]');
-  cy.getIframeBody().contains(data.snmpGroup1.name).click();
+  cy.openTrapGroupsListing();
+  cy.openTrapsRowForm(data.snmpGroup1.name, 'input[name="name"]');
   CreateOrUpdateTrapGroup(data.snmpGroup2);
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the properties are updated', () => {
-  cy.waitForElementInIframe('#main-content', 'a[href*="id=1"]');
-  cy.getIframeBody().contains(data.snmpGroup2.name).click();
-  cy.waitForElementInIframe('#main-content', 'input[name="name"]');
-  cy.getIframeBody()
+  cy.waitForElementInIframe('#main-content', listingTable);
+  cy.openTrapsRowForm(data.snmpGroup2.name, 'input[name="name"]');
+  cy.getTrapSidePanelBody()
     .find('input[name="name"]')
     .should('have.value', data.snmpGroup2.name);
-  cy.getIframeBody()
+  cy.getTrapSidePanelBody()
     .find('select[id="traps"]')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -75,21 +115,21 @@ Then('the properties are updated', () => {
     });
 });
 
+// Scenario: Duplicate one existing trap group
 When('the user duplicates a trap group', () => {
-  checkFirstTrapGroupFromListing();
-  cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
+  cy.openTrapGroupsListing();
+  cy.runTrapsBulkAction(data.snmpGroup1.name, 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 Then('the a new trap group is created with identical properties', () => {
-  cy.waitForElementInIframe('#main-content', 'a[href*="id=2"]');
-  cy.getIframeBody().contains(`${data.snmpGroup1.name}_1`).click();
-  cy.waitForElementInIframe('#main-content', 'input[name="name"]');
-  cy.getIframeBody()
+  cy.waitForElementInIframe('#main-content', listingTable);
+  cy.openTrapsRowForm(`${data.snmpGroup1.name}_1`, 'input[name="name"]');
+  cy.getTrapSidePanelBody()
     .find('input[name="name"]')
     .should('have.value', `${data.snmpGroup1.name}_1`);
-  cy.getIframeBody()
+  cy.getTrapSidePanelBody()
     .find('select[id="traps"]')
     .find('option:selected')
     .then((selectedOptions) => {
@@ -103,9 +143,10 @@ Then('the a new trap group is created with identical properties', () => {
     });
 });
 
+// Scenario: Delete one existing trap group
 When('the user deletes a trap group', () => {
-  checkFirstTrapGroupFromListing();
-  cy.getIframeBody().find('select[name="o1"]').select('Delete');
+  cy.openTrapGroupsListing();
+  cy.runTrapsBulkAction(data.snmpGroup1.name, 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -113,10 +154,10 @@ When('the user deletes a trap group', () => {
 Then(
   'the deleted trap group is not visible anymore on the trap group page',
   () => {
-    cy.getIframeBody().contains(data.snmpGroup1.name).should('not.exist');
+    cy.waitForElementInIframe('#main-content', listingTable);
+    cy.getIframeBody()
+      .find(listingTableBody)
+      .contains(data.snmpGroup1.name)
+      .should('not.exist');
   }
 );
-
-afterEach(() => {
-  cy.stopContainers();
-});

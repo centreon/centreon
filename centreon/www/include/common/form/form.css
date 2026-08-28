@@ -27,6 +27,13 @@
     flex-direction: column;
 }
 
+/* Opt out of that bottom anchoring: for a form whose main action is not a
+   Save/Reset bar closing a long panel (MIB import), a viewport-tall wrapper
+   just strands the button hundreds of pixels below the fields. */
+.cf-form-wrapper--fit {
+    min-height: 0;
+}
+
 /* ==========================================================================
    Page title
    ========================================================================== */
@@ -148,6 +155,10 @@
 
 .cf-row-inline {
     display: flex;
+    /* Wrap instead of crushing the fields: a field given an explicit basis
+       (e.g. flex: 0 1 300px) drops onto the next line when the form narrows --
+       which is the normal case inside the side panel's nested iframe. */
+    flex-wrap: wrap;
     gap: 16px;
     margin-bottom: 16px;
 }
@@ -184,6 +195,13 @@
     color: var(--body-color, #757575);
     background: var(--body-background, #fff);
     font-weight: 500;
+    /* The label is absolutely positioned over the field's top border: a label
+       too long for its field used to wrap down into the input. Clamp it to one
+       line -- a visible ellipsis means the field must be widened. */
+    max-width: calc(100% - 20px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .cf-field input,
@@ -252,6 +270,37 @@
     min-width: 0;
 }
 
+/* Field width modifiers — cap a field that would otherwise stretch over its
+   whole row (a status select is 400px wide for a four-word value). Both the
+   basis and the cap are set, so a modifier works the same on a .cf-field that
+   is a flex item of a .cf-row-inline and on one that fills a plain .cf-row.
+   flex-shrink stays at 1: the field still narrows, then wraps, inside the side
+   panel's nested iframe instead of being clipped.
+
+   Pick the step on the TRANSLATED label, not on the value — the floating label
+   is what overflows first, at 11px ≈ 4.9px per character plus 28px of padding
+   and ellipsis reserve. French is in practice the longest of the 6 catalogs. A
+   width no step fits stays a one-off inline style, which wins over the class. */
+.cf-form-wrapper .cf-field--xs {
+    flex: 0 1 180px;
+    max-width: 180px;
+}
+
+.cf-form-wrapper .cf-field--sm {
+    flex: 0 1 240px;
+    max-width: 240px;
+}
+
+.cf-form-wrapper .cf-field--md {
+    flex: 0 1 300px;
+    max-width: 300px;
+}
+
+.cf-form-wrapper .cf-field--lg {
+    flex: 0 1 420px;
+    max-width: 420px;
+}
+
 /* ==========================================================================
    Segmented button group (Default / Yes / No)
    ========================================================================== */
@@ -261,6 +310,9 @@
     border: 1px solid var(--color-divider, #d0d0d0);
     border-radius: 6px;
     overflow: hidden;
+    /* Shrinking a segmented control clips its last button, since the border
+       radius forces overflow:hidden above. */
+    flex-shrink: 0;
 }
 
 .cf-segmented button {
@@ -284,8 +336,8 @@
 }
 
 .cf-segmented button.active {
-    background: var(--color-primary-light, #2E68AA);
-    color: #fff;
+    background: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
 }
 
 .cf-segmented-row {
@@ -327,16 +379,60 @@
 .cf-form-wrapper .clonable .clone-cell {
     display: flex;
     align-items: center;
+    /* Wrap instead of overflowing: a clone row carrying several fields (the
+       trap matching rules) is wider than the section, and .cf-section clips it
+       with overflow:hidden — the trailing fields and the remove icon vanished
+       instead of dropping onto a second line. */
+    flex-wrap: wrap;
     gap: 6px;
     padding: 6px 0;
 }
 
+/* One label + its own field, kept together across a wrap. Two fields per line
+   at any width — a fixed px basis would give three per line at full width and
+   only one inside the side panel's nested iframe. The 34px allowance keeps the
+   drag handle and the remove cross on the row's last line instead of pushing
+   them onto a line of their own. */
+.cf-form-wrapper .clonable .clone-cell .clone-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 calc(50% - 34px);
+    min-width: 0;
+}
+
+/* Width modifiers for a single field of a clone row, driven from the page by
+   'data-clone-width' (see clone.ihtml). Same steps as .cf-field--*, but no cap
+   is needed: a .clone-field is always a flex item. Grow is dropped, so the
+   field stops at its step instead of taking an equal share of the line — the
+   slack goes to the fields that kept their grow, or stays as trailing space if
+   every field on the line is sized. Unlike the floating label of a .cf-field,
+   the label of a clone field sits BESIDE its control and eats into the step:
+   budget it in ("Expression régulière" is about 120px at 13px). */
+.cf-form-wrapper .clonable .clone-cell .clone-field--xs {
+    flex: 0 1 180px;
+}
+
+.cf-form-wrapper .clonable .clone-cell .clone-field--sm {
+    flex: 0 1 240px;
+}
+
+.cf-form-wrapper .clonable .clone-cell .clone-field--md {
+    flex: 0 1 300px;
+}
+
+.cf-form-wrapper .clonable .clone-cell .clone-field--lg {
+    flex: 0 1 420px;
+}
+
+.cf-form-wrapper .clonable .clone-cell input[type="text"],
 .cf-form-wrapper .clonable .clone-cell select,
 .cf-form-wrapper .clonable .clone-cell .select2-container {
     flex: 1;
     min-width: 0;
 }
 
+.cf-form-wrapper .clonable .clone-cell input[type="text"],
 .cf-form-wrapper .clonable .clone-cell select {
     padding: 8px 10px;
     font-size: 12px;
@@ -344,6 +440,12 @@
     border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
+    box-sizing: border-box;
+}
+
+.cf-form-wrapper .clonable .clone-cell input[type="text"]:focus {
+    border-color: var(--bt-info-background-color, #2E68AA);
+    outline: none;
 }
 
 .cf-form-wrapper .clonable .clone-cell .select2-container .select2-selection {
@@ -569,8 +671,8 @@
     padding: 5px 14px;
     font-size: 12px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
     border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
@@ -578,7 +680,7 @@
 }
 
 .cf-form-wrapper .add-new-entry:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--bt-info-hover-background-color, #255891);
     text-decoration: none;
 }
 
@@ -638,9 +740,9 @@
 }
 
 .cf-chip.active {
-    background: var(--color-primary-light, #2E68AA);
-    border-color: var(--color-primary-light, #2E68AA);
-    color: #fff;
+    background: var(--bt-info-background-color, #2E68AA);
+    border-color: var(--bt-info-background-color, #2E68AA);
+    color: var(--btc-color, #fff);
 }
 
 /* ==========================================================================
@@ -887,6 +989,67 @@
     align-items: center;
     gap: 6px;
     cursor: pointer;
+}
+
+/* ==========================================================================
+   Plain radio group
+
+   A QuickForm radio group is normally replaced by a segmented control
+   (initYesNoSegments), but only when it holds two or three options whose
+   values are within {0,1,2}. Anything else -- e.g. the SNMP trap "Execution
+   type" with its four options -- stays in the field as .md-radio wrappers,
+   and then needs the rules below: `.cf-field label` loads after the theme's
+   `.md-radio label` at equal specificity, so it would absolutely position
+   EVERY label of the field. The options would stack on top of each other over
+   the top border, lose their pointer events, and the row would collapse to
+   almost no height, since the radio inputs themselves are display:none.
+
+   Markup: <div class="cf-field cf-radio-group">{$form.<group>.html} ...
+   ========================================================================== */
+
+.cf-field .md-radio {
+    flex: 0 0 auto;
+}
+
+.cf-field .md-radio label {
+    position: relative;
+    top: auto;
+    left: auto;
+    /* Restores the theme's own padding: the 18px on the left is what makes
+       room for the radio circle drawn as the label's ::before. */
+    padding: 2px 6px 0 18px;
+    font-size: 13px;
+    color: var(--list-color, #555);
+    pointer-events: auto;
+}
+
+/* Add the group to the form with an empty separator -- a '&nbsp;' one renders
+   as an anonymous flex item, which indents the options that wrap onto a second
+   line. */
+.cf-radio-group {
+    gap: 6px 20px;
+    padding: 4px 0;
+}
+
+/* The field's own label is laid out like a .cf-segmented-row label -- inline,
+   ahead of the options -- rather than floating over a top border the group
+   does not have. Keeps a "pick one of N" row reading the same whether it ends
+   up as a segmented control or as plain radios: same 13px medium type, same
+   140px column, no ellipsis clamp and no background patch over a border.
+   Scoped on .cf-field too (and not on .cf-radio-group alone) so it outranks
+   `.cf-field label.cf-label-float`: templates tag every field label with that
+   class, and it would otherwise impose the 11px floating-label look. */
+.cf-field.cf-radio-group > label {
+    position: static;
+    order: -1;
+    min-width: 140px;
+    max-width: none;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--list-color, #555);
+    background: transparent;
+    overflow: visible;
 }
 
 /* ==========================================================================
@@ -1237,9 +1400,11 @@
     min-width: 100px;
     font-size: 14px;
     font-weight: 500;
-    color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
-    border: none;
+    color: var(--btc-color, #fff);
+    background-color: var(--bt-info-background-color, #2E68AA);
+    /* Transparent border rather than none, so the borderless Save matches the
+       height of its outlined Reset sibling. */
+    border: 1px solid transparent;
     border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
@@ -1248,7 +1413,7 @@
 
 .cf-actions input[type="submit"]:hover,
 .cf-actions button:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--bt-info-hover-background-color, #255891);
 }
 
 /* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
@@ -1418,7 +1583,7 @@
     display: inline-flex; align-items: center; gap: 8px;
     padding: 12px 24px; font-size: 14px; font-weight: 600;
     border: none; border-radius: 6px; cursor: pointer;
-    background: var(--bt-info-background-color, #2E68AA); color: #fff;
+    background: var(--bt-info-background-color, #2E68AA); color: var(--btc-color, #fff);
     transition: filter .15s;
 }
 .gen-apply:hover { filter: brightness(0.94); }
@@ -1427,7 +1592,7 @@
 
 /* Advanced (just under the poller field) */
 .gen-adv { margin: 8px 0 4px; }
-.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #2E68AA); font-weight: 500; }
+.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--bt-info-background-color, #2E68AA); font-weight: 500; }
 .gen-adv .gen-adv-body {
     padding: 12px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px;
     background: #f7f8fa; border: 1px solid var(--color-divider, #e6e8ec); border-radius: 6px;
@@ -1444,8 +1609,8 @@
     display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
     transition: background .2s;
 }
-.gen-step.active { color: var(--color-primary-light, #2E68AA); }
-.gen-step.active .dot { background: var(--color-primary-light, #2E68AA); }
+.gen-step.active { color: var(--bt-info-background-color, #2E68AA); }
+.gen-step.active .dot { background: var(--bt-info-background-color, #2E68AA); color: var(--btc-color, #fff); }
 .gen-step.done { color: var(--color-success, #88B922); }
 .gen-step.done .dot { background: var(--color-success, #88B922); }
 .gen-step.err { color: #FF4A4A; }
@@ -1466,9 +1631,9 @@
     color: var(--body-color, #666); border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
 .gen-tab:hover { color: var(--list-color, #333); }
-.gen-tab.active { color: var(--color-primary-light, #2E68AA); border-bottom-color: var(--color-primary-light, #2E68AA); font-weight: 600; }
+.gen-tab.active { color: var(--bt-info-background-color, #2E68AA); border-bottom-color: var(--bt-info-background-color, #2E68AA); font-weight: 600; }
 .gen-tab .st { width: 9px; height: 9px; border-radius: 50%; background: #cfd6df; flex-shrink: 0; }
-.gen-tab.run .st { background: var(--color-primary-light, #2E68AA); animation: genpulse 1s infinite; }
+.gen-tab.run .st { background: var(--bt-info-background-color, #2E68AA); animation: genpulse 1s infinite; }
 .gen-tab.ok  .st { background: var(--color-success, #88B922); }
 .gen-tab.err .st { background: #FF4A4A; }
 @keyframes genpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
@@ -1578,8 +1743,8 @@
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: #fff !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
     border: none !important;
     border-radius: 10px 0 0 10px !important;
     padding: 0 4px 0 12px !important;
@@ -1592,8 +1757,9 @@
     justify-content: center;
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: rgba(255, 255, 255, 0.7) !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
+    opacity: 0.7;
     border: none !important;
     border-radius: 0 10px 10px 0 !important;
     padding: 0 10px 0 4px !important;
@@ -1602,8 +1768,9 @@
     line-height: 20px !important;
 }
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    background-color: var(--color-primary-light, #2E68AA) !important;
-    color: #fff !important;
+    background-color: var(--bt-info-background-color, #2E68AA) !important;
+    color: var(--btc-color, #fff) !important;
+    opacity: 1;
 }
 
 /* --- Multi-select single-row collapse. Chips are kept on one line; overflowing
@@ -1657,7 +1824,7 @@
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--bt-info-background-color, #2E68AA);
     font-size: 12px;
     font-weight: 600;
     line-height: 1;

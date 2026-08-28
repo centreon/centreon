@@ -20,6 +20,7 @@ import '../features/Resources-status/commands';
 import '../features/Platform-upgrade-update/commands';
 import '../features/Additional-connectors/commands';
 import '../features/Macros/commands';
+import '../features/Snmp-Traps/commands';
 
 import type { ActionClapi } from '../commons';
 

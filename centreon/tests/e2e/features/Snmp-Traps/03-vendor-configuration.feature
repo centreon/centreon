@@ -6,6 +6,19 @@ Feature: VendorConfiguration
   Background:
     Given a user is logged in Centreon
 
+  @MON-200041
+  Scenario: The vendors listing loads through the AJAX framework
+    Given a vendor is configured through the API
+    When the user goes to "Configuration > SNMP Traps > Manufacturer"
+    Then the AJAX listing table is displayed with the configured vendor
+
+  @MON-200041
+  Scenario: The search filters the vendors by name
+    Given two vendors are configured through the API
+    When the user goes to "Configuration > SNMP Traps > Manufacturer"
+    And the user searches for the first vendor
+    Then only the matching vendor is displayed
+
   @MON-159077
   Scenario: Create a new vendor
     When the user goes to "Configuration > SNMP Traps > Manufacturer"
@@ -32,9 +45,9 @@ Feature: VendorConfiguration
 
   @MON-159081
   Scenario: Associate an existing vendor with an existing SNMP Trap and passive service
-    Given a vendor "update" is configured
+    Given a vendor "associate" is configured
     And an SNMP Trap is linked to the vendor
     And a passive service is linked to the vendor
     When the user goes to "Configuration > SNMP Traps > Generate"
-    And the user clicks on "Generate"
-    Then a message indicates that the "Database generation with success" is displayed on the page
+    And the user applies the trap configuration on the central poller
+    Then the generation console reports a successful run

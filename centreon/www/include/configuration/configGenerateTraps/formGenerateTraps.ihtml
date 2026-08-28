@@ -1,69 +1,50 @@
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 {$form.javascript}
+
 <form {$form.attributes}>
-    <input type="hidden" name="level" value="1">
-    <table class="formTable table" style="margin:0 auto;">
-        <tr class="ListHeader">
-            <td class="FormHeader" colspan="2">
-                <h3>| {$form.header.title}</h3>
-            </td>
-        </tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.infos}</h4>
-            </td>
-        </tr>
-        <tr class="list_one">
-            <td class="FormRowField">
-                <img class="helpTooltip" name="host">&nbsp;{$form.host.label}
-            </td>
-            <td class="FormRowValue">
-                {$form.host.html}
-            </td>
-        </tr>
-        <tr class="list_lvl_1">
-            <td class="ListColLvl1_name" colspan="2">
-                <h4>{$form.header.result}</h4>
-            </td>
-        </tr>
-        <tr class="list_one">
-            <td class="FormRowField">
-                <img class="helpTooltip" name="generate">&nbsp;{$form.generate.label}
-            </td>
-            <td class="FormRowValue">
-                {$form.generate.html}
-            </td>
-        </tr>
-        <tr class="list_two">
-            <td class="FormRowField">
-                <img class="helpTooltip" name="apply">&nbsp;{$form.apply.label}
-            </td>
-            <td class="FormRowValue">
-                {$form.apply.html}
-            </td>
-        </tr>
-        <tr class="list_one">
-            <td class="FormRowField">
-                <img class="helpTooltip" name="signal">&nbsp;{$form.signal.label}
-            </td>
-            <td style="padding-left: 5px;">
-                {$form.signal.html}
-            </td>
-        </tr>
-    </table>
-    <div align="center" id="validForm"><p class="oreonbutton">{$form.submit.html}</p></div>
-    <br /><br /><br /><br />
-    {if isset($msg_generate)}
-        <div id='tab1' class='tab'>
-            <table class="ListTable">
-                <tr class="ListHeader">
-                    <td class="FormHeader"><img src='./img/icones/16x16/component_green.gif'>&nbsp;&nbsp;{$form.header.status}</td>
-                </tr>
-                <tr class="list_two_fixe">
-                    <td class="ListColLvl1_name">{$msg_generate}</td>
-                </tr>
-            </table>
+<input type="hidden" id="centreon_token" name="centreon_token" value="{$csrfToken}" />
+
+<div class="cf-form-wrapper gen-wrap">
+    <h1 class="cf-page-title" style="margin-bottom:22px;">{t}Generate SNMP trap configuration{/t}</h1>
+
+    <div class="gen-top">
+        <div class="cf-field">
+            {$form.nhost.html}
+            <label class="cf-label-float">{$form.nhost.label}</label>
         </div>
-    {/if}
+        <button type="button" id="applyBtn" class="gen-apply" onclick="genApply();">
+            {t}Apply configuration{/t}
+        </button>
+    </div>
+    <p id="noSelectedPoller" class="gen-nopoller" hidden>{$noPollerSelectedLabel}</p>
+    <p id="noSelectedAction" class="gen-nopoller" hidden>{t}Please select at least one action (Generate, Apply or Signal).{/t}</p>
+
+    <!-- Advanced (right under the poller field) -->
+    <details class="gen-adv">
+        <summary>{t}Advanced{/t}</summary>
+        <div class="gen-adv-body">
+            <div class="gen-adv-row">{$form.generate.html} <span>{$form.generate.label}</span></div>
+            <div class="gen-adv-row">{$form.apply.html} <span>{$form.apply.label}</span></div>
+            <div class="gen-adv-row">{$form.signal.html} <span>{$form.signal.label}</span> &nbsp;&mdash;&nbsp; {$form.signal_mode.label} {$form.signal_mode.html}</div>
+        </div>
+    </details>
+
+    <!-- Stepper -->
+    <div class="gen-stepper">
+        <div class="gen-step" id="stp-generate"><span class="dot">1</span><span>{t}Generate database{/t}</span></div>
+        <div class="gen-connector"></div>
+        <div class="gen-step" id="stp-apply"><span class="dot">2</span><span>{t}Apply & Signal{/t}</span></div>
+    </div>
+
+    <div class="gen-progress"><span id="genBar"></span></div>
+    <div class="gen-pct"><span id="genPct">0%</span></div>
+
+    <!-- One tab + console panel per poller -->
+    <div id="console" style="display:none;">
+        <div class="gen-tabs" id="genTabs"></div>
+        <div id="genPanels"></div>
+    </div>
+</div>
+
 {$form.hidden}
 </form>
-{$helptext}
