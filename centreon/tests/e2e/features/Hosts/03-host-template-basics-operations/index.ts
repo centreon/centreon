@@ -451,8 +451,18 @@ Then('the locked host template cannot be selected nor duplicated', () => {
     .invoke('prop', 'checked', false)
     .trigger('change', { force: true });
 
+  // Both halves: a check-all that stopped working entirely would satisfy the
+  // locked-row assertion on its own.
   cy.getIframeBody().find(listingSelectors.checkAll).check({ force: true });
   lockedCheckbox().should('not.be.checked');
+  cy.getIframeBody()
+    .find(
+      `${listingSelectors.tableBody} tr ${listingSelectors.rowCheckbox}:not(:disabled)`
+    )
+    .should('not.be.empty')
+    .each(($box) => {
+      cy.wrap($box).should('be.checked');
+    });
 
   // Reproduce a stale selection restored after the row became locked. Another
   // writable row keeps the menu enabled, but Mass Change must omit this id.
@@ -481,6 +491,12 @@ Then('the locked host template cannot be selected nor duplicated', () => {
     });
 });
 
+When('the user selects the second host template', () => {
+  getListingRow(secondTemplateName)
+    .find(listingSelectors.rowCheckbox)
+    .check({ force: true });
+});
+
 When('the user selects the configured host template', () => {
   getListingRow(hostTemplates.defaultHostTemplate.name)
     .find(listingSelectors.rowCheckbox)
@@ -503,9 +519,26 @@ Then('the locked host template selection is not restored', () => {
     .find(listingSelectors.rowCheckbox)
     .should('be.disabled')
     .and('not.be.checked');
+
+  // The writable row selected alongside it must come back checked: without this,
+  // deleting the whole body of restoreCheckedIds would still pass.
+  getListingRow(secondTemplateName)
+    .find(listingSelectors.rowCheckbox)
+    .should('not.be.disabled')
+    .and('be.checked');
 });
 
 Then('the select-all control and bulk actions are disabled', () => {
+  // Guard the premise first: an empty listing — a broken Locked filter, a search
+  // matching nothing — leaves every assertion below trivially true.
+  getListingRow(hostTemplates.defaultHostTemplate.name).should(
+    'have.length',
+    1
+  );
+  getListingRow(hostTemplates.defaultHostTemplate.name)
+    .find(listingSelectors.rowCheckbox)
+    .should('be.disabled');
+
   cy.getIframeBody().find(listingSelectors.checkAll).should('be.disabled');
   cy.getIframeBody().find('select[name="o1"]').should('be.disabled');
   cy.getIframeBody()

@@ -53,9 +53,11 @@ Feature: HostTemplateBasicsOperations
 
   @MON-200026
   Scenario: A selection is dropped when its host template becomes locked
+    Given a second host template is configured
     When the user opens the host templates listing
     And the user asks for the locked host templates
     And the user selects the configured host template
+    And the user selects the second host template
     And the configured host template becomes locked during a listing refresh
     Then the locked host template selection is not restored
 

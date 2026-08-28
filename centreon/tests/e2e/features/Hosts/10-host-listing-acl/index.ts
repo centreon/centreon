@@ -3,7 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { ActionClapi } from '../../../commons';
-import { getListingRow, listingSelectors } from '../common';
+import {
+  confirmModalSelectors,
+  getListingRow,
+  listingSelectors
+} from '../common';
 
 const grantedHost = 'host-acl-granted';
 const deniedHost = 'host-acl-denied';
@@ -160,7 +164,7 @@ When('the user posts a bulk disable for both hosts', () => {
       cy.visit(PAGES.configuration.hostsLegacy);
       cy.wait('@getTimeZone');
       cy.getIframeBody()
-        .find('input[name="centreon_token"]')
+        .find('form[name="form"] input[name="centreon_token"]')
         .invoke('val')
         .then((token) => {
           cy.request({
@@ -233,4 +237,36 @@ Then('the row still links to the services of that host', () => {
     .should('have.length', 1)
     .and('have.attr', 'href')
     .and('include', encodeURIComponent(grantedHost));
+});
+
+/**
+ * The nominal path, which no scenario covered: every other bulk test posts the
+ * form by hand. Here the operation reaches $o the way the page sets it — the
+ * menu calls setO(), which writes the hidden input the dispatcher reads. The
+ * o1/o2 fallback that used to carry it was removed, so nothing else would catch
+ * a break in that wiring.
+ */
+When('the user disables the granted host through the actions menu', () => {
+  hostActivation(grantedHost).then((host) => {
+    cy.wrap(String(host.host_activate), { log: false }).as('activationBefore');
+  });
+
+  getListingRow(grantedHost)
+    .find(listingSelectors.rowCheckbox)
+    .check({ force: true });
+  cy.getIframeBody().find(listingSelectors.moreActionsButton).click();
+  cy.getIframeBody()
+    .contains(listingSelectors.moreActionsItem, 'Disable')
+    .click();
+  cy.getIframeBody().find(confirmModalSelectors.confirm).click();
+  cy.wait('@getHostListing');
+});
+
+Then('the granted host is disabled in the database', () => {
+  cy.get('@activationBefore').then((before) => {
+    expect(String(before), 'the host was enabled to begin with').to.equal('1');
+  });
+  hostActivation(grantedHost).then((host) => {
+    expect(String(host.host_activate)).to.equal('0');
+  });
 });

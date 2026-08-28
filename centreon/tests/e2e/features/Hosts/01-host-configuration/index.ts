@@ -534,6 +534,11 @@ Given('the saved hosts listing page is beyond the last page', () => {
 });
 
 Then('the pagination range stays within the available hosts', () => {
+  // Prove the out-of-range page was actually requested. If the storage key, its
+  // schema or the sessionStorage sharing ever drifted, num would fall back to 0
+  // and the assertions below would hold trivially without the clamp ever running.
+  cy.wait('@getHostListing').its('request.url').should('include', 'num=99');
+
   cy.getIframeBody()
     .find(listingSelectors.pageInfo)
     .should(($info) => {

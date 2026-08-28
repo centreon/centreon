@@ -30,6 +30,13 @@ Feature: Host listing access control
     When the user opens a mass change for both hosts
     Then only the granted host is carried into the mass change
 
+  @MON-200026
+  Scenario: A bulk disable driven from the menu reaches the dispatcher
+    Given the non-admin user is logged in
+    When the user opens the hosts listing
+    And the user disables the granted host through the actions menu
+    Then the granted host is disabled in the database
+
   Scenario: A read-only user gets the row stripped of its write controls
     Given the read-only user is logged in
     When the user opens the hosts listing
