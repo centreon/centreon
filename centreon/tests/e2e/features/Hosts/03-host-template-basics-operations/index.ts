@@ -459,7 +459,7 @@ Then('the locked host template cannot be selected nor duplicated', () => {
     .find(
       `${listingSelectors.tableBody} tr ${listingSelectors.rowCheckbox}:not(:disabled)`
     )
-    .should('not.be.empty')
+    .should('have.length.at.least', 1)
     .each(($box) => {
       cy.wrap($box).should('be.checked');
     });
