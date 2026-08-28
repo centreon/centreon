@@ -808,7 +808,6 @@ jQuery(function() {
                     .addClass('cf-macro-reset-icon')
                     .attr('title', '{/literal}{t escape='js'}Reset to default value{/t}{literal}')
                     .on('click',function() {
-                        window.cfFormDirty = true;
                         jQuery(elem).find("input[name^='macroValue']").val(tplValue);
                         jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");
                         jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
@@ -967,7 +966,6 @@ function clonerefreshListener(el){
                                     .addClass('cf-macro-reset-icon')
                                     .attr('title', '{/literal}{t escape='js'}Reset to default value{/t}{literal}')
                                     .on('click',function() {
-                                        window.cfFormDirty = true;
                                         jQuery(elem).find("input[name^='macroValue']").val(tplValue);
                                         jQuery(elem).find("input[name^='macroInput']").val(tplInput);
                                         jQuery(elem).find('input[name^=macroFrom]').val("fromTpl");

@@ -1567,6 +1567,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (e.isTrusted) window.cfFormDirty = true;
             });
         });
+        // sheepIt add/remove controls and macro actions mutate the form through
+        // DOM or synthetic events, so the trusted input/change listeners miss them.
+        form.addEventListener('click', function (e) {
+            var mutationControl = e.target.closest
+                ? e.target.closest(
+                    '.cf-macro-erase, .cf-macro-reset-icon, [id$="_add"], [id$="_remove_current"]'
+                )
+                : null;
+            if (mutationControl && form.contains(mutationControl)) {
+                window.cfFormDirty = true;
+            }
+        }, true);
         // select2 mutates its <select> through a jQuery-triggered (untrusted)
         // change, so the isTrusted guard above never sees add/remove/clear on a
         // select2 field. Its own user-driven events are the reliable signal.
@@ -1575,6 +1587,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 'select2:select select2:unselect select2:clear',
                 function () { window.cfFormDirty = true; }
             );
+            // jQuery UI reports a completed drag through its synthetic event.
+            window.jQuery(form).on('sortupdate', '.macroclone', function () {
+                window.cfFormDirty = true;
+            });
             // A native reset restores the underlying <select> values, but select2
             // does not re-render on its own, so its chips/selection stay stale.
             // Re-sync every select2 on the next tick, once the browser has applied

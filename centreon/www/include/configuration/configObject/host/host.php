@@ -38,15 +38,6 @@ const HOST_DUPLICATION = 'm';
 const HOST_DELETION = 'd';
 const HOST_SERVICE_DEPLOYMENT = 'dp';
 
-if (isset($_POST['o1'], $_POST['o2'])) {
-    if ($_POST['o1'] !== '') {
-        $o = $_POST['o1'];
-    }
-    if ($_POST['o2'] !== '') {
-        $o = $_POST['o2'];
-    }
-}
-
 $host_id = $o === HOST_MASSIVE_CHANGE
     ? false
     : filter_var(
@@ -156,7 +147,10 @@ switch ($o) {
     case HOST_ADD:
     case HOST_WATCH:
     case HOST_MODIFY:
+        require_once $path . 'formHost.php';
+        break;
     case HOST_MASSIVE_CHANGE:
+        $select = keepWritableHosts($select ?? []);
         require_once $path . 'formHost.php';
         break;
     case HOST_ACTIVATION:

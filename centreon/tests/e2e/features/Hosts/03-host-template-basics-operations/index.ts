@@ -432,18 +432,86 @@ When('the user asks for the locked host templates', () => {
 });
 
 Then('the locked host template cannot be selected nor duplicated', () => {
+  const lockedCheckbox = (): Cypress.Chainable<JQuery<HTMLElement>> =>
+    getListingRow(hostTemplates.defaultHostTemplate.name).find(
+      listingSelectors.rowCheckbox
+    );
+
   // A locked row keeps its checkbox disabled and renders no duplication input.
-  getListingRow(hostTemplates.defaultHostTemplate.name)
-    .find(listingSelectors.rowCheckbox)
-    .should('be.disabled');
+  lockedCheckbox().should('be.disabled');
   getListingRow(hostTemplates.defaultHostTemplate.name)
     .find(listingSelectors.duplicateInput)
     .should('not.exist');
 
-  cy.getIframeBody().find('#checkall').check({ force: true });
+  lockedCheckbox()
+    .invoke('prop', 'checked', true)
+    .trigger('change', { force: true });
+  cy.getIframeBody().find('select[name="o1"]').should('be.disabled');
+  lockedCheckbox()
+    .invoke('prop', 'checked', false)
+    .trigger('change', { force: true });
+
+  cy.getIframeBody().find(listingSelectors.checkAll).check({ force: true });
+  lockedCheckbox().should('not.be.checked');
+
+  // Reproduce a stale selection restored after the row became locked. Another
+  // writable row keeps the menu enabled, but Mass Change must omit this id.
+  lockedCheckbox()
+    .invoke('attr', 'name')
+    .then((name) => {
+      const lockedId = /\[(.+)\]$/.exec(String(name))?.[1];
+      expect(lockedId, 'locked host template id').to.not.be.undefined;
+
+      lockedCheckbox().invoke('prop', 'checked', true);
+      cy.getIframeBody().find(listingSelectors.moreActionsButton).click();
+      cy.getIframeBody()
+        .contains(listingSelectors.moreActionsItem, 'Mass Change')
+        .click();
+      cy.getIframeBody()
+        .find(formSelectors.sidePanelFrame)
+        .should(($frame) => {
+          const src = $frame.attr('src') || '';
+          const selection = new URL(src, window.location.origin).searchParams
+            .get('select')
+            ?.split(',');
+
+          expect(selection).to.be.an('array').and.not.be.empty;
+          expect(selection).not.to.include(lockedId);
+        });
+    });
+});
+
+When('the user selects the configured host template', () => {
   getListingRow(hostTemplates.defaultHostTemplate.name)
     .find(listingSelectors.rowCheckbox)
-    .should('not.be.checked');
+    .check({ force: true });
+});
+
+When(
+  'the configured host template becomes locked during a listing refresh',
+  () => {
+    cy.lockHostTemplateWithSql(hostTemplates.defaultHostTemplate.name);
+    searchInListing(
+      hostTemplates.defaultHostTemplate.name,
+      '@getHostTemplateListing'
+    );
+  }
+);
+
+Then('the locked host template selection is not restored', () => {
+  getListingRow(hostTemplates.defaultHostTemplate.name)
+    .find(listingSelectors.rowCheckbox)
+    .should('be.disabled')
+    .and('not.be.checked');
+});
+
+Then('the select-all control and bulk actions are disabled', () => {
+  cy.getIframeBody().find(listingSelectors.checkAll).should('be.disabled');
+  cy.getIframeBody().find('select[name="o1"]').should('be.disabled');
+  cy.getIframeBody()
+    .find(listingSelectors.moreActionsButton)
+    .parents('.cl-more-actions')
+    .should('have.class', 'cl-more-actions--disabled');
 });
 
 Then(

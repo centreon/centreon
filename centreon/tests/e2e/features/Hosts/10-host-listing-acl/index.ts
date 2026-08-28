@@ -147,31 +147,65 @@ Then('the activation of that host is unchanged', () => {
   });
 });
 
-When('the user posts a bulk disable for the host it was not granted', () => {
-  hostActivation(deniedHost).then((host) => {
-    cy.wrap(host.host_activate, { log: false }).as('activationBefore');
+When('the user posts a bulk disable for both hosts', () => {
+  hostActivation(grantedHost).then((granted) => {
+    cy.wrap(granted.host_activate, { log: false }).as(
+      'grantedActivationBefore'
+    );
+    hostActivation(deniedHost).then((denied) => {
+      cy.wrap(denied.host_activate, { log: false }).as('activationBefore');
 
-    // The legacy dispatcher, not the AJAX endpoint: it gates on the CSRF token
-    // alone, so the host id it is handed has to be filtered against the caller's
-    // ACL before the action runs.
-    cy.visit(PAGES.configuration.hostsLegacy);
-    cy.wait('@getTimeZone');
-    cy.getIframeBody()
-      .find('input[name="centreon_token"]')
-      .invoke('val')
-      .then((token) => {
-        cy.request({
-          body: {
-            centreon_token: token,
-            o1: 'mu',
-            [`select[${host.host_id}]`]: '1'
-          },
-          failOnStatusCode: false,
-          form: true,
-          method: 'POST',
-          url: '/centreon/main.php?p=60101'
+      // Include one granted host as a control proving that the dispatcher ran,
+      // while the denied host proves that its selection was narrowed by the ACL.
+      cy.visit(PAGES.configuration.hostsLegacy);
+      cy.wait('@getTimeZone');
+      cy.getIframeBody()
+        .find('input[name="centreon_token"]')
+        .invoke('val')
+        .then((token) => {
+          cy.request({
+            body: {
+              centreon_token: token,
+              o: 'mu',
+              [`select[${granted.host_id}]`]: '1',
+              [`select[${denied.host_id}]`]: '1'
+            },
+            failOnStatusCode: false,
+            form: true,
+            method: 'POST',
+            url: '/centreon/main.get.php?p=60101'
+          });
         });
-      });
+    });
+  });
+});
+
+Then('the granted host is disabled', () => {
+  cy.get('@grantedActivationBefore').then((before) => {
+    expect(String(before)).to.equal('1');
+    hostActivation(grantedHost).then((after) => {
+      expect(String(after.host_activate)).to.equal('0');
+    });
+  });
+});
+
+When('the user opens a mass change for both hosts', () => {
+  hostActivation(grantedHost).then((granted) => {
+    cy.wrap(granted.host_id, { log: false }).as('grantedHostId');
+    hostActivation(deniedHost).then((denied) => {
+      cy.visit(
+        `${PAGES.configuration.hostsLegacy}&o=mc&select=${granted.host_id},${denied.host_id}`
+      );
+      cy.wait('@getTimeZone');
+    });
+  });
+});
+
+Then('only the granted host is carried into the mass change', () => {
+  cy.get('@grantedHostId').then((grantedHostId) => {
+    cy.getIframeBody()
+      .find('input[name="select"]')
+      .should('have.value', String(grantedHostId));
   });
 });
 

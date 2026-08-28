@@ -90,3 +90,17 @@ Feature: Host and Host Template Macros Configuration
     Then a confirmation to discard unsaved changes is displayed
     When the non-admin user stays on the host form
     Then the host form remains open
+
+  @MON-200026
+  Scenario Outline: Programmatic macro changes require confirmation before closing
+    Given the non-admin user opens a host with two macros for the "<action>" action
+    And the non-admin user performs the "<action>" macro action
+    And the non-admin user tries to close the host form
+    Then a confirmation to discard unsaved changes is displayed
+
+    Examples:
+      | action  |
+      | add     |
+      | remove  |
+      | clear   |
+      | reorder |

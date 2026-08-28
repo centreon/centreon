@@ -110,6 +110,12 @@ Feature: HostConfiguration
     When the admin sets the rows per page to 10
     Then at most 10 host rows are displayed
 
+  @MON-200026
+  Scenario: The listing recovers from a saved page beyond the available hosts
+    Given the saved hosts listing page is beyond the last page
+    When the admin opens the hosts listing
+    Then the pagination range stays within the available hosts
+
   Scenario: The header checkbox selects and deselects every row
     Given several hosts exist with different addresses
     When the admin opens the hosts listing

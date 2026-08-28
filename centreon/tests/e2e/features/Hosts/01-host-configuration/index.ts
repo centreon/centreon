@@ -524,6 +524,30 @@ Then('at most 10 host rows are displayed', () => {
     .should('have.length.at.most', 10);
 });
 
+Given('the saved hosts listing page is beyond the last page', () => {
+  cy.window().then((win) => {
+    win.sessionStorage.setItem(
+      'cl_state_host_listing_limit',
+      JSON.stringify({ extra: {}, labels: {}, limit: 10, num: 99, search: '' })
+    );
+  });
+});
+
+Then('the pagination range stays within the available hosts', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.pageInfo)
+    .should(($info) => {
+      const range = /(\d+)-(\d+) of (\d+)/.exec($info.text());
+      expect(range, 'pagination range').to.not.be.null;
+
+      const start = Number(range?.[1]);
+      const end = Number(range?.[2]);
+      const total = Number(range?.[3]);
+      expect(start).to.be.at.most(end);
+      expect(end).to.be.at.most(total);
+    });
+});
+
 When('the admin clicks the header checkbox', () => {
   cy.getIframeBody().find(listingSelectors.checkAll).click({ force: true });
 });

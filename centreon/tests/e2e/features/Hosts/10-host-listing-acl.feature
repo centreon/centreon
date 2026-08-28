@@ -17,10 +17,18 @@ Feature: Host listing access control
     Then the endpoint answers that the object was not found
     And the activation of that host is unchanged
 
-  Scenario: A bulk disable cannot reach a host outside the ACL
+  @MON-200026
+  Scenario: A bulk disable only changes hosts inside the ACL
     Given the non-admin user is logged in
-    When the user posts a bulk disable for the host it was not granted
-    Then the activation of that host is unchanged
+    When the user posts a bulk disable for both hosts
+    Then the granted host is disabled
+    And the activation of that host is unchanged
+
+  @MON-200026
+  Scenario: A mass change only carries hosts inside the ACL
+    Given the non-admin user is logged in
+    When the user opens a mass change for both hosts
+    Then only the granted host is carried into the mass change
 
   Scenario: A read-only user gets the row stripped of its write controls
     Given the read-only user is logged in

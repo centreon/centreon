@@ -376,7 +376,7 @@ function CentreonListing(config) {
         // a jQuery selector (a name with a quote/bracket would break the selector).
         var wanted = {};
         for (var i = 0; i < ids.length; i++) { wanted[ids[i]] = true; }
-        jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]').each(function () {
+        jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:not(:disabled)').each(function () {
             var name = this.getAttribute('name');
             if (name && wanted[name]) { this.checked = true; }
         });
@@ -480,10 +480,10 @@ function CentreonListing(config) {
     }
 
     // Bulk action selects ("More actions...") stay disabled until at least
-    // one row is checked.
+    // one writable row is checked.
     function updateBulkActionState() {
-        var anyChecked = jQuery('#' + cfg.tableBodyId).closest('table')
-            .find('.cl-col-picker input[type=checkbox]:checked').length > 0;
+        var anyChecked = jQuery('#' + cfg.tableBodyId)
+            .find('.cl-col-picker input[type=checkbox]:checked:not(:disabled)').length > 0;
         jQuery('select[name="o1"], select[name="o2"]').each(function () {
             jQuery(this).prop('disabled', !anyChecked);
             var wrapper = jQuery(this).data('clWrapper');
@@ -491,11 +491,11 @@ function CentreonListing(config) {
         });
     }
 
-    // Header "check all" checkbox: nothing to select when the table is
-    // empty, so grey it out instead of leaving it clickable.
+    // Header "check all" checkbox: nothing to select when the table is empty
+    // or every row is disabled, so grey it out instead of leaving it clickable.
     function updateHeaderCheckboxState() {
         var table = jQuery('#' + cfg.tableBodyId).closest('table');
-        var hasRows = table.find('tbody .cl-col-picker input[type=checkbox]').length > 0;
+        var hasRows = table.find('tbody .cl-col-picker input[type=checkbox]:not(:disabled)').length > 0;
         var headerCheckbox = table.find('thead .cl-col-picker input[type=checkbox]');
         headerCheckbox.prop('disabled', !hasRows);
         if (!hasRows) headerCheckbox.prop('checked', false);
@@ -582,8 +582,7 @@ function CentreonListing(config) {
             if (!addUrl || typeof window.cfOpenPanel !== 'function') return false;
 
             var ids = [];
-            jQuery('#' + cfg.tableBodyId + ' .cl-col-picker input[type=checkbox]:checked').each(function () {
-                var name = jQuery(this).attr('name');
+            getCheckedIds().forEach(function (name) {
                 var idMatch = name && /\[(.+)\]$/.exec(name);
                 if (idMatch) ids.push(idMatch[1]);
             });
@@ -693,6 +692,17 @@ function CentreonListing(config) {
             data: jQuery.extend({ search: search, num: num, limit: limit }, typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams),
             success: function (data) {
                 csrfToken = data.centreon_token || '';
+
+                // Concurrent deletion can leave a persisted page beyond the new
+                // total. Fetch the last valid page instead of rendering 91-40 of 40.
+                if (!cfg.infiniteScroll) {
+                    var lastPage = data.total > 0 ? Math.ceil(data.total / data.limit) - 1 : 0;
+                    if (data.num > lastPage) {
+                        self.fetch(lastPage, data.limit, currentSearch, silent);
+                        return;
+                    }
+                }
+
                 var tbody = jQuery('#' + cfg.tableBodyId);
 
                 if (cfg.infiniteScroll && isAppend) {

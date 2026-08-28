@@ -577,6 +577,148 @@ When('the non-admin user resets the inherited normal macro', () => {
     .should('have.value', hostMacros.default_host.normalMacro.value);
 });
 
+Given(
+  'the non-admin user opens a host with two macros for the {string} action',
+  (action: string) => {
+    const hostName = `macro-dirty-${action}`;
+
+    clickToAddHost();
+    cy.fillHostBasicsInfos(hostName, hostName);
+    getFormBody()
+      .find('input[name="host_address"]')
+      .clear()
+      .type(hostMacros.default_host.address);
+    pickAclResourceGroup();
+    cy.fillMacros(
+      false,
+      hostMacros.default_host.normalMacro,
+      hostMacros.default_host.passMacro
+    );
+    getFormBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+    cy.wait('@getTimeZone');
+    cy.waitForElementInIframe('#main-content', `a:contains(${hostName})`);
+    openRowForm(hostName);
+    expectPanelMacroNames((names) => expect(names).to.have.length(2));
+  }
+);
+
+When(
+  'the non-admin user performs the {string} macro action',
+  (action: string) => {
+    const macroInputs = '#macro input[id^="macroInput"]';
+
+    if (action === 'add') {
+      getFormBody()
+        .find(macroInputs)
+        .its('length')
+        .then((count) => {
+          getFormBody().find('#macro_add').click();
+          getFormBody()
+            .find(macroInputs)
+            .should('have.length', Number(count) + 1);
+        });
+
+      return;
+    }
+
+    if (action === 'remove') {
+      getFormBody()
+        .find(macroInputs)
+        .its('length')
+        .then((count) => {
+          expect(Number(count), 'macro rows before removal').to.be.greaterThan(
+            0
+          );
+          getFormBody()
+            .find(macroInputs)
+            .first()
+            .parents('li')
+            .find('[id$="_remove_current"]')
+            .click();
+          getFormBody()
+            .find(macroInputs)
+            .should('have.length', Number(count) - 1);
+        });
+
+      return;
+    }
+
+    if (action === 'clear') {
+      getFormBody()
+        .find(macroInputs)
+        .first()
+        .parents('li')
+        .within(() => {
+          cy.get('input[id^="macroValue"]').should('not.have.value', '');
+          cy.get('.cf-macro-erase').click();
+          cy.get('input[id^="macroValue"]').should('have.value', '');
+        });
+
+      return;
+    }
+
+    if (action === 'reorder') {
+      getFormBody()
+        .find(macroInputs)
+        .should('have.length.at.least', 2)
+        .then(($inputs) => {
+          const rows = $inputs.parents('li');
+          const firstName = $inputs.eq(0).val();
+          const secondName = $inputs.eq(1).val();
+          const firstHandle = rows.eq(0).find('.clonehandle')[0];
+          const firstRect = firstHandle.getBoundingClientRect();
+          const secondRect = rows[1].getBoundingClientRect();
+          const x = firstRect.left + firstRect.width / 2;
+          const firstY = firstRect.top + firstRect.height / 2;
+          const targetY = secondRect.bottom - 1;
+
+          cy.wrap(firstHandle).trigger('mousedown', {
+            button: 0,
+            clientX: x,
+            clientY: firstY,
+            force: true,
+            pageX: x,
+            pageY: firstY,
+            which: 1
+          });
+          getFormBody()
+            .trigger('mousemove', {
+              clientX: x,
+              clientY: firstY + 10,
+              force: true,
+              pageX: x,
+              pageY: firstY + 10,
+              which: 1
+            })
+            .trigger('mousemove', {
+              clientX: x,
+              clientY: targetY,
+              force: true,
+              pageX: x,
+              pageY: targetY,
+              which: 1
+            })
+            .trigger('mouseup', {
+              clientX: x,
+              clientY: targetY,
+              force: true,
+              pageX: x,
+              pageY: targetY,
+              which: 1
+            });
+
+          expectPanelMacroNames((names) => {
+            expect(names.slice(0, 2)).to.deep.equal([secondName, firstName]);
+          });
+        });
+
+      return;
+    }
+
+    throw new Error(`Unsupported macro action: ${action}`);
+  }
+);
+
 When('the non-admin user tries to close the host form', () => {
   pageBody().find('#cfSidePanel .cf-side-panel-close').click();
 });
