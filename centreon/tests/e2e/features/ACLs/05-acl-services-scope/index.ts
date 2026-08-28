@@ -103,6 +103,10 @@ When(
 
 Then('the toggle endpoint answers 403', () => {
   cy.get('@deniedToggle').its('status').should('eq', 403);
+  // Discriminated: the endpoint answers 403 on five distinct paths. This one has
+  // to be the resource check, not a menu-ACL or CSRF refusal, which would make
+  // the scenario pass for the wrong reason.
+  cy.get('@deniedToggle').its('body.error').should('eq', 'Access denied');
 });
 
 Then('the denied service is still enabled in the database', () => {
@@ -146,6 +150,34 @@ When('the non-admin user toggles the service of the granted host', () => {
 
 Then('the granted service is disabled in the database', () => {
   activationOf(grantedService).should('eq', '0');
+  // Restore it: these scenarios share one platform, so a later one must not
+  // inherit a disabled service.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `UPDATE service SET service_activate = '1' WHERE service_description = '${grantedService}' AND service_register = '1'`
+  });
+});
+
+When('the non-admin user posts a toggle with an invalid CSRF token', () => {
+  serviceIdOf(grantedService).then((serviceId) => {
+    cy.request({
+      body: { action: 'u', centreon_token: 'not-a-valid-token', id: serviceId },
+      failOnStatusCode: false,
+      form: true,
+      method: 'POST',
+      url: toggleUrl
+    }).as('badTokenToggle');
+  });
+});
+
+Then('the toggle endpoint rejects the invalid token', () => {
+  // Without this, a scenario proving the token still works after a refusal would
+  // stay green even if the token stopped being required at all.
+  cy.get('@badTokenToggle').its('status').should('eq', 403);
+  cy.get('@badTokenToggle')
+    .its('body.error')
+    .should('eq', 'Invalid CSRF token');
+  activationOf(grantedService).should('eq', '1');
 });
 
 When('the non-admin user opens the service categories listing', () => {

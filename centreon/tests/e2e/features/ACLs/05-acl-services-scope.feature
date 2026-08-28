@@ -28,6 +28,14 @@ Feature: Service listings honour the resource ACL
     When the non-admin user toggles the service of the granted host
     Then the granted service is disabled in the database
 
+  # The scenario above proves the token survives a refusal. This one proves it is
+  # still required at all — without it, dropping the CSRF check entirely would go
+  # unnoticed.
+  # Cloud: identical
+  Scenario: A toggle with an invalid CSRF token is rejected
+    When the non-admin user posts a toggle with an invalid CSRF token
+    Then the toggle endpoint rejects the invalid token
+
   # Cloud: identical
   Scenario: Service categories stay visible when the ACL restricts none
     When the non-admin user opens the service categories listing
