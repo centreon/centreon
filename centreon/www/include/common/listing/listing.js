@@ -1688,9 +1688,11 @@ function clMoreAction(select) {
 
     // Actually-selected rows: the per-row selection checkboxes (name="select[<id>]"),
     // NOT the activation toggles (no name), the dup inputs (name="dupNbr[...]"), nor
-    // the header "check all" box (name="checkall").
+    // the header "check all" box (name="checkall"). Disabled boxes are excluded
+    // like everywhere else that reads a selection: this count drives the confirmation
+    // wording and the delete/duplicate submit, so it has to match what is sent.
     var scope = form || document;
-    var checkedRows = scope.querySelectorAll('.cl-col-picker input[type="checkbox"][name^="select["]:checked');
+    var checkedRows = scope.querySelectorAll('.cl-col-picker input[type="checkbox"][name^="select["]:checked:not(:disabled)');
     var selectedCount = checkedRows.length;
 
     // Row-based actions require at least one selected row.

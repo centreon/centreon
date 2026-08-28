@@ -1588,7 +1588,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 function () { window.cfFormDirty = true; }
             );
             // jQuery UI reports a completed drag through its synthetic event.
-            window.jQuery(form).on('sortupdate', '.macroclone', function () {
+            // Both clone lists are sortable and both rewrite their clone_order_*
+            // inputs by hand: macros through this form's own sortable, host
+            // templates through the .clonable one doClone.js sets up. Template
+            // order drives inheritance precedence, so losing a reorder loses a
+            // configuration change.
+            window.jQuery(form).on('sortupdate', '.macroclone, .clonable', function () {
                 window.cfFormDirty = true;
             });
             // A native reset restores the underlying <select> values, but select2
