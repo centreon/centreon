@@ -249,11 +249,16 @@ Then('the row still links to the services of that host', () => {
 When('the user disables the granted host through the actions menu', () => {
   hostActivation(grantedHost).then((host) => {
     cy.wrap(String(host.host_activate), { log: false }).as('activationBefore');
+
+    // Target the checkbox by its own name rather than walking up from the row.
+    // The listing re-renders on its refresh tick, which detaches the <tr> a
+    // getListingRow(...).find(...) chain is still holding, and Cypress cannot
+    // requery past a .find(). This selector is re-evaluated on every retry.
+    cy.getIframeBody()
+      .find(`input[name="select[${host.host_id}]"]`)
+      .check({ force: true });
   });
 
-  getListingRow(grantedHost)
-    .find(listingSelectors.rowCheckbox)
-    .check({ force: true });
   cy.getIframeBody().find(listingSelectors.moreActionsButton).click();
   cy.getIframeBody()
     .contains(listingSelectors.moreActionsItem, 'Disable')
