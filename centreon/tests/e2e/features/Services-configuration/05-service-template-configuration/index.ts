@@ -27,8 +27,8 @@ const waitForTemplatesListing = (): void => {
   cy.waitForListingRefresh();
 };
 
-// Bulk actions go through the hidden o1 select, whose onchange has to be
-// overridden to reach the legacy dispatcher.
+// Bulk actions go through the More actions menu (cy.runListingBulkAction),
+// which runs the path a user takes: menu, confirmation modal, submit.
 const runBulkActionOn = (name: string, action: string): void => {
   // One query, not a chain: the listing auto-refreshes every 30s and a
   // contains -> parents -> find chain loses its subject when the table is

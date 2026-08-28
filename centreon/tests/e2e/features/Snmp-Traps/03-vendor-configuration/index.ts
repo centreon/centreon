@@ -170,8 +170,7 @@ Given('a passive service is linked to the vendor', () => {
   cy.visitListingAndWait(PAGES.configuration.servicesByHostLegacy);
   // click on the passive service to open the edit form in the side panel
   cy.openListingRowForm(services.serviceOk.name);
-  // Tab anchors are targeted by section id: the labels are translated and
-  // 'Extended Info' is now 'Misc'.
+  // Tab anchors are targeted by section id, not by label: the labels are translated.
   cy.getFormBody()
     .find('.cf-tab-nav a[href="#cf-sec-relations"]', { timeout: 20_000 })
     .click();
