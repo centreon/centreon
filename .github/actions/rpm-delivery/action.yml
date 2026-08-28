@@ -44,14 +44,14 @@ runs:
 
     - uses: jfrog/setup-jfrog-cli@5b06f730cc5a6f55d78b30753f8583454b08c0aa # v4.8.1
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - if: inputs.delivery_type == 'feature'
       name: Create a rpm feature repository
       shell: bash
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eu
@@ -95,7 +95,7 @@ runs:
     - name: Publish RPMs
       shell: bash
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eux

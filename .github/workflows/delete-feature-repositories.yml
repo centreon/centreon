@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: jfrog/setup-jfrog-cli@5b06f730cc5a6f55d78b30753f8583454b08c0aa # v4.8.1
         env:
-          JF_URL: https://packages.centreon.com
+          JF_URL: https://centreon.jfrog.io
           JF_ACCESS_TOKEN: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
 
       - name: Check if feature branch had associated feature repository
