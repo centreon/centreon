@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 const sgPage = PAGES.configuration.servicesGroupsLegacy;
@@ -46,9 +47,13 @@ before(() => {
 });
 
 beforeEach(() => {
-  // waitForListingRefresh() only asserts that 'Loading' is gone, which is
-  // already true between two fetches. Every navigation below waits on the
-  // listing request itself instead.
+  // loginByTypeOfUser waits on this alias internally, whatever loginViaApi says.
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.api.navigation_list
+  }).as('getNavigationList');
+  // waitForListingRefresh() only asserts that 'Loading' is gone, which is already
+  // true between two fetches. Every navigation below waits on the request itself.
   cy.intercept('GET', '**/ajaxServiceGroupListing.php*').as('listing');
 });
 
@@ -139,7 +144,10 @@ When('the user goes to the last page', () => {
 Then('the last page holds at least one row', () => {
   // The defect this guards against reports a total larger than the rows the
   // listing can actually serve, which leaves the last page blank.
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.least', 1);
+  // A row picker means a real record: renderEmptyState() injects a <tr> too.
+  cy.getIframeBody()
+    .find('#clTableBody tr .cl-col-picker')
+    .should('have.length.at.least', 1);
   paginationWindow().then(([first, last, total]) => {
     expect(last, 'last row index').to.equal(total);
     expect(first, 'first row index').to.be.at.most(total);

@@ -50,7 +50,13 @@ Then('the row toggles are disabled and carry no duplication field', () => {
   // The framework disables the toggle by rewriting the generated HTML, and the
   // services-by-host page carries its own copy of that rewrite. A regex that
   // stops matching leaves an enabled toggle a read-only user can still click.
-  cy.getIframeBody().find('#clTableBody tr').should('have.length.at.least', 1);
+  // renderEmptyState() injects a real <tr><td colspan=99>, so counting rows
+  // would pass on a listing showing nothing. Require a data row: one that
+  // carries the row picker every rendered record has.
+  cy.getIframeBody()
+    .find('#clTableBody tr .cl-col-picker')
+    .should('have.length.at.least', 1);
+  cy.getIframeBody().find('#clTableBody .cl-empty-state').should('not.exist');
   cy.getIframeBody()
     .find('#clTableBody input[type="checkbox"][data-row-id]')
     .each(($toggle) => {
