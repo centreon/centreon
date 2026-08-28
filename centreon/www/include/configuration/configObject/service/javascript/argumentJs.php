@@ -129,13 +129,25 @@ function transformForm()
         // Surface it and keep the previous content rather than silently
         // offering an empty, submittable field set.
         error: function () {
+            var message = (window.clI18n && window.clI18n.argumentsLoadError)
+                || 'Command arguments could not be loaded. Reload the page before saving, otherwise the current arguments will be lost.';
             var target = document.getElementById('dynamicDiv');
-            if (target && target.children.length === 0) {
-                var warning = document.createElement('div');
-                warning.className = 'cf-row';
-                warning.textContent = (window.clI18n && window.clI18n.argumentsLoadError)
-                    || 'Command arguments could not be loaded. Reload the page before saving, otherwise the current arguments will be lost.';
-                target.appendChild(warning);
+            if (target) {
+                // The rows on screen belong to the command that was selected before
+                // this call: they are stale and must not be submitted against the new
+                // one. Disable them and say so, rather than leaving them editable.
+                target.querySelectorAll('input, select, textarea').forEach(function (field) {
+                    field.disabled = true;
+                });
+                if (target.children.length === 0) {
+                    var warning = document.createElement('div');
+                    warning.className = 'cf-row';
+                    warning.textContent = message;
+                    target.appendChild(warning);
+                }
+            }
+            if (typeof clToast === 'function') {
+                clToast(message, 'error');
             }
         }
     });
