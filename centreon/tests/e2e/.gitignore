@@ -4,3 +4,8 @@ fixtures/packages
 cucumber-messages.ndjson
 cypress
 *.yml
+
+# Local-only harness written by the test-pr skill: points at a developer's CDE,
+# useless to CI. Ignored so a `git add` on this directory cannot sweep it in.
+cypress.local.config.ts
+support/e2e.local.ts

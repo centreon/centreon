@@ -253,11 +253,25 @@ try {
     header('Pragma: no-cache');
     header('Expires: 0');
     header('Cache-Control: no-cache, must-revalidate');
-    // JSON_INVALID_UTF8_SUBSTITUTE like AjaxListingHelper::jsonResponse(): $args
-    // carries raw macro descriptions and command arguments, and one latin-1 byte
-    // in them would throw, answer 500, and leave the form's argument fields
-    // disabled by the error handler until the row is fixed in SQL.
-    echo json_encode(['args' => $args], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+    // Deliberately NOT JSON_INVALID_UTF8_SUBSTITUTE here, unlike the listings:
+    // 'value' and 'example' are round-tripped back into command_command_id_arg
+    // when the form is saved, so substituting a byte would silently rewrite the
+    // stored argument. A bad byte is reported instead, and the client blocks the
+    // save rather than writing something the user never typed.
+    try {
+        $payload = json_encode(['args' => $args], JSON_THROW_ON_ERROR);
+    } catch (JsonException) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Service form: command arguments hold bytes that are not valid UTF-8',
+            ['service_id' => $svcId]
+        );
+        http_response_code(409);
+        echo json_encode(['error' => 'invalid_encoding'], JSON_THROW_ON_ERROR);
+
+        exit;
+    }
+
+    echo $payload;
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'Service form: failed to fetch the command arguments',

@@ -102,6 +102,27 @@ function renderArgumentRow(arg)
  * with a plain AJAX call and JS templating — much easier to reason about
  * and to actually debug.
  */
+// Stops the enclosing form from being submitted while the argument fields are
+// unusable. Without this, saving writes NULL over command_command_id_arg — the
+// disabled inputs are simply absent from the POST.
+function blockSaveUntilReload(target, message)
+{
+    var form = target.form || target.closest('form');
+    if (!form || form.dataset.clArgumentsBlocked === '1') {
+        return;
+    }
+    form.dataset.clArgumentsBlocked = '1';
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof clToast === 'function') {
+            clToast(message, 'error');
+        } else {
+            window.alert(message);
+        }
+    }, true);
+}
+
 function transformForm()
 {
     jQuery.ajax({
@@ -133,9 +154,11 @@ function transformForm()
                 || 'Command arguments could not be loaded. Reload the page before saving, otherwise the current arguments will be lost.';
             var target = document.getElementById('dynamicDiv');
             if (target) {
-                // The rows on screen belong to the command that was selected before
-                // this call: they are stale and must not be submitted against the new
-                // one. Disable them and say so, rather than leaving them editable.
+                // Disabling the fields is not enough on its own: a disabled input is
+                // not submitted, getCommandArgs() then sees no ARGn at all and writes
+                // NULL over the stored arguments. Whatever is on screen belongs to a
+                // command that is no longer selected, so saving must be blocked
+                // outright rather than saving the wrong value or none.
                 target.querySelectorAll('input, select, textarea').forEach(function (field) {
                     field.disabled = true;
                 });
@@ -145,6 +168,7 @@ function transformForm()
                     warning.textContent = message;
                     target.appendChild(warning);
                 }
+                blockSaveUntilReload(target, message);
             }
             if (typeof clToast === 'function') {
                 clToast(message, 'error');
