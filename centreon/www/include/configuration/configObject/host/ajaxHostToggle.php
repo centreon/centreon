@@ -86,8 +86,8 @@ try {
 
     if ($objName === false) {
         // Covers "does not exist" and "outside your ACL" with one answer, so no
-        // existence oracle appears — which is also why the server has to record
-        // which of the two it was.
+        // existence oracle appears. The server cannot tell the two apart either —
+        // the lookup is ACL-scoped — hence the deliberately ambiguous log line.
         if (! $helper->isAdmin()) {
             $helper->logAccessDenial('host toggle (object outside ACL, or absent)', 60101);
         }

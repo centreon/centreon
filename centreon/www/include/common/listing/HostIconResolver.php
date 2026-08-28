@@ -31,7 +31,7 @@ require_once __DIR__ . '/AjaxListingHelper.php';
  * Resolves the icon of hosts and host templates, inheriting from the template
  * chain when the object defines none of its own.
  *
- * The walk matches getMyHostExtendedInfoImage(): every direct template is
+ * The walk matches getMyHostExtendedInfoImage() on inheritance order: every direct template is
  * followed, in `order`, and a template that carries no icon is exhausted
  * through its own chain before the next one is looked at. An object linked to
  * a generic template first and to an icon-bearing pack second must still show
@@ -44,8 +44,10 @@ require_once __DIR__ . '/AjaxListingHelper.php';
  *   through CLAPI or an import), so each object carries its own visited set —
  *   that alone makes the walk finite, and is how the legacy CentreonHost
  *   inheritance helpers guard cycles too (`$alreadyProcessed`). MAX_NODES_PER_OBJECT
- *   is a separate ceiling on depth: past it the object keeps the default glyph,
- *   which resolve() logs, since only abnormal data reaches it.
+ *   is a separate ceiling on the number of nodes popped for one object, not on
+ *   the depth of its chain: an object with more icon-less templates than the cap
+ *   gives up while still at level one. Past it the object keeps the default
+ *   glyph, which resolve() logs — a wide hierarchy reaches this on healthy data.
  * - every row of the page shares the same two queries at each step — the icons
  *   of the nodes being looked at, and their templates — so a listing of N rows
  *   costs a constant number of queries per step instead of N × the size of its
@@ -53,14 +55,15 @@ require_once __DIR__ . '/AjaxListingHelper.php';
  */
 final class HostIconResolver
 {
-    /** Safety net on top of the per-object visited set. */
+    /** Maximum number of nodes popped for one object before the walk gives up on it. */
     private const MAX_NODES_PER_OBJECT = 50;
 
     /**
      * @param int[] $hostIds Host or host-template ids to resolve
      *
      * @return array<int, string> Icon path indexed by requested id; ids with no
-     *                            icon anywhere in their chain are absent
+     *                            icon anywhere in their chain are absent, as are
+     *                            the ids the walk gave up on (logged by resolve())
      */
     public static function resolve(CentreonDB $db, array $hostIds): array
     {

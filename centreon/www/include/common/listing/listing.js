@@ -348,9 +348,8 @@ function CentreonListing(config) {
     // One read-only policy for both render paths. Parsed rather than pattern-matched:
     // [^>] cannot cross the ">" inside an inline handler, so a regex silently missed
     // any control carrying one. DOMParser returns a document with no browsing context,
-    // so the svg this markup carries never starts loading, and the parse is a read
-    // rather than a write into a node — assigning to innerHTML, even on a detached
-    // one, reads as a write sink to a scanner that cannot see the inertness.
+    // so the svg this markup carries never starts loading, and parsing into it is a
+    // read rather than a write into a live-looking node.
     var readOnlyParser = null;
     function stripWriteControls(optHtml) {
         if (!readOnlyParser) { readOnlyParser = new DOMParser(); }
@@ -694,7 +693,7 @@ function CentreonListing(config) {
                 csrfToken = data.centreon_token || '';
 
                 // Concurrent deletion can leave a persisted page beyond the new
-                // total. Fetch the last valid page instead of rendering 91-40 of 40.
+                // total. Fetch the last valid page instead of rendering a "91-40 of 40" page.
                 if (!cfg.infiniteScroll) {
                     var lastPage = data.total > 0 ? Math.ceil(data.total / data.limit) - 1 : 0;
                     if (data.num > lastPage) {

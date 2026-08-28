@@ -81,7 +81,8 @@ try {
     // Service counts, parent templates and icons of the listed templates, all
     // resolved for the whole page rather than per row: with a page size of up to
     // MAX_LIMIT and a 30s auto-refresh, per-row lookups mean thousands of queries
-    // per tick. The icon walk takes two queries per inheritance level.
+    // per tick. The icon walk takes one query up front plus two per step, a step
+    // being one node popped per object rather than one inheritance level.
     $svcCounts       = [];
     $templatesByHost = [];
     $icons           = [];

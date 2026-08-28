@@ -439,6 +439,10 @@ var CentreonForm = (function () {
             // load (scheduling, relations, data, extended), so their radio groups
             // were left raw while the open sections got segmented controls — the
             // same field rendering two different ways depending on the section.
+            //
+            // This keys on the inline style string: moving those holders to a
+            // utility class would silently stop skipping them, and nothing here
+            // would fail.
             if (input.closest('[style*="display:none"], [style*="display: none"]')) return;
             var field = input.closest('.cf-field') || input.closest('.cf-segmented-row');
             if (!field || field.classList.contains('cf-segmented-row')) return;
@@ -1360,13 +1364,16 @@ var CentreonForm = (function () {
     /**
      * Is this the option the form currently holds?
      *
-     * On an editable form that is the input's own checked state. On a read-only
-     * one there is no radio or checkbox left to ask: QuickForm renders a frozen
-     * element as its value plus a persistent hidden input, and emits that hidden
-     * input ONLY for the option that was selected. It keeps the element's id and
-     * name, so getElementById() and the [name][value] lookup still land on it —
-     * but .checked is false on a hidden input, which is why a read-only form used
-     * to show its segmented controls and chips with nothing selected.
+     * Any hidden input counts as selected — the test is unconditional, it does not
+     * look at whether the form is frozen. That is the read-only case: QuickForm
+     * renders a frozen element as its value plus a persistent hidden input, emitted
+     * ONLY for the option that was selected. It keeps the element's id and name, so
+     * getElementById() and the [name][value] lookup still land on it — but .checked
+     * is false on a hidden input, which is why a read-only form used to show its
+     * segmented controls and chips with nothing selected.
+     *
+     * It relies on the lookup never landing on an unrelated hidden input carrying
+     * the same id, or the same name and value, on an editable form.
      *
      * @private
      * @param {HTMLInputElement|null} input

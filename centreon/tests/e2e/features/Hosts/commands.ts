@@ -187,10 +187,11 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
 });
 
 Cypress.Commands.add('setIconWithSql', (name: string) => {
-  // The icon column is the one value the listing computes rather than reads:
-  // HostIconResolver walks host_template_relation for it. Asserting on it means
-  // an object has to actually carry an icon, and no other suite sets one. Any
-  // media reachable through a directory does — the platform ships at least one.
+  // The icon column is the one value the listing derives by walking the template
+  // chain: HostIconResolver follows host_template_relation for it. Asserting on it
+  // means an object has to actually carry an icon, and no other suite sets one. Any
+  // media reachable through a directory does; the read-back below is what proves
+  // one was found.
 
   // The row comes with the object in the normal flow, but a template shipped
   // with the platform can predate it: insert it when missing so the update

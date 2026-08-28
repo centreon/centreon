@@ -243,10 +243,12 @@ class AjaxListingHelper
      */
     public function validateCsrfToken(): string
     {
-        // Purge first: nothing else on the AJAX path does, while every listing
-        // response mints a token. Without this the pool grows with each refresh tick
-        // and the 15-minute lifetime the rest of the application assumes never
-        // applies to these endpoints.
+        // Purge first. Nothing outside these endpoints expires tokens on the AJAX
+        // path, so both sites that touch the pool purge before touching it: this
+        // one and jsonResponse(). On a POST the two run in the same request, which
+        // is harmless — the second finds nothing left to drop. Without either, the
+        // pool grows with each refresh tick and the 15-minute lifetime the rest of
+        // the application assumes never applies to these endpoints.
         if (isset($_SESSION['x-centreon-token-generated-at'])) {
             purgeOutdatedCSRFTokens();
         }
@@ -363,7 +365,7 @@ class AjaxListingHelper
     public function jsonResponse(array $rows, int $total, int $num, int $limit, array $extra = []): void
     {
         // Purge before minting: a listing on a 15s auto-refresh mints a token per
-        // tick, and nothing else on this path expires them.
+        // tick. Same reason as validateCsrfToken(), which purges too — see there.
         if (isset($_SESSION['x-centreon-token-generated-at'])) {
             purgeOutdatedCSRFTokens();
         }

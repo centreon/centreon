@@ -164,8 +164,9 @@ try {
     // Pollers, parent templates and icons of the listed hosts, resolved for the
     // whole page rather than per row: with a page size of up to MAX_LIMIT and a
     // 15s auto-refresh, a per-row lookup means thousands of queries per tick.
-    // Pollers and templates take one query each; the icon walk climbs the
-    // template chain and takes two per level (see HostIconResolver).
+    // Pollers and templates take one query each; the icon walk takes one query
+    // up front plus two per step, a step being one node popped per object rather
+    // than one inheritance level (see HostIconResolver).
     $hostPollers     = [];
     $templatesByHost = [];
     $icons           = [];
