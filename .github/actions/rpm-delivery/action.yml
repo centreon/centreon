@@ -44,14 +44,14 @@ runs:
 
     - uses: jfrog/setup-jfrog-cli@1641575d87647fb969c0545f0b6a76873e328b7c # v5.0.0
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - if: inputs.delivery_type == 'feature'
       name: Create a rpm feature repository
       shell: bash
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
         GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
         CENTREON_TECHNIQUE_PAT: ${{ inputs.centreon_technique_pat }}
@@ -97,7 +97,7 @@ runs:
     - name: Publish RPMs
       shell: bash
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
         GH_HEAD_REF: ${{ github.head_ref || github.ref_name }}
         MODULE_NAME: ${{ inputs.module_name }}
