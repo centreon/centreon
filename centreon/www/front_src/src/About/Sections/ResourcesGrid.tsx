@@ -1,9 +1,10 @@
 import GitHubIcon from '@mui/icons-material/GitHub';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
+import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import HelpCircleIcon from '../Icons/HelpCircleIcon';
 import TheWatchIcon from '../Icons/TheWatchIcon';
 import {
   labelBrowseTheDocs,
@@ -29,20 +30,20 @@ const links = {
   watch: 'https://thewatch.centreon.com'
 };
 
-const ResourcesGrid = (): JSX.Element => {
+const ResourcesGrid = (): ReactElement => {
   const { t } = useTranslation();
 
   return (
     <div className="border-t border-divider pt-3">
-      <p className="mb-2 font-medium text-[#131D5A]">
+      <p className="mb-2 font-medium text-section-title">
         {t(labelGetMoreFromCentreon)}
       </p>
-      <div className="grid grid-cols-1 gap-x-1.5 gap-y-1.5 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <ResourceCard
           actionLabel={labelBrowseTheDocs}
           description={labelDocumentationAndGuidesDescription}
           href={links.docs}
-          Icon={HelpCircleIcon}
+          Icon={HelpOutlineIcon}
           title={labelDocumentationAndGuides}
         />
         <ResourceCard

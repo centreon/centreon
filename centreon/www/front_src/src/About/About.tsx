@@ -4,6 +4,7 @@ import {
 } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
+import type { ReactElement } from 'react';
 
 import Hero from './Hero';
 import Row from './Row';
@@ -14,7 +15,7 @@ import ResourcesGrid from './Sections/ResourcesGrid';
 import SecurityNotice from './Sections/SecurityNotice';
 import { labelProjectAndContributors, labelSecurity } from './translatedLabels';
 
-const About = (): JSX.Element => {
+const About = (): ReactElement => {
   const platformVersion = useAtomValue(platformVersionsAtom);
   const platformFeatures = useAtomValue(platformFeaturesAtom);
 

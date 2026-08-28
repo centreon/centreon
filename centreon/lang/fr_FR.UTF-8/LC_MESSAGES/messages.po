@@ -1190,7 +1190,7 @@ msgstr "Un grand merci à tous les développeurs et contributeurs."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues."
-msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable et aidé à corriger des failles de sécurité."
+msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"

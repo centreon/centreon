@@ -103,6 +103,9 @@
   --color-secondary-light: #e5a5f0;
   --color-secondary-dark: #ac28c1;
 
+  /* Section title color */
+  --color-section-title: #131d5a;
+
   /* Status colors */
   --color-status-background-error: #ff6666;
   --color-status-background-none: --alpha(#2e68aa / 10%);
@@ -193,6 +196,7 @@
     --color-primary-dark: #4974a5;
     --color-primary-contrastText: #000;
     --color-secondary-main: #7c1fa2;
+    --color-section-title: #ffffff;
     --color-status-background-error: #d60101;
     --color-status-background-none: --alpha(#2e68aa / 10%);
     --color-status-background-pending: #118077;

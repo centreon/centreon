@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -11,20 +12,20 @@ export const projectLeaders = ['Julien Mathis', 'Romain Le Merlus'];
 const contributorsGraphUrl =
   'https://github.com/centreon/centreon/graphs/contributors';
 
-const Credits = (): JSX.Element => {
+const Credits = (): ReactElement => {
   const { t } = useTranslation();
 
   return (
     <div>
-      <p className="mb-1.5 font-bold text-text-primary">
+      <p className="mb-2 font-bold text-text-primary">
         {t(labelProjectLeaders)}{' '}
         <span className="font-normal text-text-secondary">
           ({projectLeaders.length})
         </span>
       </p>
-      <div className="mb-2 flex flex-wrap items-center gap-1.5 text-text-secondary">
+      <div className="mb-2 flex flex-wrap items-center gap-2 text-text-secondary">
         {projectLeaders.map((name, index) => (
-          <span className="flex gap-1.5" key={name}>
+          <span className="flex gap-2" key={name}>
             {index > 0 && <span className="text-text-disabled">/</span>}
             <span>{name}</span>
           </span>
