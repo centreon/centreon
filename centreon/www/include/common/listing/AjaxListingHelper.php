@@ -53,6 +53,9 @@ class AjaxListingHelper
     /** Absolute ceiling on the requested page size (crafted-input safety net). */
     private const MAX_LIMIT = 1000;
 
+    /** Absolute ceiling on the requested page index: num * limit must stay an int. */
+    private const MAX_NUM = 100000;
+
     private CentreonDB $db;
 
     private mixed $centreon;
@@ -69,6 +72,8 @@ class AjaxListingHelper
     /**
      * Bootstrap the AJAX endpoint: config, Composer autoloader, session, JSON header.
      * Exits with appropriate HTTP error on failure.
+     *
+     * @throws JsonException
      */
     public static function boot(): self
     {
@@ -115,7 +120,7 @@ class AjaxListingHelper
     }
 
     /**
-     * Get sanitized listing parameters from the request.
+     * Get listing parameters from the request.
      *
      * @return array{search: string, num: int, limit: int}
      */
@@ -127,13 +132,13 @@ class AjaxListingHelper
         $defaultLimit = $this->getDefaultLimit();
 
         $num = filter_var($_GET['num'] ?? 0, FILTER_VALIDATE_INT);
-        $num = ($num === false || $num < 0) ? 0 : $num;
+        $num = ($num === false || $num < 0) ? 0 : min($num, self::MAX_NUM);
 
         $limit = filter_var($_GET['limit'] ?? $defaultLimit, FILTER_VALIDATE_INT);
         $limit = ($limit === false || $limit < 1) ? $defaultLimit : min($limit, self::MAX_LIMIT);
 
         return [
-            'search' => HtmlSanitizer::createFromString((string) ($_GET['search'] ?? ''))->sanitize()->removeTags()->getString(),
+            'search' => self::escapeLikeWildcards((string) ($_GET['search'] ?? '')),
             'num'    => $num,
             'limit'  => $limit,
         ];
@@ -148,12 +153,15 @@ class AjaxListingHelper
     }
 
     /**
-     * Get the Centreon session object, or exit 403 if unavailable.
+     * Get the Centreon session object, or exit 401 if unavailable. A caller with no
+     * session is not the same as one denied a page, which answers 403.
+     *
+     * @throws JsonException
      */
     public function requireCentreon(): mixed
     {
         if (! $this->centreon) {
-            self::jsonError('Forbidden', 403);
+            self::jsonError('Unauthenticated', 401);
         }
 
         return $this->centreon;
@@ -184,25 +192,55 @@ class AjaxListingHelper
     }
 
     /**
+     * Require read access on a given topology page. Exits 403 when the page is
+     * outside the user's menu. Admins always pass.
+     *
+     * These endpoints are reachable directly, unlike the legacy pages they
+     * replace, which were only served through main.php and its topology check.
+     * Listings whose objects carry no per-object ACL rely on this alone.
+     *
+     * @param int $pageId The topology page number (60806 for connectors)
+     * @param array<string, mixed> $extra Additional fields to return with the error
+     *
+     * @throws JsonException
+     */
+    public function requireReadAccess(int $pageId, array $extra = []): void
+    {
+        if ($this->isAdmin()) {
+            return;
+        }
+        $acl = $this->getAcl();
+        // CentreonACL::page() returns 0 (no access), 1 (read/write) or 2 (read only).
+        if (! $acl || $acl->page($pageId) === 0) {
+            self::jsonError('Forbidden', 403, $extra);
+        }
+    }
+
+    /**
      * Require write access on a given topology page. Exits 403 if read-only or no access.
      * Admins always pass.
      *
-     * @param int $pageId The topology page number (e.g. 60101 for hosts, 60201 for servicegroups)
+     * @param int $pageId The topology page number (60806 for connectors, 60104 for host categories)
+     * @param array<string, mixed> $extra Additional fields to return with the error
+     *
+     * @throws JsonException
      */
-    public function requireWriteAccess(int $pageId): void
+    public function requireWriteAccess(int $pageId, array $extra = []): void
     {
         if ($this->isAdmin()) {
             return;
         }
         $acl = $this->getAcl();
         if (! $acl || $acl->page($pageId) !== 1) {
-            self::jsonError('Write access denied', 403);
+            self::jsonError('Write access denied', 403, $extra);
         }
     }
 
     /**
      * Validate and consume a CSRF token from POST. Exits 403 on failure.
      * Returns a fresh token for the next request.
+     *
+     * @throws JsonException
      */
     public function validateCsrfToken(): string
     {
@@ -230,11 +268,23 @@ class AjaxListingHelper
     public function logToggleAction(string $objectType, int $objectId, string $objectName, string $actionType): void
     {
         try {
+            // Neither this constructor nor CentreonDB's storage factory can be made
+            // to throw here: on a connection failure the constructor answers with an
+            // HTML error page and exit() for every non-CLI SAPI, so the catch below
+            // never sees it. Callers must therefore close their response before
+            // calling this method — see ajaxConnectorToggle.php.
             $storageDb = new CentreonDB('centstorage');
 
-            // Skip when audit logging is disabled in the configuration.
             $auditOpt = $storageDb->fetchOne('SELECT `audit_log_option` FROM `config` LIMIT 1');
-            if ($auditOpt != '1') {
+            if ($auditOpt === false || $auditOpt === null) {
+                // No config row at all: auditing is off by accident, not by choice.
+                Logger::create(LogChannelEnum::WEB)->error(
+                    'AJAX listing: centstorage config row is missing, audit trail is disabled'
+                );
+
+                return;
+            }
+            if ((string) $auditOpt !== '1') {
                 return;
             }
 
@@ -266,6 +316,8 @@ class AjaxListingHelper
 
     /**
      * Send a successful JSON listing response and exit.
+     *
+     * @throws JsonException
      */
     public function jsonResponse(array $rows, int $total, int $num, int $limit): void
     {
@@ -295,13 +347,35 @@ class AjaxListingHelper
 
     /**
      * Send a JSON error response and exit.
+     *
+     * @param array<string, mixed> $extra Additional fields to merge into the body, which
+     *                                    cannot override the message itself. An
+     *                                    endpoint that consumed the CSRF token before
+     *                                    failing must return the replacement here, or
+     *                                    the client's next call dies on a stale token.
+     *
+     * @throws JsonException
      */
-    public static function jsonError(string $message, int $httpCode = 400): void
+    public static function jsonError(string $message, int $httpCode = 400, array $extra = []): never
     {
         http_response_code($httpCode);
-        echo json_encode(['error' => $message]);
+        echo json_encode(array_merge($extra, ['error' => $message]), JSON_THROW_ON_ERROR);
 
         exit;
+    }
+
+    /**
+     * Escape the LIKE wildcards of a search term, so a literal % or _ filters on
+     * itself instead of matching anything.
+     *
+     * The term is deliberately not HTML-encoded: callers only ever bind it as a
+     * query parameter, and htmlspecialchars() turned a search for the characters
+     * command lines are made of (`>`, `&`, `"`, `'`) into a term that matches no
+     * stored row at all. Values are stored raw and escaped at render time.
+     */
+    private static function escapeLikeWildcards(string $search): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
     }
 
     /**

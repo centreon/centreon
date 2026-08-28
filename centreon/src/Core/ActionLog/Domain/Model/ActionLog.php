@@ -32,6 +32,7 @@ class ActionLog
     public const ACTION_TYPE_ENABLE = 'enable';
     public const ACTION_TYPE_DISABLE = 'disable';
     public const OBJECT_TYPE_COMMAND = 'command';
+    public const OBJECT_TYPE_CONNECTOR = 'connector';
     public const OBJECT_TYPE_TIMEPERIOD = 'timeperiod';
     public const OBJECT_TYPE_CONTACT = 'contact';
     public const OBJECT_TYPE_CONTACTGROUP = 'contactgroup';
@@ -87,6 +88,9 @@ class ActionLog
         self::OBJECT_TYPE_MANUFACTURER,
         self::OBJECT_TYPE_HOSTCATEGORIES,
         self::OBJECT_TYPE_SERVICECATEGORIES,
+        // Appended on purpose: Administration > Logs turns this list into positional
+        // option values, so inserting anywhere else renumbers every type after it.
+        self::OBJECT_TYPE_CONNECTOR,
     ];
 
     private ?int $id = null;

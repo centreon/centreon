@@ -216,6 +216,8 @@ function CentreonListing(config) {
     // Auto-refresh timer handle — stored so init() can clear it before re-arming
     // (init() may run more than once on combo pages; otherwise timers stack).
     var autoRefreshTimer = null;
+    // A silent (auto-refresh) failure is announced once, not on every tick.
+    var refreshStalled = false;
 
     // =====================================================================
     // Public: HTML escape utility
@@ -246,7 +248,8 @@ function CentreonListing(config) {
     };
 
     // =====================================================================
-    // Internal: save / restore checked row checkboxes
+    // Internal: save / restore per-row state across a re-render (checked
+    // checkboxes and typed row inputs)
     // =====================================================================
 
     function getCheckedIds() {
@@ -256,6 +259,25 @@ function CentreonListing(config) {
             if (name) ids.push(name);
         });
         return ids;
+    }
+
+    function getRowInputValues() {
+        var values = {};
+        jQuery('#' + cfg.tableBodyId + ' .cl-dup-input').each(function () {
+            var name = this.getAttribute('name');
+            if (name) { values[name] = this.value; }
+        });
+        return values;
+    }
+
+    function restoreRowInputValues(values) {
+        if (!values) return;
+        jQuery('#' + cfg.tableBodyId + ' .cl-dup-input').each(function () {
+            var name = this.getAttribute('name');
+            if (name && Object.prototype.hasOwnProperty.call(values, name)) {
+                this.value = values[name];
+            }
+        });
     }
 
     function restoreCheckedIds(ids) {
@@ -546,6 +568,9 @@ function CentreonListing(config) {
         } catch(e) {}
 
         var checkedIds = getCheckedIds();
+        // The auto-refresh re-renders every row, so a duplication count typed but
+        // not yet submitted would silently fall back to 1.
+        var rowInputValues = getRowInputValues();
 
         if (firstLoad) {
             jQuery('#' + cfg.tableBodyId).html(
@@ -568,7 +593,36 @@ function CentreonListing(config) {
             dataType: 'json',
             data: jQuery.extend({ search: search, num: num, limit: limit }, typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams),
             success: function (data) {
+                if (!data || !Array.isArray(data.rows)) {
+                    // A 200 whose body carries no rows is a failure, not an empty
+                    // page: rendering it as empty would also blank the token below
+                    // and make every later action fail on a stale one.
+                    if (window.console) {
+                        console.error('[CentreonListing] malformed listing response', data);
+                    }
+                    if (isAppend) {
+                        isLoadingMore = false;
+                        jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
+                    }
+                    if (firstLoad) {
+                        jQuery('#' + cfg.tableBodyId).html(
+                            '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">' +
+                            clEscape(clListingLabel('loadError', 'Error loading data')) + '</td></tr>'
+                        );
+                    } else {
+                        clToast(clListingLabel('loadError', 'Error loading data'), 'error');
+                    }
+                    return;
+                }
+
+                refreshStalled = false;
                 csrfToken = data.centreon_token || '';
+                // The batch form's token is minted once at render and purged after
+                // 15 min, while this page is built never to navigate: refresh it on
+                // every response or Delete/Duplicate start refusing on a live page.
+                if (csrfToken) {
+                    jQuery('input[name="centreon_token"]').val(csrfToken);
+                }
                 var tbody = jQuery('#' + cfg.tableBodyId);
 
                 if (cfg.infiniteScroll && isAppend) {
@@ -596,7 +650,17 @@ function CentreonListing(config) {
                         self.renderPagination(data.total, data.num, data.limit);
                     }
                     restoreCheckedIds(checkedIds);
+                    restoreRowInputValues(rowInputValues);
                     jQuery('#' + cfg.limitInputId).val(data.limit);
+
+                    // Deleting the last rows of the last page leaves the stored page
+                    // past the end: the table reads empty and the counter reads
+                    // backwards. Land on the last page that still holds rows.
+                    if (data.total > 0 && data.num > 0 && data.num * data.limit >= data.total) {
+                        self.fetch(Math.ceil(data.total / data.limit) - 1, data.limit, currentSearch, silent);
+
+                        return;
+                    }
                     if (!silent) {
                         void tbody[0].offsetWidth;
                         tbody.addClass('cl-fade-in');
@@ -621,10 +685,23 @@ function CentreonListing(config) {
 
                 var httpStatus = xhr && xhr.status;
                 if (httpStatus === 401 || httpStatus === 403) {
-                    // Session expired / access lost mid-view: stop the auto-refresh
-                    // so we don't hammer a dead session, and tell the user.
+                    // Stop the auto-refresh either way, so we don't hammer a dead
+                    // session. 401 is a lost session, 403 is a page the user is no
+                    // longer allowed on: telling them to reload would send them
+                    // chasing an authentication problem they do not have.
                     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    var accessMessage = httpStatus === 403
+                        ? clListingLabel('accessDenied', 'You are not allowed to access this page.')
+                        : clListingLabel('sessionExpired', 'Your session has expired — please reload the page.');
+                    clToast(accessMessage, 'error');
+                    // The toast fades, so on a first load the placeholder would stay
+                    // on screen for good with no explanation.
+                    if (firstLoad) {
+                        jQuery('#' + cfg.tableBodyId).html(
+                            '<tr><td colspan="99" style="text-align:center;padding:24px;color:#FF4A4A;">' +
+                            clEscape(accessMessage) + '</td></tr>'
+                        );
+                    }
                     return;
                 }
 
@@ -637,6 +714,11 @@ function CentreonListing(config) {
                     // Surface later failures (page change, search) instead of silently
                     // leaving stale rows on screen as if they matched the new request.
                     clToast(clListingLabel('loadError', 'Error loading data'), 'error');
+                } else if (!refreshStalled) {
+                    // The auto-refresh is the only thing keeping the rows current, so
+                    // a frozen listing has to say so rather than look live.
+                    refreshStalled = true;
+                    clToast(clListingLabel('refreshStalled', 'The list is no longer refreshing — reload the page.'), 'error');
                 }
             }
         });
@@ -858,23 +940,47 @@ function CentreonListing(config) {
                 centreon_token: csrfToken
             },
             success: function (response) {
-                if (response.centreon_token) {
+                if (response && response.centreon_token) {
                     csrfToken = response.centreon_token;
                 }
                 toggle.disabled = false;
+                if (!response || response.success !== true) {
+                    // A 200 whose body is not a success is still a failure: without
+                    // this the switch stays flipped over an unchanged row.
+                    toggle.checked = !isChecked;
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
             },
             error: function (xhr, status, err) {
                 // Revert the optimistic switch and re-enable it (kept), but tell
                 // the user instead of leaving a silently-reverted toggle.
                 toggle.checked = !isChecked;
                 toggle.disabled = false;
+                var payload = (xhr && xhr.responseJSON) || {};
+                // Some endpoints consume the CSRF token before they can fail and
+                // hand the replacement back with the error. Take it when it is there.
+                if (payload.centreon_token) {
+                    csrfToken = payload.centreon_token;
+                }
                 if (window.console) {
                     console.error('[CentreonListing] toggle failed', (xhr && xhr.status) || '', status, err);
                 }
-                clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
-                // A stale CSRF token (403) would make every subsequent toggle fail
-                // too; a silent list refresh pulls a fresh token so the next works.
-                if (xhr && xhr.status === 403) {
+                var httpStatus = xhr && xhr.status;
+                if (httpStatus === 401) {
+                    // A dead session cannot be recovered by retrying, so stop the
+                    // auto-refresh here too instead of waiting for the next tick.
+                    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                } else if (httpStatus === 404) {
+                    clToast(clListingLabel('toggleNotFound', 'This item no longer exists'), 'error');
+                } else {
+                    clToast(clListingLabel('toggleError', 'Could not change status'), 'error');
+                }
+                // 403 is either a stale token or a write the user may no longer make.
+                // A stale token carries no replacement, so this refetch is the only
+                // way to get a fresh one and stop every later toggle from failing.
+                // 404: the row is gone and has to stop inviting clicks.
+                if (httpStatus === 403 || httpStatus === 404) {
                     self.fetch(currentNum, currentLimit, currentSearch, true);
                 }
             }

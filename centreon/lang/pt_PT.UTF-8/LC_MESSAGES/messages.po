@@ -23940,3 +23940,151 @@ msgstr "Está prestes a duplicar <strong>{{ count }} categorias de host</strong>
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
 
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Add a connector"
+msgstr "Adiciona um conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Modify a connector"
+msgstr "Modifica um conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Delete connector"
+msgstr "Eliminar conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Delete connectors"
+msgstr "Eliminar conectores"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Duplicate connector"
+msgstr "Duplicar conector"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "Duplicate connectors"
+msgstr "Duplicar conectores"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to delete the <strong>{{ name }}</strong> connector. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar o conector <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-lo?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to delete <strong>{{ count }} connectors.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} conectores</strong>. Esta ação não pode ser anulada. Deseja eliminá-los?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to duplicate the <strong>{{ name }}</strong> connector. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar o conector <strong>{{ name }}</strong>. Deseja duplicá-lo?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.php
+msgid "You are about to duplicate <strong>{{ count }} connectors.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} conectores</strong>. Deseja duplicá-los?"
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Define connectors used to speed up plugin execution on your pollers."
+msgstr "Defina os conectores utilizados para acelerar a execução de plugins nos seus coletores."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Search connectors"
+msgstr "Pesquisar conectores"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert resource macro"
+msgstr "Inserir macro de recurso"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert connector"
+msgstr "Inserir conector"
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.ihtml
+msgid "Insert macro"
+msgstr "Inserir macro"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "This item no longer exists"
+msgstr "Este item já não existe"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are not allowed to access this page."
+msgstr "Não tem permissão para aceder a esta página."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Some connectors could not be processed. See the Centreon log for details."
+msgstr "Alguns conectores não puderam ser processados. Consulte o registo do Centreon para mais detalhes."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The form could not be loaded. See the Centreon log for details."
+msgstr "Não foi possível carregar o formulário. Consulte o registo do Centreon para mais detalhes."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The connector could not be saved. See the Centreon log for details."
+msgstr "Não foi possível guardar o conetor. Consulte o registo do Centreon para mais detalhes."
+
+#: centreon/www/include/configuration/configObject/connector/formConnector.php
+msgid "The connector was saved, but the list could not be displayed. Reload the page."
+msgstr "O conetor foi guardado, mas a lista não pôde ser apresentada. Recarregue a página."
+
+#: centreon/www/include/configuration/configObject/connector/listConnector.ihtml
+msgid "Some connectors were left out: their duplication count is not a valid number."
+msgstr "Alguns conetores foram ignorados: o seu número de duplicações não é um número válido."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Delete %s"
+msgstr "Eliminar %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to delete the selected %s. This action cannot be undone. Do you want to continue?"
+msgstr "Está a eliminar os %s selecionados. Esta ação não pode ser anulada. Deseja continuar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Disable %s"
+msgstr "Desativar %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to disable the selected %s. Do you want to continue?"
+msgstr "Está a desativar os %s selecionados. Deseja continuar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Duplicate %s"
+msgstr "Duplicar %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You are about to duplicate the selected %s. Do you want to continue?"
+msgstr "Está a duplicar os %s selecionados. Deseja continuar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You have unsaved changes. Are you sure you want to close this panel without saving?"
+msgstr "Tem alterações não guardadas. Deseja realmente fechar este painel sem guardar?"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Welcome to the %s page"
+msgstr "Bem-vindo à página %s"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "You haven't configured any %s yet. Add your first one below and Centreon will start monitoring it right away."
+msgstr "Ainda não configurou nenhum %s. Adicione o primeiro abaixo e o Centreon começará a monitorizá-lo imediatamente."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Nothing configured yet. Add your first entry below to get started."
+msgstr "Ainda não há nada configurado. Adicione uma primeira entrada abaixo para começar."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Select"
+msgstr "Selecionar"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Error loading data"
+msgstr "Erro ao carregar os dados"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Could not change status"
+msgstr "Não foi possível alterar o estado"
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "Your session has expired — please reload the page."
+msgstr "A sua sessão expirou — recarregue a página."
+
+#: centreon/www/include/common/templates/clI18n.ihtml
+msgid "The list is no longer refreshing — reload the page."
+msgstr "A lista já não é atualizada — recarregue a página."

@@ -17,11 +17,19 @@
  * For more information : contact@centreon.com
  *
  */
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 require_once __DIR__ . '/formConnectorFunction.php';
+
+// The try below spans submission, persistence and rendering; this says which of
+// them failed, so a saved connector is never reported as a failed save.
+$formStage = 'render';
 
 try {
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($path);
+    $tpl->assign('centreon_path', _CENTREON_PATH_);
 
     $cnt = [];
     if (($o == 'c' || $o == 'w') && isset($connector_id)) {
@@ -81,21 +89,23 @@ try {
     . ($connector_id ?? ''), 'availableDatasetRoute' => './include/common/webServices/rest/internal.php?'
     . 'object=centreon_configuration_command&action=list', 'linkedObject' => 'centreonCommand'];
 
-    $form->addElement('text', 'connector_name', _('Connector Name'), $attrsText);
-    $form->addElement('text', 'connector_description', _('Connector Description'), $attrsText);
+    $form->addElement('text', 'connector_name', _('Connector Name'), $attrsText + ['id' => 'connector_name']);
+    $form->addElement('text', 'connector_description', _('Connector Description'), $attrsText + ['id' => 'connector_description']);
     $form->addElement('textarea', 'command_line', _('Command Line'), $attrsTextarea);
 
-    $form->addElement('select', 'resource', null, $resource);
-    $form->addElement('select', 'macros', null, $macros);
+    // The three insertion lists sit next to their + button and have no visible
+    // label of their own, so they carry their name as an attribute.
+    $form->addElement('select', 'resource', null, $resource, ['aria-label' => _('Resources')]);
+    $form->addElement('select', 'macros', null, $macros, ['aria-label' => _('Macros')]);
     ksort($availableConnectors_list);
-    $form->addElement('select', 'plugins', null, $availableConnectors_list);
+    $form->addElement('select', 'plugins', null, $availableConnectors_list, ['aria-label' => _('Connectors')]);
 
     $form->addElement('select2', 'command_id', _('Used by command'), [], $attrCommands);
 
     $cntStatus = [];
     $cntStatus[] = $form->createElement('radio', 'connector_status', null, _('Enabled'), '1');
     $cntStatus[] = $form->createElement('radio', 'connector_status', null, _('Disabled'), '0');
-    $form->addGroup($cntStatus, 'connector_status', _('Connector Status'), '&nbsp;&nbsp;');
+    $form->addGroup($cntStatus, 'connector_status', _('Status'), '&nbsp;&nbsp;');
 
     if (isset($cnt['connector_status']) && is_numeric($cnt['connector_status'])) {
         $form->setDefaults(['connector_status' => $cnt['connector_status']]);
@@ -110,7 +120,7 @@ try {
                 'change',
                 _('Modify'),
                 ['onClick' => "javascript:window.location.href='?p="
-                    . $p . '&o=c&connector_id=' . $connector_id . '&status=' . $status . "'"]
+                    . $p . '&o=c&id=' . $connector_id . "'"]
             );
         }
         $form->setDefaults($cnt);
@@ -135,6 +145,7 @@ try {
 
     $valid = false;
     if ($form->validate()) {
+        $formStage = 'save';
         $cntObj = new CentreonConnector($pearDB);
         $tab = $form->getSubmitValues();
         $connectorValues = [];
@@ -151,6 +162,8 @@ try {
             } elseif ($form->getSubmitValue('submitC')) {
                 $cntObj->update($connectorId, $connectorValues);
             }
+            // Committed: from here a failure is only about showing the listing.
+            $formStage = 'saved';
             $valid = true;
         }
     }
@@ -158,12 +171,17 @@ try {
     if ($valid) {
         require_once $path . 'listConnector.php';
     } else {
+        $formStage = 'render';
         $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
         $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
         $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
         $form->accept($renderer);
         $tpl->assign('form', $renderer->toArray());
         $tpl->assign('o', $o);
+        // Once the radio group is frozen (View mode) the toggle is the only status
+        // display, so it is rendered checked server-side. Everywhere else syncToggle
+        // re-reads the group, so this has to agree with the QuickForm default.
+        $tpl->assign('connectorStatusOn', ($cnt['connector_status'] ?? '0') === '1');
         $tpl->assign(
             'helpattr',
             'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, "orange",'
@@ -179,8 +197,26 @@ try {
 
         $tpl->display('formConnector.ihtml');
     }
-} catch (Exception $e) {
-    echo 'Erreur n°' . $e->getCode() . ' : ' . $e->getMessage();
+} catch (Throwable $exception) {
+    $logMessage = match ($formStage) {
+        'save' => 'Connectors: failed to save the form',
+        'saved' => 'Connectors: saved, but failed to render the listing',
+        default => 'Connectors: failed to render the form',
+    };
+    $userMessage = match ($formStage) {
+        'save' => _('The connector could not be saved. See the Centreon log for details.'),
+        'saved' => _('The connector was saved, but the list could not be displayed. Reload the page.'),
+        default => _('The form could not be loaded. See the Centreon log for details.'),
+    };
+    echo '<p style="padding:16px;color:#FF4A4A;">' . $userMessage . '</p>';
+
+    // (int) '' is 0, so a creation that failed before create() returned has to fall
+    // back on the requested id rather than log id 0.
+    $loggedId = empty($connectorId) ? ($connector_id ?? null) : $connectorId;
+    Logger::create(LogChannelEnum::WEB)->error(
+        $logMessage,
+        ['id' => $loggedId, 'action' => $o ?? null, 'exception' => $exception]
+    );
 }
 
 ?>

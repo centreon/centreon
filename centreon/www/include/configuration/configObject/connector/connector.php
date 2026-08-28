@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -29,16 +32,32 @@ require_once $path . 'DB-Func.php';
 
 $connectorObj = new CentreonConnector($pearDB);
 
-if (isset($_REQUEST['select'])) {
-    $select = $_REQUEST['select'];
+// Caps the duplication count, which comes straight from the request and drives
+// one INSERT each. 999 is the largest value the 3-character input accepts.
+const MAX_DUPLICATES_PER_CONNECTOR = 999;
+
+// Batch failures the operator cannot act on, which point at the server log.
+// Mistyped duplication counts are kept apart: those are fixed in the form itself.
+$batchErrors = [];
+$batchInvalid = [];
+
+$select = $_REQUEST['select'] ?? null;
+
+// The listing only ever posts select[] as an array of ids, so a scalar is a forged
+// or broken request: report it instead of applying the action to nothing.
+$selectedConnectors = [];
+if (is_array($select)) {
+    $selectedConnectors = array_keys($select);
+} elseif ($select !== null) {
+    $batchErrors[] = $select;
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Connectors: malformed batch selection',
+        ['select' => $select]
+    );
 }
 
 if (isset($_REQUEST['id'])) {
     $connector_id = $_REQUEST['id'];
-}
-
-if (isset($_REQUEST['options'])) {
-    $options = $_REQUEST['options'];
 }
 
 // Access level
@@ -87,9 +106,50 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
-                $selectedConnectors = array_keys($select);
+                $duplicateNbr = $_REQUEST['dupNbr'] ?? [];
+                if (! is_array($duplicateNbr)) {
+                    $batchErrors[] = $duplicateNbr;
+                    Logger::create(LogChannelEnum::WEB)->error(
+                        'Connectors: malformed duplication counts',
+                        ['dupNbr' => $duplicateNbr]
+                    );
+                    $duplicateNbr = [];
+                }
                 foreach ($selectedConnectors as $connectorId) {
-                    $connectorObj->copy($connectorId, (int) $options[$connectorId]);
+                    // An empty field or a typed 0 leaves the row out of the batch, as
+                    // the legacy page did. Anything else that yields no copy is a typo
+                    // on a row the operator selected on purpose, so it is reported.
+                    $requested = $duplicateNbr[$connectorId] ?? '';
+                    $isNumeric = is_numeric($requested);
+                    // Any numeric zero is a skip, however it was typed ('0', '00').
+                    $deliberateSkip = $requested === '' || ($isNumeric && (int) $requested === 0);
+                    $copies = $isNumeric
+                        ? min(MAX_DUPLICATES_PER_CONNECTOR, (int) $requested)
+                        : 0;
+
+                    if ($copies < 1) {
+                        if (! $deliberateSkip) {
+                            $batchInvalid[] = $connectorId;
+                            Logger::create(LogChannelEnum::WEB)->warning(
+                                'Connectors: invalid duplication count',
+                                ['id' => $connectorId, 'requested' => $requested]
+                            );
+                        }
+
+                        continue;
+                    }
+
+                    try {
+                        $connectorObj->copy($connectorId, $copies);
+                    } catch (Throwable $exception) {
+                        // copy() throws mid-loop, so an unguarded failure would leave
+                        // a half-applied batch behind a broken page and no log entry.
+                        $batchErrors[] = $connectorId;
+                        Logger::create(LogChannelEnum::WEB)->error(
+                            'Connectors: duplication failed',
+                            ['id' => $connectorId, 'copies' => $copies, 'exception' => $exception]
+                        );
+                    }
                 }
             }
         } else {
@@ -102,9 +162,16 @@ switch ($o) {
         if (isCSRFTokenValid()) {
             purgeCSRFToken();
             if ($lvl_access == 'w') {
-                $selectedConnectors = array_keys($select);
                 foreach ($selectedConnectors as $connectorId) {
-                    $connectorObj->delete($connectorId);
+                    try {
+                        $connectorObj->delete($connectorId);
+                    } catch (Throwable $exception) {
+                        $batchErrors[] = $connectorId;
+                        Logger::create(LogChannelEnum::WEB)->error(
+                            'Connectors: deletion failed',
+                            ['id' => $connectorId, 'exception' => $exception]
+                        );
+                    }
                 }
             }
         } else {

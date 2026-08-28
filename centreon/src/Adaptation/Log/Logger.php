@@ -27,6 +27,7 @@ use Adaptation\Log\Adapter\MonologAdapter;
 use Adaptation\Log\Channel\LogChannelInterface;
 use Adaptation\Log\Exception\LoggerException;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 
 final readonly class Logger implements LoggerInterface
@@ -51,44 +52,49 @@ final readonly class Logger implements LoggerInterface
 
     public function emergency(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->emergency($message, $context);
+        $this->log(LogLevel::EMERGENCY, $message, $context);
     }
 
     public function alert(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->alert($message, $context);
+        $this->log(LogLevel::ALERT, $message, $context);
     }
 
     public function critical(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->critical($message, $context);
+        $this->log(LogLevel::CRITICAL, $message, $context);
     }
 
     public function error(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->error($message, $context);
+        $this->log(LogLevel::ERROR, $message, $context);
     }
 
     public function warning(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->warning($message, $context);
+        $this->log(LogLevel::WARNING, $message, $context);
     }
 
     public function notice(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->notice($message, $context);
+        $this->log(LogLevel::NOTICE, $message, $context);
     }
 
     public function info(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->info($message, $context);
+        $this->log(LogLevel::INFO, $message, $context);
     }
 
     public function debug(\Stringable|string $message, array $context = []): void
     {
-        $this->logger->debug($message, $context);
+        $this->log(LogLevel::DEBUG, $message, $context);
     }
 
+    /**
+     * Single exit point for every severity helper above: a handler that fails to
+     * write (unwritable file, full disk) must not abort the caller's request.
+     * @param mixed $level
+     */
     public function log($level, \Stringable|string $message, array $context = []): void
     {
         try {

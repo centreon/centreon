@@ -218,8 +218,10 @@ var CentreonForm = (function () {
 
     // =========================================================================
     //  ACCORDION SECTIONS
-    //  Collapsible sections with a header bar. Click to expand/collapse.
+    //  Collapsible sections with a header bar, operable by click or Enter/Space.
     // =========================================================================
+
+    var autoDomId = 0;
 
     /**
      * Toggle an accordion section open/closed.
@@ -231,7 +233,37 @@ var CentreonForm = (function () {
         var section = header.parentElement;
         if (section) {
             section.classList.toggle('collapsed');
+            header.setAttribute('aria-expanded', section.classList.contains('collapsed') ? 'false' : 'true');
         }
+    }
+
+    /**
+     * Make the accordion headers operable without a mouse. The header stays a div
+     * because the CSS is written for one.
+     */
+    function initSectionHeaders() {
+        document.querySelectorAll('.cf-section-header').forEach(function (header) {
+            if (header.dataset.cfHeaderReady) return;
+            header.dataset.cfHeaderReady = '1';
+
+            var section = header.parentElement;
+            var body = section ? section.querySelector('.cf-section-body') : null;
+            if (body) {
+                if (!body.id) {
+                    body.id = (section.id || 'cf-section-' + (++autoDomId)) + '-body';
+                }
+                header.setAttribute('aria-controls', body.id);
+            }
+            header.setAttribute('role', 'button');
+            header.setAttribute('tabindex', '0');
+            header.setAttribute('aria-expanded', section && section.classList.contains('collapsed') ? 'false' : 'true');
+
+            header.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+                event.preventDefault();
+                toggleSection(header);
+            });
+        });
     }
 
     /**
@@ -247,6 +279,8 @@ var CentreonForm = (function () {
             // Expand if currently collapsed
             if (section.classList.contains('collapsed')) {
                 section.classList.remove('collapsed');
+                var expandedHeader = section.querySelector('.cf-section-header');
+                if (expandedHeader) expandedHeader.setAttribute('aria-expanded', 'true');
             }
             section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -267,20 +301,50 @@ var CentreonForm = (function () {
     // =========================================================================
 
     /**
-     * Initialize floating labels on all .cf-field inputs and textareas.
-     * - On page load: float labels for pre-filled inputs
-     * - On focus: float the label
-     * - On blur: un-float if the input is empty
+     * Float the label of every .cf-field control (inputs, textareas and selects)
+     * and tie it to that control, assigning an id when the control has none.
+     * Labels stay floated: they are never dropped back into the field.
      */
     function initFloatLabels() {
         // The templates render every field label with the .cf-label-float class,
         // so labels sit on the top border at all times. We keep them there and no
         // longer drop them back into the field on blur (which looked inconsistent
         // once a field had been focused). This just guarantees the class is set.
-        document.querySelectorAll('.cf-field input, .cf-field textarea').forEach(function (input) {
+        document.querySelectorAll('.cf-field input, .cf-field textarea, .cf-field select').forEach(function (input) {
             var label = input.parentElement.querySelector('label');
-            if (label) label.classList.add('cf-label-float');
+            if (!label) return;
+            label.classList.add('cf-label-float');
+            bindLabel(label, input);
         });
+    }
+
+    // Radios and checkboxes are absent on purpose: they come as groups carrying
+    // their own labels, and pointing the field label at the first one would lie.
+    var LABELABLE_CONTROLS = /^(text|textarea|select-one|select-multiple|password|number|email|url|tel|search|date|time|datetime-local)$/;
+
+    /**
+     * Tie a field's label to its control. QuickForm renders the control and the
+     * template renders the label beside it, so nothing binds the two and the
+     * control ends up with no accessible name.
+     */
+    function bindLabel(label, input) {
+        if (label.htmlFor || label.contains(input) || !LABELABLE_CONTROLS.test(input.type)) return;
+        // A select2 keeps the native select clipped to 1x1; pointing the label at it
+        // would forward activation to that hidden control instead of the widget.
+        if (input.classList.contains('select2-hidden-accessible')
+            || (input.parentElement && input.parentElement.querySelector('.select2-container'))) {
+            return;
+        }
+        if (!input.id) {
+            // Names are not unique on a page (repeated groups share one, and
+            // multi-valued fields carry "[]"), so the id is checked before use.
+            var candidate = 'cf-field-' + (input.name ? input.name.replace(/[^\w-]/g, '-') : ++autoDomId);
+            while (document.getElementById(candidate)) {
+                candidate = 'cf-field-' + (++autoDomId);
+            }
+            input.id = candidate;
+        }
+        label.htmlFor = input.id;
     }
 
     // =========================================================================
@@ -686,8 +750,12 @@ var CentreonForm = (function () {
 
         if (!toggle || !radioOn) return;
 
-        // Set initial state from the checked radio
-        toggle.checked = radioOn.checked;
+        // Set initial state from the checked radio. On a frozen form QuickForm
+        // renders the checked option as static text plus a persistent
+        // <input type="hidden"> carrying the same name and value, and .checked is
+        // always false on a hidden input — reading it would clear the state the
+        // server rendered on the toggle, which is then the only status display.
+        toggle.checked = radioOn.checked || radioOn.type === 'hidden';
 
         // Update hidden radio on toggle change
         toggle.addEventListener('change', function () {
@@ -705,7 +773,9 @@ var CentreonForm = (function () {
         if (form) {
             form.addEventListener('reset', function () {
                 setTimeout(function () {
-                    toggle.checked = radioOn.checked;
+                    // Same rule as the initial sync: a frozen form renders the
+                    // checked option as a persistent hidden input, never .checked.
+                    toggle.checked = radioOn.checked || radioOn.type === 'hidden';
                 }, 0);
             });
         }
@@ -1164,7 +1234,7 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initSectionHeaders, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
 
@@ -1384,8 +1454,9 @@ var CentreonForm = (function () {
         _sidePanelListing:    null,
 
         // Accordion
-        toggleSection: toggleSection,
-        scrollTo:      scrollTo,
+        toggleSection:      toggleSection,
+        initSectionHeaders: initSectionHeaders,
+        scrollTo:           scrollTo,
 
         // Form components
         initFloatLabels:      initFloatLabels,
