@@ -318,7 +318,7 @@ msgstr "Zugriffsliste"
 
 #: centreon/www/install/front_translate.php
 msgid "Access group"
-msgstr ""
+msgstr "Zugriffsgruppe"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Access groups"
@@ -8548,7 +8548,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/install/front_translate.php
 msgid "Host severity"
-msgstr ""
+msgstr "Hostschweregrad"
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostSeverityException.php
 #, php-format
@@ -15056,7 +15056,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 #: centreon/www/install/front_translate.php
 msgid "Service severity"
-msgstr ""
+msgstr "Serviceschweregrad"
 
 #: centreon/www/install/front_translate.php
 msgid "Service severity level"

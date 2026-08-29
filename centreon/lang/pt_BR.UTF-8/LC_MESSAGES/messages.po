@@ -314,7 +314,7 @@ msgstr "Lista de Acesso"
 
 #: centreon/www/install/front_translate.php
 msgid "Access group"
-msgstr ""
+msgstr "Grupo de Acesso"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Access groups"
