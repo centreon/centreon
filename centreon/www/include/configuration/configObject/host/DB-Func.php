@@ -425,6 +425,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
         }
         $originalHostName = $row['host_name'];
         $skippedNames = [];
+        $skippedTotal = 0;
         for ($i = 1; $i <= $dupCount; $i++) {
             $hostName = null;
             // Reset per copy: after a skipped name, a stale id from the previous
@@ -782,7 +783,12 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                 // Collected, not logged here: $dupCount has no server-side ceiling, so
                 // a forged dupNbr would turn one record per name into a disk-write
                 // amplifier — a logger and a file handle each time round.
-                $skippedNames[] = $hostName ?? '(unnamed)';
+                // Capped like the log line that reports it: $dupCount has no
+                // server-side ceiling, so the retained names must not grow with it.
+                ++$skippedTotal;
+                if (count($skippedNames) < 20) {
+                    $skippedNames[] = $hostName ?? '(unnamed)';
+                }
             }
             // Falsy covers both "no insert this round" (null) and the insert
             // branch's own rejected lastInsertId of 0.
@@ -796,15 +802,15 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             }
         }
 
-        if ($skippedNames !== []) {
+        if ($skippedTotal > 0) {
             // The page reloads unchanged, so without this the operator has no
             // explanation for the copies that never appeared.
             AdaptationLogger::create(LogChannelEnum::WEB)->warning(
                 'Host duplication skipped: generated names already taken by a host or a host template',
                 [
                     'sourceHostId' => (int) $key,
-                    'names' => array_slice($skippedNames, 0, 20),
-                    'skippedTotal' => count($skippedNames),
+                    'names' => $skippedNames,
+                    'skippedTotal' => $skippedTotal,
                 ]
             );
         }
