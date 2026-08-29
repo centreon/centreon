@@ -229,6 +229,7 @@ $logQuery = <<<'SQL'
     SQL;
 
 $valuesToBind = [];
+$contactIdBindings = [];
 if (! empty($searchO) || ! empty($searchU) || $otype != 0) {
     $logQuery .= ' WHERE ';
     $hasMultipleSubRequest = false;
@@ -246,7 +247,10 @@ if (! empty($searchO) || ! empty($searchU) || $otype != 0) {
         if ($hasMultipleSubRequest) {
             $logQuery .= ' AND ';
         }
-        $logQuery .= ' log_contact_id IN (' . implode(',', $contactIds) . ') ';
+        foreach (array_values($contactIds) as $index => $contactId) {
+            $contactIdBindings[':contact_id_' . $index] = $contactId;
+        }
+        $logQuery .= ' log_contact_id IN (' . implode(',', array_keys($contactIdBindings)) . ') ';
         $hasMultipleSubRequest = true;
     }
     if (! is_null($otype) && $otype != 0) {
@@ -261,6 +265,9 @@ $logQuery .= ' ORDER BY action_log_date DESC LIMIT :from, :nbrElement';
 $prepareSelect = $pearDBO->prepare($logQuery);
 foreach ($valuesToBind as $label => $value) {
     $prepareSelect->bindValue($label, $value, PDO::PARAM_STR);
+}
+foreach ($contactIdBindings as $label => $value) {
+    $prepareSelect->bindValue($label, $value, PDO::PARAM_INT);
 }
 $prepareSelect->bindValue(':from', $num * $limit, PDO::PARAM_INT);
 $prepareSelect->bindValue(':nbrElement', $limit, PDO::PARAM_INT);
