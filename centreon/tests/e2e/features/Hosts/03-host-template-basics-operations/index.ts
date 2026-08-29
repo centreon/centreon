@@ -277,7 +277,13 @@ Given('a host template with shared service templates is configured', () => {
   // made the old duplication relate each service twice on the copy.
   [dupSource, dupSibling].forEach((name) => {
     cy.executeActionViaClapi({
-      bodyContent: { action: 'ADD', object: 'HTPL', values: `${name};${name};` }
+      bodyContent: {
+        action: 'ADD',
+        object: 'HTPL',
+        // HTPL shares the HOST signature: name;alias;address;template;instance;
+        // hostgroup — all six fields are expected, empty ones included.
+        values: `${name};${name};;;;`
+      }
     });
   });
   sharedServices.forEach((svc) => {
@@ -318,7 +324,7 @@ Given('a host template already carries the name the copy would take', () => {
     bodyContent: {
       action: 'ADD',
       object: 'HTPL',
-      values: `${dupSource}_1;${dupSource}_1;`
+      values: `${dupSource}_1;${dupSource}_1;;;;`
     }
   });
 });
