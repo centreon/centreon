@@ -419,7 +419,14 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             continue;
         }
         $row['host_id'] = null;
-        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        // The 999 ceiling mirrors the listing input's maxlength="3", which is
+        // client-side only: without a server-side bound a forged dupNbr drives
+        // unbounded duplication work and database writes.
+        $dupCount = filter_var(
+            $nbrDup[$key] ?? 0,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 0, 'max_range' => 999]]
+        );
         if ($dupCount === false) {
             continue;
         }
@@ -780,11 +787,9 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                 }
             } else {
-                // Collected, not logged here: $dupCount has no server-side ceiling, so
-                // a forged dupNbr would turn one record per name into a disk-write
-                // amplifier — a logger and a file handle each time round.
-                // Capped like the log line that reports it: $dupCount has no
-                // server-side ceiling, so the retained names must not grow with it.
+                // Collected once and capped, not logged here: even within the
+                // duplication ceiling, one log record per colliding name would be
+                // a disk-write amplifier — a logger and a file handle each round.
                 ++$skippedTotal;
                 if (count($skippedNames) < 20) {
                     $skippedNames[] = $hostName ?? '(unnamed)';
