@@ -784,7 +784,9 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                 // amplifier — a logger and a file handle each time round.
                 $skippedNames[] = $hostName ?? '(unnamed)';
             }
-            if ($maxId !== null) {
+            // Falsy covers both "no insert this round" (null) and the insert
+            // branch's own rejected lastInsertId of 0.
+            if ($maxId) {
                 $centreon->user->access->updateACL([
                     'type' => 'HOST',
                     'id' => $maxId,
