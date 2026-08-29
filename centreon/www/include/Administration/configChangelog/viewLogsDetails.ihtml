@@ -8,7 +8,7 @@
 </table>
 <table class="ListTable">
     <tr class="ListHeader">
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">Changes for {$action[0].object_name}</td>
+        <td class="ListColHeaderCenter" style="white-space:nowrap;">Changes for {$action[0].object_name|escape:'html'}</td>
     </tr>
     {assign var='classStyle' value='list_two'}
     {assign var='firstFlag' value=1}
