@@ -493,6 +493,10 @@ msgstr "Nom de l'action"
 msgid "Action URL"
 msgstr "URL d'action"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr "Accès aux actions"
+
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
 msgstr "Liens vers les actions autorisées"
@@ -2078,6 +2082,10 @@ msgstr "Bas"
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
 msgstr "Fil d'Ariane copié"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
+msgstr "Broker"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
@@ -5964,6 +5972,10 @@ msgstr "Heure de fin"
 msgid "Ends at"
 msgstr "Se termine à"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr "Engine"
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr "Répertoires de l'ordonnanceur"
@@ -8587,6 +8599,10 @@ msgstr "Groupe d'hôtes"
 #, php-format
 msgid "Host group (%s) not found"
 msgstr "Groupe d'hôte (%s) non trouvé"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr "Dépendance de groupe d'hôtes"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -14051,6 +14067,10 @@ msgstr "Nom de la ressource"
 msgid "Resource Type"
 msgstr "Type de ressource"
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr "Accès aux ressources"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr "Nom de la règle d'accès aux ressources"
@@ -15210,6 +15230,10 @@ msgstr "Graphiques de services"
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr "Groupe de services"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
+msgstr "Dépendance de groupe de services"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"

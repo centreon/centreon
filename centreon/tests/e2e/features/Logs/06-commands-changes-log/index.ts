@@ -87,7 +87,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'commands');
+      .should('contain.text', 'Command');
   }
 );
 

@@ -58,6 +58,59 @@ function searchUserName($username)
 // Path to the configuration dir
 $path = './include/Administration/configChangelog/';
 
+/**
+ * Display label of each audited object type.
+ *
+ * log_action.object_type stores an internal token ('hostcategories',
+ * 'menu access', ...). Translating the token itself would both read badly and
+ * hijack very generic msgids ('host', 'service') shared with other pages, so
+ * each type is mapped to the label its configuration menu already uses.
+ *
+ * Covers ActionLog::AVAILABLE_OBJECT_TYPES — the types the filter offers — plus
+ * the two severity types, which the audit log writes but that list leaves out,
+ * and the legacy 'commands' alias. A type missing from this map falls back to
+ * its raw token.
+ *
+ * @return array<string, string>
+ */
+function getChangelogObjectTypeLabels(): array
+{
+    return [
+        ActionLog::OBJECT_TYPE_COMMAND => _('Command'),
+        // Command changes logged through the legacy path are stored under the
+        // plural 'commands' token (the Core writer uses the singular constant
+        // above). Map it too so both are labelled instead of shown raw.
+        'commands' => _('Command'),
+        ActionLog::OBJECT_TYPE_TIMEPERIOD => _('Time period'),
+        ActionLog::OBJECT_TYPE_CONTACT => _('Contact'),
+        ActionLog::OBJECT_TYPE_CONTACTGROUP => _('Contact group'),
+        ActionLog::OBJECT_TYPE_HOST => _('Host'),
+        ActionLog::OBJECT_TYPE_HOSTGROUP => _('Host Group'),
+        ActionLog::OBJECT_TYPE_SERVICE => _('Service'),
+        ActionLog::OBJECT_TYPE_SERVICEGROUP => _('Service Group'),
+        ActionLog::OBJECT_TYPE_TRAPS => _('SNMP Traps'),
+        ActionLog::OBJECT_TYPE_ESCALATION => _('Escalation'),
+        ActionLog::OBJECT_TYPE_HOST_DEPENDENCY => _('Host dependency'),
+        ActionLog::OBJECT_TYPE_HOSTGROUP_DEPENDENCY => _('Host group dependency'),
+        ActionLog::OBJECT_TYPE_SERVICE_DEPENDENCY => _('Service dependency'),
+        ActionLog::OBJECT_TYPE_SERVICEGROUP_DEPENDENCY => _('Service group dependency'),
+        ActionLog::OBJECT_TYPE_POLLER => _('Poller'),
+        ActionLog::OBJECT_TYPE_ENGINE => _('Engine'),
+        ActionLog::OBJECT_TYPE_BROKER => _('Broker'),
+        ActionLog::OBJECT_TYPE_RESOURCES => _('Resources'),
+        ActionLog::OBJECT_TYPE_META => _('Meta Service'),
+        ActionLog::OBJECT_TYPE_ACCESS_GROUP => _('Access group'),
+        ActionLog::OBJECT_TYPE_MENU_ACCESS => _('Menu access'),
+        ActionLog::OBJECT_TYPE_RESOURCE_ACCESS => _('Resource access'),
+        ActionLog::OBJECT_TYPE_ACTION_ACCESS => _('Action access'),
+        ActionLog::OBJECT_TYPE_MANUFACTURER => _('Manufacturer'),
+        ActionLog::OBJECT_TYPE_HOSTCATEGORIES => _('Host Categories'),
+        ActionLog::OBJECT_TYPE_SERVICECATEGORIES => _('Service Categories'),
+        ActionLog::OBJECT_TYPE_HOST_SEVERITY => _('Host severity'),
+        ActionLog::OBJECT_TYPE_SERVICE_SEVERITY => _('Service severity'),
+    ];
+}
+
 // PHP functions
 require_once './include/common/common-Func.php';
 require_once './class/centreonDB.class.php';
@@ -148,13 +201,15 @@ $tpl->assign('objTypeLabel', _('Object type : '));
 $tpl->assign('objNameLabel', _('Object name : '));
 $tpl->assign('noModifLabel', _('No modification was made.'));
 
+$objectTypeLabels = getChangelogObjectTypeLabels();
+
 // Add an All Option to existing types.
 $objectTypes = ActionLog::AVAILABLE_OBJECT_TYPES;
 array_unshift($objectTypes, _('All'));
 
 $options = '';
 foreach ($objectTypes as $key => $name) {
-    $name = _("{$name}");
+    $name = $objectTypeLabels[$name] ?? $name;
     $options .= "<option value='{$key}' "
         . (($otype == $key) ? 'selected' : '')
         . ">{$name}</option>";
@@ -236,7 +291,12 @@ if ($prepareSelect->execute()) {
 
             $element = [
                 'date' => $res['action_log_date'] ?? null,
+                // 'type' feeds the detail links, so it must stay the raw token;
+                // 'type_label' is what the column displays.
                 'type' => $res['object_type'] ?? null,
+                'type_label' => isset($res['object_type'])
+                    ? ($objectTypeLabels[$res['object_type']] ?? $res['object_type'])
+                    : null,
                 'object_name' => $objectName ?? null,
                 'action_log_id' => $res['action_log_id'] ?? null,
                 'object_id' => $res['object_id'] ?? null,
