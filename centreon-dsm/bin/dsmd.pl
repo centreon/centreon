@@ -232,7 +232,6 @@ sub get_alarms {
         FROM mod_dsm_cache mdc, hosts
         WHERE mdc.host_id = hosts.host_id AND
             hosts.enabled = '1'
-        GROUP BY mdc.host_id, mdc.pool_prefix
         "
     );
     if ($status == -1) {
@@ -241,14 +240,27 @@ sub get_alarms {
     }
 
     my $rows = [];
-    my @sql_where = ();
     while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
                        shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
         push @{$self->{current_alarms}}, $row;
-        push @sql_where, "(services.host_id = $row->[1] AND services.description LIKE " . $self->{db_centstorage}->quote($row->[4] . '%') . ")";
     }
 
     return 1 if (scalar(@{$self->{current_alarms}}) == 0);
+
+    ($status, $sth) = $self->{db_centstorage}->query(
+        "SELECT mdc.`cache_id`, mdc.`host_id`, mdc.`ctime`, mdc.`status`, mdc.`pool_prefix`, mdc.`id`, mdc.`macros`, mdc.`output`
+        FROM mod_dsm_cache mdc, hosts
+        WHERE mdc.host_id = hosts.host_id AND
+            hosts.enabled = '1'
+        GROUP BY mdc.host_id, mdc.pool_prefix
+        "
+    );
+
+    my @sql_where = ();
+    while (my $row = ( shift(@$rows) || # get row from cache, or reload cache:
+                       shift(@{$rows = $sth->fetchall_arrayref(undef, $self->{dsmd_config}->{sql_fetch})||[]})) ) {
+        push @sql_where, "(services.host_id = $row->[1] AND services.description LIKE " . $self->{db_centstorage}->quote($row->[4] . '%') . ")";
+    }
 
     ($status, $sth) = $self->{db_centstorage}->query(
         "SELECT hosts.`name`, hosts.`instance_id`, services.`host_id`, services.`service_id`, services.`description`, services.`last_check`, services.`state`, cv.`value` FROM services " .
