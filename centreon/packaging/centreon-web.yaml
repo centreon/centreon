@@ -325,6 +325,15 @@ contents:
     dst: "/usr/share/centreon/examples/centreon-apache-https.conf"
     file_info:
       mode: 0644
+  - src: "./src/centreon-apache-gorgone.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-gorgone.conf"
+    file_info:
+      mode: 0644
+
+  - src: "./src/centreon-apache-https-gorgone.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-https-gorgone.conf"
+    file_info:
+      mode: 0644
 
   - src: "../GPL_LIB"
     dst: "/usr/share/centreon/GPL_LIB"
@@ -426,6 +435,13 @@ contents:
       owner: "centreon"
       group: "centreon"
       mode: 0775
+
+  - src: "../install-poller/install.sh"
+    dst: "/usr/share/centreon/www/poller/install.sh"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0644
 
 scripts:
   preinstall: ./scripts/centreon-web-preinstall.sh

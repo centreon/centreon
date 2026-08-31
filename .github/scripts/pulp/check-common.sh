@@ -11,8 +11,10 @@
 # shellcheck source=.github/scripts/pulp/api.sh
 source "$(dirname "${BASH_SOURCE[0]}")/api.sh"
 
-PULP_URL="${PULP_URL:-https://pulp-api.apps.centreon.com}"
-PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.apps.centreon.com}"
+PULP_URL="${PULP_URL:-https://pulp-api.int.centreon.com}"
+PULP_CONTENT_URL="${PULP_CONTENT_URL:-https://packages.int.centreon.com}"
+
+switch_pulp_domain "$PULP_DOMAIN" || exit 1
 # 900s: the published indexes can lag a finished publication by up to the
 # content-app cache TTL (600s), the window must survive that worst case
 METADATA_TIMEOUT="${METADATA_TIMEOUT:-900}"

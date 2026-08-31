@@ -11268,7 +11268,7 @@ msgid "Modify Vendor"
 msgstr "Modificar Fabricante"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
+msgid "Modify a host category"
 msgstr "Modifica uma categoria de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -23856,7 +23856,7 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 
 #: unknown
@@ -23901,4 +23901,46 @@ msgstr ""
 
 #: unknown
 # msgid "Centreon Central address, as seen by this poller"
+# msgstr ""
+
+# Host categories - modernized listing/form (UX/UI migration)
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr "Duplicar categoria de host"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Duplicar categorias de host"
+
+#: unknown
+msgid "Delete host category"
+msgstr "Eliminar categoria de host"
+
+#: unknown
+msgid "Delete host categories"
+msgstr "Eliminar categorias de host"
+
+#: unknown
+msgid "Group hosts into categories to organize and filter your configuration."
+msgstr "Agrupe os hosts em categorias para organizar e filtrar a sua configuração."
+
+#: unknown
+msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
+msgstr "Está prestes a eliminar <strong>{{ count }} categorias de host</strong>. Esta ação não pode ser anulada. Deseja eliminá-las?"
+
+#: unknown
+msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
+msgstr "Está prestes a eliminar a categoria de host <strong>{{ name }}</strong>. Esta ação não pode ser anulada. Deseja eliminá-la?"
+
+#: unknown
+msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
+msgstr "Está prestes a duplicar <strong>{{ count }} categorias de host</strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
+msgstr "Está prestes a duplicar a categoria de host <strong>{{ name }}</strong>. Deseja duplicá-la?"
+
+
+#: unknown
+# msgid "Beta"
 # msgstr ""

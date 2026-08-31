@@ -26,7 +26,8 @@ namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Pol
 use ApiPlatform\Metadata\Post;
 use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
@@ -85,6 +86,20 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame(GorgoneCommunicationTypeEnum::ZMQ, $capturedCommand->gorgoneCommunicationType);
     }
 
+    public function testCentralAddressIsPassedToCommand(): void
+    {
+        $capturedCommand = null;
+        $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
+
+        $processor->process(
+            $this->buildInput(),
+            new Post(),
+        );
+
+        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
+        self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
+    }
+
     private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
     {
         $poller = new Poller(
@@ -99,10 +114,11 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineInformation: new EngineInformation(),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),
+            centralAddress: new CentralAddress('192.168.1.254'),
         );
 
         $commandBus = $this->createMock(CommandBus::class);
@@ -156,6 +172,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerType: 'vm',
             address: '192.168.1.1',
             pollerTokenName: 'test-token',
+            centralAddress: '192.168.1.254',
         );
     }
 }

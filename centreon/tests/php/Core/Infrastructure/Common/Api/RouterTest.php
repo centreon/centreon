@@ -30,6 +30,7 @@ beforeEach(function (): void {
     $_SERVER['HTTP_HOST'] = 'localhost';
     $_SERVER['SERVER_ADDR'] = '127.0.0.1';
     $_SERVER['SERVER_PORT'] = '80';
+    unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
 
     $request = new Request(server: [
         'HTTP_HOST' => 'localhost',
@@ -37,8 +38,10 @@ beforeEach(function (): void {
         'SERVER_PORT' => '80',
     ]);
 
+    $this->mockRouter = $this->createMock(Symfony\Component\Routing\RouterInterface::class);
+
     $this->router = new Router(
-        $this->createMock(Symfony\Component\Routing\RouterInterface::class),
+        $this->mockRouter,
         $this->createMock(Symfony\Component\Routing\Matcher\RequestMatcherInterface::class)
     );
     $requestStack = $this->createMock(Symfony\Component\HttpFoundation\RequestStack::class);
@@ -115,4 +118,88 @@ it('should restore the original routing context after generating a local URL', f
     expect($context->getHost())->toBe('my-server.example.com')
         ->and($context->getScheme())->toBe('https')
         ->and($context->getHttpPort())->toBe(443);
+});
+
+it(
+    'preserves generated URLs when the short-name host collides with the base path',
+    function (string $baseUri, string $rawUrl, string $expected): void {
+        $this->mockRouter->method('generate')->willReturn($rawUrl);
+
+        $result = $this->router->generate(
+            'any_route',
+            ['base_uri' => $baseUri],
+            Router::ABSOLUTE_URL
+        );
+
+        expect($result)->toBe($expected);
+    }
+)->with([
+    'short-name host equal to default base path' => [
+        '/centreon',
+        'https://centreon/centreon/api/latest/configuration/hosts/7013',
+        'https://centreon/centreon/api/latest/configuration/hosts/7013',
+    ],
+    'short-name host equal to custom base path /snc' => [
+        '/snc',
+        'https://snc/snc/api/latest/configuration/hosts/7013',
+        'https://snc/snc/api/latest/configuration/hosts/7013',
+    ],
+    'domain suffix colliding with custom base path /com' => [
+        '/com',
+        'https://centreon.com/com/api/latest/configuration/hosts/7013',
+        'https://centreon.com/com/api/latest/configuration/hosts/7013',
+    ],
+]);
+
+it(
+    'still collapses the double base path in legitimate URLs',
+    function (string $baseUri, int $referenceType, string $rawUrl, string $expected): void {
+        $this->mockRouter->method('generate')->willReturn($rawUrl);
+
+        $result = $this->router->generate(
+            'any_route',
+            ['base_uri' => $baseUri],
+            $referenceType
+        );
+
+        expect($result)->toBe($expected);
+    }
+)->with([
+    'FQDN with duplicated default base path' => [
+        '/centreon',
+        Router::ABSOLUTE_URL,
+        'https://my-server.example.com/centreon/centreon/api/latest/configuration/hosts/7013',
+        'https://my-server.example.com/centreon/api/latest/configuration/hosts/7013',
+    ],
+    'FQDN with duplicated custom base path /snc' => [
+        '/snc',
+        Router::ABSOLUTE_URL,
+        'https://snc.mj.gouv.fr/snc/snc/api/latest/configuration/hosts/7013',
+        'https://snc.mj.gouv.fr/snc/api/latest/configuration/hosts/7013',
+    ],
+    'relative URL with duplicated default base path' => [
+        '/centreon',
+        Router::ABSOLUTE_PATH,
+        '/centreon/centreon/api/latest/configuration/hosts/7013',
+        '/centreon/api/latest/configuration/hosts/7013',
+    ],
+    'short-name host with duplicated default base path' => [
+        '/centreon',
+        Router::ABSOLUTE_URL,
+        'https://centreon/centreon/centreon/api/latest/configuration/hosts/7013',
+        'https://centreon/centreon/api/latest/configuration/hosts/7013',
+    ],
+]);
+
+it('leaves URLs without a doubled base path untouched', function (): void {
+    $this->mockRouter->method('generate')
+        ->willReturn('https://centreon.test.local/centreon/api/latest/configuration/hosts/7013');
+
+    $result = $this->router->generate(
+        'any_route',
+        ['base_uri' => '/centreon'],
+        Router::ABSOLUTE_URL
+    );
+
+    expect($result)->toBe('https://centreon.test.local/centreon/api/latest/configuration/hosts/7013');
 });

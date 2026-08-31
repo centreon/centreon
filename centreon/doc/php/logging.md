@@ -148,6 +148,8 @@ Key points:
 > Uniform coverage is guaranteed not by this middleware but by the **processors registered globally on every channel** — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
 >
 > Assumed blind spots: dedicated channels in the `!exclude` list of `web_finger_crossed` (`event`, `doctrine`, `console`, `deprecation`, `authentication`, `token`, `password`, `plugin-pack-manager`, `upgrade`), the `console` channel in CLI, and PHP fatals before kernel boot (parse error, OOM).
+>
+> One more blind spot, by **level** rather than by channel: `web_finger_crossed` buffers with `action_level: error` and declares no `passthru_level`, so a buffered record that never triggers a flush is dropped when the buffer is cleared. Unless an `error` or higher record activates the handler later in the same request — in which case the buffer is flushed and the earlier records are written as context — a `warning` is not "a lower-priority line", it is **no line at all** in `prod.web.log`. Since `LegacyHttpExceptionListener` logs every 4xx at `warning` (only 5xx reach `critical`), client errors — malformed pagination, unknown sort column, rejected payload — normally leave no trace on the platform log and are diagnosed from the HTTP access log. This is deliberate: `prod.web.log` carries incidents, not client mistakes.
 
 The middleware emits a record on the Monolog `app` channel (Symfony default) for every dispatch:
 
@@ -464,7 +466,7 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 | Excluded channel | Reason |
 |------------------|--------|
 | `event`, `doctrine`, `console` | Internal Symfony / DBAL noise — not desired in `prod.web.log`. |
-| `deprecation` | dedicated file `prod.deprecations.log`. |
+| `deprecation` | disabled in prod by default (Monolog `NullHandler` — records discarded). In dev, written to `dev.deprecations.log` via a `rotating_file` handler. To re-enable in prod, override the `deprecation` handler in a local `monolog.yaml`; `logrotate/centreon` still declares `prod.deprecations.log` so the override path inherits the standard rotation policy. |
 | `authentication` | merged into `prod.access.log` on the centreon-web side (see the backward-compatibility note below for `login.log`). |
 | `token` | dedicated file `prod.token.log`. |
 | `password`, `plugin-pack-manager`, `upgrade` | dedicated files. Not Monolog channels strictly speaking today (written directly by legacy `CentreonLog` code), but listed in anticipation of a future migration to Monolog. |
@@ -487,12 +489,12 @@ Consequence: every handler using `monolog.formatter.line` (centreon-web + any mo
 In production, the `prod.*.log` files are rotated by **logrotate** (config `centreon/logrotate/centreon`, deployed to `/etc/logrotate.d/centreon`). The files listed:
 
 - `prod.web.log` (catch-all)
-- `prod.deprecations.log`
 - `prod.access.log` (authentication)
 - `prod.token.log`
 - `prod.password.log`
 - `prod.upgrade.log`
 - `prod.plugin-pack-manager.log`
+- `prod.deprecations.log` — file is not created in the default configuration (`NullHandler`); the entry is retained so operators who override the `deprecation` handler locally inherit rotation. `missingok` in the shared block covers the absent-file case.
 
 Default retention: `weekly` × `rotate 52` (1 year), with `compress` + `delaycompress` + `copytruncate`.
 
@@ -612,6 +614,7 @@ flowchart LR
 | `AUTHENTICATION` | `authentication` | `access` | `prod.access.log` |
 | `PASSWORD` | `password` | `password` | `prod.password.log` |
 | `PLUGIN_PACK_MANAGER` | `plugin-pack-manager` | `plugin-pack-manager` | `prod.plugin-pack-manager.log` |
+| `POLLER_INSTALL` | `poller-install` | `poller-install` | `prod.poller-install.log` |
 | `TOKEN` | `token` | `token` | `prod.token.log` |
 | `UPGRADE` | `upgrade` | `upgrade` | `prod.upgrade.log` |
 | `WEB` | `web` | `web` | `prod.web.log` |
