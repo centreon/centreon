@@ -38,13 +38,13 @@ runs:
 
     - uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
     - name: Publish RPMs
       shell: bash
       env:
-        JF_URL: https://packages.centreon.com
+        JF_URL: https://centreon.jfrog.io
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
       run: |
         set -eux
