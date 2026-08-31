@@ -148,9 +148,10 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   // so this holds either way.
   //
   // Cypress test isolation clears localStorage before every scenario, so the
-  // token minted once in before() is gone here; the background then signs the
-  // admin back in through the UI only, which never sets it. Mint it again,
-  // otherwise the CLAPI call goes out unauthenticated and answers 403.
+  // token minted once in before() (startContainers ends on setUserTokenApiV1)
+  // is gone here; the background then signs the admin back in through the UI
+  // only, which never sets it. Mint it again, otherwise the CLAPI call goes out
+  // unauthenticated and answers 403.
   cy.setUserTokenApiV1();
   cy.executeActionViaClapi({
     bodyContent: {

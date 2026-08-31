@@ -68,9 +68,9 @@ $contactgroup_id = isset($_POST['contact']) ? (int) htmlentities($_POST['contact
 $contactGroupRefused = false;
 $contactGroupMissing = false;
 if ($contactgroup_id && ! array_key_exists($contactgroup_id, $contact)) {
-    // The group exists in database but not in the list above, so the only
-    // reason it is out of the list is the ACL scope. An admin sees everything,
-    // so the miss can only mean the group was deleted.
+    // The group exists in database but not in the list above, so it is out of
+    // the ACL scope. An admin's list is exhaustive, so for an admin the miss
+    // means the group is gone from the selectable list.
     $outsideScope = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
         'SELECT 1 FROM contactgroup WHERE cg_id = :cgId',
         Adaptation\Database\Connection\Collection\QueryParameters::create([

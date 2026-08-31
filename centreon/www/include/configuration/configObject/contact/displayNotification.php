@@ -69,15 +69,12 @@ $style = 'one';
 $groups = "''";
 $contactId = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
 
-// A miss on the list above is either a deleted contact or one outside the
-// user's scope; only an admin's list is exhaustive enough to rule the
-// second out. Same contract as the contact group notification view.
 $contactRefused = false;
 $contactMissing = false;
 if ($contactId && ! array_key_exists($contactId, $contact)) {
-    // The contact exists in database but not in the list above, so the only
-    // reason it is out of the list is the ACL scope. An admin sees everything,
-    // so the miss can only mean the contact was deleted.
+    // The contact exists in database but not in the list above, so it is out of
+    // the ACL scope. An admin's list is exhaustive, so for an admin the miss
+    // means the contact is gone from the selectable list.
     $outsideScope = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
         'SELECT 1 FROM contact WHERE contact_id = :contactId',
         Adaptation\Database\Connection\Collection\QueryParameters::create([
