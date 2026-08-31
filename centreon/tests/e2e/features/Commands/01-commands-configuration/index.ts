@@ -233,7 +233,13 @@ When('the admin user selects a check command on the host form', () => {
   // visit the host listing page
   cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostId}`);
   cy.waitForElementInIframe('#main-content', '#command_command_id');
-  cy.getIframeBody().find('span[title="Check Command"]').click();
+  // Target the select2 by id rather than by title: the modernized host form
+  // moved the label out of the widget into a floating label, so the container's
+  // title is the selected value, not "Check Command". The service form below is
+  // still the legacy one and keeps the title-based selector.
+  cy.getIframeBody()
+    .find('span[id="select2-command_command_id-container"]')
+    .click();
   cy.getIframeBody().find('div[title="check_centreon_dummy"]').click();
 });
 
@@ -303,15 +309,30 @@ Then(
 );
 
 Given('a host is configured', () => {
-  cy.visit(PAGES.configuration.hostsLegacy);
-  cy.waitForElementInIframe(
-    '#main-content',
-    'a:contains("generic-active-host")'
-  );
+  // "Display Host command arguments" already created generic-active-host earlier
+  // in this spec, and the containers are shared, so creating it again answers
+  // 409. Look it up, and only create it if this scenario runs on its own.
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query:
+      "SELECT host_id FROM host WHERE host_name = 'generic-active-host' AND host_register = '1'"
+  }).then(([rows]) => {
+    if (rows.length > 0) {
+      hostId = rows[0].host_id;
+
+      return;
+    }
+    cy.addNewHostAndReturnId().then((returnedHostId) => {
+      hostId = returnedHostId;
+    });
+  });
 });
 
 When('the admin user opens the host in edit mode', () => {
-  cy.getIframeBody().find('a:contains("generic-active-host")').eq(0).click();
+  // Straight to the form rather than through the listing: a row now opens the
+  // form in the side panel iframe, while the steps below — the select2 helper
+  // and the Save button — work on the page's own document.
+  cy.visit(`/centreon/main.php?p=60101&o=c&host_id=${hostId}`);
   cy.waitForElementInIframe('#main-content', '#command_command_id');
 });
 

@@ -900,8 +900,6 @@ if (! $isCloudPlatform) {
 
 $form->addElement('select', 'ehi_icon_image', _('Icon'), $extImg, [
     'id' => 'ehi_icon_image',
-    'onChange' => "showLogo('ehi_icon_image_img',this.value)",
-    'onkeyup' => 'this.blur();this.focus();',
 ]);
 
 // Sort 4 - Extended Infos
@@ -920,7 +918,6 @@ if (! $isCloudPlatform) {
     $form->addElement('text', 'ehi_icon_image_alt', _('Alt icon'), $attrsText);
     $form->addElement('select', 'ehi_statusmap_image', _('Status Map Image'), $extImgStatusmap, [
         'id' => 'ehi_statusmap_image',
-        'onChange' => "showLogo('ehi_statusmap_image_img',this.value)",
         'onkeyup' => 'this.blur();this.focus();',
     ]);
 }
@@ -1118,7 +1115,6 @@ if (! $isCloudPlatform) {
     $tpl->assign('accessgroups', _('Access groups'));
 }
 $tpl->assign('javascript', '
-            <script type="text/javascript" src="./include/common/javascript/showLogo.js"></script>
             <script type="text/javascript" src="./include/common/javascript/centreon/macroPasswordField.js"></script>
             <script type="text/javascript" src="./include/common/javascript/centreon/macroLoadDescription.js"></script>
         ');
@@ -1211,8 +1207,6 @@ if ($valid) {
     }
     ?>
     <script type="text/javascript">
-        showLogo('ehi_icon_image_img', document.getElementById('ehi_icon_image').value);
-
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {
                 document.getElementById('notifD').checked = false;

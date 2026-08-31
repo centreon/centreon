@@ -2,9 +2,23 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 
+import {
+  formSelectors,
+  getListingRow,
+  listingSelectors,
+  searchInListing,
+  waitForListingRefresh
+} from '../common';
+
 let hostName = '';
 let hostWithGeoCoords = 'New-Host-Name-for-geo';
 const hostAddress = '127.0.0.1';
+const listingHosts = [
+  { address: '10.0.0.1', name: 'host_alpha' },
+  { address: '10.0.0.2', name: 'host_beta' },
+  { address: '192.168.1.1', name: 'host_gamma' }
+];
+const hostGroupName = 'test_hg_filter';
 const services = {
   serviceCritical: {
     host: 'host3',
@@ -33,12 +47,12 @@ const resultsToSubmit = [
   }
 ];
 
+/**
+ * Geographic coordinates moved to the form's first section, which the
+ * modernized form renders expanded, instead of the Extended Information one.
+ */
 const fillGeographicCoordinates = (value: string) => {
-  //Navigate to the Host Extended Infos tab
-  cy.getIframeBody().contains('a', 'Host Extended Infos').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
-  cy.getIframeBody().find('input[name="geo_coords"]').type(value);
+  cy.getSidePanelBody().find('input[name="geo_coords"]').clear().type(value);
 };
 
 beforeEach(() => {
@@ -51,6 +65,14 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_listing
+  }).as('getHostListing');
+  cy.intercept({
+    method: 'POST',
+    url: INTERCEPTORS.ajax.host_toggle
+  }).as('toggleHost');
 });
 
 afterEach(() => {
@@ -103,14 +125,11 @@ When('a host is configured', () => {
 
 When('the admin changes the name of a host to {string}', (name: string) => {
   hostName = name;
-  cy.visitHostsListingPage(3);
-  cy.getIframeBody().contains(services.serviceOk.host).click({
-    force: true
-  });
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
-  cy.getIframeBody().find('input[name="host_name"]').clear().type(hostName);
-  cy.getIframeBody().find('input[name="host_alias"]').clear().type(hostName);
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.openHostsListing();
+  cy.openListingRowForm(services.serviceOk.host);
+  cy.getSidePanelBody().find('input[name="host_name"]').clear().type(hostName);
+  cy.getSidePanelBody().find('input[name="host_alias"]').clear().type(hostName);
+  cy.getSidePanelBody().find(formSelectors.saveButton).first().click();
   cy.wait('@getTimeZone');
 });
 
@@ -124,37 +143,107 @@ Then(
 );
 
 When('the admin duplicates a host', () => {
-  cy.visitHostsListingPage(3);
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-  cy.getIframeBody()
-    .find('select')
-    .eq(4)
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody().find('select').eq(4).select('Duplicate');
+  cy.openHostsListing();
+  cy.runListingBulkAction(services.serviceOk.host, 'Duplicate', 'Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
-Then('a new host is created with identical fields', () => {
-  cy.getIframeBody().contains(`${services.serviceOk.host}_1`).should('exist');
+const sharedServiceHost = 'host-sharing-a-service';
+
+/**
+ * Service relations of a host, split by whether the service is one the source
+ * already carried. A duplicated service gets a fresh id while a shared one
+ * keeps its own, so the split tells "copied" from "related" — a plain total
+ * cannot, and stays at three whichever branch ran.
+ */
+const serviceRelations = (hostName: string) =>
+  cy
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT COUNT(*) AS total,
+                     SUM(CASE WHEN rel.service_service_id IN (
+                       SELECT src_rel.service_service_id
+                       FROM host_service_relation src_rel
+                       INNER JOIN host src ON src.host_id = src_rel.host_host_id
+                       WHERE src.host_name = '${services.serviceOk.host}'
+                         AND src.host_register = '1'
+                     ) THEN 1 ELSE 0 END) AS inherited
+              FROM host_service_relation rel
+              INNER JOIN host h ON h.host_id = rel.host_host_id
+              WHERE h.host_name = '${hostName}' AND h.host_register = '1'`
+    })
+    .then(([rows]) => ({
+      inherited: Number(rows[0].inherited ?? 0),
+      total: Number(rows[0].total)
+    }));
+
+Given('one of its services is shared with a second host', () => {
+  // A service attached to more than one host is related to the copy instead of
+  // being duplicated, and only real hosts reach that branch.
+  cy.addHost({
+    hostGroup: 'Linux-Servers',
+    name: sharedServiceHost,
+    template: 'generic-host'
+  });
+
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `INSERT INTO host_service_relation
+              (hostgroup_hg_id, host_host_id, servicegroup_sg_id, service_service_id)
+            SELECT NULL,
+                   (SELECT host_id FROM host
+                    WHERE host_name = '${sharedServiceHost}' AND host_register = '1'),
+                   NULL,
+                   hsr.service_service_id
+            FROM host source
+            INNER JOIN host_service_relation hsr
+              ON hsr.host_host_id = source.host_id
+            INNER JOIN service svc
+              ON svc.service_id = hsr.service_service_id
+            WHERE source.host_name = '${services.serviceOk.host}'
+              AND source.host_register = '1'
+              AND svc.service_description = '${services.serviceOk.name}'`
+  }).then(([result]) => {
+    // An INSERT ... SELECT that matches nothing is an OK packet with no row, and
+    // either operand can be the missing one — name both, or the message accuses
+    // an object that is fine.
+    if (!result || result.affectedRows !== 1) {
+      throw new Error(
+        `Expected to share ${services.serviceOk.name} of ${services.serviceOk.host}` +
+          ` with ${sharedServiceHost}, shared ${result?.affectedRows ?? 0}`
+      );
+    }
+  });
+});
+
+Then('the copy owns the exclusive services and relates the shared one', () => {
+  const copyName = `${services.serviceOk.host}_1`;
+
+  cy.getIframeBody().contains(copyName).should('exist');
+
+  // Of the source's three services one is shared, so the copy relates that one
+  // and owns fresh duplicates of the other two. Asserting the total alone would
+  // survive a duplication that relates every service instead of copying it.
+  serviceRelations(copyName).then((relations) => {
+    expect(relations.total, `service relations of ${copyName}`).to.eq(3);
+    expect(
+      relations.inherited,
+      `services ${copyName} still shares with its source`
+    ).to.eq(1);
+  });
+
+  serviceRelations(services.serviceOk.host).then((relations) => {
+    expect(
+      relations.total,
+      `${services.serviceOk.host} keeps its own services`
+    ).to.eq(3);
+  });
 });
 
 When('the admin deletes the host', () => {
-  cy.visitHostsListingPage(3);
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
-  cy.getIframeBody()
-    .find('select')
-    .eq(4)
-    .invoke(
-      'attr',
-      'onchange',
-      "javascript: { setO(this.form.elements['o1'].value); this.form.submit(); }"
-    );
-  cy.getIframeBody().find('select').eq(4).select('Delete');
+  cy.openHostsListing();
+  cy.runListingBulkAction(services.serviceOk.host, 'Delete', 'Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
@@ -164,29 +253,30 @@ Then('the host is not visible in the host list', () => {
 });
 
 Given('the admin is on the hosts listing page', () => {
-  cy.visitHostsListingPage(3);
+  cy.openHostsListing();
 });
 
 Given('the admin fills in the required fields to create a host', () => {
-  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
-  cy.getIframeBody().contains('a', 'Add').click();
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
-  cy.getIframeBody()
+  cy.getIframeBody().find('.cl-btn-add').click();
+  cy.getSidePanelBody()
+    .find('input[name="host_name"]', { timeout: 20_000 })
+    .should('be.visible');
+  cy.getSidePanelBody()
     .find('input[name="host_name"]')
     .clear()
     .type(hostWithGeoCoords);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_alias"]')
     .clear()
     .type(hostWithGeoCoords);
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('input[name="host_address"]')
     .clear()
     .type(hostAddress);
 });
 
 When('the admin saves the host', () => {
-  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.getSidePanelBody().find(formSelectors.saveButton).first().click();
   cy.wait('@getTimeZone');
 });
 
@@ -196,14 +286,8 @@ Then('the host is successfully created', () => {
 });
 
 Then('the geo-coordinates value is truncated {string}', (value: string) => {
-  cy.getIframeBody().contains(hostWithGeoCoords).eq(0).click();
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
-  //Navigate to the Host Extended Infos tab
-  cy.getIframeBody().contains('a', 'Host Extended Infos').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
-  // Check that the setted geo coords value has been truncated
-  cy.getIframeBody()
+  cy.openListingRowForm(hostWithGeoCoords);
+  cy.getSidePanelBody()
     .find('input[name="geo_coords"]')
     .should('have.value', value);
 });
@@ -217,10 +301,351 @@ Given(
 
 Given('a host is already configured', () => {
   hostWithGeoCoords = services.serviceOk.host;
-  cy.getIframeBody().contains('a', hostWithGeoCoords).should('be.visible');
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains('a', hostWithGeoCoords)
+    .should('be.visible');
 });
 
 When('the admin opens the edit form on this host', () => {
-  cy.getIframeBody().contains('a', hostWithGeoCoords).click();
-  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
+  cy.openListingRowForm(hostWithGeoCoords);
+});
+
+// ---------------------------------------------------------------------------
+// Modernized listing
+// ---------------------------------------------------------------------------
+
+Given('several hosts exist with different addresses', () => {
+  listingHosts.forEach((host) => {
+    cy.addHost({
+      address: host.address,
+      name: host.name,
+      template: 'generic-host'
+    });
+  });
+});
+
+Given('the first host belongs to a dedicated hostgroup', () => {
+  // addHostGroup() only creates the group; the membership goes through CLAPI.
+  cy.addHostGroup({ alias: 'Test HG', name: hostGroupName });
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'ADDHOST',
+      object: 'HG',
+      values: `${hostGroupName};${listingHosts[0].name}`
+    }
+  });
+});
+
+let inheritedIconPath = '';
+
+Given('the template of those hosts carries an icon', () => {
+  // Every host of this fixture is built on generic-host and none carries an
+  // icon of its own, so the whole column goes through the inheritance path.
+  cy.setIconWithSql('generic-host').then((path) => {
+    inheritedIconPath = String(path);
+  });
+});
+
+When('the admin opens the hosts listing', () => {
+  cy.openHostsListing();
+});
+
+Then('the AJAX listing table is displayed with the configured hosts', () => {
+  cy.getIframeBody().find(listingSelectors.table).should('exist');
+  listingHosts.forEach((host) => {
+    cy.getIframeBody().find(listingSelectors.tableBody).contains(host.name);
+  });
+});
+
+Then('each host row carries its address and poller', () => {
+  getListingRow(listingHosts[0].name)
+    .should('contain', listingHosts[0].address)
+    .and('contain', 'Central');
+});
+
+When('the admin searches the hosts for {string}', (term: string) => {
+  searchInListing(term, '@getHostListing');
+});
+
+Then('only the matching host is displayed in the hosts listing', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains(listingHosts[0].name);
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .should('not.contain', listingHosts[1].name)
+    .and('not.contain', listingHosts[2].name);
+});
+
+Then('only the host carrying that address is displayed', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains(listingHosts[2].name);
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .should('not.contain', listingHosts[0].name);
+});
+
+When('the admin filters the listing on that hostgroup', () => {
+  // The advanced filter box is collapsed until its toggle is clicked.
+  cy.getIframeBody().find(listingSelectors.advancedToggle).click();
+  cy.getIframeBody().find('#hostgroup').next('.select2-container').click();
+  cy.getIframeBody()
+    .find('.select2-results__option', { timeout: 20_000 })
+    .contains(hostGroupName)
+    .click({ force: true });
+  cy.getIframeBody().find(listingSelectors.advancedSearch).click();
+  waitForListingRefresh('@getHostListing');
+});
+
+Then('only the hosts of that hostgroup are displayed', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains(listingHosts[0].name);
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .should('not.contain', listingHosts[1].name);
+});
+
+When('the admin clears the advanced filters', () => {
+  // Applying the filters dismisses the popover, so it has to be reopened to
+  // reach its Clear button. That one button resets hostgroup, poller, template
+  // and status together; each field also has its own eraser, which re-runs the
+  // search without closing the panel.
+  cy.getIframeBody().find(listingSelectors.advancedToggle).click();
+  cy.getIframeBody().find(listingSelectors.advancedClear).click();
+  waitForListingRefresh('@getHostListing');
+});
+
+Then('all the hosts are displayed again', () => {
+  listingHosts.forEach((host) => {
+    cy.getIframeBody().find(listingSelectors.tableBody).contains(host.name);
+  });
+});
+
+When('the admin toggles the first host off from the listing', () => {
+  getListingRow(listingHosts[0].name)
+    // The real checkbox is 0x0 behind the .cl-toggle slider; force the click.
+    .find(listingSelectors.rowToggle)
+    .should('be.checked')
+    .click({ force: true });
+
+  cy.wait('@toggleHost');
+});
+
+Then('the toggle request succeeds and the host is disabled', () => {
+  cy.get('@toggleHost').its('response.statusCode').should('eq', 200);
+  cy.get('@toggleHost')
+    .its('response.body')
+    .should('have.property', 'success', true);
+  getListingRow(listingHosts[0].name)
+    .find(listingSelectors.rowToggle)
+    .should('not.be.checked');
+});
+
+When('the admin toggles the first host on from the listing', () => {
+  getListingRow(listingHosts[0].name)
+    .find(listingSelectors.rowToggle)
+    .should('not.be.checked')
+    .click({ force: true });
+
+  cy.wait('@toggleHost').its('response.statusCode').should('eq', 200);
+});
+
+Then('the host is enabled again', () => {
+  getListingRow(listingHosts[0].name)
+    .find(listingSelectors.rowToggle)
+    .should('be.checked');
+});
+
+Then('every host row shows the icon inherited from its template', () => {
+  // The exact src, on every row: the resolver has to find the template's icon
+  // and rebuild the path from dir_alias and img_path. When it resolves nothing
+  // the row renders its inline fallback <svg>, so a selector accepting that
+  // fallback would pass even when the resolver returns nothing.
+  listingHosts.forEach((host) => {
+    getListingRow(host.name)
+      .find('td')
+      .eq(1)
+      .find('img.ico-16')
+      .should('have.attr', 'src', inheritedIconPath);
+  });
+});
+
+Then('the monitoring column shows the not-monitored placeholder', () => {
+  // These hosts are configured and never monitored, so centstorage holds no row
+  // for them and the column renders its "-" placeholder — deterministically, so
+  // this asserts exactly that. It does NOT cover the badge itself: proving the
+  // tooltip's contents needs a genuinely monitored host, which this scenario
+  // does not create.
+  //
+  // Third cell (picker, name, monitoring): the placeholder is scoped to that
+  // column, whereas a row-wide contain('-') is satisfied by the 'generic-host'
+  // every row of this suite carries in Templates.
+  getListingRow(listingHosts[0].name).then(($row) => {
+    expect($row.find('td').eq(2).text().trim()).to.equal('-');
+  });
+});
+
+Then(
+  'the template of the first host opens the host template side panel',
+  () => {
+    // The link carries its target in data-panel-url, not href.
+    getListingRow(listingHosts[0].name)
+      .find('a[data-panel-url*="p=60103"]')
+      .should('exist');
+  }
+);
+
+Then('every host row links to its own services', () => {
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} tr`)
+    .each(($row) => {
+      cy.wrap($row).find('a[href*="p=602"]').should('exist');
+    });
+});
+
+Then('the pagination information shows the total count of hosts', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.pageInfo)
+    .invoke('text')
+    .should('match', /\d+-\d+ of \d+/);
+});
+
+When('the admin sets the rows per page to 10', () => {
+  cy.getIframeBody().find(listingSelectors.limitSelect).select('10');
+  waitForListingRefresh('@getHostListing');
+});
+
+Then('at most 10 host rows are displayed', () => {
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} tr`)
+    .should('have.length.at.most', 10);
+});
+
+Given('the saved hosts listing page is beyond the last page', () => {
+  cy.window().then((win) => {
+    win.sessionStorage.setItem(
+      'cl_state_host_listing_limit',
+      JSON.stringify({ extra: {}, labels: {}, limit: 10, num: 99, search: '' })
+    );
+  });
+});
+
+Then('the pagination range stays within the available hosts', () => {
+  // Prove the out-of-range page was actually requested. If the storage key, its
+  // schema or the sessionStorage sharing ever drifted, num would fall back to 0
+  // and the assertions below would hold trivially without the clamp ever running.
+  //
+  // Read every intercepted call rather than waiting on one: openHostsListing has
+  // already consumed the restoring fetch, and the next one in the queue is the
+  // clamp's own refetch, which legitimately carries num=0.
+  cy.get('@getHostListing.all').then((calls) => {
+    const urls = (calls as unknown as Array<{ request: { url: string } }>).map(
+      (call) => call.request.url
+    );
+
+    expect(
+      urls.some((url) => url.includes('num=99')),
+      'the out-of-range page was requested'
+    ).to.equal(true);
+  });
+
+  cy.getIframeBody()
+    .find(listingSelectors.pageInfo)
+    .should(($info) => {
+      const range = /(\d+)-(\d+) of (\d+)/.exec($info.text());
+      expect(range, 'pagination range').to.not.be.null;
+
+      const start = Number(range?.[1]);
+      const end = Number(range?.[2]);
+      const total = Number(range?.[3]);
+      expect(start).to.be.at.most(end);
+      expect(end).to.be.at.most(total);
+    });
+});
+
+When('the admin clicks the header checkbox', () => {
+  cy.getIframeBody().find(listingSelectors.checkAll).click({ force: true });
+});
+
+Then('every host row checkbox is checked', () => {
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} ${listingSelectors.rowCheckbox}`)
+    .each(($checkbox) => {
+      cy.wrap($checkbox).should('be.checked');
+    });
+});
+
+Then('every host row checkbox is unchecked', () => {
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} ${listingSelectors.rowCheckbox}`)
+    .each(($checkbox) => {
+      cy.wrap($checkbox).should('not.be.checked');
+    });
+});
+
+Then('the listing issues a new AJAX request on its own', () => {
+  // Auto-refresh is configured at 15s; the initial load is the first call.
+  cy.waitUntil(
+    () =>
+      cy
+        .get('@getHostListing.all')
+        .then((calls) => (calls as unknown as Array<unknown>).length > 1),
+    { interval: 2000, timeout: 30_000 }
+  );
+  cy.getIframeBody()
+    .find(listingSelectors.tableBody)
+    .contains(listingHosts[0].name);
+});
+
+When('the admin opens the host form and comes back to the listing', () => {
+  cy.openListingRowForm(listingHosts[0].name);
+  cy.openHostsListing();
+});
+
+Then('the hosts search field still contains the search term', () => {
+  cy.getIframeBody()
+    .find(listingSelectors.searchInput)
+    .should('have.value', listingHosts[0].name);
+});
+
+const toggleEndpoint =
+  '/centreon/include/configuration/configObject/host/ajaxHostToggle.php';
+
+/** host_activate of a host, read straight from the configuration database. */
+const hostActivation = (name: string) =>
+  cy
+    .requestOnDatabase({
+      database: 'centreon',
+      query: `SELECT host_id, host_activate FROM host WHERE host_name = "${name}"`
+    })
+    // requestOnDatabase resolves to the driver's [rows, fields] tuple.
+    .then(([rows]) => rows[0]);
+
+Then('the toggle endpoint answers 403 and the host stays enabled', () => {
+  // The endpoint is reachable directly, unlike the page it replaces, so its
+  // CSRF guard is the only thing standing between a forged cross-site POST and
+  // a host being disabled. Asserting the write did NOT happen matters as much
+  // as the status code: a 403 returned after the UPDATE would be useless.
+  hostActivation(listingHosts[0].name).then((host) => {
+    cy.request({
+      body: {
+        action: 'u',
+        centreon_token: 'not-a-valid-token',
+        id: host.host_id
+      },
+      failOnStatusCode: false,
+      form: true,
+      method: 'POST',
+      url: toggleEndpoint
+    }).then((response) => {
+      expect(response.status).to.equal(403);
+    });
+
+    hostActivation(listingHosts[0].name).then((after) => {
+      expect(String(after.host_activate)).to.equal(String(host.host_activate));
+    });
+  });
 });

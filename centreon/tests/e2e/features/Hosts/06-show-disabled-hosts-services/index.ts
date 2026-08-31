@@ -3,6 +3,8 @@ import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+import { getListingRow, listingSelectors } from '../common';
+
 const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }
 };
@@ -17,6 +19,14 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_listing
+  }).as('getHostListing');
+  cy.intercept({
+    method: 'POST',
+    url: INTERCEPTORS.ajax.host_toggle
+  }).as('toggleHost');
 });
 
 afterEach(() => {
@@ -49,9 +59,14 @@ Given('a host with configured services', () => {
 });
 
 Given('the host is disabled', () => {
-  cy.visit(PAGES.configuration.hostsLegacy);
-  cy.wait('@getTimeZone');
-  cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
+  cy.openHostsListing();
+  // The modernized listing disables a host through its row toggle; the real
+  // checkbox is 0x0 behind the slider, hence the forced click.
+  getListingRow(services.serviceOk.host)
+    .find(listingSelectors.rowToggle)
+    .should('be.checked')
+    .click({ force: true });
+  cy.wait('@toggleHost').its('response.statusCode').should('eq', 200);
   cy.exportConfig();
 });
 

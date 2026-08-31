@@ -1,40 +1,37 @@
-<div id="{$cloneId}_controls">
-    <div id="{$cloneId}_add">
-        <span class="add-new-entry">
-            {assign var=isFrozen value=0}
-            {foreach from=$cloneSet item=v}
-                {if $v->isFrozen()}
-                    {assign var=isFrozen value=1}
-                {/if}
-            {/foreach}
-            {if $isFrozen == 0}
-                {t} + Add a new entry{/t}
-            {/if}
-        </span>
-    </div>
-</div>
+{* Derive the aggregate frozen flag before the render loop below unfreezes the
+   elements, otherwise isFrozen() would always report false. *}
+{assign var=isFrozen value=0}
+{foreach from=$cloneSet item=v}
+    {if $v->isFrozen()}
+        {assign var=isFrozen value=1}
+    {/if}
+{/foreach}
 <ul id="{$cloneId}" class="clonable no-deco-list">
     <li class="clone_template" id="{$cloneId}_template">
-        <hr style='margin:2;'/>
         <div class="clone-cell">
+            {if $isFrozen == 0}
+            <span class="cf-macro-drag-handle clonehandle">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            </span>
+            {else}
+            <span class="cf-macro-drag-handle cf-macro-action-slot"></span>
+            {/if}
             {foreach from=$cloneSet item=v}
-                {if $v->isFrozen()}
-                    {$v->getLabel()} : {$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{$v->toHtml()}
-                {else}
-                    {$v->getLabel()}  {$v->toHtml()}
-                {/if}
+                {if $v->isFrozen()}{$v->unfreeze()}{$v->setAttribute('disabled', 'disabled')}{/if}
+                {$v->toHtml()}
             {/foreach}
-            {if $isFrozen == 0}
-                <span style="margin-left: 4px;cursor: pointer;">
-                    <img src="./img/icons/move.png" class="clonehandle ico-14" style="vertical-align:middle;">
+            <span class="cf-macro-actions">
+                <span class="cf-macro-action-btn" title="{t}Modify{/t}" onclick="editHostTemplate(this)">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                 </span>
-            {/if}
-                <img src='./img/icons/edit_mode.png' title="Edit template" class="ico-14" style='cursor:pointer;vertical-align:middle;' onclick="editHostTemplate(this)">
-            {if $isFrozen == 0}
-                <a id="{$cloneId}_remove_current" style="margin-right: 4px;">
-                    <img src="./img/icons/circle-cross.png" class="ico-14" style="vertical-align:middle;">
+                {if $isFrozen == 0}
+                <a id="{$cloneId}_remove_current" class="cf-macro-action-btn cf-macro-action-btn--danger" title="{t}Delete{/t}">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </a>
-            {/if}
+                {else}
+                <span class="cf-macro-action-btn cf-macro-action-slot"></span>
+                {/if}
+            </span>
         </div>
         <input type="hidden" name="clone_order_{$cloneId}_#index#" id="clone_order_#index#" />
     </li>
@@ -47,7 +44,7 @@
 <script type="text/javascript">
 
     function editHostTemplate(e) {
-        var hostId = jQuery(e).siblings('select').val();
+        var hostId = jQuery(e).closest('.clone-cell').find('select').val();
         if (hostId != "") {
             var popupStyle = 'toolbar=no,location=no,directories=no,tatus=no,scrollbars=yes,' +
                 'esizable=yes,copyhistory=no,width=800,height=600';

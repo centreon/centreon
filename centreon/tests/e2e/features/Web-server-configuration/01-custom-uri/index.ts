@@ -91,18 +91,24 @@ Then(
 
     cy.visit(replaceCustomUri(PAGES.configuration.hostsLegacy, '/monitor'));
 
+    // The row icon is an inline <svg> here — these hosts carry no media — so this
+    // checks the listing renders under a custom base URI, not that an icon URL
+    // resolves under it. The modernized listing draws it at 16px, matching the
+    // ico-16 it uses for custom icons, where the legacy listing drew a larger one.
+    const rowIconSize = 16;
+
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
         .contains(host)
         .find('svg')
         .invoke('width')
-        .should('be.gte', 21);
+        .should('be.gte', rowIconSize);
 
       cy.getIframeBody()
         .contains(host)
         .find('svg')
         .invoke('height')
-        .should('be.gte', 21);
+        .should('be.gte', rowIconSize);
     });
 
     cy.visit(

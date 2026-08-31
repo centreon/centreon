@@ -1,14 +1,25 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
-import { PAGES } from 'fixtures/shared/constants/pages';
 
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
+import { listingSelectors } from '../common';
 
+/**
+ * A frozen QuickForm field is re-rendered as a hidden input. The form now opens
+ * in the side panel, so every assertion runs against that nested document.
+ */
 const isInputFreezed = (name: string) => {
-  // Check that input corresponding to the name is freezed
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find(`input[name="${name}"]`)
     .should('have.attr', 'type', 'hidden');
+};
+
+/**
+ * Sections are reachable through the tab anchors at the top of the form; the
+ * anchor expands its section when it is collapsed.
+ */
+const openFormTab = (label: string) => {
+  cy.getSidePanelBody().contains('a', label).click();
 };
 
 before(() => {
@@ -24,6 +35,10 @@ beforeEach(() => {
     method: 'GET',
     url: INTERCEPTORS.pages.time_zone
   }).as('getTimeZone');
+  cy.intercept({
+    method: 'GET',
+    url: INTERCEPTORS.ajax.host_template_listing
+  }).as('getHostTemplateListing');
 });
 
 after(() => {
@@ -52,37 +67,37 @@ Given('a blocked host template', () => {
 });
 
 When('the user goes to the host template listing page', () => {
-  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
-  cy.wait('@getTimeZone');
+  cy.openHostTemplatesListing();
 });
 
 Then('the blocked host template is not visible on the page', () => {
   cy.getIframeBody()
-    .contains(hostTemplates.defaultHostTemplate.name)
-    .should('not.exist');
+    .find(listingSelectors.tableBody)
+    .should('not.contain', hostTemplates.defaultHostTemplate.name);
 });
 
 When('the user check the checkbox "Locked elements"', () => {
-  // Check the checkbox "Locked elements"
-  cy.getIframeBody().find('#displayLocked').click({ force: true });
+  // The Locked toggle lives in the advanced filters popover.
+  cy.getIframeBody().find(listingSelectors.advancedToggle).click();
+  cy.getIframeBody().find('#displayLocked').check({ force: true });
 });
 
 When('the user clicks on the Search button', () => {
-  // Click on the search button
-  cy.getIframeBody().find('input[type="submit"].btc.bt_success').click();
-  cy.wait('@getTimeZone');
+  cy.getIframeBody().find(listingSelectors.advancedSearch).click();
+  cy.getIframeBody()
+    .find(`${listingSelectors.tableBody} tr td`)
+    .should('not.contain', 'Loading');
 });
 
 Then('the blocked host template is visible on the page', () => {
   cy.getIframeBody()
+    .find(listingSelectors.tableBody)
     .contains(hostTemplates.defaultHostTemplate.name)
     .should('exist');
 });
 
 When('the user opens the form of the blocked host template', () => {
-  // Click on the blocked host template to open details
-  cy.getIframeBody().contains(hostTemplates.defaultHostTemplate.name).click();
-  cy.wait('@getTimeZone');
+  cy.openListingRowForm(hostTemplates.defaultHostTemplate.name);
 });
 
 Then('the fields are all frozen', () => {
@@ -98,25 +113,25 @@ Then('the fields are all frozen', () => {
     isInputFreezed(name);
   });
   // Check that the "Timezone" field is freezed
-  cy.getIframeBody().find('select[name="host_location"]').should('be.disabled');
+  cy.getSidePanelBody()
+    .find('select[name="host_location"]')
+    .should('be.disabled');
   // Check that the "Check Command" field is freezed
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="command_command_id"]')
     .should('be.disabled');
   // Check that the "Check Period" field is freezed
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="timeperiod_tp_id"]')
     .should('be.disabled');
-  // Click on the "Notification" tab
-  cy.getIframeBody().contains('a', 'Notification').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
+
+  openFormTab('Notification');
   // Check that the "Linked Contacts" field is freezed
-  cy.getIframeBody().find('select[name="host_cs[]"]').should('be.disabled');
+  cy.getSidePanelBody().find('select[name="host_cs[]"]').should('be.disabled');
   // Check that the "Linked Contact Groups" field is freezed
-  cy.getIframeBody().find('select[name="host_cgs[]"]').should('be.disabled');
+  cy.getSidePanelBody().find('select[name="host_cgs[]"]').should('be.disabled');
   // Check that the "Notification Period" field is freezed
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="timeperiod_tp_id2"]')
     .should('be.disabled');
   [
@@ -126,18 +141,16 @@ Then('the fields are all frozen', () => {
   ].forEach((name) => {
     isInputFreezed(name);
   });
-  // Click on the "Relations" tab
-  cy.getIframeBody().contains('a', 'Notification').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
+
+  openFormTab('Relations');
   // Check that the "Linked Service Templates" field is freezed
-  cy.getIframeBody().find('select[name="host_svTpls[]"]').should('be.disabled');
-  // Check that the "Linked Service Templates" field is freezed
-  cy.getIframeBody().find('select[name="host_hcs[]"]').should('be.disabled');
-  // Click on the "Data Processing" tab
-  cy.getIframeBody().contains('a', 'Data Processing').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
+  cy.getSidePanelBody()
+    .find('select[name="host_svTpls[]"]')
+    .should('be.disabled');
+  // Check that the "Linked Host Categories" field is freezed
+  cy.getSidePanelBody().find('select[name="host_hcs[]"]').should('be.disabled');
+
+  openFormTab('Data Processing');
   [
     'host_acknowledgement_timeout',
     'host_freshness_threshold',
@@ -148,13 +161,11 @@ Then('the fields are all frozen', () => {
     isInputFreezed(name);
   });
   // Check that the "Event handler" field is freezed
-  cy.getIframeBody()
+  cy.getSidePanelBody()
     .find('select[name="command_command_id2"]')
     .should('be.disabled');
-  // Click on the "Host Extended Infos" tab
-  cy.getIframeBody().contains('a', 'Host Extended Infos').click();
-  // Click outside the form
-  cy.get('body').click(0, 0);
+
+  openFormTab('Host Extended Infos');
   [
     'ehi_notes_url',
     'ehi_notes',

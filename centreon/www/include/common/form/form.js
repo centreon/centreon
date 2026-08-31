@@ -106,9 +106,11 @@ var CentreonForm = (function () {
         overlay.classList.remove('open');
         panel.classList.remove('open');
 
-        // Reset iframe after the CSS transition completes (300ms)
+        // Reset iframe after the CSS transition completes (300ms), unless the
+        // panel has been reopened since: closing and reopening within that delay
+        // is enough to blank the form that just loaded.
         setTimeout(function () {
-            if (frameEl) {
+            if (frameEl && !panel.classList.contains('open')) {
                 frameEl.src = 'about:blank';
             }
         }, 300);
@@ -379,8 +381,9 @@ var CentreonForm = (function () {
                 // Find the matching radio button (try both naming patterns)
                 var radio = _findRadio(radioName, val);
 
-                // Set initial active state from the checked radio
-                if (radio && radio.checked) {
+                // Set initial active state from the selected radio (or, on a
+                // read-only form, from the hidden input QuickForm leaves behind).
+                if (_isSelected(radio)) {
                     btn.classList.add('active');
                 }
 
@@ -424,8 +427,23 @@ var CentreonForm = (function () {
         wrapper.querySelectorAll('.md-radio input[type="radio"]').forEach(function (input) {
             var mdRadio = input.closest('.md-radio');
             if (!mdRadio) return;
-            // Skip hidden radios (host explicit segments, activate toggles, hidden tabs)
-            if (mdRadio.offsetParent === null) return;
+            // Skip radios the page hides on purpose: the host form's explicit
+            // segmented controls and its activate toggles keep their QuickForm
+            // group in a `style="display:none"` holder and drive it from a
+            // hand-authored .cf-segmented, so converting it again would produce a
+            // second control.
+            //
+            // Deliberately NOT an offsetParent check: that also skips everything
+            // inside a `.cf-section.collapsed`, which is display:none until the
+            // user opens it. Four of the host form's sections are collapsed at
+            // load (scheduling, relations, data, extended), so their radio groups
+            // were left raw while the open sections got segmented controls — the
+            // same field rendering two different ways depending on the section.
+            //
+            // This keys on the inline style string: moving those holders to a
+            // utility class would silently stop skipping them, and nothing here
+            // would fail.
+            if (input.closest('[style*="display:none"], [style*="display: none"]')) return;
             var field = input.closest('.cf-field') || input.closest('.cf-segmented-row');
             if (!field || field.classList.contains('cf-segmented-row')) return;
             if (field.querySelector('.cf-segmented')) return;
@@ -476,7 +494,7 @@ var CentreonForm = (function () {
                 Array.prototype.forEach.call(btns, function (btn) {
                     var v = btn.getAttribute('data-value');
                     var radio = _findRadio(base, v);
-                    if (radio && radio.checked) btn.classList.add('active');
+                    if (_isSelected(radio)) btn.classList.add('active');
                     btn.addEventListener('click', function () {
                         window.cfFormDirty = true; // user gesture → form is dirty
                         Array.prototype.forEach.call(btns, function (b) { b.classList.remove('active'); });
@@ -499,6 +517,19 @@ var CentreonForm = (function () {
                     if (!floatLabel && !l.closest('.md-radio')) floatLabel = l;
                 });
                 var labelText = floatLabel ? floatLabel.textContent.trim() : '';
+
+                // Fall back to the field's own leading text. A row that states its
+                // label as plain text rather than a floating one — every "Update
+                // mode" row of the Mass Change form does — otherwise produced a
+                // segmented control with no label at all, leaving the reader to
+                // guess what Incremental / Replacement applied to.
+                if (!labelText) {
+                    Array.prototype.forEach.call(g.field.childNodes, function (node) {
+                        if (labelText || node.nodeType !== 3) return;
+                        var text = node.textContent.replace(/ /g, ' ').trim();
+                        if (text) labelText = text;
+                    });
+                }
                 var help = g.field.querySelector('img.helpTooltip');
                 var row = document.createElement('div');
                 row.className = 'cf-segmented-row';
@@ -547,7 +578,7 @@ var CentreonForm = (function () {
             var cb = document.getElementById(cbId);
 
             // Set initial active state
-            if (cb && cb.checked) {
+            if (_isSelected(cb)) {
                 chip.classList.add('active');
             }
 
@@ -686,8 +717,9 @@ var CentreonForm = (function () {
 
         if (!toggle || !radioOn) return;
 
-        // Set initial state from the checked radio
-        toggle.checked = radioOn.checked;
+        // Set initial state from the selected radio — or, on a read-only form,
+        // from the hidden input QuickForm leaves in its place (see _isSelected).
+        toggle.checked = _isSelected(radioOn);
 
         // Update hidden radio on toggle change
         toggle.addEventListener('change', function () {
@@ -728,13 +760,26 @@ var CentreonForm = (function () {
 
         if (!toggle || !checkbox) return;
 
-        toggle.checked = checkbox.checked;
+        toggle.checked = _isSelected(checkbox);
         if (onChange) onChange(checkbox);
 
         toggle.addEventListener('change', function () {
             checkbox.checked = toggle.checked;
             if (onChange) onChange(checkbox);
         });
+
+        // A native reset restores the hidden checkbox but not this toggle, so
+        // re-read it on the next tick (once the reset is applied), same as
+        // syncToggle does for the radio-pair case.
+        var form = toggle.form || checkbox.form;
+        if (form) {
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    toggle.checked = checkbox.checked;
+                    if (onChange) onChange(checkbox);
+                }, 0);
+            });
+        }
     }
 
     // =========================================================================
@@ -754,6 +799,24 @@ var CentreonForm = (function () {
      */
     function initMacroCleanup() {
         _cleanMacroRows();
+
+        // Eraser (.cf-macro-erase): clear the row's macro value field. Bound
+        // once, delegated on document so it also covers rows sheepIt clones later.
+        if (!document._cfMacroEraseBound) {
+            document._cfMacroEraseBound = true;
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest ? e.target.closest('.cf-macro-erase') : null;
+                if (!btn) return;
+                var row = btn.closest('.onemacro');
+                var val = row && row.querySelector('input[name^="macroValue"]');
+                if (val) {
+                    val.value = '';
+                    // Trigger input so the row is marked as a direct (non-inherited) value.
+                    val.dispatchEvent(new Event('input', { bubbles: true }));
+                    val.focus();
+                }
+            });
+        }
 
         // Watch for sheepIt adding new rows
         var macroList = document.querySelector('ul.macroclone');
@@ -887,7 +950,13 @@ var CentreonForm = (function () {
                 var searchField = sel.querySelector('.select2-search__field');
                 if (!searchField) return;
                 var hasChips = !!sel.querySelector('.select2-selection__choice');
-                searchField.setAttribute('placeholder', hasChips ? '' : phText);
+                // Idempotent: only rewrite when it actually differs, so the
+                // observer below (which watches this very attribute) can re-apply
+                // our placeholder after select2 resets it, without looping.
+                var target = hasChips ? '' : phText;
+                if (searchField.getAttribute('placeholder') !== target) {
+                    searchField.setAttribute('placeholder', target);
+                }
             }
 
             var more = document.createElement('span');
@@ -958,7 +1027,11 @@ var CentreonForm = (function () {
                 new MutationObserver(function () {
                     syncPlaceholder();
                     if (!sel.classList.contains('cf-chips-expanded')) recount();
-                }).observe(rendered, { childList: true, subtree: true });
+                    // attributes/placeholder: select2 rewrites the inline-search
+                    // placeholder (to its own configured value) on (re)render and
+                    // async default-data load, so re-apply "Search" without a
+                    // user having to open/close the field first.
+                }).observe(rendered, { childList: true, subtree: true, attributes: true, attributeFilter: ['placeholder'] });
             }
             window.addEventListener('resize', recount);
 
@@ -1146,6 +1219,53 @@ var CentreonForm = (function () {
     }
 
     // =========================================================================
+    //  READ-ONLY FIELDS
+    //  Give a frozen field's value a box of its own, so a read-only form has the
+    //  same shape as an editable one.
+    // =========================================================================
+
+    /**
+     * On a read-only form QuickForm renders a frozen element as its value plus a
+     * hidden input — no <input>/<select> — so the field has nothing carrying the
+     * border that shapes it, and .cf-label-float ends up floating over empty
+     * space.
+     *
+     * The box cannot simply go on .cf-field: that element also holds the floating
+     * label and the help (?) icon, which would then sit *inside* the frame. In an
+     * editable field the border belongs to the control (flex: 1) and the icon is
+     * its sibling, outside on the right. So the value gets wrapped in its own
+     * element and that is what gets styled — same structure, same result.
+     *
+     * Idempotent: fields already wrapped are skipped via the marker class.
+     */
+    function initReadonlyFields() {
+        document.querySelectorAll('.cf-form-wrapper--readonly .cf-field').forEach(function (field) {
+            if (field.querySelector('.cf-readonly-value')) return;
+            // A field that still renders a real control keeps its own box.
+            if (field.querySelector('input:not([type="hidden"]), select, textarea, .select2-container, .cf-segmented, .cl-toggle')) {
+                return;
+            }
+
+            var value = document.createElement('span');
+            value.className = 'cf-readonly-value';
+
+            // Everything except the label and the help icon belongs in the box:
+            // the value text node, and the hidden inputs that carry it (they must
+            // stay in the DOM — the segmented controls and chips read their state
+            // from them).
+            Array.prototype.slice.call(field.childNodes).forEach(function (node) {
+                if (node.nodeType === 1) {
+                    var tag = node.tagName;
+                    if (tag === 'LABEL' || tag === 'SCRIPT' || node.classList.contains('helpTooltip')) return;
+                }
+                value.appendChild(node);
+            });
+
+            field.insertBefore(value, field.firstChild);
+        });
+    }
+
+    // =========================================================================
     //  CONVENIENCE INITIALIZERS
     // =========================================================================
 
@@ -1164,7 +1284,10 @@ var CentreonForm = (function () {
         // initYesNoSegments runs BEFORE initFloatLabels: otherwise float-labels tag the
         // radios' own "Yes/No/Default" <label> with cf-label-float and we'd pick that up
         // instead of the field's real parameter label.
-        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit];
+        // initReadonlyFields runs last of the layout steps: it moves nodes around
+        // inside .cf-field, so everything that looks a field up by structure has
+        // already run by then.
+        var steps = [initYesNoSegments, initCheckboxChips, initSoloToggles, initToggleDependencies, initFloatLabels, initSelect2Placeholders, initMultiSelectCollapse, initSingleSelectClear, initSegmentedButtons, initTooltips, hideBreadcrumbInPanel, initEnterToSubmit, initReadonlyFields];
         if (options.exclusiveChip) steps.push(function () { initChips(options.exclusiveChip); });
         if (options.macros) steps.push(initMacroCleanup);
 
@@ -1236,6 +1359,28 @@ var CentreonForm = (function () {
     function _findRadio(name, value) {
         return document.querySelector('input[name="' + name + '[' + name + ']"][value="' + value + '"]')
             || document.querySelector('input[name="' + name + '"][value="' + value + '"]');
+    }
+
+    /**
+     * Is this the option the form currently holds?
+     *
+     * Any hidden input counts as selected — the test is unconditional, it does not
+     * look at whether the form is frozen. That is the read-only case: QuickForm
+     * renders a frozen element as its value plus a persistent hidden input, emitted
+     * ONLY for the option that was selected. It keeps the element's id and name, so
+     * getElementById() and the [name][value] lookup still land on it — but .checked
+     * is false on a hidden input, which is why a read-only form used to show its
+     * segmented controls and chips with nothing selected.
+     *
+     * It relies on the lookup never landing on an unrelated hidden input carrying
+     * the same id, or the same name and value, on an editable form.
+     *
+     * @private
+     * @param {HTMLInputElement|null} input
+     * @returns {boolean}
+     */
+    function _isSelected(input) {
+        return !!input && (input.checked || input.type === 'hidden');
     }
 
     // =========================================================================
@@ -1424,11 +1569,31 @@ var cfScrollTo      = CentreonForm.scrollTo;
 document.addEventListener('DOMContentLoaded', function () {
     window.cfFormDirty = false;
     document.querySelectorAll('form').forEach(function (form) {
+        // Submitting is what makes the changes no longer unsaved. Until the
+        // programmatic mutations were tracked, the flag was set only by trusted
+        // input/change and a save navigated away, so it never outlived the form;
+        // now a save that leaves the panel open would keep it set and greet the
+        // next click with the discard prompt for changes already written.
+        form.addEventListener('submit', function () {
+            window.cfFormDirty = false;
+        });
         ['input', 'change'].forEach(function (type) {
             form.addEventListener(type, function (e) {
                 if (e.isTrusted) window.cfFormDirty = true;
             });
         });
+        // sheepIt add/remove controls and macro actions mutate the form through
+        // DOM or synthetic events, so the trusted input/change listeners miss them.
+        form.addEventListener('click', function (e) {
+            var mutationControl = e.target.closest
+                ? e.target.closest(
+                    '.cf-macro-erase, .cf-macro-reset-icon, [id$="_add"], [id$="_remove_current"]'
+                )
+                : null;
+            if (mutationControl && form.contains(mutationControl)) {
+                window.cfFormDirty = true;
+            }
+        }, true);
         // select2 mutates its <select> through a jQuery-triggered (untrusted)
         // change, so the isTrusted guard above never sees add/remove/clear on a
         // select2 field. Its own user-driven events are the reliable signal.
@@ -1437,6 +1602,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 'select2:select select2:unselect select2:clear',
                 function () { window.cfFormDirty = true; }
             );
+            // jQuery UI reports a completed drag through its synthetic event.
+            // Both clone lists are sortable and both rewrite their clone_order_*
+            // inputs by hand: macros through this form's own sortable, host
+            // templates through the .clonable one doClone.js sets up. Template
+            // order drives inheritance precedence, so losing a reorder loses a
+            // configuration change.
+            window.jQuery(form).on('sortupdate', '.macroclone, .clonable', function () {
+                window.cfFormDirty = true;
+            });
             // A native reset restores the underlying <select> values, but select2
             // does not re-render on its own, so its chips/selection stay stale.
             // Re-sync every select2 on the next tick, once the browser has applied

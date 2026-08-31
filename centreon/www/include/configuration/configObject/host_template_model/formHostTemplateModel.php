@@ -814,13 +814,11 @@ $form->addElement('text', 'ehi_notes_url', _('Note URL'), $attrsText);
 $form->addElement('text', 'ehi_action_url', _('Action URL'), $attrsText);
 $form->addElement('select', 'ehi_icon_image', _('Icon'), $extImg, [
     'id' => 'ehi_icon_image',
-    'onChange' => "showLogo('ehi_icon_image_img',this.value)",
     'onkeyup' => 'this.blur();this.focus();',
 ]);
 $form->addElement('text', 'ehi_icon_image_alt', _('Alt icon'), $attrsText);
 $form->addElement('select', 'ehi_statusmap_image', _('Status Map Image'), $extImgStatusmap, [
     'id' => 'ehi_statusmap_image',
-    'onChange' => "showLogo('ehi_statusmap_image_img',this.value)",
     'onkeyup' => 'this.blur();this.focus();',
 ]);
 
@@ -879,13 +877,17 @@ function myReplace()
 }
 
 $form->applyFilter('__ALL__', 'myTrim');
-$form->applyFilter('host_name', 'myReplace');
-$form->registerRule('existTemplate', 'callback', 'hasHostTemplateNeverUsed');
-$form->registerRule('exist', 'callback', 'hasHostNameNeverUsed');
-$form->addRule('host_name', _('Template name is already in use'), 'existTemplate');
-$form->addRule('host_name', _('Host name is already in use'), 'exist');
-$form->addRule('host_name', _('Compulsory Name'), 'required');
-$form->addRule('host_alias', _('Compulsory Alias'), 'required');
+// Name and alias are only part of the form outside of a mass change, so their
+// filter and rules must not be declared when the elements are absent.
+if ($o !== HOST_TEMPLATE_MASSIVE_CHANGE) {
+    $form->applyFilter('host_name', 'myReplace');
+    $form->registerRule('existTemplate', 'callback', 'hasHostTemplateNeverUsed');
+    $form->registerRule('exist', 'callback', 'hasHostNameNeverUsed');
+    $form->addRule('host_name', _('Template name is already in use'), 'existTemplate');
+    $form->addRule('host_name', _('Host name is already in use'), 'exist');
+    $form->addRule('host_name', _('Compulsory Name'), 'required');
+    $form->addRule('host_alias', _('Compulsory Alias'), 'required');
+}
 $form->registerRule('cg_group_exists', 'callback', 'testCg');
 $form->addRule(
     'host_cgs',
@@ -943,7 +945,6 @@ $tpl->assign('initJS', "<script type='text/javascript'>
 						initAutoComplete('Form','city_name','sub');
 						});</script>");
 $tpl->assign('javascript', '
-        <script type="text/javascript" src="./include/common/javascript/showLogo.js"></script>
         <script type="text/javascript" src="./include/common/javascript/centreon/macroPasswordField.js"></script>
         <script type="text/javascript" src="./include/common/javascript/centreon/macroLoadDescription.js"></script>
     ');
@@ -1029,8 +1030,6 @@ if ($valid) {
 
     ?>
     <script type="text/javascript">
-        showLogo('ehi_icon_image_img', document.getElementById('ehi_icon_image').value);
-
         function uncheckNotifOption(object) {
             if (object.id == "notifN" && object.checked) {
                 document.getElementById('notifD').checked = false;

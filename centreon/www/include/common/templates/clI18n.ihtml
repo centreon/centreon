@@ -57,7 +57,11 @@
             ok: "{t escape='js'}OK{/t}",
             loadError: "{t escape='js'}Error loading data{/t}",
             toggleError: "{t escape='js'}Could not change status{/t}",
-            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}"
+            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}",
+            rtmUnavailable: "{t escape='js'}Monitoring status is currently unavailable — the configuration below is unaffected.{/t}",
+            requestRejected: "{t escape='js'}The listing could not be loaded — please reload the page.{/t}",
+            writeDenied: "{t escape='js'}You do not have the rights to change this.{/t}",
+            objectGone: "{t escape='js'}This object is not available — the list will refresh.{/t}"
         {rdelim}
     {rdelim};
 </script>

@@ -28,9 +28,9 @@ use Adaptation\Log\Logger;
 
 require_once realpath(__DIR__ . '/../../..') . '/common/listing/AjaxListingHelper.php';
 
-$helper   = AjaxListingHelper::boot();
-$centreon = $helper->requireCentreon();
-$pearDB   = $helper->getDb();
+$helper = AjaxListingHelper::boot();
+$helper->requireCentreon();
+$pearDB = $helper->getDb();
 
 $objId  = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 $action = $_POST['action'] ?? null;
@@ -39,22 +39,51 @@ if (! $objId || ! in_array($action, ['s', 'u'], true)) {
     AjaxListingHelper::jsonError('Invalid parameters', 400);
 }
 
-$newToken = $helper->validateCsrfToken();
-
 $helper->requireWriteAccess(60104);
+
+// Authorization first: denying before the token is consumed means a read-only
+// user cannot burn a valid token on every attempt.
+$newToken = $helper->validateCsrfToken();
 
 $activate = ($action === 's') ? '1' : '0';
 
 try {
-    // Fetch the name (also acts as the existence check) then flip the activation flag.
+    // Write access to page 60104 says the caller may toggle categories, not which
+    // ones, so the lookup carries the same resource ACL as the listing. Without it
+    // a non-admin flips any category by posting its id, including ones its own
+    // listing never shows.
+    $conditions = 'hc_id = :id';
+    $parameters = [QueryParameter::int('id', $objId)];
+
+    if (! $helper->isAdmin()) {
+        $acl   = $helper->getAcl();
+        $hcIds = $acl !== null
+            ? array_values(array_filter(array_map('intval', explode(',', $acl->getHostCategoriesString('ID')))))
+            : [];
+
+        if ($hcIds === []) {
+            $helper->logAccessDenial('category toggle (no ACL category)', 60104);
+            AjaxListingHelper::jsonError('Object not found', 404);
+        }
+
+        $hcIn        = AjaxListingHelper::buildIntInClause($hcIds, 'acl_hc');
+        $parameters  = [...$parameters, ...$hcIn['parameters']];
+        $conditions .= " AND hc_id IN ({$hcIn['clause']})";
+    }
+
+    // Fetch the name — now also the authorization check, since the lookup is
+    // ACL-scoped: a false answer covers "absent" and "not yours" alike.
     $objName = $pearDB->fetchOne(
-        <<<'SQL'
-            SELECT hc_name FROM hostcategories WHERE hc_id = :id
+        <<<SQL
+            SELECT hc_name FROM hostcategories WHERE {$conditions}
             SQL,
-        QueryParameters::create([QueryParameter::int('id', $objId)])
+        QueryParameters::create($parameters)
     );
 
     if ($objName === false) {
+        if (! $helper->isAdmin()) {
+            $helper->logAccessDenial('category toggle (object outside ACL, or absent)', 60104);
+        }
         AjaxListingHelper::jsonError('Object not found', 404);
     }
 
