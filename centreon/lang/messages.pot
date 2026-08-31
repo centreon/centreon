@@ -494,6 +494,10 @@ msgstr ""
 msgid "Action URL"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr ""
+
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
 msgstr ""
@@ -2118,6 +2122,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -6311,6 +6319,10 @@ msgstr ""
 msgid "Ends at"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr ""
@@ -9022,6 +9034,10 @@ msgstr ""
 msgid "Host group (%s) not found"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr ""
+
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
@@ -11572,6 +11588,10 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 msgid "Mode"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.ihtml
+msgid "Modification type"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -15030,6 +15050,10 @@ msgstr ""
 msgid "Resource Type"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr ""
@@ -16304,6 +16328,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Service group"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
@@ -17592,6 +17620,11 @@ msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Syslog Logging Option"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.ihtml
+#: centreon/www/include/Administration/configChangelog/viewLogsDetails.ihtml
+msgid "System"
 msgstr ""
 
 #: centreon/www/install/menu_translation.php
@@ -20977,6 +21010,15 @@ msgid "Your rights only allow you to view the properties of a widget."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
+msgid "Could not read the change history."
+msgstr ""
+
+msgid "Could not load more — click to retry"
+msgstr ""
+
+msgid "You are not allowed to view this data."
+msgstr ""
+
 msgid "Your session has expired"
 msgstr ""
 
@@ -21223,6 +21265,10 @@ msgstr ""
 
 #: centreon/src/Core/Application/Platform/UseCase/FindInstallationStatus/FindInstallationStatus.php
 msgid "centreon is not properly installed"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogsDetails.ihtml
+msgid "Recorded changes"
 msgstr ""
 
 #: centreon/www/install/front_translate.php

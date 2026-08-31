@@ -1,96 +1,258 @@
-<form name='form' method='POST'>
-<table class="ajaxOption table">
-    <tbody>
-        <tr>
-            <th><h5>{t}Filters{/t}</h5></th>
-        </tr>
-        <tr>
-            <td><h4>{$search_object_str}</h4></td>
-            <td><h4>{$search_user_str}</h4></td>
-            <td><h4>{$obj_str}</h4></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td><input type='text' name='searchO' value="{$searchO}" /></td>
-            <td><input type='text' name='searchU' value="{$searchU}" /></td>
-            <td><select name='otype'>{$obj_type}</select></td>
-            <td>{$form.SearchB.html}</td>
-        </tr>
-    </tbody>
-</table>
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td style='width:30%;'>&nbsp;</td>
-        {pagination}
-    </tr>
-</table>
-<table class="ListTable">
-    <tr class="ListHeader">
-        <td class="ListColHeaderCenter" style='width:180px'>{t}Date{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Modificaton type{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Objects{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Object Name{/t}</td>
-        <td class="ListColHeaderCenter" style="white-space:nowrap;">{t}Authors{/t}</td>
-    </tr>
-{assign var='classStyle' value='list_two'}
-{foreach item=elem from=$elemArray}
-    {if $classStyle == 'list_two'}
-        {assign var='classStyle' value='list_one'}
-    {else}
-        {assign var='classStyle' value='list_two'}
-    {/if}
-    <tr class='{$classStyle}'>
-        <!-- using a class to format the timestamp -->
-        <td class='ListColCenter isTimestamp'>{$elem.date}</td>
-        <td class='ListColCenter' style='width:120px;'><span class="badge service_{$elem.badge}">{$elem.modification_type}</span></td>
-        <td class='ListColCenter'>{$elem.type}</td>
-        <td class='ListColLeft'>
-        {if isset($elem.host)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.host} / {$elem.object_name}</a>
-        {elseif isset($elem.hostgroup)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.hostgroup} / {$elem.object_name}</a>
-        {elseif isset($elem.hosts)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">
-            (
-            {assign var=flag value=0}
-            {foreach key=key2 item=item2 from=$elem.hosts}
-                 {if $flag == 1} / {/if}
-                 {$item2}
-                 {assign var=flag value=1}
+{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
+<script type="text/javascript" src="./include/common/javascript/tool.js"></script>
+
+<div class="cl-scroll-wrapper">
+    <div class="cl-filter-box">
+        <div class="cl-filter-bar">
+            <label class="cl-filter-label" for="clSearchInput">{t}Object{/t}</label>
+            <input type="text" id="clSearchInput" value="" placeholder="{t}Search{/t}" class="cl-search-input">
+            <label class="cl-filter-label" for="clSearchUser">{t}User{/t}</label>
+            <input type="text" id="clSearchUser" value="" placeholder="{t}Search{/t}" class="cl-search-input">
+            <label class="cl-filter-label" for="clSearchType">{t}Type{/t}</label>
+            <select id="clSearchType" class="cl-search-input">
+                <option value="">{t}All{/t}</option>
+                {foreach key=objectType item=objectTypeLabel from=$objectTypes}
+                <option value="{$objectType|escape:'html'}">{$objectTypeLabel|escape:'html'}</option>
+                {/foreach}
+            </select>
+            <button type="button" id="clSearchBtn" class="btc bt_success">{t}Search{/t}</button>
+        </div>
+    </div>
+
+    <div class="cl-actions-bar">
+        <div class="cl-actions-left">&nbsp;</div>
+        <div class="cl-pagination" id="clPaginationTop" style="font-size:12px;"></div>
+    </div>
+
+    <div class="cl-scroll-area" id="clScrollContainer">
+        <table class="cl-listing-table">
+            <thead>
+                <tr>
+                    <th style="width:30px"></th>
+                    <th style="width:170px">{t}Date{/t}</th>
+                    <th class="cl-col-center" style="width:120px">{t}Modification type{/t}</th>
+                    <th style="width:140px">{t}Object Type{/t}</th>
+                    <th>{t}Object Name{/t}</th>
+                    <th style="width:180px">{t}Author{/t}</th>
+                </tr>
+            </thead>
+            <tbody id="clTableBody">
+                <tr><td colspan="6" class="cl-loading">{t}Loading...{/t}</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cl-pagination" id="clPaginationBottom" style="font-size:12px;padding:4px 8px;flex-shrink:0;"></div>
+</div>
+
+<script type="text/javascript">
+    // The render callbacks below sit inside a Smarty literal block, where
+    // gettext tags are inert, so expose their strings here instead. Do not write
+    // Smarty tag syntax in this comment: auto_literal is off, so an unbalanced
+    // brace tag here would swallow the rest of the template.
+    window.changelogI18n = {ldelim}
+        actions: {ldelim}
+            a: "{t escape='js'}Added{/t}",
+            c: "{t escape='js'}Changed{/t}",
+            mc: "{t escape='js'}Mass Change{/t}",
+            enable: "{t escape='js'}Enabled{/t}",
+            disable: "{t escape='js'}Disabled{/t}",
+            d: "{t escape='js'}Deleted{/t}"
+        {rdelim},
+        objectTypes: {ldelim}
+            {foreach key=objectType item=objectTypeLabel from=$objectTypeLabels name=types}
+            "{$objectType|escape:'javascript'}": "{$objectTypeLabel|escape:'javascript'}"{if ! $smarty.foreach.types.last},{/if}
             {/foreach}
-            ) {$elem.object_name}</a>
-        {elseif isset($elem.hostgroups)}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">
-            (
-            {assign var=flag value=0}
-            {foreach key=key2 item=item2 from=$elem.hostgroups}
-                 {if $flag == 1} / {/if}
-                 {$item2}
-                 {assign var=flag value=1}
-            {/foreach}
-            ) {$elem.object_name}</a>
-        {else}
-            <a href="./main.php?p={$p}&object_type={$elem.type}&object_id={$elem.object_id}&searchU={$searchU}&searchO={$searchO}&otype={$type_id}">{$elem.object_name}</a>
-        {/if}
-        </td>
-        <td class='ListColCenter'>{$elem.author}</td>
-    </tr>
-{/foreach}
-</table>
-<table class="ToolbarTable table">
-    <tr class="ToolbarTR">
-        <td style='width:30%;'>&nbsp;</td>
-        {pagination}
-    </tr>
-</table>
-<input type='hidden' name='o' id='o' value='42'>
-<input type='hidden' id='limit' name='limit' value='{$limit}'>
-{$form.hidden}
-</form>
+        {rdelim},
+        diff: {ldelim}
+            field: "{t escape='js'}Field Name{/t}",
+            before: "{t escape='js'}Before{/t}",
+            after: "{t escape='js'}After{/t}",
+            value: "{t escape='js'}Value{/t}",
+            loading: "{t escape='js'}Loading...{/t}",
+            empty: "{t escape='js'}No modification was made.{/t}"
+        {rdelim},
+        author: {ldelim}
+            system: "{t escape='js'}System{/t}",
+            unknown: "{t escape='js'}unknown{/t}"
+        {rdelim}
+    {rdelim};
+</script>
 
 {literal}
-<script>
-    //formatting the tags containing a class isTimestamp
-    formatDateMoment();
+<script type="text/javascript">
+(function() {
+    var i18n = window.changelogI18n;
+
+    // Action code -> badge colour. Codes come straight from
+    // log_action.action_type (ActionLog), the label is translated separately.
+    var badgeClass = {
+        'a': 'service_ok',
+        'c': 'service_warning',
+        'mc': 'service_warning',
+        'enable': 'service_ok',
+        'disable': 'service_critical',
+        'd': 'service_critical'
+    };
+
+    // Enabling, disabling or deleting an object records no field change, so
+    // there is nothing to expand for those.
+    var expandableActions = { 'a': true, 'c': true, 'mc': true };
+
+    var detailUrl = './include/Administration/configChangelog/ajaxChangelogDetail.php';
+
+    function toggleDetail(btn, actionLogId) {
+        var tr = jQuery(btn).closest('tr');
+        var detailId = 'cl-detail-' + actionLogId;
+        var existing = jQuery('#' + detailId);
+
+        if (existing.length) {
+            existing.remove();
+            jQuery(btn).removeClass('open').text('+');
+            return;
+        }
+
+        jQuery(btn).addClass('open').text('−');
+
+        var colCount = tr.find('td').length;
+        var detailRow = jQuery(
+            '<tr id="' + detailId + '" class="cl-detail-row">' +
+            '<td colspan="' + colCount + '">' +
+            '<div class="cl-diff-container"><div class="cl-diff-loading"></div></div>' +
+            '</td></tr>'
+        );
+        detailRow.find('.cl-diff-loading').text(i18n.diff.loading);
+        tr.after(detailRow);
+
+        jQuery.ajax({
+            url: detailUrl,
+            type: 'GET',
+            dataType: 'json',
+            data: { action_log_id: actionLogId },
+            success: function(data) {
+                var container = detailRow.find('.cl-diff-container');
+                container.empty();
+
+                if (!data.diff || data.diff.length === 0) {
+                    container.append(jQuery('<div class="cl-diff-empty"></div>').text(i18n.diff.empty));
+                    return;
+                }
+
+                var isCreate = data.action_type === 'a';
+
+                var header = '<div class="cl-diff-header">' +
+                    '<span>' + clEscape(i18n.diff.field) + '</span>';
+                if (!isCreate) {
+                    header += '<span>' + clEscape(i18n.diff.before) + '</span>';
+                }
+                header += '<span>' + clEscape(isCreate ? i18n.diff.value : i18n.diff.after) + '</span></div>';
+                container.append(header);
+
+                for (var i = 0; i < data.diff.length; i++) {
+                    var d = data.diff[i];
+                    var row = '<div class="cl-diff-row">' +
+                        '<div class="cl-diff-field">' + clEscape(d.field) + '</div>';
+                    if (!isCreate) {
+                        row += '<div class="cl-diff-before">' + clEscape(d.before) + '</div>';
+                    }
+                    row += '<div class="cl-diff-after">' + clEscape(d.after) + '</div>';
+                    row += '</div>';
+                    container.append(row);
+                }
+            },
+            error: function(xhr, status, err) {
+                if (window.console) {
+                    console.error('[changelog] diff fetch failed', (xhr && xhr.status) || '', status, err);
+                }
+                var httpStatus = xhr && xhr.status;
+                var errorCode = xhr && xhr.responseJSON && xhr.responseJSON.code;
+                var label = clListingLabel('loadError', 'Error loading data');
+                if (httpStatus === 401 || httpStatus === 403) {
+                    label = errorCode === 'access_denied'
+                        ? clListingLabel('accessDenied', 'You are not allowed to view this data.')
+                        : clListingLabel('sessionExpired', 'Your session has expired — please reload the page.');
+                }
+                detailRow.find('.cl-diff-container').empty().append(
+                    jQuery('<div class="cl-diff-empty cl-diff-error"></div>').text(label)
+                );
+            }
+        });
+    }
+
+    // Make toggleDetail available globally for onclick
+    window._clToggleDetail = toggleDetail;
+
+    var logListing = new CentreonListing({
+        instanceName:  'logListing',
+        ajaxListUrl:   './include/Administration/configChangelog/ajaxChangelogListing.php',
+        pageId:        '{/literal}{$p}{literal}',
+        writeAccess:   false,
+        showCheckboxes: false,
+        defaultLimit:  {/literal}{$defaultLimit}{literal},
+        storageKey:    'changelog_listing',
+        infiniteScroll: true,
+        scrollContainerId: 'clScrollContainer',
+        rowIdField:    'action_log_id',
+        extraParams:   function() {
+            return {
+                searchUser: document.getElementById('clSearchUser').value,
+                objectType: document.getElementById('clSearchType').value
+            };
+        },
+        columns: [
+            { id:'_expand', render: function(row) {
+                if (!expandableActions[row.action_type]) {
+                    return '<span class="cl-expand-btn disabled">+</span>';
+                }
+                return '<span class="cl-expand-btn" onclick="window._clToggleDetail(this,' + row.action_log_id + ')">+</span>';
+            }},
+            { id:'date', render: function(row) {
+                if (!row.date) return '';
+                // Rendered by formatDateMoment() (onDataLoaded) so the date
+                // follows the user's timezone and locale, not the browser's.
+                return '<span class="isTimestamp">' + clEscape(String(row.date)) + '</span>';
+            }},
+            { id:'action_type', align:'center', render: function(row, l) {
+                var cls = badgeClass[row.action_type] || 'service_warning';
+                return '<span class="badge ' + cls + '">' +
+                    l.escape(i18n.actions[row.action_type] || row.action_type) + '</span>';
+            }},
+            { id:'object_type', render: function(row, l) {
+                return l.escape(i18n.objectTypes[row.object_type] || row.object_type);
+            }},
+            { id:'object_name', render: function(row, l) {
+                var pageId = '{/literal}{$p}{literal}';
+                var link = 'main.php?p=' + pageId +
+                    '&object_type=' + encodeURIComponent(row.object_type) +
+                    '&object_id=' + encodeURIComponent(row.object_id);
+                return '<a href="' + clEscapeAttr(link) + '">' + l.escape(row.object_name) + '</a>';
+            }},
+            { id:'author', render: function(row, l) {
+                if (row.author) {
+                    return l.escape(row.author);
+                }
+                // No contact id means the platform itself made the change.
+                return l.escape(row.author_id ? i18n.author.unknown : i18n.author.system);
+            }}
+        ],
+        onDataLoaded: function() {
+            formatDateMoment();
+        }
+    });
+
+    // Extra filter fields — their values reach the server through extraParams,
+    // so they only need to trigger a refetch.
+    jQuery('#clSearchUser').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            logListing.applySearch();
+        }
+    });
+    jQuery('#clSearchType').on('change', function() {
+        logListing.applySearch();
+    });
+
+    logListing.init();
+})();
 </script>
 {/literal}

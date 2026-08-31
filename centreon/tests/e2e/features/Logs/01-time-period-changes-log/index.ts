@@ -3,6 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import periods from '../../../fixtures/time-periods/time-period.json';
+import {
+  assertLatestChangelogRow,
+  openChangelogListing,
+  openObjectTimeline
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -50,65 +55,25 @@ Then('a new time period is displayed on the time periods page', () => {
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Added')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'timeperiod');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Added', 'Time period');
   }
 );
 
 Then(
   'the informations of the log are the same as those passed to the endpoint',
   () => {
-    cy.getIframeBody().contains(periods.default.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', periods.default.name);
-    cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'name', '', periods.default.name);
-    cy.checkLogDetails(1, 2, 'alias', '', periods.default.alias);
-    cy.checkLogDetails(1, 3, 'monday', '', periods.default.days[0].time_range);
-    cy.checkLogDetails(1, 4, 'tuesday', '', periods.default.days[1].time_range);
-    cy.checkLogDetails(
-      1,
-      5,
-      'wednesday',
-      '',
-      periods.default.days[2].time_range
-    );
-    cy.checkLogDetails(
-      1,
-      6,
-      'thursday',
-      '',
-      periods.default.days[3].time_range
-    );
-    cy.checkLogDetails(1, 7, 'friday', '', periods.default.days[4].time_range);
-    cy.checkLogDetails(
-      1,
-      8,
-      'saturday',
-      '',
-      periods.default.days[5].time_range
-    );
-    cy.checkLogDetails(1, 9, 'sunday', '', periods.default.days[6].time_range);
+    openObjectTimeline(periods.default.name);
+    cy.expandTimelineCard('Added');
+    cy.checkLogDetail('name', '', periods.default.name);
+    cy.checkLogDetail('alias', '', periods.default.alias);
+    cy.checkLogDetail('monday', '', periods.default.days[0].time_range);
+    cy.checkLogDetail('tuesday', '', periods.default.days[1].time_range);
+    cy.checkLogDetail('wednesday', '', periods.default.days[2].time_range);
+    cy.checkLogDetail('thursday', '', periods.default.days[3].time_range);
+    cy.checkLogDetail('friday', '', periods.default.days[4].time_range);
+    cy.checkLogDetail('saturday', '', periods.default.days[5].time_range);
+    cy.checkLogDetail('sunday', '', periods.default.days[6].time_range);
   }
 );
 
@@ -142,48 +107,18 @@ When(
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_warning"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_warning', 'Changed')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'timeperiod');
+    openChangelogListing();
+    assertLatestChangelogRow('service_warning', 'Changed', 'Time period');
   }
 );
 
 Then(
   'the informations of the log are the same as those of the updated time period',
   () => {
-    cy.getIframeBody().contains(periods.time_period1.name).click();
-    cy.waitForElementInIframe(
-      '#main-content',
-      'a[href="./main.php?p=508"].btc.bt_success'
-    );
-    cy.getIframeBody()
-      .find('td.ListColHeaderCenter')
-      .eq(0)
-      .should('contain.text', periods.time_period1.name);
-    cy.getIframeBody().contains('td', 'Change by admin').should('exist');
-    cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(
-      1,
-      1,
-      'name',
-      periods.default.name,
-      periods.time_period1.name
-    );
-    cy.checkLogDetails(
-      1,
-      2,
+    openObjectTimeline(periods.time_period1.name);
+    cy.expandTimelineCard('Changed');
+    cy.checkLogDetail('name', periods.default.name, periods.time_period1.name);
+    cy.checkLogDetail(
       'alias',
       periods.default.alias,
       periods.time_period1.alias
@@ -201,20 +136,7 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_critical"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_critical', 'Deleted')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'timeperiod');
+    openChangelogListing();
+    assertLatestChangelogRow('service_critical', 'Deleted', 'Time period');
   }
 );

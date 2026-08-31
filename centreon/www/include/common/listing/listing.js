@@ -283,6 +283,17 @@ function CentreonListing(config) {
         if (currentSearch && currentSearch.trim() !== '') return true;
         var panel = document.querySelector('.cl-adv-panel');
         if (panel && typeof clCountActiveFilters === 'function' && clCountActiveFilters(panel) > 0) return true;
+        // extraParams filters must count as active too, or narrowing one down to
+        // zero rows shows the welcome state instead of "no results".
+        var extra = typeof cfg.extraParams === 'function' ? cfg.extraParams() : cfg.extraParams;
+        for (var key in extra) {
+            if (Object.prototype.hasOwnProperty.call(extra, key)
+                && extra[key] !== null && extra[key] !== undefined
+                && String(extra[key]).trim() !== ''
+            ) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -556,7 +567,7 @@ function CentreonListing(config) {
         if (isAppend) {
             isLoadingMore = true;
             // Show loading indicator at bottom
-            jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader').remove();
+            jQuery('#' + cfg.tableBodyId).find('.cl-infinite-loader, .cl-infinite-error').remove();
             jQuery('#' + cfg.tableBodyId).append(
                 '<tr class="cl-infinite-loader"><td colspan="99" style="text-align:center;padding:12px;color:#a7a9ac;">Loading more...</td></tr>'
             );
@@ -584,7 +595,12 @@ function CentreonListing(config) {
                 } else {
                     tbody.removeClass('cl-fade-in');
                     self.renderRows(data.rows);
-                    if (data.total === 0 && !hasActiveFiltersOrSearch()) {
+                    // The welcome state invites the user to add a first entry, so it
+                    // only makes sense where there is something to add. A read-only
+                    // listing keeps the "No results found" from renderRows().
+                    if (data.total === 0 && !hasActiveFiltersOrSearch()
+                        && cfg.writeAccess && document.querySelector('.cl-actions-left .cl-btn-add')
+                    ) {
                         renderEmptyState();
                     }
                     if (cfg.infiniteScroll) {
@@ -624,7 +640,35 @@ function CentreonListing(config) {
                     // Session expired / access lost mid-view: stop the auto-refresh
                     // so we don't hammer a dead session, and tell the user.
                     if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-                    clToast(clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'), 'error');
+                    // A 403 covers both a lost session and an ACL denial. Only the
+                    // former is fixed by reloading, so telling the two apart needs
+                    // the endpoint's `code`; without it, assume the session.
+                    var errorCode = xhr && xhr.responseJSON && xhr.responseJSON.code;
+                    clToast(
+                        errorCode === 'access_denied'
+                            ? clListingLabel('accessDenied', 'You are not allowed to view this data.')
+                            : clListingLabel('sessionExpired', 'Your session has expired — please reload the page.'),
+                        'error'
+                    );
+                    return;
+                }
+
+                if (isAppend) {
+                    // `silent` means "no spinner", not "no error". Without this the
+                    // loader row just vanishes and the list stops growing, which is
+                    // indistinguishable from having reached the end of the data.
+                    var errorRow = jQuery(
+                        '<tr class="cl-infinite-error"><td colspan="99" style="text-align:center;padding:12px;color:#FF4A4A;cursor:pointer;"></td></tr>'
+                    );
+                    errorRow.find('td').text(
+                        clListingLabel('loadMoreError', 'Could not load more — click to retry')
+                    );
+                    errorRow.on('click', function () {
+                        errorRow.remove();
+                        self.fetch(currentNum, currentLimit, currentSearch, true);
+                    });
+                    jQuery('#' + cfg.tableBodyId).append(errorRow);
+
                     return;
                 }
 

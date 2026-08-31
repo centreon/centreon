@@ -56,8 +56,10 @@
             close: "{t escape='js'}Close{/t}",
             ok: "{t escape='js'}OK{/t}",
             loadError: "{t escape='js'}Error loading data{/t}",
+            loadMoreError: "{t escape='js'}Could not load more — click to retry{/t}",
             toggleError: "{t escape='js'}Could not change status{/t}",
-            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}"
+            sessionExpired: "{t escape='js'}Your session has expired — please reload the page.{/t}",
+            accessDenied: "{t escape='js'}You are not allowed to view this data.{/t}"
         {rdelim}
     {rdelim};
 </script>

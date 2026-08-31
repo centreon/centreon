@@ -3,6 +3,11 @@ import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
 import commands from '../../../fixtures/commands/command-api.json';
+import {
+  assertLatestChangelogRow,
+  openChangelogListing,
+  openObjectTimeline
+} from '../common';
 
 beforeEach(() => {
   cy.startContainers();
@@ -73,191 +78,33 @@ Then(
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLegacy);
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      'span[class*="badge service_ok"]'
-    );
-    cy.getIframeBody()
-      .contains('span.badge.service_ok', 'Added')
-      .should('exist');
-
-    cy.getIframeBody()
-      .find('tr.list_one')
-      .find('td')
-      .eq(2)
-      .should('contain.text', 'commands');
+    openChangelogListing();
+    assertLatestChangelogRow('service_ok', 'Added', 'Command');
   }
 );
+
+// Values command.command_type takes in the changelog, per command kind.
+const commandTypeCode: Record<string, string> = {
+  CHECK: '2',
+  DISCOVERY: '4',
+  MISCELLANEOUS: '3',
+  NOTIFICATION: '1'
+};
 
 Then(
   'the informations of the log are the same as those of the {string} command',
   (type: string) => {
-    switch (type) {
-      case 'NOTIFICATION': {
-        cy.getIframeBody().contains(commands.notification.name).click();
-        cy.waitForElementInIframe(
-          '#main-content',
-          'a[href="./main.php?p=508"].btc.bt_success'
-        );
-        cy.getIframeBody()
-          .find('td.ListColHeaderCenter')
-          .eq(0)
-          .should('contain.text', commands.notification.name);
-        cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-        cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-        cy.checkLogDetails(
-          1,
-          1,
-          'command_activate',
-          '',
-          commands.notification.is_activated ? '1' : '0'
-        );
-        cy.checkLogDetails(
-          1,
-          2,
-          'command_name',
-          '',
-          commands.notification.name
-        );
-        cy.checkLogDetails(1, 3, 'command_type', '', '1');
-        cy.checkLogDetails(
-          1,
-          4,
-          'command_line',
-          '',
-          `${commands.notification.command_line}`
-        );
-        cy.checkLogDetails(
-          1,
-          5,
-          'enable_shell',
-          '',
-          commands.notification.is_shell_enabled ? '1' : '0'
-        );
-        break;
-      }
-      case 'CHECK': {
-        cy.getIframeBody().contains(commands.check.name).click();
-        cy.waitForElementInIframe(
-          '#main-content',
-          'a[href="./main.php?p=508"].btc.bt_success'
-        );
-        cy.getIframeBody()
-          .find('td.ListColHeaderCenter')
-          .eq(0)
-          .should('contain.text', commands.check.name);
-        cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-        cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-        cy.checkLogDetails(
-          1,
-          1,
-          'command_activate',
-          '',
-          commands.check.is_activated ? '1' : '0'
-        );
-        cy.checkLogDetails(1, 2, 'command_name', '', commands.check.name);
-        cy.checkLogDetails(1, 3, 'command_type', '', '2');
-        cy.checkLogDetails(
-          1,
-          4,
-          'command_line',
-          '',
-          `${commands.check.command_line}`
-        );
-        cy.checkLogDetails(
-          1,
-          5,
-          'enable_shell',
-          '',
-          commands.check.is_shell_enabled ? '1' : '0'
-        );
-        break;
-      }
-      case 'MISCELLANEOUS': {
-        cy.getIframeBody().contains(commands.miscellaneous.name).click();
-        cy.waitForElementInIframe(
-          '#main-content',
-          'a[href="./main.php?p=508"].btc.bt_success'
-        );
-        cy.getIframeBody()
-          .find('td.ListColHeaderCenter')
-          .eq(0)
-          .should('contain.text', commands.miscellaneous.name);
-        cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-        cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-        cy.checkLogDetails(
-          1,
-          1,
-          'command_activate',
-          '',
-          commands.miscellaneous.is_activated ? '1' : '0'
-        );
-        cy.checkLogDetails(
-          1,
-          2,
-          'command_name',
-          '',
-          commands.miscellaneous.name
-        );
-        cy.checkLogDetails(1, 3, 'command_type', '', '3');
-        cy.checkLogDetails(
-          1,
-          4,
-          'command_line',
-          '',
-          `${commands.miscellaneous.command_line}`
-        );
-        cy.checkLogDetails(
-          1,
-          5,
-          'enable_shell',
-          '',
-          commands.miscellaneous.is_shell_enabled ? '1' : '0'
-        );
-        break;
-      }
-      case 'DISCOVERY': {
-        cy.getIframeBody().contains(commands.discovery.name).click();
-        cy.waitForElementInIframe(
-          '#main-content',
-          'a[href="./main.php?p=508"].btc.bt_success'
-        );
-        cy.getIframeBody()
-          .find('td.ListColHeaderCenter')
-          .eq(0)
-          .should('contain.text', commands.discovery.name);
-        cy.getIframeBody().contains('td', 'Create by admin').should('exist');
-        cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-        cy.checkLogDetails(
-          1,
-          1,
-          'command_activate',
-          '',
-          commands.discovery.is_activated ? '1' : '0'
-        );
-        cy.checkLogDetails(1, 2, 'command_name', '', commands.discovery.name);
-        cy.checkLogDetails(1, 3, 'command_type', '', '4');
-        cy.checkLogDetails(
-          1,
-          4,
-          'command_line',
-          '',
-          `${commands.discovery.command_line}`
-        );
-        cy.checkLogDetails(
-          1,
-          5,
-          'enable_shell',
-          '',
-          commands.discovery.is_shell_enabled ? '1' : '0'
-        );
-        break;
-      }
-      default:
-        break;
-    }
+    const command = commands[type.toLowerCase()];
+    expect(command, `fixture for command type "${type}"`).to.exist;
+
+    openObjectTimeline(command.name);
+    cy.expandTimelineCard('Added');
+
+    cy.checkLogDetail('command_activate', '', command.is_activated ? '1' : '0');
+    cy.checkLogDetail('command_name', '', command.name);
+    cy.checkLogDetail('command_type', '', commandTypeCode[type]);
+    cy.checkLogDetail('command_line', '', `${command.command_line}`);
+    cy.checkLogDetail('enable_shell', '', command.is_shell_enabled ? '1' : '0');
   }
 );
 
