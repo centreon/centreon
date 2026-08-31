@@ -1,18 +1,6 @@
 @import "color-variables.css";
 
 :root {
-    /* Modern listing/form design system (cl-/cf- prefixes): link and icon
-       accent color, kept separate from --color-primary-light so the dark
-       theme can point it at a lighter shade for readability on dark
-       backgrounds without touching the base brand color. */
-    --cl-link-color: var(--color-primary-light);
-    --cl-link-hover-color: var(--color-primary-hover);
-
-    /* Object icons (host.svg, service.svg, ...) are flat black raster/SVG
-       files loaded via <img>, so CSS color/currentColor can't reach them —
-       a filter is the only lever. No-op in light mode. */
-    --cl-icon-filter: none;
-
     /* Style.css variables */
     --color-checkbox-disabled-border-rgba: var(--color-black-rgba-26);
     --color-checkbox-checked-border-: var(--color-white);
@@ -832,10 +820,10 @@
     /* Custom macros variables */
     --custom-macros-placeholder-font-color: var(--color-black);
     --custom-macros-font-color: var(--color-black);
-    --custom-macros-command-border-color: var(--color-boston-blue);
-    --custom-macros-template-border-color: var(--color-maya-blue);
-    --custom-macros-command-background-color: var(--color-malibu-2);
-    --custom-macros-template-background-color: var(--color-columbia-blue);
+    --custom-macros-command-border-color: var(--color-menthol-2);
+    --custom-macros-template-border-color: var(--color-rayola-2);
+    --custom-macros-command-background-color: var(--color-menthol);
+    --custom-macros-template-background-color: var(--color-rayola);
     /* license manager error page variables */
     --license-manager-error-message-color: var(--color-primary-light);
     /* widget progress bar value color */

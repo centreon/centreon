@@ -51,7 +51,7 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
 
 $acl = $centreon->user->access;
 $dbmon = new CentreonDB('centstorage');
-$aclDbName = $dbmon->getConnectionConfig()->getDatabaseNameRealTime();
+$aclDbName = $acl->getNameDBAcl();
 $hcString = $acl->getHostCategoriesString();
 $hoststring = $acl->getHostsString('ID', $dbmon);
 try {

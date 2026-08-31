@@ -12389,7 +12389,7 @@ msgid "Modify Vendor"
 msgstr "Editar un constructor"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a host category"
+msgid "Modify a  host category"
 msgstr "Editar una categoría de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -25454,41 +25454,3 @@ msgstr ""
 #: unknown
 # msgid "Centreon Central address, as seen by this poller"
 # msgstr ""
-
-# Host categories - modernized listing/form (UX/UI migration)
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host category"
-msgstr "Duplicar categoría de host"
-
-#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Duplicate host categories"
-msgstr "Duplicar categorías de host"
-
-#: unknown
-msgid "Delete host category"
-msgstr "Eliminar categoría de host"
-
-#: unknown
-msgid "Delete host categories"
-msgstr "Eliminar categorías de host"
-
-#: unknown
-msgid "Group hosts into categories to organize and filter your configuration."
-msgstr "Agrupe los hosts en categorías para organizar y filtrar su configuración."
-
-#: unknown
-msgid "You are about to delete <strong>{{ count }} host categories.</strong> This action cannot be undone. Do you want to delete them?"
-msgstr "Está a punto de eliminar <strong>{{ count }} categorías de host</strong>. Esta acción no se puede deshacer. ¿Desea eliminarlas?"
-
-#: unknown
-msgid "You are about to delete the <strong>{{ name }}</strong> host category. This action cannot be undone. Do you want to delete it?"
-msgstr "Está a punto de eliminar la categoría de host <strong>{{ name }}</strong>. Esta acción no se puede deshacer. ¿Desea eliminarla?"
-
-#: unknown
-msgid "You are about to duplicate <strong>{{ count }} host categories.</strong> Do you want to duplicate them?"
-msgstr "Está a punto de duplicar <strong>{{ count }} categorías de host</strong>. ¿Desea duplicarlas?"
-
-#: unknown
-msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
-msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
-

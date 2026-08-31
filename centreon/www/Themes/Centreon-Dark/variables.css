@@ -1,35 +1,6 @@
 @import "../Generic-theme/Variables-css/variables.css";
 
 :root{
-    /* Lighter shade for links/icons in the modern listing/form design system
-       (cl-/cf- prefixes) — --color-primary-light reads too dark against this
-       theme's near-black background. Uses --color-malibu instead of
-       --color-primary-dark for a brighter, more legible blue. */
-    --cl-link-color: var(--color-malibu-2);
-    --cl-link-hover-color: var(--color-primary-hover-dark);
-
-    /* Flip flat-black object icons (host.svg, service.svg, ...) to white so
-       they're visible on this theme's near-black background. */
-    --cl-icon-filter: invert(1);
-
-    /* Modern listing/form design system (cl-/cf-): dark values for the neutral,
-       background, text, divider and control tokens that otherwise keep their
-       light value — or fall back to a hardcoded light hex — on this near-black
-       theme. Semantic (danger/success/warning/pending) and brand (primary)
-       tokens are intentionally left untouched: they read on both grounds. */
-    --list-color: var(--color-primary-body-dark);                 /* main text */
-    --color-divider: var(--color-divider-dark);                   /* form dividers */
-    --color-background-listing-header: var(--color-divider-dark);  /* #666666 — matches the React listing header */
-    --cl-header-color: var(--color-white);                         /* white text — matches the React listing header */
-    --cl-page-title-color: var(--color-white);                     /* white page title — matches the React page header */
-    --color-listing-hover: var(--color-listing-hover-dark);       /* row/option hover */
-    --c-text-primary: var(--color-primary-body-dark);
-    --c-text-secondary: var(--color-pablo);
-    --c-stroke: var(--color-divider-dark);                        /* input/border stroke */
-    --c-divider-strong: var(--color-divider-dark);
-    --switch-off-color: var(--color-gray-medium);                 /* toggle off track */
-    --text-disabled: var(--color-pablo);
-
     --scrollbar-background: var(--color-gray-medium);
     --scrollbar-thumb-background: var(--color-secondary);
     --scrollbar-thumb-background-hover: var(--color-primary-dark);
@@ -256,10 +227,10 @@
     --success-message-border-color: var(--up-to-date-color);
     --custom-macros-placeholder-font-color: var(--color-black);
     --custom-macros-font-color: var(--color-white);
-    --custom-macros-command-border-color: var(--color-boston-blue);
-    --custom-macros-template-border-color: var(--color-maya-blue);
-    --custom-macros-command-background-color: var(--color-malibu-2);
-    --custom-macros-template-background-color: var(--color-columbia-blue);
+    --custom-macros-command-border-color: var(--color-menthol-2);
+    --custom-macros-template-border-color: var(--color-rayola-2);
+    --custom-macros-command-background-color: var(--color-menthol);
+    --custom-macros-template-background-color: var(--color-rayola);
     --badge-color: var(--color-white);
     --badge-a-color : var(--color-white);
     --bt-success-hover-font-color: var(--color-white);
