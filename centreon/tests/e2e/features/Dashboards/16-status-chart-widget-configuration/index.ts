@@ -12,8 +12,8 @@ import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/das
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 const greenCssBackground = 'background: rgb(136, 185, 34)';
-const orangeCssBackground = 'background: rgb(253, 155, 39)';
 const redCssBackground = 'background: rgb(255, 102, 102)';
+const orangeCssBackground = 'background: rgb(253, 155, 39)';
 const blueCssBackground = 'background: rgb(30, 190, 179)';
 
 const hostGroupName = 'Linux-Servers';
