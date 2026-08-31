@@ -1584,6 +1584,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -1658,6 +1659,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -1766,6 +1768,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -1908,6 +1911,7 @@ jobs:
     name: promote ${{ matrix.component }}-${{ matrix.operating_system }} validated tag
     steps:
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -2267,6 +2271,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to Harbor registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -2274,6 +2279,7 @@ jobs:
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       - name: Login to ghcr.io
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ghcr.io
