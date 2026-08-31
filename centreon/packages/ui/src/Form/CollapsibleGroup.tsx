@@ -95,7 +95,7 @@ const CollapsibleGroup = ({
         <ContainerComponent>
           <div
             className={
-              'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white items-center'
+              'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-text-primary items-center'
             }
             data-testid={`${group?.name}-header`}
           >

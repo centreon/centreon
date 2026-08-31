@@ -197,11 +197,11 @@
 
     /** States **/
     --default-badge-background-color: var(--color-primary-light);
-    --host-down-danger-service-critical-background-color: var(--color-danger);
+    --host-down-danger-service-critical-background-color: var(--color-danger-light);
     --host-unreachable-unknown-background-color: var(--color-unknown);
     --host-downtime-background-color: var(--color-mauve);
-    --service-ok-host-up-success-background-color: var(--color-success);
-    --service-warning-background-color: var(--color-warning);
+    --service-ok-host-up-success-background-color: var(--color-success-light);
+    --service-warning-background-color: var(--color-warning-light);
     --pending-background-color: var(--color-pending);
     --service-unknown-background-color: var(--color-ghost);
     --service-unknown-font-color: var(--color-black);
@@ -213,6 +213,9 @@
     --badge-undetermined: var(--color-iron);
     --status-success-color: var(--color-white);
     --status-ok-color: var(--color-black);
+    /* Typography on status chips (badges) — dark text for accessibility on the
+       lightened status backgrounds. Light mode: text action primary (#000). */
+    --status-badge-font-color: var(--color-black);
     /***********/
 
     /** START : Buttons **/
