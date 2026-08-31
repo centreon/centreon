@@ -1421,6 +1421,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
@@ -1516,7 +1517,7 @@ jobs:
           file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           pull: true
-          push: true
+          push: ${{ github.event.pull_request.head.repo.fork != true }}
           build-args: |
             BUILD_DATE=${{ steps.build-date.outputs.date }}
             BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
