@@ -45,16 +45,27 @@ final readonly class CentralAddress
     private const BASE_PATH_PATTERN = '~^[A-Za-z0-9._\-]+(?:/[A-Za-z0-9._\-]+)*$~';
     private const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';
 
+    /**
+     * The admin input, verbatim minus surrounding whitespace and trailing slash: what gets
+     * persisted, echoed back by the API and quoted in error messages. Not a URL authority —
+     * use {@see $urlValue} for that.
+     */
     public string $value;
 
     /** Authority host with the port stripped: hostname, IPv4, or unbracketed IPv6. */
     public string $host;
 
-    /** Web port when the address carries one, null otherwise. Never a protocol port such as the broker's. */
-    public ?int $port;
-
     /** Base path without surrounding slashes ("platform", "base/path"), null when the address has none. */
     public ?string $basePath;
+
+    /**
+     * The address as it must appear right after "scheme://": web port and base path kept, an IPv6
+     * host bracketed.
+     *
+     * Assembled from the validated parts rather than reusing {@see $value}: a bare IPv6 literal
+     * there yields an authority curl cannot parse.
+     */
+    public string $urlValue;
 
     public function __construct(string $value)
     {
@@ -65,7 +76,7 @@ final readonly class CentralAddress
         $authority = $slashPosition === false ? $normalized : mb_substr($normalized, 0, $slashPosition);
         $basePath = $slashPosition === false ? null : mb_substr($normalized, $slashPosition + 1);
 
-        [$this->host, $this->port] = $this->parseAuthority($authority);
+        [$host, $port] = $this->parseAuthority($authority);
         if ($basePath !== null) {
             Assert::regex(
                 $basePath,
@@ -80,17 +91,19 @@ final readonly class CentralAddress
             );
         }
 
+        $this->host = $host;
         $this->basePath = $basePath;
         $this->value = $normalized;
+        $this->urlValue = $this->buildUrlValue($host, $port, $basePath);
     }
 
     /**
      * Validate the authority and split it into host + optional port.
      *
-     * The parts are kept rather than discarded because consumers that reach the central over a
-     * protocol other than HTTP (the broker output, which dials its own port) need the bare host.
+     * The host is kept rather than discarded because consumers that reach the central over a
+     * protocol other than HTTP (the broker output, which dials its own port) need it bare.
      * They cannot re-derive it with parse_url(): on a scheme-less value it reports no host at all
-     * unless a port happens to be present.
+     * unless a port happens to be present. The port is what {@see $urlValue} puts back.
      *
      * @return array{0: string, 1: int|null}
      */
@@ -117,5 +130,18 @@ final readonly class CentralAddress
         CentreonAssert::ipOrHostname($authority, 'CentralAddress::value');
 
         return [$authority, null];
+    }
+
+    private function buildUrlValue(string $host, ?int $port, ?string $basePath): string
+    {
+        // An IPv6 literal only stands as a URL authority once bracketed: without brackets its
+        // colons are read as the port separator.
+        $authority = filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false
+            ? sprintf('[%s]', $host)
+            : $host;
+
+        return $authority
+            . ($port === null ? '' : ':' . $port)
+            . ($basePath === null ? '' : '/' . $basePath);
     }
 }

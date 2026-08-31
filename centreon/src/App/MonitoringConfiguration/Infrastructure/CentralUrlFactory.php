@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
+use App\MonitoringConfiguration\Domain\Model\CentralUrl;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -59,13 +60,13 @@ final readonly class CentralUrlFactory
     ) {
     }
 
-    public function create(CentralAddress $centralAddress): string
+    public function create(CentralAddress $centralAddress): CentralUrl
     {
         // An address that already carries a base path — cloud, or pasted whole by the
         // admin — must not get the platform one appended on top.
         $path = $centralAddress->basePath === null ? $this->baseUri() : '';
 
-        return sprintf('%s://%s%s', $this->scheme(), $centralAddress->value, $path);
+        return new CentralUrl(sprintf('%s://%s%s', $this->scheme(), $centralAddress->urlValue, $path));
     }
 
     /**

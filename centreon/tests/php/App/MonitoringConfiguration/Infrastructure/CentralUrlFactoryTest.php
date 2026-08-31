@@ -62,7 +62,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198/centreon',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -72,7 +72,27 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://central.example.com:8443/centreon',
-            $factory->create(new CentralAddress('central.example.com:8443'))
+            $factory->create(new CentralAddress('central.example.com:8443'))->value
+        );
+    }
+
+    public function testItBracketsAnIpv6AddressSoCurlCanParseTheAuthority(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');
+
+        self::assertSame(
+            'https://[2001:db8::1]/centreon',
+            $factory->create(new CentralAddress('2001:db8::1'))->value
+        );
+    }
+
+    public function testItBracketsAnIpv6AddressCarryingItsOwnBasePath(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');
+
+        self::assertSame(
+            'https://[2001:db8::1]/platform',
+            $factory->create(new CentralAddress('2001:db8::1/platform'))->value
         );
     }
 
@@ -82,7 +102,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -92,7 +112,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://orga.euwest1.example.com/platform',
-            $factory->create(new CentralAddress('orga.euwest1.example.com/platform'))
+            $factory->create(new CentralAddress('orga.euwest1.example.com/platform'))->value
         );
     }
 
@@ -102,7 +122,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'http://10.25.11.198/centreon',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -112,7 +132,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -127,7 +147,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://orga.euwest1.example.com/platform',
-            $factory->create(new CentralAddress('orga.euwest1.example.com/platform'))
+            $factory->create(new CentralAddress('orga.euwest1.example.com/platform'))->value
         );
     }
 
@@ -137,7 +157,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -147,7 +167,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -159,7 +179,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198/centreon',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -169,7 +189,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.0.0.1/custom',
-            $factory->create(new CentralAddress('10.0.0.1/custom'))
+            $factory->create(new CentralAddress('10.0.0.1/custom'))->value
         );
     }
 
@@ -184,7 +204,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198/centreon',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 
@@ -197,7 +217,7 @@ final class CentralUrlFactoryTest extends TestCase
 
         self::assertSame(
             'https://10.25.11.198/centreon',
-            $factory->create(new CentralAddress('10.25.11.198'))
+            $factory->create(new CentralAddress('10.25.11.198'))->value
         );
     }
 

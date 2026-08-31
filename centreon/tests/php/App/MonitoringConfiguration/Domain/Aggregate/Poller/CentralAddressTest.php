@@ -40,6 +40,8 @@ final class CentralAddressTest extends TestCase
 
         yield 'IPv6 address' => ['2001:db8::1', '2001:db8::1'];
 
+        yield 'IPv6 address with base path' => ['2001:db8::1/platform', '2001:db8::1/platform'];
+
         yield 'hostname with port' => ['central.example.com:8443', 'central.example.com:8443'];
 
         yield 'hostname with base path' => ['orga.euwest1.example.com/platform', 'orga.euwest1.example.com/platform'];
@@ -77,6 +79,10 @@ final class CentralAddressTest extends TestCase
 
         yield 'port out of range' => ['central.example.com:70000'];
 
+        // Known limitation: Assert::ipOrHostname rejects the brackets, so an IPv6 address
+        // cannot carry a web port.
+        yield 'bracketed IPv6 with port' => ['[2001:db8::1]:8443'];
+
         yield 'single-dot path segment' => ['central.example.com/.'];
 
         yield 'double-dot path segment' => ['central.example.com/..'];
@@ -89,34 +95,52 @@ final class CentralAddressTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string, int|null, string|null}>
+     * @return iterable<string, array{string, string, string|null, string}>
      */
     public static function authorityPartsProvider(): iterable
     {
-        yield 'hostname' => ['central.example.com', 'central.example.com', null, null];
+        yield 'hostname' => ['central.example.com', 'central.example.com', null, 'central.example.com'];
 
-        yield 'hostname with port' => ['central.example.com:8443', 'central.example.com', 8443, null];
+        yield 'hostname with port' => [
+            'central.example.com:8443',
+            'central.example.com',
+            null,
+            'central.example.com:8443',
+        ];
 
         yield 'hostname with base path' => [
             'orga.euwest1.example.com/platform',
             'orga.euwest1.example.com',
-            null,
             'platform',
+            'orga.euwest1.example.com/platform',
         ];
 
         yield 'hostname with port and multi-segment base path' => [
             'central.example.com:8443/base/path',
             'central.example.com',
-            8443,
             'base/path',
+            'central.example.com:8443/base/path',
         ];
 
-        // An unbracketed IPv6 address must not have its last group mistaken for a port.
-        yield 'IPv6 address' => ['2001:db8::1', '2001:db8::1', null, null];
+        // An unbracketed IPv6 address must not have its last group mistaken for a port, and it
+        // only stands as a URL authority once bracketed.
+        yield 'IPv6 address' => ['2001:db8::1', '2001:db8::1', null, '[2001:db8::1]'];
 
-        yield 'IPv4 with base path' => ['10.0.0.1/centreon', '10.0.0.1', null, 'centreon'];
+        yield 'IPv6 address with base path' => [
+            '2001:db8::1/platform',
+            '2001:db8::1',
+            'platform',
+            '[2001:db8::1]/platform',
+        ];
 
-        yield 'trailing slash is removed' => ['central.example.com/platform/', 'central.example.com', null, 'platform'];
+        yield 'IPv4 with base path' => ['10.0.0.1/centreon', '10.0.0.1', 'centreon', '10.0.0.1/centreon'];
+
+        yield 'trailing slash is removed' => [
+            'central.example.com/platform/',
+            'central.example.com',
+            'platform',
+            'central.example.com/platform',
+        ];
     }
 
     #[DataProvider('validAddressProvider')]
@@ -131,14 +155,14 @@ final class CentralAddressTest extends TestCase
     public function testExposesTheAuthorityParts(
         string $rawValue,
         string $expectedHost,
-        ?int $expectedPort,
         ?string $expectedBasePath,
+        string $expectedUrlValue,
     ): void {
         $address = new CentralAddress($rawValue);
 
         self::assertSame($expectedHost, $address->host);
-        self::assertSame($expectedPort, $address->port);
         self::assertSame($expectedBasePath, $address->basePath);
+        self::assertSame($expectedUrlValue, $address->urlValue);
     }
 
     #[DataProvider('invalidAddressProvider')]

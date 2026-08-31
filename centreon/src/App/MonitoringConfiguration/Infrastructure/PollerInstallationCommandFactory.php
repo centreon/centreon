@@ -27,9 +27,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Model\CentralUrl;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
-use Webmozart\Assert\Assert;
 
 final readonly class PollerInstallationCommandFactory
 {
@@ -40,17 +40,9 @@ final readonly class PollerInstallationCommandFactory
         private PollerToken $pollerToken,
         #[Sensitive] private string $appSecret,
         #[Sensitive] private string $salt,
-        private string $centralUrl,
+        private CentralUrl $centralUrl,
         private bool $isCloudPlatform = false,
     ) {
-        // The command interpolates centralUrl unquoted and never prepends a scheme, so a
-        // caller passing a bare address would emit a one-liner that curl downloads over
-        // plain HTTP before piping it into a root shell. Fail here instead.
-        Assert::regex(
-            $centralUrl,
-            '~^https?://~',
-            'The central URL must carry its scheme: build it with CentralUrlFactory.'
-        );
     }
 
     /**
@@ -62,7 +54,7 @@ final readonly class PollerInstallationCommandFactory
         PollerToken $pollerToken,
         string $appSecret,
         string $salt,
-        string $centralUrl,
+        CentralUrl $centralUrl,
         bool $isCloudPlatform = false,
     ): self {
         return new self(
@@ -83,17 +75,17 @@ final readonly class PollerInstallationCommandFactory
         // user-provided value. The other parameters are controlled and cannot carry
         // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
         // pollerType is an enum, appSecret/salt are read verbatim from the engine context
-        // file, and centralUrl is asserted to be a scheme-bearing URL built from a
-        // validated CentralAddress.
+        // file, and centralUrl is a CentralUrl, whose allowlist rejects every shell
+        // metacharacter.
         $command = sprintf(
             'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
-            $this->centralUrl,
+            $this->centralUrl->value,
             $this->pollerToken->name,
             $this->pollerToken->value,
             $this->pollerUid->value,
             escapeshellarg($this->pollerName->value),
             $this->pollerType->value,
-            $this->centralUrl,
+            $this->centralUrl->value,
             $this->appSecret,
             $this->salt,
         );
