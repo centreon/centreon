@@ -9,16 +9,17 @@ msgstr ""
 "Project-Id-Version: Centreon web\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-01-01 00:00+0000\n"
-"PO-Revision-Date: 2026-04-17 09:25+0000\n"
-"Last-Translator: Cécile GENIER <cgenier@centreon.com>\n"
-"Language-Team: French <https://translate.apps.centreon.com/projects/centreon-"
+"PO-Revision-Date: 2026-08-26 12:08+0000\n"
+"Last-Translator: Cécile GENIER <user-"
+"4@users.noreply.translate.apps.centreon.com>\n"
+"Language-Team: French <https://weblate.prod.centreon.io/projects/centreon-"
 "infra-monitoring/25-10/web-messages-25-10/fr/>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 2026.8.1\n"
 
 #: centreon/www/install/smarty_translate.php
 msgid " + Add a new entry"
@@ -3428,8 +3429,8 @@ msgid ""
 "Congratulations, you have successfully upgraded to Centreon version <b>%s</"
 "b>."
 msgstr ""
-"Félicitations, vous avez mis à jour avec succès Centreon en version <b>%s</"
-"b>."
+"Félicitations, vous avez mis à jour avec succès Centreon en version <b>%s</b>"
+"."
 
 #: centreon/www/install/front_translate.php
 msgid "Connect"
@@ -4313,8 +4314,7 @@ msgstr "Définir la politique de sécurité de mot de passe"
 
 #: centreon/www/install/front_translate.php
 msgid "Define the relation between authorization value and access group"
-msgstr ""
-"Définir la relation entre la valeur d'autorisation et le groupe d'accès"
+msgstr "Définir la relation entre la valeur d'autorisation et le groupe d'accès"
 
 #: centreon/www/install/front_translate.php
 msgid "Define the relation between groups and contact groups"
@@ -4935,8 +4935,7 @@ msgstr "Afficher les détails"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 msgid "Display downtime and acknowledgment on chart"
-msgstr ""
-"Afficher les plages de maintenances et acquittements sur les graphiques"
+msgstr "Afficher les plages de maintenances et acquittements sur les graphiques"
 
 #: centreon/www/install/front_translate.php
 msgid "Display events"
@@ -6569,8 +6568,7 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Error while retrieving LDAP auth information"
-msgstr ""
-"Erreur lors de la récupération des informations d'authentification LDAP"
+msgstr "Erreur lors de la récupération des informations d'authentification LDAP"
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while retrieving a command"
@@ -6869,8 +6867,8 @@ msgstr "Erreur lors de la recherche de catégories d'hôtes"
 #, php-format
 msgid "Error while searching provider configuration: '%s'"
 msgstr ""
-"Erreur pendant la recherche de configuration du fournisseur "
-"d'identification : '%s'"
+"Erreur pendant la recherche de configuration du fournisseur d'identification "
+": '%s'"
 
 #: centreon/src/Security/Domain/Authentication/Exceptions/ProviderException.php
 msgid "Error while searching providers configurations"
@@ -7384,8 +7382,7 @@ msgstr "Échec de la suppression des notifications sélectionnées"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to delete the selected resource access rules"
-msgstr ""
-"Échec de la suppression des règles d'accès aux ressources sélectionnées"
+msgstr "Échec de la suppression des règles d'accès aux ressources sélectionnées"
 
 #: centreon/www/install/front_translate.php
 msgid "Failed to disable"
@@ -8748,8 +8745,7 @@ msgstr "Modèle d'hôte"
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 #, php-format
 msgid "Host template #%d is locked (edition and deletion not allowed)"
-msgstr ""
-"Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
+msgstr "Le modèle d'hôte #%d est verrouillé (édition et suppression interdites)"
 
 #: centreon/src/Core/HostTemplate/Application/Exception/HostTemplateException.php
 #, php-format
@@ -9111,8 +9107,7 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "If you click on Discard, your changes will not be saved."
-msgstr ""
-"Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."
+msgstr "Si vous cliquez sur Annuler, vos changements ne seront pas sauvegardés."
 
 #: centreon/www/install/front_translate.php
 msgid "If you leave the edition mode, your changes will not be saved."
@@ -18978,8 +18973,9 @@ msgid ""
 "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
 "\\nDo you confirm the deletion ?"
 msgstr ""
-"Vous êtes sur le point de supprimer un ou plusieurs collecteurs.\\nCette "
-"action est IRREVERSIBLE.\\nConfirmez-vous la suppression ?"
+"Vous êtes sur le point de supprimer un ou plusieurs collecteurs.\\n"
+"Cette action est IRREVERSIBLE.\\n"
+"Confirmez-vous la suppression ?"
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -18999,9 +18995,9 @@ msgid ""
 "to disable it ? You must export the configuration for the change to be taken "
 "into account."
 msgstr ""
-"Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</"
-"strong>. Si vous le désactivez, toutes les requêtes effectuées avec ce jeton "
-"seront rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la "
+"Vous êtes sur le point de désactiver le jeton <strong>{{tokenName}}</strong>"
+". Si vous le désactivez, toutes les requêtes effectuées avec ce jeton seront "
+"rejetées. Voulez-vous vraiment le désactiver ? Vous devez exporter la "
 "configuration pour que le changement soit pris en compte."
 
 #: centreon/www/install/front_translate.php
@@ -19043,9 +19039,9 @@ msgid ""
 "configuration. All parameters for this agent configuration will be deleted. "
 "This action cannot be undone."
 msgstr ""
-"Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</"
-"strong>. Tous les paramètres de configuration de cet agent seront supprimés. "
-"Cette action est irréversible."
+"Vous allez supprimer la configuration de l'agent <strong>{{ agent }}</strong>"
+". Tous les paramètres de configuration de cet agent seront supprimés. Cette "
+"action est irréversible."
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -19142,8 +19138,7 @@ msgstr ""
 
 #: centreon/src/Centreon/Application/Controller/FilterController.php
 msgid "You are not allowed to access the Resources Status page"
-msgstr ""
-"Vous n'avez pas la permission d'accéder à la page Statut des ressources"
+msgstr "Vous n'avez pas la permission d'accéder à la page Statut des ressources"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You are not allowed to access this contact"
@@ -19167,8 +19162,7 @@ msgstr "Vous n'avez pas la permission d'accéder à ce méta-service"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "You are not allowed to access this monitoring instance"
-msgstr ""
-"Vous n'avez pas la permission d'accéder à cette instance de supervision"
+msgstr "Vous n'avez pas la permission d'accéder à cette instance de supervision"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -19305,8 +19299,7 @@ msgstr "Vous n'avez pas la permission de déconnecter cet utilisateur"
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to display the details of the notification"
-msgstr ""
-"Vous n'avez pas la permission d'afficher les détails de la notification"
+msgstr "Vous n'avez pas la permission d'afficher les détails de la notification"
 
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "You are not allowed to edit a broker configuration"
@@ -19626,8 +19619,7 @@ msgstr "Votre adresse IP n'est pas sur liste blanche"
 #: centreon/www/include/Administration/myAccount/DB-Func.php
 #: centreon/www/include/configuration/configObject/contact/DB-Func.php
 msgid "Your autologin key must be different than your current password"
-msgstr ""
-"Votre clé d'autologin doit être différente de votre mot de passe actuel"
+msgstr "Votre clé d'autologin doit être différente de votre mot de passe actuel"
 
 #: centreon/www/install/front_translate.php
 msgid "Your changes will not be saved if you leave classic mode."
@@ -20036,8 +20028,7 @@ msgstr "Les coordonnées géographiques ne sont pas valides"
 
 #: centreon/www/install/front_translate.php
 msgid "get some help while creating your regular expression query at"
-msgstr ""
-"obtenez de l'aide lors de la création de votre expression régulière sur"
+msgstr "obtenez de l'aide lors de la création de votre expression régulière sur"
 
 #: centreon/www/class/centreonGraphNg.class.php
 msgid "graph on"
@@ -20397,8 +20388,7 @@ msgstr "'{{total}} élément(s) trouvé(s)"
 #: unknown
 msgid "* Cross-Site Request Forgery : unauthorized commands are transmitted"
 msgstr ""
-"* Cross-Site Request Forgery : des requêtes non autorisées ont été "
-"transmises"
+"* Cross-Site Request Forgery : des requêtes non autorisées ont été transmises"
 
 #: unknown
 msgid "/*+&"
@@ -20415,8 +20405,7 @@ msgstr "Coordonnées 3D"
 #: unknown
 msgid "<br><b>Centreon : </b>A force-reload signal has been sent to "
 msgstr ""
-"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée "
-"vers "
+"<br><b>Centreon : </b>Une commande de redémarrage forcée a été envoyée vers "
 
 #: unknown
 msgid "<br><b>Centreon : </b>Cannot send signal to "
@@ -20429,10 +20418,10 @@ msgid ""
 "<br>&nbsp;&nbsp;&nbsp;- Only aggregation functions work in VDEF rpn "
 "expressions."
 msgstr ""
-"<br><i><b><font color=\"#B22222\">Notes </font>:</b></"
-"i><br>&nbsp;&nbsp;&nbsp;- Ne pas mélanger les métriques de différentes "
-"sources.<br>&nbsp;&nbsp;&nbsp;- Seules les fonctions d'agrégation "
-"fonctionnent avec les expressions VDEF."
+"<br><i><b><font color=\"#B22222\">Notes </font>:</b></i><br>"
+"&nbsp;&nbsp;&nbsp;- Ne pas mélanger les métriques de différentes sources.<br>"
+"&nbsp;&nbsp;&nbsp;- Seules les fonctions d'agrégation fonctionnent avec les "
+"expressions VDEF."
 
 #: unknown
 msgid ""
@@ -20595,8 +20584,8 @@ msgid ""
 "An additional configuration of type %s is already associated with poller "
 "ID(s) '%s'"
 msgstr ""
-"Une configuration additionnelle de type %s est déjà associée au(x) ID(s) "
-"de collecteur(s) '%s'"
+"Une configuration additionnelle de type %s est déjà associée au(x) ID(s) de "
+"collecteur(s) '%s'"
 
 #: unknown
 msgid "An error occured while converting your platform"
@@ -20604,8 +20593,7 @@ msgstr "Une erreur est survenue lors de la conversion de la plateforme"
 
 #: unknown
 msgid "An error occured while disabling the central menus"
-msgstr ""
-"Une erreur est survenue lors de la désactivation des menus du central"
+msgstr "Une erreur est survenue lors de la désactivation des menus du central"
 
 #: unknown
 msgid "An error occured while enabling the central menus"
@@ -20624,8 +20612,7 @@ msgstr ""
 #: unknown
 msgid "An error occured while retrieving service categories"
 msgstr ""
-"Une erreur s'est produite lors de la récupération des catégories de "
-"services"
+"Une erreur s'est produite lors de la récupération des catégories de services"
 
 #: unknown
 msgid "An error occured while searching any remote children"
@@ -20644,17 +20631,17 @@ msgstr "Une erreur est survenue lors de la mise à jour de la platforme"
 #: unknown
 msgid "An error occurred when applying post update actions"
 msgstr ""
-"Une erreur s'est produite lors de l'application des actions postérieures "
-"à la mise à jour"
+"Une erreur s'est produite lors de l'application des actions postérieures à "
+"la mise à jour"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "An error occurred when applying the update %s (%s)"
 msgstr ""
 "Une erreur s'est produite lors de l'application de la mise à jour %s (%s)"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "An error occurred when applying the update (%s)"
 msgstr "Une erreur s'est produite lors de la mise à jour (%s)"
 
@@ -20672,8 +20659,8 @@ msgstr ""
 #: unknown
 msgid "An error occurred when writing engine context configuration"
 msgstr ""
-"Une erreur s'est produite lors de l'écriture de la configuration du "
-"contexte moteur"
+"Une erreur s'est produite lors de l'écriture de la configuration du contexte "
+"moteur"
 
 #: unknown
 msgid "An error occurred while filtering columns"
@@ -20710,16 +20697,15 @@ msgid ""
 "envelope will stay the same."
 msgstr ""
 "Souhaitez-vous vraiment modifier la taille de l'enveloppe ? Notez que la "
-"nouvelle taille d'enveloppe s’appliquera seulement à partir de "
-"maintenant. L’ancienne enveloppe restera inchangée."
+"nouvelle taille d'enveloppe s’appliquera seulement à partir de maintenant. "
+"L’ancienne enveloppe restera inchangée."
 
 #: unknown
 msgid ""
 "Are you sure you want to change this parameter? Please read the help "
 "before."
 msgstr ""
-"Êtes-vous sûr de vouloir changer ce paramètre ? Veuillez lire l'aide "
-"avant."
+"Êtes-vous sûr de vouloir changer ce paramètre ? Veuillez lire l'aide avant."
 
 #: unknown
 msgid "Are you sure you want to uninstall this widget?"
@@ -20970,8 +20956,8 @@ msgid ""
 "Central platform's data are not consistent. Please check the 'Remote "
 "Access' form"
 msgstr ""
-"Les données sur le serveur central ne sont pas cohérentes. Veuillez "
-"vérifier le formulaire 'Accès au serveur distant'"
+"Les données sur le serveur central ne sont pas cohérentes. Veuillez vérifier "
+"le formulaire 'Accès au serveur distant'"
 
 #: unknown
 msgid "Central's API URI."
@@ -20982,8 +20968,8 @@ msgid ""
 "Central's path is missing on: '%s'@'%s'. Please check the Remote Access "
 "form."
 msgstr ""
-"Le chemin vers le central de la plateforme '%s'@'%s est manquant. "
-"Veuillez vérifier le formulaire 'Accès au serveur distant'."
+"Le chemin vers le central de la plateforme '%s'@'%s est manquant. Veuillez "
+"vérifier le formulaire 'Accès au serveur distant'."
 
 #: unknown
 msgid "Central's response : "
@@ -20997,8 +20983,8 @@ msgstr "Information sur Centreon Broker"
 msgid "Centreon Broker socket path"
 msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Centreon Broker's configuration directory '%s' does not exist and could "
 "not\n"
@@ -21007,8 +20993,8 @@ msgid ""
 msgstr ""
 "Le répertoire '%s' de configuration de Centreon Broker n'existe pas et ne "
 "peut être créé\n"
-"                                             pour le moteur de "
-"supervision '%s'. Merci de vérifier le chemin du répertoire ou de le créer"
+"                                             pour le moteur de supervision "
+"'%s'. Merci de vérifier le chemin du répertoire ou de le créer"
 
 #: unknown
 msgid "Centreon DataBase Statistics"
@@ -21081,8 +21067,7 @@ msgstr "Modifier les options de mise à jour"
 #: unknown
 msgid "Changes to the envelope size will be applied only from now on."
 msgstr ""
-"La nouvelle taille d'enveloppe s’appliquera seulement à partir de "
-"maintenant."
+"La nouvelle taille d'enveloppe s’appliquera seulement à partir de maintenant."
 
 #: unknown
 msgid ""
@@ -21163,14 +21148,13 @@ msgstr ""
 
 #: unknown
 msgid "Color for host Unreachable (Service view)"
-msgstr ""
-"Couleur pour les hôtes non joignable (page de supervision des services)"
+msgstr "Couleur pour les hôtes non joignable (page de supervision des services)"
 
 #: unknown
 msgid "Commands containing a request body are not allowed at the moment"
 msgstr ""
-"Les commandes contenant un corps de requête ne sont pas autorisées pour "
-"le moment"
+"Les commandes contenant un corps de requête ne sont pas autorisées pour le "
+"moment"
 
 #: unknown
 msgid "Communication port"
@@ -21199,8 +21183,7 @@ msgstr "Configuration sauvegardée."
 #: unknown
 msgid "Congratulations, you have successfully installed Centreon!"
 msgstr ""
-"Félicitations, vous avez installé avec succès Centreon en version <b>%s</"
-"b> !"
+"Félicitations, vous avez installé avec succès Centreon en version <b>%s</b> !"
 
 #: unknown
 msgid "Connected Users"
@@ -21238,8 +21221,7 @@ msgstr "Contact désactivé."
 #: unknown
 msgid "Contact group: Define a contact group for the imported user."
 msgstr ""
-"Groupe de contact : Définir un groupe de contact pour l'utilisateur "
-"importé."
+"Groupe de contact : Définir un groupe de contact pour l'utilisateur importé."
 
 #: unknown
 msgid "Contact templace"
@@ -21259,8 +21241,7 @@ msgstr "Corrélation passive"
 
 #: unknown
 msgid "Could not find CENTREON_ETC. Session probably expired."
-msgstr ""
-"Variable CENTREON_ETC non trouvée. La session a probablement expirée."
+msgstr "Variable CENTREON_ETC non trouvée. La session a probablement expirée."
 
 #: unknown
 msgid "Could not find configuration database. Session probably expired."
@@ -21268,16 +21249,16 @@ msgstr ""
 "Impossible de trouver la base de données de configuration. La session a "
 "probablement expiré."
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "Could not find configuration directory '%s' for monitoring engine '%s'.\n"
 "                                 Please check it's path or create it"
 msgstr ""
 "Impossible de trouver le répertoire de configuration '%s' du moteur de "
 "supervision '%s'.\n"
-"                                 Merci de vérifier le chemin du "
-"répertoire ou de le créer"
+"                                 Merci de vérifier le chemin du répertoire "
+"ou de le créer"
 
 #: unknown
 msgid "Could not find database user. Session probably expired."
@@ -21292,8 +21273,7 @@ msgstr "Ne peut pas trouver la macro "
 #: unknown
 msgid "Could not find storage database. Session probably expired."
 msgstr ""
-"Base de données de stockage non trouvée. La session a probablement "
-"expirée."
+"Base de données de stockage non trouvée. La session a probablement expirée."
 
 #: unknown
 msgid "Could not find utils database. Session probably expired."
@@ -21398,8 +21378,7 @@ msgstr ""
 #: unknown
 msgid ""
 "Delay before the script is called again for the same event (in seconds)"
-msgstr ""
-"Délai avant nouvel appel du script pour un même évènement (en secondes)"
+msgstr "Délai avant nouvel appel du script pour un même évènement (en secondes)"
 
 #: unknown
 msgid "Delete a widget"
@@ -21426,8 +21405,8 @@ msgid ""
 "Different number of tokens between configuration and monitoring command "
 "line"
 msgstr ""
-"Nombre différent de jetons entre la ligne de commande de configuration et "
-"de supervision"
+"Nombre différent de jetons entre la ligne de commande de configuration et de "
+"supervision"
 
 #: unknown
 msgid "Directories"
@@ -21490,8 +21469,8 @@ msgid ""
 "Displays the availability history of a Business Activity or a Business "
 "View for a given period."
 msgstr ""
-"Affiche l’historique de la disponibilité d'une activité métier ou vue "
-"métier pour une période donnée."
+"Affiche l’historique de la disponibilité d'une activité métier ou vue métier "
+"pour une période donnée."
 
 #: unknown
 msgid "Distant Poller"
@@ -21759,14 +21738,13 @@ msgstr "Erreur durant l'insertion des configurations de central-module"
 #: unknown
 msgid "Error while inserting central-rrd configuration"
 msgstr ""
-"Erreur durant l'insertion de la configuration du module Centreon Broker "
-"RRD"
+"Erreur durant l'insertion de la configuration du module Centreon Broker RRD"
 
 #: unknown
 msgid "Error while inserting poller-module configuration"
 msgstr ""
-"Erreur durant l'insertion de la configuration du module Centreon Broker "
-"du collecteur"
+"Erreur durant l'insertion de la configuration du module Centreon Broker du "
+"collecteur"
 
 #: unknown
 msgid "Error while listing the playlist shares"
@@ -21782,8 +21760,7 @@ msgstr "Erreur lors de la récupération des groupes de contacts"
 
 #: unknown
 msgid "Error while retrieving the new dashboard share"
-msgstr ""
-"Erreur durant la récupération d'un nouveau partage de tableau de bord"
+msgstr "Erreur durant la récupération d'un nouveau partage de tableau de bord"
 
 #: unknown
 msgid "Error while saving configuration."
@@ -21809,8 +21786,7 @@ msgstr "Erreur lors de la recherche de la version des extensions"
 
 #: unknown
 msgid "Error while searching for the web version of the Centreon platform"
-msgstr ""
-"Erreur lors de la récupération de la version de la plate-forme Centreon"
+msgstr "Erreur lors de la récupération de la version de la plate-forme Centreon"
 
 #: unknown
 msgid ""
@@ -21907,8 +21883,7 @@ msgstr "Échec de l'activation du groupe d'hôtes"
 
 #: unknown
 msgid "Failed to get the auth token from Central : '%s'"
-msgstr ""
-"Échec d'obtention du jeton d'authentification sur le central '%s'@'%s'"
+msgstr "Échec d'obtention du jeton d'authentification sur le central '%s'@'%s'"
 
 #: unknown
 msgid "Failover"
@@ -21983,8 +21958,8 @@ msgid ""
 "For a host, the status displayed in the tile is the worst among its own "
 "status and the statuses of its services."
 msgstr ""
-"Pour un hôte, le statut affiché dans la tuile est le pire parmi son "
-"propre statut et les statuts de ses services."
+"Pour un hôte, le statut affiché dans la tuile est le pire parmi son propre "
+"statut et les statuts de ses services."
 
 #: unknown
 msgid "For a service, the service status is displayed."
@@ -21997,8 +21972,8 @@ msgid ""
 "definition."
 msgstr ""
 "Pour un envoi de fichier, assurez vous que la première ligne de chaque "
-"fichier n'ait pas d'importance car elle n'est pas prise en compte.<br /"
-">Evitez de commencer avec une définition."
+"fichier n'ait pas d'importance car elle n'est pas prise en compte.<br />"
+"Evitez de commencer avec une définition."
 
 #: unknown
 msgid ""
@@ -22377,8 +22352,8 @@ msgid ""
 "In order to complete your upgrade (%s), unzip the downloaded file, and "
 "follow the instructions in README\n"
 msgstr ""
-"Afin de terminer la mise à jour (%s), décompressez le fichier téléchargé, "
-"et suivez les instructions du fichier README\n"
+"Afin de terminer la mise à jour (%s), décompressez le fichier téléchargé, et "
+"suivez les instructions du fichier README\n"
 
 #: unknown
 msgid "Include Comments"
@@ -22421,8 +22396,8 @@ msgid ""
 "Indeed, it's the only way to make a difference between Check and "
 "Notification Commands."
 msgstr ""
-"En effet, c'est le seul moyen de différencier les commandes de "
-"notification et de vérification."
+"En effet, c'est le seul moyen de différencier les commandes de notification "
+"et de vérification."
 
 #: unknown
 msgid "Indicators"
@@ -22572,8 +22547,8 @@ msgstr "Dernière fois dans un état inconnu"
 msgid "Last warning time"
 msgstr "Derniere fois dans un état warning"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "Latency detected on %s; check configuration for better optimisation"
 msgstr ""
 "Latence détectée pour %s, contrôler la configuration pour améliorer les "
@@ -22711,8 +22686,8 @@ msgstr "Map"
 msgid "Map Icon"
 msgstr "Icône pour la carte"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "MariaDB version %s required (%s installed)"
 msgstr "La version %s de MariaDB est requise (%s installée)"
 
@@ -22750,8 +22725,7 @@ msgstr "Sélection du jeu de données de métriques"
 
 #: unknown
 msgid "Missing auto import mandatory parameters: %s"
-msgstr ""
-"Paramètres obligatoires manquants pour l'importation automatique : %s"
+msgstr "Paramètres obligatoires manquants pour l'importation automatique : %s"
 
 #: unknown
 msgid "Missing required property: %s"
@@ -23008,9 +22982,9 @@ msgid ""
 "status. If you modify a template, it won't tell you the configuration had "
 "changed."
 msgstr ""
-"Seuls les modifications de configuration des hôtes et services sont "
-"prisent en compte pour calculer cet état. Si vous modifiez un modèle, "
-"aucun indicateur de modification de configuration n’apparaitra."
+"Seuls les modifications de configuration des hôtes et services sont prisent "
+"en compte pour calculer cet état. Si vous modifiez un modèle, aucun "
+"indicateur de modification de configuration n’apparaitra."
 
 #: unknown
 msgid "Open links in new tab"
@@ -23044,8 +23018,8 @@ msgstr "Vue d'ensemble"
 msgid "PENDING"
 msgstr "EN ATTENTE"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "PHP extension %s not loaded"
 msgstr "L'extension %s de PHP n'est pas chargée"
 
@@ -23053,8 +23027,8 @@ msgstr "L'extension %s de PHP n'est pas chargée"
 msgid "PHP file included"
 msgstr "Fichier PHP inclus"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "PHP version %s required (%s installed)"
 msgstr "La version %s de PHP est requise (%s installée)"
 
@@ -23146,8 +23120,7 @@ msgstr "Ping"
 
 #: unknown
 msgid "Please check the 'Centreon UI' and 'Remote access' forms"
-msgstr ""
-"Veuillez vérifier les formulaires 'Centreon Web' et 'Accès du Remote'"
+msgstr "Veuillez vérifier les formulaires 'Centreon Web' et 'Accès du Remote'"
 
 #: unknown
 msgid "Please choose a widget to activate the preview"
@@ -23160,13 +23133,12 @@ msgstr "Veuillez contacter votre administrateur"
 #: unknown
 msgid "Please define autologin authentication key in your profile."
 msgstr ""
-"Merci de définir une clé d’autorisation de connexion automatique dans "
-"votre profil."
+"Merci de définir une clé d’autorisation de connexion automatique dans votre "
+"profil."
 
 #: unknown
 msgid "Please enter a name for the resource access rule to duplicate"
-msgstr ""
-"Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
+msgstr "Veuillez saisir un nom pour la règle d'accès aux ressources à dupliquer"
 
 #: unknown
 msgid "Please note that data aggregation may take several days."
@@ -23332,8 +23304,7 @@ msgstr "Affiner le filtre"
 #: unknown
 msgid "Refine your filter on a single metric by adding more resources."
 msgstr ""
-"Affinez votre filtre sur une seule métrique en ajoutant d'autres "
-"ressources."
+"Affinez votre filtre sur une seule métrique en ajoutant d'autres ressources."
 
 #: unknown
 msgid "Refresh Interval"
@@ -23472,8 +23443,8 @@ msgstr "Intervalle entre deux tentatives (en secondes)"
 #: unknown
 msgid "Right Click here to add an autologin link directly to your bookmarks"
 msgstr ""
-"Clic droit ici afin d'ajouter un lien de connexion automatique "
-"directement dans vos marques-pages"
+"Clic droit ici afin d'ajouter un lien de connexion automatique directement "
+"dans vos marques-pages"
 
 #: unknown
 msgid "Role Relations"
@@ -23494,8 +23465,7 @@ msgstr "Couleur de la ligne pour un service CRITIQUE"
 #: unknown
 msgid "Rrdcached configuration : work only with Centreon Broker"
 msgstr ""
-"Configuration du module RRDCached : fonctionne seulement avec Centreon "
-"Broker"
+"Configuration du module RRDCached : fonctionne seulement avec Centreon Broker"
 
 #: unknown
 msgid "Rules"
@@ -23597,8 +23567,8 @@ msgstr "Correctif de sécurité disponible"
 msgid ""
 "Security policy not found. Please verify that your installation is valid"
 msgstr ""
-"Politique de sécurité non trouvée. Veuillez vérifier que votre "
-"installation est valide"
+"Politique de sécurité non trouvée. Veuillez vérifier que votre installation "
+"est valide"
 
 #: unknown
 msgid "Select a downtime type"
@@ -23658,8 +23628,7 @@ msgstr "Mode du fichier de données de performance de service"
 
 #: unknown
 msgid "Service Performance Data File Processing Command"
-msgstr ""
-"Commande de traitement du fichier des données de performance du service"
+msgstr "Commande de traitement du fichier des données de performance du service"
 
 #: unknown
 msgid "Service Performance Data File Processing Interval"
@@ -23937,8 +23906,8 @@ msgstr "Couleur du texte"
 msgid "The CSRF * token is invalid, please click"
 msgstr "Le jeton * CSRF est invalide, s'il vous plaît cliquer ici"
 
-#, php-format
 #: unknown
+#, php-format
 msgid "The SQL files are located in %s"
 msgstr "Les fichiers SQL sont situés dans %s"
 
@@ -23988,8 +23957,7 @@ msgstr "Le groupe de contact suivant n'existe pas : [%s]"
 
 #: unknown
 msgid "The following contact is not in your contact groups: [%s]"
-msgstr ""
-"Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
+msgstr "Le contact suivant ne fait pas partie de vos groupes de contacts : [%s]"
 
 #: unknown
 msgid "The following dashboard does not exist: [%s]."
@@ -24020,14 +23988,14 @@ msgid ""
 "The installation is now finished. To get further information regarding "
 "Centreon please visit the following links"
 msgstr ""
-"L'installation est maintenant terminée. Pour plus d'informations "
-"concernant Centreon utiliser les liens suivants"
+"L'installation est maintenant terminée. Pour plus d'informations concernant "
+"Centreon utiliser les liens suivants"
 
 #: unknown
 msgid "The list of pollers is <a href=\"./main.php?p=60901\">here</a>."
 msgstr ""
-"La liste des collecteur est disponible <a href=\"./main.php?"
-"p=60901\">ici</a>."
+"La liste des collecteur est disponible <a href=\"./main.php?p=60901\">ici</a>"
+"."
 
 #: unknown
 msgid "The order in which dashboards are displayed must be unique."
@@ -24107,8 +24075,8 @@ msgid ""
 "are below/above the thresholds."
 msgstr ""
 "Les seuils peuvent être masqués si les valeurs minimales et maximales "
-"personnalisées de l'axe Y sont respectivement inférieures et supérieures "
-"aux seuils."
+"personnalisées de l'axe Y sont respectivement inférieures et supérieures aux "
+"seuils."
 
 #: unknown
 msgid "Ticket management"
@@ -24210,8 +24178,8 @@ msgstr "Impossible de convertir en remote, aucun Central à lier renseigné"
 msgid ""
 "Unable to find the encryption key. Please check the '.env.local.php' file."
 msgstr ""
-"Impossible de trouver la clef de déchiffrement. Veuillez vérifer le "
-"fichier '.env.local.php'."
+"Impossible de trouver la clef de déchiffrement. Veuillez vérifer le fichier "
+"'.env.local.php'."
 
 #: unknown
 msgid "Unable to install module"
@@ -24340,8 +24308,7 @@ msgstr "Utilisation implicite de l'interpréteur Perl intégré"
 
 #: unknown
 msgid "Use large installation tweaks"
-msgstr ""
-"Activation des optimisations pour les installations de forte volumétrie"
+msgstr "Activation des optimisations pour les installations de forte volumétrie"
 
 #: unknown
 msgid "Use setpgid"
@@ -24592,9 +24559,8 @@ msgid ""
 "You are about to delete the <strong>{{ name }}</strong> additional "
 "configuration. This action cannot be undone. Do you want to delete it?"
 msgstr ""
-"Vous êtes sur le point de supprimer la configuration additionnelle "
-"<strong>{{ name }}</strong>. Cette action est irréversible. Voulez-vous "
-"la supprimer ?"
+"Vous êtes sur le point de supprimer la configuration additionnelle <strong>{"
+"{ name }}</strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
 
 #: unknown
 msgid ""
@@ -24646,8 +24612,8 @@ msgstr "Vous n'avez pas la permission d'accéder à ce groupe d'hôtes"
 #: unknown
 msgid "You are not allowed to add tokens linked to user with ID %d"
 msgstr ""
-"Vous n'avez pas la permission de créer des tokens liés à l'ID "
-"d'utilisateur %d"
+"Vous n'avez pas la permission de créer des tokens liés à l'ID d'utilisateur "
+"%d"
 
 #: unknown
 msgid "You are not allowed to create host categories"
@@ -24655,8 +24621,7 @@ msgstr "Vous n'avez pas la permission de créer des catégories d'hôtes"
 
 #: unknown
 msgid "You are not allowed to list authentication tokens"
-msgstr ""
-"Vous n'avez pas la permission de lister les jetons d'authentification"
+msgstr "Vous n'avez pas la permission de lister les jetons d'authentification"
 
 #: unknown
 msgid "You are not authorized to access this resource"
@@ -24673,8 +24638,8 @@ msgstr "Vous ne faites pas partie du groupe de contacts suivant : [%s]"
 #: unknown
 msgid "You can see the full list by visiting the Centreon's Github"
 msgstr ""
-"Vous pouvez visualiser la liste complète à partir de du projet "
-"Centreonsur Github"
+"Vous pouvez visualiser la liste complète à partir de du projet Centreonsur "
+"Github"
 
 #: unknown
 msgid "You can see the full list on the"
@@ -24699,20 +24664,20 @@ msgstr ""
 #: unknown
 msgid "You cannot add the same dashboard to a playlist several times."
 msgstr ""
-"Vous ne pouvez pas ajouter le même tableau de bord plusieurs fois dans "
-"une liste de diffusion."
+"Vous ne pouvez pas ajouter le même tableau de bord plusieurs fois dans une "
+"liste de diffusion."
 
 #: unknown
 msgid "You cannot share the same playlist to a contact group several times"
 msgstr ""
-"Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à "
-"un groupe de contacts"
+"Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un "
+"groupe de contacts"
 
 #: unknown
 msgid "You cannot share the same playlist to a contact several times"
 msgstr ""
-"Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à "
-"un contact"
+"Vous ne pouvez pas partager plusieurs fois la même liste de diffusion à un "
+"contact"
 
 #: unknown
 msgid "You do not have editing rights on the following playlist: [%d]"
@@ -24722,8 +24687,7 @@ msgstr ""
 
 #: unknown
 msgid "You have unsaved changes, do you want to proceed?"
-msgstr ""
-"Vous avez des modifications non enregistrées, voulez-vous continuer ?"
+msgstr "Vous avez des modifications non enregistrées, voulez-vous continuer ?"
 
 #: unknown
 msgid ""
@@ -24757,8 +24721,8 @@ msgstr "Vou devez spécifier un nom d'utilisateur"
 msgid "Your session is expired."
 msgstr "Votre session a expiré"
 
-#, php-format
 #: unknown
+#, php-format
 msgid ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 msgstr ""
