@@ -142,14 +142,15 @@ Then('this user can log in to Centreon Web', () => {
 Given('the ldap user has rights to access the contacts listing page', () => {
   // Link the contact to the access group through CLAPI rather than the ACL
   // form. That form offers only the contacts *not yet linked* to the group, and
-  // it pages, so driving it depends on platform state: an imported user already
-  // carrying the group, or an "ALL" entry pushed off the first page, makes the
-  // select find nothing. ADDCONTACT is idempotent, so this holds either way.
+  // the groups listing in front of it pages, so driving it depends on platform
+  // state: an imported user already carrying the group, or an "ALL" row pushed
+  // off the first page, makes the click find nothing. ADDCONTACT is idempotent,
+  // so this holds either way.
   //
-  // The token CLAPI authenticates with lives in localStorage, and the previous
-  // scenario logged out to sign in as the LDAP user, which cleared it; the
-  // background then signs the admin back in through the UI only. Mint it again,
-  // otherwise the call goes out unauthenticated and answers 403.
+  // Cypress test isolation clears localStorage before every scenario, so the
+  // token minted once in before() is gone here; the background then signs the
+  // admin back in through the UI only, which never sets it. Mint it again,
+  // otherwise the CLAPI call goes out unauthenticated and answers 403.
   cy.setUserTokenApiV1();
   cy.executeActionViaClapi({
     bodyContent: {

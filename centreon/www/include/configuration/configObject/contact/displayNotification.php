@@ -33,7 +33,9 @@ $pearDBO = new CentreonDB('centstorage');
  */
 $contact = ['' => null];
 if ($centreon->user->admin) {
-    $DBRESULT = $pearDB->query('SELECT contact_id, contact_alias FROM contact ORDER BY contact_alias');
+    // contact_register = '1' keeps contact templates out of the list, matching
+    // what getContactAclConf() returns on the non-admin branch below.
+    $DBRESULT = $pearDB->query("SELECT contact_id, contact_alias FROM contact WHERE contact_register = '1' ORDER BY contact_alias");
     while ($ct = $DBRESULT->fetchRow()) {
         $contact[$ct['contact_id']] = $ct['contact_alias'];
     }
@@ -73,20 +75,27 @@ $contactId = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], EN
 $contactRefused = false;
 $contactMissing = false;
 if ($contactId && ! array_key_exists($contactId, $contact)) {
-    $contactExists = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
+    // The contact exists in database but not in the list above, so the only
+    // reason it is out of the list is the ACL scope. An admin sees everything,
+    // so the miss can only mean the contact was deleted.
+    $outsideScope = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
         'SELECT 1 FROM contact WHERE contact_id = :contactId',
         Adaptation\Database\Connection\Collection\QueryParameters::create([
             Adaptation\Database\Connection\ValueObject\QueryParameter::int('contactId', $contactId),
         ])
     );
     Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
-        $contactExists
+        $outsideScope
             ? 'Notification view: contact outside the access scope'
             : 'Notification view: unknown contact requested',
         ['contact_id' => $contactId, 'user_id' => $centreon->user->get_id()]
     );
     $contactId = 0;
-    $contactExists ? $contactRefused = true : $contactMissing = true;
+    if ($outsideScope) {
+        $contactRefused = true;
+    } else {
+        $contactMissing = true;
+    }
 }
 
 $formData = ['contact' => $contactId];

@@ -65,26 +65,30 @@ $style = 'one';
 $groups = "''";
 $contactgroup_id = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
 
-// A miss on the list above is either a deleted group or one outside the
-// user's scope; only an admin's list is exhaustive enough to rule the
-// second out.
 $contactGroupRefused = false;
 $contactGroupMissing = false;
 if ($contactgroup_id && ! array_key_exists($contactgroup_id, $contact)) {
-    $contactGroupExists = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
+    // The group exists in database but not in the list above, so the only
+    // reason it is out of the list is the ACL scope. An admin sees everything,
+    // so the miss can only mean the group was deleted.
+    $outsideScope = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
         'SELECT 1 FROM contactgroup WHERE cg_id = :cgId',
         Adaptation\Database\Connection\Collection\QueryParameters::create([
             Adaptation\Database\Connection\ValueObject\QueryParameter::int('cgId', $contactgroup_id),
         ])
     );
     Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
-        $contactGroupExists
+        $outsideScope
             ? 'Notification view: contact group outside the access scope'
             : 'Notification view: unknown contact group requested',
         ['cg_id' => $contactgroup_id, 'user_id' => $centreon->user->get_id()]
     );
     $contactgroup_id = 0;
-    $contactGroupExists ? $contactGroupRefused = true : $contactGroupMissing = true;
+    if ($outsideScope) {
+        $contactGroupRefused = true;
+    } else {
+        $contactGroupMissing = true;
+    }
 }
 
 $formData = ['contact' => $contactgroup_id];
