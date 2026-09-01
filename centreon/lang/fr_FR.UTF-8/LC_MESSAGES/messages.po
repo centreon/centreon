@@ -3598,6 +3598,10 @@ msgstr "Contacts autorisés à se connecter à l'interface web"
 msgid "Contacts/Contact groups"
 msgstr "Contacts/Groupes de contacts"
 
+#: centreon/www/install/front_translate.php
+msgid "Container"
+msgstr "Conteneur"
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "Content is not a valid JSON string"
 msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
@@ -5306,10 +5310,6 @@ msgstr "Voulez-vous passer en mode classique ?"
 #: centreon/www/install/front_translate.php
 msgid "Do you want to switch to regex mode?"
 msgstr "Voulez-vous passer en mode regex ?"
-
-#: centreon/www/install/front_translate.php
-msgid "Container"
-msgstr "Conteneur"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
