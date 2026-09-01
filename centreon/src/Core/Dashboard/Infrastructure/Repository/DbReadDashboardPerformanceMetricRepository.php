@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
+use Centreon\Infrastructure\RequestParameters\RegularExpressionSanitizer;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -737,7 +738,9 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
             return null;
         }
 
-        $value = $nameParameter[RequestParameters::OPERATOR_REGEXP];
+        $value = RegularExpressionSanitizer::sanitize(
+            $nameParameter[RequestParameters::OPERATOR_REGEXP]
+        );
         $this->queryParameters->add(
             'serviceRegex',
             QueryParameter::string(':serviceRegex', $value)
