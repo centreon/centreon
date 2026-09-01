@@ -606,6 +606,16 @@ p.description a, p.description a:visited {
 .pending    {
     background-color: var(--pending-background-color);
 }
+/* Accessible typography on the status chips: dark text on the lightened
+   (light mode) / vivid main-shade (dark mode) status backgrounds. Scoped to
+   the status badges so translucent unknown/downtime/ack chips keep their own
+   text color. */
+.badge.host_down, .badge.danger, .badge.service_critical,
+.badge.service_ok, .badge.host_up, .badge.success,
+.badge.service_warning, .badge.warning,
+.badge.pending {
+    color: var(--status-badge-font-color);
+}
 .info {
     background-color: var(--info-background-color)
 }
