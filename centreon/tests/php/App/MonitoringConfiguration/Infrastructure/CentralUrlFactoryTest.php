@@ -86,6 +86,30 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
+    public function testItKeepsTheWebPortOfABracketedIpv6Address(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');
+
+        self::assertSame(
+            'https://[2001:db8::1]:8443/centreon',
+            $factory->create(new CentralAddress('[2001:db8::1]:8443'))->value
+        );
+    }
+
+    /**
+     * The dots of an IPv4-mapped address used to fall outside the IPv6 alphabet CentralUrl accepts,
+     * so a value CentralAddress had canonicalized was rejected one step later.
+     */
+    public function testItBracketsAnIpv4MappedIpv6Address(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');
+
+        self::assertSame(
+            'https://[::ffff:10.0.0.1]/centreon',
+            $factory->create(new CentralAddress('::ffff:10.0.0.1'))->value
+        );
+    }
+
     public function testItBracketsAnIpv6AddressCarryingItsOwnBasePath(): void
     {
         $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');

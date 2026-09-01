@@ -66,7 +66,7 @@ final readonly class CentralUrlFactory
         // admin — must not get the platform one appended on top.
         $path = $centralAddress->basePath === null ? $this->baseUri() : '';
 
-        return new CentralUrl(sprintf('%s://%s%s', $this->scheme(), $centralAddress->urlValue, $path));
+        return new CentralUrl(sprintf('%s://%s%s', $this->scheme(), $centralAddress->value, $path));
     }
 
     /**

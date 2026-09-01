@@ -46,11 +46,12 @@ final readonly class CentralUrl
     private const HOST = '[A-Za-z0-9._\-]+';
 
     /**
-     * IPv6 needs a branch of its own: its brackets and colons fall outside HOST. The alphabet is
-     * all a pattern can express here — "[::::]" matches it — so the capture is handed to
-     * FILTER_VALIDATE_IP below.
+     * IPv6 needs a branch of its own: its brackets and colons fall outside HOST. Dots belong to the
+     * alphabet too, for the IPv4-mapped form ("::ffff:10.0.0.1"). That alphabet is all a pattern can
+     * express — "[::::]" and "[10.0.0.1]" match it — so the capture is handed to FILTER_VALIDATE_IP
+     * below, which is what actually separates an IPv6 literal from anything else in brackets.
      */
-    private const BRACKETED_IPV6 = '\[(?<ipv6>[0-9A-Fa-f:]+)\]';
+    private const BRACKETED_IPV6 = '\[(?<ipv6>[0-9A-Fa-f:.]+)\]';
 
     /** Web port, never a protocol port such as the broker's. Digit count only; the range is checked below. */
     private const PORT = '(?::(?<port>\d{1,5}))?';
