@@ -71,11 +71,16 @@ final readonly class PollerInstallationCommandFactory
 
     public function generate(): string
     {
-        // Only `name` is escaped with escapeshellarg(): it is the sole free-form,
-        // user-provided value. The other parameters are controlled and cannot carry
-        // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
-        // pollerType is an enum, appSecret/salt are read verbatim from the engine context
-        // file, and centralUrl is a CentralUrl, whose allowlist rejects every shell
+        // Two free-form, user-provided values reach this line: the poller name and the
+        // poller token name. Only pollerName goes through escapeshellarg() — the token name
+        // is interpolated as is, and upstream bounds nothing but its length (NewToken, 255
+        // characters), so that part rests on an invariant nothing enforces. Read it as a
+        // description, not as a guarantee.
+        //
+        // The rest cannot carry shell metacharacters: the token value is base64 truncated to
+        // 64 characters (Encryption::generateRandomString), an alphabet that holds none; uid
+        // is an int; pollerType is an enum; appSecret/salt are read verbatim from the engine
+        // context file; and centralUrl is a CentralUrl, whose allowlist rejects every shell
         // metacharacter.
         $command = sprintf(
             'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
