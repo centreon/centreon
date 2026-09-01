@@ -49,6 +49,10 @@ final class CentralUrlTest extends TestCase
 
         yield 'bracketed IPv6' => ['https://[2001:db8::1]/platform', 'https://[2001:db8::1]/platform'];
 
+        yield 'bracketed IPv6 with port' => ['https://[2001:db8::1]:8443', 'https://[2001:db8::1]:8443'];
+
+        yield 'highest port' => ['https://central.example.com:65535', 'https://central.example.com:65535'];
+
         yield 'trailing slash is removed' => [
             'https://central.example.com/platform/',
             'https://central.example.com/platform',
@@ -74,6 +78,20 @@ final class CentralUrlTest extends TestCase
 
         // What CentralAddress::$urlValue exists to prevent: curl cannot parse this authority.
         yield 'unbracketed IPv6' => ['https://2001:db8::1'];
+
+        // A well-formed address, rejected by the pattern rather than by the IPv6 branch: without
+        // brackets the first colon is read as the port separator, and "db8" is not a port.
+        yield 'unbracketed IPv6 in long form with a path' => ['https://2001:db8:0:0:0:0:0:1/index.html'];
+
+        // Bracket contents are only checked for their alphabet by the pattern.
+        yield 'bracketed non-address' => ['https://[::::]'];
+
+        yield 'bracketed IPv6 with too many groups' => ['https://[2001:db8:0:0:0:0:0:0:1]'];
+
+        // The pattern only counts the port digits.
+        yield 'port zero' => ['https://central.example.com:0'];
+
+        yield 'port above the maximum' => ['https://central.example.com:99999'];
 
         yield 'empty path segment' => ['https://central.example.com//platform'];
 
