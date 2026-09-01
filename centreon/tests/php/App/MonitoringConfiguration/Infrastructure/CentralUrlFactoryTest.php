@@ -207,6 +207,26 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
+    /**
+     * The invariant copyInstallCommand.php has to satisfy by declaring the trusted proxies
+     * itself: booting no kernel, nothing else declares them there, and a scheme resolved as
+     * http behind a TLS-terminating proxy would hand out an install.sh download in the clear.
+     */
+    public function testItFollowsTheForwardedSchemeFromTheLegacyEntryPoint(): void
+    {
+        $this->trustTheKernelProxies();
+
+        $factory = $this->createFactory(
+            'http://central.example.com/centreon/include/configuration/configServers/copyInstallCommand.php?id=1',
+            ['HTTP_X_FORWARDED_PROTO' => 'https']
+        );
+
+        self::assertSame(
+            'https://10.25.11.198/centreon',
+            $factory->create(new CentralAddress('10.25.11.198'))->value
+        );
+    }
+
     public function testItKeepsTheAddressBasePathOverThePlatformOne(): void
     {
         $factory = $this->createFactory('https://central.example.com/centreon/api/latest/configuration/pollers');

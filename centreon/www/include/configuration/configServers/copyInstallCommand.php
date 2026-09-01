@@ -47,6 +47,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 // deliberately does not boot the Symfony kernel, so it cannot read the parameter.
 const ENGINE_CONTEXT_PATH = '/etc/centreon-engine/engine-context.json';
 
+// Same reason, and same value as env(TRUSTED_PROXIES) in config/packages/framework.yaml:
+// keep both in sync, or the scheme this endpoint resolves drifts from the one the API
+// resolves for the very same platform.
+const DEFAULT_TRUSTED_PROXIES = '127.0.0.1,REMOTE_ADDR';
+
 header('Content-Type: application/json');
 // The response body carries the app secret, the salt and a live poller token.
 header('Cache-Control: no-store');
@@ -163,6 +168,28 @@ try {
     // This endpoint does not boot the Symfony kernel, so the factory is built by hand
     // over the current request: the scheme and the base URI must be resolved the same way
     // as in the API, or the two commands diverge.
+    //
+    // The trusted proxies come first, because that is what getScheme() reads
+    // x-forwarded-proto from. Booting no kernel means nothing has declared them, so a
+    // TLS-terminating proxy would be invisible here and the generated command would offer
+    // an http:// download piped into a root shell — app secret, salt and poller token
+    // travelling in the clear with it. setTrustedProxies() resolves the REMOTE_ADDR
+    // keyword itself; the header set mirrors trusted_headers in framework.yaml.
+    $trustedProxies = $_ENV['TRUSTED_PROXIES']
+        ?? $_SERVER['TRUSTED_PROXIES']
+        ?? getenv('TRUSTED_PROXIES');
+    if (! is_string($trustedProxies) || trim($trustedProxies) === '') {
+        $trustedProxies = DEFAULT_TRUSTED_PROXIES;
+    }
+
+    Request::setTrustedProxies(
+        array_values(array_filter(array_map('trim', explode(',', $trustedProxies)), 'strlen')),
+        Request::HEADER_X_FORWARDED_FOR
+        | Request::HEADER_X_FORWARDED_HOST
+        | Request::HEADER_X_FORWARDED_PROTO
+        | Request::HEADER_X_FORWARDED_PORT
+    );
+
     $requestStack = new RequestStack();
     $requestStack->push(Request::createFromGlobals());
 
