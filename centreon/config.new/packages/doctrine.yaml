@@ -19,6 +19,7 @@ doctrine:
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
+               port: '%env(int:port)%'
            realtime:
                server_version: '%env(DATABASE_SERVER_VERSION)%'
                use_savepoints: true
@@ -26,6 +27,7 @@ doctrine:
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
+               port: '%env(int:port)%'
            test_setup_default:
                server_version: '%env(DATABASE_SERVER_VERSION)%'
                use_savepoints: true
@@ -33,3 +35,4 @@ doctrine:
                user: '%env(user)%'
                password: '%env(password)%'
                host: '%env(hostCentreon)%'
+               port: '%env(int:port)%'
