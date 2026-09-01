@@ -33,9 +33,11 @@ elif [ "$COMPONENT" = "centreon-centreontrapd" ]; then
 fi
 
 cleanup() {
+  local rc=$?
   docker logs "$CONTAINER_NAME" > /tmp/centreon-trapd-boot-test.log 2>&1 || true
   docker rm -f "$CONTAINER_NAME" > /dev/null 2>&1 || true
   [ -n "$SDB_TMP" ] && rm -f "$SDB_TMP" || true
+  _summary_render "Boot test — ${COMPONENT}-${PLATFORM:-default}" "$rc"
 }
 trap cleanup EXIT
 
@@ -54,13 +56,18 @@ wait_ready() {
   return 1
 }
 
+summary_step_start "Container starts"
 echo "=== [boot] Starting $IMAGE ${PLATFORM:+(platform: $PLATFORM)} ==="
 docker run -d --name "$CONTAINER_NAME" "${platform_args[@]}" "${run_args[@]}" "$IMAGE"
+summary_step_pass
 
+summary_step_start "Reports readiness (/tmp/docker.ready)"
 echo "=== [boot] Waiting for /tmp/docker.ready (timeout: ${READY_TIMEOUT}s) ==="
 wait_ready "$CONTAINER_NAME" || exit 1
 echo "Container is ready."
+summary_step_pass
 
+summary_step_start "Still running after startup"
 echo "=== [boot] Checking container is still running ==="
 running=$(docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME")
 if [ "$running" != "true" ]; then
@@ -68,24 +75,31 @@ if [ "$running" != "true" ]; then
   docker logs "$CONTAINER_NAME" || true
   exit 1
 fi
+summary_step_pass
 
+summary_step_start "Runs as non-root uid $EXPECTED_UID (centreon)"
 echo "=== [boot] Checking non-root user (expected uid $EXPECTED_UID, centreon) ==="
 uid=$(docker exec "$CONTAINER_NAME" id -u)
 if [ "$uid" != "$EXPECTED_UID" ]; then
   echo "::error::$COMPONENT process runs as uid $uid, expected $EXPECTED_UID (centreon)"
   exit 1
 fi
+summary_step_pass
 
+summary_step_start "No crash signature in logs"
 echo "=== [boot] Scanning logs for unambiguous crash signatures ==="
 if docker logs "$CONTAINER_NAME" 2>&1 | grep -Ei "Compilation failed|Can't locate|Segmentation fault|Out of memory"; then
   echo "::error::$COMPONENT logs contain a crash signature, see above"
   exit 1
 fi
+summary_step_pass
 
+summary_step_start "Stops cleanly"
 echo "=== [boot] Stopping container (validates entrypoint cleanup) ==="
 if ! docker stop "$CONTAINER_NAME" > /dev/null; then
   echo "::error::$COMPONENT container did not stop cleanly within the default timeout"
   exit 1
 fi
+summary_step_pass
 
 echo "=== [boot] PASSED for $IMAGE ${PLATFORM:+(platform: $PLATFORM)} ==="

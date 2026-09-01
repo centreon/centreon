@@ -25274,8 +25274,8 @@ msgid "VM or physical"
 msgstr "VM ou physique"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Docker compose"
-msgstr "Docker compose"
+msgid "Container"
+msgstr "Conteneur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Select token"
@@ -25324,3 +25324,7 @@ msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 #: www/include/configuration/configServers/listServers.ihtml
 msgid "Copy installation command"
 msgstr "Copier la commande d'installation"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Beta"
+msgstr "Beta"
