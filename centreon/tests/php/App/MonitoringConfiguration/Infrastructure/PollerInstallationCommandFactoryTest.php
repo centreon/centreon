@@ -78,7 +78,31 @@ final class PollerInstallationCommandFactoryTest extends TestCase
             centralUrl: new CentralUrl(self::CENTRAL_URL),
         );
 
-        self::assertStringContainsString('--poller_token test-token:' . self::POLLER_TOKEN, $factory->generate());
+        self::assertStringContainsString(
+            '--poller_token ' . escapeshellarg('test-token:' . self::POLLER_TOKEN),
+            $factory->generate(),
+        );
+    }
+
+    public function testGenerateCommandQuotesATokenNameCarryingShellMetacharacters(): void
+    {
+        $factory = PollerInstallationCommandFactory::fromPoller(
+            poller: $this->createPoller(PollerTypeEnum::VM),
+            pollerToken: new PollerToken(name: 'token; rm -rf / #', value: self::POLLER_TOKEN, creationDate: new \DateTimeImmutable(), expirationDate: null, isRevoked: false),
+            appSecret: self::APP_SECRET,
+            salt: self::SALT,
+            centralUrl: new CentralUrl(self::CENTRAL_URL),
+        );
+
+        $command = $factory->generate();
+
+        // The name and the value stay a single argument, so nothing after the semicolon
+        // reaches the shell as a command of its own.
+        self::assertStringContainsString(
+            "--poller_token 'token; rm -rf / #:" . self::POLLER_TOKEN . "'",
+            $command,
+        );
+        self::assertStringEndsWith('--salt ' . self::SALT, $command);
     }
 
     public function testGenerateCommandContainsPollerUid(): void
@@ -183,9 +207,9 @@ final class PollerInstallationCommandFactoryTest extends TestCase
         );
 
         $expected = sprintf(
-            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token test-token:%s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type vm --central_url %s --appsecret %s --salt %s',
             self::CENTRAL_URL,
-            self::POLLER_TOKEN,
+            escapeshellarg('test-token:' . self::POLLER_TOKEN),
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::CENTRAL_URL,

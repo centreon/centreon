@@ -71,11 +71,11 @@ final readonly class PollerInstallationCommandFactory
 
     public function generate(): string
     {
-        // Two free-form, user-provided values reach this line: the poller name and the
-        // poller token name. Only pollerName goes through escapeshellarg() — the token name
-        // is interpolated as is, and upstream bounds nothing but its length (NewToken, 255
-        // characters), so that part rests on an invariant nothing enforces. Read it as a
-        // description, not as a guarantee.
+        // Two free-form, admin-provided values reach this line: the poller name and the
+        // poller token name. Upstream bounds nothing but their length (NewToken, 255
+        // characters), so both are quoted with escapeshellarg(). The token name and its
+        // value are quoted together, as the single --poller_token argument install.sh
+        // expects: it forwards the "name:value" pair verbatim to the Gorgone configuration.
         //
         // The rest cannot carry shell metacharacters: the token value is base64 truncated to
         // 64 characters (Encryption::generateRandomString), an alphabet that holds none; uid
@@ -83,10 +83,9 @@ final readonly class PollerInstallationCommandFactory
         // context file; and centralUrl is a CentralUrl, whose allowlist rejects every shell
         // metacharacter.
         $command = sprintf(
-            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
             $this->centralUrl->value,
-            $this->pollerToken->name,
-            $this->pollerToken->value,
+            escapeshellarg($this->pollerToken->name . ':' . $this->pollerToken->value),
             $this->pollerUid->value,
             escapeshellarg($this->pollerName->value),
             $this->pollerType->value,

@@ -87,8 +87,8 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL http://192.168.1.1/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url http://192.168.1.1 --appsecret test-app-secret --salt test-salt',
-            $tokenValue,
+            'curl -fsSL http://192.168.1.1/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url http://192.168.1.1 --appsecret test-app-secret --salt test-salt',
+            escapeshellarg('test-token-default:' . $tokenValue),
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
@@ -108,8 +108,8 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL http://192.168.1.1/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url http://192.168.1.1 --appsecret test-app-secret --salt test-salt',
-            $namedTokenValue,
+            'curl -fsSL http://192.168.1.1/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url http://192.168.1.1 --appsecret test-app-secret --salt test-salt',
+            escapeshellarg('named-token:' . $namedTokenValue),
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
