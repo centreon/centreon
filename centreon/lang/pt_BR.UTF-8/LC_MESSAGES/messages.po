@@ -2440,13 +2440,13 @@ msgstr ""
 "crie ele"
 
 #: centreon/www/install/front_translate.php
+msgid "Centreon Central address, as seen by this poller"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Centreon Central address, as seen by this server"
 msgstr "Endereço do Centreon Central, como visto pelo o servidor"
-
-#: centreon/www/install/front_translate.php
-msgid "Centreon Central adress, as seen by this poller"
-msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Centreon Connector"
@@ -13659,7 +13659,7 @@ msgid "Poller Name"
 msgstr "Nome do Coletor"
 
 #: centreon/www/install/front_translate.php
-msgid "Poller adress"
+msgid "Poller address"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Repository/CfgCentreonBrokerRepository.php
