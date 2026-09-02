@@ -85,7 +85,9 @@ final readonly class UrlPath
         }
     }
 
-    /** The segments without their leading slash ("base/path"), null when the path is empty. */
+    /**
+     * The segments without their leading slash ("base/path"), null when the path is empty.
+     */
     public function segments(): ?string
     {
         return $this->value === '' ? null : mb_substr($this->value, 1);
