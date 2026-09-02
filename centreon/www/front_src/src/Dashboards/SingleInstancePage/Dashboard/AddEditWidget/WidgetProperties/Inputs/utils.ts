@@ -63,6 +63,8 @@ interface GetYupValidatorTypeProps {
     | 'required'
     | 'requireResourceType'
     | 'allowEmptyResources'
+    | 'isRequiredProperty'
+    | 'isSingleAutocomplete'
   >;
   t: TFunction;
 }
@@ -203,6 +205,24 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
       always(boundariesValidationSchema)
+    ],
+    [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.connectedAutocomplete
+      ),
+      always(
+        (properties.isSingleAutocomplete ? object() : array()).test(
+          'connected-autocomplete-required',
+          t(labelRequired) as string,
+          (value) => {
+            if (!(properties.required || properties.isRequiredProperty)) {
+              return true;
+            }
+
+            return !(isNil(value) || isEmpty(value));
+          }
+        )
+      )
     ]
   ])(properties.type);
 
@@ -214,6 +234,8 @@ interface BuildValidationSchemaProps {
     | 'required'
     | 'requireResourceType'
     | 'allowEmptyResources'
+    | 'isRequiredProperty'
+    | 'isSingleAutocomplete'
   >;
   t: TFunction;
 }
@@ -227,7 +249,7 @@ export const buildValidationSchema = ({
     t
   });
 
-  return properties.required
+  return properties.required || properties.isRequiredProperty
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };
