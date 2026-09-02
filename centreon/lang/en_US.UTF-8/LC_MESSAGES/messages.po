@@ -1984,6 +1984,10 @@ msgid "Begin date"
 msgstr "Begin date"
 
 #: centreon/www/install/front_translate.php
+msgid "Beta"
+msgstr "Beta"
+
+#: centreon/www/install/front_translate.php
 msgid "Better"
 msgstr "Better"
 
@@ -5218,7 +5222,7 @@ msgid "Do you want to switch to regex mode?"
 msgstr "Do you want to switch to regex mode?"
 
 #: centreon/www/install/front_translate.php
-msgid "Docker compose"
+msgid "Container"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -5415,7 +5419,7 @@ msgstr "Duplicate host categories"
 # msgstr ""
 # msgid "VM or physical"
 # msgstr ""
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 # msgid "Select token"
 # msgstr ""
