@@ -246,7 +246,11 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
     public function addBrokerDirective(string $module, array $pollerIds): void
     {
         try {
-            $query = $this->connection->createQueryBuilder()->insert('`:db`.`cfg_nagios_broker_module`')
+            $findEngineConfigQuery = $this->translateDbName(
+                'SELECT nagios_id FROM `:db`.`cfg_nagios` WHERE nagios_server_id = :poller_id LIMIT 1'
+            );
+
+            $insertQuery = $this->connection->createQueryBuilder()->insert('`:db`.`cfg_nagios_broker_module`')
                 ->values(
                     [
                         'bk_mod_id' => ':bk_mod_id',
@@ -255,18 +259,30 @@ class DbWriteAgentConfigurationRepository extends DatabaseRepository implements 
                     ]
                 )->getQuery();
 
-            foreach ($pollerIds as $poller) {
-                $pollerId = $poller;
+            foreach ($pollerIds as $pollerId) {
+                $engineConfigId = $this->connection->fetchOne(
+                    $findEngineConfigQuery,
+                    QueryParameters::create([
+                        QueryParameter::int('poller_id', $pollerId),
+                    ])
+                );
+
+                if ($engineConfigId === false || $engineConfigId === null) {
+                    throw new \RuntimeException(
+                        sprintf('No engine configuration found for poller %d', $pollerId)
+                    );
+                }
+
                 $this->connection->insert(
-                    $this->translateDbName($query),
+                    $this->translateDbName($insertQuery),
                     QueryParameters::create([
                         QueryParameter::null('bk_mod_id'),
-                        QueryParameter::int('cfg_nagios_id', $pollerId),
+                        QueryParameter::int('cfg_nagios_id', (int) $engineConfigId),
                         QueryParameter::string('broker_module', $module),
                     ])
                 );
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'Error while adding broker directive in agent configuration',
                 context: ['pollerIds' => $pollerIds, 'broker_module' => $module],
