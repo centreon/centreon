@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
+use App\MonitoringConfiguration\Domain\Model\UrlPath;
 use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Webmozart\Assert\Assert;
 
@@ -51,8 +52,6 @@ final readonly class CentralAddress
      */
     private const IP_LITERAL_PATTERN = '/^\[(?<host>[0-9A-Fa-f:.]+)\](?::(?<port>\d{1,5}))?$/';
     private const HOST_PORT_PATTERN = '/^(?<host>.+):(?<port>\d{1,5})$/';
-    private const BASE_PATH_PATTERN = '~^[A-Za-z0-9._\-]+(?:/[A-Za-z0-9._\-]+)*$~';
-    private const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';
     private const MIN_PORT = 1;
     private const MAX_PORT = 65535;
 
@@ -76,22 +75,14 @@ final readonly class CentralAddress
 
         $slashPosition = mb_strpos($normalized, '/');
         $authority = $slashPosition === false ? $normalized : mb_substr($normalized, 0, $slashPosition);
-        $basePath = $slashPosition === false ? null : mb_substr($normalized, $slashPosition + 1);
 
         [$host, $port] = $this->parseAuthority($authority);
-        if ($basePath !== null) {
-            Assert::regex(
-                $basePath,
-                self::BASE_PATH_PATTERN,
-                sprintf('[CentralAddress::value] The base path "%s" contains invalid characters', $basePath)
-            );
-            // "." and ".." match BASE_PATH_PATTERN but would make the generated URL
-            // resolve outside the configured base path.
-            Assert::false(
-                (bool) preg_match(self::DOT_SEGMENT_PATTERN, $basePath),
-                sprintf('[CentralAddress::value] The base path "%s" must not contain dot segments', $basePath)
-            );
-        }
+
+        // The separator is kept rather than skipped: UrlPath takes the canonical leading-slash
+        // form, so "host//path" reaches it as "//path" and is rejected as an empty segment.
+        $basePath = $slashPosition === false
+            ? null
+            : new UrlPath(mb_substr($normalized, $slashPosition), 'CentralAddress::value');
 
         $canonical = $this->canonicalize($host, $port, $basePath);
         // Bracketing a bare IPv6 host grows the value, and it is the canonical form that has to fit
@@ -99,7 +90,7 @@ final readonly class CentralAddress
         Assert::lengthBetween($canonical, self::MIN_LENGTH, self::MAX_LENGTH);
 
         $this->host = $host;
-        $this->basePath = $basePath;
+        $this->basePath = $basePath?->segments();
         $this->value = $canonical;
     }
 
@@ -165,7 +156,7 @@ final readonly class CentralAddress
         return $parsed;
     }
 
-    private function canonicalize(string $host, ?int $port, ?string $basePath): string
+    private function canonicalize(string $host, ?int $port, ?UrlPath $basePath): string
     {
         // An IPv6 literal only stands as a URL authority once bracketed: without brackets its
         // colons are read as the port separator.
@@ -175,6 +166,6 @@ final readonly class CentralAddress
 
         return $authority
             . ($port === null ? '' : ':' . $port)
-            . ($basePath === null ? '' : '/' . $basePath);
+            . ($basePath->value ?? '');
     }
 }

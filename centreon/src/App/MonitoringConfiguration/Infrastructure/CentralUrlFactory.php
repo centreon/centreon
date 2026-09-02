@@ -27,6 +27,7 @@ use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Model\CentralUrl;
+use App\MonitoringConfiguration\Domain\Model\UrlPath;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -46,12 +47,6 @@ final readonly class CentralUrlFactory
      * in the request URI is the platform base URI.
      */
     private const ENTRY_POINT_PATTERN = '~^(?<baseUri>.*?)/(?:api/(?:latest|beta|v\d+(?:\.\d+)?)|include)/~';
-
-    /** Path segments only: the base URI ends up in a command the admin runs in a shell. */
-    private const SAFE_BASE_URI_PATTERN = '~^(?:/[A-Za-z0-9._\-]+)*$~';
-
-    /** Rejected for the same reason as in CentralAddress: they resolve outside the base path. */
-    private const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';
 
     public function __construct(
         private RequestStack $requestStack,
@@ -98,17 +93,16 @@ final readonly class CentralUrlFactory
             return '';
         }
 
-        $baseUri = rtrim($matches['baseUri'], '/');
-        if (
-            preg_match(self::SAFE_BASE_URI_PATTERN, $baseUri) !== 1
-            || preg_match(self::DOT_SEGMENT_PATTERN, $baseUri) === 1
-        ) {
+        // The base URI ends up in a command the admin runs in a shell, so it has to pass the
+        // same segment rules as the rest of the URL.
+        $baseUri = UrlPath::tryFrom(rtrim($matches['baseUri'], '/'));
+        if ($baseUri === null) {
             $this->logDroppedBaseUri('unsafe path', $requestUri);
 
             return '';
         }
 
-        return $baseUri;
+        return $baseUri->value;
     }
 
     /**

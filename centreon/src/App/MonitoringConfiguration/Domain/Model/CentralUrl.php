@@ -57,7 +57,7 @@ final readonly class CentralUrl
     private const PORT = '(?::(?<port>\d{1,5}))?';
 
     /** The slash belongs to each segment, so an empty segment ("//") cannot pass. */
-    private const PATH = '(?:/[A-Za-z0-9._\-]+)*';
+    private const PATH = '(?:/' . UrlPath::SEGMENT . ')*';
 
     /**
      * Scheme, then authority with an optional web port, then path segments.
@@ -68,9 +68,6 @@ final readonly class CentralUrl
      */
     private const PATTERN = '~^https?://(?:' . self::HOST . '|' . self::BRACKETED_IPV6 . ')'
         . self::PORT . self::PATH . '$~';
-
-    /** Rejected for the same reason as in CentralAddress: they resolve outside the base path. */
-    private const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';
 
     public string $value;
 
@@ -85,7 +82,7 @@ final readonly class CentralUrl
         );
         // "." and ".." match the path part of PATTERN, so they need their own check.
         Assert::false(
-            (bool) preg_match(self::DOT_SEGMENT_PATTERN, $normalized),
+            (bool) preg_match(UrlPath::DOT_SEGMENT_PATTERN, $normalized),
             sprintf('[CentralUrl::value] The URL "%s" must not contain dot segments', $value)
         );
         // The two checks a character class cannot carry. CentralUrlFactory already builds this URL
