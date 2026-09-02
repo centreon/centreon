@@ -84,10 +84,14 @@ while :; do
     retryable="curl exited ${curl_status}"
   elif [[ "$HTTP_CODE" =~ ^5[0-9]{2}$ || "$HTTP_CODE" == "429" ]]; then
     retryable="HTTP $HTTP_CODE"
-  elif echo "$RESPONSE_JSON" | grep -q "503 ERROR"; then
-    retryable="Service Unavailable (503 ERROR)"
-  elif ! jq -e '.' >/dev/null 2>&1 <<<"$RESPONSE_JSON"; then
-    retryable="response is not valid JSON"
+  elif [[ ! "$HTTP_CODE" =~ ^4[0-9]{2}$ ]]; then
+    # Only a non-4xx body can hide a transient failure behind a 200; a client
+    # error is final and is reported with its status after the loop.
+    if echo "$RESPONSE_JSON" | grep -q "503 ERROR"; then
+      retryable="Service Unavailable (503 ERROR)"
+    elif ! jq -e '.' >/dev/null 2>&1 <<<"$RESPONSE_JSON"; then
+      retryable="response is not valid JSON"
+    fi
   fi
 
   if [[ -z "$retryable" ]]; then
