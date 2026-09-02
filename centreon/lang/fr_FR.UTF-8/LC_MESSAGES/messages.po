@@ -2512,13 +2512,13 @@ msgstr ""
 "répertoire ou de le créer"
 
 #: centreon/www/install/front_translate.php
+msgid "Centreon Central address, as seen by this poller"
+msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Centreon Central address, as seen by this server"
 msgstr "Adresse du Central Centreon, telle que vue par ce serveur"
-
-#: centreon/www/install/front_translate.php
-msgid "Centreon Central adress, as seen by this poller"
-msgstr "Adresse du central Centreon, telle que vue par ce collecteur"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Centreon Connector"
@@ -13334,7 +13334,7 @@ msgid "Poller Name"
 msgstr "Nom du collecteur"
 
 #: centreon/www/install/front_translate.php
-msgid "Poller adress"
+msgid "Poller address"
 msgstr "Adresse du collecteur"
 
 #: centreon/src/Centreon/Domain/Repository/CfgCentreonBrokerRepository.php
@@ -21308,10 +21308,6 @@ msgstr ""
 "supervision '%s'. Merci de vérifier le chemin du répertoire ou de le créer"
 
 #: unknown
-msgid "Centreon Central address, as seen by this poller"
-msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
-
-#: unknown
 msgid "Centreon DataBase Statistics"
 msgstr "Statistiques sur les bases de données de Centreon"
 
@@ -23607,10 +23603,6 @@ msgstr "État des collecteurs"
 #: unknown
 msgid "Poller Statistics"
 msgstr "Statistiques des collecteurs"
-
-#: unknown
-msgid "Poller address"
-msgstr "Adresse du collecteur"
 
 #: unknown
 msgid "Poller/Centreon Server"
