@@ -148,6 +148,8 @@ Key points:
 > Uniform coverage is guaranteed not by this middleware but by the **processors registered globally on every channel** — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
 >
 > Assumed blind spots: dedicated channels in the `!exclude` list of `web_finger_crossed` (`event`, `doctrine`, `console`, `deprecation`, `authentication`, `token`, `password`, `plugin-pack-manager`, `upgrade`), the `console` channel in CLI, and PHP fatals before kernel boot (parse error, OOM).
+>
+> One more blind spot, by **level** rather than by channel: `web_finger_crossed` buffers with `action_level: error` and declares no `passthru_level`, so a buffered record that never triggers a flush is dropped when the buffer is cleared. Unless an `error` or higher record activates the handler later in the same request — in which case the buffer is flushed and the earlier records are written as context — a `warning` is not "a lower-priority line", it is **no line at all** in `prod.web.log`. Since `LegacyHttpExceptionListener` logs every 4xx at `warning` (only 5xx reach `critical`), client errors — malformed pagination, unknown sort column, rejected payload — normally leave no trace on the platform log and are diagnosed from the HTTP access log. This is deliberate: `prod.web.log` carries incidents, not client mistakes.
 
 The middleware emits a record on the Monolog `app` channel (Symfony default) for every dispatch:
 
