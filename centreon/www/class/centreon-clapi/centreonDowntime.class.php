@@ -892,7 +892,7 @@ class CentreonDowntime extends CentreonObject
             } elseif (! $row['dtp_day_of_week'] && $row['dtp_month_cycle'] == 'none') { // monthly
                 $periodType = 'ADDMONTHLYPERIOD';
                 $extraData[] = $row['dtp_day_of_month'];
-            } elseif ($row['dtp_month_cycle'] == 'last' || $row['dtp_month_cycle'] == 'first') { // specific
+            } elseif (in_array($row['dtp_month_cycle'], $this->availableCycles, true)) { // specific
                 $periodType = 'ADDSPECIFICPERIOD';
                 $extraData[] = $row['dtp_day_of_week'];
                 $extraData[] = $row['dtp_month_cycle'];
