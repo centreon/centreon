@@ -92,7 +92,7 @@ function _vmInstallPowertools() {
 
 # Mirrors uses_internal_repo() in centreon/unattended.sh.
 function _usesInternalRepo() {
-  [ "${major##*.}" != "10" ]
+  ! _isOnPremMajor "${major}"
 }
 
 function _centreonRpmRepoUrl() {
