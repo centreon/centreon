@@ -42,9 +42,20 @@ final readonly class CentralUrlFactory
     private const DEFAULT_SCHEME = 'https';
 
     /**
-     * Entry points able to generate an install command, mirroring the paths Apache
-     * proxies to PHP-FPM (packaging/src/centreon-apache.conf): what precedes them
-     * in the request URI is the platform base URI.
+     * The two entry points able to generate an install command: the versioned API, and the legacy
+     * "copy installation command" script. What precedes them in the request URI is the platform
+     * base URI.
+     *
+     * Narrower than what Apache proxies to PHP-FPM on purpose: centreon-apache.conf also routes
+     * "authentication/" and every ".php" under www/, and widening this to match would let an
+     * unexpected request URI contribute a base URI to a command run as root. An unrecognized
+     * entry point is meant to drop the base URI, not to be added here.
+     *
+     * Request::getBaseUrl() would serve the API alone: api/index.php fakes SCRIPT_NAME so the
+     * kernel resolves "/centreon", while copyInstallCommand.php boots no kernel and yields
+     * ".../configServers/copyInstallCommand.php" instead. HttpUrlTrait::getBaseUri() covers both
+     * but sits outside App/, captures the request at injection time, and validates nothing it
+     * extracts.
      */
     private const ENTRY_POINT_PATTERN = '~^(?<baseUri>.*?)/(?:api/(?:latest|beta|v\d+(?:\.\d+)?)|include)/~';
 
