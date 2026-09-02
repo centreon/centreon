@@ -107,7 +107,7 @@ final readonly class CentralUrlFactory
         // The base URI ends up in a command the admin runs in a shell, so it has to pass the
         // same segment rules as the rest of the URL.
         $baseUri = UrlPath::tryFrom(rtrim($matches['baseUri'], '/'));
-        if ($baseUri === null) {
+        if (! $baseUri instanceof UrlPath) {
             $this->logDroppedBaseUri('unsafe path', $requestUri);
 
             return '';
