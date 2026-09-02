@@ -23,6 +23,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/web.yml"
+      - ".github/docker/centreon-snmptrapd/**"
+      - ".github/docker/centreon-centreontrapd/**"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -35,6 +37,8 @@ on:
       - "release-[2-9][0-9].[0-9][0-9]-next"
       - "hotfix-[2-9][0-9].[0-9][0-9]-next"
     paths:
+      - ".github/docker/centreon-snmptrapd/**"
+      - ".github/docker/centreon-centreontrapd/**"
       - ".version"
       - ".version.centreon-web"
       - "centreon/**"
@@ -144,6 +148,8 @@ jobs:
         "centreon/tests/clapi_export/**"
         "centreon/tests/e2e/**"
         "centreon/tests/performance/**"
+        ".github/docker/centreon-snmptrapd/**"
+        ".github/docker/centreon-centreontrapd/**"
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/packaging/**"
@@ -1279,6 +1285,660 @@ jobs:
   #         path: centreon/lighthouse/report/lighthouseci-index.html
   #         retention-days: 1
 
+  # The centreon-snmptrapd / centreon-centreontrapd product images (MON-207531):
+  # folded into this workflow, rather than kept in a standalone docker-trapd.yml,
+  # so they inherit the same trigger paths. Not gated on e2e-test: that suite
+  # only exercises centreon-web, not these images — see dockerize-trapd-image
+  # below for the actual validation gate (docker-boot-test/
+  # docker-config-wiring-test).
+  package-centreon-trap:
+    needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [trixie]
+    container:
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
+    name: package centreon-trap ${{ matrix.distrib }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Package centreon-trap
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon/packaging/centreon-trap.yaml"
+          module_name: "centreon"
+          distrib: ${{ matrix.distrib }}
+          package_extension: deb
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-trap
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+
+  package-perl-libs:
+    needs: [get-environment]
+    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        distrib: [trixie]
+    container:
+      image: ghcr.io/centreon/delivery-tooling/packaging:${{ needs.get-environment.outputs.major_version }}-${{ matrix.distrib }}
+    name: package centreon-perl-libs ${{ matrix.distrib }}
+
+    steps:
+      - name: Checkout sources (centreon/centreon for actions)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Checkout centreon-collect (for perl-libs packaging)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: centreon/centreon-collect
+          ref: ${{ needs.get-environment.outputs.linked_dev_branch || github.ref_name }}
+          path: centreon-collect
+          persist-credentials: false
+
+      - name: Set PERL_VENDORLIB for deb
+        run: echo "PERL_VENDORLIB=/usr/share/perl5" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Package centreon-perl-libs
+        uses: ./.github/actions/package-nfpm
+        with:
+          nfpm_file_pattern: "centreon-collect/perl-libs/packaging/centreon-perl-libs.yaml centreon-collect/perl-libs/packaging/centreon-perl-libs-common.yaml"
+          module_name: "centreon-collect"
+          distrib: ${{ matrix.distrib }}
+          package_extension: deb
+          major_version: ${{ needs.get-environment.outputs.major_version }}
+          minor_version: ${{ needs.get-environment.outputs.minor_version }}
+          release: ${{ needs.get-environment.outputs.release }}
+          arch: all
+          commit_hash: ${{ github.sha }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}-perl
+          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
+          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
+          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          php_version: ${{ needs.get-environment.outputs.php_version }}
+          stability: ${{ needs.get-environment.outputs.stability }}
+
+  dockerize-trapd-image:
+    # Named "dockerize-trapd-image" (not "dockerize") to avoid colliding with the
+    # internal centreon-web-testing-* dependency image job above. Not gated on
+    # e2e-test: that suite only exercises centreon-web (image_name: centreon-web),
+    # never centreon-snmptrapd/centreon-centreontrapd, so waiting on it here would
+    # just serialize this job behind an unrelated test run for no validation
+    # value. This job alone doesn't guarantee the resulting image is validated:
+    # docker-boot-test/docker-config-wiring-test below are what actually gate
+    # version_tag and promote-docker-tag/promote-docker-to-ghcr.
+    needs: [get-environment, package-centreon-trap, package-perl-libs]
+    # stability != 'stable' matches the dockerize job's own gate above, so this
+    # runs on canary/feature branches the same way centreon-web images do,
+    # instead of the narrower testing/unstable-only allowlist this job used to have.
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: dockerize ${{ matrix.component }}-${{ matrix.operating_system }}
+    # Matrix job outputs come from the last completed matrix leg. Safe here
+    # because compute-tag only depends on the ref/major_version, never on
+    # matrix.component or matrix.operating_system, so every leg produces the same tag.
+    outputs:
+      image_tag: ${{ steps.compute-tag.outputs.tag }}
+      additional_tag: ${{ steps.compute-tag.outputs.additional_tag }}
+      version_tag: ${{ steps.compute-tag.outputs.version_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Parse distrib name
+        id: parse-distrib
+        uses: ./.github/actions/parse-distrib
+        with:
+          distrib: ${{ matrix.operating_system }}
+
+      - name: Restore centreon-trap package
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-trap
+          fail-on-cache-miss: true
+
+      - name: Restore centreon-perl-libs packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ./*.${{ steps.parse-distrib.outputs.package_extension }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.parse-distrib.outputs.package_extension }}-${{ matrix.operating_system }}-perl
+          fail-on-cache-miss: true
+
+      - name: Prepare packages-centreon directory
+        env:
+          PACKAGE_EXTENSION: ${{ steps.parse-distrib.outputs.package_extension }}
+        run: |
+          mkdir -p packages-centreon
+          mv *."$PACKAGE_EXTENSION" packages-centreon/
+        shell: bash
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Compute Docker tag
+        id: compute-tag
+        env:
+          RAW_REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
+          MINOR_VERSION: ${{ needs.get-environment.outputs.minor_version }}
+        run: |
+          if [[ "$RAW_REF" == "develop" ]]; then
+            echo "tag=develop-${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=develop" >> "$GITHUB_OUTPUT"
+          elif [[ "$RAW_REF" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
+            echo "tag=${MAJOR_VERSION}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=" >> "$GITHUB_OUTPUT"
+          else
+            docker_tag=$(printf '%s' "$RAW_REF" | sed -E 's#[^[:alnum:]_.-]+#-#g; s#^[.-]+##; s#-+#-#g' | cut -c1-128)
+            if [[ -z "$docker_tag" ]]; then
+              echo "::error::Unable to derive a valid Docker tag from ref '$RAW_REF'"
+              exit 1
+            fi
+            echo "tag=${docker_tag}" >> "$GITHUB_OUTPUT"
+            echo "additional_tag=" >> "$GITHUB_OUTPUT"
+          fi
+
+          # On a release/hotfix branch (stability 'testing'), also tag with the
+          # deterministic target version (e.g. 26.10.5). promote-docker-to-ghcr
+          # pulls this exact tag on the eventual stable event — computed the same
+          # way from the same version file, so no release_type reconstruction is
+          # needed to find the candidate to promote. version_tag is only ever
+          # applied by promote-docker-tag below, once docker-boot-test/
+          # docker-config-wiring-test have validated this exact image — that's
+          # the real gate before this candidate can be promoted to ghcr.io stable.
+          if [[ "$RAW_REF" =~ ^(release|hotfix)-[0-9]+\.[0-9]+-next$ ]]; then
+            echo "version_tag=${MAJOR_VERSION}.${MINOR_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_tag=" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
+
+      - name: Compute build date
+        id: build-date
+        run: echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Docker build and push
+        id: build
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        env:
+          DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
+        with:
+          context: .
+          file: .github/docker/${{ matrix.component }}/${{ matrix.operating_system }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          pull: true
+          push: ${{ github.event.pull_request.head.repo.fork != true }}
+          build-args: |
+            BUILD_DATE=${{ steps.build-date.outputs.date }}
+            BUILD_VERSION=${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}-${{ needs.get-environment.outputs.release }}
+            PACKAGE_SOURCES=centreon-trap-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} + centreon-perl-libs-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+            GIT_REVISION=${{ github.event.pull_request.head.sha || github.sha }}
+          # Disabled: BuildKit's own attestation manifests would make this
+          # digest diverge from the ghcr.io one docker-push-to-ghcr.sh
+          # reconstructs later. Build provenance and SBOM are attested
+          # separately (see "Attest build provenance" below and
+          # docker-trivy-cves for CVE-scan-time SBOM/reports).
+          provenance: false
+          sbom: false
+          # version_tag is deliberately NOT pushed here: it's only applied by
+          # promote-docker-version-tag below, once docker-boot-test/
+          # docker-config-wiring-test have validated this exact image. Pushing
+          # it here (before those tests run) would let promote-docker-to-ghcr
+          # pick up an unvalidated candidate on a later, separate stable run.
+          tags: |
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ steps.compute-tag.outputs.tag }}
+
+      - name: Attest build provenance (deterministic candidate only)
+        # Only for builds with a version_tag (real promotion candidates).
+        # push-to-registry:false since ghcr.io doesn't have this image yet;
+        # discoverable later by digest once promoted.
+        if: steps.compute-tag.outputs.version_tag != ''
+        continue-on-error: true
+        id: attest-build-provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ghcr.io/centreon/${{ matrix.component }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: false
+          create-storage-record: false
+
+      - name: Warn if build provenance attestation failed
+        if: steps.attest-build-provenance.outcome == 'failure'
+        run: |
+          echo "::warning::Build provenance attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. Image build/delivery continues; investigate before relying on provenance verification for this version."
+        shell: bash
+
+  docker-boot-test:
+    needs: [get-environment, dockerize-trapd-image]
+    if: |
+      ! cancelled() &&
+      needs.dockerize-trapd-image.result == 'success' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+        platform: [linux/amd64, linux/arm64]
+    name: docker boot test ${{ matrix.component }}-${{ matrix.operating_system }} (${{ matrix.platform }})
+    permissions:
+      contents: read
+    env:
+      TRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Set up QEMU
+        if: ${{ matrix.platform == 'linux/arm64' }}
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+
+      - name: Install sqlite3
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends sqlite3
+        shell: bash
+
+      - name: Replace / with - in the platform name
+        id: platform-name
+        run: echo "dashed=$(echo '${{ matrix.platform }}' | tr '/' '-')" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Pull image for ${{ matrix.platform }}
+        run: docker pull --platform "${{ matrix.platform }}" "$TRAPD_IMAGE"
+        shell: bash
+
+      - name: Run boot test
+        env:
+          IMAGE: ${{ env.TRAPD_IMAGE }}
+          PLATFORM: ${{ matrix.platform }}
+          COMPONENT: ${{ matrix.component }}
+          SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
+        run: ./.github/scripts/centreon-trapd-docker-boot-test.sh
+        shell: bash
+
+      - name: Upload summary fragment
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-summary-fragment-${{ matrix.component }}-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          path: /tmp/summary-fragment.md
+          retention-days: 1
+          if-no-files-found: ignore
+
+      - name: Upload debug artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ matrix.component }}-boot-test-${{ matrix.operating_system }}-${{ steps.platform-name.outputs.dashed }}
+          path: /tmp/centreon-trapd-boot-test.log
+          retention-days: 1
+
+  docker-config-wiring-test:
+    needs: [get-environment, dockerize-trapd-image]
+    if: |
+      ! cancelled() &&
+      needs.dockerize-trapd-image.result == 'success' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        operating_system: [trixie]
+    name: docker config/wiring test centreon-trapd-${{ matrix.operating_system }}
+    permissions:
+      contents: read
+    env:
+      CENTREONTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-centreontrapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
+      SNMPTRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-snmptrapd-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Install snmptrap client and sqlite3
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends snmp sqlite3
+        shell: bash
+
+      - name: Pull images
+        run: |
+          docker pull --platform linux/amd64 "$CENTREONTRAPD_IMAGE"
+          docker pull --platform linux/amd64 "$SNMPTRAPD_IMAGE"
+        shell: bash
+
+      - name: Run config/wiring test scenarios
+        env:
+          SUMMARY_FRAGMENT_FILE: /tmp/summary-fragment.md
+        run: ./.github/scripts/centreon-trapd-docker-config-wiring-test.sh
+        shell: bash
+
+      - name: Upload summary fragment
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-summary-fragment-wiring-${{ matrix.operating_system }}
+          path: /tmp/summary-fragment.md
+          retention-days: 1
+          if-no-files-found: ignore
+
+      - name: Dump compose logs on failure
+        if: failure()
+        run: docker compose -f .github/docker/centreon-trapd/docker-compose.config-wiring-test.yml -p centreon-trapd-config-wiring-test logs
+
+  docker-test-summary:
+    # Combines the docker-boot-test matrix (4 legs) and docker-config-wiring-test
+    # into ONE Step Summary block. GitHub renders one Step Summary block per job
+    # unconditionally, so merging what several jobs write is only possible from
+    # a downstream job that collects their output - not by changing what each
+    # job writes into its own summary. Keeps docker-boot-test/
+    # docker-config-wiring-test as separate parallel jobs (same speed, same
+    # per-leg pass/fail granularity as distinct PR checks); this job only
+    # affects the Summary tab.
+    needs: [get-environment, docker-boot-test, docker-config-wiring-test]
+    if: |
+      always() &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (needs.docker-boot-test.result != 'skipped' || needs.docker-config-wiring-test.result != 'skipped')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Download all summary fragments
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: test-summary-fragment-*
+          path: fragments
+        continue-on-error: true
+
+      - name: Combine fragments into one Step Summary
+        run: |
+          {
+            echo "## Docker trapd test results"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          shopt -s nullglob
+          found=false
+          for frag in fragments/*/summary-fragment.md; do
+            found=true
+            cat "$frag" >> "$GITHUB_STEP_SUMMARY"
+          done
+          if [ "$found" != "true" ]; then
+            echo "_No test summary fragments were found - the boot-test/wiring-test legs may have failed before producing a report; check their individual job logs._" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        shell: bash
+
+  docker-trivy-cves:
+    # PoC (centreon#11136): informational CVE scan + SBOM generation via
+    # Trivy, in addition to the build/SBOM provenance attestations (see
+    # "Attest build provenance" and attest-ghcr-image) which prove supply
+    # chain integrity but don't scan for known vulnerabilities.
+    # Non-blocking (exit-code 0) - findings are surfaced via the job summary
+    # and uploaded as artifacts, not gated on.
+    needs: [get-environment, dockerize-trapd-image]
+    if: |
+      ! cancelled() &&
+      needs.dockerize-trapd-image.result == 'success' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: docker trivy cves ${{ matrix.component }}-${{ matrix.operating_system }}
+    permissions:
+      contents: read
+    env:
+      TRAPD_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}:${{ needs.dockerize-trapd-image.outputs.image_tag }}
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Run Trivy CVE scan (informational)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.TRAPD_IMAGE }}
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          ignore-unfixed: true
+          format: json
+          output: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
+          exit-code: '0'
+
+      - name: Write CVE summary
+        env:
+          REPORT: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}.json
+          IMAGE: ${{ env.TRAPD_IMAGE }}
+        run: |
+          count_sev() {
+            jq --arg sev "$1" '[.Results[]?.Vulnerabilities[]?] | group_by(.VulnerabilityID) | map(.[0]) | map(select(.Severity==$sev)) | length' "$REPORT"
+          }
+          badge() {
+            echo -n "![${1} ${2}](https://img.shields.io/badge/${1}-${2}-${3})"
+          }
+          critical=$(count_sev CRITICAL)
+          high=$(count_sev HIGH)
+          medium=$(count_sev MEDIUM)
+          low=$(count_sev LOW)
+          unknown=$(count_sev UNKNOWN)
+          {
+            echo "### Trivy CVE scan — ${{ matrix.component }}-${{ matrix.operating_system }}"
+            echo
+            echo "_ignore-unfixed: true — counts below are fixable CVEs only (a fix is available upstream)._"
+            echo
+            echo "\`${IMAGE}\`"
+            echo
+            badge CRITICAL "$critical" 8b0000
+            echo -n ' '
+            badge HIGH "$high" e05d44
+            echo -n ' '
+            badge MEDIUM "$medium" fe7d37
+            echo -n ' '
+            badge LOW "$low" dfb317
+            echo -n ' '
+            badge UNKNOWN "$unknown" 9f9f9f
+            echo
+            echo
+            high_crit=$(( high + critical ))
+            if [ "$high_crit" -eq 0 ]; then
+              echo "No fixable CRITICAL/HIGH vulnerability found. ✅"
+            else
+              echo "**${high_crit} fixable CRITICAL/HIGH unique CVE(s)** — detail below."
+              echo
+              echo "| CVE | Severity | Status | Fixed version | Affected package(s) |"
+              echo "| --- | --- | --- | --- | --- |"
+              jq -r '
+                [.Results[]?.Vulnerabilities[]?] as $vulns |
+                ($vulns | group_by(.VulnerabilityID) | map({
+                  id: .[0].VulnerabilityID,
+                  severity: .[0].Severity,
+                  status: (.[0].Status // "affected"),
+                  fixed: ([.[].FixedVersion] | map(select(. != null and . != "")) | unique | join(", ")),
+                  pkgs: ([.[].PkgName] | unique | join(", "))
+                })) | map(select(.severity=="CRITICAL" or .severity=="HIGH")) | sort_by(.severity) | .[] |
+                "| [\(.id)](https://avd.aquasec.com/nvd/\(.id | ascii_downcase)) | \(.severity) | \(.status) | \(if .fixed == "" then "—" else .fixed end) | \(.pkgs) |"
+              ' "$REPORT"
+            fi
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+
+      - name: Upload CVE report artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cve-report-${{ matrix.component }}-${{ matrix.operating_system }}
+          path: cve-report-*.json
+          retention-days: 30
+
+      - name: Generate SBOM (CycloneDX format)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.TRAPD_IMAGE }}
+          format: cyclonedx
+          output: sbom-${{ matrix.component }}-${{ matrix.operating_system }}-cyclonedx.json
+
+      - name: Generate SBOM (SPDX format)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.TRAPD_IMAGE }}
+          format: spdx-json
+          output: sbom-${{ matrix.component }}-${{ matrix.operating_system }}-spdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-${{ matrix.component }}-${{ matrix.operating_system }}
+          path: sbom-*.json
+          retention-days: 30
+
+      - name: Trivy info message
+        env:
+          STABILITY: ${{ needs.get-environment.outputs.stability }}
+        run: |
+          if [[ "$STABILITY" == "stable" ]]; then
+            echo "::notice::Trivy CVE scan complete (stable build). Review critical/high CVEs above; consider resolving before ghcr.io promotion."
+          else
+            echo "::notice::Trivy CVE scan complete (unstable build). SBOMs uploaded as artifacts for audit trail."
+          fi
+        shell: bash
+
+  promote-docker-tag:
+    # Handles both mutually-exclusive cases produced by "Compute Docker tag":
+    # the develop floating tag (additional_tag) and the deterministic
+    # release/hotfix version tag (version_tag) — one job, one mechanism,
+    # instead of two near-identical jobs. Only reached after
+    # docker-boot-test/docker-config-wiring-test have both passed for this
+    # exact image — promote-docker-to-ghcr looks up version_tag on the
+    # eventual stable release (a separate, later run), so it must never point
+    # at an image whose own container e2e tests failed.
+    needs: [get-environment, dockerize-trapd-image, docker-boot-test, docker-config-wiring-test, docker-trivy-cves]
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      (needs.dockerize-trapd-image.outputs.additional_tag != '' || needs.dockerize-trapd-image.outputs.version_tag != '')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} validated tag
+    steps:
+      - name: Login to registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Promote validated tag (manifest retag, no rebuild)
+        env:
+          IMAGE_BASE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          SOURCE_TAG: ${{ needs.dockerize-trapd-image.outputs.image_tag }}
+          TARGET_TAG: ${{ needs.dockerize-trapd-image.outputs.additional_tag || needs.dockerize-trapd-image.outputs.version_tag }}
+        run: |
+          docker buildx imagetools create \
+            --tag "$IMAGE_BASE:$TARGET_TAG" \
+            "$IMAGE_BASE:$SOURCE_TAG"
+        shell: bash
+
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, e2e-test]
@@ -1400,6 +2060,7 @@ jobs:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
 
@@ -1589,3 +2250,90 @@ jobs:
         shell: bash
         run: |
           echo "::warning::Pulp promotion failed (non-blocking during the Artifactory-to-Pulp migration; Artifactory promotion remains authoritative). See the 'Promote to stable on Pulp' step."
+
+  promote-docker-to-ghcr:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.stability == 'stable' &&
+      github.event_name != 'workflow_dispatch' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
+    runs-on: centreon-ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [centreon-snmptrapd, centreon-centreontrapd]
+        operating_system: [trixie]
+    name: promote ${{ matrix.component }}-${{ matrix.operating_system }} to ghcr.io stable
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Login to Harbor registry
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Login to ghcr.io
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Promote to ghcr.io stable (best-effort, non-blocking)
+        # Fails hard if no Harbor candidate is found under the deterministic
+        # version_tag from dockerize-trapd-image (only ever applied by
+        # promote-docker-tag, once docker-boot-test/docker-config-wiring-test
+        # have passed) or if the ghcr.io push itself fails — continue-on-error
+        # swallows that into a warning below, mirroring how
+        # promote-to-stable-pulp is called. Deliberately no fallback to the
+        # legacy release_type-based tag: that tag is written at build time,
+        # before container e2e tests run, so it's never a validated candidate.
+        continue-on-error: true
+        id: promote-ghcr
+        uses: ./.github/actions/promote-docker-to-ghcr
+        with:
+          ghcr_image: ghcr.io/centreon/${{ matrix.component }}
+          harbor_image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}
+          harbor_tag: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+          ghcr_tags: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }} ${{ needs.get-environment.outputs.major_version }}
+          platforms: linux/amd64,linux/arm64
+
+      - name: Warn if ghcr.io stable delivery failed
+        if: steps.promote-ghcr.outcome == 'failure'
+        run: |
+          echo "::warning::ghcr.io delivery failed for ${{ matrix.component }}-${{ matrix.operating_system }}. This release is available on Harbor but was NOT published to ghcr.io — see the 'Promote to ghcr.io stable' step for the missing-candidate or push error, and investigate before relying on public delivery for this version."
+        shell: bash
+
+      - name: Attest SBOM on ghcr.io (best-effort, non-blocking)
+        if: steps.promote-ghcr.outcome == 'success' && steps.promote-ghcr.outputs.digest != ''
+        continue-on-error: true
+        id: attest-ghcr
+        uses: ./.github/actions/attest-ghcr-image
+        with:
+          ghcr_image: ghcr.io/centreon/${{ matrix.component }}
+          digest: ${{ steps.promote-ghcr.outputs.digest }}
+          amd64_digest: ${{ steps.promote-ghcr.outputs.amd64_digest }}
+          arm64_digest: ${{ steps.promote-ghcr.outputs.arm64_digest }}
+
+      - name: Warn if ghcr.io attestation failed
+        if: steps.attest-ghcr.outcome == 'failure'
+        run: |
+          echo "::warning::SBOM attestation failed for ${{ matrix.component }}-${{ matrix.operating_system }}. The image WAS published to ghcr.io but is unattested — see the 'Attest SBOM on ghcr.io' step and investigate before relying on gh attestation verify for this version."
+        shell: bash

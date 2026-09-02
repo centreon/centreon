@@ -34,7 +34,7 @@
 .cf-page-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--cl-link-color, #2E68AA);
+    color: var(--cl-link-color, #131D5A);
     margin: 0 0 8px;
 }
 
@@ -51,7 +51,7 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
-    box-shadow: inset 0 -2px 0 var(--color-divider, #e3e3e3);
+    box-shadow: inset 0 -2px 0 var(--color-divider, #E3E3E3);
     margin-bottom: 16px;
     /* Fixed at the top of the scrolling form panel. */
     position: sticky;
@@ -78,10 +78,10 @@
 }
 
 .cf-tab-nav a.active {
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
     /* Active underline as an inset shadow at the tab's bottom edge, overlapping
        the nav's divider — no negative margin that overflow would clip. */
-    box-shadow: inset 0 -2px 0 var(--color-primary-light, #2E68AA);
+    box-shadow: inset 0 -2px 0 var(--color-primary-light, #131D5A);
     font-weight: 600;
 }
 
@@ -91,7 +91,7 @@
 
 .cf-section {
     margin-bottom: 8px;
-    border: 1px solid var(--color-divider, #e3e3e3);
+    border: 1px solid var(--color-divider, #E3E3E3);
     border-radius: 6px;
     overflow: hidden;
     background: var(--body-background, #fff);
@@ -102,7 +102,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 16px;
-    background: var(--color-background-listing-header, #d9d9d9);
+    background: var(--color-background-listing-header, #D9D9D9);
     color: var(--cl-header-color, #000);
     font-size: 12px;
     font-weight: 700;
@@ -191,7 +191,7 @@
     width: 100%;
     padding: 10px;
     font-size: 12px;
-    border: 1px solid var(--input-border-color, #c2c7cc);
+    border: 1px solid var(--input-border-color, #bcbdc0);
     border-radius: 4px;
     outline: none;
     background: var(--body-background, #fff);
@@ -202,7 +202,7 @@
 
 .cf-field input:focus,
 .cf-field textarea:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cf-field input::placeholder,
@@ -258,7 +258,7 @@
 
 .cf-segmented {
     display: inline-flex;
-    border: 1px solid var(--color-divider, #d0d0d0);
+    border: 1px solid var(--color-divider, #E3E3E3);
     border-radius: 6px;
     overflow: hidden;
 }
@@ -272,7 +272,7 @@
     color: var(--body-color, #666);
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
-    border-right: 1px solid var(--color-divider, #d0d0d0);
+    border-right: 1px solid var(--color-divider, #E3E3E3);
 }
 
 .cf-segmented button:last-child {
@@ -284,7 +284,7 @@
 }
 
 .cf-segmented button.active {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
     color: #fff;
 }
 
@@ -340,7 +340,7 @@
 .cf-form-wrapper .clonable .clone-cell select {
     padding: 8px 10px;
     font-size: 12px;
-    border: 1px solid var(--input-border-color, #c2c7cc);
+    border: 1px solid var(--input-border-color, #bcbdc0);
     border-radius: 4px;
     background: var(--body-background, #fff);
     color: var(--list-color, #333);
@@ -348,7 +348,7 @@
 
 .cf-form-wrapper .clonable .clone-cell .select2-container .select2-selection {
     min-height: 36px;
-    border: 1px solid var(--input-border-color, #c2c7cc);
+    border: 1px solid var(--input-border-color, #bcbdc0);
     border-radius: 4px;
     padding: 4px 8px;
     font-size: 12px;
@@ -462,7 +462,7 @@
     padding: 0 12px;
     font-size: 13px;
     font-weight: 600;
-    border: 1px solid var(--listing-border-botom-color, #e3e3e3);
+    border: 1px solid var(--listing-border-botom-color, #E3E3E3);
     border-radius: 6px;
     background: var(--body-background, #fff);
     color: var(--body-color, #333);
@@ -476,7 +476,7 @@
 
 .cf-macro-name input:focus,
 .cf-macro-value input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
     outline: none;
 }
 
@@ -570,7 +570,7 @@
     font-size: 12px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    background-color: var(--color-primary-light, #131D5A);
     border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
@@ -578,7 +578,7 @@
 }
 
 .cf-form-wrapper .add-new-entry:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--color-primary-hover, #2A3575);
     text-decoration: none;
 }
 
@@ -623,7 +623,7 @@
     padding: 5px 14px;
     font-size: 12px;
     font-weight: 500;
-    border: 1px solid var(--color-divider, #d0d0d0);
+    border: 1px solid var(--color-divider, #E3E3E3);
     border-radius: 20px;
     background: var(--body-background, #fff);
     color: var(--body-color, #666);
@@ -633,13 +633,13 @@
 }
 
 .cf-chip:hover {
-    border-color: var(--color-primary-light, #2E68AA);
-    color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
+    color: var(--color-primary-light, #131D5A);
 }
 
 .cf-chip.active {
-    background: var(--color-primary-light, #2E68AA);
-    border-color: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
+    border-color: var(--color-primary-light, #131D5A);
     color: #fff;
 }
 
@@ -652,7 +652,7 @@
     height: 40px;
     padding: 0 32px 0 12px;
     font-size: 12px;
-    border: 1px solid var(--input-border-color, #c2c7cc);
+    border: 1px solid var(--input-border-color, #bcbdc0);
     border-radius: 4px;
     outline: none;
     background: var(--body-background, #fff);
@@ -666,7 +666,7 @@
 }
 
 .cf-field select:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cf-field .select2-container {
@@ -706,14 +706,14 @@
 
 .cf-field .select2-container .select2-selection {
     min-height: 40px;
-    border: 1px solid var(--input-border-color, #c2c7cc);
+    border: 1px solid var(--input-border-color, #bcbdc0);
     border-radius: 4px;
     padding: 6px 12px;
     padding-right: 36px;
 }
 
 .cf-field .select2-container--focus .select2-selection {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 /* Select2 clear button — HEAD's eraser icon, sitting inside the field's right
@@ -902,7 +902,7 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--list-color, #555);
-    border-bottom: 1px solid var(--color-divider, #e3e3e3);
+    border-bottom: 1px solid var(--color-divider, #E3E3E3);
 }
 
 .cf-subsection--flush {
@@ -1006,7 +1006,7 @@
 .cf-clone-title {
     font-size: 13px;
     font-weight: 600;
-    color: var(--c-text-primary, #255891);
+    color: var(--c-text-primary, #131D5A);
     margin-bottom: 6px;
 }
 
@@ -1014,7 +1014,7 @@
     display: block;
     margin-top: 4px;
     font-size: 12px;
-    color: var(--c-text-secondary, #6b7280);
+    color: var(--c-text-secondary, #666666);
 }
 
 /* ==========================================================================
@@ -1082,7 +1082,7 @@
 
 /* Focus: light-blue halo */
 :is(.cf-form-wrapper, .gen-wrap) .cl-toggle input:focus-visible + .cl-toggle-slider::before {
-    box-shadow: 0 0 0 6px rgba(46, 104, 170, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 6px rgba(19, 29, 90, 0.25), 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* Disabled */
@@ -1134,7 +1134,7 @@
     flex: 1;
     padding: 10px 12px;
     font-size: 14px;
-    border: 1px solid var(--color-divider, #e3e3e3);
+    border: 1px solid var(--color-divider, #E3E3E3);
     border-radius: 6px;
     outline: none;
     background: var(--body-background, #fff);
@@ -1143,7 +1143,7 @@
 }
 
 .cf-dynamic-entry input:focus {
-    border-color: var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A);
 }
 
 .cf-dynamic-delete {
@@ -1166,7 +1166,7 @@
     align-items: center;
     gap: 4px;
     font-size: 13px;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
     cursor: pointer;
     padding: 4px 0;
     font-weight: 500;
@@ -1195,7 +1195,7 @@
     bottom: 0;
     z-index: 10;
     background: var(--body-background, #fff);
-    border-top: 1px solid var(--color-divider, #e3e3e3);
+    border-top: 1px solid var(--color-divider, #E3E3E3);
 }
 
 .cf-btn {
@@ -1209,16 +1209,16 @@
 }
 
 .cf-btn-primary {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
     color: #fff;
 }
 
 .cf-btn-primary:hover {
-    background: var(--color-primary-hover, #255891);
+    background: var(--color-primary-hover, #2A3575);
 }
 
 .cf-btn-secondary {
-    background: var(--color-divider, #e8e8e8);
+    background: var(--color-divider, #E3E3E3);
     color: var(--list-color, #555);
 }
 
@@ -1238,7 +1238,7 @@
     font-size: 14px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--color-primary-light, #2E68AA);
+    background-color: var(--color-primary-light, #131D5A);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -1248,21 +1248,21 @@
 
 .cf-actions input[type="submit"]:hover,
 .cf-actions button:hover {
-    background-color: var(--color-primary-hover, #255891);
+    background-color: var(--color-primary-hover, #2A3575);
 }
 
 /* Reset uses a secondary (outlined) theme so it is not mistaken for Save.
    Reviewers reported clicking it expecting to submit the form. */
 .cf-actions input[type="reset"],
 .cf-actions .bt_default {
-    color: var(--c-text-secondary, #555);
+    color: var(--c-text-secondary, #666666);
     background-color: transparent;
-    border: 1px solid var(--c-stroke, #b0b7c3);
+    border: 1px solid var(--c-stroke, #bcbdc0);
 }
 
 .cf-actions input[type="reset"]:hover,
 .cf-actions .bt_default:hover {
-    background-color: var(--color-divider, #e8e8e8);
+    background-color: var(--color-divider, #E3E3E3);
     color: var(--list-color, #333);
 }
 
@@ -1340,7 +1340,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 20px;
-    border-bottom: 1px solid var(--color-divider, #e3e3e3);
+    border-bottom: 1px solid var(--color-divider, #E3E3E3);
     background: var(--body-background, #fff);
     flex-shrink: 0;
 }
@@ -1350,7 +1350,7 @@
     font-weight: 600;
     /* Centreon blue, like .cf-page-title — resolves to the light-theme primary
        blue in light and to --color-malibu-2 in Centreon-Dark. */
-    color: var(--cl-link-color, #2E68AA);
+    color: var(--cl-link-color, #131D5A);
 }
 
 .cf-side-panel-close {
@@ -1366,7 +1366,7 @@
 }
 
 .cf-side-panel-close:hover {
-    background: var(--color-divider, #e8e8e8);
+    background: var(--color-divider, #E3E3E3);
     color: var(--list-color, #333);
 }
 
@@ -1396,7 +1396,7 @@
 
 .cf-side-panel-resize:hover,
 .cf-side-panel-resize.active {
-    background: var(--color-primary-light, #2E68AA);
+    background: var(--color-primary-light, #131D5A);
 }
 
 /* Ensure wz_tooltip inside side panel doesn't overflow */
@@ -1418,19 +1418,19 @@
     display: inline-flex; align-items: center; gap: 8px;
     padding: 12px 24px; font-size: 14px; font-weight: 600;
     border: none; border-radius: 6px; cursor: pointer;
-    background: var(--bt-info-background-color, #2E68AA); color: #fff;
+    background: var(--bt-info-background-color, #131D5A); color: #fff;
     transition: filter .15s;
 }
 .gen-apply:hover { filter: brightness(0.94); }
 .gen-apply:disabled { opacity: .5; cursor: not-allowed; }
-.gen-nopoller { color: #FF4A4A; font-size: 13px; margin: 4px 0 0; }
+.gen-nopoller { color: var(--color-danger, #FF4A4A); font-size: 13px; margin: 4px 0 0; }
 
 /* Advanced (just under the poller field) */
 .gen-adv { margin: 8px 0 4px; }
-.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #2E68AA); font-weight: 500; }
+.gen-adv summary { cursor: pointer; font-size: 13px; color: var(--color-primary-light, #131D5A); font-weight: 500; }
 .gen-adv .gen-adv-body {
     padding: 12px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 10px;
-    background: #f7f8fa; border: 1px solid var(--color-divider, #e6e8ec); border-radius: 6px;
+    background: #f7f8fa; border: 1px solid var(--color-divider, #E3E3E3); border-radius: 6px;
 }
 .gen-adv-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333; }
 
@@ -1444,12 +1444,12 @@
     display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
     transition: background .2s;
 }
-.gen-step.active { color: var(--color-primary-light, #2E68AA); }
-.gen-step.active .dot { background: var(--color-primary-light, #2E68AA); }
+.gen-step.active { color: var(--color-primary-light, #131D5A); }
+.gen-step.active .dot { background: var(--color-primary-light, #131D5A); }
 .gen-step.done { color: var(--color-success, #88B922); }
 .gen-step.done .dot { background: var(--color-success, #88B922); }
-.gen-step.err { color: #FF4A4A; }
-.gen-step.err .dot { background: #FF4A4A; }
+.gen-step.err { color: var(--color-danger, #FF4A4A); }
+.gen-step.err .dot { background: var(--color-danger, #FF4A4A); }
 .gen-step.skipped { opacity: .4; }
 .gen-connector { flex: 1; height: 2px; background: #dde1e6; margin: 0 10px; min-width: 20px; }
 
@@ -1466,11 +1466,11 @@
     color: var(--body-color, #666); border-bottom: 2px solid transparent; margin-bottom: -2px;
 }
 .gen-tab:hover { color: var(--list-color, #333); }
-.gen-tab.active { color: var(--color-primary-light, #2E68AA); border-bottom-color: var(--color-primary-light, #2E68AA); font-weight: 600; }
+.gen-tab.active { color: var(--color-primary-light, #131D5A); border-bottom-color: var(--color-primary-light, #131D5A); font-weight: 600; }
 .gen-tab .st { width: 9px; height: 9px; border-radius: 50%; background: #cfd6df; flex-shrink: 0; }
-.gen-tab.run .st { background: var(--color-primary-light, #2E68AA); animation: genpulse 1s infinite; }
+.gen-tab.run .st { background: var(--color-primary-light, #131D5A); animation: genpulse 1s infinite; }
 .gen-tab.ok  .st { background: var(--color-success, #88B922); }
-.gen-tab.err .st { background: #FF4A4A; }
+.gen-tab.err .st { background: var(--color-danger, #FF4A4A); }
 @keyframes genpulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
 
 /* Console panels (one per poller) */
@@ -1501,7 +1501,7 @@
        rules that force border-radius:0 on select2. --- */
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--single,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple {
-    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border: 1px solid var(--color-divider, #E3E3E3) !important;
     border-radius: 8px !important;
     min-height: 40px;
     /* Dark-aware box/text (base wires the single-selection bg to a var that
@@ -1515,8 +1515,8 @@
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--focus .select2-selection--multiple,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--single,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default.select2-container--open .select2-selection--multiple {
-    border-color: var(--color-primary-light, #2E68AA) !important;
-    box-shadow: 0 0 0 1px var(--color-primary-light, #2E68AA);
+    border-color: var(--color-primary-light, #131D5A) !important;
+    box-shadow: 0 0 0 1px var(--color-primary-light, #131D5A);
 }
 
 /* --- Single select: vertically center the chosen text --- */
@@ -1548,8 +1548,8 @@
     width: 7px;
     height: 7px;
     margin-top: -3px;
-    border-right: 2px solid var(--c-text-secondary, #6b7280);
-    border-bottom: 2px solid var(--c-text-secondary, #6b7280);
+    border-right: 2px solid var(--c-text-secondary, #666666);
+    border-bottom: 2px solid var(--c-text-secondary, #666666);
     transform: rotate(45deg);
     pointer-events: none;
     transition: transform 0.15s ease;
@@ -1578,7 +1578,7 @@
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice .select2-content {
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
+    background-color: var(--color-primary-light, #131D5A) !important;
     color: #fff !important;
     border: none !important;
     border-radius: 10px 0 0 10px !important;
@@ -1592,7 +1592,7 @@
     justify-content: center;
     height: 20px;
     box-sizing: border-box;
-    background-color: var(--color-primary-light, #2E68AA) !important;
+    background-color: var(--color-primary-light, #131D5A) !important;
     color: rgba(255, 255, 255, 0.7) !important;
     border: none !important;
     border-radius: 0 10px 10px 0 !important;
@@ -1602,7 +1602,7 @@
     line-height: 20px !important;
 }
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-    background-color: var(--color-primary-light, #2E68AA) !important;
+    background-color: var(--color-primary-light, #131D5A) !important;
     color: #fff !important;
 }
 
@@ -1657,7 +1657,7 @@
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
-    color: var(--color-primary-light, #2E68AA);
+    color: var(--color-primary-light, #131D5A);
     font-size: 12px;
     font-weight: 600;
     line-height: 1;
@@ -1674,7 +1674,7 @@
        reach), so it is scoped by the .cf-select2-dropdown marker the
        centreonSelect2 plugin adds to the dropdown only in the new context. --- */
 .select2-dropdown.cf-select2-dropdown {
-    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border: 1px solid var(--color-divider, #E3E3E3) !important;
     border-radius: 8px !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     overflow: hidden;
@@ -1682,7 +1682,7 @@
     color: var(--body-color, #333);
 }
 .cf-select2-dropdown .select2-search--dropdown .select2-search__field {
-    border: 1px solid var(--color-divider, #c2c7ce) !important;
+    border: 1px solid var(--color-divider, #E3E3E3) !important;
     border-radius: 6px !important;
     padding: 6px 10px;
     outline: none;
@@ -1690,13 +1690,13 @@
     color: var(--body-color, #333);
 }
 .cf-select2-dropdown .select2-search--dropdown .select2-search__field:focus {
-    border-color: var(--color-primary-light, #2E68AA) !important;
+    border-color: var(--color-primary-light, #131D5A) !important;
 }
 /* Placeholder (single selection + multi inline search) — greyed like inputs.
    Both live in the in-page selection box, so they scope under the wrapper. */
 :is(.cf-form-wrapper, .cl-listing-container) .select2-container--default .select2-selection__placeholder,
 :is(.cf-form-wrapper, .cl-listing-container) .select2-search--inline .select2-search__field::placeholder {
-    color: var(--c-text-secondary, #8a8a8a) !important;
+    color: var(--c-text-secondary, #666666) !important;
     opacity: 1;
 }
 .cf-select2-dropdown .select2-results__option {
@@ -1706,10 +1706,10 @@
 }
 .cf-select2-dropdown .select2-results__option--highlighted[aria-selected] {
     background-color: var(--color-listing-hover, #E6EDF5) !important;
-    color: var(--cl-link-color, #2E68AA) !important;
+    color: var(--cl-link-color, #131D5A) !important;
 }
 .cf-select2-dropdown .select2-results__option[aria-selected=true] {
-    background-color: rgba(46, 104, 170, 0.08) !important;
-    color: var(--cl-link-color, #2E68AA) !important;
+    background-color: rgba(19, 29, 90, 0.08) !important;
+    color: var(--cl-link-color, #131D5A) !important;
     font-weight: 500;
 }

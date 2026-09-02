@@ -1980,6 +1980,10 @@ msgid "Begin date"
 msgstr "Begin date"
 
 #: centreon/www/install/front_translate.php
+msgid "Beta"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Better"
 msgstr "Better"
 
@@ -3530,6 +3534,10 @@ msgstr "Contacts with the 'Reach Centreon Front-end' option enabled"
 msgid "Contacts/Contact groups"
 msgstr "Contacts/Contact groups"
 
+#: centreon/www/install/front_translate.php
+msgid "Container"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "Content is not a valid JSON string"
 msgstr "Content is not a valid JSON string"
@@ -3840,6 +3848,18 @@ msgstr "Current password"
 #: centreon/www/install/front_translate.php
 msgid "Current status duration"
 msgstr "Current status duration"
+
+#: centreon/www/install/front_translate.php
+msgid "Current status of the hosts being monitored"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Current status of the pollers and monitoring engines"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Current status of the services being monitored"
+msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid ""
@@ -5200,10 +5220,6 @@ msgstr "Do you want to switch to classic mode?"
 #: centreon/www/install/front_translate.php
 msgid "Do you want to switch to regex mode?"
 msgstr "Do you want to switch to regex mode?"
-
-#: centreon/www/install/front_translate.php
-msgid "Docker compose"
-msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
@@ -12868,6 +12884,14 @@ msgstr "Pending"
 #: centreon/www/install/react_translation.php
 msgid "Pending services"
 msgstr "Pending services"
+
+#: centreon/www/install/front_translate.php
+msgid "Pending status hosts"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Pending status services"
+msgstr ""
 
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 msgid "People linked to this Access list"
