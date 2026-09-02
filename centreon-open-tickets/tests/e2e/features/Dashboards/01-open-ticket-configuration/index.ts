@@ -280,6 +280,7 @@ Then(
 Given('the dashboard administrator accesses the resource table widget', () => {
   cy.visitDashboard(dashboards.default.name);
   cy.editDashboard(dashboards.default.name);
+  cy.wait(1000)
 });
 
 When(
