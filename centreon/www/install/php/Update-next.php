@@ -36,6 +36,22 @@ $errorMessage = '';
 
 // TODO add your functions here
 
+$fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix the gorgone_communication_type column comment';
+    LoggerUpgrade::create()->info($version, 'Fixing the gorgone_communication_type column comment');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            MODIFY COLUMN `gorgone_communication_type`
+            enum('1','2','3','4') NOT NULL DEFAULT '1'
+            COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -43,7 +59,7 @@ try {
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $fixGorgoneCommunicationTypeComment();
 
     // Transactional queries for configuration database
     $errorMessage = 'Unable to start the configuration database transaction';
