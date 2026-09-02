@@ -321,6 +321,8 @@ jobs:
 
   translation-build:
     needs: [get-environment, changes]
+    permissions:
+      contents: read
     if: |
       (
         needs.changes.outputs.trigger_packaging == 'true' &&
