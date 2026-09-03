@@ -85,9 +85,9 @@ describe('About page', () => {
       .and('include', 'security/policy');
 
     cy.contains('Browse the docs').should('be.visible');
-    cy.contains('Join TheWatch').should('be.visible');
+    cy.contains('Join The Watch').should('be.visible');
     cy.contains('Open the repository').should('be.visible');
-    cy.contains('Compare editions').should('be.visible');
+    cy.contains('Compare Edition licenses').should('be.visible');
     cy.contains('Start free trial').should('be.visible');
 
     cy.contains('Copyright © 2005 - 2021 Centreon').should('be.visible');

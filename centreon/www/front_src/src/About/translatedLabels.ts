@@ -22,24 +22,24 @@ export const labelDocumentationAndGuidesDescription =
   'Setup, configuration and 700+ Monitoring Connectors.';
 export const labelBrowseTheDocs = 'Browse the docs';
 
-export const labelTheWatchCommunity = 'TheWatch community';
+export const labelTheWatchCommunity = 'The Watch community';
 export const labelTheWatchCommunityDescription =
   'Ask questions, share dashboards, swap know-how.';
-export const labelJoinTheWatch = 'Join TheWatch';
+export const labelJoinTheWatch = 'Join The Watch';
 
 export const labelContributeOnGithub = 'Contribute on GitHub';
 export const labelContributeOnGithubDescription =
   'Star the repo, open issues, submit connectors.';
 export const labelOpenTheRepository = 'Open the repository';
 
-export const labelEditionsAndCloud = 'Editions & Cloud';
+export const labelEditionsAndCloud = 'Editions & Cloud licenses';
 export const labelEditionsAndCloudDescription =
   'Auto-discovery, BAM, MBI reporting and support.';
-export const labelCompareEditions = 'Compare editions';
+export const labelCompareEditions = 'Compare Edition licenses';
 
 export const labelScalingBeyondOpenSource = 'Scaling beyond open source?';
 export const labelEditionsUpsellDescription =
-  'Editions add auto-discovery, BAM, advanced reporting and SLAs.';
+  'Edition licenses add auto-discovery, BAM, advanced reporting and SLAs.';
 export const labelStartFreeTrial = 'Start free trial';
 
 export const labelMadeWithCare =
