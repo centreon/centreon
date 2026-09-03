@@ -149,7 +149,7 @@ final class LoggerAuthentication
         $line = date('Y-m-d H:i:s') . '|' . ($userId ?? 0) . '|0|0|' . $sanitizedMessage;
 
         try {
-            $written = file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND | LOCK_EX);
+            $written = @file_put_contents($logDir . '/login.log', $line . "\n", FILE_APPEND | LOCK_EX);
             if ($written === false) {
                 error_log(sprintf('LoggerAuthentication: unable to mirror login event to %s/login.log', $logDir));
             }
