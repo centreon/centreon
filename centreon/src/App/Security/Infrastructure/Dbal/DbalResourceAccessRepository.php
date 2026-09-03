@@ -63,6 +63,13 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
+        // No ACL resources means no restrictions apply — the user has access to all pollers.
+        // Without this guard, the LEFT JOIN below starts from an empty derived table and can
+        // never match, silently turning "no restriction" into "no access".
+        if (! $this->connection->fetchOne($accessibleAclResQb->getSQL(), ['contactId' => $userId->value])) {
+            return true;
+        }
+
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('1')
@@ -82,6 +89,27 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             'contactId' => $userId->value,
             'pollerId' => $pollerId->value,
         ]);
+    }
+
+    public function findAccessiblePollerIds(UserId $userId): ?array
+    {
+        if ($this->hasAccessToAllPollers($userId)) {
+            return null;
+        }
+
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arpr.poller_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{poller_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return array_map(static fn (array $row): PollerId => new PollerId((int) $row['poller_id']), $rows);
     }
 
     private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder
