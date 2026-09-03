@@ -91,20 +91,24 @@ function _generateDotEnv() {
   # Registry/repo selection (ghcr.io for stable, Harbor otherwise) happens in
   # _pollerImageRepo, used by _generateDockerCompose. Only the tag is decided
   # here (MON-207531 verified these tag conventions end-to-end).
+  #
+  # FORCE_REGISTRY (hidden --registry flag), when set, also pins the tag
+  # convention: 'ghcr' behaves like stable (major.minor), 'harbor' behaves
+  # like testing (release-<major>-next branch tag), regardless of the real/
+  # forced STABILITY. This lets --registry harbor work on a build baked
+  # STABILITY=stable without also needing --stability testing.
+  local tag_stability="${effective_stability}"
+  case "${FORCE_REGISTRY}" in
+  ghcr) tag_stability="stable" ;;
+  harbor) tag_stability="testing" ;;
+  esac
+
   local image_tag
   if [ -n "${FORCE_TAG}" ]; then
-    # Hidden --tag override: use verbatim, regardless of STABILITY/FORCE_REGISTRY/FORCE_STABILITY.
+    # Hidden --tag override: use verbatim, regardless of everything else.
     image_tag="${FORCE_TAG}"
-  elif [ "${FORCE_REGISTRY}" = "harbor" ]; then
-    # Default candidate once --registry harbor is used without --tag: the
-    # release-<major>-next branch tag. centreon-collect has its own patch
-    # versioning (independent of centreon-web's), so the exact validated
-    # semver retag (e.g. 26.10.3) isn't derivable here — override with
-    # --tag <major>.<minor>.<patch> once you know it (after promote-docker-tag
-    # has run for that patch).
-    image_tag="release-$(_pollerImageMajor)-next"
   else
-    case "${effective_stability}" in
+    case "${tag_stability}" in
     stable)
       image_tag="$(_pollerImageMajor)"
       ;;
@@ -112,9 +116,13 @@ function _generateDotEnv() {
       image_tag="develop"
       ;;
     testing)
-      image_tag="SET_ME_PER_COMPONENT"
-      consoleInfo "Stability 'testing' has no single shared image tag (testing builds are tagged per-component/per-branch)."
-      consoleInfo "Edit ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG in .env to the branch/tag you are validating before starting the stack."
+      # centreon-collect has its own patch versioning (independent of
+      # centreon-web's) and its testing branch can be release-<major>-next
+      # or hotfix-<major>-next — this can only guess the (more common)
+      # release one. Override with --tag hotfix-<major>-next, or the exact
+      # validated <major>.<minor>.<patch> semver retag once known (after
+      # promote-docker-tag has run for that patch).
+      image_tag="release-$(_pollerImageMajor)-next"
       ;;
     esac
   fi
