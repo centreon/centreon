@@ -175,6 +175,13 @@ fixSymfonyCacheRights() {
   fi
 }
 
+fixCentreonPmPermissions() {
+  # MON-180320
+  # Reaffirm restrictive permissions for conf.pm on upgrade
+  chmod 0640 /etc/centreon/conf.pm
+  chown -R centreon:centreon /etc/centreon/conf.pm
+}
+
 fixCentreonCronPermissions() {
   # MON-146883
   # Override permissions for cron scripts
@@ -246,6 +253,7 @@ case "$action" in
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
     fixCentreonCronPermissions $package_type
+    fixCentreonPmPermissions
     archiveLegacyPhpFpmLog $package_type
     ;;
   *)
