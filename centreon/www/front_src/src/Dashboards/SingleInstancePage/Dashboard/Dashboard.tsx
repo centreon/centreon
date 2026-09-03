@@ -1,18 +1,24 @@
 // @ts-nocheck
 // TODO: re-enable type-check after fixing this file
 import {
+  FullscreenExit as FullscreenExitIcon,
+  Fullscreen as FullscreenIcon,
   Settings as SettingsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Divider } from '@mui/material';
+import {
+  Divider,
+  IconButton as MuiIconButton,
+  Typography
+} from '@mui/material';
 
-import { IconButton, PageHeader, PageLayout } from '@centreon/ui/components';
+import { PageLayout } from '@centreon/ui/components';
 
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { inc } from 'ramda';
-import { type ReactElement, useEffect } from 'react';
+import { type ReactElement, useEffect, useState } from 'react';
 
 import { type Dashboard as DashboardType, resource } from '../../api/models';
 import { isSharesOpenAtom } from '../../atoms';
@@ -20,7 +26,6 @@ import { DashboardAccessRightsModal } from '../../components/DashboardLibrary/Da
 import { DashboardConfigModal } from '../../components/DashboardLibrary/DashboardConfig/DashboardConfigModal';
 import { useDashboardConfig } from '../../components/DashboardLibrary/DashboardConfig/useDashboardConfig';
 import FavoriteAction from '../../components/DashboardLibrary/DashboardListing/Actions/favoriteAction';
-import { DashboardsQuickAccessMenu } from '../../components/DashboardLibrary/DashboardsQuickAccess/DashboardsQuickAccessMenu';
 import DashboardNavbar from '../../components/DashboardNavbar/DashboardNavbar';
 import { AddWidgetButton } from './AddEditWidget';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from './atoms';
@@ -50,6 +55,30 @@ const Dashboard = (): ReactElement => {
   const setIsSharesOpen = useSetAtom(isSharesOpenAtom);
 
   const { canEdit } = useCanEditProperties();
+
+  const [isFullscreen, setIsFullscreen] = useState(
+    Boolean(document.fullscreenElement)
+  );
+
+  useEffect(() => {
+    const onFullscreenChange = (): void => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+
+    return () =>
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = (): void => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.();
+
+      return;
+    }
+    document.getElementById('page')?.requestFullscreen?.();
+  };
 
   const refreshIframes = () => {
     const iframes = document.querySelectorAll(
@@ -95,58 +124,95 @@ const Dashboard = (): ReactElement => {
   return (
     <PageLayout>
       <PageLayout.Header>
-        <PageHeader>
-          <PageHeader.Main>
-            <PageHeader.Menu>
-              <DashboardsQuickAccessMenu dashboard={dashboard} />
-            </PageHeader.Menu>
-            <PageHeader.Title
-              actions={
-                <FavoriteAction
-                  dashboardId={dashboard?.id as number}
-                  isFavorite={dashboard?.isFavorite as boolean}
-                  isFetching={isFetchingListing > 0}
-                  refetch={updateFavorites}
+        <div className={classes.headerRow}>
+          <div className={classes.titleGroup}>
+            <Typography
+              aria-label="page header title"
+              className={classes.titleText}
+              variant="h1"
+            >
+              {dashboard?.name || ''}
+            </Typography>
+            {dashboard?.description && (
+              <>
+                <Divider
+                  className={classes.titleSeparator}
+                  flexItem
+                  orientation="vertical"
                 />
-              }
-              description={dashboard?.description || ''}
-              title={dashboard?.name || ''}
-            />
-          </PageHeader.Main>
-          <DashboardNavbar />
-        </PageHeader>
-      </PageLayout.Header>
-      <PageLayout.Body>
-        <div className={classes.body}>
-          <PageLayout.Actions rowReverse={isEditing}>
-            {!isEditing && canEdit && (
-              <span>
-                <IconButton
-                  aria-label="edit"
-                  data-testid="edit"
-                  icon={<SettingsIcon />}
-                  onClick={editDashboard(dashboard as DashboardType)}
-                  size="small"
-                  variant="primary"
-                />
-                <IconButton
-                  aria-label="share"
-                  data-testid="share"
-                  icon={<ShareIcon />}
-                  onClick={openAccessRights}
-                  size="small"
-                  variant="primary"
-                />
-                <IconButton
+                <Typography
+                  aria-label="page header description"
+                  className={classes.titleDescription}
+                  title={dashboard.description}
+                  variant="body2"
+                >
+                  {dashboard.description}
+                </Typography>
+              </>
+            )}
+          </div>
+          <div
+            className={classes.headerActionsRow}
+            data-fullscreen={isFullscreen}
+          >
+            <span>
+              {!isEditing && canEdit && (
+                <MuiIconButton
                   aria-label="refresh"
+                  className={classes.headerActionButton}
                   data-testid="refresh"
-                  icon={<RefreshIcon />}
                   onClick={refreshAllWidgets}
                   size="small"
-                  variant="primary"
-                />
-              </span>
-            )}
+                >
+                  <RefreshIcon fontSize="small" />
+                </MuiIconButton>
+              )}
+              {!isEditing && (
+                <span className={classes.headerActionButton}>
+                  <FavoriteAction
+                    dashboardId={dashboard?.id as number}
+                    isFavorite={dashboard?.isFavorite as boolean}
+                    isFetching={isFetchingListing > 0}
+                    refetch={updateFavorites}
+                  />
+                </span>
+              )}
+              {!isEditing && canEdit && (
+                <>
+                  <MuiIconButton
+                    aria-label="share"
+                    className={classes.headerActionButton}
+                    data-testid="share"
+                    onClick={openAccessRights}
+                    size="small"
+                  >
+                    <ShareIcon fontSize="small" />
+                  </MuiIconButton>
+                  <MuiIconButton
+                    aria-label="edit"
+                    className={classes.headerActionButton}
+                    data-testid="edit"
+                    onClick={editDashboard(dashboard as DashboardType)}
+                    size="small"
+                  >
+                    <SettingsIcon fontSize="small" />
+                  </MuiIconButton>
+                  <MuiIconButton
+                    aria-label="fullscreen"
+                    className={classes.headerActionButton}
+                    data-testid="fullscreen"
+                    onClick={toggleFullscreen}
+                    size="small"
+                  >
+                    {isFullscreen ? (
+                      <FullscreenExitIcon fontSize="small" />
+                    ) : (
+                      <FullscreenIcon fontSize="small" />
+                    )}
+                  </MuiIconButton>
+                </>
+              )}
+            </span>
             {canEdit && (
               <div className={classes.editActions}>
                 <AddWidgetButton />
@@ -160,9 +226,14 @@ const Dashboard = (): ReactElement => {
                 <DashboardEditActions panels={panels} />
               </div>
             )}
-          </PageLayout.Actions>
+          </div>
         </div>
-        <Layout />
+        <DashboardNavbar />
+      </PageLayout.Header>
+      <PageLayout.Body>
+        <div className={classes.body}>
+          <Layout />
+        </div>
       </PageLayout.Body>
       <DashboardConfigModal showRefreshIntervalFields />
       <DashboardAccessRightsModal />
