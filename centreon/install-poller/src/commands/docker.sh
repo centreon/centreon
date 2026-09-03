@@ -93,7 +93,7 @@ function _generateDotEnv() {
   local image_tag
   case "${STABILITY}" in
   stable)
-    image_tag="${major}"
+    image_tag="$(_pollerImageMajor)"
     ;;
   unstable)
     image_tag="develop"
@@ -140,6 +140,39 @@ EOF
 
   consoleInfo ".env written"
   logInfo ".env written"
+}
+
+# Whether a Centreon major version (e.g. 26.10) is an on-prem release.
+# On-prem majors always end in .10; anything else is a cloud release. Same
+# heuristic as get-environment.yml's cloud/on-prem detection and
+# uses_internal_repo() in centreon/unattended.sh (mirrored in
+# _usesInternalRepo, src/vm/packages.sh) — shared here so both the Docker and
+# VM install paths classify a major the same way.
+function _isOnPremMajor() {
+  [[ "${1}" == *.10 ]]
+}
+
+# The on-prem major this release's containerized pollers come from. On-prem
+# majors are used as-is. A cloud major pulls the nearest not-later on-prem
+# major, floored at 26.10 (MON-192897: no containerized poller exists before
+# that release). MON-208333.
+#
+# Unlike _usesInternalRepo (VM/RPM path), this doesn't just switch the
+# registry at the same major: RPM/DEB packages ARE published for cloud majors
+# (to an internal repo, per .github/actions/promote-to-stable), but poller
+# container images are only ever published for on-prem majors — so a cloud
+# major has to resolve to a *different*, older major here.
+function _pollerImageMajor() {
+  if _isOnPremMajor "${major}"; then
+    echo "${major}"
+    return
+  fi
+  local year=$((10#${major%%.*}))
+  local month=$((10#${major##*.}))
+  local onprem_year=${year}
+  [ "${month}" -lt 10 ] && onprem_year=$((year - 1))
+  [ "${onprem_year}" -lt 26 ] && onprem_year=26
+  printf "%02d.10" "${onprem_year}"
 }
 
 # Registry + repo (no tag) for one of the 5 poller component images, per

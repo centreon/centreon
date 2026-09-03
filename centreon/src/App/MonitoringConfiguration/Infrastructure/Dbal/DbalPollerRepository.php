@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
@@ -35,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -54,7 +54,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2'|'3'|'4',
+ *   gorgone_communication_type: string,
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -83,7 +83,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2'|'3'|'4',
+ *   gorgone_communication_type: string,
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -176,7 +176,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
                 ->setParameter('uid', $poller->uid->value)
-                ->setParameter('gorgone_communication_type', $this->communicationTypeToDatabase($poller->gorgoneConfiguration->communicationType))
+                ->setParameter('gorgone_communication_type', GorgoneCommunicationTypeMapping::toDatabase($poller->gorgoneConfiguration->communicationType))
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
                 ->setParameter('remote_server_use_as_proxy', $poller->gorgoneConfiguration->useRemoteServerAsProxy ? '1' : '0')
@@ -516,15 +516,5 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ],
             );
         }
-    }
-
-    private function communicationTypeToDatabase(GorgoneCommunicationTypeEnum $communicationType): string
-    {
-        return match ($communicationType) {
-            GorgoneCommunicationTypeEnum::ZMQ => '1',
-            GorgoneCommunicationTypeEnum::SSH => '2',
-            GorgoneCommunicationTypeEnum::Pull => '3',
-            GorgoneCommunicationTypeEnum::PullWss => '4',
-        };
     }
 }
