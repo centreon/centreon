@@ -31,4 +31,9 @@ interface ResourceAccessRepository
     public function hasAccessToAllPollers(UserId $userId): bool;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
+
+    /**
+     * @return list<PollerId>|null null means no restriction applies (the user can access all pollers)
+     */
+    public function findAccessiblePollerIds(UserId $userId): ?array;
 }

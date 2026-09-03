@@ -70,4 +70,9 @@ final readonly class Credential
     {
         return $this->permissions->contains($permission);
     }
+
+    public function isAdmin(): bool
+    {
+        return $this->roles->contains(new Role('ROLE_ADMIN'));
+    }
 }

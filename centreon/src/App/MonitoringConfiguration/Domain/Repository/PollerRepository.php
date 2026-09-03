@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\Shared\Domain\Collection;
 
 interface PollerRepository
@@ -43,6 +44,11 @@ interface PollerRepository
      * @return Collection<Poller>
      */
     public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+
+    /**
+     * @return \IteratorAggregate<int, Poller>&\Countable
+     */
+    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable;
 
     /**
      * @throws PollerNotFoundException
