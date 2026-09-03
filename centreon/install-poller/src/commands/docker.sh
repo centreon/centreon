@@ -85,14 +85,15 @@ function runDockerInstall() {
 
 function _generateDotEnv() {
   local dir=$1
-  logInfo "Generating .env in ${dir} (stability: ${STABILITY})"
+  local effective_stability="${FORCE_STABILITY:-${STABILITY}}"
+  logInfo "Generating .env in ${dir} (stability: ${effective_stability})"
 
   # Registry/repo selection (ghcr.io for stable, Harbor otherwise) happens in
   # _pollerImageRepo, used by _generateDockerCompose. Only the tag is decided
   # here (MON-207531 verified these tag conventions end-to-end).
   local image_tag
   if [ -n "${FORCE_TAG}" ]; then
-    # Hidden --tag override: use verbatim, regardless of STABILITY/FORCE_REGISTRY.
+    # Hidden --tag override: use verbatim, regardless of STABILITY/FORCE_REGISTRY/FORCE_STABILITY.
     image_tag="${FORCE_TAG}"
   elif [ "${FORCE_REGISTRY}" = "harbor" ]; then
     # Default candidate once --registry harbor is used without --tag: the
@@ -103,7 +104,7 @@ function _generateDotEnv() {
     # has run for that patch).
     image_tag="release-$(_pollerImageMajor)-next"
   else
-    case "${STABILITY}" in
+    case "${effective_stability}" in
     stable)
       image_tag="$(_pollerImageMajor)"
       ;;
@@ -192,10 +193,11 @@ function _pollerImageMajor() {
 # stability. Only 'stable' is published to ghcr.io (MON-207531); testing and
 # unstable stay on Harbor, as neither ever gets a validated stable-equivalent
 # tag there. FORCE_REGISTRY (hidden --registry flag) overrides STABILITY here
-# to let QA pull a release-candidate image from Harbor before ghcr promotion.
+# to let QA pull a release-candidate image from Harbor before ghcr promotion;
+# FORCE_STABILITY (hidden --stability flag) is the fallback under it.
 function _pollerImageRepo() {
   local component=$1
-  if [ "${FORCE_REGISTRY:-${STABILITY}}" = "stable" ] || [ "${FORCE_REGISTRY}" = "ghcr" ]; then
+  if [ "${FORCE_REGISTRY:-${FORCE_STABILITY:-${STABILITY}}}" = "stable" ] || [ "${FORCE_REGISTRY}" = "ghcr" ]; then
     echo "ghcr.io/centreon/centreon-${component}"
   else
     echo "docker.centreon.com/centreon/centreon-${component}-trixie"

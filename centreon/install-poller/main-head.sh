@@ -42,6 +42,14 @@ FORCE_REGISTRY=""
 # Empty means use the automatic default.
 FORCE_TAG=""
 
+# Hidden dev/QA override: pretend STABILITY is this value everywhere it's
+# read (Docker registry/tag selection AND VM/RPM/APT repo channel config),
+# without rebuilding install.sh. Useful when a major is baked "stable" but
+# its packages/images aren't promoted to the stable channel/registry yet.
+# Valid values: "" (default, use the real baked STABILITY), "stable",
+# "testing", "unstable".
+FORCE_STABILITY=""
+
 # Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
 CLOUD_MODE="false"
 

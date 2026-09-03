@@ -107,6 +107,10 @@ function _installParseArguments() {
       shift
       FORCE_TAG=$1
       ;;
+    --stability)
+      shift
+      FORCE_STABILITY=$1
+      ;;
     *)
       consoleError "Unknown argument: '$1'. Run with --help to list valid flags."
       exit 1
@@ -162,6 +166,16 @@ function _installValidateArgs() {
     harbor | ghcr) ;;
     *)
       consoleError "Invalid --registry '${FORCE_REGISTRY}'. Valid values: harbor, ghcr."
+      ret=1
+      ;;
+    esac
+  fi
+
+  if [ -n "${FORCE_STABILITY}" ]; then
+    case "${FORCE_STABILITY}" in
+    stable | testing | unstable) ;;
+    *)
+      consoleError "Invalid --stability '${FORCE_STABILITY}'. Valid values: stable, testing, unstable."
       ret=1
       ;;
     esac
