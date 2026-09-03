@@ -42,6 +42,7 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
+import { checkHiddenCondition } from '../handleHiddenConditions';
 
 export const getProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['options', ...split('.', propertyName)], obj);
@@ -89,12 +90,6 @@ const getResourcesValidation = (properties) => {
   return properties.required ? mixed().required() : mixed();
 };
 
-const isConditionMatched = ({ when, matches }, parentValues): boolean => {
-  const relativePath = split('.', when).slice(1);
-
-  return equals(path(relativePath, parentValues), matches);
-};
-
 const isPropertyHidden = (properties, parentValues): boolean => {
   const { hiddenCondition } = properties;
 
@@ -106,10 +101,13 @@ const isPropertyHidden = (properties, parentValues): boolean => {
     ? hiddenCondition
     : [hiddenCondition];
 
-  return conditions.some(
-    (condition) =>
-      equals(condition.method, 'equals') &&
-      isConditionMatched(condition, parentValues)
+  return conditions.some((condition) =>
+    checkHiddenCondition({
+      featureFlags: null,
+      hasModule: true,
+      hiddenCondition: condition,
+      values: { [condition.target]: parentValues }
+    })
   );
 };
 
