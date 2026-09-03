@@ -831,7 +831,7 @@ msgstr "Comparer les licences Edition"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Contribute on GitHub"
-msgstr "Contribuer sur GitHub"
+msgstr "Contribution sur GitHub"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Documentation & guides"
@@ -1174,7 +1174,7 @@ msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le report
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
-msgstr "Profitez davantage de Centreon"
+msgstr "Profiter davantage de Centreon"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Join The Watch"
@@ -1231,15 +1231,15 @@ msgstr "Installation, configuration et plus de 700 connecteurs de supervision."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Star centreon/centreon on GitHub"
-msgstr "Mettre une étoile à centreon/centreon sur GitHub"
+msgstr "Ajouter une étoile à centreon/centreon sur GitHub"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Star on GitHub"
-msgstr "Mettre une étoile sur GitHub"
+msgstr "Ajouter une étoile sur GitHub"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Star the repo, open issues, submit connectors."
-msgstr "Mettez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
+msgstr "Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Start free trial"
