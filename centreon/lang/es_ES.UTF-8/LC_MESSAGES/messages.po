@@ -25408,7 +25408,7 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 
 #: unknown
@@ -25492,3 +25492,7 @@ msgstr "Está a punto de duplicar <strong>{{ count }} categorías de host</stron
 msgid "You are about to duplicate the <strong>{{ name }}</strong> host category. Do you want to duplicate it?"
 msgstr "Está a punto de duplicar la categoría de host <strong>{{ name }}</strong>. ¿Desea duplicarla?"
 
+
+#: unknown
+# msgid "Beta"
+# msgstr ""

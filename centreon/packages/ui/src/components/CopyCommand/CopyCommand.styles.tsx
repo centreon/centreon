@@ -85,7 +85,7 @@ export const useCopyCommandStyle = makeStyles()((theme) => ({
   languageChip: {
     background: theme.palette.background.listingHeader,
     borderRadius: `0px ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px`,
-    color: theme.palette.common.white,
+    color: theme.palette.text.primary,
     fontSize: theme.typography.body2.fontSize,
     padding: `0px ${theme.spacing(0.5)}`,
     position: 'absolute',
