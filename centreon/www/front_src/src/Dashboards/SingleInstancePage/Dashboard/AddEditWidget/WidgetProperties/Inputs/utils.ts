@@ -89,6 +89,30 @@ const getResourcesValidation = (properties) => {
   return properties.required ? mixed().required() : mixed();
 };
 
+const isConditionMatched = ({ when, matches }, parentValues): boolean => {
+  const relativePath = split('.', when).slice(1);
+
+  return equals(path(relativePath, parentValues), matches);
+};
+
+const isPropertyHidden = (properties, parentValues): boolean => {
+  const { hiddenCondition } = properties;
+
+  if (!hiddenCondition) {
+    return false;
+  }
+
+  const conditions = Array.isArray(hiddenCondition)
+    ? hiddenCondition
+    : [hiddenCondition];
+
+  return conditions.some(
+    (condition) =>
+      equals(condition.method, 'equals') &&
+      isConditionMatched(condition, parentValues)
+  );
+};
+
 const getYupValidatorType = ({
   t,
   properties
@@ -214,8 +238,12 @@ const getYupValidatorType = ({
         (properties.isSingleAutocomplete ? object() : array()).test(
           'connected-autocomplete-required',
           t(labelRequired) as string,
-          (value) => {
+          (value, context) => {
             if (!(properties.required || properties.isRequiredProperty)) {
+              return true;
+            }
+
+            if (isPropertyHidden(properties, context.parent)) {
               return true;
             }
 
@@ -248,6 +276,15 @@ export const buildValidationSchema = ({
     properties,
     t
   });
+
+  if (
+    equals<FederatedWidgetOptionType>(
+      properties.type,
+      FederatedWidgetOptionType.connectedAutocomplete
+    )
+  ) {
+    return yupValidator;
+  }
 
   return properties.required || properties.isRequiredProperty
     ? yupValidator.required(t(labelRequired) as string)
