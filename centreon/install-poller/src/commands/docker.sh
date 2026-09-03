@@ -96,10 +96,12 @@ function _generateDotEnv() {
     image_tag="${FORCE_TAG}"
   elif [ "${FORCE_REGISTRY}" = "harbor" ]; then
     # Default candidate once --registry harbor is used without --tag: the
-    # e2e-validated semver retag (promote-docker-tag), not the raw
-    # release-<major>-next branch tag. Override with --tag release-<major>-next
-    # to test earlier, pre-e2e builds instead.
-    image_tag="$(_pollerImageMajor).0"
+    # release-<major>-next branch tag. centreon-collect has its own patch
+    # versioning (independent of centreon-web's), so the exact validated
+    # semver retag (e.g. 26.10.3) isn't derivable here — override with
+    # --tag <major>.<minor>.<patch> once you know it (after promote-docker-tag
+    # has run for that patch).
+    image_tag="release-$(_pollerImageMajor)-next"
   else
     case "${STABILITY}" in
     stable)
