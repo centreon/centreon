@@ -826,8 +826,8 @@ msgid "Browse the docs"
 msgstr "Consulter la documentation"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Compare editions"
-msgstr "Comparer les éditions"
+msgid "Compare Edition licenses"
+msgstr "Comparer les licences Edition"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Contribute on GitHub"
@@ -1165,20 +1165,20 @@ msgid "Advanced: gorgone - poller connects to the central"
 msgstr "Avancé : gorgone - le collecteur se connecte au central"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Editions & Cloud"
-msgstr "Éditions et Cloud"
+msgid "Editions & Cloud licenses"
+msgstr "Licences Edition et Cloud"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Editions add auto-discovery, BAM, advanced reporting and SLAs."
-msgstr "Les éditions ajoutent la découverte automatique, le BAM, des rapports avancés et des SLA."
+msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
+msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le reporting avancé et des SLA."
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Get more from Centreon"
-msgstr "Tirez encore plus parti de Centreon"
+msgstr "Profitez davantage de Centreon"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "Join TheWatch"
-msgstr "Rejoindre TheWatch"
+msgid "Join The Watch"
+msgstr "Rejoindre The Watch"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
 msgid "Made with care by the Centreon team & community"
@@ -1246,8 +1246,8 @@ msgid "Start free trial"
 msgstr "Démarrer l'essai gratuit"
 
 #: centreon/www/front_src/src/About/translatedLabels.ts
-msgid "TheWatch community"
-msgstr "La communauté TheWatch"
+msgid "The Watch community"
+msgstr "La communauté The Watch"
 
 #: centreon/www/install/react_translation.php
 msgid "documentation"
