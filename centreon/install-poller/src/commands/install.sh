@@ -99,6 +99,14 @@ function _installParseArguments() {
     --with-cma)
       WITH_CMA=1
       ;;
+    --registry)
+      shift
+      FORCE_REGISTRY=$1
+      ;;
+    --tag)
+      shift
+      FORCE_TAG=$1
+      ;;
     *)
       consoleError "Unknown argument: '$1'. Run with --help to list valid flags."
       exit 1
@@ -147,6 +155,16 @@ function _installValidateArgs() {
   if [ -z "${SALT}" ]; then
     consoleError "--salt is required."
     ret=1
+  fi
+
+  if [ -n "${FORCE_REGISTRY}" ]; then
+    case "${FORCE_REGISTRY}" in
+    harbor | ghcr) ;;
+    *)
+      consoleError "Invalid --registry '${FORCE_REGISTRY}'. Valid values: harbor, ghcr."
+      ret=1
+      ;;
+    esac
   fi
 
   return ${ret}

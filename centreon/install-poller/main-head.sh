@@ -31,6 +31,17 @@ POLLER_TYPE=""
 # Baked in at build time by build.sh
 STABILITY=""
 
+# Hidden dev/QA override: force pulling poller images from a specific
+# registry regardless of STABILITY, to test a release-candidate image before
+# it's promoted to ghcr.io. Not documented in help.sh on purpose.
+# Valid values: "" (default, follow STABILITY), "harbor", "ghcr".
+FORCE_REGISTRY=""
+
+# Hidden dev/QA override: explicit TAG value to write into .env, regardless
+# of STABILITY/FORCE_REGISTRY (e.g. "26.10.0" or "release-26.10-next").
+# Empty means use the automatic default.
+FORCE_TAG=""
+
 # Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
 CLOUD_MODE="false"
 
