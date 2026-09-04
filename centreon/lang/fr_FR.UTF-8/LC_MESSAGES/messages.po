@@ -813,6 +813,38 @@ msgstr "Ajouter un hôte"
 msgid "Add a host category"
 msgstr "Ajouter une catégorie d'hôtes"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Ask questions, share dashboards, swap know-how."
+msgstr "Posez vos questions, partagez vos tableaux de bord et échangez votre savoir-faire."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Auto-discovery, BAM, MBI reporting and support."
+msgstr "Découverte automatique, BAM, rapports MBI et support."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Browse the docs"
+msgstr "Consulter la documentation"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Compare Edition licenses"
+msgstr "Comparer les licences Edition"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Contribute on GitHub"
+msgstr "Contribution sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Documentation & guides"
+msgstr "Documentation et guides"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host category"
+msgstr "Dupliquer la catégorie d'hôtes"
+
+#: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+msgid "Duplicate host categories"
+msgstr "Dupliquer les catégories d'hôtes"
+
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -1132,10 +1164,90 @@ msgstr "Avancé : inverser le flux de communication du Broker Centreon"
 msgid "Advanced: gorgone - poller connects to the central"
 msgstr "Avancé : gorgone - le collecteur se connecte au central"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Editions & Cloud licenses"
+msgstr "Licences Edition et Cloud"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
+msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le reporting avancé et des SLA."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Get more from Centreon"
+msgstr "Profiter davantage de Centreon"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Join The Watch"
+msgstr "Rejoindre The Watch"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Made with care by the Centreon team & community"
+msgstr "Conçu avec soin par l'équipe et la communauté Centreon"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>"
+msgstr "Un grand merci à tous les développeurs et contributeurs. <contributors>Voir la liste complète sur GitHub ↗</contributors>"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>"
+msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger. <policy>Signaler une vulnérabilité ↗</policy>"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"
+msgstr "Plateforme de supervision IT ouverte et évolutive pour une visibilité complète sur votre infrastructure hybride"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open source edition"
+msgstr "Édition open source"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open the repository"
+msgstr "Ouvrir le dépôt"
+
 #: centreon/www/install/react_translation.php
 msgid "Prerequisite: configure the central to accept PullWSS connections"
 msgstr ""
 "Prérequis : configurer le central pour accepter les connexions PullWSS"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Project & contributors"
+msgstr "Projet et contributeurs"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Project leaders <count>({{total}})</count>"
+msgstr "Responsables du projet <count>({{total}})</count>"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Scaling beyond open source?"
+msgstr "Besoin d'aller plus loin que l'open source ?"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Security"
+msgstr "Sécurité"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Setup, configuration and 700+ Monitoring Connectors."
+msgstr "Installation, configuration et plus de 700 connecteurs de supervision."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star centreon/centreon on GitHub"
+msgstr "Ajouter une étoile à centreon/centreon sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star on GitHub"
+msgstr "Ajouter une étoile sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star the repo, open issues, submit connectors."
+msgstr "Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Start free trial"
+msgstr "Démarrer l'essai gratuit"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "The Watch community"
+msgstr "La communauté The Watch"
 
 #: centreon/www/install/react_translation.php
 msgid "documentation"
