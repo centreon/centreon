@@ -15,6 +15,9 @@ parameters:
         - tests/phpstan_stubs/legacy.stub
         - tests/php/bootstrap.php
         - tests/php/polyfill.php
+        # Legacy helpers: required explicitly by their consumers, so they are
+        # outside the Composer classmap and unknown to the analysis otherwise.
+        - www/include/common/common-Func.php
 
     paths:
         - tests/php/Centreon

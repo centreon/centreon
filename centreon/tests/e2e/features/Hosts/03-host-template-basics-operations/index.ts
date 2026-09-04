@@ -233,3 +233,115 @@ Then(
       .should('not.exist');
   }
 );
+
+const dupSource = 'dup-src-template';
+const dupSibling = 'dup-sibling-template';
+const sharedServices = ['dup-svc-a', 'dup-svc-b'];
+
+const templateRelationCount = (name: string): Cypress.Chainable =>
+  cy
+    .requestOnDatabase({
+      database: 'centreon',
+      query:
+        'SELECT COUNT(*) AS total FROM host_service_relation hsr ' +
+        'JOIN host h ON h.host_id = hsr.host_host_id ' +
+        `WHERE h.host_name = '${name}'`
+    })
+    .then(([rows]) => cy.wrap(Number(rows[0].total), { log: false }));
+
+const duplicateTemplateRow = (name: string): void => {
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
+  cy.wait('@getTimeZone');
+  // Exact-text match: a copy's name contains its source's name, so a substring
+  // lookup would tick whichever of the two the listing renders first.
+  cy.getIframeBody()
+    .find('a')
+    .filter((_, el) => el.textContent?.trim() === name)
+    .closest('tr')
+    .find('div.md-checkbox.md-checkbox-inline')
+    .click();
+  cy.getIframeBody()
+    .find('select')
+    .eq(0)
+    .invoke(
+      'attr',
+      'onchange',
+      "javascript: { setO(this.form.elements['o1'].value); submit(); }"
+    );
+  cy.getIframeBody().find('select').eq(0).select('Duplicate');
+  cy.wait('@getTimeZone');
+};
+
+Given('a host template with shared service templates is configured', () => {
+  // Two host templates sharing the same service templates: the sharing is what
+  // made the old duplication relate each service twice on the copy.
+  [dupSource, dupSibling].forEach((name) => {
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'ADD',
+        object: 'HTPL',
+        // HTPL shares the HOST signature: name;alias;address;template;instance;
+        // hostgroup — all six fields are expected, empty ones included.
+        values: `${name};${name};;;;`
+      }
+    });
+  });
+  sharedServices.forEach((svc) => {
+    cy.executeActionViaClapi({
+      bodyContent: { action: 'ADD', object: 'STPL', values: `${svc};${svc};` }
+    });
+    [dupSource, dupSibling].forEach((tpl) => {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'ADDHOSTTEMPLATE',
+          object: 'STPL',
+          values: `${svc};${tpl}`
+        }
+      });
+    });
+  });
+});
+
+When('the user duplicates that host template and its copy', () => {
+  duplicateTemplateRow(dupSource);
+  duplicateTemplateRow(`${dupSource}_1`);
+});
+
+Then('each copy carries exactly the service templates of its source', () => {
+  templateRelationCount(dupSource).then((source) => {
+    expect(source, 'source relation count').to.equal(sharedServices.length);
+    templateRelationCount(`${dupSource}_1`).then((firstCopy) => {
+      expect(firstCopy, 'first copy relation count').to.equal(source);
+    });
+    templateRelationCount(`${dupSource}_1_1`).then((secondCopy) => {
+      expect(secondCopy, 'copy-of-copy relation count').to.equal(source);
+    });
+  });
+});
+
+Given('a host template already carries the name the copy would take', () => {
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'ADD',
+      object: 'HTPL',
+      values: `${dupSource}_1;${dupSource}_1;;;;`
+    }
+  });
+});
+
+When('the user duplicates that host template', () => {
+  duplicateTemplateRow(dupSource);
+});
+
+Then('no duplicate host template row was created', () => {
+  cy.requestOnDatabase({
+    database: 'centreon',
+    query: `SELECT COUNT(*) AS total FROM host WHERE host_name = '${dupSource}_1'`
+  }).then(([rows]) => {
+    expect(Number(rows[0].total), 'rows carrying the taken name').to.equal(1);
+  });
+  // The skipped copy must not have attached relations to the name holder either.
+  templateRelationCount(`${dupSource}_1`).then((count) => {
+    expect(count, 'relations on the pre-existing template').to.equal(0);
+  });
+});
