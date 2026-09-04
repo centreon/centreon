@@ -314,7 +314,7 @@ msgstr "Lista de Acesso"
 
 #: centreon/www/install/front_translate.php
 msgid "Access group"
-msgstr ""
+msgstr "Grupo de Acesso"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 msgid "Access groups"
@@ -477,6 +477,10 @@ msgstr "Nome da Ação"
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Action URL"
 msgstr "URL de Ação"
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr "Acesso de Ação"
 
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
@@ -2007,6 +2011,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
 msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
+msgstr "Broker"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Broker Module"
@@ -6088,6 +6096,10 @@ msgstr ""
 msgid "Ends at"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr "Engine"
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr "Diretorios do Motor"
@@ -8785,6 +8797,10 @@ msgstr ""
 #, php-format
 msgid "Host group (%s) not found"
 msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
+msgstr "Dependência do Grupo de Host"
 
 #: centreon/www/install/dashboard_widgets.php
 #: centreon/www/install/front_translate.php
@@ -14326,6 +14342,10 @@ msgstr "Nome do Recurso"
 msgid "Resource Type"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr "Acesso de Recurso"
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr ""
@@ -15475,6 +15495,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Service group"
 msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
+msgstr "Dependência do Grupo de Serviço"
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 msgid "Service group state"
