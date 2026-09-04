@@ -68,10 +68,6 @@ msgid "*The timezone used is configured on your user settings"
 msgstr ""
 "*O fuso horário utilizado é o que foi configurado no seu perfil de usuário"
 
-#: centreon/www/install/smarty_translate.php
-msgid "..."
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "0-9"
 msgstr ""
@@ -802,7 +798,6 @@ msgid "Add a host"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/install/smarty_translate.php
 msgid "Add a host category"
 msgstr "Adiciona uma categoria de host"
 
@@ -2255,7 +2250,6 @@ msgstr ""
 msgid "Can't write in directory"
 msgstr "Não é possivel escrever no diretorio"
 
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 #: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/include/options/media/images/formImg.php
@@ -2440,13 +2434,13 @@ msgstr ""
 "crie ele"
 
 #: centreon/www/install/front_translate.php
+msgid "Centreon Central address, as seen by this poller"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Centreon Central address, as seen by this server"
 msgstr "Endereço do Centreon Central, como visto pelo o servidor"
-
-#: centreon/www/install/front_translate.php
-msgid "Centreon Central adress, as seen by this poller"
-msgstr ""
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Centreon Connector"
@@ -3148,7 +3142,6 @@ msgstr ""
 
 #: centreon/www/include/options/media/images/syncDir.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Close"
 msgstr "Fechar"
 
@@ -3781,6 +3774,10 @@ msgstr ""
 msgid "Contacts/Contact groups"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
+msgid "Container"
+msgstr ""
+
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "Content is not a valid JSON string"
 msgstr ""
@@ -3832,10 +3829,6 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Copy/paste x.509 certificate"
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-msgid "Could not change status"
 msgstr ""
 
 #: centreon/www/class/centreon-clapi/centreon.Config.Poller.class.php
@@ -4582,11 +4575,6 @@ msgstr "Defina seu endpoint"
 msgid "Delete"
 msgstr "Remover"
 
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid "Delete %s"
-msgstr ""
-
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Delete Problem Acknowledgement"
@@ -4616,14 +4604,6 @@ msgstr ""
 #: centreon/www/include/Administration/performance/viewMetrics.php
 msgid "Delete graphs"
 msgstr "Remove gráficos"
-
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid "Delete host categories"
-msgstr "Excluir categorias de host"
-
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid "Delete host category"
-msgstr "Excluir categoria de host"
 
 #: centreon/www/install/front_translate.php
 msgid "Delete multiple resource access rules"
@@ -4871,11 +4851,6 @@ msgstr "Diretorio de banco de dados leve para traps SNMP"
 msgid "Disable"
 msgstr "Desativar"
 
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid "Disable %s"
-msgstr ""
-
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Disable Active Checks"
@@ -4961,6 +4936,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -5343,6 +5319,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -5382,6 +5359,7 @@ msgstr "Você confirma esta remoção ?"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -5420,7 +5398,6 @@ msgid "Do you really want to unblock this user?"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Do you want to leave this page?"
 msgstr ""
 
@@ -5446,10 +5423,6 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Do you want to switch to regex mode?"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
-msgid "Container"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -5625,55 +5598,9 @@ msgstr "Dump"
 msgid "Duplicate"
 msgstr "Duplicado"
 
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid "Duplicate %s"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Duplicate dashboard"
 msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid "Duplicate host categories"
-msgstr "Duplicar categorias de host"
-
-# msgid "Create new poller"
-# msgstr ""
-# msgid "Enter your poller's name and address"
-# msgstr ""
-# msgid "Select your poller's environment"
-# msgstr ""
-# msgid "VM or physical"
-# msgstr ""
-# msgid "Container"
-# msgstr ""
-# msgid "Select token"
-# msgstr ""
-# msgid "Generate installation command"
-# msgstr ""
-# msgid "The command is being generated…"
-# msgstr ""
-# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
-# msgstr ""
-# msgid "Generating..."
-# msgstr ""
-# msgid "Copy the following command and run it on your poller to register it."
-# msgstr ""
-# msgid "Failed to create poller"
-# msgstr ""
-# msgid "Enter your poller information"
-# msgstr ""
-# msgid "Poller name"
-# msgstr ""
-# msgid "Poller address"
-# msgstr ""
-# msgid "Centreon Central address, as seen by this poller"
-# msgstr ""
-# Host categories - modernized listing/form (UX/UI migration)
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid "Duplicate host category"
-msgstr "Duplicar categoria de host"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #: centreon/src/Core/AgentConfiguration/Application/Exception/AgentConfigurationException.php
@@ -6115,6 +6042,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -6273,10 +6201,6 @@ msgstr "Erro na definição de Hora"
 
 #: centreon/src/Core/Application/Configuration/User/Exception/UserException.php
 msgid "Error in reading the themes available to the user"
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-msgid "Error loading data"
 msgstr ""
 
 #: centreon/www/install/centreon_broker_translation.php
@@ -7820,7 +7744,6 @@ msgstr "Primeiro do mês"
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "First page"
 msgstr "Primeira página"
 
@@ -8450,11 +8373,6 @@ msgstr "Atributo de grupo"
 msgid "Group filter"
 msgstr "Filtro de grupo"
 
-#: centreon/www/install/smarty_translate.php
-msgid "Group hosts into categories to organize and filter your configuration."
-msgstr ""
-"Agrupe os hosts em categorias para organizar e filtrar sua configuração."
-
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Group member attribute"
 msgstr "Atributo de membro de grupo"
@@ -8696,7 +8614,6 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/install/dashboard_widgets.php
-#: centreon/www/install/smarty_translate.php
 msgid "Host Categories"
 msgstr "Categorias do Host"
 
@@ -10270,7 +10187,6 @@ msgstr "Último do mês"
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Last page"
 msgstr "Última página"
 
@@ -10325,7 +10241,6 @@ msgid "Layout"
 msgstr "Layout"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Leave"
 msgstr ""
 
@@ -10569,7 +10484,6 @@ msgid "Loaded"
 msgstr "Carregado"
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Loading..."
 msgstr ""
 
@@ -11650,7 +11564,6 @@ msgid "Modify a global macro"
 msgstr "Modificar uma macro global"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-#: centreon/www/install/smarty_translate.php
 msgid "Modify a host category"
 msgstr "Modifica uma categoria de host"
 
@@ -11855,7 +11768,6 @@ msgstr ""
 msgid "More"
 msgstr ""
 
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/options/media/images/listImg.php
@@ -11876,6 +11788,7 @@ msgstr "Mais ações"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -12174,7 +12087,6 @@ msgstr ""
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Next page"
 msgstr "Próxima página"
 
@@ -12339,7 +12251,6 @@ msgid "No result found"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "No results found"
 msgstr ""
 
@@ -12486,10 +12397,6 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 msgid "Notes"
 msgstr "Notas"
-
-#: centreon/www/install/smarty_translate.php
-msgid "Nothing configured yet. Add your first entry below to get started."
-msgstr ""
 
 #: centreon/www/install/smarty_translate.php
 msgid "Nothing here, use the \"Add\" button"
@@ -12732,7 +12639,6 @@ msgstr "OID"
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/initXmlFeed.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "OK"
 msgstr "OK"
 
@@ -12978,6 +12884,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/listHostGroupDependency.php
@@ -13659,7 +13566,7 @@ msgid "Poller Name"
 msgstr "Nome do Coletor"
 
 #: centreon/www/install/front_translate.php
-msgid "Poller adress"
+msgid "Poller address"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Repository/CfgCentreonBrokerRepository.php
@@ -13801,7 +13708,6 @@ msgstr "Anterior"
 #: centreon/www/include/common/pagination.php
 #: centreon/www/include/configuration/configKnowledge/pagination.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Previous page"
 msgstr "Página anterior"
 
@@ -14161,8 +14067,8 @@ msgstr "O intervalo de atualização deve ser numerico"
 msgid "Regexp"
 msgstr "Expressão Regular"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
-#: centreon/www/install/smarty_translate.php
 msgid "Regular"
 msgstr "Comum"
 
@@ -15217,10 +15123,6 @@ msgstr ""
 msgid "Seems that your Apache configuration is not up-to-date"
 msgstr ""
 
-#: centreon/www/install/smarty_translate.php
-msgid "Select"
-msgstr ""
-
 #: centreon/www/install/react_translation.php
 msgid "Select IP"
 msgstr "Selecione IP"
@@ -16085,12 +15987,12 @@ msgid "Settings"
 msgstr ""
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Severity"
 msgstr "Severidade"
 
@@ -16550,6 +16452,7 @@ msgstr "Estatísticas"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetric.php
@@ -16694,7 +16597,6 @@ msgid "Status:"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Stay"
 msgstr ""
 
@@ -19235,11 +19137,6 @@ msgstr "Semanalmente"
 msgid "Welcome to Centreon Setup"
 msgstr "Bem vindo ao processo de configuração do Centreon"
 
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid "Welcome to the %s page"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Welcome to the Commands page"
 msgstr ""
@@ -19400,27 +19297,11 @@ msgstr "Sim"
 msgid "Yesterday"
 msgstr "Ontem"
 
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid ""
-"You are about to delete <strong>{{ count }} host categories.</strong> This "
-"action cannot be undone. Do you want to delete them?"
-msgstr ""
-"Você está prestes a excluir <strong>{{ count }} categorias de host</strong>. "
-"Esta ação não pode ser desfeita. Deseja excluí-las?"
-
 #: centreon/www/include/configuration/configServers/listServers.php
 msgid ""
 "You are about to delete one or more pollers.\\nThis action is IRREVERSIBLE."
 "\\nDo you confirm the deletion ?"
 msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid ""
-"You are about to delete the <strong>{{ name }}</strong> host category. This "
-"action cannot be undone. Do you want to delete it?"
-msgstr ""
-"Você está prestes a excluir a categoria de host <strong>{{ name }}</strong>. "
-"Esta ação não pode ser desfeita. Deseja excluí-la?"
 
 #: centreon/www/install/front_translate.php
 msgid ""
@@ -19429,45 +19310,12 @@ msgid ""
 "export the configuration for the change to be taken into account."
 msgstr ""
 
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid ""
-"You are about to delete the selected %s. This action cannot be undone. Do "
-"you want to continue?"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid ""
 "You are about to disable the <strong>{{tokenName}}</strong> token. If you "
 "disable it, all requests made with this token will be rejected. Do you want "
 "to disable it ? You must export the configuration for the change to be taken "
 "into account."
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid "You are about to disable the selected %s. Do you want to continue?"
-msgstr ""
-
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid ""
-"You are about to duplicate <strong>{{ count }} host categories.</strong> Do "
-"you want to duplicate them?"
-msgstr ""
-"Você está prestes a duplicar <strong>{{ count }} categorias de host</"
-"strong>. Deseja duplicá-las?"
-
-#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
-msgid ""
-"You are about to duplicate the <strong>{{ name }}</strong> host category. Do "
-"you want to duplicate it?"
-msgstr ""
-"Você está prestes a duplicar a categoria de host <strong>{{ name }}</"
-"strong>. Deseja duplicá-la?"
-
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid "You are about to duplicate the selected %s. Do you want to continue?"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -19949,19 +19797,6 @@ msgid ""
 "performance."
 msgstr ""
 
-#: centreon/www/install/smarty_translate.php
-msgid ""
-"You have unsaved changes. Are you sure you want to close this panel without "
-"saving?"
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-#, php-format
-msgid ""
-"You haven't configured any %s yet. Add your first one below and Centreon "
-"will start monitoring it right away."
-msgstr ""
-
 #: centreon/www/install/step_upgrade/step4.php
 msgid ""
 "You may refer to the line in the specified file in order to correct the "
@@ -20123,10 +19958,6 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Your session has expired"
-msgstr ""
-
-#: centreon/www/install/smarty_translate.php
-msgid "Your session has expired — please reload the page."
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -20571,7 +20402,6 @@ msgstr ""
 
 #: centreon/www/include/common/pagination.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "of"
 msgstr ""
 
@@ -21686,6 +21516,14 @@ msgid "Delete all configuration for the chosen type of files"
 msgstr "Excluir toda a configuração dos tipos de arquivo selecionados"
 
 #: unknown
+msgid "Delete host categories"
+msgstr "Excluir categorias de host"
+
+#: unknown
+msgid "Delete host category"
+msgstr "Excluir categoria de host"
+
+#: unknown
 msgid "Dependencies Management"
 msgstr "Gerenciamento de Dependência"
 
@@ -21796,6 +21634,47 @@ msgstr "Copiar para arquivo"
 #: unknown
 msgid "Drop possibility after parsing performance data"
 msgstr "Ações após o processamento de dados de desempenho"
+
+#: unknown
+msgid "Duplicate host categories"
+msgstr "Duplicar categorias de host"
+
+# msgid "Create new poller"
+# msgstr ""
+# msgid "Enter your poller's name and address"
+# msgstr ""
+# msgid "Select your poller's environment"
+# msgstr ""
+# msgid "VM or physical"
+# msgstr ""
+# msgid "Container"
+# msgstr ""
+# msgid "Select token"
+# msgstr ""
+# msgid "Generate installation command"
+# msgstr ""
+# msgid "The command is being generated…"
+# msgstr ""
+# msgid "Click to generate the command. Once it's ready, copy it and run it in your environment."
+# msgstr ""
+# msgid "Generating..."
+# msgstr ""
+# msgid "Copy the following command and run it on your poller to register it."
+# msgstr ""
+# msgid "Failed to create poller"
+# msgstr ""
+# msgid "Enter your poller information"
+# msgstr ""
+# msgid "Poller name"
+# msgstr ""
+# msgid "Poller address"
+# msgstr ""
+# msgid "Centreon Central address, as seen by this poller"
+# msgstr ""
+# Host categories - modernized listing/form (UX/UI migration)
+#: unknown
+msgid "Duplicate host category"
+msgstr "Duplicar categoria de host"
 
 #: unknown
 msgid "ERROR"
@@ -22133,6 +22012,12 @@ msgstr "Lista de gráficos"
 #: unknown
 msgid "Grid background color"
 msgstr "Cor de fundo da grade"
+
+#: unknown
+msgid ""
+"Group hosts into categories to organize and filter your configuration."
+msgstr ""
+"Agrupe os hosts em categorias para organizar e filtrar sua configuração."
 
 #: unknown
 msgid "Group member update behavior"
@@ -24062,6 +23947,38 @@ msgstr "Anual"
 #: unknown
 msgid "You are"
 msgstr "Você é"
+
+#: unknown
+msgid ""
+"You are about to delete <strong>{{ count }} host categories.</strong> "
+"This action cannot be undone. Do you want to delete them?"
+msgstr ""
+"Você está prestes a excluir <strong>{{ count }} categorias de host</"
+"strong>. Esta ação não pode ser desfeita. Deseja excluí-las?"
+
+#: unknown
+msgid ""
+"You are about to delete the <strong>{{ name }}</strong> host category. "
+"This action cannot be undone. Do you want to delete it?"
+msgstr ""
+"Você está prestes a excluir a categoria de host <strong>{{ name }}</"
+"strong>. Esta ação não pode ser desfeita. Deseja excluí-la?"
+
+#: unknown
+msgid ""
+"You are about to duplicate <strong>{{ count }} host categories.</strong> "
+"Do you want to duplicate them?"
+msgstr ""
+"Você está prestes a duplicar <strong>{{ count }} categorias de host</"
+"strong>. Deseja duplicá-las?"
+
+#: unknown
+msgid ""
+"You are about to duplicate the <strong>{{ name }}</strong> host category. "
+"Do you want to duplicate it?"
+msgstr ""
+"Você está prestes a duplicar a categoria de host <strong>{{ name }}</"
+"strong>. Deseja duplicá-la?"
 
 #: unknown
 msgid "You are not allowed to access this host group"
