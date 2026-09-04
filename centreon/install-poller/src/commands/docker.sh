@@ -59,7 +59,7 @@ function runDockerInstall() {
     consoleInfo "  Centreon Monitoring Agent support (--with-cma): TLS certs + port 4317"
   fi
   echo ""
-  if [ "${STABILITY}" = "testing" ]; then
+  if [ "$(_dockerEffectiveStability)" = "testing" ]; then
     consoleInfo "Stability 'testing': not starting the stack automatically."
     consoleTitle "Next steps:"
     echo "  1. Edit .env: set ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG to the branch/tag you are testing."
@@ -83,26 +83,36 @@ function runDockerInstall() {
   fi
 }
 
+# Effective stability for every Docker decision (tag, registry, whether to
+# auto-start the stack): FORCE_REGISTRY (hidden --registry flag), when set,
+# pins it — 'ghcr' behaves like stable, 'harbor' behaves like testing —
+# regardless of FORCE_STABILITY/STABILITY. This lets --registry harbor work
+# on a build baked STABILITY=stable without also needing --stability testing.
+# Otherwise falls back to FORCE_STABILITY (hidden --stability flag), then the
+# real baked STABILITY. MON-208554.
+function _dockerEffectiveStability() {
+  case "${FORCE_REGISTRY}" in
+  ghcr)
+    echo "stable"
+    return
+    ;;
+  harbor)
+    echo "testing"
+    return
+    ;;
+  esac
+  echo "${FORCE_STABILITY:-${STABILITY}}"
+}
+
 function _generateDotEnv() {
   local dir=$1
-  local effective_stability="${FORCE_STABILITY:-${STABILITY}}"
-  logInfo "Generating .env in ${dir} (stability: ${effective_stability})"
+  local tag_stability
+  tag_stability="$(_dockerEffectiveStability)"
+  logInfo "Generating .env in ${dir} (stability: ${tag_stability})"
 
   # Registry/repo selection (ghcr.io for stable, Harbor otherwise) happens in
   # _pollerImageRepo, used by _generateDockerCompose. Only the tag is decided
   # here (MON-207531 verified these tag conventions end-to-end).
-  #
-  # FORCE_REGISTRY (hidden --registry flag), when set, also pins the tag
-  # convention: 'ghcr' behaves like stable (major.minor), 'harbor' behaves
-  # like testing (release-<major>-next branch tag), regardless of the real/
-  # forced STABILITY. This lets --registry harbor work on a build baked
-  # STABILITY=stable without also needing --stability testing.
-  local tag_stability="${effective_stability}"
-  case "${FORCE_REGISTRY}" in
-  ghcr) tag_stability="stable" ;;
-  harbor) tag_stability="testing" ;;
-  esac
-
   local image_tag
   if [ -n "${FORCE_TAG}" ]; then
     # Hidden --tag override: use verbatim, regardless of everything else.
@@ -198,14 +208,12 @@ function _pollerImageMajor() {
 }
 
 # Registry + repo (no tag) for one of the 5 poller component images, per
-# stability. Only 'stable' is published to ghcr.io (MON-207531); testing and
-# unstable stay on Harbor, as neither ever gets a validated stable-equivalent
-# tag there. FORCE_REGISTRY (hidden --registry flag) overrides STABILITY here
-# to let QA pull a release-candidate image from Harbor before ghcr promotion;
-# FORCE_STABILITY (hidden --stability flag) is the fallback under it.
+# effective stability (see _dockerEffectiveStability). Only 'stable' is
+# published to ghcr.io (MON-207531); testing and unstable stay on Harbor, as
+# neither ever gets a validated stable-equivalent tag there.
 function _pollerImageRepo() {
   local component=$1
-  if [ "${FORCE_REGISTRY:-${FORCE_STABILITY:-${STABILITY}}}" = "stable" ] || [ "${FORCE_REGISTRY}" = "ghcr" ]; then
+  if [ "$(_dockerEffectiveStability)" = "stable" ]; then
     echo "ghcr.io/centreon/centreon-${component}"
   else
     echo "docker.centreon.com/centreon/centreon-${component}-trixie"
