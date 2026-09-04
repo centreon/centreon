@@ -60,7 +60,11 @@ const postBulkDisable = (hostIds: Array<number>): void => {
       form: true,
       method: 'POST',
       url: listingPageUrl
-    });
+    })
+      // A 200 proves the request reached host.php, so an unchanged activation
+      // state means the ACL filter dropped the id, not an incidental failure.
+      .its('status')
+      .should('eq', 200);
   });
 };
 
@@ -142,7 +146,9 @@ When('the user posts a disable for the host it was not granted', () => {
         form: true,
         method: 'POST',
         url: listingPageUrl
-      });
+      })
+        .its('status')
+        .should('eq', 200);
     });
   });
 });
