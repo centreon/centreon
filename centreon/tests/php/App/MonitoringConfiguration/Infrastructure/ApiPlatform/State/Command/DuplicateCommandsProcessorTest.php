@@ -37,7 +37,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class DuplicateCommandsProcessorTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/commands/_duplicate';
+    private const BASE_ENDPOINT = '/api/configuration/commands/_duplicate';
 
     public function testDuplicateCommandSuccessfully(): void
     {
@@ -75,7 +75,7 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
         self::assertCount(1, $responseData['member']);
         self::assertIsArray($responseData['member'][0]);
         self::assertIsString($responseData['member'][0]['command']);
-        self::assertStringContainsString('/api/latest/configuration/commands/', $responseData['member'][0]['command']);
+        self::assertStringContainsString('/api/configuration/commands/', $responseData['member'][0]['command']);
         self::assertEquals(204, $responseData['member'][0]['status']);
         self::assertIsString($responseData['member'][0]['message']);
         self::assertStringContainsString('Command duplicated successfully', $responseData['member'][0]['message']);

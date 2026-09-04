@@ -174,6 +174,33 @@ it('emits free-form info and error events on the per-version context', function 
         ->and($spy->records[1]['context']['exception'])->toBe($exception);
 });
 
+it('emits a warning as a WARNING on the per-version context', function (): void {
+    [$facade, $spy] = loggerUpgradeWithSpy();
+
+    $facade->warning('25.11.0', 'Could not resolve the central address, falling back');
+
+    expect($spy->records)->toHaveCount(1);
+    $record = $spy->records[0];
+    expect($record['level'])->toBe(LogLevel::WARNING)
+        ->and($record['message'])->toBe('Could not resolve the central address, falling back')
+        ->and($record['context']['event'])->toBe('upgrade.warning')
+        ->and($record['context']['status'])->toBe('warning')
+        ->and($record['context']['version'])->toBe('25.11.0')
+        ->and($record['context'])->not->toHaveKey('exception');
+});
+
+it('carries the original throwable when a warning is raised from a catch', function (): void {
+    [$facade, $spy] = loggerUpgradeWithSpy();
+    $exception = new RuntimeException('broker output unreachable');
+
+    $facade->warning('25.11.0', 'Could not resolve the central address, falling back', $exception);
+
+    $record = $spy->records[0];
+    expect($record['level'])->toBe(LogLevel::WARNING)
+        ->and($record['context']['event'])->toBe('upgrade.warning')
+        ->and($record['context']['exception'])->toBe($exception);
+});
+
 it('never lets a logging failure abort the upgrade', function (): void {
     $throwingLogger = new class () extends AbstractLogger {
         public int $attempts = 0;

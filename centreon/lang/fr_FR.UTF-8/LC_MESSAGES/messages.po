@@ -811,7 +811,7 @@ msgstr "Ajouter un hôte"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
 msgid "Add a host category"
-msgstr "Ajouter une catégorie d'hôte"
+msgstr "Ajouter une catégorie d'hôtes"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -8363,7 +8363,7 @@ msgstr "Acquitter un hôte"
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/install/dashboard_widgets.php
 msgid "Host Categories"
-msgstr "Catégories d'hôte"
+msgstr "Catégories d'hôtes"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -11097,8 +11097,8 @@ msgid "Modify Vendor"
 msgstr "Modifier un constructeur"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
-msgstr "Modifier une catégorie d'hôte"
+msgid "Modify a host category"
+msgstr "Modifier une catégorie d'hôtes"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
@@ -18432,7 +18432,7 @@ msgid "View Vendor"
 msgstr "Visualiser un constructeur"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a  host category"
+msgid "View a host category"
 msgstr "Visualiser une catégorie d'hôte"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -25086,8 +25086,8 @@ msgid "VM or physical"
 msgstr "VM ou physique"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
-msgid "Docker compose"
-msgstr "Docker compose"
+msgid "Container"
+msgstr "Conteneur"
 
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Select token"
@@ -25136,3 +25136,7 @@ msgstr "Adresse du Central Centreon, telle que vue par ce collecteur"
 #: www/include/configuration/configServers/listServers.ihtml
 msgid "Copy installation command"
 msgstr "Copier la commande d'installation"
+
+#: www/front_src/src/Header/Poller/translatedLabels.ts
+msgid "Beta"
+msgstr "Beta"
