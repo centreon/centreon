@@ -25,6 +25,7 @@ namespace App\Security\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 
 interface ResourceAccessRepository
 {
@@ -33,7 +34,8 @@ interface ResourceAccessRepository
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
     /**
-     * @return list<PollerId>|null null means no restriction applies (the user can access all pollers)
+     * @return Collection<PollerId>|null null means no restriction applies (the user can access
+     *                                   all pollers); an empty Collection means the user can access none
      */
-    public function findAccessiblePollerIds(UserId $userId): ?array;
+    public function findAccessiblePollerIds(UserId $userId): ?Collection;
 }

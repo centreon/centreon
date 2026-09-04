@@ -26,6 +26,7 @@ namespace App\Security\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -87,7 +88,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ]);
     }
 
-    public function findAccessiblePollerIds(UserId $userId): ?array
+    public function findAccessiblePollerIds(UserId $userId): ?Collection
     {
         if ($this->hasAccessToAllPollers($userId)) {
             return null;
@@ -105,7 +106,10 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{poller_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return array_map(static fn (array $row): PollerId => new PollerId((int) $row['poller_id']), $rows);
+        return new Collection(
+            array_map(static fn (array $row): PollerId => new PollerId((int) $row['poller_id']), $rows),
+            PollerId::class,
+        );
     }
 
     private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder

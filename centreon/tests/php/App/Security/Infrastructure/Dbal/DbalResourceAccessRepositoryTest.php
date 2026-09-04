@@ -83,7 +83,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $accessiblePollerIds = $this->repository->findAccessiblePollerIds($userId);
         self::assertNotNull($accessiblePollerIds);
-        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, $accessiblePollerIds));
+        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, iterator_to_array($accessiblePollerIds)));
     }
 
     /**
@@ -107,7 +107,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $accessiblePollerIds = $this->repository->findAccessiblePollerIds($userId);
         self::assertNotNull($accessiblePollerIds);
-        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, $accessiblePollerIds));
+        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, iterator_to_array($accessiblePollerIds)));
     }
 
     private function createContact(string $alias): int

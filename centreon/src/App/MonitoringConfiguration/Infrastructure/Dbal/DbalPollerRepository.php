@@ -358,7 +358,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
         $this->paginatePollers($qb, $criteria);
 
-        $count = $this->countPollersOnQueryBuilder($qb); // must be done before fetching all rows
+        $count = $this->countPollersOnQueryBuilder($qb); // counts a clone, so this order has no effect on either result
 
         /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -465,13 +465,15 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
         if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {
             $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($viewerId);
-            if ($accessiblePollerIds !== null) {
+            if ($accessiblePollerIds instanceof Collection) {
+                $ids = [];
+                foreach ($accessiblePollerIds as $pollerId) {
+                    $ids[] = $pollerId->value;
+                }
+
                 $qb->andWhere($qb->expr()->in(
                     'p.id',
-                    $qb->createNamedParameter(
-                        array_map(static fn (PollerId $id): int => $id->value, $accessiblePollerIds),
-                        ArrayParameterType::INTEGER
-                    )
+                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
                 ));
             }
         }
