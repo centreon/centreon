@@ -1886,29 +1886,202 @@ class CentreonDB extends PDO implements ConnectionInterface
         if (! $msg) {
             $msg = _('Connection failed, please contact your administrator');
         }
-        echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-            "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-              <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
-                <head>
-                <style type="text/css">
-                       div.Error{background-color:#fa6f6c;border:1px #AEAEAE solid;width: 500px;}
-                       div.Error{border-radius:4px;}
-                       div.Error{padding: 15px;}
-                       a, div.Error{font-family:"Bitstream Vera Sans", arial, Tahoma, "Sans serif",serif;font-weight: bold;}
-                </style>
-                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        $escapedMsg = htmlspecialchars((string) $msg, ENT_QUOTES, 'UTF-8');
+        $statusLabel = _('Connection lost');
+        $heading = _('Unable to reach the database');
+        $lede = _(
+            "Centreon can't establish a connection to the database right now. "
+            . 'This usually resolves on its own once the database server is back.'
+        );
+        $retryLabel = _('Retry now');
+
+        echo <<<HTML
+            <!DOCTYPE html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>Centreon</title>
+                <style>
+                  :root {
+                    --ink: #16202c;
+                    --paper: #eef2f7;
+                    --surface: #ffffff;
+                    --border: #dce3eb;
+                    --muted: #62728a;
+                    --accent: #2e68aa;
+                    --accent-strong: #1f4c7e;
+                    --danger: #b83f27;
+                    --danger-bg: #fbece7;
+                    --shadow: 0 1px 2px rgba(22,32,44,.04), 0 12px 32px -12px rgba(22,32,44,.18);
+                  }
+                  @media (prefers-color-scheme: dark) {
+                    :root {
+                      --ink: #e7ecf2;
+                      --paper: #0e131a;
+                      --surface: #171e28;
+                      --border: #2a3442;
+                      --muted: #8c9baf;
+                      --accent: #6099d6;
+                      --accent-strong: #85b3e6;
+                      --danger: #e2695a;
+                      --danger-bg: #2c1e1b;
+                      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px -12px rgba(0,0,0,.55);
+                    }
+                  }
+                  * { box-sizing: border-box; }
+                  body {
+                    margin: 0;
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--paper);
+                    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    color: var(--ink);
+                    padding: 24px;
+                  }
+                  .card {
+                    width: 100%;
+                    max-width: 460px;
+                    background: var(--surface);
+                    border: 1px solid var(--border);
+                    border-radius: 10px;
+                    box-shadow: var(--shadow);
+                    overflow: hidden;
+                  }
+                  .card-accent {
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+                  }
+                  .card-body {
+                    padding: 36px 36px 30px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                  }
+                  .brand {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                  }
+                  .brand img { display: block; height: 26px; width: auto; }
+                  .brand-word {
+                    font-size: 16px;
+                    font-weight: 600;
+                    letter-spacing: .01em;
+                  }
+                  .status-chip {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    align-self: flex-start;
+                    padding: 5px 11px 5px 9px;
+                    border-radius: 100px;
+                    background: var(--danger-bg);
+                    color: var(--danger);
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    letter-spacing: .01em;
+                  }
+                  .status-dot {
+                    width: 7px;
+                    height: 7px;
+                    border-radius: 50%;
+                    background: var(--danger);
+                    animation: pulse 1.8s ease-out infinite;
+                  }
+                  @keyframes pulse {
+                    0%   { box-shadow: 0 0 0 0 rgba(184,63,39,.45); }
+                    70%  { box-shadow: 0 0 0 8px rgba(184,63,39,0); }
+                    100% { box-shadow: 0 0 0 0 rgba(184,63,39,0); }
+                  }
+                  @media (prefers-reduced-motion: reduce) {
+                    .status-dot { animation: none; }
+                  }
+                  h1 {
+                    margin: 0;
+                    font-size: 20px;
+                    line-height: 1.35;
+                    font-weight: 600;
+                  }
+                  .lede {
+                    margin: 0;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--muted);
+                  }
+                  .detail {
+                    padding: 10px 13px;
+                    border-radius: 7px;
+                    background: var(--paper);
+                    border: 1px solid var(--border);
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                    font-size: 12px;
+                    color: var(--ink);
+                    overflow-wrap: anywhere;
+                  }
+                  .actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                    margin-top: 4px;
+                  }
+                  .btn {
+                    appearance: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 10px 20px;
+                    border-radius: 7px;
+                    background: var(--accent);
+                    color: #fff;
+                    font-size: 14px;
+                    font-weight: 600;
+                    font-family: inherit;
+                  }
+                  .btn:hover { background: var(--accent-strong); }
+                  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+                  .retry-caption {
+                    font-size: 12.5px;
+                    color: var(--muted);
+                    font-variant-numeric: tabular-nums;
+                  }
+                </style>
               </head>
-                <body>
-                  <center>
-                  <div style="padding-top:150px;padding-bottom:50px;">
-                        <img src="./img/centreon.png" alt="Centreon"/><br/>
+              <body>
+                <div class="card">
+                  <div class="card-accent"></div>
+                  <div class="card-body">
+                    <div class="brand">
+                      <img src="./img/logo-centreon-colors.svg" alt="Centreon" />
+                    </div>
+                    <span class="status-chip"><span class="status-dot"></span>{$statusLabel}</span>
+                    <h1>{$heading}</h1>
+                    <p class="lede">{$lede}</p>
+                    <div class="detail">{$escapedMsg}</div>
+                    <div class="actions">
+                      <button type="button" class="btn" onclick="location.reload();">{$retryLabel}</button>
+                      <span class="retry-caption" id="cfDbErrCaption"></span>
+                    </div>
                   </div>
-                  <div class="Error">' . $msg . '</div>
-                  <div style="padding: 50px;"><a href="#" onclick="location.reload();">Refresh Here</a></div>
-                  </center>
-                </body>
-              </html>';
+                </div>
+                <script>
+                  (function () {
+                    var seconds = 20;
+                    var caption = document.getElementById('cfDbErrCaption');
+                    function tick() {
+                      if (!caption) { return; }
+                      caption.textContent = seconds + 's before automatic retry…';
+                      if (seconds <= 0) { location.reload(); return; }
+                      seconds -= 1;
+                      setTimeout(tick, 1000);
+                    }
+                    tick();
+                  })();
+                </script>
+              </body>
+            </html>
+            HTML;
 
         exit;
     }
