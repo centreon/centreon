@@ -188,6 +188,7 @@ final class ListPollersProviderTest extends ApiTestCase
         $username = bin2hex(random_bytes(8));
         $contactId = $this->createNonAdminContact($username);
         $this->grantPollerReadTopologyRole($contactId);
+        $this->forceOnPremPlatform();
 
         $this->login($username);
 
@@ -375,6 +376,30 @@ final class ListPollersProviderTest extends ApiTestCase
         $container->set(
             ListPollersProvider::class,
             new ListPollersProvider($transformer, $repository, $pagination, $security, true),
+        );
+    }
+
+    /**
+     * Pins the on-premises platform explicitly rather than relying on the ambient
+     * IS_CLOUD_PLATFORM default: an external test environment could set it to true, which would
+     * silently turn this into a duplicate of testItExcludesCentralForNonAdminOnCloudPlatform.
+     */
+    private function forceOnPremPlatform(): void
+    {
+        $container = self::getContainer();
+
+        /** @var PollerCollectionOutputTransformer $transformer */
+        $transformer = $container->get(PollerCollectionOutputTransformer::class);
+        /** @var PollerRepository $repository */
+        $repository = $container->get(PollerRepository::class);
+        /** @var Pagination $pagination */
+        $pagination = $container->get(Pagination::class);
+        /** @var Security $security */
+        $security = $container->get(Security::class);
+
+        $container->set(
+            ListPollersProvider::class,
+            new ListPollersProvider($transformer, $repository, $pagination, $security, false),
         );
     }
 }
