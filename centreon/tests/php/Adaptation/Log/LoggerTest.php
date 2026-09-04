@@ -113,6 +113,28 @@ it('swallows a handler that throws when log() is called directly', function (): 
     })->not->toThrow(RuntimeException::class);
 });
 
+/**
+ * Swallowing must still leave a trace: a catch block reduced to an empty swallow would
+ * pass every test above while making logging failures invisible. Pin the error_log
+ * fallback so that regression cannot slip through.
+ */
+it('records the failure through error_log when the handler throws', function (): void {
+    [$facade] = loggerWithSpy(new RuntimeException('disk full'));
+
+    $errorLog = tempnam(sys_get_temp_dir(), 'logger-test-');
+    $previous = ini_set('error_log', $errorLog);
+
+    try {
+        $facade->error('a message');
+        $logged = file_get_contents($errorLog);
+    } finally {
+        ini_set('error_log', $previous);
+        unlink($errorLog);
+    }
+
+    expect($logged)->toContain('disk full');
+});
+
 it('passes the context through untouched', function (): void {
     [$facade, $spy] = loggerWithSpy();
     $context = ['id' => 42, 'nested' => ['a' => 1], 'exception' => new RuntimeException('boom')];
