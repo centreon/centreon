@@ -1591,6 +1591,10 @@ msgstr "Argument"
 msgid "Ascending"
 msgstr "Croissant"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Ask questions, share dashboards, swap know-how."
+msgstr "Posez vos questions, partagez vos tableaux de bord et échangez votre savoir-faire."
+
 #: centreon/www/include/configuration/configResources/listResources.php
 msgid "Associated pollers"
 msgstr "Collecteur associé"
@@ -1799,6 +1803,10 @@ msgstr "Ré-ordonnancement automatique"
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Auto-Rescheduling Window"
 msgstr "Fenêtre de ré-ordonnancement automatique"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Auto-discovery, BAM, MBI reporting and support."
+msgstr "Découverte automatique, BAM, rapports MBI et support."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -2088,6 +2096,10 @@ msgid ""
 msgstr ""
 "La commande de rechargement du broker ne correspond pas au format attendu. "
 "Veuillez vérifier la configuration du serveur de supervision."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Browse the docs"
+msgstr "Consulter la documentation"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Buffering timeout"
@@ -3158,6 +3170,10 @@ msgstr "Compact"
 msgid "Compact time period"
 msgstr "Période de temps compacte"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Compare Edition licenses"
+msgstr "Comparer les licences Edition"
+
 #: centreon/www/install/front_translate.php
 msgid "Comparison rule for the requested authentication context"
 msgstr "Règle de comparaison pour le contexte d'authentification demandé"
@@ -3598,6 +3614,10 @@ msgstr "Conteneur"
 #: centreon/src/Core/Broker/Application/Exception/BrokerException.php
 msgid "Content is not a valid JSON string"
 msgstr "Le contenu n'est pas une chaîne de caractères JSON valide"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Contribute on GitHub"
+msgstr "Contribution sur GitHub"
 
 #: centreon/www/install/front_translate.php
 msgid "Contributors"
@@ -5291,6 +5311,10 @@ msgstr "Voulez-vous passer en mode regex ?"
 msgid "Documentation"
 msgstr "Documentation"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Documentation & guides"
+msgstr "Documentation et guides"
+
 #: centreon/www/install/front_translate.php
 msgid "Done"
 msgstr "Terminé"
@@ -5567,6 +5591,14 @@ msgid ""
 "Edit wiki\n"
 "                    page"
 msgstr "Éditer la page de wiki"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Edition licenses add auto-discovery, BAM, advanced reporting and SLAs."
+msgstr "Les licences Edition ajoutent la découverte automatique, BAM, le reporting avancé et des SLA."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Editions & Cloud licenses"
+msgstr "Licences Edition et Cloud"
 
 #: centreon/www/install/front_translate.php
 msgid "Editor"
@@ -8025,6 +8057,10 @@ msgstr "Coordonnées géographiques"
 msgid "Geographic coordinates for MAP"
 msgstr "Coordonnées géographiques pour MAP"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Get more from Centreon"
+msgstr "Profiter davantage de Centreon"
+
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Global Functionalities Access"
 msgstr "Accès aux fonctionnalités globales"
@@ -9668,6 +9704,10 @@ msgstr ""
 "Il est possible de spécifier les critères que vous voulez rechercher de "
 "manière précise, en utilisant la syntaxe suivante :"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Join The Watch"
+msgstr "Rejoindre The Watch"
+
 #: centreon/www/install/menu_translation.php
 msgid "Knowledge Base"
 msgstr "Base de connaissance"
@@ -10524,6 +10564,10 @@ msgstr "Configuration des filtres sur les macros"
 msgid "Macros whitelist"
 msgstr "Liste blanche des macros"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Made with care by the Centreon team & community"
+msgstr "Conçu avec soin par l'équipe et la communauté Centreon"
+
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Mail Type"
 msgstr "Type de courrier"
@@ -10641,9 +10685,17 @@ msgstr "Demande de synchronisation LDAP du contact"
 msgid "Manufacturer"
 msgstr "Constructeur"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>"
+msgstr "Un grand merci à tous les développeurs et contributeurs. <contributors>Voir la liste complète sur GitHub ↗</contributors>"
+
 #: centreon/www/install/front_translate.php
 msgid "Many thanks to all the contributors to the security of Centreon"
 msgstr "Un grand merci à tous les contributeurs pour la sécurité de Centreon"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>"
+msgstr "Un grand merci à toutes les personnes ayant signalé de manière responsable des failles de sécurité et aidé à les corriger. <policy>Signaler une vulnérabilité ↗</policy>"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -12527,6 +12579,18 @@ msgstr "Oups, quelque chose s'est mal passé"
 msgid "Open"
 msgstr "Ouvrir"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure"
+msgstr "Plateforme de supervision IT ouverte et évolutive pour une visibilité complète sur votre infrastructure hybride"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open source edition"
+msgstr "Édition open source"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Open the repository"
+msgstr "Ouvrir le dépôt"
+
 #: centreon/www/install/front_translate.php
 msgid "Open ticket for host"
 msgstr "Ouvrir un ticket pour l'hôte"
@@ -13491,9 +13555,17 @@ msgstr "Profil"
 msgid "Progress"
 msgstr "Progression"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Project & contributors"
+msgstr "Projet et contributeurs"
+
 #: centreon/www/install/front_translate.php
 msgid "Project leaders"
 msgstr "Responsables du projet"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Project leaders <count>({{total}})</count>"
+msgstr "Responsables du projet <count>({{total}})</count>"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
@@ -14612,6 +14684,10 @@ msgstr "Mise à l'échelle"
 msgid "Scale of time"
 msgstr "Echelle de temps"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Scaling beyond open source?"
+msgstr "Besoin d'aller plus loin que l'open source ?"
+
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 msgid "Schedule an immediate check of all services on this host"
 msgstr "Planifier un contrôle immédiat de tous les services sur cet hôte"
@@ -14790,6 +14866,10 @@ msgstr "Secret ID"
 #: centreon/www/install/smarty_translate.php
 msgid "Secret Id"
 msgstr "Secret ID"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Security"
+msgstr "Sécurité"
 
 #: centreon/www/install/front_translate.php
 msgid "Security acknowledgement"
@@ -15695,6 +15775,10 @@ msgstr "Installation des fichiers de configurations"
 msgid "Settings"
 msgstr "Paramètres"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Setup, configuration and 700+ Monitoring Connectors."
+msgstr "Installation, configuration et plus de 700 connecteurs de supervision."
+
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
@@ -16073,6 +16157,18 @@ msgstr "Standard"
 msgid "Standard macros"
 msgstr "Macros standard"
 
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star centreon/centreon on GitHub"
+msgstr "Ajouter une étoile à centreon/centreon sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star on GitHub"
+msgstr "Ajouter une étoile sur GitHub"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Star the repo, open issues, submit connectors."
+msgstr "Ajoutez une étoile au dépôt, ouvrez des tickets, proposez des connecteurs."
+
 #: centreon/www/install/front_translate.php
 #: centreon/www/widgets/host-monitoring/src/action.php
 #: centreon/www/widgets/service-monitoring/src/action.php
@@ -16089,6 +16185,10 @@ msgstr "Début"
 #: centreon/www/install/front_translate.php
 msgid "Start date"
 msgstr "Date de début"
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "Start free trial"
+msgstr "Démarrer l'essai gratuit"
 
 #: centreon/www/install/front_translate.php
 msgid "Start time"
@@ -16638,6 +16738,10 @@ msgstr "Les fichiers SQL sont situés dans \"%s\""
 #: centreon/www/widgets/httploader/index.php
 msgid "The URL provided for the website does not use a valid URL pattern."
 msgstr "L'URL fournie pour le site web n'utilise pas un modèle d'URL valide."
+
+#: centreon/www/front_src/src/About/translatedLabels.ts
+msgid "The Watch community"
+msgstr "La communauté The Watch"
 
 #: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
 #, php-format
