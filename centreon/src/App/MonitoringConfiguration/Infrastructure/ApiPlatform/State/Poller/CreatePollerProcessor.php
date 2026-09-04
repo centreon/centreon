@@ -30,18 +30,23 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
+use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
+use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
+use App\Shared\Infrastructure\Logging\ExceptionFormatter;
 use App\Shared\Infrastructure\TransformerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,6 +68,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        private GorgoneNodesSynchronizer $gorgoneNodesSynchronizer,
+        private LoggerInterface $logger,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -90,9 +97,10 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             address: new PollerAddress($data->address),
             creatorId: $credentialUser->credential->userId->value,
             centralAddress: $centralAddress,
-            gorgoneCommunicationType: $this->isCloudPlatform
-                ? GorgoneCommunicationTypeEnum::PullWss
-                : GorgoneCommunicationTypeEnum::ZMQ,
+            // Both install.sh paths (vm and docker) always provision the gorgone pullwss
+            // module, on-premise as well as on Cloud, so the persisted communication type
+            // must match. ZMQ stays available through the legacy poller wizard.
+            gorgoneCommunicationType: GorgoneCommunicationTypeEnum::PullWss,
         );
 
         $token = $this->pollerTokenRepository->getValidPollerTokenByName($data->pollerTokenName);
@@ -101,6 +109,10 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
 
         $model = $this->commandBus->execute($command);
         Assert::isInstanceOf($model, Poller::class);
+
+        // Not from a PollerCreated handler: those run inside the create-poller transaction,
+        // and Gorgone reads the database on its own connection.
+        $this->synchronizeGorgoneNodes($model->id(), $model->name);
 
         // Use the normalized value, not the raw input: the stored poller and the
         // returned command must match what GET /installation-command/{id} generates.
@@ -117,5 +129,30 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         $resource->installationCommand = $factory->generate();
 
         return $resource;
+    }
+
+    /**
+     * Fire-and-forget: the poller is already committed, so a Gorgone outage must not fail the
+     * creation. There is no automatic retry — the only re-sync paths are manual operator
+     * actions — so the record has to carry the consequence and the remedy.
+     *
+     * Logged at error level, not warning: the record must escape the fingers_crossed buffer.
+     * Only GorgoneNodesSyncFailedException is absorbed; a wiring error still propagates.
+     */
+    private function synchronizeGorgoneNodes(PollerId $pollerId, PollerName $pollerName): void
+    {
+        try {
+            $this->gorgoneNodesSynchronizer->synchronize();
+        } catch (GorgoneNodesSyncFailedException $exception) {
+            $this->logger->error(
+                'Poller created but not announced to the Central: re-save it from the legacy poller form to retry',
+                [
+                    'poller_id' => $pollerId->value,
+                    'poller_name' => $pollerName->value,
+                    'source' => 'poller_api',
+                    'exception' => ExceptionFormatter::format($exception),
+                ]
+            );
+        }
     }
 }
