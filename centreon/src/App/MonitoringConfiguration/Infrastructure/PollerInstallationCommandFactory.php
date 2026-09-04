@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
+use App\MonitoringConfiguration\Domain\Model\CentralUrl;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
@@ -39,8 +40,8 @@ final readonly class PollerInstallationCommandFactory
         private PollerToken $pollerToken,
         #[Sensitive] private string $appSecret,
         #[Sensitive] private string $salt,
+        private CentralUrl $centralUrl,
         private bool $isCloudPlatform = false,
-        private string $centralUrl = '<CENTRAL_URL>',
     ) {
     }
 
@@ -53,8 +54,8 @@ final readonly class PollerInstallationCommandFactory
         PollerToken $pollerToken,
         string $appSecret,
         string $salt,
+        CentralUrl $centralUrl,
         bool $isCloudPlatform = false,
-        string $centralUrl = '<CENTRAL_URL>',
     ): self {
         return new self(
             $poller->uid,
@@ -63,27 +64,32 @@ final readonly class PollerInstallationCommandFactory
             $pollerToken,
             $appSecret,
             $salt,
-            $isCloudPlatform,
             $centralUrl,
+            $isCloudPlatform,
         );
     }
 
     public function generate(): string
     {
-        // Only `name` is escaped with escapeshellarg(): it is the sole free-form,
-        // user-provided value. The other parameters are controlled and cannot carry
-        // shell metacharacters: pollerToken name+value are hex (bin2hex), uid is an int,
-        // pollerType is an enum, appSecret/salt are engine-generated, and centralUrl must be
-        // validated as an IP or hostname (PollerAddress) by every call site before reaching here.
+        // Two free-form, admin-provided values reach this line: the poller name and the
+        // poller token name. Upstream bounds nothing but their length (NewToken, 255
+        // characters), so both are quoted with escapeshellarg(). The token name and its
+        // value are quoted together, as the single --poller_token argument install.sh
+        // expects: it forwards the "name:value" pair verbatim to the Gorgone configuration.
+        //
+        // The rest cannot carry shell metacharacters: the token value is base64 truncated to
+        // 64 characters (Encryption::generateRandomString), an alphabet that holds none; uid
+        // is an int; pollerType is an enum; appSecret/salt are read verbatim from the engine
+        // context file; and centralUrl is a CentralUrl, whose allowlist rejects every shell
+        // metacharacter.
         $command = sprintf(
-            'curl -fsSL https://%s/poller/install.sh | bash -s -- --poller_token %s:%s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
-            $this->centralUrl,
-            $this->pollerToken->name,
-            $this->pollerToken->value,
+            'curl -fsSL %s/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url %s --appsecret %s --salt %s',
+            $this->centralUrl->value,
+            escapeshellarg($this->pollerToken->name . ':' . $this->pollerToken->value),
             $this->pollerUid->value,
             escapeshellarg($this->pollerName->value),
             $this->pollerType->value,
-            $this->centralUrl,
+            $this->centralUrl->value,
             $this->appSecret,
             $this->salt,
         );
