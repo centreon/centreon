@@ -8,8 +8,9 @@ properties:
     example: "my dashboard"
 
   description:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Description about this dashboard"
     example: "my description"
@@ -29,16 +30,18 @@ properties:
         enum: [ global, manual ]
         example: 'manual'
       interval:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         example: 10
 
   thumbnail:
     type: object
     properties:
       id:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         example: 1
       name:
         type: string

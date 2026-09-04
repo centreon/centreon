@@ -37,8 +37,9 @@ post:
                   type: integer
                   description: "HTTP Status Code of the operation"
                 message:
-                  type: string
-                  nullable: true
+                  type:
+                    - string
+                    - 'null'
                   description: "Error message for non 204 status"
     '401':
       $ref: '../../Common/Response/Unauthorized.yaml'
