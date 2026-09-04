@@ -148,6 +148,8 @@ Key points:
 > Uniform coverage is guaranteed not by this middleware but by the **processors registered globally on every channel** — see [§6](#6-http--security-processors-web-route-token). Any error, regardless of its entry point into Monolog, traverses `ExceptionFormatterProcessor` (shape `{exceptions: [{type, message, code, file, line, trace}, …]}`) and `WebProcessor` / `RouteProcessor` / `TokenProcessor` (HTTP / security enrichment).
 >
 > Assumed blind spots: dedicated channels in the `!exclude` list of `web_finger_crossed` (`event`, `doctrine`, `console`, `deprecation`, `authentication`, `token`, `password`, `plugin-pack-manager`, `upgrade`), the `console` channel in CLI, and PHP fatals before kernel boot (parse error, OOM).
+>
+> One more blind spot, by **level** rather than by channel: `web_finger_crossed` buffers with `action_level: error` and declares no `passthru_level`, so a buffered record that never triggers a flush is dropped when the buffer is cleared. Unless an `error` or higher record activates the handler later in the same request — in which case the buffer is flushed and the earlier records are written as context — a `warning` is not "a lower-priority line", it is **no line at all** in `prod.web.log`. Since `LegacyHttpExceptionListener` logs every 4xx at `warning` (only 5xx reach `critical`), client errors — malformed pagination, unknown sort column, rejected payload — normally leave no trace on the platform log and are diagnosed from the HTTP access log. This is deliberate: `prod.web.log` carries incidents, not client mistakes.
 
 The middleware emits a record on the Monolog `app` channel (Symfony default) for every dispatch:
 
@@ -725,7 +727,7 @@ Four siblings of `Adaptation\Log\Logger` expose a **constrained, semantic API** 
 | `Adaptation\Log\LoggerPassword` | `password` | `prod.password.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerToken` | `token` | `prod.token.log` | `success`, `warning` |
 | `Adaptation\Log\LoggerAuthentication` | `authentication` | `prod.access.log` | `loginSuccess`, `loginFailure`, `logout`, `tokenRefreshSuccess`, `tokenRefreshFailure`, `unauthorized`, `forbidden` |
-| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `error` |
+| `Adaptation\Log\LoggerUpgrade` | `upgrade` | `prod.upgrade.log` | `start`, `success`, `failure`, `step`, `stepCompleted`, `stepFailure`, `info`, `warning`, `error` |
 
 They exist for two reasons:
 
@@ -958,6 +960,7 @@ The legacy web upgrade splits the flow across two steps: `process_step4.php` run
 use Adaptation\Log\LoggerUpgrade;
 
 LoggerUpgrade::create()->info($version, "Adding column X to table Y");
+LoggerUpgrade::create()->warning($version, "Central address could not be resolved, falling back");
 LoggerUpgrade::create()->error($version, "Schema check failed", $exception);
 
 LoggerUpgrade::create()->stepFailure($version, $stepName, $message, $exception);
@@ -973,6 +976,7 @@ LoggerUpgrade::create()->step($version, $stepName, $message);
 | `stepCompleted($version, $stepName, $durationMs, $message)` | `INFO` | Sub-step **completion**. `status: completed`, carries `duration_ms` in the context (not just the message), so completed steps are queryable without parsing text. |
 | `stepFailure($version, $stepName, $message, $e)` | `ERROR` | A bracketed step threw. Emitted by the step bracket itself (e.g. `UpdateCommandHandler::runStep`, `DbWriteUpdateRepository::executeStep`, or `process_step5.php` for `post_update`). An upgrade script must **not** re-emit it for `php_script` (the bracket already logs the re-thrown exception); a script only emits it for `php_script_rollback`, when the rollback itself fails. |
 | **`info($version, $message)`** | `INFO` | **Trace a meaningful action** (entering a function, finished an `ALTER TABLE`, skipped because already migrated, …). This is the workhorse inside upgrade scripts. |
+| **`warning($version, $message, $e)`** | `WARNING` | **Signal a degraded but non-fatal outcome** (a value could not be resolved and a fallback was used, an optional step was skipped). The upgrade carries on and the operator gets a line to check afterwards. Pass the throwable when the fallback was decided inside a `catch`, otherwise the cause of the degradation is lost. |
 | **`error($version, $message, $e)`** | `ERROR` | Free-form error inside a script that you choose not to re-throw (rare — usually you re-throw and let the surrounding `try/catch` call `stepFailure`). |
 
 ### Recommended pattern

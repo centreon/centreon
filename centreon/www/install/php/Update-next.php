@@ -62,6 +62,22 @@ $addCentralAddressColumn = function () use ($pearDB, &$errorMessage, $version): 
     LoggerUpgrade::create()->info($version, 'Successfully added central_address column');
 };
 
+$fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix the gorgone_communication_type column comment';
+    LoggerUpgrade::create()->info($version, 'Fixing the gorgone_communication_type column comment');
+
+    $pearDB->executeStatement(
+        <<<'SQL'
+            ALTER TABLE `nagios_server`
+            MODIFY COLUMN `gorgone_communication_type`
+            enum('1','2','3','4') NOT NULL DEFAULT '1'
+            COMMENT '1: ZMQ, 2: SSH, 3: Pull, 4: PullWSS'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
+};
+
 /**
  * Resolve central address from /etc/centreon/poller_installation (cloud only).
  * Builds address as: {orga}.{region}.{domain}/{site}
@@ -215,6 +231,7 @@ try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
     $addCentralAddressColumn();
+    $fixGorgoneCommunicationTypeComment();
 
     $errorMessage = 'Unable to start the configuration database transaction';
     if (! $pearDB->isTransactionActive()) {
