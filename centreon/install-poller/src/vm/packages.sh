@@ -90,16 +90,33 @@ function _vmInstallPowertools() {
   esac
 }
 
+# The major to resolve VM package repo URLs against. For the stable channel, a
+# cloud major resolves to the previous on-prem major (same as
+# _pollerImageMajor for the Docker image tag, src/commands/docker.sh) so a
+# real customer install never needs internal repo access — RPM/DEB packages
+# for a cloud major are only ever published internally. testing/unstable stay
+# pinned to the actual major being validated: QA needs the real cloud
+# candidate build, not an older on-prem stand-in. MON-208333.
+function _vmRepoMajor() {
+  if [ "${STABILITY}" = "stable" ]; then
+    _pollerImageMajor
+  else
+    echo "${major}"
+  fi
+}
+
 # Mirrors uses_internal_repo() in centreon/unattended.sh.
 function _usesInternalRepo() {
-  [ "${major##*.}" != "10" ]
+  ! _isOnPremMajor "$(_vmRepoMajor)"
 }
 
 function _centreonRpmRepoUrl() {
+  local repo_major
+  repo_major=$(_vmRepoMajor)
   if _usesInternalRepo; then
-    echo "https://packages.centreon.com/rpm-standard-internal/${major}/el${_EL_MAJOR:-9}/centreon-${major}-internal.repo"
+    echo "https://packages.centreon.com/rpm-standard-internal/${repo_major}/el${_EL_MAJOR:-9}/centreon-${repo_major}-internal.repo"
   else
-    echo "https://packages.centreon.com/rpm-standard/${major}/el${_EL_MAJOR:-9}/centreon-${major}.repo"
+    echo "https://packages.centreon.com/rpm-standard/${repo_major}/el${_EL_MAJOR:-9}/centreon-${repo_major}.repo"
   fi
 }
 
@@ -132,6 +149,8 @@ function _vmConfigureRepoChannels() {
   else
     local codename
     codename=$(lsb_release -sc)
+    local repo_major
+    repo_major=$(_vmRepoMajor)
     local apt_root="apt-standard"
     _usesInternalRepo && apt_root="apt-standard-internal"
 
@@ -139,18 +158,18 @@ function _vmConfigureRepoChannels() {
           /etc/apt/sources.list.d/centreon-testing.list \
           /etc/apt/sources.list.d/centreon-unstable.list
 
-    echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-stable main" \
+    echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-stable main" \
       | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
 
     if [ "${STABILITY}" = "testing" ] || [ "${STABILITY}" = "unstable" ]; then
       {
-        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-hotfix main"
-        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-release main"
+        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main"
+        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main"
       } | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
     fi
 
     if [ "${STABILITY}" = "unstable" ]; then
-      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-unstable main" \
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-unstable main" \
         | tee /etc/apt/sources.list.d/centreon-unstable.list > /dev/null
     fi
 
@@ -159,7 +178,7 @@ function _vmConfigureRepoChannels() {
 }
 
 function _vmInstallRepo() {
-  logInfo "Adding Centreon ${major} repository (stability: ${STABILITY})"
+  logInfo "Adding Centreon $(_vmRepoMajor) repository (stability: ${STABILITY})"
 
   if [ "${_PKG_COMMAND}" = "apt" ]; then
     consoleInfo "Adding Centreon repository (Debian)"
@@ -200,12 +219,14 @@ function _vmInstallPackages() {
 }
 
 function _vmUpdateRepo() {
-  consoleInfo "Updating Centreon repository to ${major} (stability: ${STABILITY})"
-  logInfo "Updating Centreon repository to ${major}, stability=${STABILITY}"
+  local repo_major
+  repo_major=$(_vmRepoMajor)
+  consoleInfo "Updating Centreon repository to ${repo_major} (stability: ${STABILITY})"
+  logInfo "Updating Centreon repository to ${repo_major}, stability=${STABILITY}"
 
   if [ "${_PKG_COMMAND}" = "dnf" ]; then
     rm -f /etc/yum.repos.d/centreon-*.repo
-    commandExitOnError "Cannot add Centreon ${major} repository" \
+    commandExitOnError "Cannot add Centreon ${repo_major} repository" \
       dnf config-manager --add-repo "$(_centreonRpmRepoUrl)"
     _vmConfigureRepoChannels
     dnf clean all

@@ -61,7 +61,7 @@ final class FindPluginProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', '/api/latest/configuration/plugins/check_dhcp');
+        $this->request('GET', '/api/configuration/plugins/check_dhcp');
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(PluginResource::class);
         self::assertJsonContains(
@@ -73,13 +73,13 @@ final class FindPluginProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', '/api/latest/configuration/plugins/unknown_plugin');
+        $this->request('GET', '/api/configuration/plugins/unknown_plugin');
         self::assertResponseStatusCodeSame(404);
     }
 
     public function testItRequiresAuthentication(): void
     {
-        $this->request('GET', '/api/latest/configuration/plugins/check_dhcp');
+        $this->request('GET', '/api/configuration/plugins/check_dhcp');
         self::assertResponseStatusCodeSame(401);
     }
 }
