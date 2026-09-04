@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -82,6 +83,42 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             'contactId' => $userId->value,
             'pollerId' => $pollerId->value,
         ]);
+    }
+
+    public function findAccessibleHostGroupIds(UserId $userId): ?array
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // No ACL resources means no restrictions apply — the user has access to all host groups.
+        if (! $this->connection->fetchOne($accessibleAclResQb->getSQL(), ['contactId' => $userId->value])) {
+            return null;
+        }
+
+        $unrestrictedQb = $this->connection->createQueryBuilder();
+        $unrestrictedQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->leftJoin('accessible_res', 'acl_resources_hg_relations', 'arhr', 'arhr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arhr.acl_res_id IS NULL')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        // At least one accessible ACL resource carries no host group restriction at all — access to all host groups.
+        if ($this->connection->fetchOne($unrestrictedQb->getSQL(), ['contactId' => $userId->value])) {
+            return null;
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arhr.hg_hg_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hg_relations', 'arhr', 'arhr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{hg_hg_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows);
     }
 
     private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder
