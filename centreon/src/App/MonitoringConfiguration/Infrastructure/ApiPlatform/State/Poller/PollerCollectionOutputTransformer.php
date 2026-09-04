@@ -21,21 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerCollectionOutput;
+use App\Shared\Infrastructure\TransformerInterface;
 
-interface ResourceAccessRepository
+/**
+ * @implements TransformerInterface<Poller, PollerCollectionOutput>
+ */
+final readonly class PollerCollectionOutputTransformer implements TransformerInterface
 {
-    public function hasAccessToAllPollers(UserId $userId): bool;
-
-    public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
-
-    /**
-     * @return Collection<PollerId>|null null means no restriction applies (the user can access
-     *                                   all pollers); an empty Collection means the user can access none
-     */
-    public function findAccessiblePollerIds(UserId $userId): ?Collection;
+    public function transform(mixed $from): PollerCollectionOutput
+    {
+        return new PollerCollectionOutput(
+            id: $from->id()->value,
+            name: $from->name->value,
+        );
+    }
 }

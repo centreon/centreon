@@ -21,21 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use ApiPlatform\Metadata\ApiProperty;
 
-interface ResourceAccessRepository
+final class PollerCollectionOutput
 {
-    public function hasAccessToAllPollers(UserId $userId): bool;
+    public function __construct(
+        #[ApiProperty(identifier: true)]
+        public int $id,
 
-    public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
-
-    /**
-     * @return Collection<PollerId>|null null means no restriction applies (the user can access
-     *                                   all pollers); an empty Collection means the user can access none
-     */
-    public function findAccessiblePollerIds(UserId $userId): ?Collection;
+        public string $name,
+    ) {
+    }
 }

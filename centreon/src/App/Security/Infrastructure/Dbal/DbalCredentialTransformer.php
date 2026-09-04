@@ -53,6 +53,8 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_POLLERS_POLLERS_R' => PollerPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_POLLERS_POLLERS_RW' => PollerPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**

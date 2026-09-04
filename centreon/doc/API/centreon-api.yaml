@@ -5187,6 +5187,76 @@ paths:
             schema:
               $ref: '#/components/schemas/Poller.CreatePollerInput'
         required: true
+    get:
+      operationId: api_configurationpollers_get_collection
+      tags:
+        - Poller
+      responses:
+        '200':
+          description: 'Poller collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Poller.PollerCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Poller.PollerCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Poller.PollerCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+      summary: 'Retrieves the collection of Poller resources.'
+      description: 'Retrieves the collection of Poller resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by poller name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
   '/configuration/pollers/installation-command/{id}':
     get:
       operationId: api_configurationpollersinstallation-command_id_get
@@ -10148,3 +10218,21 @@ components:
               type: string
               example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
               nullable: true
+    Poller.PollerCollectionOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Poller.PollerCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
