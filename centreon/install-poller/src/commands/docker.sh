@@ -59,35 +59,22 @@ function runDockerInstall() {
     consoleInfo "  Centreon Monitoring Agent support (--with-cma): TLS certs + port 4317"
   fi
   echo ""
-  case "$(_dockerEffectiveStability)" in
-  testing*)
-    # Matches bare 'testing' (unforced) and the testing-release/testing-hotfix
-    # overrides alike: never auto-start an unvalidated candidate stack.
-    consoleInfo "Stability 'testing': not starting the stack automatically."
+  # No stability-based auto-start block: every case (stable/unstable/testing*)
+  # now resolves TAG to a real, pullable tag (MON-208554 dropped the old
+  # SET_ME_PER_COMPONENT placeholder), so --no-start/START_STACK alone decides.
+  if [ "${START_STACK}" = "1" ]; then
+    echo ""
+    consoleTitle "Starting stack:"
+    docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
+    echo ""
+  else
     consoleTitle "Next steps:"
-    echo "  1. Edit .env: set ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG to the branch/tag you are testing."
-    echo "  2. Start the stack:"
+    echo "  1. Start the stack:"
     echo "       docker compose up -d"
     echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
     echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
     echo ""
-    ;;
-  *)
-    if [ "${START_STACK}" = "1" ]; then
-      echo ""
-      consoleTitle "Starting stack:"
-      docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
-      echo ""
-    else
-      consoleTitle "Next steps:"
-      echo "  1. Start the stack:"
-      echo "       docker compose up -d"
-      echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
-      echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
-      echo ""
-    fi
-    ;;
-  esac
+  fi
 }
 
 # Effective stability for every Docker decision (tag, registry, whether to
