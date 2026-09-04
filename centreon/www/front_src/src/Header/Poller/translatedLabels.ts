@@ -31,7 +31,7 @@ export const labelPollers = 'Pollers';
 
 export const labelSelectPollerEnvironment = "Select your poller's environment";
 export const labelVMOrPhysical = 'VM or physical';
-export const labelDockerCompose = 'Docker compose';
+export const labelContainer = 'Container';
 export const labelSelectToken = 'Select token';
 export const labelSelectTokenPlaceholder = 'Select token';
 export const labelGenerateInstallationCommand = 'Generate installation command';
@@ -45,10 +45,11 @@ export const labelFailedToCreatePoller = 'Failed to create poller';
 export const labelPleaseWait = 'Please wait...';
 
 export const labelCreateNewPoller = 'Create new poller';
+export const labelBeta = 'Beta';
 export const labelEnterPollerNameAndAddress = "Enter your poller's information";
 export const labelPollerName = 'Poller name';
-export const labelPollerAddress = 'Poller adress';
+export const labelPollerAddress = 'Poller address';
 export const labelCentralAddress =
-  'Centreon Central adress, as seen by this poller';
+  'Centreon Central address, as seen by this poller';
 export const labelPollersOverview =
   'Current status of the pollers and monitoring engines';

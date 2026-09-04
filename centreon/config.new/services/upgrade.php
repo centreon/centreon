@@ -56,6 +56,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '%env(password)%',
             '%env(db)%',
             '%env(dbcstg)%',
+            '%env(int:port)%',
         ]);
 
     $services->load('App\\Upgrade\\', __DIR__ . '/../../src/App/Upgrade');

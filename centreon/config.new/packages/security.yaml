@@ -6,11 +6,11 @@ security:
         ROLE_ADMIN: ROLE_USER
     firewalls:
         dev:
-            pattern: '/api/latest/_(profiler|wdt)'
+            pattern: '^/api(/latest)?/_(profiler|wdt)'
             security: false
 
         api:
-            pattern: '/api/latest'
+            pattern: '^/api'
             stateless: true
             entry_point: App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper
             custom_authenticators:
@@ -19,10 +19,10 @@ security:
                 - App\Security\Infrastructure\Security\SessionAuthenticator
 
     access_control:
-        - { path: '/api/latest$', roles: PUBLIC_ACCESS }         # Allows accessing the Swagger UI
-        - { path: '/api/latest/docs', roles: PUBLIC_ACCESS }     # Allows accessing the Swagger UI docs
-        - { path: '/api/latest/contexts', roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI contexts
-        - { path: '/api/latest/login', roles: PUBLIC_ACCESS }    # Allows accessing the login
+        - { path: '^/api(/latest)?$', roles: PUBLIC_ACCESS }         # Allows accessing the Swagger UI
+        - { path: '^/api(/latest)?/docs', roles: PUBLIC_ACCESS }     # Allows accessing the Swagger UI docs
+        - { path: '^/api(/latest)?/contexts', roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI contexts
+        - { path: '^/api(/latest)?/login', roles: PUBLIC_ACCESS }    # Allows accessing the login (implemented by the legacy kernel, exposed at both prefixes)
         - { path: '/', roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

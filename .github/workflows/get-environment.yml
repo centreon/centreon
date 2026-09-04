@@ -752,10 +752,13 @@ jobs:
               ...info,
             }));
 
-            const cloudDistribs = allDistribs.filter(d => ['alma9', 'alma10'].includes(d.operating_system));
-            const onPremMainDistribs = allDistribs.filter(d => d.operating_system === 'alma10');
+            // Need to be defined separately as their values used to diverge in the past and
+            // may diverge again in the future
+            const cloudMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
+            const onPremMainDistrib = allDistribs.filter(d => d.operating_system === 'alma10');
+
             const isCloudTestingOrStable = isCloud && ['testing', 'stable'].includes(stability);
-            const result = isCloudTestingOrStable ? cloudDistribs : isFullRun ? allDistribs : isCloud ? cloudDistribs : onPremMainDistribs;
+            const result = isCloudTestingOrStable ? cloudMainDistrib : isFullRun ? allDistribs : isCloud ? cloudMainDistrib : onPremMainDistrib;
 
             console.log('package_matrix', result);
 
@@ -771,58 +774,34 @@ jobs:
           PACKAGE_MATRIX: ${{ steps.get_package_matrix.outputs.result }}
         with:
           script: |
-            const alma10_mariadb_11_8 = {
-              "operating_system": "alma10",
-              "database": "mariadb:11.8",
-              "db_id": "mariadb-11.8",
-              "test_tags": "not @ignore"
-            };
-            const alma9_mysql_8_0 = {
-              "operating_system": "alma9",
-              "database": "mysql:8.0",
-              "db_id": "mysql-8.0",
-              "test_tags": "not @ignore"
-            };
-            const trixie_mysql_8_4 = {
-              "operating_system": "trixie",
-              "database": "mysql:8.4",
-              "db_id": "mysql-8.4",
-              "test_tags": "not @ignore"
+            const cfg = (operating_system, database, db_id, test_tags) => ({ operating_system, database, db_id, test_tags });
+
+            const alma10_mysql_8_4       = cfg('alma10', 'mysql:8.4', 'mysql-8.4', 'not @ignore');
+            const alma10_mariadb_11_8    = cfg('alma10', 'mariadb:11.8', 'mariadb-11.8', 'not @ignore');
+            const alma9_mariadb_11_8     = cfg('alma9',  'mariadb:11.8', 'mariadb-11.8', 'not @ignore');
+            const trixie_mariadb_11_8    = cfg('trixie', 'mariadb:11.8', 'mariadb-11.8', 'not @ignore');
+
+            // Fixed weekday -> preferred configuration (0=sunday, 1=monday, ..., 6=saturday)
+            const dailyConfigByDayOfWeek = {
+              1: alma10_mysql_8_4,    // Monday
+              2: trixie_mariadb_11_8, // Tuesday
+              3: alma10_mysql_8_4,    // Wednesday
+              4: alma9_mariadb_11_8,  // Thursday
+              5: alma10_mysql_8_4,    // Friday
             };
 
             const getDailyConfig = (configs) => {
-              const today = new Date();
-              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+              const dayOfWeek = new Date().getDay();
+              const preferred = dailyConfigByDayOfWeek[dayOfWeek];
 
-              // If it's weekend, use the default configuration
-              if (dayOfWeek === 0 || dayOfWeek === 6) {
-                return configs[0];
-              }
-
-              // Reference date: January 1, 2025
-              const referenceDate = new Date('2025-01-01');
-
-              // Calculate the number of working days since January 1
-              let workingDays = 0;
-              const currentDate = new Date(referenceDate);
-
-              while (currentDate < today) {
-                const dayOfWeek = currentDate.getDay();
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
-                  workingDays++;
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-              }
-
-              // Alternating balanced on 3 configurations
-              const configIndex = workingDays % configs.length;
-
-              return configs[configIndex];
+              // Fall back to the first available configuration on weekends,
+              // or if the preferred one isn't part of the package matrix
+              return preferred && configs.includes(preferred) ? preferred : configs[0];
             };
 
             const packagedOperatingSystems = JSON.parse(process.env.PACKAGE_MATRIX).map(d => d.operating_system);
 
-            const configs = [alma9_mysql_8_0, alma10_mariadb_11_8, trixie_mysql_8_4]
+            const configs = [alma10_mysql_8_4, alma9_mariadb_11_8, trixie_mariadb_11_8]
               .filter(c => packagedOperatingSystems.includes(c.operating_system));
 
             if (configs.length === 0) {
@@ -830,14 +809,8 @@ jobs:
               return {};
             }
 
-            // Fall back to the first packaged configuration when the preferred
-            // operating system is not part of the package matrix
-            const cloud = configs.find(c => c.operating_system === 'alma9') ?? configs[0];
-
-            let main = configs.find(c => c.operating_system === 'alma10') ?? configs[0];
-            if (process.env.IS_CLOUD === 'true') {
-              main = cloud;
-            }
+            const cloud = alma10_mysql_8_4;
+            let main = process.env.IS_CLOUD === 'true' ? cloud : alma10_mariadb_11_8;
 
             let matrix = {
               "cloud": [cloud],

@@ -29,7 +29,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListStandardMacrosProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/standard-macros';
+    private const BASE_ENDPOINT = '/api/configuration/standard-macros';
 
     protected function setUp(): void
     {

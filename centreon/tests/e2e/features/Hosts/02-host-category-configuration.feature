@@ -21,3 +21,25 @@ Feature: HostCategoryConfiguration
   Scenario: Delete one existing host category
     When the user deletes a host category
     Then the deleted host category is not visible anymore on the host category page
+
+  Scenario: Add a host category from the legacy form
+    When the user adds a host category from the form
+    Then the added host category appears in the listing
+
+  Scenario: A severity host category keeps its type, a regular one stays regular
+    When the user adds a host category with the severity type enabled
+    Then the host category is listed as a severity category
+    When the user adds a host category with the severity type disabled
+    Then the host category is listed as a regular category
+
+  Scenario: Searching the listing filters it and never breaks the page
+    When the user searches the listing for the configured category
+    Then only the matching category is listed
+    When the user searches the listing with special characters
+    Then the listing renders with no result and no error
+
+  Scenario: Bulk disabling then enabling a host category flips its status
+    When the user bulk disables the configured host category
+    Then the configured host category is disabled
+    When the user bulk enables the configured host category
+    Then the configured host category is enabled

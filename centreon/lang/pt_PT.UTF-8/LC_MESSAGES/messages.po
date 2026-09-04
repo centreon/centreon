@@ -11284,7 +11284,7 @@ msgid "Modify Vendor"
 msgstr "Modificar Fabricante"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "Modify a  host category"
+msgid "Modify a host category"
 msgstr "Modifica uma categoria de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -18518,7 +18518,7 @@ msgid "View Vendor"
 msgstr "Visualizar Fabricante"
 
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
-msgid "View a  host category"
+msgid "View a host category"
 msgstr "Visualiza uma categoria de host"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
@@ -23880,7 +23880,7 @@ msgstr ""
 # msgstr ""
 
 #: unknown
-# msgid "Docker compose"
+# msgid "Container"
 # msgstr ""
 
 #: unknown
