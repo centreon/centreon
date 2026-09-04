@@ -78,6 +78,9 @@ class Backend
     /** @var string|null */
     private $central_poller_id = null;
 
+    /** @var string|null */
+    private $engine_context_file_path = null;
+
     /**
      * Backend constructor
      *
@@ -275,6 +278,30 @@ class Backend
         }
 
         throw new Exception('Cannot get central poller id');
+    }
+
+    /**
+     * @throws PDOException
+     * @return string
+     */
+    public function getEngineContextFilePath()
+    {
+        if (! is_null($this->engine_context_file_path)) {
+            return $this->engine_context_file_path;
+        }
+        $stmt = $this->db->prepare('SELECT cfg_dir FROM cfg_nagios WHERE nagios_server_id = :pollerId');
+        $stmt->bindValue(':pollerId', $this->getCentralPollerId(), PDO::PARAM_INT);
+        $stmt->execute();
+        if ($stmt->rowCount()) {
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (! empty($row['cfg_dir'])) {
+                $this->engine_context_file_path = rtrim($row['cfg_dir'], '/') . '/engine-context.json';
+
+                return $this->engine_context_file_path;
+            }
+        }
+
+        throw new Exception('Cannot get cfg_dir for the central poller');
     }
 
     /**
