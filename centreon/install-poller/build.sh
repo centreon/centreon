@@ -66,12 +66,12 @@ fi
 cp -f main-head.sh "${target}"
 
 if [[ "$(uname)" == "Darwin" ]]; then
-  sed -i '' "s/major=\"\"/major=\"$major\"/g" "${target}"
-  sed -i '' "s/STABILITY=\"\"/STABILITY=\"$stability\"/g" "${target}"
+  sed -i '' "s/^major=\"\"/major=\"$major\"/g" "${target}"
+  sed -i '' "s/^STABILITY=\"\"/STABILITY=\"$stability\"/g" "${target}"
   sed -i '' "s/<VERSION>/${full_version}/g" "${target}"
 else
-  sed -i "s/major=\"\"/major=\"$major\"/g" "${target}"
-  sed -i "s/STABILITY=\"\"/STABILITY=\"$stability\"/g" "${target}"
+  sed -i "s/^major=\"\"/major=\"$major\"/g" "${target}"
+  sed -i "s/^STABILITY=\"\"/STABILITY=\"$stability\"/g" "${target}"
   sed -i "s/<VERSION>/${full_version}/g" "${target}"
 fi
 

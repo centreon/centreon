@@ -31,6 +31,31 @@ POLLER_TYPE=""
 # Baked in at build time by build.sh
 STABILITY=""
 
+# Hidden dev/QA override: force pulling poller images from a specific
+# registry regardless of STABILITY, to test a release-candidate image before
+# it's promoted to ghcr.io. Not documented in help.sh on purpose.
+# Valid values: "" (default, follow STABILITY), "harbor", "ghcr".
+FORCE_REGISTRY=""
+
+# Hidden dev/QA override: explicit TAG value to write into .env, regardless
+# of STABILITY/FORCE_REGISTRY (e.g. "26.10.0" or "release-26.10-next").
+# Empty means use the automatic default.
+FORCE_TAG=""
+
+# Hidden dev/QA override: pretend STABILITY is this value everywhere it's
+# read (Docker registry/tag selection AND VM/RPM/APT repo channel config),
+# without rebuilding install.sh. Useful when a major is baked "stable" but
+# its packages/images aren't promoted to the stable channel/registry yet.
+# No bare "testing" here on purpose: centreon-collect's testing channel is
+# actually two separate repos/tags (release vs hotfix candidates) that can
+# disagree on version — forcing testing requires picking one explicitly, to
+# avoid an ambiguous dnf/apt resolution across both. The real baked
+# STABILITY can still be bare "testing" (unforced default: both stay
+# enabled, as before) when this override isn't used.
+# Valid values: "" (default, use the real baked STABILITY), "stable",
+# "testing-release", "testing-hotfix", "unstable".
+FORCE_STABILITY=""
+
 # Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
 CLOUD_MODE="false"
 
