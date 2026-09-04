@@ -1,14 +1,46 @@
 export const labelCentreon = 'Centreon';
-export const labelDevelopedBy = 'Developed by';
-export const labelAnd = 'and';
-export const labelCommunity = 'the community';
-export const labelProjectLeaders = 'Project leaders';
-export const labelDevelopers = 'Developers';
-export const labelContributors = 'Contributors';
-export const labelSecurityAcknowledgement = 'Security acknowledgement';
-export const labelAndManyOthers = 'And many others...';
-export const labelYouCanSeeFullListOn = 'You can see the full list on';
-export const labelCentreonsGithub = "Centreon's Github";
-export const labelManyThanksToAllContributorsToTheSecurity =
-  'Many thanks to all the contributors to the security of Centreon';
-export const labelCentreonWebsite = 'Centreon website';
+export const labelOpenSourceEdition = 'Open source edition';
+export const labelPlatformTagline =
+  'Open and scalable IT monitoring platform for full visibility on your hybrid infrastructure';
+export const labelStarOnGithub = 'Star on GitHub';
+export const labelStarCentreonOnGithub = 'Star centreon/centreon on GitHub';
+
+export const labelProjectAndContributors = 'Project & contributors';
+export const labelProjectLeadersWithCount =
+  'Project leaders <count>({{total}})</count>';
+export const labelContributorsNotice =
+  'Many thanks to all developers & contributors. <contributors>See the full list on GitHub ↗</contributors>';
+
+export const labelSecurity = 'Security';
+export const labelSecurityNotice =
+  'Many thanks to everyone who responsibly disclosed and helped fix security issues. <policy>Report a vulnerability ↗</policy>';
+
+export const labelGetMoreFromCentreon = 'Get more from Centreon';
+
+export const labelDocumentationAndGuides = 'Documentation & guides';
+export const labelDocumentationAndGuidesDescription =
+  'Setup, configuration and 700+ Monitoring Connectors.';
+export const labelBrowseTheDocs = 'Browse the docs';
+
+export const labelTheWatchCommunity = 'The Watch community';
+export const labelTheWatchCommunityDescription =
+  'Ask questions, share dashboards, swap know-how.';
+export const labelJoinTheWatch = 'Join The Watch';
+
+export const labelContributeOnGithub = 'Contribute on GitHub';
+export const labelContributeOnGithubDescription =
+  'Star the repo, open issues, submit connectors.';
+export const labelOpenTheRepository = 'Open the repository';
+
+export const labelEditionsAndCloud = 'Editions & Cloud licenses';
+export const labelEditionsAndCloudDescription =
+  'Auto-discovery, BAM, MBI reporting and support.';
+export const labelCompareEditions = 'Compare Edition licenses';
+
+export const labelScalingBeyondOpenSource = 'Scaling beyond open source?';
+export const labelEditionsUpsellDescription =
+  'Edition licenses add auto-discovery, BAM, advanced reporting and SLAs.';
+export const labelStartFreeTrial = 'Start free trial';
+
+export const labelMadeWithCare =
+  'Made with care by the Centreon team & community';
