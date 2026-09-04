@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
@@ -53,6 +54,8 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_R' => HostGroupPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_RW' => HostGroupPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
