@@ -20,6 +20,7 @@
  */
 
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
@@ -57,26 +58,31 @@ if (($o == TRAP_MODIFY || $o == TRAP_WATCH) && is_int($trapsId)) {
             $trapQuery,
             QueryParameters::create([QueryParameter::int('trapsId', $trapsId)])
         );
-        // An id matching no trap returns false: leave $trap empty so the form falls
-        // back to its defaults, instead of array_map() raising a TypeError over it.
-        if (is_array($row)) {
-            $trap = array_map('myDecodeTrap', $row);
-            $trap['severity'] = $trap['severity_id'];
-        }
-    } catch (Throwable $exception) {
+    } catch (ConnectionException $exception) {
         Logger::create(LogChannelEnum::WEB)->error(
             'Error retrieving the SNMP trap',
             ['trapsId' => $trapsId, 'exception' => $exception]
         );
 
-        // A genuine load failure (the missing-row case is handled above without
-        // throwing): tell the user rather than render a defaults form that looks
-        // like a successful edit.
         $msg = new CentreonMsg();
         $msg->error(_('Could not load the SNMP trap. Please try again.'));
 
         return;
     }
+
+    // Editing a trap that no longer exists returns no row: surface it instead of
+    // rendering a blank edit form that would report a phantom success on save.
+    if (! is_array($row)) {
+        Logger::create(LogChannelEnum::WEB)->notice('SNMP trap not found', ['trapsId' => $trapsId]);
+
+        $msg = new CentreonMsg();
+        $msg->error(_('This SNMP trap no longer exists.'));
+
+        return;
+    }
+
+    $trap = array_map('myDecodeTrap', $row);
+    $trap['severity'] = $trap['severity_id'];
 
     $preexecArray = $trapObj->getPreexecFromTrapId($trapsId);
     $mrulesArray = $trapObj->getMatchingRulesFromTrapId($trapsId);
