@@ -80,6 +80,10 @@ final class UrlPathTest extends TestCase
         yield 'fragment' => ['/centreon#anchor'];
 
         yield 'embedded newline' => ["/centreon\nid"];
+
+        // "$" on its own would match right before this one, and CentralUrlFactory::baseUri() rtrims
+        // "/" alone, so the newline reaches the constructor intact.
+        yield 'trailing newline' => ["/centreon\n"];
     }
 
     /**

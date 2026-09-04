@@ -125,6 +125,10 @@ final class CentralUrlTest extends TestCase
         yield 'single quote' => ["https://central.example.com/'"];
 
         yield 'embedded newline' => ["https://central.example.com\nid"];
+
+        // Normalization does not cover this one: rtrim() runs on "/" after trim(), so the newline
+        // is back in the value by the time the pattern sees it.
+        yield 'trailing newline restored by the slash trim' => ["https://central.example.com/centreon\n/"];
     }
 
     #[DataProvider('validUrlProvider')]

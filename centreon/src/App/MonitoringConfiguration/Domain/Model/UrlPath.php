@@ -42,8 +42,14 @@ final readonly class UrlPath
     /** The single definition of a safe segment. Public so composed patterns can interpolate it. */
     public const SEGMENT = '[A-Za-z0-9._\-]+';
 
-    /** The slash belongs to each segment, so an empty segment ("//") cannot pass. */
-    public const PATTERN = '~^(?:/' . self::SEGMENT . ')*$~';
+    /**
+     * The slash belongs to each segment, so an empty segment ("//") cannot pass.
+     *
+     * "D" is what makes "$" the end of the subject rather than "before an optional trailing
+     * newline": without it "/centreon\n" passes. CentralUrlFactory::baseUri() rtrims "/" alone,
+     * which leaves such a newline in place, so the guarantee above has to hold on its own.
+     */
+    public const PATTERN = '~^(?:/' . self::SEGMENT . ')*$~D';
 
     /** "." and ".." match PATTERN but resolve outside the path, so they need their own check. */
     public const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';

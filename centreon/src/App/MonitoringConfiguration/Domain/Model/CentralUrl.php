@@ -65,9 +65,13 @@ final readonly class CentralUrl
      * An allowlist rather than an escape, and deliberately narrower than FILTER_VALIDATE_URL, which
      * accepts `$(id)` and backticks because they are legal RFC 3986 sub-delims. This is what makes
      * "safe to interpolate unquoted" checkable in a single place.
+     *
+     * "D" is what makes "$" the end of the subject rather than "before an optional trailing
+     * newline". The normalization below does not cover that: rtrim() runs on "/" after trim(), so
+     * a value ending in "\n/" comes back out of it with the newline restored.
      */
     private const PATTERN = '~^https?://(?:' . self::HOST . '|' . self::BRACKETED_IPV6 . ')'
-        . self::PORT . self::PATH . '$~';
+        . self::PORT . self::PATH . '$~D';
 
     public string $value;
 
