@@ -21,22 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 
-interface ResourceAccessRepository
+interface HostGroupRepository
 {
-    public function hasAccessToAllPollers(UserId $userId): bool;
-
-    public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
-
     /**
-     * @return Collection<HostGroupId>|null null means no restriction applies (the user can access
-     *                                      all host groups); an empty Collection means the user can access none
+     * @return \IteratorAggregate<int, HostGroup>&\Countable
      */
-    public function findAccessibleHostGroupIds(UserId $userId): ?Collection;
+    public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable;
 }

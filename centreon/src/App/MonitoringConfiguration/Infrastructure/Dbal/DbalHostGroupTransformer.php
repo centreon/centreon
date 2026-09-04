@@ -21,22 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\Shared\Infrastructure\TransformerInterface;
 
-interface ResourceAccessRepository
+/**
+ * @phpstan-import-type RowTypeAlias from DbalHostGroupRepository
+ *
+ * @implements TransformerInterface<RowTypeAlias, HostGroup>
+ */
+final readonly class DbalHostGroupTransformer implements TransformerInterface
 {
-    public function hasAccessToAllPollers(UserId $userId): bool;
-
-    public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
-
-    /**
-     * @return Collection<HostGroupId>|null null means no restriction applies (the user can access
-     *                                      all host groups); an empty Collection means the user can access none
-     */
-    public function findAccessibleHostGroupIds(UserId $userId): ?Collection;
+    public function transform(mixed $from): HostGroup
+    {
+        return new HostGroup(
+            id: new HostGroupId($from['hg_id']),
+            name: new HostGroupName($from['hg_name']),
+        );
+    }
 }

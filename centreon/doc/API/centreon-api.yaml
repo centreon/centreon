@@ -136,6 +136,9 @@ tags:
   -
     name: Upgrade
     description: "Resource 'Upgrade' operations."
+  -
+    name: HostGroup
+    description: "Resource 'HostGroup' operations."
 security:
   -
     Token: []
@@ -4670,6 +4673,90 @@ paths:
             type: integer
             default: 30
             minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  /configuration/host_groups:
+    get:
+      operationId: api_configurationhost_groups_get_collection
+      tags:
+        - HostGroup
+      responses:
+        '200':
+          description: 'HostGroup collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'HostGroup.HostGroupCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput'
+        '400':
+          description: 'Invalid query parameter (itemsPerPage must be a positive integer, name must use the "name[lk]=value" format)'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
+      summary: 'Retrieves the collection of HostGroup resources.'
+      description: 'Retrieves the collection of HostGroup resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by host group name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
             maximum: 30
           style: form
           explode: true
@@ -10148,3 +10235,21 @@ components:
               type: string
               example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
               nullable: true
+    HostGroup.HostGroupCollectionOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostGroup.HostGroupCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
