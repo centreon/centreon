@@ -33,6 +33,9 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 {
     private Connection $connection;
 
+    // Constructed directly rather than fetched from the container: it keeps the ACL fixtures
+    // this test builds (acl_groups / acl_resources / relations) fully isolated from whatever
+    // topology/ACL state other integration tests may leave around the same connection.
     private DbalResourceAccessRepository $repository;
 
     protected function setUp(): void
@@ -41,25 +44,41 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        // Not yet reachable through the container: nothing else in `develop` constructs a
-        // ResourceAccessRepository yet, so the compiled container prunes it as unused.
         $this->repository = new DbalResourceAccessRepository($this->connection);
 
         $this->connection->insert('hostgroup', ['hg_id' => 201, 'hg_name' => 'HostGroup-201']);
         $this->connection->insert('hostgroup', ['hg_id' => 202, 'hg_name' => 'HostGroup-202']);
     }
 
-    public function testUserWithNoAclGroupHasAccessToAllHostGroups(): void
+    public function testUserWithNoAclGroupHasAccessToNoHostGroups(): void
     {
         $userId = new UserId($this->createContact('user-no-acl'));
 
-        self::assertNull($this->repository->findAccessibleHostGroupIds($userId));
+        $accessibleHostGroupIds = $this->repository->findAccessibleHostGroupIds($userId);
+
+        self::assertNotNull($accessibleHostGroupIds);
+        self::assertCount(0, $accessibleHostGroupIds);
     }
 
-    public function testUserWithAclResourceHavingNoHostGroupRestrictionHasAccessToAllHostGroups(): void
+    public function testUserWithAclResourceCarryingNoRelationAndNoAllFlagHasAccessToNoHostGroups(): void
     {
-        $contactId = $this->createContact('user-unrestricted');
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: []);
+        // A resource that never had its host-group tab configured (no relation rows, flag unset)
+        // grants zero host groups — it must not be mistaken for the "all host groups" flag.
+        $contactId = $this->createContact('user-empty-resource');
+        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [], allHostGroups: false);
+
+        $userId = new UserId($contactId);
+
+        $accessibleHostGroupIds = $this->repository->findAccessibleHostGroupIds($userId);
+
+        self::assertNotNull($accessibleHostGroupIds);
+        self::assertCount(0, $accessibleHostGroupIds);
+    }
+
+    public function testUserWithAclResourceFlaggedAllHostGroupsHasAccessToAllHostGroups(): void
+    {
+        $contactId = $this->createContact('user-all-flag');
+        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [], allHostGroups: true);
 
         $userId = new UserId($contactId);
 
@@ -69,13 +88,29 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithAclResourceRestrictedToASingleHostGroupSeesOnlyThatHostGroup(): void
     {
         $contactId = $this->createContact('user-restricted');
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [201]);
+        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [201], allHostGroups: false);
 
         $userId = new UserId($contactId);
 
         $accessibleHostGroupIds = $this->repository->findAccessibleHostGroupIds($userId);
         self::assertNotNull($accessibleHostGroupIds);
-        self::assertEquals([201], array_map(static fn (HostGroupId $id): int => $id->value, $accessibleHostGroupIds));
+        self::assertEquals([201], array_map(static fn (HostGroupId $id): int => $id->value, iterator_to_array($accessibleHostGroupIds)));
+    }
+
+    /**
+     * Mirrors legacy's OR-across-resources semantics for the "all host groups" flag: a single
+     * accessible resource with the flag set grants everything, even when another accessible
+     * resource restricts to a specific host group.
+     */
+    public function testUserWithOneRestrictedAndOneAllFlagResourceHasAccessToAllHostGroups(): void
+    {
+        $contactId = $this->createContact('user-mixed-resources');
+        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [201], allHostGroups: false);
+        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [], allHostGroups: true);
+
+        $userId = new UserId($contactId);
+
+        self::assertNull($this->repository->findAccessibleHostGroupIds($userId));
     }
 
     private function createContact(string $alias): int
@@ -93,13 +128,14 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
-     * @param list<int> $restrictToHostGroupIds empty means the ACL resource carries no host group restriction at all
+     * @param list<int> $restrictToHostGroupIds host groups explicitly granted through this
+     *                                          resource's relations; irrelevant once $allHostGroups is true
      */
-    private function linkContactToAclResource(int $contactId, array $restrictToHostGroupIds): void
+    private function linkContactToAclResource(int $contactId, array $restrictToHostGroupIds, bool $allHostGroups): void
     {
         $this->connection->insert('acl_groups', [
-            'acl_group_name' => 'group-' . $contactId,
-            'acl_group_alias' => 'group-' . $contactId,
+            'acl_group_name' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_alias' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
             'acl_group_activate' => '1',
         ]);
         $aclGroupId = (int) $this->connection->lastInsertId();
@@ -110,9 +146,10 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         ]);
 
         $this->connection->insert('acl_resources', [
-            'acl_res_name' => 'resource-' . $contactId,
-            'acl_res_alias' => 'resource-' . $contactId,
+            'acl_res_name' => 'resource-' . $aclGroupId,
+            'acl_res_alias' => 'resource-' . $aclGroupId,
             'acl_res_activate' => '1',
+            'all_hostgroups' => $allHostGroups ? '1' : '0',
         ]);
         $aclResId = (int) $this->connection->lastInsertId();
 

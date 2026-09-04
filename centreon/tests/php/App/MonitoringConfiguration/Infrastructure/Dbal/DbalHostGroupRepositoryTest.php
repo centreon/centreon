@@ -45,8 +45,9 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        // Not yet reachable through the container: no ApiPlatform Provider consumes
-        // HostGroupRepository yet, so the compiled container prunes it as unused.
+        // Constructed directly rather than fetched from the container: it keeps the ACL
+        // fixtures this test builds isolated from whatever topology/ACL state other
+        // integration tests may leave around the same connection.
         $this->repository = new DbalHostGroupRepository(
             $this->connection,
             new DbalHostGroupTransformer(),

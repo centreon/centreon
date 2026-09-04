@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -85,29 +86,31 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         ]);
     }
 
-    public function findAccessibleHostGroupIds(UserId $userId): ?array
+    public function findAccessibleHostGroupIds(UserId $userId): ?Collection
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
-        // No ACL resources means no restrictions apply — the user has access to all host groups.
-        if (! $this->connection->fetchOne($accessibleAclResQb->getSQL(), ['contactId' => $userId->value])) {
-            return null;
-        }
-
-        $unrestrictedQb = $this->connection->createQueryBuilder();
-        $unrestrictedQb
+        // Unlike pollers, host groups carry an explicit "all host groups" flag on the ACL resource
+        // itself (acl_resources.all_hostgroups). A resource simply carrying no host-group relation
+        // row is NOT the same thing as this flag — it means that resource grants zero host groups,
+        // not every host group. Legacy (HostGroupRepositoryTrait::hasAccessToAllHostGroups()) only
+        // treats the user as unrestricted when at least one accessible resource has the flag set.
+        $allHostGroupsQb = $this->connection->createQueryBuilder();
+        $allHostGroupsQb
             ->select('1')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
-            ->leftJoin('accessible_res', 'acl_resources_hg_relations', 'arhr', 'arhr.acl_res_id = accessible_res.acl_res_id')
-            ->where('arhr.acl_res_id IS NULL')
+            ->innerJoin('accessible_res', 'acl_resources', 'res', "res.acl_res_id = accessible_res.acl_res_id AND res.all_hostgroups = '1'")
             ->setParameter('contactId', $userId->value)
             ->setMaxResults(1);
 
-        // At least one accessible ACL resource carries no host group restriction at all — access to all host groups.
-        if ($this->connection->fetchOne($unrestrictedQb->getSQL(), ['contactId' => $userId->value])) {
+        if ($this->connection->fetchOne($allHostGroupsQb->getSQL(), ['contactId' => $userId->value]) !== false) {
             return null;
         }
 
+        // No "all host groups" flag anywhere: the accessible set is the union of host-group
+        // relations across every accessible resource (legacy findAllByAccessGroupIds()). This is
+        // naturally empty — not "everything" — for a user with no accessible resource at all, or
+        // whose accessible resources carry no host-group relation.
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('DISTINCT arhr.hg_hg_id')
@@ -118,7 +121,10 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{hg_hg_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        return array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows);
+        return new Collection(
+            array_map(static fn (array $row): HostGroupId => new HostGroupId((int) $row['hg_hg_id']), $rows),
+            HostGroupId::class,
+        );
     }
 
     private function getAccessibleAclResourcesQueryBuilder(): QueryBuilder

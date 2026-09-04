@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
-use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -113,13 +112,15 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
 
         if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
             $accessibleHostGroupIds = $this->resourceAccessRepository->findAccessibleHostGroupIds($viewerId);
-            if ($accessibleHostGroupIds !== null) {
+            if ($accessibleHostGroupIds instanceof Collection) {
+                $ids = [];
+                foreach ($accessibleHostGroupIds as $hostGroupId) {
+                    $ids[] = $hostGroupId->value;
+                }
+
                 $qb->andWhere($qb->expr()->in(
                     'hg.hg_id',
-                    $qb->createNamedParameter(
-                        array_map(static fn (HostGroupId $id): int => $id->value, $accessibleHostGroupIds),
-                        ArrayParameterType::INTEGER
-                    )
+                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
                 ));
             }
         }
