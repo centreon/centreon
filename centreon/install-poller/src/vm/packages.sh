@@ -136,6 +136,18 @@ function _vmConfigureRepoChannels() {
       dnf config-manager --set-enabled 'centreon*'
 
     case "${effective_stability}" in
+    testing-release)
+      # Isolate from testing-hotfix (MON-208554): the two are separate repos
+      # that can disagree on version, so leaving both enabled makes dnf's
+      # pick ambiguous. Only meaningful via the --stability override; the
+      # unforced 'testing' case below keeps the prior (both enabled) default.
+      commandExitOnError "Cannot disable unstable/testing-hotfix repositories" \
+        dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing-hotfix*'
+      ;;
+    testing-hotfix)
+      commandExitOnError "Cannot disable unstable/testing-release repositories" \
+        dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing-release*'
+      ;;
     testing)
       commandExitOnError "Cannot disable unstable repository" \
         dnf config-manager --set-disabled 'centreon*unstable*'
@@ -166,12 +178,23 @@ function _vmConfigureRepoChannels() {
     echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-stable main" \
       | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
 
-    if [ "${effective_stability}" = "testing" ] || [ "${effective_stability}" = "unstable" ]; then
+    case "${effective_stability}" in
+    testing-release)
+      # Isolate from testing-hotfix (MON-208554), same rationale as the dnf case above.
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main" \
+        | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
+      ;;
+    testing-hotfix)
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main" \
+        | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
+      ;;
+    testing | unstable)
       {
         echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main"
         echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main"
       } | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
-    fi
+      ;;
+    esac
 
     if [ "${effective_stability}" = "unstable" ]; then
       echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-unstable main" \

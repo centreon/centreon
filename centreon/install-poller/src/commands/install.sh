@@ -173,9 +173,9 @@ function _installValidateArgs() {
 
   if [ -n "${FORCE_STABILITY}" ]; then
     case "${FORCE_STABILITY}" in
-    stable | testing | unstable) ;;
+    stable | testing-release | testing-hotfix | unstable) ;;
     *)
-      consoleError "Invalid --stability '${FORCE_STABILITY}'. Valid values: stable, testing, unstable."
+      consoleError "Invalid --stability '${FORCE_STABILITY}'. Valid values: stable, testing-release, testing-hotfix, unstable."
       ret=1
       ;;
     esac

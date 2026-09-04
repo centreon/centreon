@@ -59,7 +59,10 @@ function runDockerInstall() {
     consoleInfo "  Centreon Monitoring Agent support (--with-cma): TLS certs + port 4317"
   fi
   echo ""
-  if [ "$(_dockerEffectiveStability)" = "testing" ]; then
+  case "$(_dockerEffectiveStability)" in
+  testing*)
+    # Matches bare 'testing' (unforced) and the testing-release/testing-hotfix
+    # overrides alike: never auto-start an unvalidated candidate stack.
     consoleInfo "Stability 'testing': not starting the stack automatically."
     consoleTitle "Next steps:"
     echo "  1. Edit .env: set ENGINE_TAG/GORGONE_TAG/SNMPTRAPD_TAG/CENTREONTRAPD_TAG to the branch/tag you are testing."
@@ -68,19 +71,23 @@ function runDockerInstall() {
     echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
     echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
     echo ""
-  elif [ "${START_STACK}" = "1" ]; then
-    echo ""
-    consoleTitle "Starting stack:"
-    docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
-    echo ""
-  else
-    consoleTitle "Next steps:"
-    echo "  1. Start the stack:"
-    echo "       docker compose up -d"
-    echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
-    echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
-    echo ""
-  fi
+    ;;
+  *)
+    if [ "${START_STACK}" = "1" ]; then
+      echo ""
+      consoleTitle "Starting stack:"
+      docker compose up -d || { consoleError "Failed to start stack."; logError "docker compose up -d failed (exit $?)"; exit 1; }
+      echo ""
+    else
+      consoleTitle "Next steps:"
+      echo "  1. Start the stack:"
+      echo "       docker compose up -d"
+      echo "  (optional) Copy TLS certificates for Centreon Monitoring Agent:"
+      echo "       mkdir -p certs && cp poller.crt certs/ && cp poller.key certs/"
+      echo ""
+    fi
+    ;;
+  esac
 }
 
 # Effective stability for every Docker decision (tag, registry, whether to
@@ -125,14 +132,17 @@ function _generateDotEnv() {
     unstable)
       image_tag="develop"
       ;;
-    testing)
-      # centreon-collect has its own patch versioning (independent of
-      # centreon-web's) and its testing branch can be release-<major>-next
-      # or hotfix-<major>-next — this can only guess the (more common)
-      # release one. Override with --tag hotfix-<major>-next, or the exact
-      # validated <major>.<minor>.<patch> semver retag once known (after
-      # promote-docker-tag has run for that patch).
+    testing | testing-release)
+      # 'testing' here is the real baked STABILITY, unforced (no --stability
+      # given): centreon-collect's testing channel is actually two repos/
+      # tags (release vs hotfix candidates), so this guesses the more common
+      # release one. Force --stability testing-hotfix for the other, or pass
+      # the exact validated <major>.<minor>.<patch> semver retag via --tag
+      # once known (after promote-docker-tag has run for that patch).
       image_tag="release-$(_pollerImageMajor)-next"
+      ;;
+    testing-hotfix)
+      image_tag="hotfix-$(_pollerImageMajor)-next"
       ;;
     esac
   fi

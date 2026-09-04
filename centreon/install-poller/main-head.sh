@@ -46,8 +46,14 @@ FORCE_TAG=""
 # read (Docker registry/tag selection AND VM/RPM/APT repo channel config),
 # without rebuilding install.sh. Useful when a major is baked "stable" but
 # its packages/images aren't promoted to the stable channel/registry yet.
+# No bare "testing" here on purpose: centreon-collect's testing channel is
+# actually two separate repos/tags (release vs hotfix candidates) that can
+# disagree on version — forcing testing requires picking one explicitly, to
+# avoid an ambiguous dnf/apt resolution across both. The real baked
+# STABILITY can still be bare "testing" (unforced default: both stay
+# enabled, as before) when this override isn't used.
 # Valid values: "" (default, use the real baked STABILITY), "stable",
-# "testing", "unstable".
+# "testing-release", "testing-hotfix", "unstable".
 FORCE_STABILITY=""
 
 # Cloud mode: presence of --cloud sets this to true (Centreon Cloud); absent = false (on-prem)
