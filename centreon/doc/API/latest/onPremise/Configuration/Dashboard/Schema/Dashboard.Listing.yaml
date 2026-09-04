@@ -14,36 +14,41 @@ properties:
     example: "my dashboard"
 
   description:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Description about this dashboard"
     example: "my description"
 
   created_by:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id: { type: integer, description: "Creation contact ID" }
       name: { type: string,  description: "Creation contact name" }
 
   updated_by:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id: { type: integer, description: "Last update contact ID" }
       name: { type: string,  description: "Last update contact name" }
 
   created_at:
-    type: string
+    type:
+      - string
+      - 'null'
     format: date-time
-    nullable: true
     description: "Creation date (ISO8601)"
 
   updated_at:
-    type: string
+    type:
+      - string
+      - 'null'
     format: date-time
-    nullable: true
     description: "Last update date (ISO8601)"
 
   own_role:
@@ -65,13 +70,15 @@ properties:
         enum: [ global, manual ]
         example: 'manual'
       interval:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         example: 10
 
   thumbnail:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer

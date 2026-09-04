@@ -3264,7 +3264,7 @@ paths:
                 type: object
                 properties:
                   global: { type: object, properties: { title: { type: string, description: 'title of the graph', example: 'graph title' }, start: { type: integer, description: 'timestamp of the start interval', example: 1594504800 }, end: { type: integer, description: 'timestamp of the end interval', example: 1594591200 }, vertical-label: { type: string, description: 'vertical label (should not be used cause multiple y-axis possible)', example: Value }, base: { type: string, description: 'base scale', example: '1024' }, width: { type: string, description: 'width of the graph (should not be used)', example: '550' }, height: { type: string, description: 'height of the graph (should not be used)', example: '140' }, lower-limit: { type: string, description: 'lower value of the graph', example: '0' }, scaled: { type: integer, description: 'if the graph needs to be automatically scaled', example: 1 }, multiple_services: { type: boolean, description: 'if multiple services are selected (always false)', example: false } } }
-                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: string, nullable: true, description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: string, nullable: true, description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: string, nullable: true, description: 'warning threshold', example: null }, warn_low: { type: string, nullable: true, description: 'low warning threshold', example: null }, crit: { type: string, nullable: true, description: 'critical threshold', example: null }, crit_low: { type: string, nullable: true, description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, last_value: { type: number, nullable: true, description: 'last value', example: 5.0 }, minimum_value: { type: number, nullable: true, description: 'minimum value', example: 0.0 }, maximum_value: { type: number, nullable: true, description: 'maximum value', example: 10.0 }, average_value: { type: number, nullable: true, description: 'average value', example: 5.64 } } } }
+                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: [string, 'null'], description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: [string, 'null'], description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: [string, 'null'], description: 'warning threshold', example: null }, warn_low: { type: [string, 'null'], description: 'low warning threshold', example: null }, crit: { type: [string, 'null'], description: 'critical threshold', example: null }, crit_low: { type: [string, 'null'], description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, last_value: { type: [number, 'null'], description: 'last value', example: 5.0 }, minimum_value: { type: [number, 'null'], description: 'minimum value', example: 0.0 }, maximum_value: { type: [number, 'null'], description: 'maximum value', example: 10.0 }, average_value: { type: [number, 'null'], description: 'average value', example: 5.64 } } } }
                   times: { type: array, items: { type: string, format: timestamp, description: 'timestamp of the tick' }, example: ['1594505100', '1594505400', '1594505700'] }
         '403':
           $ref: '#/components/responses/Forbidden'
@@ -3336,7 +3336,7 @@ paths:
                 type: object
                 properties:
                   base: { type: string, description: 'base scale', example: 1024 }
-                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: string, nullable: true, description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: string, nullable: true, description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: string, nullable: true, description: 'warning threshold', example: null }, warn_low: { type: string, nullable: true, description: 'low warning threshold', example: null }, crit: { type: string, nullable: true, description: 'critical threshold', example: null }, crit_low: { type: string, nullable: true, description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, format: float, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, minimum_value: { type: number, format: float, description: 'minimum value', example: 1.0 }, maximum_value: { type: number, format: float, description: 'maximum value', example: 1.0 } } } }
+                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: [string, 'null'], description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: [string, 'null'], description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: [string, 'null'], description: 'warning threshold', example: null }, warn_low: { type: [string, 'null'], description: 'low warning threshold', example: null }, crit: { type: [string, 'null'], description: 'critical threshold', example: null }, crit_low: { type: [string, 'null'], description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, format: float, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, minimum_value: { type: number, format: float, description: 'minimum value', example: 1.0 }, maximum_value: { type: number, format: float, description: 'maximum value', example: 1.0 } } } }
                   times: { type: array, items: { type: string, format: timestamp, description: 'datetime of the tick' }, example: ['1690965300'] }
         '403':
           $ref: '#/components/responses/Forbidden'
@@ -5516,15 +5516,17 @@ components:
               default: true
             attempts:
               description: 'login attempts before blocking'
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               minimum: 1
               maximum: 10
               default: 5
             blocking_duration:
               description: 'blocking duration in seconds before new login attempt'
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               maximum: 604800
               default: 900
             password_expiration:
@@ -5536,23 +5538,23 @@ components:
               properties:
                 expiration_delay:
                   description: 'password expiration delay in seconds'
-                  type: integer
-                  nullable: true
+                  type: [integer, 'null']
                   minimum: 604800
                   maximum: 31557600
                   default: 15552000
                 excluded_users:
                   description: 'list of users without password expiration rule'
                   type: array
-                  items: { type: string, description: 'user login', nullable: false, example: admin, minLength: 1, maxLength: 255 }
+                  items: { type: string, description: 'user login', example: admin, minLength: 1, maxLength: 255 }
             can_reuse_passwords:
               description: 'is allowed or not to reuse a password among 3 last'
               type: boolean
               default: false
             delay_before_new_password:
               description: 'delay in seconds before a new password can be set'
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               minimum: 3600
               maximum: 604800
               default: 3600
@@ -5610,17 +5612,19 @@ components:
           type: boolean
           description: Logout
         logout_from_url:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Indicates the logout URL'
           example: 'https://idp/saml'
-          nullable: true
         auto_import:
           type: boolean
           description: 'Auto import user from external provider'
           example: true
         contact_template:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             id:
               type: integer
@@ -5631,15 +5635,17 @@ components:
               description: 'Contact template name'
               example: Default
         email_bind_attribute:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Email bind attribute'
           example: email
-          nullable: true
         fullname_bind_attribute:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Fullname bind attribute'
           example: name
-          nullable: true
         authentication_conditions:
           type: object
           required:
@@ -5667,7 +5673,6 @@ components:
               type: boolean
             attribute_path:
               type: string
-              nullable: false
               example: info.items.groups
             relations:
               type: array
@@ -5765,18 +5770,21 @@ components:
             description: 'IP address'
             example: 127.0.0.1
         login_header_attribute:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Header used to retrieve user's login"
           example: HTTP_AUTH_USER
         pattern_matching_login:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Pattern to search for in the login header attribute name'
           example: '/@.*/'
         pattern_replace_login:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'String that will replace the string defined in the Pattern match login (regex) field'
           example: '/@.*/'
     Comment.Resources:
@@ -5804,14 +5812,16 @@ components:
                 description: 'Resource ID'
                 example: 10
               parent:
-                type: object
-                nullable: true
+                type:
+                  - object
+                  - 'null'
                 properties:
                   id: { type: integer, description: 'Parent resource ID', example: 17 }
               date:
-                type: string
+                type:
+                  - string
+                  - 'null'
                 format: date-time
-                nullable: true
                 description: 'Date of the comment (ISO8601)'
               comment:
                 type: string
@@ -5958,8 +5968,9 @@ components:
           description: 'is active or not (enable/disable)'
           example: true
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'some comment'
     Configuration.Service.Category:
       type: object
@@ -5996,8 +6007,9 @@ components:
           description: 'is active or not (enable/disable)'
           example: true
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'some comment'
     Configuration.Service.Category.Add:
       type: object
@@ -6038,9 +6050,10 @@ components:
           description: 'Define the image ID associated with this severity'
           example: 1
         comment:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Host severity comment'
-          nullable: true
         is_activated:
           type: boolean
           description: 'Indicates whether this host severity is enabled or not'
@@ -6064,9 +6077,10 @@ components:
           description: 'Define the image ID associated with this severity'
           example: 1
         comment:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Host severity comment'
-          nullable: true
         is_activated:
           type: boolean
           description: 'Indicates whether this host severity is enabled or not'
@@ -6094,60 +6108,71 @@ components:
           description: 'Host template alias'
           example: generic-active-host
         snmp_community:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Community of the SNMP agent'
         snmp_version:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           enum:
             - '1'
             - 2c
             - '3'
+            - null
           description: |
             Version of the SNMP agent.
 
             The value can be `1`, `2c` or `3`
           example: 2c
         timezone_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Timezone ID'
           example: 1
-          nullable: true
         severity_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Severity ID'
           example: 1
-          nullable: true
         check_command_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Check command ID'
           example: 1
-          nullable: true
         check_command_args:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Check command arguments'
           example: '!0!OK'
-          nullable: true
         check_timeperiod_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Check command timeperiod ID'
           example: 1
-          nullable: true
         max_check_attempts:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Define the number of times that monitoring engine will retry the host check command if it returns any non-OK state'
         check_interval:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of 'time units' between regularly scheduled checks of the host.
 
             With the default time unit of 60s, this number will mean multiples of 1 minute.
         retry_check_interval:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before scheduling a re-check for this host after a non-UP state was detected.
 
@@ -6195,8 +6220,9 @@ components:
             example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
           example: 5
         notification_interval:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before re-notifying a contact that this host is still down or unreachable.
 
@@ -6204,10 +6230,11 @@ components:
 
             A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
         notification_timeperiod_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Notification timeperiod ID'
           example: 1
-          nullable: true
         add_inherited_contact_group:
           type: boolean
           description: |
@@ -6221,22 +6248,25 @@ components:
 
             When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
         first_notification_delay:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
 
             With the default time unit of 60s, this number will mean multiples of 1 minute.
         recovery_notification_delay:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before sending out the recovery notification when this host enters an UP state.
 
             With the default time unit of 60s, this number will mean multiples of 1 minute.
         acknowledgement_timeout:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify a duration of acknowledgement for this host.'
         freshness_checked:
           type: integer
@@ -6247,8 +6277,9 @@ components:
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
         freshness_threshold:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify the freshness threshold (in seconds) for this host.'
         flap_detection_enabled:
           type: integer
@@ -6259,12 +6290,14 @@ components:
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
         low_flap_threshold:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify the low state change threshold used in flap detection for this host'
         high_flap_threshold:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify the high state change threshold used in flap detection for this host'
         event_handler_enabled:
           type: integer
@@ -6275,43 +6308,51 @@ components:
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
         event_handler_command_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Event handler command ID'
           example: 1
-          nullable: true
         event_handler_command_args:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Event handler command arguments'
           example: '!0!OK'
-          nullable: true
         note_url:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Define an optional URL that can be used to provide more information about the host.'
         note:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Define an optional note.'
         action_url:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Define an optional URL that can be used to provide more actions to be performed on the host.'
         icon_id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Define the image ID that should be associated with this host template'
           example: 1
         icon_alternative:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 200
           description: 'Define an optional string that is used in the alternative description of the icon image'
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Host template comments'
         is_activated:
           type: boolean
@@ -6334,20 +6375,23 @@ components:
           description: 'Service group name'
           example: MySQL-Servers
         alias:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 200
           description: 'Service group alias'
           example: 'All MySQL Servers'
         geo_coords:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 32
           description: 'Geographical coordinates use by Centreon Map module to position element on map'
           example: '48.51,2.20'
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Comments on this service group'
         is_activated:
@@ -6409,8 +6453,9 @@ components:
           maxLength: 255
           description: 'Image path'
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Image comments'
     User.Filter:
@@ -6636,23 +6681,26 @@ components:
           description: 'Name of the server'
           example: Central
         address:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'IP address of the server'
           example: 127.0.0.1
-          nullable: true
         isRunning:
           type: boolean
           description: 'Indicates if the server is running or not'
           example: true
         lastAlive:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Timestamp of last time server was alive'
-          nullable: true
         version:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Version of the server (centreon-engine)'
           example: 20.10.0
-          nullable: true
     Monitoring.Category:
       type: object
       properties:
@@ -6722,8 +6770,9 @@ components:
           items:
             $ref: '#/components/schemas/Monitoring.Resource.Action'
     Acknowledgement.Host:
-      type: object
-      nullable: true
+      type:
+        - object
+        - 'null'
       properties:
         id:
           type: integer
@@ -6744,9 +6793,10 @@ components:
           description: 'Short description of the acknowledgement'
           example: 'Acknowledged by admin'
         deletion_time:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of the request for cancellation of the acknowledgement (ISO8601)'
         entry_time:
           type: string
@@ -6783,13 +6833,15 @@ components:
              * `3` - UNKNOWN
           example: 1
     Acknowledgement.Service:
-      type: object
-      nullable: true
+      type:
+        - object
+        - 'null'
       allOf:
         - $ref: '#/components/schemas/Acknowledgement.Host'
         -
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             service_id:
               type: integer
@@ -6922,9 +6974,10 @@ components:
           format: date-time
           description: 'Scheduled end date of the downtime (ISO8601)'
         deletion_time:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of cancellation of downtime (ISO8601)'
           example: null
         actual_start_time:
@@ -7044,8 +7097,9 @@ components:
                 description: 'Resource ID'
                 example: 10
               parent:
-                type: object
-                nullable: true
+                type:
+                  - object
+                  - 'null'
                 properties:
                   id: { type: integer, description: 'Parent resource ID', example: 17 }
     SubmitResult.Host:
@@ -7066,13 +7120,15 @@ components:
             * `2` - UNREACHABLE
           example: 1
         output:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Output result of the check sent'
           example: 'CRITICAL: Connection lost'
         performance_data:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Performance data result of the check sent'
           example: "'nbproc'=0;;1:1;0;"
     SubmitResult.Service:
@@ -7095,13 +7151,15 @@ components:
             * `3` - UNKNOWN
           example: 2
         output:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Output result of the check sent'
           example: 'CRITICAL: Memory exceeded '
         performance_data:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Performance data result of the check sent'
           example: "'used'=453849088B;;;0;1927262208"
     SubmitResult.Resources:
@@ -7130,8 +7188,9 @@ components:
                 description: 'Resource ID'
                 example: 10
               parent:
-                type: object
-                nullable: true
+                type:
+                  - object
+                  - 'null'
                 properties:
                   id: { type: integer, description: 'Parent resource ID', example: 17 }
               status:
@@ -7149,13 +7208,15 @@ components:
                   * `3` - UNKNOWN
                 example: 2
               output:
-                type: string
-                nullable: true
+                type:
+                  - string
+                  - 'null'
                 description: 'Output result of the check sent'
                 example: 'CRITICAL: Memory exceeded '
               performance_data:
-                type: string
-                nullable: true
+                type:
+                  - string
+                  - 'null'
                 description: 'Performance data result of the check sent'
                 example: "'used'=453849088B;;;0;1927262208"
     Monitoring.Resource.Action:
@@ -7171,8 +7232,9 @@ components:
           description: 'ID of the resource'
           example: 12
         parent:
-          nullable: true
-          type: object
+          type:
+            - object
+            - 'null'
           properties:
             id:
               type: integer
@@ -7205,8 +7267,9 @@ components:
           description: 'ID of the host behind the resource'
           example: 12
         service_id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           format: int32
           description: 'ID of the service behind the resource'
           example: 12
@@ -7215,13 +7278,15 @@ components:
           description: 'Resource name'
           example: Ping
         alias:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Resource alias'
           example: null
         fqdn:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Resource fqdn'
           example: null
         links:
@@ -7231,8 +7296,9 @@ components:
           description: 'Monitoring Server from which is monitored the Resource'
           example: Central
         icon:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             id:
               type: integer
@@ -7248,8 +7314,9 @@ components:
               description: 'Url of the icon'
               example: /media/memory.png
         parent:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             type:
               type: string
@@ -7269,8 +7336,9 @@ components:
               description: 'Parent resource name'
               example: Central
             alias:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Parent resource alias'
               example: Host
             fqdn:
@@ -7292,48 +7360,57 @@ components:
           description: 'Indicates whether resource is acknowledged'
           example: false
         duration:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Duration since last status change'
           example: '2h 3m'
         last_status_change:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of the last status change (ISO8601)'
         last_time_with_no_issue:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of the last status change (ISO8601)'
         tries:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Number of check tries'
           example: '3/3 (H)'
         last_check:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Duration since last check'
           example: '1h 45m'
         information:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Output of the resource'
           example: 'OK - Ping is ok'
         has_active_checks_enabled:
-          type: boolean
-          nullable: true
+          type:
+            - boolean
+            - 'null'
           description: 'Indicates whether active checks are enabled'
           example: true
         has_passive_checks_enabled:
-          type: boolean
-          nullable: true
+          type:
+            - boolean
+            - 'null'
           description: 'Indicates whether passive checks are enabled'
           example: true
         performance_data:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Performance data result of the check sent'
           example: 'rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100 '
         is_notification_enabled:
@@ -7341,8 +7418,9 @@ components:
           description: 'Indicates if notifications are enabled for the resource'
           example: false
         severity:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             type:
               type: string
@@ -7382,95 +7460,112 @@ components:
           type: object
           properties:
             configuration:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'configuration uri'
               example: '/centreon/main.php?p=60101&o=c&host_id=11'
             logs:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'logs uri'
               example: '/centreon/main.php?p=20301&h=11'
             reporting:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'reporting uri'
               example: '/centreon/main.php?p=307&host=11'
         endpoints:
           type: object
           properties:
             details:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource details endpoint'
               example: /centreon/api/latest/monitoring/resources/hosts/11
             timeline:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource timeline endpoint'
               example: /centreon/api/latest/monitoring/hosts/11/timeline
             status_graph:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource status graph endpoint'
               example: null
             performance_graph:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource performance graph endpoint'
               example: null
             acknowledgement:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'current resource acknowledgement endpoint'
               example: '/centreon/api/latest/monitoring/hosts/11/acknowledgements?limit=1'
             downtime:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'current resource downtimes endpoint'
               example: '/centreon/api/latest/monitoring/hosts/11/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1599655905%7D,%22end_time%22:%7B%22%24gt%22:1599655905%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1599655905%7D%7D%7D%7D%5D%7D'
             notification_policy:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'current resource notification policy endpoint'
               example: /centreon/api/latest/configurations/hosts/11/notification-policy
             check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Endpoint dedicated for checks (forced_check payload entry set to false)'
               example: /centreon/api/latest/monitoring/hosts/17/services/23/check
             forced_check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Endpoint dedicated for checks (forced_check payload entry set to true)'
               example: /centreon/api/latest/monitoring/hosts/17/services/23/check
             metrics:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Endpoint dedicated for service metrics'
               example: /centreon/api/latest/monitoring/hosts/17/services/23/metrics
         externals:
           type: object
           properties:
             action_url:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'URL that can be used to provide more actions to be performed on the resource'
               example: 'http://mediawiki/resource/name'
             notes:
               $ref: '#/components/schemas/Monitoring.Notes'
     Monitoring.Notes:
-      type: object
-      nullable: true
+      type:
+        - object
+        - 'null'
       properties:
         url:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'URL that can be used to provide more information on the resource'
           example: 'http://mediawiki/resource/name'
         label:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Note that can be used to describe the note url'
           example: 'How to turn back on the server'
     Monitoring.ResourceStatus:
@@ -7585,13 +7680,15 @@ components:
                   * `1` - Passive
               example: 0
             last_hard_state:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Date of the last hard state (ISO8601)'
             last_notification:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Date of the last notification (ISO8601)'
             latency:
@@ -7600,8 +7697,9 @@ components:
               description: 'Time difference between scheduled check time and actual check time'
               example: 0.005
             next_check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Scheduled date for the next check (ISO8601)'
             next_host_notification:
@@ -7688,9 +7786,10 @@ components:
               description: 'Indicates whether the host is checked'
               example: true
             execution_time:
-              type: number
+              type:
+                - number
+                - 'null'
               format: float
-              nullable: true
               description: 'Time duration to check the host'
               example: 0.070906
             icon_image:
@@ -7702,39 +7801,46 @@ components:
               description: 'Alternative text of the icon representing the host'
               example: ''
             last_check:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of last check (ISO8601)'
             last_hard_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last hard state change (ISO8601)'
             last_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last state change (soft or hard) (ISO8601)'
             last_time_down:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the host was DOWN (ISO8601)'
             last_time_unreachable:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the host was UNREACHABLE (ISO8601)'
             last_time_up:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the host was UP (ISO8601)'
             last_update:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of last update (ISO8601)'
             max_check_attempts:
               type: integer
@@ -7766,8 +7872,9 @@ components:
               description: 'Is there scheduled downtime for host or not (1 or 0)'
               example: 0
             criticality:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               description: 'Host criticality level (for display purposes)'
               example: 10
     Monitoring.HostWithService:
@@ -7869,14 +7976,16 @@ components:
               description: 'Alternative text of the icon representing the service'
               example: ''
             last_check:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of last check (ISO8601)'
             last_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last state change (ISO8601)'
             max_check_attempts:
               type: integer
@@ -7895,15 +8004,17 @@ components:
                   * `1` - HARD
               example: 1
             criticality:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               description: 'Service criticality level (for display purposes)'
               example: 10
             status:
               $ref: '#/components/schemas/Monitoring.ResourceStatus'
             duration:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Duration since last status change'
               example: '2h 3m'
     Monitoring.ServiceFull:
@@ -7933,8 +8044,9 @@ components:
                   * `1` - Passive
               example: 0
             command_line:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Command used for active checks'
               example: '/usr/lib64/nagios/plugins/check_icmp -H 127.0.0.1 -n 5 -w 200,20% -c 400,50%'
             execution_time:
@@ -7955,39 +8067,46 @@ components:
               description: 'Indicates whether the service has been checked'
               example: true
             last_hard_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last hard state change (ISO8601)'
             last_notification:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last notification (ISO8601)'
             last_time_critical:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was CRITICAL (ISO8601)'
             last_time_ok:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was OK (ISO8601)'
             last_time_unknown:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was UNKNOWN (ISO8601)'
             last_time_warning:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was WARNING (ISO8601)'
             last_update:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last update (ISO8601)'
             latency:
               type: number
@@ -7995,8 +8114,9 @@ components:
               description: 'Time difference between scheduled check time and actual check time'
               example: 0.031
             next_check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Scheduled date for the next check (ISO8601)'
             performance_data:
@@ -8014,8 +8134,9 @@ components:
             acknowledgement:
               allOf:
                 - $ref: '#/components/schemas/Acknowledgement.Service'
-              type: object
-              nullable: true
+              type:
+                - object
+                - 'null'
             flapping:
               type: boolean
               description: 'Is the host flapping or not'
@@ -8038,9 +8159,10 @@ components:
           description: 'ID of the resource'
           example: 12
         parent_resource_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           format: int64
-          nullable: true
           description: 'ID of the parent resource (eg: host id)'
           example: 5
     Configuration.Proxy:
@@ -8057,13 +8179,15 @@ components:
           maximum: 65535
           example: 3128
         user:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Login used to connect to proxy'
           example: proxy-user
         password:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Password used to connect to proxy'
           example: proxy-pass
       required:
@@ -8093,26 +8217,30 @@ components:
           format: date-time
           description: 'The date the event happened (ISO8601)'
         start_date:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'The date the event started (ISO8601) (start date of downtime)'
         end_date:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'The date the event ended (ISO8601) (end date of downtime)'
         content:
           type: string
           description: 'The content of the event'
         contact:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           description: 'The contact of the event'
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               description: 'Id of the contact'
             name:
               type: string
@@ -8120,8 +8248,9 @@ components:
         status:
           $ref: '#/components/schemas/Monitoring.ResourceStatus'
         tries:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'The count of retry'
     Topology.Register:
       type: object
@@ -8210,23 +8339,27 @@ components:
           type: object
           properties:
             host:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               example: example.proxy.com
               description: 'Host of your proxy'
             port:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               example: 80
               description: 'Proxy port'
             user:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               example: admin
               description: 'proxy username'
             password:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               example: centreon
               description: 'proxy password'
     Gorgone.Response:
@@ -8299,12 +8432,14 @@ components:
           type: string
         title:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         instance:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     ConstraintViolation.jsonld-jsonld:
       type: object
       description: 'Unprocessable entity'
@@ -8358,12 +8493,14 @@ components:
           type: string
         title:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         instance:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Error:
       type: object
       description: 'A representation of common errors.'
@@ -8444,28 +8581,32 @@ components:
       deprecated: false
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -8486,28 +8627,32 @@ components:
           readOnly: true
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -8526,8 +8671,9 @@ components:
         name:
           maxLength: 255
           description: 'Name of plugin'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: negate
     ListPlugins.jsonld:
       type: object
@@ -8545,8 +8691,9 @@ components:
         name:
           maxLength: 255
           description: 'Name of plugin'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: negate
     ServiceCategory:
       type: object
@@ -8591,11 +8738,13 @@ components:
       deprecated: false
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     StandardMacroResource.jsonld:
       type: object
       description: ''
@@ -8608,11 +8757,13 @@ components:
           readOnly: true
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Command:
       type: object
       properties:
@@ -8810,8 +8961,9 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -8840,8 +8992,9 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9159,29 +9312,33 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type: string
+          type:
+            - string
+            - 'null'
           example: $USER1$
-          nullable: true
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type: string
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
-          nullable: true
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type: string
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
-          nullable: true
         is_password:
           type: boolean
         is_activated:
@@ -9196,29 +9353,33 @@ components:
           type: object
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             name:
               minLength: 1
               maxLength: 255
               pattern: '^(\$.*\$)$'
               description: 'Name of the global macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: $USER1$
-              nullable: true
             expression:
               minLength: 1
               maxLength: 255
               description: 'Expression (value) of the global macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: /usr/lib64/nagios/plugins
-              nullable: true
             comment:
               maxLength: 255
               description: 'Additional information about the macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'This macro is used to define the path of plugins'
-              nullable: true
             is_password:
               type: boolean
             is_activated:
@@ -9463,8 +9624,9 @@ components:
           maxLength: 255
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         is_activated:
           type: boolean
     Service.Category.jsonld:
@@ -9482,19 +9644,22 @@ components:
               maxLength: 255
               type: string
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             is_activated:
               type: boolean
     Standard.Macro:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Standard.Macro.jsonld:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -9502,11 +9667,13 @@ components:
           type: object
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             name:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
     GlobalMacro:
       type: object
       properties:
@@ -9603,14 +9770,17 @@ components:
           maxLength: 255
           type: string
         central_address:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         uid:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Poller-poller.write:
       type: object
       properties:
@@ -9651,14 +9821,17 @@ components:
               maxLength: 255
               type: string
             central_address:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             uid:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
     StandardMacro:
       type: object
       properties:

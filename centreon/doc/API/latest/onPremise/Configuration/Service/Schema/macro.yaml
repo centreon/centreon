@@ -6,8 +6,9 @@ properties:
     description: "Name of the macro"
     example: "MacroName"
   value:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: |
       Value of the macro.
 
@@ -18,7 +19,8 @@ properties:
     description: "Indicates whether the macro value is a password or not"
     example: false
   description:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Macro description"
     example: "Some text to describe the macro"
