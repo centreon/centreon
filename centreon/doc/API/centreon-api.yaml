@@ -4697,6 +4697,19 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput'
+        '400':
+          description: 'Invalid query parameter (itemsPerPage must be a positive integer, name must use the "name[lk]=value" format)'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {  }
         '403':
           description: Forbidden
           content:
@@ -4743,7 +4756,7 @@ paths:
           schema:
             type: integer
             default: 30
-            minimum: 0
+            minimum: 1
             maximum: 30
           style: form
           explode: true
