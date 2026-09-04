@@ -86,6 +86,30 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, $accessiblePollerIds));
     }
 
+    /**
+     * Mirrors centreonACL::setPollers(): the accessible poller set is the union of poller
+     * relations across every accessible ACL resource. A resource that carries no poller
+     * relation contributes nothing to that union and must not, on its own, grant access to
+     * every poller — only an empty union (no accessible resource restricts pollers at all)
+     * does.
+     */
+    public function testUserWithOneRestrictedAndOneUnrestrictedResourceSeesOnlyTheRestrictedPoller(): void
+    {
+        $contactId = $this->createContact('user-mixed-resources');
+        $this->linkContactToAclResource($contactId, restrictToPollerIds: [101]);
+        $this->linkContactToAclResource($contactId, restrictToPollerIds: []);
+
+        $userId = new UserId($contactId);
+
+        self::assertFalse($this->repository->hasAccessToAllPollers($userId));
+        self::assertTrue($this->repository->hasAccessToPoller(new PollerId(101), $userId));
+        self::assertFalse($this->repository->hasAccessToPoller(new PollerId(102), $userId));
+
+        $accessiblePollerIds = $this->repository->findAccessiblePollerIds($userId);
+        self::assertNotNull($accessiblePollerIds);
+        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, $accessiblePollerIds));
+    }
+
     private function createContact(string $alias): int
     {
         $this->connection->insert('contact', [

@@ -180,6 +180,28 @@ final class ListPollersProviderTest extends ApiTestCase
         ]);
     }
 
+    public function testItIncludesCentralForNonAdminOnPremPlatform(): void
+    {
+        $this->insertPoller('Central', isCentral: true);
+        $this->insertPoller('Poller-A');
+
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $this->grantPollerReadTopologyRole($contactId);
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, (array) $response->toArray()['member']);
+        self::assertJsonContains([
+            'member' => [
+                ['name' => 'Central'],
+                ['name' => 'Poller-A'],
+            ],
+        ]);
+    }
+
     public function testItRejectsZeroItemsPerPage(): void
     {
         $this->insertPoller('Poller-A');

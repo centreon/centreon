@@ -51,36 +51,32 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         $qb
             ->select('1')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
-            ->leftJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
-            ->where('arpr.acl_res_id IS NULL')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
             ->setParameter('contactId', $userId->value)
             ->setMaxResults(1);
 
-        return (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
+        // Legacy (centreonACL::setPollers()) unions the poller relations across every accessible
+        // resource and only falls back to "all pollers" when that union is entirely empty — not
+        // as soon as a single resource happens to carry no relation. A user holding one resource
+        // restricted to a poller and another resource with no poller relation at all must still
+        // see only the restricted poller, not everything.
+        return ! (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
     }
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool
     {
-        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
-
-        // No ACL resources means no restrictions apply — the user has access to all pollers.
-        // Without this guard, the LEFT JOIN below starts from an empty derived table and can
-        // never match, silently turning "no restriction" into "no access".
-        if (! $this->connection->fetchOne($accessibleAclResQb->getSQL(), ['contactId' => $userId->value])) {
+        if ($this->hasAccessToAllPollers($userId)) {
             return true;
         }
+
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('1')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
-            ->leftJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
-            ->where(
-                $qb->expr()->or(
-                    'arpr.acl_res_id IS NULL',
-                    'arpr.poller_id = :pollerId'
-                )
-            )
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arpr.poller_id = :pollerId')
             ->setParameter('contactId', $userId->value)
             ->setParameter('pollerId', $pollerId->value)
             ->setMaxResults(1);
