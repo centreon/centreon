@@ -85,6 +85,9 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $centralAddress = new CentralAddress($data->centralAddress);
+        // Resolved before the poller is persisted: an unusable platform base path fails the
+        // request, and doing it afterward would leave the poller created behind that failure.
+        $centralUrl = $this->centralUrlFactory->create($centralAddress);
 
         $command = new CreatePollerCommand(
             name: $pollerName,
@@ -111,7 +114,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
             $token,
             $appSecret,
             $salt,
-            $this->centralUrlFactory->create($centralAddress),
+            $centralUrl,
             $this->isCloudPlatform,
         );
 

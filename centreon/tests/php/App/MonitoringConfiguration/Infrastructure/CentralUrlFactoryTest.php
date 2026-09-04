@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CentralUrlFactoryTest extends TestCase
 {
@@ -175,9 +176,37 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
-    public function testItIgnoresABaseUriThatIsNotAPlainPath(): void
+    /**
+     * Dropping the base URI here would answer 200 with a command that 404s on install.sh, and the
+     * admin would only find out once they ran it.
+     */
+    public function testItRejectsABaseUriThatIsNotAPlainPath(): void
     {
         $factory = $this->createFactory('https://central.example.com/centreon;id/api/latest/configuration/pollers');
+
+        $this->expectException(BadRequestHttpException::class);
+        $this->expectExceptionMessage('The platform base path "/centreon;id" cannot be used');
+
+        $factory->create(new CentralAddress('10.25.11.198'));
+    }
+
+    public function testItRejectsABaseUriContainingDotSegments(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon/../api/latest/configuration/pollers');
+
+        $this->expectException(BadRequestHttpException::class);
+
+        $factory->create(new CentralAddress('10.25.11.198'));
+    }
+
+    /**
+     * The counterpart of the two above: an entry point this factory does not know about carries no
+     * claim about a base path — a CLI or a test reaches it with no request at all — so the URL is
+     * built root-mounted rather than refused.
+     */
+    public function testItStillDropsTheBaseUriOfAnUnrecognizedEntryPoint(): void
+    {
+        $factory = $this->createFactory('https://central.example.com/centreon;id/authentication/login');
 
         self::assertSame(
             'https://10.25.11.198',
@@ -185,13 +214,17 @@ final class CentralUrlFactoryTest extends TestCase
         );
     }
 
-    public function testItIgnoresABaseUriContainingDotSegments(): void
+    /**
+     * The address carries its own base path, so the platform one is never read: an unusable request
+     * URI must not fail a payload that does not depend on it.
+     */
+    public function testItIgnoresAnUnusableBaseUriWhenTheAddressCarriesItsOwn(): void
     {
-        $factory = $this->createFactory('https://central.example.com/centreon/../api/latest/configuration/pollers');
+        $factory = $this->createFactory('https://central.example.com/centreon;id/api/latest/configuration/pollers');
 
         self::assertSame(
-            'https://10.25.11.198',
-            $factory->create(new CentralAddress('10.25.11.198'))->value
+            'https://10.25.11.198/platform',
+            $factory->create(new CentralAddress('10.25.11.198/platform'))->value
         );
     }
 

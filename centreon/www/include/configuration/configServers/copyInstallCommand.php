@@ -41,6 +41,7 @@ use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 // Keep in sync with engine_context_path (config/services.yaml) and
 // upgrade.engine_context_path (config.new/services/upgrade.php): this endpoint
@@ -205,6 +206,15 @@ try {
     );
 
     sendJsonResponse(200, ['command' => $factory->generate()]);
+} catch (BadRequestHttpException $exception) {
+    // The one failure the admin can act on: the platform serves itself under a base path that
+    // cannot go into the command. listServers.ihtml puts this message straight in a toast, where
+    // the generic 500 below would say nothing about the cause.
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Failed to generate poller installation command',
+        ['poller_id' => $pollerId, 'exception' => $exception],
+    );
+    sendJsonResponse(400, ['error' => $exception->getMessage()]);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'Failed to generate poller installation command',

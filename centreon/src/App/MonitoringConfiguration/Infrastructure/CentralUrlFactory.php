@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Model\UrlPath;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Central URL for the poller install command: the address comes from the payload
@@ -106,19 +107,31 @@ final readonly class CentralUrlFactory
 
         // The base URI ends up in a command the admin runs in a shell, so it has to pass the
         // same segment rules as the rest of the URL.
-        $baseUri = UrlPath::tryFrom(rtrim($matches['baseUri'], '/'));
+        $rawBaseUri = rtrim($matches['baseUri'], '/');
+        $baseUri = UrlPath::tryFrom($rawBaseUri);
         if (! $baseUri instanceof UrlPath) {
-            $this->logDroppedBaseUri('unsafe path', $requestUri);
+            // Unlike an unrecognized entry point, this is a request the platform answers under a
+            // base path it cannot express. Dropping it would hand back a command that looks valid
+            // and 404s on install.sh, so the admin would chase the network or the token before
+            // suspecting the path.
+            Logger::create(LogChannelEnum::POLLER_INSTALL)->error(
+                'Central URL cannot carry the platform base URI',
+                ['reason' => 'unsafe path', 'request_uri' => $requestUri],
+            );
 
-            return '';
+            throw new BadRequestHttpException(sprintf(
+                'The platform base path "%s" cannot be used in a poller installation command.',
+                $rawBaseUri
+            ));
         }
 
         return $baseUri->value;
     }
 
     /**
-     * Without the base URI the command still looks valid but downloads install.sh from
-     * the wrong path, so the failure has to be traceable.
+     * An entry point this factory does not know about is not necessarily a platform served under a
+     * base path: a CLI or a test may reach the command generation with no request at all. The URL
+     * is built root-mounted, which is right for most platforms and traceable for the rest.
      */
     private function logDroppedBaseUri(string $reason, string $requestUri): void
     {

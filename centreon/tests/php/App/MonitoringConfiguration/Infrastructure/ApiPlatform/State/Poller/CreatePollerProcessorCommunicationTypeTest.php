@@ -56,7 +56,9 @@ use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 {
@@ -102,8 +104,36 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
     }
 
-    private function buildProcessor(bool $isCloudPlatform, ?object &$capturedCommand): CreatePollerProcessor
+    /**
+     * The central URL is resolved before the poller is persisted, so a platform base path that
+     * cannot go into the command fails the request instead of leaving a poller behind it.
+     */
+    public function testItCreatesNoPollerWhenThePlatformBaseUriIsUnusable(): void
     {
+        $capturedCommand = null;
+        $requestStack = new RequestStack();
+        $requestStack->push(
+            Request::create('https://central.example.com/centreon;id/api/latest/configuration/pollers')
+        );
+        $processor = $this->buildProcessor(
+            isCloudPlatform: false,
+            capturedCommand: $capturedCommand,
+            requestStack: $requestStack,
+        );
+
+        try {
+            $processor->process($this->buildInput(), new Post());
+            self::fail('An unusable platform base path must fail the request');
+        } catch (BadRequestHttpException) {
+            self::assertNull($capturedCommand, 'the poller must not have been created');
+        }
+    }
+
+    private function buildProcessor(
+        bool $isCloudPlatform,
+        ?object &$capturedCommand,
+        ?RequestStack $requestStack = null,
+    ): CreatePollerProcessor {
         $poller = new Poller(
             id: new PollerId(42),
             name: new PollerName('TestPoller'),
@@ -163,7 +193,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
-            centralUrlFactory: new CentralUrlFactory(new RequestStack(), $isCloudPlatform),
+            centralUrlFactory: new CentralUrlFactory($requestStack ?? new RequestStack(), $isCloudPlatform),
             isCloudPlatform: $isCloudPlatform,
         );
     }
