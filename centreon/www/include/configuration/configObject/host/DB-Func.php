@@ -419,15 +419,19 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
             continue;
         }
         $row['host_id'] = null;
-        // The 999 ceiling mirrors the listing input's maxlength="3", which is
-        // client-side only: without a server-side bound a forged dupNbr drives
-        // unbounded duplication work and database writes.
+        // Bound 0..999 server-side (the listing input's maxlength="3" is
+        // client-only) so a forged dupNbr cannot drive unbounded duplication.
         $dupCount = filter_var(
             $nbrDup[$key] ?? 0,
             FILTER_VALIDATE_INT,
             ['options' => ['min_range' => 0, 'max_range' => 999]]
         );
         if ($dupCount === false) {
+            AdaptationLogger::create(LogChannelEnum::WEB)->warning(
+                'Host duplication skipped: invalid duplication count',
+                ['sourceHostId' => (int) $key, 'submitted' => $nbrDup[$key] ?? null]
+            );
+
             continue;
         }
         $originalHostName = $row['host_name'];
@@ -785,11 +789,17 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         object_name: $hostName,
                         action_type: ActionLog::ACTION_TYPE_ADD
                     );
+                } else {
+                    // Insert returned no id (misconfigured AUTO_INCREMENT): no copy
+                    // was created, so account for it like a skipped name.
+                    ++$skippedTotal;
+                    if (count($skippedNames) < 20) {
+                        $skippedNames[] = $hostName ?? '(unnamed)';
+                    }
                 }
             } else {
-                // Collected once and capped, not logged here: even within the
-                // duplication ceiling, one log record per colliding name would be
-                // a disk-write amplifier — a logger and a file handle each round.
+                // Aggregated, not logged per name: one record per colliding name
+                // would multiply disk writes within the duplication loop.
                 ++$skippedTotal;
                 if (count($skippedNames) < 20) {
                     $skippedNames[] = $hostName ?? '(unnamed)';
@@ -808,10 +818,10 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
         }
 
         if ($skippedTotal > 0) {
-            // The page reloads unchanged, so without this the operator has no
-            // explanation for the copies that never appeared.
+            // The page reloads unchanged, so this is the operator's only clue
+            // about the copies that never appeared.
             AdaptationLogger::create(LogChannelEnum::WEB)->warning(
-                'Host duplication skipped: generated names already taken by a host or a host template',
+                'Host duplication skipped: generated name already taken by a host or host template, or the insert returned no id',
                 [
                     'sourceHostId' => (int) $key,
                     'names' => $skippedNames,

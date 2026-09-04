@@ -98,20 +98,15 @@ $aclHostString = $acl->getHostsString('ID', $dbmon);
 $aclPollerString = $acl->getPollerString();
 
 /**
- * Narrow a selection to the hosts the caller can see, once page-level write
- * access is established.
+ * Narrow a host selection to the ids the caller may write, once page write
+ * access is confirmed. The topology check upstream admits read-only access and
+ * the write branches took their ids from the request gated by the CSRF token
+ * alone, so every write path routes its selection through here: the bulk
+ * selection once above the switch, the single-id branches on their own id. A
+ * mixed selection acts on the granted part rather than failing whole.
  *
- * The topology check upstream admits read-only access to this page, and the
- * branches below took their ids straight from the request, gated by the CSRF
- * token alone. Every path that writes must therefore route its selection
- * through here first: the bulk selection is filtered once above the switch,
- * and the single-id enable/disable branches call it on their own id.
- *
- * Returns the granted subset, so a selection carrying a mix acts on the allowed
- * part rather than failing whole: one denied id does not cancel the rest.
- *
- * Reads $acl, $centreon, $dbmon and $p from the global scope; $p must hold this
- * page's topology id, since the write check is $acl->page($p).
+ * Reads $acl, $centreon, $dbmon and $p from global scope; $p is this page's
+ * topology id (the write check is $acl->page($p)).
  *
  * @param array<int, mixed> $selection Host ids as keys, as getSelectOption() returns
  *
@@ -145,8 +140,7 @@ function keepWritableHosts(array $selection): array
     $writable = array_intersect_key($selection, $granted);
 
     if (count($writable) !== count($selection)) {
-        // The refused ids are the forensic payload: they are what tells a
-        // misconfigured ACL apart from someone probing ids outside their own.
+        // Log the refused ids: they tell a misconfigured ACL apart from probing.
         $refusedIds = array_slice(array_keys(array_diff_key($selection, $granted)), 0, 20);
         Logger::create(LogChannelEnum::WEB)->warning(
             'Hosts page: bulk action narrowed to the caller ACL',
