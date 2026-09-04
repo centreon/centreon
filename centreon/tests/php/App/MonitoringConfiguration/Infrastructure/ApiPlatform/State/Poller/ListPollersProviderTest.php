@@ -180,6 +180,54 @@ final class ListPollersProviderTest extends ApiTestCase
         ]);
     }
 
+    public function testItRejectsZeroItemsPerPage(): void
+    {
+        $this->insertPoller('Poller-A');
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '0']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->insertPoller('Poller-A');
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'Poller-A']]);
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItIgnoresAnEmptyNameFilter(): void
+    {
+        $this->insertPoller('Poller-A');
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => '']]]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+    }
+
+    public function testItFiltersByANameOfLiteralZero(): void
+    {
+        $this->insertPoller('0');
+        $this->insertPoller('Poller-A');
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => '0']]]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains([
+            'member' => [
+                ['name' => '0'],
+            ],
+        ]);
+    }
+
     private function insertPoller(string $name, bool $isCentral = false): int
     {
         $this->connection->insert('nagios_server', [

@@ -36,6 +36,7 @@ use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -68,13 +69,14 @@ final readonly class ListPollersProvider implements ProviderInterface
 
         $criteria = new PollerCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
-            $criteria = $criteria->withPagination(
-                $this->pagination->getPage($context),
-                $this->pagination->getLimit($operation, $context)
-            );
+            $itemsPerPage = $this->pagination->getLimit($operation, $context);
+            if ($itemsPerPage <= 0) {
+                throw new BadRequestHttpException('itemsPerPage must be a positive integer.');
+            }
+            $criteria = $criteria->withPagination($this->pagination->getPage($context), $itemsPerPage);
         }
 
-        /** @var array{name?: array<string, string|array<string>>} $filters */
+        /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
         $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $isAdmin);
@@ -98,18 +100,26 @@ final readonly class ListPollersProvider implements ProviderInterface
         );
     }
 
-    /**
-     * @param array<string, string|array<string>>|null $nameFilter
-     */
-    private function handleNameFilter(?array $nameFilter, PollerCriteria $criteria): PollerCriteria
+    private function handleNameFilter(mixed $nameFilter, PollerCriteria $criteria): PollerCriteria
     {
-        $likeValue = $nameFilter['lk'] ?? null;
-        if ($likeValue === null) {
+        if ($nameFilter === null) {
             return $criteria;
         }
 
-        $name = is_array($likeValue) ? (string) reset($likeValue) : $likeValue;
+        // a client sending "?name=foo" instead of "?name[lk]=foo" lands here as a plain string
+        if (! is_array($nameFilter)) {
+            throw new BadRequestHttpException('The "name" filter must use the "name[lk]=value" format.');
+        }
 
-        return $criteria->withName($name);
+        $likeValue = $nameFilter['lk'] ?? null;
+        if (is_array($likeValue)) {
+            $likeValue = reset($likeValue);
+        }
+
+        if (! is_string($likeValue) || $likeValue === '') {
+            return $criteria;
+        }
+
+        return $criteria->withName($likeValue);
     }
 }

@@ -339,9 +339,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
-            ->addSelect('pt.central_address AS central_address')
+            // a correlated subquery, not a JOIN: platform_topology.server_id carries no UNIQUE
+            // constraint, and a JOIN fan-out here would corrupt LIMIT/OFFSET-based pagination
+            ->addSelect('(SELECT pt.central_address FROM platform_topology pt WHERE pt.server_id = p.id LIMIT 1) AS central_address')
             ->from(self::TABLE_NAME, 'p')
-            ->leftJoin('p', 'platform_topology', 'pt', 'pt.server_id = p.id')
             ->orderBy('p.id'); // required for deterministic pagination
 
         if ($criteria instanceof PollerCriteria) {
@@ -453,12 +454,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
 
         if ($criteria->excludeUnknownCentral()) {
             // a central not registered as a remote server's address is excluded, matching legacy's
-            // "isLocalhost() && address not in remoteServersIps" rule, expressed here in SQL to keep pagination correct
-            $qb->leftJoin('p', 'remote_servers', 'rs', 'rs.ip = p.ns_ip_address')
-                ->andWhere($qb->expr()->or(
-                    $qb->expr()->neq('p.localhost', $qb->createNamedParameter('1')),
-                    $qb->expr()->isNotNull('rs.ip'),
-                ));
+            // "isLocalhost() && address not in remoteServersIps" rule, expressed here in SQL to keep
+            // pagination correct. EXISTS rather than a JOIN: remote_servers.ip carries no UNIQUE
+            // constraint, and a JOIN fan-out here would corrupt LIMIT/OFFSET-based pagination.
+            $qb->andWhere($qb->expr()->or(
+                $qb->expr()->neq('p.localhost', $qb->createNamedParameter('1')),
+                'EXISTS (SELECT 1 FROM remote_servers rs WHERE rs.ip = p.ns_ip_address)',
+            ));
         }
 
         if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {

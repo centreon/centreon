@@ -52,7 +52,8 @@ final class PollerCriteria
 
     public function withName(string $name): self
     {
-        Assert::notEmpty($name);
+        // notEmpty() relies on empty(), which would wrongly reject a legitimate name of "0"
+        Assert::stringNotEmpty($name);
 
         $new = clone $this;
         $new->name = $name;

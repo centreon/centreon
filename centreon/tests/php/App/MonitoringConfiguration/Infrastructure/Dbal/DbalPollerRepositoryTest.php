@@ -213,6 +213,37 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertCount(2, $pollers);
     }
 
+    public function testFindAllIsNotAffectedByDuplicatePlatformTopologyRows(): void
+    {
+        // platform_topology.server_id carries no UNIQUE constraint; a poller with more than one
+        // row there must not be counted or returned more than once, nor corrupt pagination.
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+        $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
+        $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A-dup', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withPagination(1, 10));
+
+        self::assertInstanceOf(Paginator::class, $pollers);
+        self::assertCount(3, $pollers); // setUp()'s Central + Poller-A + Poller-B, each counted once
+        self::assertSame(3, $pollers->getTotalItems());
+    }
+
+    public function testFindAllIsNotAffectedByDuplicateRemoteServerIps(): void
+    {
+        // remote_servers.ip carries no UNIQUE constraint either; the exclude-unknown-central EXISTS
+        // check must not fan out the result set when more than one row shares the same ip.
+        $this->insertPoller(2, 'Poller-A', isCentral: false);
+        $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
+        $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true)->withPagination(1, 10));
+
+        self::assertInstanceOf(Paginator::class, $pollers);
+        self::assertCount(2, $pollers); // Central (kept: its address matches a remote server) + Poller-A
+        self::assertSame(2, $pollers->getTotalItems());
+    }
+
     public function testFindAllRestrictsToAccessiblePollersForARestrictedViewer(): void
     {
         $this->insertPoller(2, 'Poller-A');
