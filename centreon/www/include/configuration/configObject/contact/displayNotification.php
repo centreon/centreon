@@ -69,30 +69,16 @@ $style = 'one';
 $groups = "''";
 $contactId = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
 
-$contactRefused = false;
-$contactMissing = false;
+$contactUnavailable = false;
 if ($contactId && ! array_key_exists($contactId, $contact)) {
-    // The contact exists in database but not in the list above, so it is out of
-    // the ACL scope. An admin's list is exhaustive, so for an admin the miss
-    // means the contact is gone from the selectable list.
-    $outsideScope = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
-        'SELECT 1 FROM contact WHERE contact_id = :contactId',
-        Adaptation\Database\Connection\Collection\QueryParameters::create([
-            Adaptation\Database\Connection\ValueObject\QueryParameter::int('contactId', $contactId),
-        ])
-    );
+    // Not in the caller's scoped list (out of ACL scope, or gone). Refuse it
+    // without probing whether it exists, so the message cannot enumerate ids.
     Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
-        $outsideScope
-            ? 'Notification view: contact outside the access scope'
-            : 'Notification view: unknown contact requested',
+        'Notification view: contact not available in scope',
         ['contact_id' => $contactId, 'user_id' => $centreon->user->get_id()]
     );
     $contactId = 0;
-    if ($outsideScope) {
-        $contactRefused = true;
-    } else {
-        $contactMissing = true;
-    }
+    $contactUnavailable = true;
 }
 
 $formData = ['contact' => $contactId];
@@ -166,10 +152,8 @@ $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $msgSelect = _('Please select a user in order to view his notifications');
-if ($contactRefused) {
-    $msgSelect = _('This contact is not within your access groups');
-} elseif ($contactMissing) {
-    $msgSelect = _('This contact no longer exists');
+if ($contactUnavailable) {
+    $msgSelect = _('This contact is not available');
 }
 $tpl->assign('msgSelect', $msgSelect);
 $tpl->assign('p', $p);

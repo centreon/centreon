@@ -65,30 +65,16 @@ $style = 'one';
 $groups = "''";
 $contactgroup_id = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
 
-$contactGroupRefused = false;
-$contactGroupMissing = false;
+$contactGroupUnavailable = false;
 if ($contactgroup_id && ! array_key_exists($contactgroup_id, $contact)) {
-    // The group exists in database but not in the list above, so it is out of
-    // the ACL scope. An admin's list is exhaustive, so for an admin the miss
-    // means the group is gone from the selectable list.
-    $outsideScope = ! $centreon->user->admin && (bool) $pearDB->fetchOne(
-        'SELECT 1 FROM contactgroup WHERE cg_id = :cgId',
-        Adaptation\Database\Connection\Collection\QueryParameters::create([
-            Adaptation\Database\Connection\ValueObject\QueryParameter::int('cgId', $contactgroup_id),
-        ])
-    );
+    // Not in the caller's scoped list (out of ACL scope, or gone). Refuse it
+    // without probing whether it exists, so the message cannot enumerate ids.
     Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
-        $outsideScope
-            ? 'Notification view: contact group outside the access scope'
-            : 'Notification view: unknown contact group requested',
+        'Notification view: contact group not available in scope',
         ['cg_id' => $contactgroup_id, 'user_id' => $centreon->user->get_id()]
     );
     $contactgroup_id = 0;
-    if ($outsideScope) {
-        $contactGroupRefused = true;
-    } else {
-        $contactGroupMissing = true;
-    }
+    $contactGroupUnavailable = true;
 }
 
 $formData = ['contact' => $contactgroup_id];
@@ -162,10 +148,8 @@ $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $msgSelect = _('Please select a user in order to view his notifications');
-if ($contactGroupRefused) {
-    $msgSelect = _('This contact group is not within your access groups');
-} elseif ($contactGroupMissing) {
-    $msgSelect = _('This contact group no longer exists');
+if ($contactGroupUnavailable) {
+    $msgSelect = _('This contact group is not available');
 }
 $tpl->assign('msgSelect', $msgSelect);
 $tpl->assign('p', $p);
