@@ -63,7 +63,8 @@ $tpl->assign('headerMenu_service_esc', _('Escalated Services'));
 $style = 'one';
 
 $groups = "''";
-$contactgroup_id = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
+// The selector form submits via GET (onChange), so the value lands in $_GET.
+$contactgroup_id = isset($_GET['contact']) ? (int) $_GET['contact'] : 0;
 
 $contactGroupUnavailable = false;
 if ($contactgroup_id && ! array_key_exists($contactgroup_id, $contact)) {
