@@ -47,11 +47,11 @@ const ServerConfigurationWizard = ({
 
   const configurationTypes = [
     {
-      label: labelAddACentreonRemoteServer,
+      label: t(labelAddACentreonRemoteServer),
       value: 1
     },
     {
-      label: labelAddACentreonPoller,
+      label: t(labelAddACentreonPoller),
       value: 2
     }
   ];
