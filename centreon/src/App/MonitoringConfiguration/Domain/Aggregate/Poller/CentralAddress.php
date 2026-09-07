@@ -23,35 +23,47 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
+use App\MonitoringConfiguration\Domain\Model\UrlPath;
 use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Webmozart\Assert\Assert;
 
 /**
  * Client-visible entry point of the central server: hostname or IP address,
  * optional port, optional base path — e.g. "central.example.com",
- * "10.0.0.1:8443" or "orga.region.example.com/platform". Unlike PollerAddress,
- * it may carry a base path: on cloud platforms the whole application
- * (including /poller/install.sh) is served under the platform path. No scheme.
+ * "10.0.0.1:8443", "[2001:db8::1]:8443" or "orga.region.example.com/platform".
+ * Unlike PollerAddress, it may carry a base path: on cloud platforms the whole
+ * application (including /poller/install.sh) is served under the platform path.
+ * No scheme.
  *
  * Behind proxies and NAT, only the browser knows the client-reachable form of
- * this address, so the value is provided by the frontend and stored verbatim
- * (minus trailing slash).
+ * this address, so the value is provided by the frontend, then normalized.
  */
 final readonly class CentralAddress
 {
     public const MIN_LENGTH = 1;
     public const MAX_LENGTH = 255;
-    private const HOST_PORT_PATTERN = '/^(?<host>.+):(?<port>\d{1,5})$/';
-    private const BASE_PATH_PATTERN = '~^[A-Za-z0-9._\-]+(?:/[A-Za-z0-9._\-]+)*$~';
-    private const DOT_SEGMENT_PATTERN = '~(?:^|/)\.{1,2}(?:/|$)~';
 
+    /**
+     * An IP-literal, the only form able to carry both an IPv6 host and a web port: the brackets
+     * are what tell the colons of the address from the port separator. Dots belong to the alphabet
+     * for the IPv4-mapped form ("::ffff:10.0.0.1"), and that alphabet is all a pattern can express
+     * — "[::::]" and "[10.0.0.1]" match it — so the capture goes through FILTER_VALIDATE_IP, which
+     * is what actually rejects a non-IPv6 between brackets.
+     */
+    private const IP_LITERAL_PATTERN = '/^\[(?<host>[0-9A-Fa-f:.]+)\](?::(?<port>\d{1,5}))?$/';
+    private const HOST_PORT_PATTERN = '/^(?<host>.+):(?<port>\d{1,5})$/';
+    private const MIN_PORT = 1;
+    private const MAX_PORT = 65535;
+
+    /**
+     * The canonical form of the address: what gets persisted, echoed back by the API and quoted in
+     * error messages. Also what must appear right after "scheme://", so an IPv6 host is bracketed
+     * here even when the admin typed it bare — a bare literal yields an authority curl cannot parse.
+     */
     public string $value;
 
-    /** Authority host with the port stripped: hostname, IPv4, or unbracketed IPv6. */
+    /** Authority host, port and brackets stripped: hostname, IPv4, or bare IPv6. */
     public string $host;
-
-    /** Web port when the address carries one, null otherwise. Never a protocol port such as the broker's. */
-    public ?int $port;
 
     /** Base path without surrounding slashes ("platform", "base/path"), null when the address has none. */
     public ?string $basePath;
@@ -63,52 +75,55 @@ final readonly class CentralAddress
 
         $slashPosition = mb_strpos($normalized, '/');
         $authority = $slashPosition === false ? $normalized : mb_substr($normalized, 0, $slashPosition);
-        $basePath = $slashPosition === false ? null : mb_substr($normalized, $slashPosition + 1);
 
-        [$this->host, $this->port] = $this->parseAuthority($authority);
-        if ($basePath !== null) {
-            Assert::regex(
-                $basePath,
-                self::BASE_PATH_PATTERN,
-                sprintf('[CentralAddress::value] The base path "%s" contains invalid characters', $basePath)
-            );
-            // "." and ".." match BASE_PATH_PATTERN but would make the generated URL
-            // resolve outside the configured base path.
-            Assert::false(
-                (bool) preg_match(self::DOT_SEGMENT_PATTERN, $basePath),
-                sprintf('[CentralAddress::value] The base path "%s" must not contain dot segments', $basePath)
-            );
-        }
+        [$host, $port] = $this->parseAuthority($authority);
 
-        $this->basePath = $basePath;
-        $this->value = $normalized;
+        // The separator is kept rather than skipped: UrlPath takes the canonical leading-slash
+        // form, so "host//path" reaches it as "//path" and is rejected as an empty segment.
+        $basePath = $slashPosition === false
+            ? null
+            : new UrlPath(mb_substr($normalized, $slashPosition), 'CentralAddress::value');
+
+        $canonical = $this->canonicalize($host, $port, $basePath);
+        // Bracketing a bare IPv6 host grows the value, and it is the canonical form that has to fit
+        // platform_topology.central_address.
+        Assert::lengthBetween($canonical, self::MIN_LENGTH, self::MAX_LENGTH);
+
+        $this->host = $host;
+        $this->basePath = $basePath?->segments();
+        $this->value = $canonical;
     }
 
     /**
      * Validate the authority and split it into host + optional port.
      *
-     * The parts are kept rather than discarded because consumers that reach the central over a
-     * protocol other than HTTP (the broker output, which dials its own port) need the bare host.
+     * The host is kept rather than discarded because consumers that reach the central over a
+     * protocol other than HTTP (the broker output, which dials its own port) need it bare.
      * They cannot re-derive it with parse_url(): on a scheme-less value it reports no host at all
-     * unless a port happens to be present.
+     * unless a port happens to be present. The port is what {@see canonicalize()} puts back.
      *
      * @return array{0: string, 1: int|null}
      */
     private function parseAuthority(string $authority): array
     {
-        // A bare IP address (IPv4, or IPv6 whose colons would confuse port detection).
+        if (preg_match(self::IP_LITERAL_PATTERN, $authority, $matches, PREG_UNMATCHED_AS_NULL) === 1) {
+            Assert::true(
+                filter_var($matches['host'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false,
+                sprintf('[CentralAddress::value] "%s" is not a valid IPv6 address', $matches['host'])
+            );
+
+            return [$matches['host'], $this->parsePort($matches['port'])];
+        }
+
+        // A bare IP address (IPv4, or IPv6 whose colons would confuse port detection). An IPv6
+        // typed this way carries no port — its last group is indistinguishable from one — and
+        // canonicalize() brackets it back.
         if (filter_var($authority, FILTER_VALIDATE_IP) !== false) {
             return [$authority, null];
         }
 
         if (preg_match(self::HOST_PORT_PATTERN, $authority, $matches) === 1) {
-            $port = (int) $matches['port'];
-            Assert::range(
-                $port,
-                1,
-                65535,
-                sprintf('[CentralAddress::value] The port in "%s" is out of range', $authority)
-            );
+            $port = $this->parsePort($matches['port']);
             CentreonAssert::ipOrHostname($matches['host'], 'CentralAddress::value');
 
             return [$matches['host'], $port];
@@ -117,5 +132,40 @@ final readonly class CentralAddress
         CentreonAssert::ipOrHostname($authority, 'CentralAddress::value');
 
         return [$authority, null];
+    }
+
+    /**
+     * @param string|null $port digits captured by the authority patterns, null when there is no port
+     */
+    private function parsePort(?string $port): ?int
+    {
+        if ($port === null) {
+            return null;
+        }
+
+        $parsed = (int) $port;
+        // The capture is interpolated rather than the whole authority: it holds nothing but digits,
+        // so the message cannot carry a "%" the assertion library re-expands.
+        Assert::range(
+            $parsed,
+            self::MIN_PORT,
+            self::MAX_PORT,
+            sprintf('[CentralAddress::value] The port "%s" is out of range', $port)
+        );
+
+        return $parsed;
+    }
+
+    private function canonicalize(string $host, ?int $port, ?UrlPath $basePath): string
+    {
+        // An IPv6 literal only stands as a URL authority once bracketed: without brackets its
+        // colons are read as the port separator.
+        $authority = filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false
+            ? sprintf('[%s]', $host)
+            : $host;
+
+        return $authority
+            . ($port === null ? '' : ':' . $port)
+            . ($basePath->value ?? '');
     }
 }
