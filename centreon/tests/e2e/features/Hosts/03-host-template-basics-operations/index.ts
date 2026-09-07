@@ -243,10 +243,7 @@ const templateRelationCount = (name: string): Cypress.Chainable =>
   cy
     .requestOnDatabase({
       database: 'centreon',
-      query:
-        'SELECT COUNT(*) AS total FROM host_service_relation hsr ' +
-        'JOIN host h ON h.host_id = hsr.host_host_id ' +
-        `WHERE h.host_name = '${name}'`
+      query: `SELECT COUNT(*) AS total FROM host_service_relation hsr JOIN host h ON h.host_id = hsr.host_host_id WHERE h.host_name = '${name}'`
     })
     .then(([rows]) => cy.wrap(Number(rows[0].total), { log: false }));
 
