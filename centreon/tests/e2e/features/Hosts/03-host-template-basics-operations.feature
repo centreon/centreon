@@ -21,3 +21,16 @@ Feature: HostTemplateBasicsOperations
   Scenario: Deletion of a host template
     When the user deletes the configured host template
     Then the deleted host template is not visible anymore on the host template page
+
+  # Cloud: identical
+  Scenario: Duplicating a host template does not multiply its service templates
+    Given a host template with shared service templates is configured
+    When the user duplicates that host template and its copy
+    Then each copy carries exactly the service templates of its source
+
+  # Cloud: identical
+  Scenario: A duplication whose generated name is already taken creates nothing
+    Given a host template with shared service templates is configured
+    And a host template already carries the name the copy would take
+    When the user duplicates that host template
+    Then no duplicate host template row was created
