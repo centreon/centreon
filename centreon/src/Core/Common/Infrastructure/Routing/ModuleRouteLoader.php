@@ -38,6 +38,8 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         private AttributeFileLoader $loader,
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
+        #[Autowire(param: 'api.version.pattern')]
+        private string $versionPattern,
         private ModuleInstallationVerifier $moduleInstallationVerifier,
         private InstallationVerifierInterface $centreonInstallationVerifier,
     ) {
@@ -75,7 +77,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         if ($routeCollections instanceof RouteCollection) {
             $routeCollections->addPrefix('/{base_uri}api/{version}');
             $routeCollections->addDefaults(['base_uri' => 'centreon/', 'version' => 'latest']);
-            $routeCollections->addRequirements(['base_uri' => '(.+/)|.{0}']);
+            $routeCollections->addRequirements(['base_uri' => '(.+/)|.{0}', 'version' => $this->versionPattern]);
 
             return $routeCollections;
         }
@@ -84,7 +86,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         }
         $routes->addPrefix('/{base_uri}api/{version}');
         $routes->addDefaults(['base_uri' => 'centreon/', 'version' => 'latest']);
-        $routes->addRequirements(['base_uri' => '(.+/)|.{0}']);
+        $routes->addRequirements(['base_uri' => '(.+/)|.{0}', 'version' => $this->versionPattern]);
 
         return $routes;
     }
