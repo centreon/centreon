@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
@@ -36,7 +35,6 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
 #[ApiResource(
     shortName: 'Poller',
     operations: [
-        new NotExposed(uriTemplate: '/configuration/pollers/{id}'),
         new Post(
             uriTemplate: '/configuration/pollers',
             processor: CreatePollerProcessor::class,
