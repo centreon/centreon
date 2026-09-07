@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
@@ -84,6 +85,37 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             'contactId' => $userId->value,
             'pollerId' => $pollerId->value,
         ]);
+    }
+
+    public function findAccessibleHostSeverityIds(UserId $userId): ?Collection
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // A host "severity" is a host category carrying a level; a levelless category is a regular
+        // category and never scopes host templates. The discriminator lives here so callers receive
+        // an already severity-scoped set.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arhcr.hc_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->innerJoin('arhcr', 'hostcategories', 'hc', 'hc.hc_id = arhcr.hc_id')
+            ->where('hc.level IS NOT NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{hc_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        // No accessible host-severity relation means no restriction applies — the user can see host
+        // templates of any severity, matching the legacy empty-subrequest branch.
+        if ($rows === []) {
+            return null;
+        }
+
+        return new Collection(
+            array_map(static fn (array $row): HostSeverityId => new HostSeverityId((int) $row['hc_id']), $rows),
+            HostSeverityId::class
+        );
     }
 
     public function findAccessibleHostGroupIds(UserId $userId): ?Collection

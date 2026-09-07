@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
@@ -33,6 +34,14 @@ interface ResourceAccessRepository
     public function hasAccessToAllPollers(UserId $userId): bool;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
+
+    /**
+     * Returns the host severities (host categories carrying a level) the user is restricted to,
+     * or null when no restriction applies (the user can see host templates of any severity).
+     *
+     * @return Collection<HostSeverityId>|null
+     */
+    public function findAccessibleHostSeverityIds(UserId $userId): ?Collection;
 
     /**
      * @return Collection<HostGroupId>|null null means no restriction applies (the user can access
