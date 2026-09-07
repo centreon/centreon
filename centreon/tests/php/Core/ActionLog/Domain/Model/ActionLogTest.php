@@ -59,5 +59,7 @@ it('keeps the object types in their positional order', function (): void {
         'manufacturer',
         'hostcategories',
         'servicecategories',
+        'serviceseverity',
+        'hostseverity',
     ]);
 });
