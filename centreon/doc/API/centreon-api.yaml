@@ -150,7 +150,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/authentication/users/{alias}/password':
+  '/api/latest/authentication/users/{alias}/password':
     put:
       tags:
         - Authentication
@@ -203,7 +203,7 @@ paths:
                 items:
                   type: object
                   properties: { id: { type: integer, description: 'Id of configuration', example: 1 }, type: { type: string, description: 'Type of provider', example: local }, name: { type: string, description: 'Name of provider', example: local }, authentication_uri: { type: string, description: 'Provider Uri used to proceed authentication', example: /centreon/authentication/providers/configurations/local }, is_active: { type: boolean, description: 'Provider active or not', example: true }, is_forced: { type: boolean, description: 'Provider forced or not', example: false } }
-  '/authentication/providers/configurations/{provider_configuration_name}':
+  '/api/latest/authentication/providers/configurations/{provider_configuration_name}':
     post:
       tags:
         - Authentication
@@ -254,23 +254,23 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/latest/configuration/additional-connector-configurations:
     $ref: ./latest/onPremise/Configuration/AdditionalConnectorConfiguration/AddAndFindAccs.yaml
-  '/configuration/additional-connector-configurations/{acc_id}':
+  '/api/latest/configuration/additional-connector-configurations/{acc_id}':
     $ref: ./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml
   /api/latest/configuration/agent-configurations:
     $ref: ./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml
-  '/configuration/agent-configurations/{ac_id}':
+  '/api/latest/configuration/agent-configurations/{ac_id}':
     $ref: ./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml
-  '/configuration/agent-configurations/{ac_id}/pollers/{poller_id}':
+  '/api/latest/configuration/agent-configurations/{ac_id}/pollers/{poller_id}':
     $ref: ./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml
-  '/configuration/broker/{broker_id}/{tag}':
+  '/api/latest/configuration/broker/{broker_id}/{tag}':
     $ref: ./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml
-  '/configuration/broker/{broker_id}/outputs/{output_id}/file':
+  '/api/latest/configuration/broker/{broker_id}/outputs/{output_id}/file':
     $ref: ./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml
   /api/latest/configuration/graphs/templates:
     $ref: ./latest/onPremise/Configuration/GraphTemplate/FindGraphTemplates.yaml
   /api/latest/configuration/hosts/templates:
     $ref: ./latest/onPremise/Configuration/HostTemplate/AddAndFindHostTemplates.yaml
-  '/configuration/hosts/templates/{host_template_id}':
+  '/api/latest/configuration/hosts/templates/{host_template_id}':
     $ref: ./latest/onPremise/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml
   /api/latest/configuration/hosts:
     $ref: ./latest/onPremise/Configuration/Host/AddAndFindHosts.yaml
@@ -332,7 +332,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/categories/{host_category_id}':
+  '/api/latest/configuration/hosts/categories/{host_category_id}':
     get:
       operationId: FindHostCategory
       tags:
@@ -401,13 +401,13 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/{host_id}/services/deploy':
+  '/api/latest/configuration/hosts/{host_id}/services/deploy':
     $ref: ./latest/onPremise/Configuration/Service/DeployServices.yaml
   /api/latest/configuration/services/templates:
     $ref: ./latest/onPremise/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml
-  '/configuration/services/templates/{service_template_id}':
+  '/api/latest/configuration/services/templates/{service_template_id}':
     $ref: ./latest/onPremise/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml
-  '/configuration/services/{service_id}':
+  '/api/latest/configuration/services/{service_id}':
     $ref: ./latest/onPremise/Configuration/Service/PartialUpdateAndDeleteService.yaml
   /api/latest/configuration/services:
     $ref: ./latest/onPremise/Configuration/Service/AddServiceAndFindServices.yaml
@@ -525,7 +525,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/severities/{host_severity_id}':
+  '/api/latest/configuration/hosts/severities/{host_severity_id}':
     delete:
       operationId: DeleteHostSeverity
       tags:
@@ -596,7 +596,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/latest/configuration/hosts/groups:
     $ref: ./latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml
-  '/configuration/hosts/groups/{hostgroup_id}':
+  '/api/latest/configuration/hosts/groups/{hostgroup_id}':
     $ref: ./latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml
   /api/latest/configuration/hosts/groups/_delete:
     $ref: ./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml
@@ -683,7 +683,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/services/groups/{servicegroup_id}':
+  '/api/latest/configuration/services/groups/{servicegroup_id}':
     delete:
       operationId: DeleteServiceGroup
       tags:
@@ -708,7 +708,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/latest/configuration/services/severities:
     $ref: ./latest/onPremise/Configuration/ServiceSeverity/AddAndFindServiceSeverities.yaml
-  '/configuration/services/severities/{service_severity_id}':
+  '/api/latest/configuration/services/severities/{service_severity_id}':
     $ref: ./latest/onPremise/Configuration/ServiceSeverity/DeleteAndUpdateServiceSeverity.yaml
   /api/latest/configuration/icons:
     get:
@@ -741,7 +741,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/Media/AddAndFindMedia.yaml
   /api/latest/configuration/media/folders:
     $ref: ./latest/onPremise/Configuration/Media/FindImageFolders.yaml
-  '/configuration/medias/{media_id}/content':
+  '/api/latest/configuration/medias/{media_id}/content':
     $ref: ./latest/onPremise/Configuration/Media/UpdateMedia.yaml
   /api/latest/configuration/proxy:
     get:
@@ -815,7 +815,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/monitoring-servers/{monitoring_server_id}/generate':
+  '/api/latest/configuration/monitoring-servers/{monitoring_server_id}/generate':
     get:
       operationId: configuration_monitoring_server_generate
       tags:
@@ -834,7 +834,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/monitoring-servers/{monitoring_server_id}/reload':
+  '/api/latest/configuration/monitoring-servers/{monitoring_server_id}/reload':
     get:
       operationId: configuration_monitoring_server_reload
       tags:
@@ -853,7 +853,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/monitoring-servers/{monitoring_server_id}/generate-and-reload':
+  '/api/latest/configuration/monitoring-servers/{monitoring_server_id}/generate-and-reload':
     get:
       operationId: configuration_monitoring_server_generate_and_reload
       tags:
@@ -960,7 +960,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/metaservices/{meta_id}':
+  '/api/latest/configuration/metaservices/{meta_id}':
     get:
       operationId: centreon_application_find_meta_service_configuration
       tags:
@@ -982,7 +982,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/metrics':
+  '/api/latest/monitoring/metaservices/{meta_id}/metrics':
     get:
       operationId: centreon_application_find_meta_service_metrics
       tags:
@@ -1017,7 +1017,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/{host_id}/notification-policy':
+  '/api/latest/configuration/hosts/{host_id}/notification-policy':
     get:
       operationId: configuration.host.notification-policy
       tags:
@@ -1039,7 +1039,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/{host_id}/services/{service_id}/notification-policy':
+  '/api/latest/configuration/hosts/{host_id}/services/{service_id}/notification-policy':
     get:
       operationId: configuration.service.notification-policy
       tags:
@@ -1062,7 +1062,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/metaservices/{meta_id}/notification-policy':
+  '/api/latest/configuration/metaservices/{meta_id}/notification-policy':
     get:
       operationId: configuration.metaservice.notification-policy
       tags:
@@ -1140,7 +1140,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/latest/configuration/timeperiods:
     $ref: ./latest/onPremise/Configuration/TimePeriod/AddOneAndFindTimePeriods.yaml
-  '/configuration/timeperiods/{id}':
+  '/api/latest/configuration/timeperiods/{id}':
     delete:
       operationId: DeleteTimePeriod
       tags:
@@ -1256,17 +1256,17 @@ paths:
     $ref: ./latest/onPremise/Configuration/ContactGroup/FindContactGroups.yaml
   /api/latest/configuration/dashboards:
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboards.yaml
-  '/configuration/dashboards/{dashboard_id}':
+  '/api/latest/configuration/dashboards/{dashboard_id}':
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboard.yaml
-  '/configuration/dashboards/{dashboard_id}/favorites':
+  '/api/latest/configuration/dashboards/{dashboard_id}/favorites':
     $ref: ./latest/onPremise/Configuration/Dashboard/DeleteDashboardFromFavorites.yaml
   /api/latest/configuration/dashboards/favorites:
     $ref: ./latest/onPremise/Configuration/Dashboard/FavoriteDashboards.yaml
-  '/configuration/dashboards/{dashboard_id}/shares':
+  '/api/latest/configuration/dashboards/{dashboard_id}/shares':
     $ref: ./latest/onPremise/Configuration/Dashboard/ShareDashboard.yaml
-  '/configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}':
+  '/api/latest/configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}':
     $ref: ./latest/onPremise/Configuration/Dashboard/DashboardShareContact.yaml
-  '/configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}':
+  '/api/latest/configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}':
     $ref: ./latest/onPremise/Configuration/Dashboard/DashboardShareContactGroup.yaml
   /api/latest/configuration/dashboards/contacts:
     $ref: ./latest/onPremise/Configuration/Dashboard/Contacts.yaml
@@ -1302,7 +1302,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/users/filters/{page_name}':
+  '/api/latest/users/filters/{page_name}':
     get:
       tags:
         - User
@@ -1369,7 +1369,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/users/filters/{page_name}/{filter_id}':
+  '/api/latest/users/filters/{page_name}/{filter_id}':
     get:
       tags:
         - User
@@ -1564,7 +1564,7 @@ paths:
     $ref: ./latest/onPremise/Realtime/Resources/CountResources.yaml
   /api/latest/monitoring/resources/export:
     $ref: ./latest/onPremise/Realtime/Resources/ExportResources.yaml
-  '/monitoring/resources/hosts/{host_id}':
+  '/api/latest/monitoring/resources/hosts/{host_id}':
     get:
       operationId: centreon_application_monitoring_resource_details_host
       tags:
@@ -1586,7 +1586,7 @@ paths:
           $ref: '#/components/responses/HostNotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/resources/hosts/{host_id}/services/{service_id}':
+  '/api/latest/monitoring/resources/hosts/{host_id}/services/{service_id}':
     get:
       operationId: centreon_application_monitoring_resource_details_service
       tags:
@@ -1651,7 +1651,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}':
+  '/api/latest/monitoring/hosts/{host_id}':
     get:
       operationId: centreon_application_monitoring_getonehost
       tags:
@@ -1763,7 +1763,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services':
+  '/api/latest/monitoring/hosts/{host_id}/services':
     get:
       operationId: centreon_application_monitoring_getservicesbyhost
       tags:
@@ -1802,7 +1802,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}':
     get:
       operationId: centreon_application_monitoring_getoneservice
       tags:
@@ -1825,7 +1825,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/servicegroups':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/servicegroups':
     get:
       operationId: centreon_application_monitoring_getservicegroupsbyhostandservice
       tags:
@@ -1848,7 +1848,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/hostgroups':
+  '/api/latest/monitoring/hosts/{host_id}/hostgroups':
     get:
       operationId: centreon_application_monitoring_gethostgroupsbyhost
       tags:
@@ -2144,7 +2144,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/acknowledgements/{acknowledgement_id}':
+  '/api/latest/monitoring/acknowledgements/{acknowledgement_id}':
     get:
       tags:
         - Acknowledgement
@@ -2302,7 +2302,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/acknowledgements':
+  '/api/latest/monitoring/hosts/{host_id}/acknowledgements':
     get:
       tags:
         - Acknowledgement
@@ -2389,7 +2389,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/acknowledgements':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/acknowledgements':
     get:
       tags:
         - Acknowledgement
@@ -2481,7 +2481,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/acknowledgements':
+  '/api/latest/monitoring/metaservices/{meta_id}/acknowledgements':
     get:
       tags:
         - Acknowledgement
@@ -2622,7 +2622,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/downtimes/{downtime_id}':
+  '/api/latest/monitoring/downtimes/{downtime_id}':
     get:
       tags:
         - Downtime
@@ -2786,7 +2786,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/downtimes':
+  '/api/latest/monitoring/hosts/{host_id}/downtimes':
     get:
       tags:
         - Downtime
@@ -2850,7 +2850,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/downtimes':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/downtimes':
     get:
       tags:
         - Downtime
@@ -2913,7 +2913,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/downtimes':
+  '/api/latest/monitoring/metaservices/{meta_id}/downtimes':
     get:
       tags:
         - Downtime
@@ -3016,7 +3016,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/check':
+  '/api/latest/monitoring/hosts/{host_id}/check':
     post:
       tags:
         - Check
@@ -3041,7 +3041,7 @@ paths:
           description: 'Host not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/check':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/check':
     post:
       tags:
         - Check
@@ -3067,7 +3067,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/check':
+  '/api/latest/monitoring/metaservices/{meta_id}/check':
     post:
       tags:
         - Check
@@ -3116,7 +3116,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/submit':
+  '/api/latest/monitoring/hosts/{host_id}/submit':
     post:
       tags:
         - Submit
@@ -3143,7 +3143,7 @@ paths:
           description: 'Host not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/submit':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/submit':
     post:
       tags:
         - Submit
@@ -3171,7 +3171,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/submit':
+  '/api/latest/monitoring/metaservices/{meta_id}/submit':
     post:
       tags:
         - Submit
@@ -3243,9 +3243,9 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics':
     $ref: ./latest/onPremise/Realtime/Metrics/FindMetricsByService.yaml
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}':
     get:
       tags:
         - Metrics
@@ -3272,7 +3272,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/status/start/{start}/end/{end}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/status/start/{start}/end/{end}':
     get:
       tags:
         - Metrics
@@ -3301,7 +3301,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance':
     get:
       tags:
         - Metrics
@@ -3344,7 +3344,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance/download':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance/download':
     get:
       tags:
         - Metrics
@@ -3380,7 +3380,7 @@ paths:
                 format: string
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/status':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/status':
     get:
       tags:
         - Metrics
@@ -3425,7 +3425,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/timeline':
+  '/api/latest/monitoring/hosts/{host_id}/timeline':
     get:
       tags:
         - Timeline
@@ -3460,7 +3460,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/timeline':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/timeline':
     get:
       tags:
         - Timeline
@@ -3496,9 +3496,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/{metricName}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/{metricName}':
     $ref: ./latest/onPremise/Realtime/Metrics/FindSingleMetric.yaml
-  '/monitoring/metaService/{metaServiceId}/metrics/{metricName}':
+  '/api/latest/monitoring/metaService/{metaServiceId}/metrics/{metricName}':
     $ref: ./latest/onPremise/Realtime/Metrics/FindSingleMetaMetric.yaml
   /api/latest/monitoring/resources/acknowledge:
     post:
@@ -3634,7 +3634,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/platform/topology/{poller_id}':
+  '/api/latest/platform/topology/{poller_id}':
     delete:
       tags:
         - Topology
@@ -3651,7 +3651,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/gorgone/pollers/{poller_id}/responses/{token}':
+  '/api/latest/gorgone/pollers/{poller_id}/responses/{token}':
     get:
       tags:
         - Gorgone
@@ -3670,7 +3670,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/gorgone/pollers/{poller_id}/commands/{command_name}':
+  '/api/latest/gorgone/pollers/{poller_id}/commands/{command_name}':
     post:
       tags:
         - Gorgone
@@ -3802,9 +3802,9 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/latest/administration/tokens:
     $ref: ./latest/onPremise/Administration/Token/AddTokenAndFindTokens.yaml
-  '/administration/tokens/{token_name}':
+  '/api/latest/administration/tokens/{token_name}':
     $ref: ./latest/onPremise/Administration/Token/GetAndDeleteToken.yaml
-  '/administration/tokens/{token_name}/users/{user_id}':
+  '/api/latest/administration/tokens/{token_name}/users/{user_id}':
     $ref: ./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml
   /api/latest/administration/parameters:
     post:
