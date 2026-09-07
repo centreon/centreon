@@ -31,9 +31,13 @@ final class Assert
      * RFC 1123 hostname + underscore (allowed for NetBIOS / Active Directory names).
      * Labels: 1-63 chars, may start/end with alphanumeric or '_', '-' allowed in the middle.
      * Whole hostname: max 253 chars.
+     *
+     * "D" is what makes both "$" the end of the subject rather than "before an optional trailing
+     * newline": without it "host01\n" passes, and callers that interpolate the value they just
+     * validated — a URL authority, a configuration file, a shell command — inherit the newline.
      */
     private const HOSTNAME_PATTERN
-        = '/^(?=.{1,253}$)\w([\w-]{0,61}\w)?(\.\w([\w-]{0,61}\w)?)*$/';
+        = '/^(?=.{1,253}$)\w([\w-]{0,61}\w)?(\.\w([\w-]{0,61}\w)?)*$/D';
 
     public static function ipOrHostname(string $value, ?string $propertyPath = null): void
     {
