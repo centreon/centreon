@@ -104,7 +104,12 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
         $logger->expects(self::once())
             ->method('error')
             ->with(
-                self::stringContains('not announced to the Central'),
+                // Both load-bearing fragments: the problem and the operator remedy. The
+                // connective text may be reworded without breaking the test.
+                self::logicalAnd(
+                    self::stringContains('not announced to the Central'),
+                    self::stringContains('re-save it from the legacy poller form')
+                ),
                 self::callback(static function (array $context): bool {
                     self::assertSame(42, $context['poller_id']);
                     self::assertSame('TestPoller', $context['poller_name']);
