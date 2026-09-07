@@ -46,6 +46,7 @@ use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ResourcePollerTransformer;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\UserId;
@@ -56,6 +57,7 @@ use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
 final class CreatePollerProcessorGorgoneSyncTest extends TestCase
@@ -229,6 +231,7 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
             engineSecretsRepository: $engineSecretsRepository,
             gorgoneNodesSynchronizer: $this->synchronizer,
             logger: $logger,
+            centralUrlFactory: new CentralUrlFactory(new RequestStack(), false),
         );
     }
 

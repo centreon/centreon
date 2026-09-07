@@ -10162,7 +10162,7 @@ components:
           nullable: true
         installation_command:
           type: string
-          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+          example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
           nullable: true
     Poller.CreatePollerInput:
       type: object
@@ -10197,7 +10197,7 @@ components:
         installation_command:
           description: 'Poller Installation Command'
           type: string
-          example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+          example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.InstallationCommandResource.jsonld:
       allOf:
         -
@@ -10208,7 +10208,7 @@ components:
             installation_command:
               description: 'Poller Installation Command'
               type: string
-              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+              example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.jsonld:
       allOf:
         -
@@ -10233,7 +10233,7 @@ components:
               nullable: true
             installation_command:
               type: string
-              example: 'curl -fsSL https://<url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+              example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
               nullable: true
     HostGroup.HostGroupCollectionOutput:
       type: object
