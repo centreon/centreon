@@ -28,7 +28,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/pollers/installation-command';
+    private const BASE_ENDPOINT = '/api/configuration/pollers/installation-command';
     private const POLLER_UID = 123456789012345;
     private const POLLER_NAME = 'test-poller';
     private const POLLER_TYPE = 'vm';
@@ -115,6 +115,25 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
             self::POLLER_TYPE,
         );
         self::assertSame($expected, $data['installation_command']);
+    }
+
+    /**
+     * Non-regression: this resource is on LegacyApiPrefixAliasLoader's allowlist, so it must
+     * stay reachable at the legacy /api/latest prefix too, not just /api.
+     */
+    public function testItIsAlsoReachableAtTheLegacyApiPrefix(): void
+    {
+        $pollerId = $this->insertPoller(self::POLLER_NAME);
+        $tokenValue = $this->insertPollerToken('named-token');
+        $this->login();
+
+        $legacyEndpoint = str_replace('/api/', '/api/latest/', self::BASE_ENDPOINT);
+        $response = $this->request('GET', sprintf('%s/%d?token-name=named-token', $legacyEndpoint, $pollerId));
+
+        self::assertResponseIsSuccessful();
+        /** @var array{installation_command: string} $data */
+        $data = $response->toArray();
+        self::assertStringContainsString($tokenValue, $data['installation_command']);
     }
 
     private function insertPoller(string $name): int

@@ -29,7 +29,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/agent-configurations/installation-command';
+    private const BASE_ENDPOINT = '/api/configuration/agent-configurations/installation-command';
     private const POLLER_ADDRESS = '192.168.1.100';
     private const AGENT_PORT = 4317;
     private const CERTIFICATE_SHA = 'abc123sha456def789';

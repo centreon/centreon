@@ -1,221 +1,104 @@
-{include file="file:$centreon_path/www/include/common/templates/clI18n.ihtml"}
 {$form.javascript}
-
 <form {$form.attributes}>
-<div class="cf-form-wrapper">
-
-    <h1 class="cf-page-title">{$form.header.title}</h1>
-
-    <div class="cf-tab-nav">
-        <a href="#cf-sec-info" class="active" onclick="cfScrollTo('cf-sec-info', this); return false;">{$form.header.information}</a>
-        <a href="#cf-sec-relations" onclick="cfScrollTo('cf-sec-relations', this); return false;">{$form.header.relation}</a>
-        <a href="#cf-sec-additional" onclick="cfScrollTo('cf-sec-additional', this); return false;">{$form.header.furtherInfos}</a>
-    </div>
-
-    <!-- Section: General Information -->
-    <div class="cf-section" id="cf-sec-info">
-        <div class="cf-section-header" onclick="cfToggleSection(this)">
-            {$form.header.information}
-            <span class="cf-section-chevron">&#9660;</span>
-        </div>
-        <div class="cf-section-body">
-            <div class="cf-row-inline">
-                <div class="cf-field">
-                    {$form.hc_name.html}
-                    <label class="cf-label-float">{$form.hc_name.label}</label>
-                    <img class="helpTooltip" name="hc_name">
-                </div>
-                <div class="cf-field">
-                    {$form.hc_alias.html}
-                    <label class="cf-label-float">{$form.hc_alias.label}</label>
-                    <img class="helpTooltip" name="hc_alias">
-                </div>
-                <div class="cf-toggle-row">
-                    <span>{$form.hc_activate.label}</span>
-                    <label class="cl-toggle{if $o == "w"} cl-toggle--readonly{/if}">
-                        <input type="checkbox" id="cf-hc-activate-toggle"{if $hcActivateOn} checked{/if}{if $o == "w"} disabled{/if} />
-                        <span class="cl-toggle-slider"></span>
-                    </label>
-                    <span style="display:none;">{$form.hc_activate.html}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Relations -->
-    <div class="cf-section" id="cf-sec-relations">
-        <div class="cf-section-header" onclick="cfToggleSection(this)">
-            {$form.header.relation}
-            <span class="cf-section-chevron">&#9660;</span>
-        </div>
-        <div class="cf-section-body">
-            <div class="cf-row">
-                <div class="cf-field">
-                    {$form.hc_hosts.html}
-                    <label class="cf-label-float">{$form.hc_hosts.label}</label>
-                    <img class="helpTooltip" name="hc_hosts">
-                </div>
-            </div>
-            <div class="cf-row">
-                <div class="cf-field">
-                    {$form.hc_hostsTemplate.html}
-                    <label class="cf-label-float">{$form.hc_hostsTemplate.label}</label>
-                    <img class="helpTooltip" name="hc_hostsTemplate">
-                </div>
-            </div>
-            <div class="cf-row">
-                <div class="cf-toggle-row">
-                    <span>{$form.hc_type.label}</span>
-                    <label class="cl-toggle{if $o == "w"} cl-toggle--readonly{/if}">
-                        <input type="checkbox" id="cf-hc-type-toggle" onchange="document.getElementById('hc_type').checked=this.checked; toggleSeverityFields();"{if $hcTypeOn} checked{/if}{if $o == "w"} disabled{/if} />
-                        <span class="cl-toggle-slider"></span>
-                    </label>
-                    <span style="display:none;">{$form.hc_type.html}</span>
-                    <img class="helpTooltip" name="hc_type">
-                </div>
-            </div>
-            <div class="cf-row-inline" id="severity_level">
-                <div class="cf-field" style="max-width:200px;">
-                    {$form.hc_severity_level.html}
-                    <label class="cf-label-float">{$form.hc_severity_level.label}</label>
-                    <img class="helpTooltip" name="hc_severity_level">
-                </div>
-                <div class="cf-field" id="severity_icon">
-                    {$form.hc_severity_icon.html}&nbsp;<img id='icon_id_ctn' src='./img/blank.gif' height='22' width='22' style="vertical-align:middle;background:#fff;border:1px solid var(--c-stroke,#d0d5dd);border-radius:4px;padding:2px;">
-                    <label class="cf-label-float">{$form.hc_severity_icon.label}</label>
-                    <img class="helpTooltip" name="hc_severity_icon">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Additional Information -->
-    <div class="cf-section" id="cf-sec-additional">
-        <div class="cf-section-header" onclick="cfToggleSection(this)">
-            {$form.header.furtherInfos}
-            <span class="cf-section-chevron">&#9660;</span>
-        </div>
-        <div class="cf-section-body">
-            <div class="cf-row">
-                <div class="cf-field">
-                    {$form.hc_comment.html}
-                    <label class="cf-label-float">{$form.hc_comment.label}</label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Action buttons -->
-    <div class="cf-actions">
-        {if $o == "a" || $o == "c"}
-            {$form.reset.html}
-            {if isset($form.submitC)}
-                {$form.submitC.html}
-            {else}
-                {$form.submitA.html}
-            {/if}
-        {else if $o == "w"}
-            {if isset($form.change)}{$form.change.html}{/if}
+    <div id="validFormTop">
+    {if $o == "a" || $o == "c"}
+        <p class="oreonbutton">
+        {if isset($form.submitC)}
+            {$form.submitC.html}
+        {else}
+            {$form.submitA.html}
         {/if}
+        &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
+    {else if $o == "w"}
+        <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+    {/if}
     </div>
-
+    <div id='tab1' class='tab'>
+     <table class="formTable table">
+        <tr class="ListHeader">
+            <td class="FormHeader" colspan="2">
+                <h3>| {$form.header.title}</h3>
+            </td>
+        </tr>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
+                <h4>{$form.header.information}</h4>
+            </td>
+        </tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="hc_name"> {$form.hc_name.label}</td><td class="FormRowValue">{$form.hc_name.html}</td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="hc_alias"> {$form.hc_alias.label}</td><td class="FormRowValue">{$form.hc_alias.html}</td></tr>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
+                <h4>{$form.header.relation}</h4>
+            </td>
+        </tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="hc_hosts"> {$form.hc_hosts.label}</td><td class="FormRowValue"><p  class="oreonbutton">{$form.hc_hosts.html}</p></td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="hc_hostsTemplate"> {$form.hc_hostsTemplate.label}</td><td class="FormRowValue"><p  class="oreonbutton">{$form.hc_hostsTemplate.html}</p></td></tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="hc_type"> {$form.hc_type.label}</td><td class="FormRowValue">{$form.hc_type.html}</td></tr>
+        <tr class="list_two" id="severity_level">
+            <td class="FormRowField"><img class="helpTooltip" name="hc_severity_level"> {$form.hc_severity_level.label}</td>
+            <td class="FormRowValue">{$form.hc_severity_level.html}</td>
+        </tr>
+        <tr class="list_one" id="severity_icon">
+            <td class="FormRowField"><img class="helpTooltip" name="hc_severity_icon"> {$form.hc_severity_icon.label}</td>
+            <td class="FormRowValue">
+                {$form.hc_severity_icon.html}&nbsp;<img id='icon_id_ctn' src='./img/blank.gif' height='16' width='16'>
+            </td>
+        </tr>
+        <tr class="list_lvl_1">
+            <td class="ListColLvl1_name" colspan="2">
+                <h4>{$form.header.furtherInfos}</h4>
+            </td>
+        </tr>
+        <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="hc_activate"> {$form.hc_activate.label}</td><td class="FormRowValue">{$form.hc_activate.html}</td></tr>
+        <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="hc_comment"> {$form.hc_comment.label}</td><td class="FormRowValue">{$form.hc_comment.html}</td></tr>       
+        {if $o == "a" || $o == "c"}
+            <tr class="list_lvl_2"><td class="ListColLvl2_name" colspan="2">
+                {if isset($form.required)}
+                    {$form.required._note}
+                {/if}
+            </td></tr>
+        {/if}
+    </table>
 </div>
-
+<div id="validForm">
+{if $o == "a" || $o == "c"}
+    <p class="oreonbutton">
+        {if isset($form.submitC)}
+            {$form.submitC.html}
+        {else}
+            {$form.submitA.html}
+        {/if}
+        &nbsp;&nbsp;&nbsp;{$form.reset.html}</p>
+{else if $o == "w"}
+    <p class="oreonbutton">{if isset($form.change)}{$form.change.html}{/if}</p>
+{/if}
+</div>
 {$form.hidden}
 </form>
 {$helptext}
-
-<script type='text/javascript' src='./include/common/javascript/showLogo.js'></script>
-<script type="text/javascript">var cfHcReadOnly = {if $o == "w"}true{else}false{/if};</script>
 {literal}
-<script type="text/javascript">
-// Severity toggle — page-specific logic
-function toggleSeverityFields() {
-    if (jQuery('#hc_type').prop('checked')) {
-        jQuery('#severity_level').show();
-    } else {
-        jQuery('#severity_level').hide();
-    }
-}
-
-// Render each media option with a 16x16 thumbnail in the selector
-function cfIconOption(state) {
-    if (!state.id || String(state.id).indexOf('REP') === 0 || isNaN(parseInt(state.id, 10))) {
-        return state.text; // directory header or empty option
-    }
-    var url = './include/common/getHiddenImage.php?id=' + state.id + '&logo=1';
-    var label = String(state.text).replace(/^[\s ]+/, '');
-    // Build the label as a text node so a media name containing markup cannot
-    // inject HTML (state.id is numeric here, so the interpolated url is safe).
-    return jQuery('<span>')
-        .append(jQuery('<img>').attr('src', url).css({
-            width: '16px', height: '16px', 'vertical-align': 'middle',
-            'margin-right': '6px', 'object-fit': 'contain'
-        }))
-        .append(document.createTextNode(label));
-}
-
+<script type='text/javascript' src='./include/common/javascript/showLogo.js'></script>
+<script type='text/javascript'>
 jQuery(function() {
-    var iconSelect = document.getElementById('icon_id');
-    if (iconSelect) {
-        showLogo('icon_id_ctn', iconSelect.value);
-        if (cfHcReadOnly) {
-            // Read-only: QuickForm already shows the icon value as text, drop the picker.
-            jQuery(iconSelect).hide();
-        } else {
-            jQuery('#icon_id').select2({
-                templateResult: cfIconOption,
-                templateSelection: cfIconOption,
-                width: '100%'
-            });
-        }
+    var iconEl = document.getElementById('icon_id');
+    if (iconEl) {
+        showLogo('icon_id_ctn', iconEl.value);
     }
-    // The toggle carries the server-driven state (set in the markup); push it onto the
-    // hidden QuickForm checkbox so it is submitted correctly, then reveal the fields.
-    var sevToggle = document.getElementById('cf-hc-type-toggle');
-    var sevCheckbox = document.getElementById('hc_type');
-    if (sevToggle && sevCheckbox) sevCheckbox.checked = sevToggle.checked;
+    jQuery('#hc_type').click(function() {
+        toggleSeverityFields();
+    });
     toggleSeverityFields();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    CentreonForm.initFormPage();
-
-    // The toggle carries the server-driven state (set in the markup); mirror it onto the
-    // hidden QuickForm radio pair on load and on every change so the form submits it.
-    (function () {
-        var toggle = document.getElementById('cf-hc-activate-toggle');
-        if (!toggle) return;
-        var apply = function () {
-            var on = document.querySelector('input[name="hc_activate[hc_activate]"][value="1"]')
-                || document.querySelector('input[name="hc_activate"][value="1"]');
-            var off = document.querySelector('input[name="hc_activate[hc_activate]"][value="0"]')
-                || document.querySelector('input[name="hc_activate"][value="0"]');
-            if (on) { on.checked = toggle.checked; }
-            if (off) { off.checked = !toggle.checked; }
-        };
-        apply();
-        toggle.addEventListener('change', apply);
-
-        // A native reset restores the hidden fields but not the custom toggles
-        // or the severity section visibility, so re-sync them once the browser
-        // has applied the reset (next tick): mirror each toggle from its (reset)
-        // hidden field and collapse/expand the severity fields accordingly.
-        var form = toggle.form;
-        if (form) {
-            form.addEventListener('reset', function () {
-                setTimeout(function () {
-                    var on = document.querySelector('input[name="hc_activate[hc_activate]"][value="1"]')
-                        || document.querySelector('input[name="hc_activate"][value="1"]');
-                    if (on) { toggle.checked = on.checked; }
-                    var sevToggle = document.getElementById('cf-hc-type-toggle');
-                    var sevCheckbox = document.getElementById('hc_type');
-                    if (sevToggle && sevCheckbox) { sevToggle.checked = sevCheckbox.checked; }
-                    toggleSeverityFields();
-                }, 0);
-            });
-        }
-    })();
-});
+function toggleSeverityFields() {
+    if (jQuery('#hc_type').prop('checked')) {
+        jQuery('#severity_level').show();
+        jQuery('#severity_icon').show();
+    } else {
+        jQuery('#severity_level').hide();
+        jQuery('#severity_icon').hide();
+    }
+}
 </script>
 {/literal}
