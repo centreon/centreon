@@ -1277,8 +1277,11 @@ msgid "Destination directory."
 msgstr "Directorio de destino."
 
 #: centreon/www/include/Administration/parameters/debug/help.php
-msgid "Directory of log files."
-msgstr "Directorio de archivos de registro."
+msgid ""
+"Directory for the RRDTool and LDAP search debug logs. Web and authentication "
+"logs are written to the platform log directory (_CENTREON_LOG_, /var/log/"
+"centreon by default) regardless of this setting."
+msgstr ""
 
 #: centreon/www/include/configuration/configNagios/help.php
 msgid ""
@@ -1735,11 +1738,13 @@ msgstr ""
 "París ingrese \"48.51,2.20\""
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "Gorgone communication protocol (ZMQ or SSH)"
+msgid "Gorgone communication protocol (ZMQ, PullWSS, SSH or Pull)"
 msgstr ""
 
 #: centreon/www/include/configuration/configServers/help.php
-msgid "Gorgone port of the remote poller (5556 or 22)"
+msgid ""
+"Gorgone port of the remote poller (by default: 5556 in ZMQ, 22 in SSH, 5556 "
+"in Pull and 8086 in PullWSS)"
 msgstr ""
 
 #: centreon/www/include/views/graphTemplates/help.php
@@ -2904,12 +2909,6 @@ msgstr "Plantilla gráfica predeterminada."
 msgid "Set the domain for search the service"
 msgstr "Configurar el dominio para la búsqueda de servicios."
 
-#: centreon/www/include/Administration/parameters/debug/help.php
-msgid ""
-"Set the lowest log level: Debug => Info => Notice => Warning => Error => "
-"Critical => Alert => Emergency"
-msgstr ""
-
 #: centreon/www/include/configuration/configObject/traps/help.php
 msgid "Severities are defined in the service category object."
 msgstr "Las criticidades se definen en el nivel de categoría de objeto."
@@ -2917,13 +2916,10 @@ msgstr "Las criticidades se definen en el nivel de categoría de objeto."
 #: centreon/www/include/configuration/configObject/host_categories/help.php
 #: centreon/www/include/configuration/configObject/service_categories/help.php
 msgid ""
-"Severity level, must be a number. The items displayed will be sorted in "
-"ascending order. Thus the lowest severity is considered than the highest "
-"priority."
+"Severity level, must be an integer between 1 and 127. The items displayed "
+"will be sorted in ascending order. Thus the lowest severity is considered "
+"than the highest priority."
 msgstr ""
-"Nivel de severidad, debe ser un número. \n"
-"Los elementos mostrados se ordenarán en orden ascendente. \n"
-"Por lo tanto, la criticidad más baja se considera de la más alta prioridad."
 
 #: centreon/www/include/Administration/parameters/ldap/help.php
 msgid "Short description of configuration"
@@ -6328,6 +6324,10 @@ msgstr ""
 "El tipo se usará para mostrar el comando solo en las secciones apropiadas."
 
 #: unknown
+msgid "Directory of log files."
+msgstr "Directorio de archivos de registro."
+
+#: unknown
 msgid "Dump file."
 msgstr "Archivo de copia de seguridad."
 
@@ -6559,6 +6559,17 @@ msgstr ""
 #: unknown
 msgid "Severity level use to sort issue in Monitoring menu."
 msgstr "Criticidad, utilizada para ordenar objetos en el menú Supervisión."
+
+#: unknown
+msgid ""
+"Severity level, must be a number. The items displayed will be sorted in "
+"ascending order. Thus the lowest severity is considered than the highest "
+"priority."
+msgstr ""
+"Nivel de severidad, debe ser un número. \n"
+"Los elementos mostrados se ordenarán en orden ascendente. \n"
+"Por lo tanto, la criticidad más baja se considera de la más alta "
+"prioridad."
 
 #: unknown
 msgid ""
