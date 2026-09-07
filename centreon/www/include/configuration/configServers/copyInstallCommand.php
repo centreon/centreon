@@ -31,18 +31,27 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\Enum\LogChannelEnum;
 use Adaptation\Log\Logger;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Infrastructure\FsEngineSecretsRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 // Keep in sync with engine_context_path (config/services.yaml) and
 // upgrade.engine_context_path (config.new/services/upgrade.php): this endpoint
 // deliberately does not boot the Symfony kernel, so it cannot read the parameter.
 const ENGINE_CONTEXT_PATH = '/etc/centreon-engine/engine-context.json';
+
+// Same reason, and same value as env(TRUSTED_PROXIES) in config/packages/framework.yaml:
+// keep both in sync, or the scheme this endpoint resolves drifts from the one the API
+// resolves for the very same platform.
+const DEFAULT_TRUSTED_PROXIES = '127.0.0.1,REMOTE_ADDR';
 
 header('Content-Type: application/json');
 // The response body carries the app secret, the salt and a live poller token.
@@ -118,9 +127,9 @@ try {
 
     try {
         // central_address is written by the remote-server wizard without format validation;
-        // PollerAddress enforces the same IP-or-hostname invariant as the API endpoint,
-        // so no value able to alter the generated shell command can get through.
-        $centralAddress = new PollerAddress($poller['central_address']);
+        // CentralAddress enforces the same invariant as the API endpoint, so no value able
+        // to alter the generated shell command can get through.
+        $centralAddress = new CentralAddress($poller['central_address']);
     } catch (InvalidArgumentException) {
         sendJsonResponse(400, ['error' => 'Invalid central address configured for this poller']);
     }
@@ -157,6 +166,34 @@ try {
 
     $engineSecrets = new FsEngineSecretsRepository(ENGINE_CONTEXT_PATH);
 
+    // This endpoint does not boot the Symfony kernel, so the factory is built by hand
+    // over the current request: the scheme and the base URI must be resolved the same way
+    // as in the API, or the two commands diverge.
+    //
+    // The trusted proxies come first, because that is what getScheme() reads
+    // x-forwarded-proto from. Booting no kernel means nothing has declared them, so a
+    // TLS-terminating proxy would be invisible here and the generated command would offer
+    // an http:// download piped into a root shell — app secret, salt and poller token
+    // travelling in the clear with it. setTrustedProxies() resolves the REMOTE_ADDR
+    // keyword itself; the header set mirrors trusted_headers in framework.yaml.
+    $trustedProxies = $_ENV['TRUSTED_PROXIES']
+        ?? $_SERVER['TRUSTED_PROXIES']
+        ?? getenv('TRUSTED_PROXIES');
+    if (! is_string($trustedProxies) || trim($trustedProxies) === '') {
+        $trustedProxies = DEFAULT_TRUSTED_PROXIES;
+    }
+
+    Request::setTrustedProxies(
+        array_values(array_filter(array_map('trim', explode(',', $trustedProxies)), 'strlen')),
+        Request::HEADER_X_FORWARDED_FOR
+        | Request::HEADER_X_FORWARDED_HOST
+        | Request::HEADER_X_FORWARDED_PROTO
+        | Request::HEADER_X_FORWARDED_PORT
+    );
+
+    $requestStack = new RequestStack();
+    $requestStack->push(Request::createFromGlobals());
+
     $factory = new PollerInstallationCommandFactory(
         pollerUid: $pollerUid,
         pollerName: new PollerName($poller['name']),
@@ -165,10 +202,19 @@ try {
         appSecret: $engineSecrets->getAppSecret(),
         salt: $engineSecrets->getSalt(),
         isCloudPlatform: $isCloudPlatform,
-        centralUrl: $centralAddress->value,
+        centralUrl: (new CentralUrlFactory($requestStack, $isCloudPlatform))->create($centralAddress),
     );
 
     sendJsonResponse(200, ['command' => $factory->generate()]);
+} catch (BadRequestHttpException $exception) {
+    // The one failure the admin can act on: the platform serves itself under a base path that
+    // cannot go into the command. listServers.ihtml puts this message straight in a toast, where
+    // the generic 500 below would say nothing about the cause.
+    Logger::create(LogChannelEnum::WEB)->error(
+        'Failed to generate poller installation command',
+        ['poller_id' => $pollerId, 'exception' => $exception],
+    );
+    sendJsonResponse(400, ['error' => $exception->getMessage()]);
 } catch (Throwable $exception) {
     Logger::create(LogChannelEnum::WEB)->error(
         'Failed to generate poller installation command',

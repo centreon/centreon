@@ -97,8 +97,11 @@ function _vmInstallPowertools() {
 # for a cloud major are only ever published internally. testing/unstable stay
 # pinned to the actual major being validated: QA needs the real cloud
 # candidate build, not an older on-prem stand-in. MON-208333.
+# FORCE_STABILITY (hidden --stability flag) overrides STABILITY here, to
+# pull from the testing/unstable channel for a major baked as "stable" whose
+# packages aren't promoted to the stable channel yet. MON-208554.
 function _vmRepoMajor() {
-  if [ "${STABILITY}" = "stable" ]; then
+  if [ "${FORCE_STABILITY:-${STABILITY}}" = "stable" ]; then
     _pollerImageMajor
   else
     echo "${major}"
@@ -121,16 +124,30 @@ function _centreonRpmRepoUrl() {
 }
 
 # Safe to call repeatedly (e.g. re-run with an install.sh built for a
-# different stability).
+# different stability). FORCE_STABILITY (hidden --stability flag) overrides
+# STABILITY here, same rationale as _vmRepoMajor above. MON-208554.
 function _vmConfigureRepoChannels() {
-  consoleInfo "Configuring Centreon repository channel for stability: ${STABILITY}"
-  logInfo "Configuring repo channel for stability=${STABILITY}"
+  local effective_stability="${FORCE_STABILITY:-${STABILITY}}"
+  consoleInfo "Configuring Centreon repository channel for stability: ${effective_stability}"
+  logInfo "Configuring repo channel for stability=${effective_stability}"
 
   if [ "${_PKG_COMMAND}" = "dnf" ]; then
     commandExitOnError "Cannot enable Centreon repositories" \
       dnf config-manager --set-enabled 'centreon*'
 
-    case "${STABILITY}" in
+    case "${effective_stability}" in
+    testing-release)
+      # Isolate from testing-hotfix (MON-208554): the two are separate repos
+      # that can disagree on version, so leaving both enabled makes dnf's
+      # pick ambiguous. Only meaningful via the --stability override; the
+      # unforced 'testing' case below keeps the prior (both enabled) default.
+      commandExitOnError "Cannot disable unstable/testing-hotfix repositories" \
+        dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing-hotfix*'
+      ;;
+    testing-hotfix)
+      commandExitOnError "Cannot disable unstable/testing-release repositories" \
+        dnf config-manager --set-disabled 'centreon*unstable*' --set-disabled 'centreon*testing-release*'
+      ;;
     testing)
       commandExitOnError "Cannot disable unstable repository" \
         dnf config-manager --set-disabled 'centreon*unstable*'
@@ -161,14 +178,25 @@ function _vmConfigureRepoChannels() {
     echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-stable main" \
       | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
 
-    if [ "${STABILITY}" = "testing" ] || [ "${STABILITY}" = "unstable" ]; then
+    case "${effective_stability}" in
+    testing-release)
+      # Isolate from testing-hotfix (MON-208554), same rationale as the dnf case above.
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main" \
+        | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
+      ;;
+    testing-hotfix)
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main" \
+        | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
+      ;;
+    testing | unstable)
       {
         echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main"
         echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main"
       } | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
-    fi
+      ;;
+    esac
 
-    if [ "${STABILITY}" = "unstable" ]; then
+    if [ "${effective_stability}" = "unstable" ]; then
       echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-unstable main" \
         | tee /etc/apt/sources.list.d/centreon-unstable.list > /dev/null
     fi
@@ -178,7 +206,7 @@ function _vmConfigureRepoChannels() {
 }
 
 function _vmInstallRepo() {
-  logInfo "Adding Centreon $(_vmRepoMajor) repository (stability: ${STABILITY})"
+  logInfo "Adding Centreon $(_vmRepoMajor) repository (stability: ${FORCE_STABILITY:-${STABILITY}})"
 
   if [ "${_PKG_COMMAND}" = "apt" ]; then
     consoleInfo "Adding Centreon repository (Debian)"
@@ -221,8 +249,9 @@ function _vmInstallPackages() {
 function _vmUpdateRepo() {
   local repo_major
   repo_major=$(_vmRepoMajor)
-  consoleInfo "Updating Centreon repository to ${repo_major} (stability: ${STABILITY})"
-  logInfo "Updating Centreon repository to ${repo_major}, stability=${STABILITY}"
+  local effective_stability="${FORCE_STABILITY:-${STABILITY}}"
+  consoleInfo "Updating Centreon repository to ${repo_major} (stability: ${effective_stability})"
+  logInfo "Updating Centreon repository to ${repo_major}, stability=${effective_stability}"
 
   if [ "${_PKG_COMMAND}" = "dnf" ]; then
     rm -f /etc/yum.repos.d/centreon-*.repo
