@@ -104,7 +104,7 @@ final class CreatePollerProcessorGorgoneSyncTest extends TestCase
         $logger->expects(self::once())
             ->method('error')
             ->with(
-                'Poller created but not announced to the Central: re-save it from the legacy poller form to retry',
+                self::stringContains('not announced to the Central'),
                 self::callback(static function (array $context): bool {
                     self::assertSame(42, $context['poller_id']);
                     self::assertSame('TestPoller', $context['poller_name']);

@@ -69,6 +69,7 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
         private GorgoneNodesSynchronizer $gorgoneNodesSynchronizer,
+        #[Autowire(service: 'monolog.logger.poller-install')]
         private LoggerInterface $logger,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
@@ -136,7 +137,8 @@ final readonly class CreatePollerProcessor implements ProcessorInterface
      * creation. There is no automatic retry — the only re-sync paths are manual operator
      * actions — so the record has to carry the consequence and the remedy.
      *
-     * Logged at error level, not warning: the record must escape the fingers_crossed buffer.
+     * Logged at error level on the dedicated poller-install channel, where an operator
+     * troubleshooting an unmonitored poller looks — not buried in web.log.
      * Only GorgoneNodesSyncFailedException is absorbed; a wiring error still propagates.
      */
     private function synchronizeGorgoneNodes(PollerId $pollerId, PollerName $pollerName): void
