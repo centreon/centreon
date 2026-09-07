@@ -48,6 +48,7 @@ const legacyCsrfToken = (): Cypress.Chainable => {
 const postBulkDisable = (hostIds: Array<number>): void => {
   legacyCsrfToken().then((token) => {
     const body: Record<string, string> = {
+      // biome-ignore lint/style/useNamingConvention: legacy API POST field must stay snake_case
       centreon_token: String(token),
       o: 'mu'
     };
@@ -138,7 +139,9 @@ When('the user posts a disable for the host it was not granted', () => {
     legacyCsrfToken().then((token) => {
       cy.request({
         body: {
+          // biome-ignore lint/style/useNamingConvention: legacy API POST field must stay snake_case
           centreon_token: String(token),
+          // biome-ignore lint/style/useNamingConvention: legacy API POST field must stay snake_case
           host_id: String(host.host_id),
           o: 'u'
         },
