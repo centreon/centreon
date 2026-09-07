@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
 
 final class ListHostGroupsProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/configuration/host_groups';
+    private const BASE_ENDPOINT = '/api/latest/configuration/host_groups';
 
     private Connection $connection;
 
