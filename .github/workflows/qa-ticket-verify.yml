@@ -28,12 +28,20 @@ on:
         required: true
         type: string
         default: "MON-207985"
+  # TEMPORARY, for testing this workflow from within this PR before it's on develop:
+  # workflow_dispatch only becomes runnable once the workflow file exists on the default
+  # branch, so `push` lets us trigger a real run straight from this branch instead. Scoped
+  # to this exact branch name, so it's inert once merged/renamed — remove this block once
+  # workflow_dispatch has been confirmed working from develop.
+  push:
+    branches:
+      - qa-ticket-verify-skill
 
 permissions:
   contents: read
 
 concurrency:
-  group: qa-ticket-verify-${{ inputs.jira_key }}
+  group: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
   cancel-in-progress: false
 
 jobs:
@@ -66,7 +74,7 @@ jobs:
           JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
           GH_TOKEN: ${{ github.token }}
-          TICKET_KEY: ${{ inputs.jira_key }}
+          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
           TRIGGERED_BY: ${{ github.actor }}
         run: |
           claude -p "Use the qa-ticket-verify skill (see .claude/skills/qa-ticket-verify/SKILL.md) \
@@ -89,7 +97,7 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
-          TICKET_KEY: ${{ inputs.jira_key }}
+          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
         run: |
           run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           curl -su "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
@@ -106,7 +114,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: qa-ticket-verify-${{ inputs.jira_key }}
+          name: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
           path: |
             claude-output.log
             .claude/skills/qa-ticket-verify/runs/*.feature
