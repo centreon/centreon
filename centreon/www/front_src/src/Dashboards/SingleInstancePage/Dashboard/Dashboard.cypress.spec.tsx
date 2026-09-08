@@ -212,6 +212,8 @@ const initializeAndMount = ({
   proceedNavigation;
   store: ReturnType<typeof createStore>;
 } => {
+  cy.cssDisableMotion();
+
   const store = initializeWidgets();
 
   store.set(userAtom, {
