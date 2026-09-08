@@ -142,6 +142,7 @@ jobs:
           PR_URL: ${{ steps.find_pr.outputs.url }}
           TRIGGERED_BY: ${{ github.actor }}
         run: |
+          set -o pipefail  # otherwise `| tee` makes this step "succeed" even when claude fails
           claude -p "Use the qa-ticket-verify skill (see .claude/skills/qa-ticket-verify/SKILL.md) \
             to verify Jira ticket $TICKET_KEY. You are running in CI: no human is present and no \
             mcp__claude_ai_Atlassian__* tools are available — follow every 'CI:' branch in that \
