@@ -40,7 +40,9 @@ CI: the `curl` call from step 0.3.
 
 ## 2. Find the linked PR
 
-The Jira key is almost always in the PR title or a commit message. Search GitHub, don't guess:
+**CI:** already done for you by the workflow's "Find linked PR" step, before this even started — it's deterministic (no judgment call needed), so it's not worth spending a turn on. You're given `$PR_NUMBER` and `$PR_URL` directly in the prompt; skip straight to fetching its body/diff below. If the workflow found more than one candidate PR it says so in a `::warning::` — mention that in your final report so a human can double-check the pick, don't silently trust it blindly.
+
+**Interactive:** the Jira key is almost always in the PR title or a commit message. Search GitHub, don't guess:
 
 ```bash
 gh pr list --repo centreon/centreon --search "<TICKET-KEY> in:title,body" --state all \
@@ -52,10 +54,10 @@ If that returns nothing, broaden to commit search:
 gh api "search/issues?q=repo:centreon/centreon+%22<TICKET-KEY>%22+in:title,body+type:pr" --jq '.items[] | {number,title,url:.html_url,state}'
 ```
 
-- Zero results: interactive — ask the user for the PR URL/number directly rather than guessing. CI — abort cleanly, post a Jira comment saying no PR was found for this key, do not fail silently.
-- Multiple results: prefer an open, non-draft PR; if still ambiguous, interactive — list the candidates and ask; CI — pick the most recently updated open PR and say so explicitly in the report (a human reading the report can correct course).
+- Zero results: ask the user for the PR URL/number directly rather than guessing.
+- Multiple results: prefer an open, non-draft PR; if still ambiguous, list the candidates and ask.
 
-Once you have the PR number, fetch its body and diff:
+Once you have the PR number (given directly in CI, found above interactively), fetch its body and diff — this part always runs, regardless of mode:
 ```bash
 gh pr view <NUM> --repo centreon/centreon --json title,body,files,headRefName,url
 gh pr diff <NUM> --repo centreon/centreon
@@ -95,18 +97,20 @@ Note: legacy PHP pages (`main.get.php` / `main.php?p=...`) render inside an ifra
 
 ## 6. Bring up the local environment
 
-Resolve the image tag from the PR's `headRefName` (from step 2). **Also resolve the OS variant** — don't assume alma9 or alma10, check what this PR's own CI actually built:
+**CI:** already done for you by the workflow's "Resolve image tag and start local environment" step — deterministic, same reasoning as step 2. By the time you're running, `http://localhost:4000/centreon` is already up and healthy. Don't run `docker compose up` yourself, and don't run `docker compose down` either — the workflow tears it down after you finish, whether you succeed or not. Skip straight to step 7.
+
+**Interactive:** resolve the image tag from the PR's `headRefName` (from step 2). **Also resolve the OS variant** — don't assume alma9 or alma10, check what this PR's own CI actually built:
 ```bash
 gh pr checks <NUM> --repo centreon/centreon | grep -iE "dockerize|slim" 
 ```
-and match the `alma\d+` suffix that appears there (this project's default OS target has changed before; hardcoding one is how a previous run of this skill briefly had a wrong note in this file).
+and match the `alma\d+` suffix that appears there (this project's default OS target has changed before; hardcoding one is how a previous version of this file briefly had a wrong note).
 
 ```bash
 WEB_IMAGE=docker.centreon.com/centreon/centreon-web-slim-<os>:<headRefName> \
   docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
 
-Run from the repo root. `--wait` already blocks until Docker Compose's healthcheck passes (it also pulls the image if it isn't present locally — no separate pull/poll loop needed). If the branch's image doesn't exist yet (PR still building in CI), say so and ask whether to wait/retry or fall back to a different tag (e.g. `develop`) — don't silently substitute an unrelated build. In CI, don't ask — retry a couple of times with a short sleep (the image may still be building), then fail the job clearly if it never appears rather than hanging until the job timeout.
+Run from the repo root. `--wait` already blocks until Docker Compose's healthcheck passes (it also pulls the image if it isn't present locally — no separate pull/poll loop needed). If the branch's image doesn't exist yet (PR still building in CI), say so and ask whether to wait/retry or fall back to a different tag (e.g. `develop`) — don't silently substitute an unrelated build.
 
 If `--wait` fails or times out, pull logs before giving up:
 ```bash
@@ -137,7 +141,7 @@ Produce a concise report with:
 
 **Interactive:** post this as your chat reply. Ask whether to tear the environment down (`docker compose -f .github/docker/docker-compose.yml down`) or leave it running for manual follow-up.
 
-**CI:** always tear the environment down (`docker compose -f .github/docker/docker-compose.yml down`) — no one is around to do it manually, and the runner gets recycled anyway but leaving it running wastes the rest of the job's timeout. Post the report as a Jira comment via REST:
+**CI:** don't tear the environment down yourself — per step 6, the workflow's own "Tear down environment" step does that after you finish, success or failure, so it happens even if you error out partway. Just post the report as a Jira comment via REST:
 ```bash
 curl -su "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
   "$JIRA_BASE_URL/rest/api/3/issue/$TICKET_KEY/comment" \
