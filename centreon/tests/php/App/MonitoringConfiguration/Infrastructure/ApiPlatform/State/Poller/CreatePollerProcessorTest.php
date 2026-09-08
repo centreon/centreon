@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
@@ -103,6 +104,11 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);
+        // Crosses the enum-to-column mapping, which no other test exercises.
+        self::assertSame(
+            GorgoneCommunicationTypeEnum::PullWss,
+            $poller->gorgoneConfiguration->communicationType
+        );
     }
 
     public function testCreatePollerWithAddress(): void
