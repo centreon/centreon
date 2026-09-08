@@ -264,6 +264,8 @@ const initializeAndMount = ({
   proceedNavigation;
   store: ReturnType<typeof createStore>;
 } => {
+  cy.cssDisableMotion();
+
   store.set(userAtom, {
     alias: 'admin',
     dashboard: {
