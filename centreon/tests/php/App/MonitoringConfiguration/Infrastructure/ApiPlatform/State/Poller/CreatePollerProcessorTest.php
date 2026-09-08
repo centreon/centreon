@@ -101,6 +101,18 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertArrayHasKey('installation_command', $responseData);
         self::assertNotNull($responseData['installation_command']);
 
+        // The created poller's IRI and Location must carry the configuration prefix: a
+        // NotExposed item operation pins them to /configuration/pollers/{id}, not the
+        // non-existent bare /pollers/{id} API Platform would otherwise generate.
+        self::assertArrayHasKey('@id', $responseData);
+        $iri = $responseData['@id'];
+        self::assertIsString($iri);
+        self::assertStringContainsString('/configuration/pollers/', $iri);
+        self::assertStringContainsString(
+            '/configuration/pollers/',
+            $response->getHeaders()['location'][0] ?? '',
+        );
+
         $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);
     }
