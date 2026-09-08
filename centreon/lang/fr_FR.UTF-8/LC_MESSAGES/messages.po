@@ -25252,3 +25252,11 @@ msgstr "Copier la commande d'installation"
 #: www/front_src/src/Header/Poller/translatedLabels.ts
 msgid "Beta"
 msgstr "Beta"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Ce groupe de contacts n'est pas disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Ce contact n'est pas disponible"

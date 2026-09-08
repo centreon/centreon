@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerResource;
@@ -103,6 +104,11 @@ final class CreatePollerProcessorTest extends ApiTestCase
 
         $poller = $repository->findOneByName(new PollerName($name));
         self::assertNotNull($poller);
+        // Crosses the enum-to-column mapping, which no other test exercises.
+        self::assertSame(
+            GorgoneCommunicationTypeEnum::PullWss,
+            $poller->gorgoneConfiguration->communicationType
+        );
     }
 
     public function testCreatePollerWithAddress(): void
@@ -450,7 +456,7 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertArrayHasKey('installation_command', $responseData);
         self::assertIsString($responseData['installation_command']);
         self::assertStringContainsString(
-            'https://staging.euwest1.centreon.click/funky-donkey/poller/install.sh',
+            'http://staging.euwest1.centreon.click/funky-donkey/poller/install.sh',
             $responseData['installation_command']
         );
     }
@@ -475,14 +481,39 @@ final class CreatePollerProcessorTest extends ApiTestCase
         self::assertArrayHasKey('installation_command', $responseData);
         self::assertIsString($responseData['installation_command']);
         self::assertStringContainsString(
-            'https://staging.euwest1.centreon.click/funky-donkey/poller/install.sh',
+            'http://staging.euwest1.centreon.click/funky-donkey/poller/install.sh',
             $responseData['installation_command']
         );
         self::assertStringNotContainsString('funky-donkey//', $responseData['installation_command']);
         self::assertStringContainsString(
-            '--central_url staging.euwest1.centreon.click/funky-donkey ',
+            '--central_url http://staging.euwest1.centreon.click/funky-donkey ',
             $responseData['installation_command']
         );
+    }
+
+    public function testCreatePollerReturnsCommandWithASingleSchemeOnBothUrls(): void
+    {
+        $this->login();
+
+        $response = $this->request('POST', '/api/latest/configuration/pollers', [
+            'json' => [
+                'name' => $this->uniqueName('SingleScheme'),
+                'poller_type' => 'vm',
+                'address' => '192.168.1.1',
+                'poller_token_name' => $this->tokenName,
+                'central_address' => '192.168.1.254',
+            ],
+        ]);
+
+        self::assertResponseIsSuccessful();
+
+        $responseData = $response->toArray();
+        self::assertIsString($responseData['installation_command']);
+        $command = $responseData['installation_command'];
+
+        self::assertStringContainsString('curl -fsSL http://192.168.1.254/poller/install.sh', $command);
+        self::assertStringContainsString('--central_url http://192.168.1.254 ', $command);
+        self::assertSame(2, mb_substr_count($command, '://'));
     }
 
     private function uniqueName(string $prefix = 'Poller'): string
