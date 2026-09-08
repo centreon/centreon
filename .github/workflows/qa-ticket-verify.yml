@@ -68,8 +68,8 @@ jobs:
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.registry_username }}
-          password: ${{ secrets.registry_password }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
       # Deterministic, not LLM-driven: finding the PR and starting Docker don't need judgment
       # calls, and doing them as real workflow steps means they still happen (and still get
