@@ -28,11 +28,6 @@ on:
         required: true
         type: string
         default: "MON-207985"
-  # TEMPORARY, for testing this workflow from within this PR before it's on develop:
-  # workflow_dispatch only becomes runnable once the workflow file exists on the default
-  # branch, so `push` lets us trigger a real run straight from this branch instead. Scoped
-  # to this exact branch name, so it's inert once merged/renamed — remove this block once
-  # workflow_dispatch has been confirmed working from develop.
   push:
     branches:
       - qa-ticket-verify-skill
@@ -60,10 +55,6 @@ jobs:
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      # Anonymous pull worked when this was verified manually (MON-207985, 2026-09-08) but
-      # failed with "unauthorized" from a GitHub-hosted runner (first CI run, 2026-09-08) —
-      # the manual test was silently piggybacking on a pre-existing local docker login.
-      # Reuse the same login already used by cypress-e2e-parallelization.yml.
       - name: Login to Docker registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
@@ -71,10 +62,6 @@ jobs:
           username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
-      # Deterministic, not LLM-driven: finding the PR and starting Docker don't need judgment
-      # calls, and doing them as real workflow steps means they still happen (and still get
-      # torn down) even if the `claude -p` step itself fails to start — as it did the first
-      # time this workflow ran, on a Claude auth error, before any of this could run at all.
       - name: Find linked PR
         id: find_pr
         env:
