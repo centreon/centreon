@@ -130,6 +130,8 @@ For each `Given`/`When`/`Then` step, drive Playwright MCP directly (snapshot →
 - for a failure: a screenshot (Playwright's screenshot tool) and the exact mismatch (expected vs. observed),
 - anything the ticket/PR claimed that you could *not* actually exercise (e.g. requires data you can't seed) — call this out explicitly rather than skipping it silently.
 
+**CI only — close the browser before reporting.** In CI, `playwright.config.ci.json` records a video of the whole session (`browser.contextOptions.recordVideo`, written under `playwright-mcp-output/videos/`), but Playwright only flushes it to disk when the browser context is closed cleanly — an abrupt process exit can leave it truncated or missing. Once step 8 is done (all scenarios executed), call the `browser_close` tool before moving on to step 9. Skip this in interactive/local runs — no video recording is configured there, and a human may still want the browser open to look around.
+
 ## 9. Report — and stop
 
 Produce a concise report with:
@@ -137,6 +139,7 @@ Produce a concise report with:
 - The full Gherkin you wrote (or a link to the saved `.feature` file).
 - Pass/fail per scenario, with screenshots for failures.
 - Any selectors newly added to the catalog this run.
+- CI only: mention that a full session recording is attached to the workflow run's artifacts (`playwright-mcp-output/videos/`) — the Jira comment can't embed the file itself, just link to the workflow run.
 - A clear verdict — e.g. "Ready to leave QA NEEDED" or "Blocking: <what's broken>" — but **do not transition the Jira ticket**; tell the user what transition you'd recommend and let them do it (or ask you to, explicitly, as a separate action).
 
 **Interactive:** post this as your chat reply. Ask whether to tear the environment down (`docker compose -f .github/docker/docker-compose.yml down`) or leave it running for manual follow-up.

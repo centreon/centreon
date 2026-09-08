@@ -8,7 +8,9 @@
         "--headless",
         "--isolated",
         "--output-dir",
-        "playwright-mcp-output"
+        "playwright-mcp-output",
+        "--config",
+        ".claude/skills/qa-ticket-verify/playwright.config.ci.json"
       ]
     }
   }

@@ -1,0 +1,10 @@
+{
+  "browser": {
+    "contextOptions": {
+      "recordVideo": {
+        "dir": "playwright-mcp-output/videos",
+        "size": { "width": 1280, "height": 720 }
+      }
+    }
+  }
+}
