@@ -24285,3 +24285,11 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "{{total}} element(s) found"
 msgstr "{{total}} élément(s) trouvé(s)"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Ce groupe de contacts n'est pas disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Ce contact n'est pas disponible"
