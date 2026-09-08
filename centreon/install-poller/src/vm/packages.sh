@@ -90,22 +90,42 @@ function _vmInstallPowertools() {
   esac
 }
 
+# The major to resolve VM package repo URLs against. For the stable channel, a
+# cloud major resolves to the previous on-prem major (same as
+# _pollerImageMajor for the Docker image tag, src/commands/docker.sh) so a
+# real customer install never needs internal repo access — RPM/DEB packages
+# for a cloud major are only ever published internally. testing/unstable stay
+# pinned to the actual major being validated: QA needs the real cloud
+# candidate build, not an older on-prem stand-in. MON-208333.
+# FORCE_STABILITY (hidden --stability flag) overrides STABILITY here, to
+# pull from the testing/unstable channel for a major baked as "stable" whose
+# packages aren't promoted to the stable channel yet. MON-208554.
+function _vmRepoMajor() {
+  if [ "${FORCE_STABILITY:-${STABILITY}}" = "stable" ]; then
+    _pollerImageMajor
+  else
+    echo "${major}"
+  fi
+}
+
 # Mirrors uses_internal_repo() in centreon/unattended.sh.
 function _usesInternalRepo() {
-  [ "${major##*.}" != "10" ]
+  ! _isOnPremMajor "$(_vmRepoMajor)"
 }
 
 function _centreonRpmRepoUrl() {
+  local repo_major
+  repo_major=$(_vmRepoMajor)
   if _usesInternalRepo; then
-    echo "https://packages.centreon.com/rpm-standard-internal/${major}/el${_EL_MAJOR:-9}/centreon-${major}-internal.repo"
+    echo "https://packages.centreon.com/rpm-standard-internal/${repo_major}/el${_EL_MAJOR:-9}/centreon-${repo_major}-internal.repo"
   else
-    echo "https://packages.centreon.com/rpm-standard/${major}/el${_EL_MAJOR:-9}/centreon-${major}.repo"
+    echo "https://packages.centreon.com/rpm-standard/${repo_major}/el${_EL_MAJOR:-9}/centreon-${repo_major}.repo"
   fi
 }
 
 # Safe to call repeatedly (e.g. re-run with an install.sh built for a
 # different stability). FORCE_STABILITY (hidden --stability flag) overrides
-# STABILITY here. MON-208554.
+# STABILITY here, same rationale as _vmRepoMajor above. MON-208554.
 function _vmConfigureRepoChannels() {
   local effective_stability="${FORCE_STABILITY:-${STABILITY}}"
   consoleInfo "Configuring Centreon repository channel for stability: ${effective_stability}"
@@ -146,6 +166,8 @@ function _vmConfigureRepoChannels() {
   else
     local codename
     codename=$(lsb_release -sc)
+    local repo_major
+    repo_major=$(_vmRepoMajor)
     local apt_root="apt-standard"
     _usesInternalRepo && apt_root="apt-standard-internal"
 
@@ -153,29 +175,29 @@ function _vmConfigureRepoChannels() {
           /etc/apt/sources.list.d/centreon-testing.list \
           /etc/apt/sources.list.d/centreon-unstable.list
 
-    echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-stable main" \
+    echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-stable main" \
       | tee /etc/apt/sources.list.d/centreon-stable.list > /dev/null
 
     case "${effective_stability}" in
     testing-release)
       # Isolate from testing-hotfix (MON-208554), same rationale as the dnf case above.
-      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-release main" \
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main" \
         | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
       ;;
     testing-hotfix)
-      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-hotfix main" \
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main" \
         | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
       ;;
     testing | unstable)
       {
-        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-hotfix main"
-        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-testing-release main"
+        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-hotfix main"
+        echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-testing-release main"
       } | tee /etc/apt/sources.list.d/centreon-testing.list > /dev/null
       ;;
     esac
 
     if [ "${effective_stability}" = "unstable" ]; then
-      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${major}-unstable main" \
+      echo "deb https://packages.centreon.com/${apt_root}/ ${codename}-${repo_major}-unstable main" \
         | tee /etc/apt/sources.list.d/centreon-unstable.list > /dev/null
     fi
 
@@ -184,7 +206,7 @@ function _vmConfigureRepoChannels() {
 }
 
 function _vmInstallRepo() {
-  logInfo "Adding Centreon ${major} repository (stability: ${FORCE_STABILITY:-${STABILITY}})"
+  logInfo "Adding Centreon $(_vmRepoMajor) repository (stability: ${FORCE_STABILITY:-${STABILITY}})"
 
   if [ "${_PKG_COMMAND}" = "apt" ]; then
     consoleInfo "Adding Centreon repository (Debian)"
@@ -225,13 +247,15 @@ function _vmInstallPackages() {
 }
 
 function _vmUpdateRepo() {
+  local repo_major
+  repo_major=$(_vmRepoMajor)
   local effective_stability="${FORCE_STABILITY:-${STABILITY}}"
-  consoleInfo "Updating Centreon repository to ${major} (stability: ${effective_stability})"
-  logInfo "Updating Centreon repository to ${major}, stability=${effective_stability}"
+  consoleInfo "Updating Centreon repository to ${repo_major} (stability: ${effective_stability})"
+  logInfo "Updating Centreon repository to ${repo_major}, stability=${effective_stability}"
 
   if [ "${_PKG_COMMAND}" = "dnf" ]; then
     rm -f /etc/yum.repos.d/centreon-*.repo
-    commandExitOnError "Cannot add Centreon ${major} repository" \
+    commandExitOnError "Cannot add Centreon ${repo_major} repository" \
       dnf config-manager --add-repo "$(_centreonRpmRepoUrl)"
     _vmConfigureRepoChannels
     dnf clean all
