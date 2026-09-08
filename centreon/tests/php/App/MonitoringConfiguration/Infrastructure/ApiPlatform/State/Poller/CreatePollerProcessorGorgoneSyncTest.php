@@ -24,13 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use ApiPlatform\Metadata\Post;
-use App\MonitoringConfiguration\Application\Command\CreatePollerCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
@@ -40,6 +38,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Exception\GorgoneNodesSyncFailedException;
+use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Model\PollerToken;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
@@ -55,88 +55,117 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
-final class CreatePollerProcessorCommunicationTypeTest extends TestCase
+final class CreatePollerProcessorGorgoneSyncTest extends TestCase
 {
-    public function testCloudPlatformUsesPullWss(): void
+    private FakeGorgoneNodesSynchronizer $synchronizer;
+
+    /** @var int calls counted while the create-poller command was being handled */
+    private int $synchronizeCallsDuringCommand = 0;
+
+    protected function setUp(): void
     {
-        $capturedCommand = null;
-        $processor = $this->buildProcessor(isCloudPlatform: true, capturedCommand: $capturedCommand);
-
-        $processor->process(
-            $this->buildInput(),
-            new Post(),
-        );
-
-        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
+        $this->synchronizer = new FakeGorgoneNodesSynchronizer();
     }
 
-    public function testOnPremPlatformAlsoUsesPullWss(): void
+    public function testItSynchronizesGorgoneNodesOncePerCreation(): void
     {
-        $capturedCommand = null;
-        $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('error');
 
-        $processor->process(
-            $this->buildInput(),
-            new Post(),
-        );
+        $this->buildProcessor($logger)->process($this->buildInput(), new Post());
 
-        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
-    }
-
-    public function testCentralAddressIsPassedToCommand(): void
-    {
-        $capturedCommand = null;
-        $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
-
-        $processor->process(
-            $this->buildInput(),
-            new Post(),
-        );
-
-        self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame('192.168.1.254', $capturedCommand->centralAddress->value);
+        self::assertSame(1, $this->synchronizer->synchronizeCalls);
     }
 
     /**
-     * The central URL is resolved before the poller is persisted, so a platform base path that
-     * cannot go into the command fails the request instead of leaving a poller behind it.
+     * Gorgone reads the poller list on its own database connection: a sync sent while the
+     * create-poller transaction is still open would find nothing to register.
      */
-    public function testItCreatesNoPollerWhenThePlatformBaseUriIsUnusable(): void
+    public function testItSynchronizesAfterTheCommandBusReturns(): void
     {
-        $capturedCommand = null;
-        $requestStack = new RequestStack();
-        $requestStack->push(
-            Request::create('https://central.example.com/centreon;id/api/latest/configuration/pollers')
+        $this->buildProcessor($this->createMock(LoggerInterface::class))
+            ->process($this->buildInput(), new Post());
+
+        self::assertSame(0, $this->synchronizeCallsDuringCommand);
+        self::assertSame(1, $this->synchronizer->synchronizeCalls);
+    }
+
+    public function testItCreatesThePollerEvenWhenGorgoneIsUnreachable(): void
+    {
+        $this->synchronizer->throwable = new GorgoneNodesSyncFailedException(
+            'Gorgone did not accept the nodes sync command',
+            previous: new \RuntimeException('Error when connecting to the Gorgone server')
         );
-        $processor = $this->buildProcessor(
-            isCloudPlatform: false,
-            capturedCommand: $capturedCommand,
-            requestStack: $requestStack,
-        );
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::once())
+            ->method('error')
+            ->with(
+                // Both load-bearing fragments: the problem and the operator remedy. The
+                // connective text may be reworded without breaking the test.
+                self::logicalAnd(
+                    self::stringContains('not announced to the Central'),
+                    self::stringContains('re-save it from the legacy poller form')
+                ),
+                self::callback(static function (array $context): bool {
+                    self::assertSame(42, $context['poller_id']);
+                    self::assertSame('TestPoller', $context['poller_name']);
+                    self::assertSame('poller_api', $context['source']);
+                    self::assertIsArray($context['exception']);
+
+                    // The operator has nothing but this record: the cause must survive into it.
+                    self::assertStringContainsString(
+                        'Error when connecting to the Gorgone server',
+                        json_encode($context['exception'], JSON_THROW_ON_ERROR)
+                    );
+
+                    return true;
+                })
+            );
+
+        $resource = $this->buildProcessor($logger)->process($this->buildInput(), new Post());
+
+        self::assertSame('TestPoller', $resource->name);
+        self::assertNotEmpty($resource->installationCommand);
+    }
+
+    public function testItPropagatesAWiringErrorInsteadOfSwallowingIt(): void
+    {
+        // A missing legacy service is a deployment bug, not a Gorgone outage: swallowing it
+        // would degrade every creation silently behind a 201.
+        $this->synchronizer->throwable = new \RuntimeException('Service not found');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::never())->method('error');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Service not found');
+
+        $this->buildProcessor($logger)->process($this->buildInput(), new Post());
+    }
+
+    public function testItDoesNotSynchronizeWhenThePollerAlreadyExists(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $processor = $this->buildProcessor($logger, $this->buildPoller());
+
+        $this->expectException(PollerAlreadyExistsException::class);
 
         try {
             $processor->process($this->buildInput(), new Post());
-            self::fail('An unusable platform base path must fail the request');
-        } catch (BadRequestHttpException) {
-            self::assertNull($capturedCommand, 'the poller must not have been created');
+        } finally {
+            self::assertSame(0, $this->synchronizer->synchronizeCalls);
         }
     }
 
-    private function buildProcessor(
-        bool $isCloudPlatform,
-        ?object &$capturedCommand,
-        ?RequestStack $requestStack = null,
-    ): CreatePollerProcessor {
-        $poller = new Poller(
+    private function buildPoller(): Poller
+    {
+        return new Poller(
             id: new PollerId(42),
             name: new PollerName('TestPoller'),
             address: new PollerAddress('192.168.1.1'),
@@ -154,11 +183,16 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerCommands: new Collection([], PollerCommand::class),
             centralAddress: new CentralAddress('192.168.1.254'),
         );
+    }
+
+    private function buildProcessor(LoggerInterface $logger, ?Poller $existingPoller = null): CreatePollerProcessor
+    {
+        $poller = $this->buildPoller();
 
         $commandBus = $this->createMock(CommandBus::class);
         $commandBus->method('execute')
-            ->willReturnCallback(static function (object $command) use (&$capturedCommand, $poller): Poller {
-                $capturedCommand = $command;
+            ->willReturnCallback(function () use ($poller): Poller {
+                $this->synchronizeCallsDuringCommand = $this->synchronizer->synchronizeCalls;
 
                 return $poller;
             });
@@ -186,7 +220,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         $engineSecretsRepository->method('getSalt')->willReturn('salt');
 
         $pollerRepository = $this->createMock(PollerRepository::class);
-        $pollerRepository->method('findOneByName')->willReturn(null);
+        $pollerRepository->method('findOneByName')->willReturn($existingPoller);
 
         return new CreatePollerProcessor(
             commandBus: $commandBus,
@@ -195,10 +229,9 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
-            gorgoneNodesSynchronizer: new FakeGorgoneNodesSynchronizer(),
-            logger: new NullLogger(),
-            centralUrlFactory: new CentralUrlFactory($requestStack ?? new RequestStack(), $isCloudPlatform),
-            isCloudPlatform: $isCloudPlatform,
+            gorgoneNodesSynchronizer: $this->synchronizer,
+            logger: $logger,
+            centralUrlFactory: new CentralUrlFactory(new RequestStack(), false),
         );
     }
 
