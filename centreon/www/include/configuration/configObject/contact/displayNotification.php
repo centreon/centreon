@@ -19,7 +19,7 @@
  *
  */
 
-if (! isset($oreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -29,14 +29,25 @@ require_once _CENTREON_PATH_ . 'www/class/centreonNotification.class.php';
 $pearDBO = new CentreonDB('centstorage');
 
 /**
- * Get user list
+ * Get user list (ACL-filtered for non-admin users)
  */
 $contact = ['' => null];
-$DBRESULT = $pearDB->query('SELECT contact_id, contact_alias FROM contact ORDER BY contact_alias');
-while ($ct = $DBRESULT->fetchRow()) {
-    $contact[$ct['contact_id']] = $ct['contact_alias'];
+if ($centreon->user->admin) {
+    // contact_register = '1' keeps contact templates out of the list, matching
+    // what getContactAclConf() returns on the non-admin branch below.
+    $DBRESULT = $pearDB->query("SELECT contact_id, contact_alias FROM contact WHERE contact_register = '1' ORDER BY contact_alias");
+    while ($ct = $DBRESULT->fetchRow()) {
+        $contact[$ct['contact_id']] = $ct['contact_alias'];
+    }
+    $DBRESULT->closeCursor();
+} else {
+    $ctAcl = $centreon->user->access->getContactAclConf(
+        ['fields' => ['contact_id', 'contact_alias'], 'get_row' => 'contact_alias', 'keys' => ['contact_id'], 'order' => ['contact_alias']]
+    );
+    foreach ($ctAcl as $ctId => $ctAlias) {
+        $contact[$ctId] = $ctAlias;
+    }
 }
-$DBRESULT->closeCursor();
 
 // Object init
 $mediaObj       = new CentreonMedia($pearDB);
@@ -56,7 +67,20 @@ $tpl->assign('headerMenu_service_esc', _('Escalated Services'));
 $style = 'one';
 
 $groups = "''";
-$contactId = isset($_POST['contact']) ? (int) htmlentities($_POST['contact'], ENT_QUOTES, 'UTF-8') : 0;
+// The selector form submits via GET (onChange), so the value lands in $_GET.
+$contactId = isset($_GET['contact']) ? (int) $_GET['contact'] : 0;
+
+$contactUnavailable = false;
+if ($contactId && ! array_key_exists($contactId, $contact)) {
+    // Not in the caller's scoped list (out of ACL scope, or gone). Refuse it
+    // without probing whether it exists, so the message cannot enumerate ids.
+    Adaptation\Log\Logger::create(Adaptation\Log\Enum\LogChannelEnum::WEB)->warning(
+        'Notification view: contact not available in scope',
+        ['contact_id' => $contactId, 'user_id' => $centreon->user->get_id()]
+    );
+    $contactId = 0;
+    $contactUnavailable = true;
+}
 
 $formData = ['contact' => $contactId];
 
@@ -128,7 +152,11 @@ $labels = ['host_escalation' => _('Host escalations'), 'service_escalation' => _
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->assign('msgSelect', _('Please select a user in order to view his notifications'));
+$msgSelect = _('Please select a user in order to view his notifications');
+if ($contactUnavailable) {
+    $msgSelect = _('This contact is not available');
+}
+$tpl->assign('msgSelect', $msgSelect);
 $tpl->assign('p', $p);
 $tpl->assign('contact', $contactId);
 $tpl->assign('labels', $labels);
