@@ -52,9 +52,13 @@ parameters:
               - { type: classNameRegex, value: '#^Deprecated$#' }
               - { type: classNameRegex, value: '#^Random\\#' }
 
+        - name: AdaptationLog # hexagonal-arch adapters for logging
+          collectors:
+              - { type: classNameRegex, value: '#^Adaptation\\Log\\#' }
+
     ruleset:
         ActivityLogging: [ MonitoringConfiguration, Security, Shared, Vendors, TypeAliases, PhpNative ]
-        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases, PhpNative ]
+        MonitoringConfiguration: [ Security, Shared, Vendors, TypeAliases, PhpNative, AdaptationLog ]
         Security: [ ActivityLogging, MonitoringConfiguration, Shared, Vendors, TypeAliases, PhpNative ]
         Shared: [ Vendors, TypeAliases, PhpNative ]
         Legacy: [ Vendors, TypeAliases, PhpNative ]

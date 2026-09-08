@@ -38,7 +38,27 @@ final class CentralAddressTest extends TestCase
 
         yield 'IPv4 address' => ['10.0.0.1', '10.0.0.1'];
 
-        yield 'IPv6 address' => ['2001:db8::1', '2001:db8::1'];
+        // A bare IPv6 literal is normalized to its bracketed form: that is what goes to the
+        // database and what must appear right after "scheme://".
+        yield 'bare IPv6 address' => ['2001:db8::1', '[2001:db8::1]'];
+
+        yield 'bare IPv6 address with base path' => ['2001:db8::1/platform', '[2001:db8::1]/platform'];
+
+        yield 'bracketed IPv6 address' => ['[2001:db8::1]', '[2001:db8::1]'];
+
+        yield 'bracketed IPv6 address with port' => ['[2001:db8::1]:8443', '[2001:db8::1]:8443'];
+
+        yield 'bracketed IPv6 address with port and base path' => [
+            '[2001:db8::1]:8443/platform',
+            '[2001:db8::1]:8443/platform',
+        ];
+
+        yield 'bracketed IPv6 address in upper case' => ['[2001:DB8::1]', '[2001:DB8::1]'];
+
+        // The IPv4-mapped form is an IPv6 address, dots included.
+        yield 'bare IPv4-mapped IPv6 address' => ['::ffff:10.0.0.1', '[::ffff:10.0.0.1]'];
+
+        yield 'bracketed IPv4-mapped IPv6 address with port' => ['[::ffff:10.0.0.1]:8443', '[::ffff:10.0.0.1]:8443'];
 
         yield 'hostname with port' => ['central.example.com:8443', 'central.example.com:8443'];
 
@@ -77,6 +97,18 @@ final class CentralAddressTest extends TestCase
 
         yield 'port out of range' => ['central.example.com:70000'];
 
+        // Bracket contents are only checked for their alphabet by IP_LITERAL_PATTERN.
+        yield 'bracketed non-address' => ['[::::]'];
+
+        yield 'bracketed IPv6 with too many groups' => ['[2001:db8:0:0:0:0:0:0:1]'];
+
+        // The brackets are reserved to IP-literals, so an IPv4 must not wear them.
+        yield 'bracketed IPv4' => ['[10.0.0.1]'];
+
+        yield 'bracketed IPv6 with port out of range' => ['[2001:db8::1]:70000'];
+
+        yield 'bracketed IPv6 with port zero' => ['[2001:db8::1]:0'];
+
         yield 'single-dot path segment' => ['central.example.com/.'];
 
         yield 'double-dot path segment' => ['central.example.com/..'];
@@ -89,34 +121,46 @@ final class CentralAddressTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string, int|null, string|null}>
+     * The canonical value is covered by testAcceptsValidAddress; what matters here is that the
+     * host stays bare for the consumers dialing the central over another protocol.
+     *
+     * @return iterable<string, array{string, string, string|null}>
      */
     public static function authorityPartsProvider(): iterable
     {
-        yield 'hostname' => ['central.example.com', 'central.example.com', null, null];
+        yield 'hostname' => ['central.example.com', 'central.example.com', null];
 
-        yield 'hostname with port' => ['central.example.com:8443', 'central.example.com', 8443, null];
+        yield 'hostname with port' => ['central.example.com:8443', 'central.example.com', null];
 
         yield 'hostname with base path' => [
             'orga.euwest1.example.com/platform',
             'orga.euwest1.example.com',
-            null,
             'platform',
         ];
 
         yield 'hostname with port and multi-segment base path' => [
             'central.example.com:8443/base/path',
             'central.example.com',
-            8443,
             'base/path',
         ];
 
-        // An unbracketed IPv6 address must not have its last group mistaken for a port.
-        yield 'IPv6 address' => ['2001:db8::1', '2001:db8::1', null, null];
+        // A bare IPv6 address must not have its last group mistaken for a port.
+        yield 'bare IPv6 address' => ['2001:db8::1', '2001:db8::1', null];
 
-        yield 'IPv4 with base path' => ['10.0.0.1/centreon', '10.0.0.1', null, 'centreon'];
+        yield 'bare IPv6 address with base path' => ['2001:db8::1/platform', '2001:db8::1', 'platform'];
 
-        yield 'trailing slash is removed' => ['central.example.com/platform/', 'central.example.com', null, 'platform'];
+        // The brackets belong to the authority, not to the host.
+        yield 'bracketed IPv6 address' => ['[2001:db8::1]', '2001:db8::1', null];
+
+        yield 'bracketed IPv6 address with port and base path' => [
+            '[2001:db8::1]:8443/platform',
+            '2001:db8::1',
+            'platform',
+        ];
+
+        yield 'IPv4 with base path' => ['10.0.0.1/centreon', '10.0.0.1', 'centreon'];
+
+        yield 'trailing slash is removed' => ['central.example.com/platform/', 'central.example.com', 'platform'];
     }
 
     #[DataProvider('validAddressProvider')]
@@ -131,13 +175,11 @@ final class CentralAddressTest extends TestCase
     public function testExposesTheAuthorityParts(
         string $rawValue,
         string $expectedHost,
-        ?int $expectedPort,
         ?string $expectedBasePath,
     ): void {
         $address = new CentralAddress($rawValue);
 
         self::assertSame($expectedHost, $address->host);
-        self::assertSame($expectedPort, $address->port);
         self::assertSame($expectedBasePath, $address->basePath);
     }
 
