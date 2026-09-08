@@ -1,11 +1,11 @@
 import {
   type Acknowledgement,
   type Acl,
-  acknowledgementAtom,
   type Downtime,
-  downtimeAtom,
   type PlatformVersions,
   type User,
+  acknowledgementAtom,
+  downtimeAtom,
   userAtom
 } from '@centreon/ui-context';
 
