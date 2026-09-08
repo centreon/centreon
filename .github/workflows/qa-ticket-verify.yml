@@ -60,11 +60,16 @@ jobs:
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      # No docker registry login: pulling docker.centreon.com/centreon/centreon-web-slim-*
-      # images worked anonymously when this was verified manually (MON-207985, 2026-09-08).
-      # Add a docker/login-action step here (reusing secrets.registry_username /
-      # secrets.registry_password like the cypress e2e workflow does) if pulls start failing,
-      # e.g. due to registry rate limits.
+      # Anonymous pull worked when this was verified manually (MON-207985, 2026-09-08) but
+      # failed with "unauthorized" from a GitHub-hosted runner (first CI run, 2026-09-08) —
+      # the manual test was silently piggybacking on a pre-existing local docker login.
+      # Reuse the same login already used by cypress-e2e-parallelization.yml.
+      - name: Login to Docker registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.registry_username }}
+          password: ${{ secrets.registry_password }}
 
       # Deterministic, not LLM-driven: finding the PR and starting Docker don't need judgment
       # calls, and doing them as real workflow steps means they still happen (and still get
