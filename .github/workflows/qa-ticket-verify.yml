@@ -1,0 +1,116 @@
+name: qa-ticket-verify
+
+# Phase 1 (manual trigger): a QA picks a Jira ticket key and runs this by hand from the
+# Actions tab. It drives the qa-ticket-verify skill (.claude/skills/qa-ticket-verify/)
+# headlessly: reads the ticket, finds its PR, spins up that PR's build in Docker, exercises
+# it with Playwright, and posts a report as a Jira comment. It never transitions the ticket —
+# a human still makes that call from the report.
+#
+# Secrets required (repo Settings > Secrets and variables > Actions):
+#   CLAUDE_CODE_OAUTH_TOKEN  — from `claude setup-token` (requires a Claude subscription).
+#                              Not yet configured for this repo. Phase 1: a personal token is
+#                              fine. Migrate to a dedicated seat before this runs unattended
+#                              for the whole QA team.
+#   JIRA_BASE_URL, XRAY_JIRA_USER_EMAIL, XRAY_JIRA_TOKEN — already exist in this repo (used by
+#                              the Xray reporting / create-jira-ticket workflows), reused here
+#                              as-is rather than provisioning separate qa-ticket-verify secrets.
+#                              Comments this workflow posts will show as authored by whatever
+#                              account XRAY_JIRA_USER_EMAIL belongs to.
+#
+# github.actor already records who triggered a given run — no need to pass personal
+# credentials through the workflow_dispatch form (those inputs are plaintext in the UI/logs).
+
+on:
+  workflow_dispatch:
+    inputs:
+      jira_key:
+        description: "Jira ticket key to verify (e.g. MON-207985)"
+        required: true
+        type: string
+        default: "MON-207985"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-ticket-verify-${{ inputs.jira_key }}
+  cancel-in-progress: false
+
+jobs:
+  qa-verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      # No docker registry login: pulling docker.centreon.com/centreon/centreon-web-slim-*
+      # images worked anonymously when this was verified manually (MON-207985, 2026-09-08).
+      # Add a docker/login-action step here (reusing secrets.registry_username /
+      # secrets.registry_password like the cypress e2e workflow does) if pulls start failing,
+      # e.g. due to registry rate limits.
+
+      - name: Run QA verification
+        id: qa
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          TICKET_KEY: ${{ inputs.jira_key }}
+          TRIGGERED_BY: ${{ github.actor }}
+        run: |
+          claude -p "Use the qa-ticket-verify skill (see .claude/skills/qa-ticket-verify/SKILL.md) \
+            to verify Jira ticket $TICKET_KEY. You are running in CI: no human is present and no \
+            mcp__claude_ai_Atlassian__* tools are available — follow every 'CI:' branch in that \
+            skill's instructions exactly, especially for Jira access (curl with \$JIRA_EMAIL / \
+            \$JIRA_API_TOKEN, never mcp__claude_ai_Atlassian__*) and the final report step (post it \
+            as a Jira comment yourself via curl, then stop — do not wait for further input). \
+            This run was triggered by GitHub user $TRIGGERED_BY." \
+            --mcp-config .claude/skills/qa-ticket-verify/mcp-config.ci.json \
+            --strict-mcp-config \
+            --allowedTools "Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find" \
+            --permission-mode bypassPermissions \
+            --output-format text \
+            | tee claude-output.log
+
+      - name: Post failure notice to Jira if the run errored before reporting
+        if: failure()
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          TICKET_KEY: ${{ inputs.jira_key }}
+        run: |
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -su "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
+            "$JIRA_BASE_URL/rest/api/3/issue/$TICKET_KEY/comment" \
+            --data "$(jq -n --arg text "qa-ticket-verify failed before producing a report. Logs: $run_url" \
+              '{body:{type:"doc",version:1,content:[{type:"paragraph",content:[{type:"text",text:$text}]}]}}')"
+        continue-on-error: true # never let a notification failure mask the real job failure
+
+      - name: Tear down environment
+        if: always()
+        run: docker compose -f .github/docker/docker-compose.yml down -v || true
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: qa-ticket-verify-${{ inputs.jira_key }}
+          path: |
+            claude-output.log
+            .claude/skills/qa-ticket-verify/runs/*.feature
+            .claude/skills/qa-ticket-verify/selectors.json
+            playwright-mcp-output/**
+          retention-days: 14
+          if-no-files-found: warn

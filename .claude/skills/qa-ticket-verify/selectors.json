@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "description": "Cumulative DOM/CSS selector catalog built by the qa-ticket-verify skill. Keys are dotted paths '<area>.<elementName>'. Before adding a selector, check it isn't already here under a different name. Prefer the most specific already-verified selector; only add a new one when nothing close enough exists yet.",
+    "howToExtend": "When a needed selector is missing: 1) search the PR diff for the exact data-testid/aria-label/id being added or touched, 2) grep the existing frontend/legacy source for the component, 3) as a last resort inspect the live page via Playwright's snapshot tool and note the accessible name/role instead of a brittle CSS path. Always record where it came from in 'source'.",
+    "playwrightMcpNote": "browser_click/browser_type's `target` accepts either a snapshot ref (e.g. 'e21', no 'ref=' prefix) or a raw CSS selector string directly — verified during the MON-207985 run. For anything inside the legacy iframe, Playwright resolves it via iframe[name=\"main-content\"].contentFrame() automatically when given a selector; browser_evaluate needs an explicit document.querySelector('#main-content').contentDocument instead.",
+    "lastUpdated": "2026-09-08"
+  },
+  "login": {
+    "usernameInput": "input[aria-label=\"Alias\"]",
+    "passwordInput": "input[type=\"password\"]",
+    "connectButton": "button[aria-label=\"Connect\"]",
+    "source": "centreon/tests/e2e/features/**/index.ts (widely reused login flow)"
+  },
+  "top-banner": {
+    "userMenuTrigger": "[aria-label=\"Profile\"]",
+    "logoutMenuItem": "/Logout/ (text match via cy.contains)",
+    "source": "centreon/tests/e2e/features/Custom-views/01-public/index.ts"
+  },
+  "custom-views": {
+    "toggleEditModeLink": "a[title=\"Show/Hide edit mode\"]",
+    "addViewButton": "button:contains(\"Add view\")",
+    "editViewButton": "button.editView",
+    "deleteViewButton": "button.deleteView",
+    "deleteViewConfirmButton": "#deleteViewConfirm .bt_danger",
+    "shareViewButton": "button:contains(\"Share view\")",
+    "submitButton": "input[name=\"submit\"]",
+    "source": "centreon/tests/e2e/features/Custom-views/common.ts; legacy page rendered by centreon/www/include/home/customViews/index.ihtml, iframe #main-content",
+    "note": "This link is absolutely positioned (top:12px) and can be visually covered by .info_box on a fresh account with 0 views if #globalView's top padding regresses — see MON-200025."
+  },
+  "snmp-traps": {
+    "trapNameInput": "input[name=\"traps_name\"]",
+    "trapOidInput": "input[name=\"traps_oid\"]",
+    "advancedTreatmentSelect": "select[name=\"traps_advanced_treatment_default\"]",
+    "advancedTreatmentCheckbox": "input[name*=\"traps_advanced_treatment\"]",
+    "submitButton": "div#validForm p.oreonbutton .btc.bt_success[name=\"submitA\"]",
+    "generatePollerSelect": "select[name=\"host\"]",
+    "generateButton": "input[value=\"Generate\"]",
+    "generateSuccessMessageArea": "#tab1 .ListTable",
+    "trapEditUrlPattern": "/centreon/main.php?p=61701&o=c&traps_id=<id>",
+    "source": "centreon/tests/e2e/features/Snmp-Traps/common.ts and 03-vendor-configuration/index.ts; routes from fixtures/shared/constants/pages.ts (snmpTrapsLegacy p=61701, snmpTrapsGenerateLegacy p=61704)",
+    "addedFor": "MON-207985",
+    "verifiedLive": true
+  },
+  "generic-legacy-iframe": {
+    "iframeSelector": "#main-content",
+    "note": "Legacy PHP pages (main.get.php / main.php?p=...) render inside this iframe. Use cy.getIframeBody()-equivalent (get the iframe, then its body) before querying inside; Playwright needs frame_locator('#main-content') or the MCP frame-aware click."
+  }
+}
