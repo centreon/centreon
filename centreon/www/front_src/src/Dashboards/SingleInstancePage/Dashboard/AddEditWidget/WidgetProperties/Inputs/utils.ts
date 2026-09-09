@@ -64,10 +64,6 @@ interface GetYupValidatorTypeProps {
   t: TFunction;
 }
 
-const getResourcesValidation = (properties) => {
-  return properties.required ? mixed().required() : mixed();
-};
-
 const isPropertyHidden = (properties, parentValues): boolean => {
   const { hiddenCondition } = properties;
 
