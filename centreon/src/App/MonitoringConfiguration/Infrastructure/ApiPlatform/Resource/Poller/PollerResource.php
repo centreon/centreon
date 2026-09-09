@@ -25,12 +25,14 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\NotExposed;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreatePollerInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\CreatePollerProcessor;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller\ListPollersProvider;
 use App\Shared\Domain\Logging\Attribute\Sensitive;
 
 #[ApiResource(
@@ -50,6 +52,26 @@ use App\Shared\Domain\Logging\Attribute\Sensitive;
             ),
             security: "is_granted('" . PollerPermissionEnum::CanCreateEdit->value . "')",
             securityMessage: 'You are not allowed to create pollers',
+        ),
+        new GetCollection(
+            uriTemplate: '/configuration/pollers',
+            provider: ListPollersProvider::class,
+            output: PollerCollectionOutput::class,
+            openapi: new Model\Operation(
+                parameters: [
+                    new Model\Parameter(
+                        name: 'name[lk]',
+                        in: 'query',
+                        description: 'Filter by poller name using "like" operator',
+                        required: false,
+                        schema: ['type' => 'string'],
+                    ),
+                ],
+            ),
+            security: '
+                is_granted("' . PollerPermissionEnum::CanRead->value . '") or
+                is_granted("' . PollerPermissionEnum::CanReadAndWrite->value . '")',
+            securityMessage: 'You are not allowed to list pollers',
         ),
     ],
 )]

@@ -21,11 +21,12 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-enum PollerPermissionEnum: string
+/**
+ * Gorgone did not accept a command. Distinct from a wiring or configuration error, which
+ * must keep propagating: only this one is safe for a caller to absorb.
+ */
+final class GorgoneNodesSyncFailedException extends \RuntimeException
 {
-    case CanCreateEdit = 'can_create_edit_poller';
-    case CanRead = 'can_read_poller';
-    case CanReadAndWrite = 'can_read_and_write_poller';
 }

@@ -21,11 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-enum PollerPermissionEnum: string
+use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
+
+/**
+ * Counting {@see GorgoneNodesSynchronizer} test double.
+ */
+final class FakeGorgoneNodesSynchronizer implements GorgoneNodesSynchronizer
 {
-    case CanCreateEdit = 'can_create_edit_poller';
-    case CanRead = 'can_read_poller';
-    case CanReadAndWrite = 'can_read_and_write_poller';
+    public int $synchronizeCalls = 0;
+
+    public ?\Throwable $throwable = null;
+
+    public function synchronize(): void
+    {
+        $this->synchronizeCalls++;
+
+        if ($this->throwable instanceof \Throwable) {
+            throw $this->throwable;
+        }
+    }
 }
