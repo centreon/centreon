@@ -37,7 +37,6 @@ use App\MonitoringConfiguration\Domain\Repository\PollerNameResolver;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\Security\Domain\AdminResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
@@ -64,7 +63,6 @@ final readonly class ListHostsProvider implements ProviderInterface
         private HostRepository $repository,
         private PollerNameResolver $pollerNameResolver,
         private HostTemplateNameResolver $hostTemplateNameResolver,
-        private AdminResolver $adminResolver,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -77,7 +75,6 @@ final readonly class ListHostsProvider implements ProviderInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        $isAdmin = $this->adminResolver->resolve($credentialUser->credential);
 
         $criteria = new HostCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
@@ -107,7 +104,9 @@ final readonly class ListHostsProvider implements ProviderInterface
             $criteria = $criteria->withActivated($activated);
         }
 
-        $criteria = $isAdmin ? $criteria : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
+            ? $criteria
+            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $hosts = $this->repository->findAll($criteria);
         $hostList = array_values(iterator_to_array($hosts));

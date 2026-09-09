@@ -24,8 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
-use App\Security\Domain\AdminResolver;
+use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Security\Domain\Repository\CredentialRepository;
+use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
+use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
+use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
@@ -388,10 +392,11 @@ final class ListHostsProviderTest extends ApiTestCase
     }
 
     /**
-     * AdminResolver::$isCloudPlatform is bound from the IS_CLOUD_PLATFORM env var
-     * (config.new/services/security.php), so the platform is forced here by replacing the
-     * container's AdminResolver instance, same technique as
-     * ListPollersProviderTest::forceCloudPlatform(). Must run before the request is made.
+     * `Credential::hasUnrestrictedResourceAccess()` (customer_admin_acl → ROLE_CLOUD_ADMIN) is
+     * resolved once, at hydration time, by `DbalCredentialRepository`'s own `$isCloudPlatform`
+     * constructor argument (bound from the IS_CLOUD_PLATFORM env var). The platform is forced
+     * here by replacing the container's `CredentialRepository` instance with one built with the
+     * desired value, reusing its other real dependencies. Must run before the request is made.
      */
     private function forceCloudPlatform(): void
     {
@@ -412,9 +417,16 @@ final class ListHostsProviderTest extends ApiTestCase
     {
         $container = self::getContainer();
 
+        /** @var Connection $connection */
+        $connection = $container->get('doctrine.dbal.default_connection');
+        /** @var TransformerInterface<mixed, Credential> $transformer */
+        $transformer = $container->get(DbalCredentialTransformer::class);
         /** @var AccessGroupRepository $accessGroupRepository */
         $accessGroupRepository = $container->get(AccessGroupRepository::class);
 
-        $container->set(AdminResolver::class, new AdminResolver($accessGroupRepository, $isCloudPlatform));
+        $container->set(
+            CredentialRepository::class,
+            new DbalCredentialRepository($connection, $transformer, $accessGroupRepository, $isCloudPlatform),
+        );
     }
 }
