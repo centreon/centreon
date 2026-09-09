@@ -59,11 +59,10 @@ final readonly class DbalAccessGroupRepository implements AccessGroupRepository
                     )'
                 )
             )
-            ->setMaxResults(1);
+            ->setMaxResults(1)
+            ->setParameter('groupName', $groupName)
+            ->setParameter('contactId', $userId->value);
 
-        return (bool) $this->connection->fetchOne($qb->getSQL(), [
-            'groupName' => $groupName,
-            'contactId' => $userId->value,
-        ]);
+        return (bool) $qb->executeQuery()->fetchOne();
     }
 }

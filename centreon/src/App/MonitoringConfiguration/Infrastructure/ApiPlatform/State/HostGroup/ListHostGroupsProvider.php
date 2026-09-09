@@ -63,7 +63,6 @@ final readonly class ListHostGroupsProvider implements ProviderInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        $isAdmin = $credentialUser->credential->isAdmin();
 
         $criteria = new HostGroupCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
@@ -77,7 +76,9 @@ final readonly class ListHostGroupsProvider implements ProviderInterface
         /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-        $criteria = $isAdmin ? $criteria : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
+            ? $criteria
+            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $hostGroups = $this->repository->findAll($criteria);
         $resources = [];
