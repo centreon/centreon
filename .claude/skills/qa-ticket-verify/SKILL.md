@@ -72,9 +72,11 @@ Cross-reference three sources before writing anything:
 
 Also check for **existing e2e coverage** of the touched area (`Grep`/`Glob` under `centreon/tests/e2e/features/`) so your new Gherkin adds only what's *not* already covered by the regular suite, instead of duplicating it.
 
+**Go through the diff hunk by hunk** and classify each one: does it change something a browser can observe (a message, a DOM attribute, a redirect, a rendered value), or not? A change with no observable difference before/after (e.g. deduplicating an array key that PHP already resolved the same way, a comment, a lint-only fix) doesn't need — and can't usefully get — a scenario asserting on it; a scenario like that would pass identically on the unfixed code and verifies nothing. Note this explicitly rather than silently skipping it, so a human sees the reasoning, not an unexplained gap.
+
 ## 4. Write the Gherkin scenario(s)
 
-Write standard Gherkin covering the full scope you just extracted: the nominal case, every edge case explicitly called out in the ticket or PR description, and any regression risk the PR description flags. Save it to:
+Write standard Gherkin covering the full scope you just extracted: the nominal case, every edge case explicitly called out in the ticket or PR description, and any regression risk the PR description flags. **Tag every scenario `@covered` or `@not-covered`.** For each observable behavior change from step 3 that you did *not* turn into an executable scenario (usually because it needs a state a browser-driven test can't practically induce — a DB connection failure, a filesystem full, a race that needs precise timing), add a `@not-covered` scenario stub anyway: same `Given`/`When`/`Then` shape, describing what *should* happen, with a comment explaining why it isn't exercised and what would cover it instead (a unit test, a chaos/fault-injection test, etc.). The goal: a human reading the file sees every behavior change from the diff accounted for — tested, or explicitly and specifically flagged as not — never silently absent. Save it to:
 
 ```
 .claude/skills/qa-ticket-verify/runs/<TICKET-KEY>.feature
@@ -138,6 +140,7 @@ Produce a concise report with:
 - Ticket key/title/status, PR link, and any Jira-vs-PR-vs-diff discrepancy from step 3.
 - The full Gherkin you wrote (or a link to the saved `.feature` file).
 - Pass/fail per scenario, with screenshots for failures.
+- A coverage line: "N/M behavior changes covered" — list the `@not-covered` ones by name and why, right in the report, not just in the `.feature` file a human would have to go dig up.
 - Any selectors newly added to the catalog this run.
 - CI only: mention that a full session recording is attached to the workflow run's artifacts (`playwright-mcp-output/videos/`) — the Jira comment can't embed the file itself, just link to the workflow run.
 - A clear verdict — e.g. "Ready to leave QA NEEDED" or "Blocking: <what's broken>" — but **do not transition the Jira ticket**; tell the user what transition you'd recommend and let them do it (or ask you to, explicitly, as a separate action).
