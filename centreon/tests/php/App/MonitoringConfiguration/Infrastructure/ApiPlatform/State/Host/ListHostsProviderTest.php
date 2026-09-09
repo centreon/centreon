@@ -34,6 +34,9 @@ use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
+/**
+ * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
+ */
 final class ListHostsProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/hosts';
@@ -144,6 +147,53 @@ final class ListHostsProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertCount(1, (array) $response->toArray()['member']);
         self::assertJsonContains(['member' => [['name' => 'inactive-host']]]);
+    }
+
+    public function testItFiltersHostsByTemplateId(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $templateId = $this->insertHostTemplate('generic-active-host');
+        $matchingId = $this->insertHost('host-with-template', $pollerId);
+        $this->linkHostToTemplate($matchingId, $templateId);
+        $this->insertHost('host-without-template', $pollerId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['template_id' => (string) $templateId]]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(['member' => [['name' => 'host-with-template']]]);
+    }
+
+    public function testItFiltersHostsByGroupId(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $groupId = $this->insertHostGroup('Linux-Servers');
+        $matchingId = $this->insertHost('grouped-host', $pollerId);
+        $this->linkHostToGroup($matchingId, $groupId);
+        $this->insertHost('ungrouped-host', $pollerId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['group_id' => (string) $groupId]]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(['member' => [['name' => 'grouped-host']]]);
+    }
+
+    public function testItFiltersHostsByPollerId(): void
+    {
+        $pollerOneId = $this->insertPoller('Central');
+        $pollerTwoId = $this->insertPoller('Remote-Poller');
+        $this->insertHost('on-poller-one', $pollerOneId);
+        $this->insertHost('on-poller-two', $pollerTwoId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['poller_id' => (string) $pollerOneId]]);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(['member' => [['name' => 'on-poller-one']]]);
     }
 
     public function testItPaginatesHosts(): void
@@ -312,6 +362,21 @@ final class ListHostsProviderTest extends ApiTestCase
         ]);
     }
 
+    private function insertHostGroup(string $name): int
+    {
+        $this->connection->insert('hostgroup', ['hg_name' => $name]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function linkHostToGroup(int $hostId, int $groupId): void
+    {
+        $this->connection->insert('hostgroup_relation', [
+            'host_host_id' => $hostId,
+            'hostgroup_hg_id' => $groupId,
+        ]);
+    }
+
     private function createNonAdminContact(string $alias): int
     {
         $this->createApiUser($this->connection, $alias, admin: false);
@@ -419,7 +484,7 @@ final class ListHostsProviderTest extends ApiTestCase
 
         /** @var Connection $connection */
         $connection = $container->get('doctrine.dbal.default_connection');
-        /** @var TransformerInterface<mixed, Credential> $transformer */
+        /** @var TransformerInterface<RowTypeAlias, Credential> $transformer */
         $transformer = $container->get(DbalCredentialTransformer::class);
         /** @var AccessGroupRepository $accessGroupRepository */
         $accessGroupRepository = $container->get(AccessGroupRepository::class);

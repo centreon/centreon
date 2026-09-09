@@ -375,4 +375,12 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->assertContains('Check', $commandTypes);
         $this->assertNotContains('Miscellaneous', $commandTypes);
     }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'check_host_alive']]);
+        self::assertResponseStatusCodeSame(400);
+    }
 }
