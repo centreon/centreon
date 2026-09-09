@@ -8,6 +8,7 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   pluck,
   split
 } from 'ramda';
@@ -36,6 +37,7 @@ import {
 import {
   type ShowInput,
   type WidgetDataResource,
+  type WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
 
@@ -57,9 +59,34 @@ const metricSchema = object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'> &
+    Pick<WidgetPropertyProps, 'isRequiredProperty' | 'isSingleAutocomplete'>;
   t: TFunction;
 }
+
+const isPropertyHidden = (properties, parentValues): boolean => {
+  const { hiddenCondition } = properties;
+
+  if (!hiddenCondition) {
+    return false;
+  }
+
+  const conditions = Array.isArray(hiddenCondition)
+    ? hiddenCondition
+    : [hiddenCondition];
+
+  return conditions.some(({ target, method, when, matches }) => {
+    const values = { [target]: parentValues };
+
+    if (equals(method, 'isNil')) {
+      const formValue = path(when.split('.'), values);
+
+      return isEmpty(formValue) || isNil(formValue);
+    }
+
+    return equals(path(when.split('.'), values), matches);
+  });
+};
 
 const getYupValidatorType = ({
   t,
@@ -162,11 +189,34 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(number().min(1))
+    ],
+    [
+      equals<FederatedWidgetOptionType>(
+        FederatedWidgetOptionType.connectedAutocomplete
+      ),
+      always(
+        (properties.isSingleAutocomplete ? object() : array()).test(
+          'connected-autocomplete-required',
+          t(labelRequired) as string,
+          (value, context) => {
+            if (!(properties.required || properties.isRequiredProperty)) {
+              return true;
+            }
+
+            if (isPropertyHidden(properties, context.parent)) {
+              return true;
+            }
+
+            return !(isNil(value) || isEmpty(value));
+          }
+        )
+      )
     ]
   ])(properties.type);
 
 interface BuildValidationSchemaProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'> &
+    Pick<WidgetPropertyProps, 'isRequiredProperty' | 'isSingleAutocomplete'>;
   t: TFunction;
 }
 
@@ -179,7 +229,16 @@ export const buildValidationSchema = ({
     t
   });
 
-  return properties.required
+  if (
+    equals<FederatedWidgetOptionType>(
+      properties.type,
+      FederatedWidgetOptionType.connectedAutocomplete
+    )
+  ) {
+    return yupValidator;
+  }
+
+  return properties.required || properties.isRequiredProperty
     ? yupValidator.required(t(labelRequired) as string)
     : yupValidator;
 };
