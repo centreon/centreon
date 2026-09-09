@@ -21,11 +21,17 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller;
 
-enum PollerPermissionEnum: string
+use ApiPlatform\Metadata\ApiProperty;
+
+final class PollerCollectionOutput
 {
-    case CanCreateEdit = 'can_create_edit_poller';
-    case CanRead = 'can_read_poller';
-    case CanReadAndWrite = 'can_read_and_write_poller';
+    public function __construct(
+        #[ApiProperty(identifier: true)]
+        public int $id,
+
+        public string $name,
+    ) {
+    }
 }
