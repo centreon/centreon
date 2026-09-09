@@ -60,7 +60,10 @@ trait FilterAwareProviderTrait
 
         $result = [];
         foreach ($value as $operator => $values) {
-            if (! is_string($operator) || ! in_array($operator, $allowedOperators, true)) {
+            if (! is_string($operator)) {
+                continue;
+            }
+            if (! in_array($operator, $allowedOperators, true)) {
                 continue;
             }
 
