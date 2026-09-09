@@ -132,6 +132,13 @@ class Matrix42Provider extends AbstractProvider
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, '{}');
 
+        self::setProxy($curl, [
+            'proxy_address' => $info['proxy_address'] ?? '',
+            'proxy_port' => $info['proxy_port'] ?? '',
+            'proxy_username' => $info['proxy_username'] ?? '',
+            'proxy_password' => $info['proxy_password'] ?? '',
+        ]);
+
         if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
             curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
         }
