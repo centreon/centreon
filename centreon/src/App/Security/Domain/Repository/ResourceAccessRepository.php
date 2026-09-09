@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -34,6 +35,20 @@ interface ResourceAccessRepository
     public function hasAccessToAllPollers(UserId $userId): bool;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
+
+    /**
+     * Returns the levelless host categories the user is restricted to.
+     *
+     * Three states, mirroring the legacy host-category ACL (DbReadHostCategoryRepository::
+     * findAllByAccessGroupIds guarded by hasRestrictedAccessToHostCategories):
+     *  - null                   → no restriction applies; the user sees every category
+     *  - an empty Collection    → the user is restricted but grants no accessible regular category
+     *                             (e.g. only severities, or no accessible ACL resource): sees nothing
+     *  - a non-empty Collection → the user is restricted to exactly these categories
+     *
+     * @return Collection<HostCategoryId>|null
+     */
+    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection;
 
     /**
      * Returns the host severities (host categories carrying a level) the user is restricted to.
