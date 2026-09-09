@@ -21,7 +21,10 @@
 
 declare(strict_types=1);
 
+use App\Security\Domain\AdminResolver;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
@@ -31,4 +34,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autoconfigure();
 
     $services->load('App\\Security\\', __DIR__ . '/../../src/App/Security');
+
+    // AdminResolver is a Domain service: it cannot self-source this scalar via #[Autowire],
+    // so it is bound here instead, in the bounded context's own service configuration.
+    $services->get(AdminResolver::class)
+        ->arg('$isCloudPlatform', env('IS_CLOUD_PLATFORM')->default('')->bool());
 };
