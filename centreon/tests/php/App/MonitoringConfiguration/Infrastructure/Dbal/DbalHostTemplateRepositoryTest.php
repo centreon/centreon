@@ -123,6 +123,18 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertCount(0, $names);
     }
 
+    public function testFindNamesByIdsExcludesRegularHosts(): void
+    {
+        // host_template_relation.host_tpl_id carries no host_register-based constraint, so
+        // nothing at the schema level stops a regular host id from ending up there; this
+        // asserts findNamesByIds() itself never resolves one as a template name regardless.
+        $regularHostId = $this->insertRegularHost("host-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds(new Collection([new HostTemplateId($regularHostId)], HostTemplateId::class));
+
+        self::assertCount(0, $names);
+    }
+
     public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedViewer(): void
     {
         // legacy scopes restricted viewers by host *severities* (categories with a level), not by

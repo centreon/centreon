@@ -10671,8 +10671,9 @@ components:
         name:
           type: string
         alias:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         address:
           type: string
         poller:
@@ -10694,8 +10695,9 @@ components:
             name:
               type: string
             alias:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             address:
               type: string
             poller:

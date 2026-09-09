@@ -66,8 +66,18 @@ trait FilterAwareProviderTrait
 
             $normalizedValues = [];
             foreach (is_array($values) ? $values : [$values] as $rawValue) {
-                if (is_scalar($rawValue)) {
-                    $normalizedValues[] = (string) $rawValue;
+                if (! is_scalar($rawValue)) {
+                    continue;
+                }
+
+                // an empty value (e.g. "?name[eq]=") is treated as absent, not as a request to
+                // match an empty string — the underlying Criteria::withX() methods assert
+                // non-empty and would otherwise throw an uncaught 500 instead of a clean 400.
+                // This also keeps every operator consistent with "lk", which already ignored an
+                // empty value this way (see handleLikeFilter and its dedicated test coverage).
+                $stringValue = (string) $rawValue;
+                if ($stringValue !== '') {
+                    $normalizedValues[] = $stringValue;
                 }
             }
 
@@ -82,9 +92,7 @@ trait FilterAwareProviderTrait
      */
     public function handleLikeFilter(mixed $value, string $filterName): ?string
     {
-        $likeValue = $this->handleOperatorFilter($value, $filterName, ['lk'])['lk'][0] ?? null;
-
-        return is_string($likeValue) && $likeValue !== '' ? $likeValue : null;
+        return $this->handleOperatorFilter($value, $filterName, ['lk'])['lk'][0] ?? null;
     }
 
     public function handlePositiveIntFilter(mixed $value, string $filterName): ?int

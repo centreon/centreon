@@ -76,7 +76,7 @@ final readonly class ListConnectorsProvider implements ProviderInterface
         }
         foreach ($this->handleOperatorFilter($filters['id'] ?? null, 'id', ConnectorCriteria::ALLOWED_OPERATORS) as $operator => $values) {
             foreach ($values as $value) {
-                $criteria = $criteria->withId((int) $value, $operator);
+                $criteria = $criteria->withId($this->handlePositiveIntFilter($value, 'id') ?? 0, $operator);
             }
         }
 

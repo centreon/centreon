@@ -115,7 +115,8 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
         $qb = $this->connection->createQueryBuilder();
         $qb->select('host_id', 'host_name')
             ->from(self::TABLE_NAME)
-            ->where($qb->expr()->in('host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+            ->where('host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
 
         /** @var list<array{host_id: int|string, host_name: string}> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();

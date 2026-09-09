@@ -383,4 +383,12 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => 'check_host_alive']]);
         self::assertResponseStatusCodeSame(400);
     }
+
+    public function testItIgnoresAnEmptyNameFilterValue(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => '']]]);
+        self::assertResponseIsSuccessful();
+    }
 }
