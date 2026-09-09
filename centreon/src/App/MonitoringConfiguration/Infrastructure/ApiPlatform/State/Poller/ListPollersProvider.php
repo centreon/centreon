@@ -65,7 +65,7 @@ final readonly class ListPollersProvider implements ProviderInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-        $isAdmin = $credentialUser->credential->isAdmin();
+        $hasUnrestrictedResourceAccess = $credentialUser->credential->hasUnrestrictedResourceAccess();
 
         $criteria = new PollerCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
@@ -79,8 +79,10 @@ final readonly class ListPollersProvider implements ProviderInterface
         /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-        $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $isAdmin);
-        $criteria = $isAdmin ? $criteria : $criteria->withViewerId($credentialUser->credential->userId);
+        $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $hasUnrestrictedResourceAccess);
+        $criteria = $hasUnrestrictedResourceAccess
+            ? $criteria
+            : $criteria->withViewerId($credentialUser->credential->userId);
 
         $pollers = $this->repository->findAll($criteria);
         $resources = [];
