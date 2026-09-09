@@ -28,31 +28,63 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 trait FilterAwareProviderTrait
 {
     /**
-     * Parses a ApiPlatform "<name>[lk]=value" query filter.
+     * Parses an ApiPlatform "<name>[op]=value" query filter, where the same field can carry
+     * several operators (each with one or several values), e.g. "name[eq][]=a&name[lk]=b".
+     * Operators not in $allowedOperators are dropped rather than rejected: an unsupported
+     * operator alongside a supported one should not fail the whole filter.
+     *
+     * @template TOperator of string
+     *
+     * @param list<TOperator> $allowedOperators
+     *
+     * @return array<TOperator, list<string>> values grouped by operator, only for operators
+     *                                        present in the request AND in $allowedOperators
      */
-    public function handleLikeFilter(mixed $value, string $filterName): ?string
+    public function handleOperatorFilter(mixed $value, string $filterName, array $allowedOperators): array
     {
         if ($value === null) {
-            return null;
+            return [];
         }
 
-        // a client sending "?<name>=foo" instead of "?<name>[lk]=foo" lands here as a plain string
+        // a client sending "?<name>=foo" instead of "?<name>[op]=foo" lands here as a plain string
         if (! is_array($value)) {
             throw new BadRequestHttpException(
-                sprintf('The "%s" filter must use the "%s[lk]=value" format.', $filterName, $filterName)
+                sprintf(
+                    'The "%s" filter must use the "%s[%s]=value" format.',
+                    $filterName,
+                    $filterName,
+                    implode('|', $allowedOperators)
+                )
             );
         }
 
-        $likeValue = $value['lk'] ?? null;
-        if (is_array($likeValue)) {
-            $likeValue = reset($likeValue);
+        $result = [];
+        foreach ($value as $operator => $values) {
+            if (! is_string($operator) || ! in_array($operator, $allowedOperators, true)) {
+                continue;
+            }
+
+            $normalizedValues = [];
+            foreach (is_array($values) ? $values : [$values] as $rawValue) {
+                if (is_scalar($rawValue)) {
+                    $normalizedValues[] = (string) $rawValue;
+                }
+            }
+
+            $result[$operator] = $normalizedValues;
         }
 
-        if (! is_string($likeValue) || $likeValue === '') {
-            return null;
-        }
+        return $result;
+    }
 
-        return $likeValue;
+    /**
+     * Parses an ApiPlatform "<name>[lk]=value" query filter.
+     */
+    public function handleLikeFilter(mixed $value, string $filterName): ?string
+    {
+        $likeValue = $this->handleOperatorFilter($value, $filterName, ['lk'])['lk'][0] ?? null;
+
+        return is_string($likeValue) && $likeValue !== '' ? $likeValue : null;
     }
 
     public function handlePositiveIntFilter(mixed $value, string $filterName): ?int
