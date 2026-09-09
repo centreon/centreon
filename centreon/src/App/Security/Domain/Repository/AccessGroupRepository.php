@@ -21,20 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Upgrade\Infrastructure\ApiPlatform\Resource;
+namespace App\Security\Domain\Repository;
 
-use ApiPlatform\Metadata\Post;
-use App\Upgrade\Infrastructure\ApiPlatform\State\UpdateProcessor;
+use App\Security\Domain\Aggregate\UserId;
 
-#[Post(
-    shortName: 'Upgrade',
-    uriTemplate: '/platform/updates',
-    processor: UpdateProcessor::class,
-    status: 204,
-    deserialize: false,
-    security: "is_granted('ROLE_SUPER_ADMIN')",
-    securityMessage: 'Only admin users can perform upgrades',
-)]
-final class UpdateResource
+interface AccessGroupRepository
 {
+    /**
+     * Whether the user belongs — directly, or through a contact group — to an
+     * active Access Group with this exact name.
+     */
+    public function userHasGroup(UserId $userId, string $groupName): bool;
 }
