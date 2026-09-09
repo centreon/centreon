@@ -43,8 +43,9 @@ post:
                   description: "HTTP Status Code of the operation"
                   example: 204
                 message:
-                  type: string
-                  nullable: true
+                  type:
+                    - string
+                    - 'null'
                   description: "Error message for non 204 status"
                   example: null
     '404':
@@ -65,8 +66,9 @@ post:
                   description: "HTTP Status Code of the operation"
                   example: 404
                 message:
-                  type: string
-                  nullable: true
+                  type:
+                    - string
+                    - 'null'
                   description: "Host Group not found"
                   example: "Host Group not found"
     '401':

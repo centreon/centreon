@@ -28,7 +28,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/pollers/installation-command';
+    private const BASE_ENDPOINT = '/api/configuration/pollers/installation-command';
     private const POLLER_UID = 123456789012345;
     private const POLLER_NAME = 'test-poller';
     private const POLLER_TYPE = 'vm';
@@ -87,8 +87,8 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://192.168.1.1/poller/install.sh | bash -s -- --poller_token test-token-default:%s --uid %s --name %s --type %s --central_url 192.168.1.1 --appsecret test-app-secret --salt test-salt',
-            $tokenValue,
+            'curl -fsSL http://192.168.1.1/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url http://192.168.1.1 --appsecret test-app-secret --salt test-salt',
+            escapeshellarg('test-token-default:' . $tokenValue),
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
@@ -108,13 +108,32 @@ final class GetInstallationCommandProviderTest extends ApiTestCase
 
         $data = $response->toArray();
         $expected = sprintf(
-            'curl -fsSL https://192.168.1.1/poller/install.sh | bash -s -- --poller_token named-token:%s --uid %s --name %s --type %s --central_url 192.168.1.1 --appsecret test-app-secret --salt test-salt',
-            $namedTokenValue,
+            'curl -fsSL http://192.168.1.1/poller/install.sh | bash -s -- --poller_token %s --uid %s --name %s --type %s --central_url http://192.168.1.1 --appsecret test-app-secret --salt test-salt',
+            escapeshellarg('named-token:' . $namedTokenValue),
             self::POLLER_UID,
             escapeshellarg(self::POLLER_NAME),
             self::POLLER_TYPE,
         );
         self::assertSame($expected, $data['installation_command']);
+    }
+
+    /**
+     * Non-regression: this resource is on LegacyApiPrefixAliasLoader's allowlist, so it must
+     * stay reachable at the legacy /api/latest prefix too, not just /api.
+     */
+    public function testItIsAlsoReachableAtTheLegacyApiPrefix(): void
+    {
+        $pollerId = $this->insertPoller(self::POLLER_NAME);
+        $tokenValue = $this->insertPollerToken('named-token');
+        $this->login();
+
+        $legacyEndpoint = str_replace('/api/', '/api/latest/', self::BASE_ENDPOINT);
+        $response = $this->request('GET', sprintf('%s/%d?token-name=named-token', $legacyEndpoint, $pollerId));
+
+        self::assertResponseIsSuccessful();
+        /** @var array{installation_command: string} $data */
+        $data = $response->toArray();
+        self::assertStringContainsString($tokenValue, $data['installation_command']);
     }
 
     private function insertPoller(string $name): int

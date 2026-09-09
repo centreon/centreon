@@ -15,9 +15,9 @@ while true ; do
   fi
   case "$SQL_RESULT" in
     *id*)
-      echo "Reloading gorgoned to register new pollers."
-      if ! systemctl reload gorgoned; then
-        echo "Failed to reload gorgoned"
+      echo "Restarting gorgoned to register new pollers."
+      if ! systemctl restart gorgoned; then
+        echo "Failed to Restart gorgoned"
         continue
       fi
       i=0

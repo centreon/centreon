@@ -122,7 +122,7 @@ const useStyles = makeStyles()((theme) => ({
     marginRight: theme.spacing(1)
   },
   icons: {
-    borderLeft: `1px solid ${theme.palette.common.white}`,
+    borderLeft: `1px solid ${theme.palette.divider}`,
     paddingLeft: theme.spacing(3)
   },
   listItem: {
@@ -173,13 +173,9 @@ const useStyles = makeStyles()((theme) => ({
   },
   userIcon: {
     alignItems: 'center',
-    backgroundColor: equals(theme.palette.mode, ThemeMode.dark)
-      ? theme.palette.primary.main
-      : theme.palette.common.white,
+    backgroundColor: theme.palette.primary.main,
     borderRadius: '50%',
-    color: equals(theme.palette.mode, ThemeMode.dark)
-      ? theme.palette.background.paper
-      : theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     cursor: 'pointer',
     display: 'flex',
     fontSize: theme.spacing(2),

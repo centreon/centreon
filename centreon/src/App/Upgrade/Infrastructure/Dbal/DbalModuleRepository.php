@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\ModuleRepository;
 use Doctrine\DBAL\Connection;
@@ -45,8 +44,6 @@ final class DbalModuleRepository implements ModuleRepository
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private readonly Connection $configConnection,
-        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
-        private readonly Connection $realtimeConnection,
         #[Autowire(param: 'upgrade.modules_dir')]
         private readonly string $modulesDir,
         private readonly ConnectionConfig $connectionConfig,
@@ -295,8 +292,18 @@ final class DbalModuleRepository implements ModuleRepository
             return;
         }
 
-        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
-        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
+        // TODO: temporary bridge — replace with proper ConnectionInterface injection once module upgrade scripts are migrated
+        $pearDB = new \CentreonDB(connectionConfig: $this->connectionConfig);
+        $pearDBO = new \CentreonDB(connectionConfig: new ConnectionConfig(
+            host: $this->connectionConfig->getHost(),
+            user: $this->connectionConfig->getUser(),
+            password: $this->connectionConfig->getPassword(),
+            databaseNameConfiguration: $this->connectionConfig->getDatabaseNameRealTime(),
+            databaseNameRealTime: $this->connectionConfig->getDatabaseNameRealTime(),
+            port: $this->connectionConfig->getPort(),
+            charset: $this->connectionConfig->getCharset(),
+            driver: $this->connectionConfig->getDriver(),
+        ));
         $centreon_path = $this->centreonPath;
 
         require_once $filePath;

@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
@@ -30,8 +32,10 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerTokenRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\InstallationCommandResource;
+use App\MonitoringConfiguration\Infrastructure\CentralUrlFactory;
 use App\MonitoringConfiguration\Infrastructure\PollerInstallationCommandFactory;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -44,6 +48,8 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
         private PollerRepository $pollerRepository,
         private PollerTokenRepository $pollerTokenRepository,
         private EngineSecretsRepository $engineSecretsRepository,
+        private Security $security,
+        private CentralUrlFactory $centralUrlFactory,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform = false,
     ) {
@@ -73,12 +79,20 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
             $token,
             $this->engineSecretsRepository->getAppSecret(),
             $this->engineSecretsRepository->getSalt(),
+            $this->centralUrlFactory->create($poller->centralAddress),
             $this->isCloudPlatform,
-            $poller->centralAddress->value,
         );
 
+        $installationCommand = $factory->generate();
+
+        Logger::create(LogChannelEnum::POLLER_INSTALL)->info('Poller installation command generated', [
+            'poller_id' => $pollerId->value,
+            'token_name' => $token->name,
+            'user' => $this->security->getUser()?->getUserIdentifier(),
+        ]);
+
         return new InstallationCommandResource(
-            installationCommand: $factory->generate(),
+            installationCommand: $installationCommand,
         );
     }
 }

@@ -25,14 +25,20 @@ export const getStatusColors = ({
 }: StatusColorProps): Colors => {
   const { palette } = theme;
 
+  // Typography color for status chips: text action primary (#000000) in light
+  // mode, paper (#212121) in dark mode, so it stays readable on the bright
+  // status backgrounds in both modes.
+  const chipTextColor =
+    palette.mode === 'dark' ? palette.background.paper : palette.text.primary;
+
   const colorMapping = {
     [SeverityCode.High]: {
       backgroundColor: theme.palette.statusBackground.error,
-      color: palette.error.contrastText
+      color: chipTextColor
     },
     [SeverityCode.Medium]: {
       backgroundColor: theme.palette.statusBackground.warning,
-      color: palette.warning.contrastText
+      color: chipTextColor
     },
     [SeverityCode.Low]: {
       backgroundColor: theme.palette.statusBackground.unknown,
@@ -40,11 +46,11 @@ export const getStatusColors = ({
     },
     [SeverityCode.Pending]: {
       backgroundColor: theme.palette.statusBackground.pending,
-      color: palette.text.primary
+      color: chipTextColor
     },
     [SeverityCode.OK]: {
       backgroundColor: theme.palette.statusBackground.success,
-      color: palette.text.primary
+      color: chipTextColor
     },
     [SeverityCode.None]: {
       backgroundColor: theme.palette.statusBackground.none,

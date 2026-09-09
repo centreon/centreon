@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneCommunicationTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
@@ -34,13 +33,20 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
+use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalGlobalMacroRepository as GlobalMacroRowTypeAlias
@@ -54,7 +60,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2'|'3'|'4',
+ *   gorgone_communication_type: string,
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -83,7 +89,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: '0'|'1',
  *   poller_type: 'vm'|'docker',
  *   poller_uid: int,
- *   gorgone_communication_type: '1'|'2'|'3'|'4',
+ *   gorgone_communication_type: string,
  *   gorgone_port: int|null,
  *   ssh_port: int|null,
  *   remote_server_use_as_proxy: '0'|'1',
@@ -132,6 +138,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         #[Autowire(service: DbalGlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
 
+        private ResourceAccessRepository $resourceAccessRepository,
+
         private bool $withCmaCertificates = false,
     ) {
     }
@@ -176,7 +184,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('is_activated', $poller->isActivated ? '1' : '0')
                 ->setParameter('poller_type', $poller->pollerType->value)
                 ->setParameter('uid', $poller->uid->value)
-                ->setParameter('gorgone_communication_type', $this->communicationTypeToDatabase($poller->gorgoneConfiguration->communicationType))
+                ->setParameter('gorgone_communication_type', GorgoneCommunicationTypeMapping::toDatabase($poller->gorgoneConfiguration->communicationType))
                 ->setParameter('gorgone_port', $poller->gorgoneConfiguration->gorgonePort)
                 ->setParameter('ssh_port', $poller->gorgoneConfiguration->sshPort)
                 ->setParameter('remote_server_use_as_proxy', $poller->gorgoneConfiguration->useRemoteServerAsProxy ? '1' : '0')
@@ -187,10 +195,10 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ->setParameter('nagios_bin', $poller->engineInformation->binaryPath)
                 ->setParameter('nagiostats_bin', $poller->engineInformation->statisticsBinaryPath)
                 ->setParameter('nagios_perfdata', $poller->engineInformation->perfdataFilePath)
-                ->setParameter('broker_reload_command', $poller->brokerConfiguration->reloadCommand)
-                ->setParameter('centreonbroker_cfg_path', $poller->brokerConfiguration->configurationPath)
-                ->setParameter('centreonbroker_module_path', $poller->brokerConfiguration->modulesPath)
-                ->setParameter('centreonbroker_logs_path', $poller->brokerConfiguration->logsPath)
+                ->setParameter('broker_reload_command', $poller->brokerInformation->reloadCommand)
+                ->setParameter('centreonbroker_cfg_path', $poller->brokerInformation->configurationPath)
+                ->setParameter('centreonbroker_module_path', $poller->brokerInformation->modulesPath)
+                ->setParameter('centreonbroker_logs_path', $poller->brokerInformation->logsPath)
                 ->setParameter('centreonconnector_path', $poller->connectorConfiguration->connectorPath)
                 ->setParameter('init_script_centreontrapd', $poller->trapConfiguration->initScriptPath)
                 ->setParameter('snmp_trapd_path_conf', $poller->trapConfiguration->snmpTrapPathConf)
@@ -327,6 +335,42 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $this->createPollers($pollerRows, $globalMacroRows);
     }
 
+    public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...self::getSelectColumns())
+            // a correlated subquery, not a JOIN: platform_topology.server_id carries no UNIQUE
+            // constraint, and a JOIN fan-out here would corrupt LIMIT/OFFSET-based pagination
+            ->addSelect('(SELECT pt.central_address FROM platform_topology pt WHERE pt.server_id = p.id LIMIT 1) AS central_address')
+            ->from(self::TABLE_NAME, 'p')
+            ->orderBy('p.id'); // required for deterministic pagination
+
+        if ($criteria instanceof PollerCriteria) {
+            $this->filterByPollerCriteria($qb, $criteria);
+        }
+
+        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+            /** @var array<RowTypeAlias> $rows */
+            $rows = $qb->executeQuery()->fetchAllAssociative();
+
+            return $this->createPollers($rows);
+        }
+
+        $this->paginatePollers($qb, $criteria);
+
+        $count = $this->countPollersOnQueryBuilder($qb); // counts a clone, so this order has no effect on either result
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        return new InMemoryPaginator(
+            items: $this->createPollers($rows),
+            totalItems: $count,
+            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
+            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+        );
+    }
+
     public function get(PollerId $pollerId): Poller
     {
         $qb = $this->connection->createQueryBuilder();
@@ -362,6 +406,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             realTimeConnection: $this->realTimeConnection,
             pollerTransformer: $this->pollerTransformer,
             globalMacroTransformer: $this->globalMacroTransformer,
+            resourceAccessRepository: $this->resourceAccessRepository,
             withCmaCertificates: true,
         );
     }
@@ -401,6 +446,65 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         ];
     }
 
+    private function filterByPollerCriteria(QueryBuilder $qb, PollerCriteria $criteria): void
+    {
+        if (($name = $criteria->getName()) !== null) {
+            $qb->andWhere($qb->expr()->like('p.name', $qb->createNamedParameter('%' . $name . '%')));
+        }
+
+        if ($criteria->excludeUnknownCentral()) {
+            // a central not registered as a remote server's address is excluded, matching legacy's
+            // "isLocalhost() && address not in remoteServersIps" rule, expressed here in SQL to keep
+            // pagination correct. EXISTS rather than a JOIN: remote_servers.ip carries no UNIQUE
+            // constraint, and a JOIN fan-out here would corrupt LIMIT/OFFSET-based pagination.
+            $qb->andWhere($qb->expr()->or(
+                $qb->expr()->neq('p.localhost', $qb->createNamedParameter('1')),
+                'EXISTS (SELECT 1 FROM remote_servers rs WHERE rs.ip = p.ns_ip_address)',
+            ));
+        }
+
+        if (($viewerId = $criteria->getViewerId()) instanceof \App\Security\Domain\Aggregate\UserId) {
+            $accessiblePollerIds = $this->resourceAccessRepository->findAccessiblePollerIds($viewerId);
+            if ($accessiblePollerIds instanceof Collection) {
+                $ids = [];
+                foreach ($accessiblePollerIds as $pollerId) {
+                    $ids[] = $pollerId->value;
+                }
+
+                $qb->andWhere($qb->expr()->in(
+                    'p.id',
+                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
+                ));
+            }
+        }
+    }
+
+    private function paginatePollers(QueryBuilder $qb, PollerCriteria $criteria): void
+    {
+        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+            return;
+        }
+
+        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
+            ->setMaxResults($criteria->getItemsPerPage());
+    }
+
+    private function countPollersOnQueryBuilder(QueryBuilder $qb): int
+    {
+        $qb = clone $qb; // avoid modifying the initial query builder
+
+        $count = $qb
+            ->select('COUNT(DISTINCT p.id)')
+            ->setFirstResult(0) // reset any pagination
+            ->setMaxResults(null)
+            ->executeQuery()
+            ->fetchOne();
+
+        Assert::integer($count);
+
+        return $count;
+    }
+
     private function loadCmaCertificates(Poller $poller): void
     {
         $qb = $this->realTimeConnection->createQueryBuilder();
@@ -428,8 +532,8 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
      */
     private function createPollers(array $rows, ?array $globalMacroRowsByPollerId = null): Collection
     {
-        // fetch all global macros of given pollers
-        if ($globalMacroRowsByPollerId !== null && $rows !== []) {
+        // fetch all global macros of given pollers in a single batch, unless the caller already provided them
+        if ($globalMacroRowsByPollerId === null && $rows !== []) {
             $globalMacroQb = $this->connection->createQueryBuilder();
             $globalMacroQb->select('p.id AS poller_id', ...DbalGlobalMacroRepository::getSelectColumns())
                 ->from(self::TABLE_NAME, 'p')
@@ -447,7 +551,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
              */
             $globalMacroRowsByPollerId = [];
             foreach ($globalMacroRows as $globalMacrosRow) {
-                $globalMacroRowsByPollerId['poller_id'][] = $globalMacrosRow;
+                $globalMacroRowsByPollerId[$globalMacrosRow['poller_id']][] = $globalMacrosRow;
             }
         }
 
@@ -456,7 +560,7 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             $pollerId = $row['poller_id'];
             $pollers[$pollerId] ??= $this->createPoller(
                 $row,
-                $globalMacroRowsByPollerId[$pollerId] ?? null,
+                $globalMacroRowsByPollerId[$pollerId] ?? [],
             );
         }
 
@@ -516,15 +620,5 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
                 ],
             );
         }
-    }
-
-    private function communicationTypeToDatabase(GorgoneCommunicationTypeEnum $communicationType): string
-    {
-        return match ($communicationType) {
-            GorgoneCommunicationTypeEnum::ZMQ => '1',
-            GorgoneCommunicationTypeEnum::SSH => '2',
-            GorgoneCommunicationTypeEnum::Pull => '3',
-            GorgoneCommunicationTypeEnum::PullWss => '4',
-        };
     }
 }

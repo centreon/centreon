@@ -29,7 +29,7 @@ use App\ActivityLogging\Domain\Aggregate\ActorId;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Factory\PollerActivityLogFactory;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerConfiguration;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
@@ -63,7 +63,7 @@ final class PollerActivityLogFactoryTest extends TestCase
             globalMacros: new Collection([], GlobalMacro::class),
             gorgoneConfiguration: new GorgoneConfiguration(),
             engineInformation: new EngineInformation(),
-            brokerConfiguration: new BrokerConfiguration(),
+            brokerInformation: new BrokerInformation(),
             connectorConfiguration: new ConnectorConfiguration(),
             trapConfiguration: new TrapConfiguration(),
             pollerCommands: new Collection([], PollerCommand::class),

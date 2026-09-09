@@ -23,12 +23,26 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Repository;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 
 interface ResourceAccessRepository
 {
     public function hasAccessToAllPollers(UserId $userId): bool;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
+
+    /**
+     * @return Collection<PollerId>|null null means no restriction applies (the user can access
+     *                                   all pollers); an empty Collection means the user can access none
+     */
+    public function findAccessiblePollerIds(UserId $userId): ?Collection;
+
+    /**
+     * @return Collection<HostGroupId>|null null means no restriction applies (the user can access
+     *                                      all host groups); an empty Collection means the user can access none
+     */
+    public function findAccessibleHostGroupIds(UserId $userId): ?Collection;
 }

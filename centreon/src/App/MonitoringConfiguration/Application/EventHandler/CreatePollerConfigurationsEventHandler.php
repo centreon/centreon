@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
+use App\MonitoringConfiguration\Application\Command\CreateBrokerConfigurationCommand;
 use App\MonitoringConfiguration\Application\Command\CreateEngineConfigurationCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Event\PollerCreated;
@@ -50,6 +52,24 @@ final readonly class CreatePollerConfigurationsEventHandler
             new CreateEngineConfigurationCommand(
                 pollerId: $pollerId,
                 pollerName: $poller->name->value,
+            ),
+        );
+
+        // The broker output must dial the Central; its address is the value the operator supplied
+        // at poller creation (persisted in platform_topology.central_address), so it is always set
+        // here. The aggregate only allows it to be null when hydrating pre-existing pollers, and an
+        // empty address would persist a broker output unable to reach the Central. It is forwarded
+        // as the value object so the broker output can take its bare host (on-prem) or derive the
+        // gateway host from host + platform path (cloud).
+        if (! $poller->centralAddress instanceof CentralAddress) {
+            throw new \LogicException('A newly created poller must carry a central address.');
+        }
+
+        $this->commandBus->execute(
+            new CreateBrokerConfigurationCommand(
+                pollerId: $pollerId,
+                pollerName: $poller->name->value,
+                centralAddress: $poller->centralAddress,
             ),
         );
     }

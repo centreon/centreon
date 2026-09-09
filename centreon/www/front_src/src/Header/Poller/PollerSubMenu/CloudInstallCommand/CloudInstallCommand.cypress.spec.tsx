@@ -13,9 +13,9 @@ import {
   labelCentralAddress,
   labelClickToGenerate,
   labelConfigurationExportedAndReloaded,
+  labelContainer,
   labelCopyTheFollowingCommand,
   labelCreateNewPoller,
-  labelDockerCompose,
   labelEnterPollerNameAndAddress,
   labelExportConfiguration,
   labelFailedToCreatePoller,
@@ -253,7 +253,7 @@ describe('CloudInstallCommand', () => {
         initialize({ isModalOpen: true });
 
         cy.findByLabelText(labelVMOrPhysical).should('be.visible');
-        cy.findByLabelText(labelDockerCompose).should('be.visible');
+        cy.findByLabelText(labelContainer).should('be.visible');
       });
 
       it('has VM selected by default', () => {
@@ -267,9 +267,9 @@ describe('CloudInstallCommand', () => {
       it('allows switching to Docker environment', () => {
         initialize({ isModalOpen: true });
 
-        cy.findByLabelText(labelDockerCompose).click();
+        cy.findByLabelText(labelContainer).click();
 
-        cy.findByLabelText(labelDockerCompose)
+        cy.findByLabelText(labelContainer)
           .closest('[data-selected]')
           .should('have.attr', 'data-selected', 'true');
 
@@ -453,7 +453,7 @@ describe('CloudInstallCommand', () => {
         cy.findByLabelText(labelVMOrPhysical)
           .closest('button')
           .should('be.disabled');
-        cy.findByLabelText(labelDockerCompose)
+        cy.findByLabelText(labelContainer)
           .closest('button')
           .should('be.disabled');
       });
@@ -624,7 +624,7 @@ describe('CloudInstallCommand', () => {
         cy.findByLabelText(`${labelPollerAddress} *`).type('10.0.0.1');
         cy.findByLabelText(`${labelCentralAddress} *`).type('192.168.1.1');
 
-        cy.findByLabelText(labelDockerCompose).click();
+        cy.findByLabelText(labelContainer).click();
 
         cy.findByLabelText(labelSelectTokenPlaceholder).click();
         cy.waitForRequest('@getTokens');

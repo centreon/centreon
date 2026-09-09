@@ -236,8 +236,9 @@ Then(
 );
 
 Then('the contact is not created', () => {
-  // Return to the contacts listing page
-  cy.getIframeBody().contains('a', 'Contacts / Users').click();
+  // Return to the contacts listing page via the top-banner breadcrumb
+  // (the legacy in-iframe breadcrumb has been removed).
+  cy.get('[data-cy="breadcrumb"]').contains('a', 'Contacts / Users').click();
   cy.wait('@getTimeZone');
   // Check that the contact is not present in the listing
   cy.getIframeBody().contains('a', contacts.default.name).should('not.exist');
@@ -267,8 +268,9 @@ Then('the {string} sees an error displayed in the form', () => {
 });
 
 Then('the contact is not updated', () => {
-  // Return to the contacts listing page
-  cy.getIframeBody().contains('a', 'Contacts / Users').click();
+  // Return to the contacts listing page via the top-banner breadcrumb
+  // (the legacy in-iframe breadcrumb has been removed).
+  cy.get('[data-cy="breadcrumb"]').contains('a', 'Contacts / Users').click();
   cy.wait('@getTimeZone');
   // Check that the contact alias is not updated
   cy.waitForElementInIframe(

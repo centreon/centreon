@@ -27,30 +27,28 @@ interface StyleProps {
 
 const useStatusStyles = makeStyles<StyleProps>()(
   (theme, { databaseSeverity, latencySeverity }) => {
-    const getSeverityColor = (severityCode: SeverityCode): CSSObject => ({
-      background: getStatusColors({
+    const getSeverityColor = (severityCode: SeverityCode): CSSObject => {
+      const { backgroundColor, color } = getStatusColors({
         severityCode,
         theme
-      }).backgroundColor,
-      color: getStatusColors({
-        severityCode,
-        theme
-      }).color
-    });
+      });
+
+      return {
+        background: backgroundColor,
+        color
+      };
+    };
 
     return {
       avatar: {
         fontSize: theme.typography.body1.fontSize,
-        height: theme.spacing(2.125),
-        width: theme.spacing(2.125)
+        height: theme.spacing(2),
+        width: theme.spacing(2)
       },
       container: {
+        alignItems: 'center',
         display: 'flex',
         gap: theme.spacing(0.5),
-        [theme.breakpoints.up(768)]: {
-          minHeight: theme.spacing(0.3)
-        },
-
         [theme.breakpoints.down(768)]: {
           bottom: 0,
           flexFlow: 'column wrap',
@@ -60,8 +58,8 @@ const useStatusStyles = makeStyles<StyleProps>()(
       },
       database: getSeverityColor(databaseSeverity),
       icon: {
-        height: theme.spacing(1.75),
-        width: theme.spacing(1.75)
+        height: theme.spacing(1.5),
+        width: theme.spacing(1.5)
       },
       latency: getSeverityColor(latencySeverity),
       visuallyHiddenText: {

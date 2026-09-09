@@ -16,7 +16,8 @@ overrides:
   validator: 13.15.26
   lodash: 4.18.1
   lodash-es: 4.18.1
-  protobufjs@<8: 7.6.4
+  protobufjs@<8: 7.6.5
+  protobufjs@>=8 <8.6.6: 8.6.6
   find-cypress-specs@<=1.54.9: 1.54.9
   undici@<=6.27.0: 6.27.0
   glob@10: 10.5.0

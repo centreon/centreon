@@ -28,8 +28,10 @@ function runVmInstall() {
     echo ""
     consoleTitle "Existing installation detected (major: ${installed_major:-unknown}):"
 
-    if [ -n "${installed_major}" ] && [ "${installed_major}" != "${major}" ]; then
-      consoleInfo "Major version change: ${installed_major} → ${major}"
+    local repo_major
+    repo_major=$(_vmRepoMajor)
+    if [ -n "${installed_major}" ] && [ "${installed_major}" != "${repo_major}" ]; then
+      consoleInfo "Major version change: ${installed_major} → ${repo_major}"
     fi
     _vmUpdateRepo
 

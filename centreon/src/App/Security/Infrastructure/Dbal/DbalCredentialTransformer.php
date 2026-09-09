@@ -27,6 +27,7 @@ use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
@@ -53,6 +54,10 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW' => AgentConfigurationPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_POLLERS_POLLERS_R' => PollerPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_POLLERS_POLLERS_RW' => PollerPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_R' => HostGroupPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_RW' => HostGroupPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
@@ -77,7 +82,6 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      */
     public function transform(mixed $from): Credential
     {
-        $isAdmin = $from['c_admin'] === '1';
         $credential = new Credential(
             identifier: new CredentialIdentifier($from['c_alias']),
             userId: new UserId($from['c_id']),
@@ -89,11 +93,12 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             }
         }
 
-        if ($isAdmin) {
-            $credential->assignRole(new Role('ROLE_ADMIN'));
-            foreach (array_keys(self::LEGACY_ROLE_MAP) as $roleString) {
-                $credential->grantPermission(new Permission(self::LEGACY_ROLE_MAP[$roleString]));
-            }
+        if ($from['c_admin'] === '1') {
+            $credential->assignRole(new Role('ROLE_SUPER_ADMIN'));
+        }
+
+        if ($from['is_cloud_admin']) {
+            $credential->assignRole(new Role('ROLE_CLOUD_ADMIN'));
         }
 
         foreach ($from['action_rules'] as $actionRule) {

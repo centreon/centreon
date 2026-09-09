@@ -26,6 +26,7 @@ namespace App\Shared\Infrastructure\Symfony;
 use App\Shared\Application\Command\AsCommandHandler;
 use App\Shared\Application\Query\AsQueryHandler;
 use App\Shared\Domain\Event\AsEventHandler;
+use App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiAliasOperationProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -36,9 +37,11 @@ final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+    private ?string $configFingerprint = null;
+
     public function getCacheDir(): string
     {
-        return '/var/cache/centreon/symfony.new';
+        return '/var/cache/centreon/symfony.new/' . $this->getConfigFingerprint();
     }
 
     public function getLogDir(): string
@@ -85,6 +88,9 @@ final class Kernel extends BaseKernel
         $container->registerAttributeForAutoconfiguration(AsEventHandler::class, static function (ChildDefinition $definition): void {
             $definition->addTag('messenger.message_handler', ['bus' => 'event.bus']);
         });
+
+        $container->registerForAutoconfiguration(LegacyApiAliasOperationProviderInterface::class)
+            ->addTag(LegacyApiAliasOperationProviderInterface::TAG);
     }
 
     /**
@@ -103,5 +109,10 @@ final class Kernel extends BaseKernel
     private function getConfigDir(): string
     {
         return $this->getProjectDir() . '/config.new';
+    }
+
+    private function getConfigFingerprint(): string
+    {
+        return $this->configFingerprint ??= ConfigFingerprint::ofConfigDir($this->getConfigDir());
     }
 }

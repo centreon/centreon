@@ -1,63 +1,72 @@
-import { Badge, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 
 import { getStatusColors, type SeverityCode } from '@centreon/ui';
 
 import numeral from 'numeral';
+import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 export interface StyleProps {
   severityCode?: SeverityCode | null;
 }
 
-const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
-  badge: {
-    background: severityCode
-      ? getStatusColors({ severityCode, theme })?.backgroundColor
-      : 'transparent',
-    borderRadius: theme.spacing(1.25),
-    color: theme.palette.common.black,
-    cursor: 'pointer',
-    fontSize: theme.typography.body2.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    height: theme.spacing(2.125),
-    lineHeight: theme.spacing(2.125),
-    minWidth: theme.spacing(2.125),
-    position: 'relative',
-    right: 0,
-    top: 0,
-    transform: 'none'
-  }
-}));
+const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => {
+  const statusColors = severityCode
+    ? getStatusColors({ severityCode, theme })
+    : null;
+
+  return {
+    container: {
+      alignItems: 'center',
+      color: theme.palette.mode === 'dark' ? '#EAEEF7' : '#1B2233',
+      cursor: 'pointer',
+      display: 'inline-flex',
+      gap: '3px'
+    },
+    count: {
+      fontFamily: 'ui-monospace, "Roboto Mono", Menlo, monospace',
+      fontSize: '12px',
+      fontWeight: theme.typography.fontWeightMedium,
+      lineHeight: 1
+    },
+    dot: {
+      backgroundColor: statusColors?.backgroundColor ?? theme.palette.divider,
+      borderRadius: '50%',
+      flexShrink: 0,
+      height: '9px',
+      width: '9px'
+    }
+  };
+});
 
 export interface Props {
   className?: string;
   count: string | number;
+  detail?: string | number;
   severityCode?: SeverityCode | null;
 }
 
 const StatusCounter = ({
   severityCode = null,
   count,
+  detail,
   className
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ severityCode });
-  const shouldDisableTooltip = Number(count) < 1000;
+  const hasDetail = !isNil(detail);
+  const shouldDisableTooltip = !hasDetail && Number(count) < 1000;
   const formattedCount = numeral(count).format('0.[0]a');
 
   return (
     <Tooltip
       disableHoverListener={shouldDisableTooltip}
       followCursor
-      title={count}
+      title={hasDetail ? detail : count}
     >
-      <Badge
-        badgeContent={formattedCount}
-        classes={{
-          badge: cx(classes.badge, className)
-        }}
-        max={Number.POSITIVE_INFINITY}
-        overlap="circular"
-      />
+      <span className={cx(classes.container, className)}>
+        <span className={classes.dot} />
+        <span className={classes.count}>{formattedCount}</span>
+      </span>
     </Tooltip>
   );
 };

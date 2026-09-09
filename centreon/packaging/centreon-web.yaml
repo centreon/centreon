@@ -325,6 +325,15 @@ contents:
     dst: "/usr/share/centreon/examples/centreon-apache-https.conf"
     file_info:
       mode: 0644
+  - src: "./src/centreon-apache-gorgone.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-gorgone.conf"
+    file_info:
+      mode: 0644
+
+  - src: "./src/centreon-apache-https-gorgone.conf"
+    dst: "/usr/share/centreon/examples/centreon-apache-https-gorgone.conf"
+    file_info:
+      mode: 0644
 
   - src: "../GPL_LIB"
     dst: "/usr/share/centreon/GPL_LIB"

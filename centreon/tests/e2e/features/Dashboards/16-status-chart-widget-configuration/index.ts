@@ -11,9 +11,9 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
-const greenCssBackground = 'background: rgb(136, 185, 34)';
-const orangeCssBackground = 'background: rgb(253, 155, 39)';
-const redCssBackground = 'background: rgb(255, 102, 102)';
+const greenCssBackground = 'background: rgb(159, 199, 78)';
+const orangeCssBackground = 'background: rgb(252, 196, 129)';
+const redCssBackground = 'background: rgb(255, 110, 110)';
 const blueCssBackground = 'background: rgb(30, 190, 179)';
 
 const hostGroupName = 'Linux-Servers';
@@ -331,7 +331,8 @@ Then('the unit of the resources already displayed should be updated', () => {
       blueCssBackground
     ],
     ['50.0%', '8.3%', '16.7%', '33.3%'],
-    ['33.3%', '25.0%', '8.3%', '33.3%']
+    ['33.3%', '25.0%', '8.3%', '33.3%'],
+    ['41.7%']
   );
 });
 
@@ -367,7 +368,8 @@ Then('only the contents of the other widget are displayed', () => {
       blueCssBackground
     ],
     ['50.0%', '16.7%', '16.7%', '33.3%'],
-    ['33.3%', '8.3%', '8.3%', '33.3%']
+    ['33.3%', '8.3%', '8.3%', '33.3%'],
+    ['41.7%']
   );
 });
 

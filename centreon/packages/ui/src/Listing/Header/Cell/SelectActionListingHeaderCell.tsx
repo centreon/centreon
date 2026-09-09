@@ -35,7 +35,7 @@ const SelectActionListingHeaderCell = ({
     >
       <Checkbox
         checked={hasRows && selectedRowCount === rowCount}
-        className="text-white"
+        className="text-text-primary"
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
@@ -44,7 +44,7 @@ const SelectActionListingHeaderCell = ({
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
-          className="text-white"
+          className="text-text-primary"
           icon={<ArrowDropDownIcon />}
           title={labelPredefinedRowsSelectionMenu}
         >
@@ -57,7 +57,7 @@ const SelectActionListingHeaderCell = ({
           )}
         </PopoverMenu>
       ) : (
-        <div className="text-white" />
+        <div className="text-text-primary" />
       )}
     </TableCell>
   );
