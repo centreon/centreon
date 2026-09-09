@@ -123,7 +123,7 @@ const getDatabaseService = (engine: DatabaseEngine): string => {
   return isAlma() ? 'mysqld' : 'mysql';
 };
 
-const mysqlRootGrant = `mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'centreon'; GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION"`;
+const mysqlRootGrant = `mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'centreon'; GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION"`;
 const mariadbRootGrant = `mysql -e "GRANT ALL ON *.* to 'root'@'localhost' IDENTIFIED BY 'centreon' WITH GRANT OPTION"`;
 
 const rootGrantCommand = (engine: DatabaseEngine): string =>
