@@ -142,6 +142,25 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertContains($uncategorizedName, $names);
     }
 
+    public function testFindAllReturnsNothingForAViewerGrantedOnlyRegularCategories(): void
+    {
+        // A viewer whose ACL restricts to host categories but grants only regular (levelless) ones has
+        // an empty accessible-severity set. Legacy fails closed here (the category restriction is in
+        // force yet no severity matches), so the viewer must see no host template — not everything.
+        $regularId = $this->insertHostCategory("reg-{$this->tag}");
+        $severityId = $this->insertHostCategory("sev-{$this->tag}", level: 1);
+
+        $categorized = $this->insertHostTemplate("acl-sev-{$this->tag}");
+        $this->linkTemplateToCategory($categorized, $severityId);
+        $this->insertHostTemplate("acl-none-{$this->tag}");
+
+        $viewerId = new UserId($this->createContactRestrictedToHostCategories([$regularId]));
+
+        $result = $this->repository->findAll((new HostTemplateCriteria())->withViewerId($viewerId));
+
+        self::assertSame([], $this->names($result), 'A viewer granted only regular categories sees no host template.');
+    }
+
     /**
      * @param \IteratorAggregate<int, HostTemplate>&\Countable $result
      *

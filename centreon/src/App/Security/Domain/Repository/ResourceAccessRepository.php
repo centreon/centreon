@@ -36,12 +36,23 @@ interface ResourceAccessRepository
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
     /**
-     * Returns the host severities (host categories carrying a level) the user is restricted to,
-     * or null when no restriction applies (the user can see host templates of any severity).
+     * Returns the host severities (host categories carrying a level) the user is restricted to.
+     *
+     * Three states, mirroring the legacy host-template ACL (DbReadHostTemplateRepository::
+     * findByRequestParametersAndAccessGroups):
+     *  - null                   → no restriction applies; the user sees host templates of any severity
+     *  - an empty Collection    → the user is restricted but grants no accessible severity: sees nothing
+     *  - a non-empty Collection → the user is restricted to exactly these severities
      *
      * @return Collection<HostSeverityId>|null
      */
     public function findAccessibleHostSeverityIds(UserId $userId): ?Collection;
+
+    /**
+     * @return Collection<PollerId>|null null means no restriction applies (the user can access
+     *                                   all pollers); an empty Collection means the user can access none
+     */
+    public function findAccessiblePollerIds(UserId $userId): ?Collection;
 
     /**
      * @return Collection<HostGroupId>|null null means no restriction applies (the user can access

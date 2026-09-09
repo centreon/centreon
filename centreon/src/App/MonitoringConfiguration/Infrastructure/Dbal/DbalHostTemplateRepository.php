@@ -130,6 +130,16 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             $accessibleHostSeverities->toArray()
         );
 
+        // An empty set means the viewer is restricted but grants no accessible severity: they must see
+        // nothing (fail-closed), matching legacy, which returns [] for a user with no access group and
+        // filters out every severity-less template once a category restriction applies. Forcing an
+        // always-false predicate avoids emitting an `IN ()` the driver would reject.
+        if ($accessibleHostSeverityIds === []) {
+            $qb->andWhere('1 = 0');
+
+            return;
+        }
+
         // Restricted viewer: keep only templates linked to an accessible host severity. This mirrors
         // legacy findByRequestParametersAndAccessGroups, whose "AND hc.hc_id IN (...)" is applied on a
         // join filtered by "hc.level IS NOT NULL", so a template linked only to a regular (levelless)

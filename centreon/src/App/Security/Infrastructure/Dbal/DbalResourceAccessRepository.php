@@ -54,29 +54,32 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         $qb
             ->select('1')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
-            ->leftJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
-            ->where('arpr.acl_res_id IS NULL')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
             ->setParameter('contactId', $userId->value)
             ->setMaxResults(1);
 
-        return (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
+        // Legacy (centreonACL::setPollers()) unions the poller relations across every accessible
+        // resource and only falls back to "all pollers" when that union is entirely empty — not
+        // as soon as a single resource happens to carry no relation. A user holding one resource
+        // restricted to a poller and another resource with no poller relation at all must still
+        // see only the restricted poller, not everything.
+        return ! (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
     }
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool
     {
+        if ($this->hasAccessToAllPollers($userId)) {
+            return true;
+        }
+
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('1')
             ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
-            ->leftJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
-            ->where(
-                $qb->expr()->or(
-                    'arpr.acl_res_id IS NULL',
-                    'arpr.poller_id = :pollerId'
-                )
-            )
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            ->where('arpr.poller_id = :pollerId')
             ->setParameter('contactId', $userId->value)
             ->setParameter('pollerId', $pollerId->value)
             ->setMaxResults(1);
@@ -91,9 +94,40 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     {
         $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
 
-        // A host "severity" is a host category carrying a level; a levelless category is a regular
-        // category and never scopes host templates. The discriminator lives here so callers receive
-        // an already severity-scoped set.
+        // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
+        // is fully restricted (fails closed), not unrestricted. Returning an empty Collection keeps the
+        // "sees nothing" contract distinct from the "sees everything" null below.
+        $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
+        $hasAccessibleResourceQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return new Collection([], HostSeverityId::class);
+        }
+
+        // Tier 2 — legacy `hasRestrictedAccessToHostCategories() === false`: accessible resources exist
+        // but none carry a host-category ACL relation (of any level), so no category restriction is in
+        // force and the user sees host templates of any severity.
+        $hasHostCategoryRelationQb = $this->connection->createQueryBuilder();
+        $hasHostCategoryRelationQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasHostCategoryRelationQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return null;
+        }
+
+        // Tiers 3 & 4 — legacy `AND hc.hc_id IN (<granted categories>)` on a `hc.level IS NOT NULL`
+        // join: the user is restricted to the host severities (level-bearing categories) their
+        // accessible resources grant. A user granted only regular (levelless) categories yields an
+        // empty set and therefore sees nothing, matching legacy — which never surfaces a severity-less
+        // template once a category restriction is in force.
         $qb = $this->connection->createQueryBuilder();
         $qb
             ->select('DISTINCT arhcr.hc_id')
@@ -106,15 +140,33 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
         /** @var list<array{hc_id: numeric-string}> $rows */
         $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
 
-        // No accessible host-severity relation means no restriction applies — the user can see host
-        // templates of any severity, matching the legacy empty-subrequest branch.
-        if ($rows === []) {
+        return new Collection(
+            array_map(static fn (array $row): HostSeverityId => new HostSeverityId((int) $row['hc_id']), $rows),
+            HostSeverityId::class,
+        );
+    }
+
+    public function findAccessiblePollerIds(UserId $userId): ?Collection
+    {
+        if ($this->hasAccessToAllPollers($userId)) {
             return null;
         }
 
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arpr.poller_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_poller_relations', 'arpr', 'arpr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{poller_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
         return new Collection(
-            array_map(static fn (array $row): HostSeverityId => new HostSeverityId((int) $row['hc_id']), $rows),
-            HostSeverityId::class
+            array_map(static fn (array $row): PollerId => new PollerId((int) $row['poller_id']), $rows),
+            PollerId::class,
         );
     }
 

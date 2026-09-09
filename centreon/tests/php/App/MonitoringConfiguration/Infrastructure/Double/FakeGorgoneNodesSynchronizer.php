@@ -21,22 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Double;
 
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCollectionOutput;
-use App\Shared\Infrastructure\TransformerInterface;
+use App\MonitoringConfiguration\Domain\Service\GorgoneNodesSynchronizer;
 
 /**
- * @implements TransformerInterface<HostTemplate, HostTemplateCollectionOutput>
+ * Counting {@see GorgoneNodesSynchronizer} test double.
  */
-final readonly class HostTemplateCollectionTransformer implements TransformerInterface
+final class FakeGorgoneNodesSynchronizer implements GorgoneNodesSynchronizer
 {
-    public function transform(mixed $from): HostTemplateCollectionOutput
+    public int $synchronizeCalls = 0;
+
+    public ?\Throwable $throwable = null;
+
+    public function synchronize(): void
     {
-        return new HostTemplateCollectionOutput(
-            id: $from->id()->value,
-            name: $from->name->value,
-        );
+        $this->synchronizeCalls++;
+
+        if ($this->throwable instanceof \Throwable) {
+            throw $this->throwable;
+        }
     }
 }

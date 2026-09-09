@@ -25,6 +25,7 @@ namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use Doctrine\DBAL\Connection;
@@ -47,15 +48,22 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
 
         $this->repository = new DbalResourceAccessRepository($this->connection);
 
+        $this->connection->insert('nagios_server', ['id' => 101, 'name' => 'Poller-101', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.101', 'uid' => 200000000000101]);
+        $this->connection->insert('nagios_server', ['id' => 102, 'name' => 'Poller-102', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.102', 'uid' => 200000000000102]);
         $this->connection->insert('hostgroup', ['hg_id' => 201, 'hg_name' => 'HostGroup-201']);
         $this->connection->insert('hostgroup', ['hg_id' => 202, 'hg_name' => 'HostGroup-202']);
     }
 
-    public function testUserWithNoAclGroupHasNoHostSeverityRestriction(): void
+    public function testUserWithNoAclGroupSeesNoHostSeverity(): void
     {
+        // Legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource is
+        // fully restricted (fails closed), returning an empty Collection rather than the null "see all".
         $userId = new UserId($this->createContact('user-no-acl-hs'));
 
-        self::assertNull($this->repository->findAccessibleHostSeverityIds($userId));
+        $accessibleSeverities = $this->repository->findAccessibleHostSeverityIds($userId);
+
+        self::assertNotNull($accessibleSeverities);
+        self::assertSame([], $accessibleSeverities->toArray());
     }
 
     public function testUserWithAclResourceHavingNoHostSeverityRestrictionReturnsNull(): void
@@ -64,6 +72,23 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
 
         self::assertNull($this->repository->findAccessibleHostSeverityIds(new UserId($contactId)));
+    }
+
+    public function testUserWithAclResourceGrantingOnlyRegularCategoriesSeesNoHostSeverity(): void
+    {
+        // Legacy pivot: hasRestrictedAccessToHostCategories() is true as soon as the ACL carries any
+        // host-category relation (regardless of level), and the level-scoped join then surfaces no
+        // severity for a resource granting only regular (levelless) categories — so the user sees
+        // nothing. The empty Collection (not null) preserves that fail-closed behaviour.
+        $regularCategory = $this->insertHostCategory('HC-regular-only');
+
+        $contactId = $this->createContact('user-regular-only-hs');
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$regularCategory]);
+
+        $accessibleSeverities = $this->repository->findAccessibleHostSeverityIds(new UserId($contactId));
+
+        self::assertNotNull($accessibleSeverities, 'A resource granting only regular categories must not grant access to every severity.');
+        self::assertSame([], $accessibleSeverities->toArray());
     }
 
     public function testUserWithAclResourceRestrictedToHostSeveritiesReturnsOnlySeverityIds(): void
@@ -110,6 +135,67 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         );
     }
 
+    public function testUserWithNoAclGroupHasAccessToAllPollers(): void
+    {
+        $userId = new UserId($this->createContact('user-no-acl'));
+
+        self::assertTrue($this->repository->hasAccessToAllPollers($userId));
+        self::assertTrue($this->repository->hasAccessToPoller(new PollerId(101), $userId));
+        self::assertNull($this->repository->findAccessiblePollerIds($userId));
+    }
+
+    public function testUserWithAclResourceHavingNoPollerRestrictionHasAccessToAllPollers(): void
+    {
+        $contactId = $this->createContact('user-unrestricted');
+        $this->linkContactToAclResourceForPollers($contactId, restrictToPollerIds: []);
+
+        $userId = new UserId($contactId);
+
+        self::assertTrue($this->repository->hasAccessToAllPollers($userId));
+        self::assertTrue($this->repository->hasAccessToPoller(new PollerId(102), $userId));
+        self::assertNull($this->repository->findAccessiblePollerIds($userId));
+    }
+
+    public function testUserWithAclResourceRestrictedToASinglePollerSeesOnlyThatPoller(): void
+    {
+        $contactId = $this->createContact('user-restricted');
+        $this->linkContactToAclResourceForPollers($contactId, restrictToPollerIds: [101]);
+
+        $userId = new UserId($contactId);
+
+        self::assertFalse($this->repository->hasAccessToAllPollers($userId));
+        self::assertTrue($this->repository->hasAccessToPoller(new PollerId(101), $userId));
+        self::assertFalse($this->repository->hasAccessToPoller(new PollerId(102), $userId));
+
+        $accessiblePollerIds = $this->repository->findAccessiblePollerIds($userId);
+        self::assertNotNull($accessiblePollerIds);
+        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, iterator_to_array($accessiblePollerIds)));
+    }
+
+    /**
+     * Mirrors centreonACL::setPollers(): the accessible poller set is the union of poller
+     * relations across every accessible ACL resource. A resource that carries no poller
+     * relation contributes nothing to that union and must not, on its own, grant access to
+     * every poller — only an empty union (no accessible resource restricts pollers at all)
+     * does.
+     */
+    public function testUserWithOneRestrictedAndOneUnrestrictedResourceSeesOnlyTheRestrictedPoller(): void
+    {
+        $contactId = $this->createContact('user-mixed-resources');
+        $this->linkContactToAclResourceForPollers($contactId, restrictToPollerIds: [101]);
+        $this->linkContactToAclResourceForPollers($contactId, restrictToPollerIds: []);
+
+        $userId = new UserId($contactId);
+
+        self::assertFalse($this->repository->hasAccessToAllPollers($userId));
+        self::assertTrue($this->repository->hasAccessToPoller(new PollerId(101), $userId));
+        self::assertFalse($this->repository->hasAccessToPoller(new PollerId(102), $userId));
+
+        $accessiblePollerIds = $this->repository->findAccessiblePollerIds($userId);
+        self::assertNotNull($accessiblePollerIds);
+        self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, iterator_to_array($accessiblePollerIds)));
+    }
+
     public function testUserWithNoAclGroupHasAccessToNoHostGroups(): void
     {
         $userId = new UserId($this->createContact('user-no-acl'));
@@ -125,7 +211,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         // A resource that never had its host-group tab configured (no relation rows, flag unset)
         // grants zero host groups — it must not be mistaken for the "all host groups" flag.
         $contactId = $this->createContact('user-empty-resource');
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [], allHostGroups: false);
+        $this->linkContactToAclResourceForHostGroups($contactId, restrictToHostGroupIds: [], allHostGroups: false);
 
         $userId = new UserId($contactId);
 
@@ -138,7 +224,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithAclResourceFlaggedAllHostGroupsHasAccessToAllHostGroups(): void
     {
         $contactId = $this->createContact('user-all-flag');
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [], allHostGroups: true);
+        $this->linkContactToAclResourceForHostGroups($contactId, restrictToHostGroupIds: [], allHostGroups: true);
 
         $userId = new UserId($contactId);
 
@@ -148,7 +234,7 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithAclResourceRestrictedToASingleHostGroupSeesOnlyThatHostGroup(): void
     {
         $contactId = $this->createContact('user-restricted');
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [201], allHostGroups: false);
+        $this->linkContactToAclResourceForHostGroups($contactId, restrictToHostGroupIds: [201], allHostGroups: false);
 
         $userId = new UserId($contactId);
 
@@ -165,8 +251,8 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     public function testUserWithOneRestrictedAndOneAllFlagResourceHasAccessToAllHostGroups(): void
     {
         $contactId = $this->createContact('user-mixed-resources');
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [201], allHostGroups: false);
-        $this->linkContactToAclResource($contactId, restrictToHostGroupIds: [], allHostGroups: true);
+        $this->linkContactToAclResourceForHostGroups($contactId, restrictToHostGroupIds: [201], allHostGroups: false);
+        $this->linkContactToAclResourceForHostGroups($contactId, restrictToHostGroupIds: [], allHostGroups: true);
 
         $userId = new UserId($contactId);
 
@@ -244,10 +330,47 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
     }
 
     /**
+     * @param list<int> $restrictToPollerIds empty means the ACL resource carries no poller restriction at all
+     */
+    private function linkContactToAclResourceForPollers(int $contactId, array $restrictToPollerIds): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'group-' . $contactId,
+            'acl_group_alias' => 'group-' . $contactId,
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'resource-' . $contactId,
+            'acl_res_alias' => 'resource-' . $contactId,
+            'acl_res_activate' => '1',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToPollerIds as $pollerId) {
+            $this->connection->insert('acl_resources_poller_relations', [
+                'acl_res_id' => $aclResId,
+                'poller_id' => $pollerId,
+            ]);
+        }
+    }
+
+    /**
      * @param list<int> $restrictToHostGroupIds host groups explicitly granted through this
      *                                          resource's relations; irrelevant once $allHostGroups is true
      */
-    private function linkContactToAclResource(int $contactId, array $restrictToHostGroupIds, bool $allHostGroups): void
+    private function linkContactToAclResourceForHostGroups(int $contactId, array $restrictToHostGroupIds, bool $allHostGroups): void
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => 'group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),

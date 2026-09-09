@@ -21,16 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateCollectionOutput;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerCollectionOutput;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -40,24 +40,26 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 /**
- * @implements ProviderInterface<HostTemplateCollectionOutput>
+ * @implements ProviderInterface<PollerCollectionOutput>
  */
-final readonly class ListHostTemplatesProvider implements ProviderInterface
+final readonly class ListPollersProvider implements ProviderInterface
 {
     /**
-     * @param TransformerInterface<HostTemplate, HostTemplateCollectionOutput> $transformer
+     * @param TransformerInterface<Poller, PollerCollectionOutput> $transformer
      */
     public function __construct(
-        #[Autowire(service: HostTemplateCollectionOutputTransformer::class)]
+        #[Autowire(service: PollerCollectionOutputTransformer::class)]
         private TransformerInterface $transformer,
-        private HostTemplateRepository $repository,
+        private PollerRepository $repository,
         private Pagination $pagination,
         private Security $security,
+        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
+        private bool $isCloudPlatform = false,
     ) {
     }
 
     /**
-     * @return iterable<HostTemplateCollectionOutput>
+     * @return iterable<PollerCollectionOutput>
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): iterable
     {
@@ -65,7 +67,7 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
         $isAdmin = $credentialUser->credential->isAdmin();
 
-        $criteria = new HostTemplateCriteria();
+        $criteria = new PollerCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $itemsPerPage = $this->pagination->getLimit($operation, $context);
             if ($itemsPerPage <= 0) {
@@ -77,29 +79,28 @@ final readonly class ListHostTemplatesProvider implements ProviderInterface
         /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
-
-        // Admins see every host template; other users are scoped to their accessible host severities.
+        $criteria = $criteria->withExcludeUnknownCentral($this->isCloudPlatform && ! $isAdmin);
         $criteria = $isAdmin ? $criteria : $criteria->withViewerId($credentialUser->credential->userId);
 
-        $hostTemplates = $this->repository->findAll($criteria);
+        $pollers = $this->repository->findAll($criteria);
         $resources = [];
-        foreach ($hostTemplates as $hostTemplate) {
-            $resources[] = $this->transformer->transform($hostTemplate);
+        foreach ($pollers as $poller) {
+            $resources[] = $this->transformer->transform($poller);
         }
 
-        if (! $hostTemplates instanceof Paginator) {
+        if (! $pollers instanceof Paginator) {
             return $resources;
         }
 
         return new TraversablePaginator(
             new \ArrayIterator($resources),
-            $hostTemplates->getCurrentPage(),
-            $hostTemplates->getItemsPerPage(),
-            $hostTemplates->getTotalItems()
+            $pollers->getCurrentPage(),
+            $pollers->getItemsPerPage(),
+            $pollers->getTotalItems()
         );
     }
 
-    private function handleNameFilter(mixed $nameFilter, HostTemplateCriteria $criteria): HostTemplateCriteria
+    private function handleNameFilter(mixed $nameFilter, PollerCriteria $criteria): PollerCriteria
     {
         if ($nameFilter === null) {
             return $criteria;
