@@ -109,7 +109,11 @@ class Matrix42Provider extends AbstractProvider
         }
 
         $timeout = max(1, (int) ($info['timeout'] ?? 60));
-        $peerVerify = ($info['peer_verify'] ?? 'yes') === 'yes';
+        $peerVerify = filter_var(
+            $info['peer_verify'] ?? true,
+            FILTER_VALIDATE_BOOLEAN,
+            FILTER_NULL_ON_FAILURE
+        ) ?? true;
         $caCertPath = $info['ca_cert_path'] ?? '';
 
         $curl = curl_init();
