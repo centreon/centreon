@@ -55,10 +55,12 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\EngineSecretsRepository;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeGorgoneNodesSynchronizer;
 
 final class CreatePollerProcessorCommunicationTypeTest extends TestCase
 {
@@ -76,7 +78,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
     }
 
-    public function testOnPremPlatformUsesZmq(): void
+    public function testOnPremPlatformAlsoUsesPullWss(): void
     {
         $capturedCommand = null;
         $processor = $this->buildProcessor(isCloudPlatform: false, capturedCommand: $capturedCommand);
@@ -87,7 +89,7 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
         );
 
         self::assertInstanceOf(CreatePollerCommand::class, $capturedCommand);
-        self::assertSame(GorgoneCommunicationTypeEnum::ZMQ, $capturedCommand->gorgoneCommunicationType);
+        self::assertSame(GorgoneCommunicationTypeEnum::PullWss, $capturedCommand->gorgoneCommunicationType);
     }
 
     public function testCentralAddressIsPassedToCommand(): void
@@ -193,6 +195,8 @@ final class CreatePollerProcessorCommunicationTypeTest extends TestCase
             pollerRepository: $pollerRepository,
             pollerTokenRepository: $pollerTokenRepository,
             engineSecretsRepository: $engineSecretsRepository,
+            gorgoneNodesSynchronizer: new FakeGorgoneNodesSynchronizer(),
+            logger: new NullLogger(),
             centralUrlFactory: new CentralUrlFactory($requestStack ?? new RequestStack(), $isCloudPlatform),
             isCloudPlatform: $isCloudPlatform,
         );

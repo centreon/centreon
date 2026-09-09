@@ -40,8 +40,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
+use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Collection;
+use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -134,5 +137,183 @@ final class DbalPollerRepositoryTest extends KernelTestCase
             )
         );
         self::assertCount(1, $pollers);
+
+        /** @var Poller $poller */
+        $poller = $pollers->toArray()[0];
+        self::assertCount(
+            2,
+            $poller->globalMacros,
+            'Poller #1 is linked to both $USER1$ and $CENTREONPLUGINS$ global macros, batched hydration must attach them by their own poller id, not lose them.'
+        );
+        $globalMacroNames = array_map(
+            static fn (GlobalMacro $globalMacro): string => $globalMacro->name->value,
+            $poller->globalMacros->toArray()
+        );
+        self::assertEqualsCanonicalizing(['$USER1$', '$CENTREONPLUGINS$'], $globalMacroNames);
+    }
+
+    public function testFindAllReturnsAllPollersWhenNoCriteria(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+
+        $pollers = $this->repository->findAll();
+
+        self::assertCount(3, $pollers);
+    }
+
+    public function testFindAllFiltersByNameUsingLike(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withName('Poller-'));
+
+        self::assertCount(2, $pollers);
+        self::assertEqualsCanonicalizing(
+            ['Poller-A', 'Poller-B'],
+            array_map(static fn (Poller $poller): string => $poller->name->value, iterator_to_array($pollers))
+        );
+    }
+
+    public function testFindAllPaginatesAndReturnsATotalAcrossAllPages(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withPagination(1, 2));
+
+        self::assertInstanceOf(Paginator::class, $pollers);
+        self::assertCount(2, $pollers);
+        self::assertSame(3, $pollers->getTotalItems());
+    }
+
+    public function testFindAllExcludesCentralNotRegisteredAsARemoteServer(): void
+    {
+        $this->insertPoller(2, 'Poller-A', isCentral: false);
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true));
+
+        self::assertCount(1, $pollers);
+        self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
+    }
+
+    public function testFindAllKeepsCentralWhenItsAddressIsARegisteredRemoteServer(): void
+    {
+        $this->insertPoller(2, 'Poller-A', isCentral: false);
+        $this->connection->insert('remote_servers', [
+            'ip' => '127.0.0.1', // matches the Central poller's ns_ip_address from setUp
+            'version' => '24.10',
+            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'server_id' => 2,
+        ]);
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true));
+
+        self::assertCount(2, $pollers);
+    }
+
+    public function testFindAllIsNotAffectedByDuplicatePlatformTopologyRows(): void
+    {
+        // platform_topology.server_id carries no UNIQUE constraint; a poller with more than one
+        // row there must not be counted or returned more than once, nor corrupt pagination.
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+        $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
+        $this->connection->insert('platform_topology', ['address' => '10.0.0.2', 'name' => 'Poller-A-dup', 'type' => 'poller', 'server_id' => 2, 'pending' => '0']);
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withPagination(1, 10));
+
+        self::assertInstanceOf(Paginator::class, $pollers);
+        self::assertCount(3, $pollers); // setUp()'s Central + Poller-A + Poller-B, each counted once
+        self::assertSame(3, $pollers->getTotalItems());
+    }
+
+    public function testFindAllIsNotAffectedByDuplicateRemoteServerIps(): void
+    {
+        // remote_servers.ip carries no UNIQUE constraint either; the exclude-unknown-central EXISTS
+        // check must not fan out the result set when more than one row shares the same ip.
+        $this->insertPoller(2, 'Poller-A', isCentral: false);
+        $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
+        $this->connection->insert('remote_servers', ['ip' => '127.0.0.1', 'version' => '24.10', 'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'), 'server_id' => 2]);
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withExcludeUnknownCentral(true)->withPagination(1, 10));
+
+        self::assertInstanceOf(Paginator::class, $pollers);
+        self::assertCount(2, $pollers); // Central (kept: its address matches a remote server) + Poller-A
+        self::assertSame(2, $pollers->getTotalItems());
+    }
+
+    public function testFindAllRestrictsToAccessiblePollersForARestrictedViewer(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+        $viewerId = new UserId($this->createRestrictedContact(accessiblePollerIds: [2]));
+
+        $pollers = $this->repository->findAll((new PollerCriteria())->withViewerId($viewerId));
+
+        self::assertCount(1, $pollers);
+        self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
+    }
+
+    private function insertPoller(int $id, string $name, bool $isCentral = false): void
+    {
+        $this->connection->insert('nagios_server', [
+            'id' => $id,
+            'name' => $name,
+            'localhost' => $isCentral ? '1' : '0',
+            'ns_activate' => '1',
+            'ns_ip_address' => "10.0.0.{$id}",
+            'uid' => 200000000000000 + $id,
+        ]);
+    }
+
+    /**
+     * @param list<int> $accessiblePollerIds
+     */
+    private function createRestrictedContact(array $accessiblePollerIds): int
+    {
+        $this->connection->insert('contact', [
+            'contact_name' => 'restricted-viewer',
+            'contact_alias' => 'restricted-viewer',
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => 'restricted-viewer@email.com',
+        ]);
+        $contactId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'restricted-group',
+            'acl_group_alias' => 'restricted-group',
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'restricted-resource',
+            'acl_res_alias' => 'restricted-resource',
+            'acl_res_activate' => '1',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($accessiblePollerIds as $pollerId) {
+            $this->connection->insert('acl_resources_poller_relations', [
+                'acl_res_id' => $aclResId,
+                'poller_id' => $pollerId,
+            ]);
+        }
+
+        return $contactId;
     }
 }

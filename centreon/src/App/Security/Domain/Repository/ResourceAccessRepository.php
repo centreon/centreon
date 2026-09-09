@@ -35,6 +35,12 @@ interface ResourceAccessRepository
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 
     /**
+     * @return Collection<PollerId>|null null means no restriction applies (the user can access
+     *                                   all pollers); an empty Collection means the user can access none
+     */
+    public function findAccessiblePollerIds(UserId $userId): ?Collection;
+
+    /**
      * @return Collection<HostGroupId>|null null means no restriction applies (the user can access
      *                                      all host groups); an empty Collection means the user can access none
      */
