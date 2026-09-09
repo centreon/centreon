@@ -13,28 +13,32 @@ properties:
     description: "Host template alias"
     example: "generic-active-host"
   snmp_version:
-    type: string
-    nullable: true
-    enum: ["1", "2c", "3"]
+    type:
+      - string
+      - 'null'
+    enum: ["1", "2c", "3", null]
     description: |
       Version of the SNMP agent.
       The value can be `1`, `2c` or `3`
     example: "2c"
   timezone_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Timezone ID"
     example: 1
-    nullable: true
   severity_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Severity ID"
     example: 1
-    nullable: true
   check_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command ID"
     example: 1
-    nullable: true
   check_command_args:
     type: array
     description: "Check command arguments"
@@ -42,23 +46,27 @@ properties:
       type: string
     example: ["0", "OK"]
   check_timeperiod_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command timeperiod ID"
     example: 1
-    nullable: true
   max_check_attempts:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-UP state"
   normal_check_interval:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of 'time units' between regularly scheduled checks of the host.
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   retry_check_interval:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before scheduling a re-check for this host after a non-UP state was detected.
       With the default time unit of 60s, this number will mean multiples of 1 minute.
@@ -86,7 +94,9 @@ properties:
       * `1` - STATUS_ENABLED
       * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   notification_options:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: |
       Define the states of the host for which notifications should be sent out.
       The value is the sum of all the values of the selected options.
@@ -99,19 +109,20 @@ properties:
       * NULL - (inheritance of its parent's value. If there is no parent, the values used will be: DOWN, UNREACHABLE, RECOVERY, FLAPPING and DOWNTIME_SCHEDULED)
       example: A value equal to 5 corresponds to the selected options DOWN and RECOVERY
     example: 5
-    nullable: true
   notification_interval:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before re-notifying a contact that this host is still down or unreachable.
       With the default time unit of 60s, this number will mean multiples of 1 minute.
       A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
   notification_timeperiod_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Notification timeperiod ID"
     example: 1
-    nullable: true
   add_inherited_contact_group:
     type: boolean
     description: |
@@ -123,20 +134,23 @@ properties:
       Only used when notification inheritance for hosts and services is set to vertical inheritance only.
       When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
   first_notification_delay:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   recovery_notification_delay:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before sending out the recovery notification when this host enters an UP state.
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   acknowledgement_timeout:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Specify a duration of acknowledgement for this host."
   freshness_checked:
     type: integer
@@ -146,8 +160,9 @@ properties:
       * `1` - STATUS_ENABLED
       * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   freshness_threshold:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Specify the freshness threshold (in seconds) for this host."
   flap_detection_enabled:
     type: integer
@@ -157,12 +172,14 @@ properties:
       * `1` - STATUS_ENABLED
       * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   low_flap_threshold:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Specify the low state change threshold used in flap detection for this host"
   high_flap_threshold:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Specify the high state change threshold used in flap detection for this host"
   event_handler_enabled:
     type: integer
@@ -172,10 +189,11 @@ properties:
       * `1` - STATUS_ENABLED
       * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   event_handler_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Event handler command ID"
     example: 1
-    nullable: true
   event_handler_command_args:
     type: array
     description: "Event handler command arguments"
@@ -183,33 +201,39 @@ properties:
       type: string
     example: ["0", "OK"]
   note_url:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Define an optional URL that can be used to provide more information about the host."
   note:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Define an optional note."
   action_url:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Define an optional URL that can be used to provide more actions to be performed on the host."
   icon_id:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Define the image ID that should be associated with this host template"
     example: 1
   icon_alternative:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 200
     description: "Define an optional string that is used in the alternative description of the icon image"
   comment:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Host template comments"
   is_locked:
     type: boolean
@@ -249,8 +273,9 @@ properties:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: "Macro ID"
           example: 1
         name:
@@ -258,8 +283,9 @@ properties:
           description: "Name of the macro"
           example: "MacroName"
         value:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: |
             Value of the macro.
             If macro.is_password property is set to true and macro.value will be set to null.
@@ -269,7 +295,8 @@ properties:
           description: "Indicates whether the macro value is a password or not"
           example: false
         description:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Macro description"
           example: "Some text to describe the macro"

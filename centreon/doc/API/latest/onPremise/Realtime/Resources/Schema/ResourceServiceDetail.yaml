@@ -148,8 +148,9 @@ properties:
         description: "Name of the service group"
         example: "All-Cpu-Services"
       configuration_uri:
-        type: string
-        nullable: true
+        type:
+          - string
+          - 'null'
         description: "Internal URI to reach group configuration"
   categories:
     type: object
@@ -164,12 +165,14 @@ properties:
         description: "Name of the service category"
         example: "All-Cpu-Services"
       configuration_uri:
-        type: string
-        nullable: true
+        type:
+          - string
+          - 'null'
         description: "Internal URI to reach category configuration"
   severity:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -207,8 +210,9 @@ properties:
             description: "URL of the icon"
             example: "baseUri/ppm/dog.png"
   acknowledgement:
-    type: object
-    nullable: true
+    type:
+      - object
+      - 'null'
     properties:
       id:
         type: integer
@@ -244,9 +248,10 @@ properties:
         description: "Short description of the acknowledgement"
         example: "Acknowledged by admin"
       deletion_time:
-        type: string
+        type:
+          - string
+          - 'null'
         format: date-time
-        nullable: true
         description: "Date of the request for cancellation of the acknowledgement (ISO8601)"
       entry_time:
         type: string
@@ -289,18 +294,21 @@ properties:
         - service_id
       properties:
         start_time:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           format: date-time
           description: "Scheduled start date of the downtime (ISO8601)"
         end_time:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           format: date-time
           description: "Scheduled end date of the downtime (ISO8601)"
         actual_start_time:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           format: date-time
           description: "Actual start date of the downtime (ISO8601)"
         id:
@@ -312,13 +320,15 @@ properties:
           format: date-time
           description: "Date of the request to create the downtime (ISO8601)"
         author_id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: "ID of the contact who requested the downtime"
           example: 3
         author_name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Name of the contact who requested the downtime"
           example: "admin"
         host_id:
@@ -334,19 +344,22 @@ properties:
           description: "Indicates whether the downtime has been cancelled or not"
           example: false
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Comment of set on the downtime"
           example: "Downtime set by admin"
         deletion_time:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: "Date of cancellation of downtime (ISO8601)"
           example: null
         duration:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: "Downtime duration in seconds"
           example: 7200
         internal_id:
@@ -362,33 +375,39 @@ properties:
           description: "Indicates whether the downtime has started"
           example: true
   duration:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Duration since last status change"
     example: "2h 3m"
   next_check:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Scheduled date for the next check (ISO8601)"
   last_check:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last check (ISO8601)"
   last_time_with_no_issue:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last time Host Resource was UP (ISO8601)"
   last_status_change:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last status change (ISO8601)"
   last_notification:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     format: date-time
     description: "Date of the last notification sent (ISO8601)"
   tries:
@@ -402,40 +421,47 @@ properties:
         type: object
         properties:
           configuration:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Redirection link to Service resource configuration page"
             example: "/centreon/main.php?p=60201&o=c&service_id=1533"
           logs:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Redirection link to Service resource logs pre-filtered page"
             example: "centreon/main.php?p=20301&svc=202_1533"
           reporting:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Redirection link to Service resource reporting pre-filtered page"
             example: "/centreon/main.php?p=30702&period=yesterday&start=&end=&host_id=202&item=1533"
       endpoints:
         type: object
         properties:
           notification_policy:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Service resource notification policy endpoint"
             example: "/centreon/api/v22.04/monitoring/hosts/202/services/1533/notification-policy"
           timeline:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Service resource timeline endpoint"
             example: "/centreon/api/v22.04/monitoring/hosts/202/services/1533/timeline"
           status_graph:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Service resource status graph endpoint"
             example: "/centreon/api/v22.04/monitoring/hosts/14/services/26/metrics/status"
           performance_graph:
-            type: string
-            nullable: true
+            type:
+              - string
+              - 'null'
             description: "Service resource performance graph endpoint"
             example: "/centreon/api/v22.04/monitoring/hosts/14/services/26/metrics/performance"
