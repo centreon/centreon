@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+use App\Security\Domain\AdminResolver;
+use App\Security\Domain\Repository\AccessGroupRepository;
 use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
@@ -165,6 +167,47 @@ final class ListHostsProviderTest extends ApiTestCase
         $contactId = $this->createNonAdminContact($username);
         $aclGroupId = $this->grantHostReadTopologyRole($contactId);
         $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $accessibleId]);
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, (array) $response->toArray()['member']);
+        self::assertJsonContains(['member' => [['name' => 'accessible-host']]]);
+    }
+
+    public function testItIncludesAllHostsForCustomerAdminAclMemberOnCloudPlatform(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $accessibleId = $this->insertHost('accessible-host', $pollerId);
+        $this->insertHost('other-host', $pollerId);
+
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadTopologyRole($contactId);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $accessibleId]);
+        $this->addContactToCustomerAdminAclGroup($contactId);
+        $this->forceCloudPlatform();
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, (array) $response->toArray()['member']);
+    }
+
+    public function testItRestrictsCustomerAdminAclMemberOnPremPlatform(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $accessibleId = $this->insertHost('accessible-host', $pollerId);
+        $this->insertHost('other-host', $pollerId);
+
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantHostReadTopologyRole($contactId);
+        $this->realTimeConnection->insert('centreon_acl', ['group_id' => $aclGroupId, 'host_id' => $accessibleId]);
+        $this->addContactToCustomerAdminAclGroup($contactId);
+        $this->forceOnPremPlatform();
 
         $this->login($username);
 
@@ -327,5 +370,51 @@ final class ListHostsProviderTest extends ApiTestCase
         }
 
         return $aclGroupId;
+    }
+
+    private function addContactToCustomerAdminAclGroup(int $contactId): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'customer_admin_acl',
+            'acl_group_alias' => 'customer_admin_acl',
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+    }
+
+    /**
+     * AdminResolver::$isCloudPlatform is bound from the IS_CLOUD_PLATFORM env var
+     * (config.new/services/security.php), so the platform is forced here by replacing the
+     * container's AdminResolver instance, same technique as
+     * ListPollersProviderTest::forceCloudPlatform(). Must run before the request is made.
+     */
+    private function forceCloudPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: true);
+    }
+
+    /**
+     * Pins the on-premises platform explicitly rather than relying on the ambient
+     * IS_CLOUD_PLATFORM default: an external test environment could set it to true, which would
+     * silently turn this into a duplicate of testItIncludesAllHostsForCustomerAdminAclMemberOnCloudPlatform.
+     */
+    private function forceOnPremPlatform(): void
+    {
+        $this->forcePlatform(isCloudPlatform: false);
+    }
+
+    private function forcePlatform(bool $isCloudPlatform): void
+    {
+        $container = self::getContainer();
+
+        /** @var AccessGroupRepository $accessGroupRepository */
+        $accessGroupRepository = $container->get(AccessGroupRepository::class);
+
+        $container->set(AdminResolver::class, new AdminResolver($accessGroupRepository, $isCloudPlatform));
     }
 }
