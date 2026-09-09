@@ -159,8 +159,26 @@ jobs:
             --strict-mcp-config \
             --allowedTools "Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find,mcp__playwright__browser_close" \
             --permission-mode bypassPermissions \
-            --output-format text \
-            | tee claude-output.log
+            --max-budget-usd 3 \
+            --verbose \
+            --output-format stream-json \
+            | tee claude-output.jsonl \
+            | jq -R --unbuffered '
+                try (fromjson) catch empty
+                | if .type == "system" and .subtype == "init" then
+                    "STEP: session started (model=" + (.model // "?") + ")"
+                  elif .type == "assistant" then
+                    (.message.content // [])[] |
+                    if .type == "tool_use" then
+                      "STEP: -> " + .name + " " + ((.input // {}) | tostring | .[0:150])
+                    elif .type == "text" and ((.text // "") | length) > 0 then
+                      "STEP: " + ((.text // "") | .[0:300] | gsub("\n"; " "))
+                    else empty end
+                  elif .type == "result" then
+                    "STEP: === finished (" + (.subtype // "?") + ") ==="
+                  else empty end
+              ' \
+            | tee claude-progress.log
 
       - name: Post failure notice to Jira if the run errored before reporting
         if: failure()
@@ -187,7 +205,8 @@ jobs:
         with:
           name: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
           path: |
-            claude-output.log
+            claude-output.jsonl
+            claude-progress.log
             .claude/skills/qa-ticket-verify/runs/*.feature
             .claude/skills/qa-ticket-verify/selectors.json
             playwright-mcp-output/**

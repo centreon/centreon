@@ -89,7 +89,7 @@ For each UI element your Gherkin steps will need to interact with, resolve a sel
 1. **Catalog** — check `selectors.json` (read in step 0.4) for an existing entry under a matching area.
 2. **The PR diff itself** — grep it for `data-testid=`, `aria-label=`, `id=` on the element being added/changed. This is the most trustworthy source since it's the exact code shipping.
 3. **Existing frontend source** — if the element predates this PR, `Grep` `centreon/www/front_src/src/**` (React, `data-testid`) or the relevant `centreon/www/include/**` legacy page (plain `id`/`name` attributes) for the component.
-4. **Live inspection, last resort** — once the page is loaded in step 7, use Playwright's snapshot/accessibility-tree tool to find the element by visible text or role, and derive a selector from that.
+4. **Live inspection, last resort** — once the page is loaded in step 7, use `browser_find` (search the page for text/regex, returns matching nodes with a bit of context) to locate the element cheaply. Only fall back to a full `browser_snapshot` when `browser_find` genuinely isn't enough (e.g. exploring an unfamiliar layout) — it returns the entire accessibility tree, which is far more expensive.
 
 Whenever you resolve a selector via 2–4 (i.e. it wasn't already in the catalog), **append it to `selectors.json`** under a sensibly-named area (reuse an existing area key if one fits) before moving on, with a `source` note. Never blindly overwrite an existing entry — if you find conflicting info, flag it in the report instead of silently changing a selector another run may depend on. In CI, the updated `selectors.json` is uploaded as a workflow artifact; periodically diff/merge it back into the repo's copy by hand (or ask the user to) so the catalog actually accumulates across CI runs — CI does not push commits back on its own.
 
@@ -125,7 +125,7 @@ Via Playwright MCP: navigate to `http://localhost:4000/centreon/login`, then use
 
 ## 8. Execute the Gherkin against the real app
 
-For each `Given`/`When`/`Then` step, drive Playwright MCP directly (snapshot → click/type/wait using the resolved selectors, or `browser_evaluate` for read-only DOM assertions inside the legacy iframe). Record, per scenario:
+For each `Given`/`When`/`Then` step, act **directly on the selector already resolved in step 5** (`browser_click`/`browser_type`/`browser_wait_for` all accept a plain CSS selector as `target` — no snapshot needed first) or use `browser_evaluate` for read-only DOM assertions inside the legacy iframe. CI runs with `snapshot.mode: "none"` (see `playwright.config.ci.json`) specifically so actions don't drag a full accessibility tree along for the ride — don't reintroduce that cost by snapshotting before every step out of habit. Only call `browser_snapshot`/`browser_find` when you genuinely need to look at the page (a selector didn't resolve, or you need to read state a selector alone can't tell you). Record, per scenario:
 - pass/fail,
 - for a failure: a screenshot (Playwright's screenshot tool) and the exact mismatch (expected vs. observed),
 - anything the ticket/PR claimed that you could *not* actually exercise (e.g. requires data you can't seed) — call this out explicitly rather than skipping it silently.
