@@ -162,10 +162,8 @@ final readonly class ListHostsProvider implements ProviderInterface
             }
 
             $resource = $this->transformer->transform($host);
-            $resource->hydrate(
-                new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? ''),
-                $templates,
-            );
+            $resource->poller = new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? '');
+            $resource->templates = $templates;
 
             $resources[] = $resource;
         }

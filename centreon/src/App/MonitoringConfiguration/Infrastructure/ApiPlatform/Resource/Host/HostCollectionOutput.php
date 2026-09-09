@@ -45,13 +45,4 @@ final class HostCollectionOutput
         public bool $activated,
     ) {
     }
-
-    /**
-     * @param list<HostTemplateOutput> $templates
-     */
-    public function hydrate(HostPollerOutput $poller, array $templates): void
-    {
-        $this->poller = $poller;
-        $this->templates = $templates;
-    }
 }
