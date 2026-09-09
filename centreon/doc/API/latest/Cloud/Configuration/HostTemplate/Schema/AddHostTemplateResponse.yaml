@@ -13,33 +13,38 @@ properties:
     description: "Host template alias"
     example: "generic-active-host"
   snmp_community:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "Community of the SNMP agent"
   snmp_version:
-    type: string
-    nullable: true
-    enum: ['1', '2c', '3']
+    type:
+      - string
+      - 'null'
+    enum: ['1', '2c', '3', null]
     description: |
       Version of the SNMP agent.
 
       The value can be `1`, `2c` or `3`
     example: "2c"
   timezone_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Timezone ID"
     example: 1
-    nullable: true
   severity_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Severity ID"
     example: 1
-    nullable: true
   check_command_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command ID"
     example: 1
-    nullable: true
   check_command_args:
     type: array
     description: "Check command arguments"
@@ -47,24 +52,28 @@ properties:
       type: string
     example: ["0", "OK"]
   check_timeperiod_id:
-    type: integer
+    type:
+      - integer
+      - 'null'
     description: "Check command timeperiod ID"
     example: 1
-    nullable: true
   max_check_attempts:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Define the number of times that the monitoring engine will retry the host check command if it returns any non-UP state"
   normal_check_interval:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of 'time units' between regularly scheduled checks of the host.
 
       With the default time unit of 60s, this number will mean multiples of 1 minute.
   retry_check_interval:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: |
       Define the number of "time units" to wait before scheduling a re-check for this host after a non-UP state was detected.
 
@@ -73,23 +82,27 @@ properties:
       Once the host has been retried max_check_attempts times without a change in its status,
       it will revert to being scheduled at its "normal" check interval rate.
   note_url:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Define an optional URL that can be used to provide more information about the host."
   note:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Define an optional note."
   action_url:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     maxLength: 65535
     description: "Define an optional URL that can be used to provide more actions to be performed on the host."
   icon_id:
-    type: integer
-    nullable: true
+    type:
+      - integer
+      - 'null'
     description: "Define the image ID that should be associated with this host template"
     example: 1
   is_locked:
@@ -138,8 +151,9 @@ properties:
           description: "Name of the macro"
           example: "MacroName"
         value:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: |
             Value of the macro.
 
@@ -150,7 +164,8 @@ properties:
           description: "Indicates whether the macro value is a password or not"
           example: false
         description:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Macro description"
           example: "Some text to describe the macro"

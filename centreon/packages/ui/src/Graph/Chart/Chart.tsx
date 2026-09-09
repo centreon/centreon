@@ -378,7 +378,7 @@ const Chart = ({
                 )}
                 {additionalLines?.map((additionalLine) => (
                   <AdditionalLine
-                    key={additionalLine.yValue}
+                    key={JSON.stringify(additionalLine)}
                     {...additionalLine}
                     graphWidth={graphWidth}
                     yScale={yScalesPerUnit[additionalLine.unit]}
