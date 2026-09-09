@@ -1,24 +1,12 @@
 name: qa-ticket-verify
 
-# Phase 1 (manual trigger): a QA picks a Jira ticket key and runs this by hand from the
-# Actions tab. It drives the qa-ticket-verify skill (.claude/skills/qa-ticket-verify/)
-# headlessly: reads the ticket, finds its PR, spins up that PR's build in Docker, exercises
-# it with Playwright, and posts a report as a Jira comment. It never transitions the ticket —
-# a human still makes that call from the report.
+# Drives the qa-ticket-verify skill headlessly: reads a Jira ticket, finds its PR, spins up
+# that PR's build in Docker, exercises it with Playwright, posts a report as a Jira comment.
+# Never transitions the ticket itself.
 #
-# Secrets required (repo Settings > Secrets and variables > Actions):
-#   CLAUDE_CODE_OAUTH_TOKEN  — from `claude setup-token` (requires a Claude subscription).
-#                              Not yet configured for this repo. Phase 1: a personal token is
-#                              fine. Migrate to a dedicated seat before this runs unattended
-#                              for the whole QA team.
-#   JIRA_BASE_URL, XRAY_JIRA_USER_EMAIL, XRAY_JIRA_TOKEN — already exist in this repo (used by
-#                              the Xray reporting / create-jira-ticket workflows), reused here
-#                              as-is rather than provisioning separate qa-ticket-verify secrets.
-#                              Comments this workflow posts will show as authored by whatever
-#                              account XRAY_JIRA_USER_EMAIL belongs to.
-#
-# github.actor already records who triggered a given run — no need to pass personal
-# credentials through the workflow_dispatch form (those inputs are plaintext in the UI/logs).
+# Secrets: CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`, personal for now — migrate to
+# a service seat before team-wide rollout). JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL /
+# XRAY_JIRA_TOKEN are reused from the existing Xray reporting workflows.
 
 on:
   workflow_dispatch:
@@ -74,18 +62,14 @@ jobs:
         run: |
           pr_json_raw=$(gh pr list --repo centreon/centreon --search "$TICKET_KEY in:title,body" --state all \
             --json number,url,headRefName,isDraft,updatedAt,state)
-          # Exclude this workflow's own branch: a "Validated against <ticket>" mention in
-          # this tooling's own PR description (like #11570's) matches the same search and,
-          # being the most recently updated, would otherwise win over the ticket's real PR
-          # — happened on 2026-09-09, resolved the wrong PR/branch and tried to pull a
-          # nonexistent image.
+          # Exclude this workflow's own branch — its PR description mentions ticket keys
+          # too and, being frequently updated, can outrank the ticket's real PR.
           pr_json=$(echo "$pr_json_raw" | jq --arg branch "$CURRENT_BRANCH" '[.[] | select(.headRefName != $branch)]')
           count=$(echo "$pr_json" | jq 'length')
           if [ "$count" -eq 0 ]; then
             echo "::error::No PR found referencing $TICKET_KEY (searched title/body for the key, excluding this workflow's own branch $CURRENT_BRANCH)"
             exit 1
           fi
-          # Prefer the most recently updated open, non-draft PR; else the most recently updated of any state.
           open_pr=$(echo "$pr_json" | jq '[.[] | select(.state == "OPEN" and (.isDraft | not))] | sort_by(.updatedAt) | last')
           if [ "$open_pr" = "null" ]; then
             selected=$(echo "$pr_json" | jq 'sort_by(.updatedAt) | last')
@@ -110,9 +94,7 @@ jobs:
           HEAD_REF: ${{ steps.find_pr.outputs.head_ref }}
           PR_NUMBER: ${{ steps.find_pr.outputs.number }}
         run: |
-          # Don't hardcode the OS variant (it has changed before — see SKILL.md step 6): read
-          # what this PR's own CI actually built by tallying the alma versions across its check
-          # names and taking the most common one.
+          # Don't hardcode the OS variant — read what this PR's own CI actually built.
           os_variant=$(gh pr checks "$PR_NUMBER" --repo centreon/centreon --json name --jq '.[].name' \
             | grep -oP 'alma\d+' | sort | uniq -c | sort -rn | head -1 | grep -oP 'alma\d+' || true)
           if [ -z "$os_variant" ]; then
@@ -139,13 +121,10 @@ jobs:
           curl -sf http://localhost:4000/centreon/login > /dev/null \
             && echo "Centreon is reachable at http://localhost:4000/centreon"
 
-          # The web/db healthchecks above only confirm the containers report healthy
-          # (web: a ready-marker file + one curl; db: the TCP port accepts connections)
-          # — neither proves the app can actually run a DB-backed query end to end.
-          # Verify both explicitly before handing off to Claude.
-          db_version=$(docker compose -f .github/docker/docker-compose.yml exec -T db \
-            mariadb -uroot -pcentreon -N -e "SELECT VERSION();" 2>/dev/null)
-          if [ -z "$db_version" ]; then
+          # The healthchecks above don't prove the app can run a DB-backed query end to
+          # end. --skip-ssl matches the server's MARIADB_EXTRA_FLAGS in docker-compose.yml.
+          if ! db_version=$(docker compose -f .github/docker/docker-compose.yml exec -T db \
+            mariadb -uroot -pcentreon --skip-ssl -N -e "SELECT VERSION();"); then
             echo "::error::Database container is up but did not answer a real SQL query"
             docker compose -f .github/docker/docker-compose.yml logs db --tail 100 || true
             exit 1
