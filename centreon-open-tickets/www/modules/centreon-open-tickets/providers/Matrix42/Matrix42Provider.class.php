@@ -190,7 +190,6 @@ class Matrix42Provider extends AbstractProvider
 
         // when enabled, the match_user_by_email.ihtml templates also apply
         // the user they matched to the "Responsible user" list, in addition to the "User" list
-        // unlikely to find a match since we match the centreon user email and the user returned by Matrix42 which is probably not the email value
         $this->default_data['sync_user_to_responsible_user'] = 'no';
 
         $this->default_data['clones']['mappingTicket'] = [
@@ -253,7 +252,7 @@ class Matrix42Provider extends AbstractProvider
 
         $this->default_data['url'] = '{$protocol}://{$address}/wm/app-ServiceDesk/?view-options={ldelim}%22embedded%22:false,%22objectId%22:%22{$ticket_id}%22,%22viewType%22:%22preview%22{rdelim}';
 
-        // add template to handle the match asset to host name option and 
+        // add template to handle the match asset to host name option and match user email to user (if possible)
         $this->default_data['format_popup'] = str_replace(
             '{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}',
             '{include file="file:$centreon_open_tickets_path/providers/Abstract/templates/groups.ihtml"}
@@ -928,7 +927,6 @@ class Matrix42Provider extends AbstractProvider
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        
         // documentation do not specifiy which http code is returned when successful.
         // the ticket creation even indicates a http code 204 with no response which is wrong since ticket id is returned as a string
         if ($httpCode >= 400) {
