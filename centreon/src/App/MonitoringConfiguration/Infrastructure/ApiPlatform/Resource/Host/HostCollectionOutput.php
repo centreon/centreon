@@ -27,9 +27,11 @@ use ApiPlatform\Metadata\ApiProperty;
 
 final class HostCollectionOutput
 {
-    /**
-     * @param list<HostTemplateOutput> $templates
-     */
+    public HostPollerOutput $poller;
+
+    /** @var list<HostTemplateOutput> */
+    public array $templates;
+
     public function __construct(
         #[ApiProperty(identifier: true)]
         public int $id,
@@ -40,11 +42,16 @@ final class HostCollectionOutput
 
         public string $address,
 
-        public HostPollerOutput $poller,
-
-        public array $templates,
-
         public bool $activated,
     ) {
+    }
+
+    /**
+     * @param list<HostTemplateOutput> $templates
+     */
+    public function hydrate(HostPollerOutput $poller, array $templates): void
+    {
+        $this->poller = $poller;
+        $this->templates = $templates;
     }
 }

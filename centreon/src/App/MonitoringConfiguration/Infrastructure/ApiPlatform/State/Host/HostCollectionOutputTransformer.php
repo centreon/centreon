@@ -23,24 +23,23 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**
- * @implements TransformerInterface<HostListView, HostCollectionOutput>
+ * @implements TransformerInterface<Host, HostCollectionOutput>
  */
 final readonly class HostCollectionOutputTransformer implements TransformerInterface
 {
     public function transform(mixed $from): HostCollectionOutput
     {
         return new HostCollectionOutput(
-            id: $from->host->id()->value,
-            name: $from->host->name->value,
-            alias: $from->host->alias?->value,
-            address: $from->host->address->value,
-            poller: $from->poller,
-            templates: $from->templates,
-            activated: $from->host->activated,
+            id: $from->id()->value,
+            name: $from->name->value,
+            alias: $from->alias?->value,
+            address: $from->address->value,
+            activated: $from->activated,
         );
     }
 }

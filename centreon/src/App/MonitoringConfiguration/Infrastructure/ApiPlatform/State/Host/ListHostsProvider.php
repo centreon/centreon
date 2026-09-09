@@ -29,11 +29,13 @@ use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\HostTemplateNameResolver;
-use App\MonitoringConfiguration\Domain\Repository\PollerNameResolver;
+use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCollectionOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
@@ -55,14 +57,14 @@ final readonly class ListHostsProvider implements ProviderInterface
     use FilterAwareProviderTrait;
 
     /**
-     * @param TransformerInterface<HostListView, HostCollectionOutput> $transformer
+     * @param TransformerInterface<Host, HostCollectionOutput> $transformer
      */
     public function __construct(
         #[Autowire(service: HostCollectionOutputTransformer::class)]
         private TransformerInterface $transformer,
         private HostRepository $repository,
-        private PollerNameResolver $pollerNameResolver,
-        private HostTemplateNameResolver $hostTemplateNameResolver,
+        private PollerRepository $pollerRepository,
+        private HostTemplateRepository $hostTemplateRepository,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -143,27 +145,29 @@ final readonly class ListHostsProvider implements ProviderInterface
             }
         }
 
-        $pollerNames = $this->pollerNameResolver->resolveNames(new Collection(array_values($pollerIds), PollerId::class));
-        $templateNames = $this->hostTemplateNameResolver->resolveNames(
+        /** @var array<int, PollerName> $pollerNames */
+        $pollerNames = $this->pollerRepository->findNamesByIds(new Collection(array_values($pollerIds), PollerId::class))->toArray();
+        /** @var array<int, HostTemplateName> $templateNames */
+        $templateNames = $this->hostTemplateRepository->findNamesByIds(
             new Collection(array_values($templateIds), HostTemplateId::class)
-        );
+        )->toArray();
 
         $resources = [];
         foreach ($hostList as $host) {
             $templates = [];
             foreach ($host->templateIds as $templateId) {
                 if (isset($templateNames[$templateId->value])) {
-                    $templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]);
+                    $templates[] = new HostTemplateOutput($templateId->value, $templateNames[$templateId->value]->value);
                 }
             }
 
-            $view = new HostListView(
-                host: $host,
-                poller: new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value] ?? ''),
-                templates: $templates,
+            $resource = $this->transformer->transform($host);
+            $resource->hydrate(
+                new HostPollerOutput($host->pollerId->value, $pollerNames[$host->pollerId->value]->value ?? ''),
+                $templates,
             );
 
-            $resources[] = $this->transformer->transform($view);
+            $resources[] = $resource;
         }
 
         return $resources;

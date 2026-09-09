@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -99,6 +101,26 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame(3, $result->getTotalItems());
         // rows are ordered by host_id (insertion order A, B, C), so page 2 is the second row
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
+    }
+
+    public function testFindNamesByIds(): void
+    {
+        $templateName = "tpl-{$this->tag}";
+        $templateId = $this->insertHostTemplate($templateName);
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostTemplateId($templateId), new HostTemplateId($templateId + 999)], HostTemplateId::class)
+        );
+
+        self::assertCount(1, $names);
+        self::assertSame($templateName, $names->toArray()[$templateId]->value);
+    }
+
+    public function testFindNamesByIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], HostTemplateId::class));
+
+        self::assertCount(0, $names);
     }
 
     public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedViewer(): void

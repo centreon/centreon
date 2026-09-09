@@ -24,7 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
+use App\Shared\Domain\Collection;
 
 interface HostTemplateRepository
 {
@@ -32,4 +35,14 @@ interface HostTemplateRepository
      * @return \IteratorAggregate<int, HostTemplate>&\Countable
      */
     public function findAll(?HostTemplateCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a host template by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<HostTemplateId> $ids
+     *
+     * @return Collection<HostTemplateName> indexed by host template id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
 }
