@@ -27,9 +27,12 @@ use Webmozart\Assert\Assert;
 
 final readonly class HostAlias
 {
-    public function __construct(
-        public string $value,
-    ) {
+    public string $value;
+
+    public function __construct(string $value)
+    {
+        $value = trim($value);
         Assert::maxLength($value, 200);
+        $this->value = $value;
     }
 }
