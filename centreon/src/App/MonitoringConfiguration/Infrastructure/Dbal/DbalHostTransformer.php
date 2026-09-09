@@ -49,10 +49,12 @@ final readonly class DbalHostTransformer implements TransformerInterface
             }
         }
 
+        $alias = $from['alias'] !== null ? trim($from['alias']) : '';
+
         return new Host(
             id: new HostId((int) $from['id']),
             name: new HostName($from['name']),
-            alias: $from['alias'] !== null && $from['alias'] !== '' ? new HostAlias($from['alias']) : null,
+            alias: $alias !== '' ? new HostAlias($alias) : null,
             address: new HostAddress($from['ip_address']),
             activated: $from['is_activated'] === '1',
             pollerId: new PollerId((int) $from['poller_id']),

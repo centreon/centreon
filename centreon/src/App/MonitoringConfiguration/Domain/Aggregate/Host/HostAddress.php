@@ -23,16 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\Shared\Domain\Assert\Assert as CentreonAssert;
 use Webmozart\Assert\Assert;
 
 final readonly class HostAddress
 {
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 255;
+
     public string $value;
 
     public function __construct(string $value)
     {
         $value = trim($value);
-        Assert::lengthBetween($value, 1, 255);
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        CentreonAssert::ipOrHostname($value, 'HostAddress::value');
         $this->value = $value;
     }
 }

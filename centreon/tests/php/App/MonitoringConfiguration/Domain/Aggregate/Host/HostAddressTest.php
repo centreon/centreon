@@ -55,4 +55,18 @@ final class HostAddressTest extends TestCase
 
         new HostAddress(str_repeat('a', 256));
     }
+
+    public function testItAcceptsAValidHostname(): void
+    {
+        $address = new HostAddress('my-host.example.com');
+
+        self::assertSame('my-host.example.com', $address->value);
+    }
+
+    public function testItRejectsAnAddressThatIsNeitherAnIpNorAHostname(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new HostAddress('not a valid host!!');
+    }
 }

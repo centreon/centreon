@@ -23,10 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Aggregate;
 
-final readonly class AccessGroupId
+use App\Shared\Domain\Aggregate\AggregateRootId;
+
+final readonly class AccessGroupId extends AggregateRootId
 {
-    public function __construct(
-        public int $value,
-    ) {
-    }
 }

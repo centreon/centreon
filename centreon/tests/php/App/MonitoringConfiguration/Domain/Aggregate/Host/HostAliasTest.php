@@ -35,18 +35,18 @@ final class HostAliasTest extends TestCase
         self::assertSame('my-alias', $alias->value);
     }
 
-    public function testItAcceptsAWhitespaceOnlyAliasAsEmpty(): void
+    public function testItRejectsAWhitespaceOnlyAlias(): void
     {
-        $alias = new HostAlias('   ');
+        $this->expectException(\InvalidArgumentException::class);
 
-        self::assertSame('', $alias->value);
+        new HostAlias('   ');
     }
 
-    public function testItAcceptsAnEmptyAlias(): void
+    public function testItRejectsAnEmptyAlias(): void
     {
-        $alias = new HostAlias('');
+        $this->expectException(\InvalidArgumentException::class);
 
-        self::assertSame('', $alias->value);
+        new HostAlias('');
     }
 
     public function testItRejectsAnAliasLongerThan200Characters(): void
