@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\ApiPlatform\Routing;
 
+use App\Shared\Infrastructure\ApiPlatform\Routing\CoreLegacyApiAliasOperations;
+use App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiAliasOperationProviderInterface;
 use App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiPrefixAliasLoader;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
@@ -70,9 +73,9 @@ final class LegacyApiPrefixAliasLoaderTest extends KernelTestCase
 
     public function testOnlyAllowlistedOperationsAppearInTheLegacyAlias(): void
     {
-        $allowlist = new \ReflectionClassConstant(LegacyApiPrefixAliasLoader::class, 'LEGACY_ALIAS_OPERATION_NAMES');
-        /** @var list<string> $allowlistedOperations */
-        $allowlistedOperations = $allowlist->getValue();
+        // In the test kernel only the core provider is registered (no module), so the aliased
+        // operations must all come from the core allowlist.
+        $allowlistedOperations = (new CoreLegacyApiAliasOperations())->getOperationNames();
         self::assertNotEmpty($allowlistedOperations);
 
         $routes = $this->getRouteCollection();
@@ -91,9 +94,41 @@ final class LegacyApiPrefixAliasLoaderTest extends KernelTestCase
                 $operationName,
                 $allowlistedOperations,
                 "Route \"{$name}\" is prefixed /api/latest but its operation ({$operationName}) "
-                . 'is not on LegacyApiPrefixAliasLoader::LEGACY_ALIAS_OPERATION_NAMES.',
+                . 'is not contributed by any LegacyApiAliasOperationProviderInterface.',
             );
         }
+    }
+
+    /**
+     * A module extends the /api/latest allowlist purely by shipping a
+     * LegacyApiAliasOperationProviderInterface service (auto-tagged by the new kernel). This is the
+     * regression fix for MON-208750: released module endpoints must keep their /api/latest alias.
+     */
+    public function testModuleContributedProviderExtendsTheLegacyAlias(): void
+    {
+        $routes = new RouteCollection();
+        $routes->add('core_op', $this->apiRoute('/configuration/commands', '_api_/configuration/commands_get_collection'));
+        $routes->add('module_op', $this->apiRoute('/bam/configuration/business-activities', '_api_/bam/configuration/business-activities_get_collection'));
+        $routes->add('generated_op', $this->apiRoute('/pollers/{id}', '_api_/pollers/{id}_get'));
+        $routes->add('api_doc', $this->apiRoute('/docs', null));
+
+        $apiLoader = $this->createMock(LoaderInterface::class);
+        $apiLoader->method('load')->willReturn($routes);
+
+        $loader = new LegacyApiPrefixAliasLoader($apiLoader, [
+            new CoreLegacyApiAliasOperations(),
+            $this->providerFor('_api_/bam/configuration/business-activities_get_collection'),
+        ]);
+
+        $aliased = ($loader)();
+
+        $moduleRoute = $aliased->get('legacy_module_op');
+
+        self::assertNotNull($aliased->get('legacy_core_op'), 'A core-listed operation must be aliased.');
+        self::assertNotNull($moduleRoute, 'A module-contributed operation must be aliased.');
+        self::assertNotNull($aliased->get('legacy_api_doc'), 'Meta routes (no operation) are always aliased.');
+        self::assertNull($aliased->get('legacy_generated_op'), 'An operation no provider lists must not be aliased.');
+        self::assertSame('/api/latest/bam/configuration/business-activities', $moduleRoute->getPath());
     }
 
     public function testAuxiliaryDocumentationRoutesAreDuplicatedRegardlessOfOperations(): void
@@ -127,5 +162,27 @@ final class LegacyApiPrefixAliasLoaderTest extends KernelTestCase
         }
 
         return null;
+    }
+
+    private function apiRoute(string $path, ?string $operationName): Route
+    {
+        return new Route($path, $operationName !== null ? ['_api_operation_name' => $operationName] : []);
+    }
+
+    private function providerFor(string ...$operationNames): LegacyApiAliasOperationProviderInterface
+    {
+        return new class (array_values($operationNames)) implements LegacyApiAliasOperationProviderInterface {
+            /**
+             * @param list<string> $operationNames
+             */
+            public function __construct(private readonly array $operationNames)
+            {
+            }
+
+            public function getOperationNames(): array
+            {
+                return $this->operationNames;
+            }
+        };
     }
 }
