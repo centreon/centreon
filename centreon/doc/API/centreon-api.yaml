@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: 'Centreon Web RestAPI'
   description: |
@@ -22,7 +22,7 @@ externalDocs:
   url: 'https://thewatch.centreon.com/'
 servers:
   -
-    url: '{protocol}://{server}:{port}/centreon/api/{version}'
+    url: '{protocol}://{server}:{port}/centreon'
     variables:
       protocol:
         enum:
@@ -36,9 +36,6 @@ servers:
       port:
         default: '80'
         description: 'Port used by HTTP server'
-      version:
-        default: v25.10
-        description: 'Version of the API'
 tags:
   -
     name: Acknowledgement
@@ -145,7 +142,7 @@ security:
   -
     Cookie: []
 paths:
-  /login:
+  /api/login:
     post:
       tags:
         - Authentication
@@ -172,7 +169,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /logout:
+  /api/logout:
     get:
       tags:
         - Authentication
@@ -192,7 +189,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/authentication/users/{alias}/password':
+  '/api/latest/authentication/users/{alias}/password':
     put:
       tags:
         - Authentication
@@ -229,7 +226,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /authentication/providers/configurations:
+  /api/latest/authentication/providers/configurations:
     get:
       tags:
         - Authentication
@@ -245,7 +242,7 @@ paths:
                 items:
                   type: object
                   properties: { id: { type: integer, description: 'Id of configuration', example: 1 }, type: { type: string, description: 'Type of provider', example: local }, name: { type: string, description: 'Name of provider', example: local }, authentication_uri: { type: string, description: 'Provider Uri used to proceed authentication', example: /centreon/authentication/providers/configurations/local }, is_active: { type: boolean, description: 'Provider active or not', example: true }, is_forced: { type: boolean, description: 'Provider forced or not', example: false } }
-  '/authentication/providers/configurations/{provider_configuration_name}':
+  '/api/latest/authentication/providers/configurations/{provider_configuration_name}':
     post:
       tags:
         - Authentication
@@ -275,7 +272,7 @@ paths:
                   redirect_uri: { type: string, example: '/centreon/main.php?p=50113&o=ldap' }
         '302':
           description: Found
-  /authentication/logout:
+  /api/latest/authentication/logout:
     get:
       tags:
         - Authentication
@@ -295,299 +292,29 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/additional-connector-configurations:
+  /api/latest/configuration/additional-connector-configurations:
     $ref: ./latest/onPremise/Configuration/AdditionalConnectorConfiguration/AddAndFindAccs.yaml
-  '/configuration/additional-connector-configurations/{acc_id}':
+  '/api/latest/configuration/additional-connector-configurations/{acc_id}':
     $ref: ./latest/onPremise/Configuration/AdditionalConnectorConfiguration/DeleteUpdateAndFindAcc.yaml
-  /configuration/agent-configurations:
+  /api/latest/configuration/agent-configurations:
     $ref: ./latest/onPremise/Configuration/AgentConfiguration/AddOrFindAc.yaml
-  '/configuration/agent-configurations/{ac_id}':
+  '/api/latest/configuration/agent-configurations/{ac_id}':
     $ref: ./latest/onPremise/Configuration/AgentConfiguration/DeleteAndUpdateAndFindDetailAc.yaml
-  '/configuration/agent-configurations/{ac_id}/pollers/{poller_id}':
+  '/api/latest/configuration/agent-configurations/{ac_id}/pollers/{poller_id}':
     $ref: ./latest/onPremise/Configuration/AgentConfiguration/DeleteAcPollerLink.yaml
-  '/configuration/broker/{broker_id}/{tag}':
+  '/api/latest/configuration/broker/{broker_id}/{tag}':
     $ref: ./latest/onPremise/Configuration/Broker/AddBrokerInputOutput.yaml
-  '/configuration/broker/{broker_id}/outputs/{output_id}/file':
+  '/api/latest/configuration/broker/{broker_id}/outputs/{output_id}/file':
     $ref: ./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml
-  /configuration/commands:
-    get:
-      operationId: api_configurationcommands_get_collection
-      tags:
-        - Command
-      responses:
-        '403':
-          description: 'You are not allowed to access commands'
-        '200':
-          description: 'Command collection'
-          content:
-            application/ld+json:
-              schema:
-                type: object
-                description: 'ListCommandResource.jsonld collection.'
-                allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/ListCommandResource.jsonld' } } } }
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ListCommandResource'
-      summary: 'Retrieves the collection of Command resources.'
-      description: 'Retrieves the collection of Command resources.'
-      parameters:
-        -
-          name: name
-          in: query
-          description: 'Filter commands by name (partial or exact match)'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: true
-        -
-          name: type
-          in: query
-          description: 'Filter commands by type. Multiple values can be provided using type[]=Check&type[]=Notification'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: string
-              enum:
-                - Check
-                - Notification
-                - Miscellaneous
-                - Discovery
-          style: form
-          explode: true
-        -
-          name: is_activated
-          in: query
-          description: 'Filter commands by activation status'
-          required: false
-          deprecated: false
-          schema:
-            type: boolean
-          style: form
-          explode: true
-        -
-          name: is_from_monitoring_connector
-          in: query
-          description: 'Filter commands by whether they are from a monitoring connector'
-          required: false
-          deprecated: false
-          schema:
-            type: boolean
-          style: form
-          explode: true
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
-    post:
-      operationId: api_configurationcommands_post
-      tags:
-        - Command
-      responses:
-        '409':
-          description: 'Command resource already exists'
-        '403':
-          description: 'You are not allowed to create commands'
-        '201':
-          description: 'Command resource created'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/CreateCommandResource.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateCommandResource'
-          links: {  }
-        '400':
-          description: 'Invalid input'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-        '422':
-          description: 'An error occurred'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
-      summary: 'Creates a Command resource.'
-      description: 'Creates a Command resource.'
-      parameters: []
-      requestBody:
-        description: 'The new Command resource'
-        content:
-          application/ld+json:
-            schema:
-              $ref: '#/components/schemas/CreateCommandResource'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCommandResource'
-        required: true
-  /configuration/graphs/templates:
+  /api/latest/configuration/graphs/templates:
     $ref: ./latest/onPremise/Configuration/GraphTemplate/FindGraphTemplates.yaml
-  /configuration/connectors:
-    summary: Connectors
-    description: 'Endpoints to manage connectors'
-    get:
-      operationId: api_configurationconnectors_get_collection
-      tags:
-        - Connector
-      responses:
-        '200':
-          description: 'Connector collection'
-          content:
-            application/ld+json:
-              schema:
-                type: object
-                description: 'Connector.jsonld collection.'
-                allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Connector.jsonld' } } } }
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Connector'
-        '403':
-          description: Forbidden
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-      summary: 'Retrieves the collection of Connector resources.'
-      description: 'Retrieves the collection of Connector resources.'
-      parameters:
-        -
-          name: 'id[lk]'
-          in: query
-          description: 'Filter by id using "like" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: integer
-          style: form
-          explode: true
-        -
-          name: 'id[eq]'
-          in: query
-          description: 'Filter by id using "equals" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: integer
-          style: form
-          explode: true
-        -
-          name: 'name[lk]'
-          in: query
-          description: 'Filter by name using "like" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: true
-        -
-          name: 'name[eq]'
-          in: query
-          description: 'Filter by name using "equals" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: true
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
-  '/configuration/hosts/{host_id}':
-    $ref: ./latest/onPremise/Configuration/Host/GetAndDeleteAndPartialUpdateHost.yaml
-  /configuration/hosts/templates:
+  /api/latest/configuration/hosts/templates:
     $ref: ./latest/onPremise/Configuration/HostTemplate/AddAndFindHostTemplates.yaml
-  '/configuration/hosts/templates/{host_template_id}':
+  '/api/latest/configuration/hosts/templates/{host_template_id}':
     $ref: ./latest/onPremise/Configuration/HostTemplate/DeleteAndPartialUpdateHostTemplate.yaml
-  /configuration/hosts:
+  /api/latest/configuration/hosts:
     $ref: ./latest/onPremise/Configuration/Host/AddAndFindHosts.yaml
-  /configuration/hosts/categories:
+  /api/latest/configuration/hosts/categories:
     get:
       operationId: FindHostCategories
       tags:
@@ -645,7 +372,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/categories/{host_category_id}':
+  '/api/latest/configuration/hosts/categories/{host_category_id}':
     get:
       operationId: FindHostCategory
       tags:
@@ -717,151 +444,19 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/{host_id}/services/deploy':
+  '/api/latest/configuration/hosts/{host_id}/services/deploy':
     $ref: ./latest/onPremise/Configuration/Service/DeployServices.yaml
-  /configuration/services/categories:
-    get:
-      tags:
-        - 'Service category'
-      summary: 'List all service categories'
-      description: |
-        Return all service category configurations.
-
-        The available parameters to **search** / **sort_by** are:
-
-        * id
-        * name
-        * alias
-        * is_activated
-        * host.id
-        * host.name
-        * hostgroup.id
-        * hostgroup.name
-        * hostcategory.id
-        * hostcategory.name
-      parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result: { type: array, items: { $ref: '#/components/schemas/ServiceCategory' } }
-                  meta: { $ref: '#/components/schemas/Meta' }
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-    post:
-      operationId: api_configurationservicescategories_post
-      tags:
-        - 'Service Category'
-      responses:
-        '409':
-          description: 'ServiceCategory resource already exists'
-        '201':
-          description: 'ServiceCategory resource created'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ServiceCategory.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServiceCategory'
-          links: {  }
-        '400':
-          description: 'Invalid input'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-        '422':
-          description: 'An error occurred'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
-        '403':
-          description: Forbidden
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-      summary: 'Creates a ServiceCategory resource.'
-      description: 'Creates a ServiceCategory resource.'
-      parameters: []
-      requestBody:
-        description: 'The new ServiceCategory resource'
-        content:
-          application/ld+json:
-            schema:
-              $ref: '#/components/schemas/ServiceCategory'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ServiceCategory'
-        required: true
-  '/configuration/services/categories/{service_category_id}':
-    delete:
-      operationId: DeleteServiceCategory
-      tags:
-        - 'Service category'
-      summary: 'Delete a service category'
-      description: |
-        Delete a service category configuration
-      parameters:
-        -
-          $ref: '#/components/parameters/ServiceCategoryId'
-      responses:
-        '204':
-          description: OK
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-  /configuration/services/templates:
+  /api/latest/configuration/services/templates:
     $ref: ./latest/onPremise/Configuration/ServiceTemplate/AddOneAndFindServiceTemplates.yaml
-  '/configuration/services/templates/{service_template_id}':
+  '/api/latest/configuration/services/templates/{service_template_id}':
     $ref: ./latest/onPremise/Configuration/ServiceTemplate/PartialUpdateAndDeleteServiceTemplate.yaml
-  '/configuration/services/{service_id}':
+  '/api/latest/configuration/services/{service_id}':
     $ref: ./latest/onPremise/Configuration/Service/PartialUpdateAndDeleteService.yaml
-  /configuration/services:
+  /api/latest/configuration/services:
     $ref: ./latest/onPremise/Configuration/Service/AddServiceAndFindServices.yaml
-  /configuration/services/_delete:
+  /api/latest/configuration/services/_delete:
     $ref: ./latest/onPremise/Configuration/Service/DeleteServices.yaml
-  /monitoring/services/categories:
+  /api/latest/monitoring/services/categories:
     get:
       operationId: FindRealTimeServiceCategories
       tags:
@@ -905,7 +500,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/hosts/severities:
+  /api/latest/configuration/hosts/severities:
     get:
       operationId: FindHostSeverities
       tags:
@@ -977,7 +572,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/severities/{host_severity_id}':
+  '/api/latest/configuration/hosts/severities/{host_severity_id}':
     delete:
       operationId: DeleteHostSeverity
       tags:
@@ -1049,19 +644,19 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/hosts/groups:
+  /api/latest/configuration/hosts/groups:
     $ref: ./latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml
-  '/configuration/hosts/groups/{hostgroup_id}':
+  '/api/latest/configuration/hosts/groups/{hostgroup_id}':
     $ref: ./latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml
-  /configuration/hosts/groups/_delete:
+  /api/latest/configuration/hosts/groups/_delete:
     $ref: ./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml
-  /configuration/hosts/groups/_enable:
+  /api/latest/configuration/hosts/groups/_enable:
     $ref: ./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml
-  /configuration/hosts/groups/_disable:
+  /api/latest/configuration/hosts/groups/_disable:
     $ref: ./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml
-  /configuration/hosts/groups/_duplicate:
+  /api/latest/configuration/hosts/groups/_duplicate:
     $ref: ./latest/onPremise/Configuration/HostGroup/DuplicateHostGroups.yaml
-  /configuration/services/groups:
+  /api/latest/configuration/services/groups:
     get:
       operationId: FindServiceGroups
       tags:
@@ -1142,7 +737,7 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/services/groups/{servicegroup_id}':
+  '/api/latest/configuration/services/groups/{servicegroup_id}':
     delete:
       operationId: DeleteServiceGroup
       tags:
@@ -1166,11 +761,11 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/services/severities:
+  /api/latest/configuration/services/severities:
     $ref: ./latest/onPremise/Configuration/ServiceSeverity/AddAndFindServiceSeverities.yaml
-  '/configuration/services/severities/{service_severity_id}':
+  '/api/latest/configuration/services/severities/{service_severity_id}':
     $ref: ./latest/onPremise/Configuration/ServiceSeverity/DeleteAndUpdateServiceSeverity.yaml
-  /configuration/icons:
+  /api/latest/configuration/icons:
     get:
       operationId: centreon_application_configuration_icon_getIcons
       tags:
@@ -1197,13 +792,13 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/medias:
+  /api/latest/configuration/medias:
     $ref: ./latest/onPremise/Configuration/Media/AddAndFindMedia.yaml
-  /configuration/media/folders:
+  /api/latest/configuration/media/folders:
     $ref: ./latest/onPremise/Configuration/Media/FindImageFolders.yaml
-  '/configuration/medias/{media_id}/content':
+  '/api/latest/configuration/medias/{media_id}/content':
     $ref: ./latest/onPremise/Configuration/Media/UpdateMedia.yaml
-  /configuration/proxy:
+  /api/latest/configuration/proxy:
     get:
       operationId: configuration.proxy.getProxy
       tags:
@@ -1240,7 +835,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/monitoring-servers:
+  /api/latest/configuration/monitoring-servers:
     get:
       operationId: configuration.monitoring-servers.findServer
       tags:
@@ -1279,7 +874,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/monitoring-servers/{monitoring_server_id}/generate':
+  '/api/latest/configuration/monitoring-servers/{monitoring_server_id}/generate':
     get:
       operationId: configuration_monitoring_server_generate
       tags:
@@ -1299,7 +894,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/monitoring-servers/{monitoring_server_id}/reload':
+  '/api/latest/configuration/monitoring-servers/{monitoring_server_id}/reload':
     get:
       operationId: configuration_monitoring_server_reload
       tags:
@@ -1319,7 +914,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/monitoring-servers/{monitoring_server_id}/generate-and-reload':
+  '/api/latest/configuration/monitoring-servers/{monitoring_server_id}/generate-and-reload':
     get:
       operationId: configuration_monitoring_server_generate_and_reload
       tags:
@@ -1339,7 +934,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/monitoring-servers/generate:
+  /api/latest/configuration/monitoring-servers/generate:
     get:
       operationId: configuration_monitoring_server_generate_all
       tags:
@@ -1356,7 +951,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/monitoring-servers/reload:
+  /api/latest/configuration/monitoring-servers/reload:
     get:
       operationId: configuration_monitoring_server_reload_all
       tags:
@@ -1375,7 +970,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/monitoring-servers/generate-and-reload:
+  /api/latest/configuration/monitoring-servers/generate-and-reload:
     get:
       operationId: configuration_monitoring_server_generate_and_reload_all
       tags:
@@ -1394,7 +989,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/metaservices:
+  /api/latest/configuration/metaservices:
     get:
       operationId: centreon_application_find_meta_services_configurations
       tags:
@@ -1431,7 +1026,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/metaservices/{meta_id}':
+  '/api/latest/configuration/metaservices/{meta_id}':
     get:
       operationId: centreon_application_find_meta_service_configuration
       tags:
@@ -1454,7 +1049,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/metrics':
+  '/api/latest/monitoring/metaservices/{meta_id}/metrics':
     get:
       operationId: centreon_application_find_meta_service_metrics
       tags:
@@ -1494,7 +1089,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/{host_id}/notification-policy':
+  '/api/latest/configuration/hosts/{host_id}/notification-policy':
     get:
       operationId: configuration.host.notification-policy
       tags:
@@ -1517,7 +1112,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/hosts/{host_id}/services/{service_id}/notification-policy':
+  '/api/latest/configuration/hosts/{host_id}/services/{service_id}/notification-policy':
     get:
       operationId: configuration.service.notification-policy
       tags:
@@ -1542,7 +1137,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/metaservices/{meta_id}/notification-policy':
+  '/api/latest/configuration/metaservices/{meta_id}/notification-policy':
     get:
       operationId: configuration.metaservice.notification-policy
       tags:
@@ -1565,7 +1160,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/servers:
+  /api/latest/monitoring/servers:
     get:
       operationId: centreon_application_find_real_time_monitoring_servers
       tags:
@@ -1602,7 +1197,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /users/acl/actions:
+  /api/latest/users/acl/actions:
     get:
       operationId: centreon_application_user_getActionsAuthorization
       tags:
@@ -1623,9 +1218,9 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/timeperiods:
+  /api/latest/configuration/timeperiods:
     $ref: ./latest/onPremise/Configuration/TimePeriod/AddOneAndFindTimePeriods.yaml
-  '/configuration/timeperiods/{id}':
+  '/api/latest/configuration/timeperiods/{id}':
     delete:
       operationId: DeleteTimePeriod
       tags:
@@ -1710,11 +1305,11 @@ paths:
           $ref: '#/components/responses/Conflict'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/users:
+  /api/latest/configuration/users:
     $ref: ./latest/onPremise/Configuration/Users/Users.yaml
-  /configuration/users/current/parameters:
+  /api/latest/configuration/users/current/parameters:
     $ref: ./latest/onPremise/Configuration/Users/CurrentParameters.yaml
-  /configuration/contacts/templates:
+  /api/latest/configuration/contacts/templates:
     get:
       operationId: centreon_application_configuration_contact_template_getContactTemplates
       tags:
@@ -1737,35 +1332,35 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /configuration/contacts/groups:
+  /api/latest/configuration/contacts/groups:
     $ref: ./latest/onPremise/Configuration/ContactGroup/FindContactGroups.yaml
-  /configuration/dashboards:
+  /api/latest/configuration/dashboards:
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboards.yaml
-  '/configuration/dashboards/{dashboard_id}':
+  '/api/latest/configuration/dashboards/{dashboard_id}':
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboard.yaml
-  '/configuration/dashboards/{dashboard_id}/favorites':
+  '/api/latest/configuration/dashboards/{dashboard_id}/favorites':
     $ref: ./latest/onPremise/Configuration/Dashboard/DeleteDashboardFromFavorites.yaml
-  /configuration/dashboards/favorites:
+  /api/latest/configuration/dashboards/favorites:
     $ref: ./latest/onPremise/Configuration/Dashboard/FavoriteDashboards.yaml
-  '/configuration/dashboards/{dashboard_id}/shares':
+  '/api/latest/configuration/dashboards/{dashboard_id}/shares':
     $ref: ./latest/onPremise/Configuration/Dashboard/ShareDashboard.yaml
-  '/configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}':
+  '/api/latest/configuration/dashboards/{dashboard_id}/access_rights/contacts/{contact_id}':
     $ref: ./latest/onPremise/Configuration/Dashboard/DashboardShareContact.yaml
-  '/configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}':
+  '/api/latest/configuration/dashboards/{dashboard_id}/access_rights/contactgroups/{contact_group_id}':
     $ref: ./latest/onPremise/Configuration/Dashboard/DashboardShareContactGroup.yaml
-  /configuration/dashboards/contacts:
+  /api/latest/configuration/dashboards/contacts:
     $ref: ./latest/onPremise/Configuration/Dashboard/Contacts.yaml
-  /configuration/dashboards/contactgroups:
+  /api/latest/configuration/dashboards/contactgroups:
     $ref: ./latest/onPremise/Configuration/Dashboard/ContactGroups.yaml
-  /monitoring/dashboard/metrics/performances:
+  /api/latest/monitoring/dashboard/metrics/performances:
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboard.MetricsPerformances.yaml
-  /monitoring/dashboard/metrics/performances/data:
+  /api/latest/monitoring/dashboard/metrics/performances/data:
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboard.MetricsPerformancesData.yaml
-  /monitoring/dashboard/metrics/top:
+  /api/latest/monitoring/dashboard/metrics/top:
     $ref: ./latest/onPremise/Configuration/Dashboard/Dashboard.MetricsTop.yaml
-  /monitoring/resources/hosts:
+  /api/latest/monitoring/resources/hosts:
     $ref: ./latest/onPremise/Realtime/Resources/FindResourcesByParent.yaml
-  /configuration/access-groups:
+  /api/latest/configuration/access-groups:
     get:
       tags:
         - 'Access Control'
@@ -1787,7 +1382,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/users/filters/{page_name}':
+  '/api/latest/users/filters/{page_name}':
     get:
       tags:
         - User
@@ -1856,7 +1451,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/users/filters/{page_name}/{filter_id}':
+  '/api/latest/users/filters/{page_name}/{filter_id}':
     get:
       tags:
         - User
@@ -1976,7 +1571,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources:
+  /api/latest/monitoring/resources:
     get:
       operationId: FindResources
       tags:
@@ -2067,23 +1662,16 @@ paths:
                 type: object
                 properties:
                   result: { type: array, items: { $ref: '#/components/schemas/Monitoring.ResourceMain' } }
-                  meta:
-                    allOf:
-                      - $ref: '#/components/schemas/Meta'
-                      - type: object
-                        properties:
-                          is_approximate:
-                            type: boolean
-                            description: 'True when the result set exceeds 1,000 matching resources and the full count was not computed to avoid a costly full-table scan. meta.total is capped at 1,000. Call GET /monitoring/resources/count with all_pages=true and the same filters to retrieve the exact count.'
+                  meta: { allOf: [{ $ref: '#/components/schemas/Meta' }, { type: object, properties: { is_approximate: { type: boolean, description: 'True when the result set exceeds 1,000 matching resources and the full count was not computed to avoid a costly full-table scan. meta.total is capped at 1,000. Call GET /monitoring/resources/count with all_pages=true and the same filters to retrieve the exact count.' } } }] }
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/count:
+  /api/latest/monitoring/resources/count:
     $ref: ./latest/onPremise/Realtime/Resources/CountResources.yaml
-  /monitoring/resources/export:
+  /api/latest/monitoring/resources/export:
     $ref: ./latest/onPremise/Realtime/Resources/ExportResources.yaml
-  '/monitoring/resources/hosts/{host_id}':
+  '/api/latest/monitoring/resources/hosts/{host_id}':
     get:
       operationId: centreon_application_monitoring_resource_details_host
       tags:
@@ -2106,7 +1694,7 @@ paths:
           $ref: '#/components/responses/HostNotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/resources/hosts/{host_id}/services/{service_id}':
+  '/api/latest/monitoring/resources/hosts/{host_id}/services/{service_id}':
     get:
       operationId: centreon_application_monitoring_resource_details_service
       tags:
@@ -2131,7 +1719,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hosts:
+  /api/latest/monitoring/hosts:
     get:
       operationId: centreon_application_monitoring_gethosts
       tags:
@@ -2178,7 +1766,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}':
+  '/api/latest/monitoring/hosts/{host_id}':
     get:
       operationId: centreon_application_monitoring_getonehost
       tags:
@@ -2201,11 +1789,11 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hosts/status:
+  /api/latest/monitoring/hosts/status:
     $ref: ./latest/onPremise/Realtime/Hosts/FindHostsStatus.yaml
-  /monitoring/services/status:
+  /api/latest/monitoring/services/status:
     $ref: ./latest/onPremise/Realtime/Services/FindServicesStatus.yaml
-  /monitoring/services:
+  /api/latest/monitoring/services:
     get:
       operationId: centreon_application_monitoring_getservices
       tags:
@@ -2254,7 +1842,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/services/names:
+  /api/latest/monitoring/services/names:
     get:
       operationId: FindRealTimeUniqueServiceNames
       tags:
@@ -2299,7 +1887,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services':
+  '/api/latest/monitoring/hosts/{host_id}/services':
     get:
       operationId: centreon_application_monitoring_getservicesbyhost
       tags:
@@ -2343,7 +1931,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}':
     get:
       operationId: centreon_application_monitoring_getoneservice
       tags:
@@ -2368,7 +1956,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/servicegroups':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/servicegroups':
     get:
       operationId: centreon_application_monitoring_getservicegroupsbyhostandservice
       tags:
@@ -2393,7 +1981,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/hostgroups':
+  '/api/latest/monitoring/hosts/{host_id}/hostgroups':
     get:
       operationId: centreon_application_monitoring_gethostgroupsbyhost
       tags:
@@ -2441,7 +2029,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hosts/categories:
+  /api/latest/monitoring/hosts/categories:
     get:
       tags:
         - 'Host category'
@@ -2478,7 +2066,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hostgroups:
+  /api/latest/monitoring/hostgroups:
     get:
       tags:
         - 'Host group'
@@ -2527,7 +2115,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/servicegroups:
+  /api/latest/monitoring/servicegroups:
     get:
       tags:
         - 'Service group'
@@ -2580,7 +2168,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/severities/service:
+  /api/latest/monitoring/severities/service:
     get:
       tags:
         - Severity
@@ -2615,7 +2203,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/severities/host:
+  /api/latest/monitoring/severities/host:
     get:
       tags:
         - Severity
@@ -2650,7 +2238,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/acknowledgements:
+  /api/latest/monitoring/acknowledgements:
     get:
       tags:
         - Acknowledgement
@@ -2698,7 +2286,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/acknowledgements:
+  /api/latest/monitoring/resources/acknowledgements:
     delete:
       tags:
         - Acknowledgement
@@ -2722,7 +2310,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/acknowledgements/{acknowledgement_id}':
+  '/api/latest/monitoring/acknowledgements/{acknowledgement_id}':
     get:
       tags:
         - Acknowledgement
@@ -2749,7 +2337,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hosts/acknowledgements:
+  /api/latest/monitoring/hosts/acknowledgements:
     get:
       tags:
         - Acknowledgement
@@ -2818,7 +2406,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/services/acknowledgements:
+  /api/latest/monitoring/services/acknowledgements:
     get:
       tags:
         - Acknowledgement
@@ -2889,7 +2477,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/acknowledgements':
+  '/api/latest/monitoring/hosts/{host_id}/acknowledgements':
     get:
       tags:
         - Acknowledgement
@@ -2983,7 +2571,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/acknowledgements':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/acknowledgements':
     get:
       tags:
         - Acknowledgement
@@ -3085,7 +2673,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/acknowledgements':
+  '/api/latest/monitoring/metaservices/{meta_id}/acknowledgements':
     get:
       tags:
         - Acknowledgement
@@ -3184,7 +2772,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/downtimes:
+  /api/latest/monitoring/downtimes:
     get:
       tags:
         - Downtime
@@ -3237,7 +2825,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/downtimes/{downtime_id}':
+  '/api/latest/monitoring/downtimes/{downtime_id}':
     get:
       tags:
         - Downtime
@@ -3278,7 +2866,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hosts/downtimes:
+  /api/latest/monitoring/hosts/downtimes:
     get:
       tags:
         - Downtime
@@ -3341,7 +2929,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/services/downtimes:
+  /api/latest/monitoring/services/downtimes:
     get:
       tags:
         - Downtime
@@ -3411,7 +2999,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/downtimes':
+  '/api/latest/monitoring/hosts/{host_id}/downtimes':
     get:
       tags:
         - Downtime
@@ -3482,7 +3070,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/downtimes':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/downtimes':
     get:
       tags:
         - Downtime
@@ -3553,7 +3141,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/downtimes':
+  '/api/latest/monitoring/metaservices/{meta_id}/downtimes':
     get:
       tags:
         - Downtime
@@ -3622,7 +3210,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/hosts/check:
+  /api/latest/monitoring/hosts/check:
     post:
       tags:
         - Check
@@ -3642,7 +3230,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/services/check:
+  /api/latest/monitoring/services/check:
     post:
       tags:
         - Check
@@ -3662,7 +3250,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/check':
+  '/api/latest/monitoring/hosts/{host_id}/check':
     post:
       tags:
         - Check
@@ -3688,7 +3276,7 @@ paths:
           description: 'Host not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/check':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/check':
     post:
       tags:
         - Check
@@ -3716,7 +3304,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/check':
+  '/api/latest/monitoring/metaservices/{meta_id}/check':
     post:
       tags:
         - Check
@@ -3743,7 +3331,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/check:
+  /api/latest/monitoring/resources/check:
     post:
       tags:
         - Check
@@ -3766,7 +3354,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/submit':
+  '/api/latest/monitoring/hosts/{host_id}/submit':
     post:
       tags:
         - Submit
@@ -3794,7 +3382,7 @@ paths:
           description: 'Host not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/submit':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/submit':
     post:
       tags:
         - Submit
@@ -3824,7 +3412,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/metaservices/{meta_id}/submit':
+  '/api/latest/monitoring/metaservices/{meta_id}/submit':
     post:
       tags:
         - Submit
@@ -3851,7 +3439,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/submit:
+  /api/latest/monitoring/resources/submit:
     post:
       tags:
         - Submit
@@ -3874,7 +3462,7 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/comments:
+  /api/latest/monitoring/resources/comments:
     post:
       tags:
         - Comment
@@ -3897,9 +3485,9 @@ paths:
           description: 'Host or service not found'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics':
     $ref: ./latest/onPremise/Realtime/Metrics/FindMetricsByService.yaml
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/start/{start}/end/{end}':
     get:
       tags:
         - Metrics
@@ -3922,7 +3510,7 @@ paths:
                 type: object
                 properties:
                   global: { type: object, properties: { title: { type: string, description: 'title of the graph', example: 'graph title' }, start: { type: integer, description: 'timestamp of the start interval', example: 1594504800 }, end: { type: integer, description: 'timestamp of the end interval', example: 1594591200 }, vertical-label: { type: string, description: 'vertical label (should not be used cause multiple y-axis possible)', example: Value }, base: { type: string, description: 'base scale', example: '1024' }, width: { type: string, description: 'width of the graph (should not be used)', example: '550' }, height: { type: string, description: 'height of the graph (should not be used)', example: '140' }, lower-limit: { type: string, description: 'lower value of the graph', example: '0' }, scaled: { type: integer, description: 'if the graph needs to be automatically scaled', example: 1 }, multiple_services: { type: boolean, description: 'if multiple services are selected (always false)', example: false } } }
-                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: string, nullable: true, description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: string, nullable: true, description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: string, nullable: true, description: 'warning threshold', example: null }, warn_low: { type: string, nullable: true, description: 'low warning threshold', example: null }, crit: { type: string, nullable: true, description: 'critical threshold', example: null }, crit_low: { type: string, nullable: true, description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, last_value: { type: number, nullable: true, description: 'last value', example: 5.0 }, minimum_value: { type: number, nullable: true, description: 'minimum value', example: 0.0 }, maximum_value: { type: number, nullable: true, description: 'maximum value', example: 10.0 }, average_value: { type: number, nullable: true, description: 'average value', example: 5.64 } } } }
+                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: [string, 'null'], description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: [string, 'null'], description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: [string, 'null'], description: 'warning threshold', example: null }, warn_low: { type: [string, 'null'], description: 'low warning threshold', example: null }, crit: { type: [string, 'null'], description: 'critical threshold', example: null }, crit_low: { type: [string, 'null'], description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, last_value: { type: [number, 'null'], description: 'last value', example: 5.0 }, minimum_value: { type: [number, 'null'], description: 'minimum value', example: 0.0 }, maximum_value: { type: [number, 'null'], description: 'maximum value', example: 10.0 }, average_value: { type: [number, 'null'], description: 'average value', example: 5.64 } } } }
                   times: { type: array, items: { type: string, format: timestamp, description: 'timestamp of the tick' }, example: ['1594505100', '1594505400', '1594505700'] }
         '403':
           $ref: '#/components/responses/Forbidden'
@@ -3930,7 +3518,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/status/start/{start}/end/{end}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/status/start/{start}/end/{end}':
     get:
       tags:
         - Metrics
@@ -3963,7 +3551,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance':
     get:
       tags:
         - Metrics
@@ -4000,7 +3588,7 @@ paths:
                 type: object
                 properties:
                   base: { type: string, description: 'base scale', example: 1024 }
-                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: string, nullable: true, description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: string, nullable: true, description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: string, nullable: true, description: 'warning threshold', example: null }, warn_low: { type: string, nullable: true, description: 'low warning threshold', example: null }, crit: { type: string, nullable: true, description: 'critical threshold', example: null }, crit_low: { type: string, nullable: true, description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, format: float, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, minimum_value: { type: number, format: float, description: 'minimum value', example: 1.0 }, maximum_value: { type: number, format: float, description: 'maximum value', example: 1.0 } } } }
+                  metrics: { type: array, items: { type: object, properties: { index_id: { type: string, description: 'index id in centreon_storage.index_data table', example: '4' }, metric_id: { type: string, description: 'metric id in centreon_storage.metrics table', example: '29' }, metric: { type: string, description: 'name of the metric', example: cpu }, metric_legend: { type: string, description: 'name of the metric in legend', example: cpu }, unit: { type: string, description: 'metric unit', example: '%' }, hidden: { type: integer, description: 'if the metric is hidden', example: 0 }, min: { type: string, description: 'min value', example: '0' }, max: { type: string, description: 'max value', example: '100' }, virtual: { type: integer, description: 'if the metric is virtual', example: 0 }, ds_data: { type: object, description: 'metric line properties', properties: { ds_min: { type: string, description: 'minimum value', example: '1' }, ds_max: { type: string, description: 'maximum value', example: '1' }, ds_minmax_int: { type: [string, 'null'], description: unknown, example: null }, ds_last: { type: string, description: 'last value', example: '1' }, ds_average: { type: string, description: 'average value', example: '1' }, ds_total: { type: [string, 'null'], description: unknown, example: null }, ds_tickness: { type: string, description: unknown, example: '1' }, ds_color_line_mode: { type: string, description: unknown, example: '1' }, ds_color_line: { type: string, description: 'color of the line', example: '#666600' } } }, legend: { type: string, description: 'metric name in legend', example: 'cpu (%)' }, stack: { type: integer, description: 'if the metric is stacked with other metrics', example: 0 }, warn: { type: [string, 'null'], description: 'warning threshold', example: null }, warn_low: { type: [string, 'null'], description: 'low warning threshold', example: null }, crit: { type: [string, 'null'], description: 'critical threshold', example: null }, crit_low: { type: [string, 'null'], description: 'low critical threshold', example: null }, ds_color_area_warn: { type: string, description: 'color of the area under warning threshold', example: '#ff9a13' }, ds_color_area_crit: { type: string, description: 'color of the area under critical threshold', example: '#e00b3d' }, ds_order: { type: integer, description: 'order used for stacking', example: 0 }, data: { type: array, items: { type: number, format: float, description: 'value of the metric' }, example: [1.0, null, 1.0] }, prints: { type: array, items: { type: array, items: { type: string, description: 'label to display in legend', example: 'Last:1.00' } } }, minimum_value: { type: number, format: float, description: 'minimum value', example: 1.0 }, maximum_value: { type: number, format: float, description: 'maximum value', example: 1.0 } } } }
                   times: { type: array, items: { type: string, format: timestamp, description: 'datetime of the tick' }, example: ['1690965300'] }
         '403':
           $ref: '#/components/responses/Forbidden'
@@ -4008,7 +3596,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance/download':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/performance/download':
     get:
       tags:
         - Metrics
@@ -4046,7 +3634,7 @@ paths:
                 format: string
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/status':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/status':
     get:
       tags:
         - Metrics
@@ -4093,7 +3681,7 @@ paths:
           $ref: '#/components/responses/NotFoundHostOrService'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/timeline':
+  '/api/latest/monitoring/hosts/{host_id}/timeline':
     get:
       tags:
         - Timeline
@@ -4133,7 +3721,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/timeline':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/timeline':
     get:
       tags:
         - Timeline
@@ -4175,11 +3763,11 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/{metricName}':
+  '/api/latest/monitoring/hosts/{host_id}/services/{service_id}/metrics/{metricName}':
     $ref: ./latest/onPremise/Realtime/Metrics/FindSingleMetric.yaml
-  '/monitoring/metaService/{metaServiceId}/metrics/{metricName}':
+  '/api/latest/monitoring/metaService/{metaServiceId}/metrics/{metricName}':
     $ref: ./latest/onPremise/Realtime/Metrics/FindSingleMetaMetric.yaml
-  /monitoring/resources/acknowledge:
+  /api/latest/monitoring/resources/acknowledge:
     post:
       tags:
         - Acknowledgement
@@ -4203,7 +3791,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /monitoring/resources/downtime:
+  /api/latest/monitoring/resources/downtime:
     post:
       tags:
         - Downtime
@@ -4223,7 +3811,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /platform:
+  /api/latest/platform:
     patch:
       tags:
         - Platform
@@ -4243,80 +3831,11 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /platform/features:
+  /api/latest/platform/features:
     $ref: ./latest/onPremise/Platform/Features.yaml
-  /platform/versions:
+  /api/latest/platform/versions:
     $ref: ./latest/onPremise/Platform/Versions.yaml
-  /platform/updates:
-    $ref: ./latest/onPremise/Administration/Update/updates.yaml
-    post:
-      operationId: api_platformupdates_post
-      tags:
-        - Upgrade
-      responses:
-        '204':
-          description: 'Upgrade resource created'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Upgrade.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Upgrade'
-          links: {  }
-        '400':
-          description: 'Invalid input'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-        '422':
-          description: 'An error occurred'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
-        '403':
-          description: Forbidden
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-      summary: 'Creates a Upgrade resource.'
-      description: 'Creates a Upgrade resource.'
-      parameters: []
-      requestBody:
-        description: 'The new Upgrade resource'
-        content:
-          application/ld+json:
-            schema:
-              $ref: '#/components/schemas/Upgrade'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Upgrade'
-        required: true
-  /platform/installation/status:
+  /api/latest/platform/installation/status:
     get:
       tags:
         - Platform
@@ -4337,7 +3856,7 @@ paths:
                   has_upgrade_available: { type: boolean, description: "upgrade available or not\n", example: true }
         '500':
           description: 'centreon is not properly installed'
-  /platform/topology:
+  /api/latest/platform/topology:
     post:
       tags:
         - Topology
@@ -4382,7 +3901,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/platform/topology/{poller_id}':
+  '/api/latest/platform/topology/{poller_id}':
     delete:
       tags:
         - Topology
@@ -4400,7 +3919,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/gorgone/pollers/{poller_id}/responses/{token}':
+  '/api/latest/gorgone/pollers/{poller_id}/responses/{token}':
     get:
       tags:
         - Gorgone
@@ -4421,7 +3940,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/gorgone/pollers/{poller_id}/commands/{command_name}':
+  '/api/latest/gorgone/pollers/{poller_id}/commands/{command_name}':
     post:
       tags:
         - Gorgone
@@ -4446,7 +3965,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /administration/authentication/providers/local:
+  /api/latest/administration/authentication/providers/local:
     get:
       tags:
         - Administration
@@ -4481,9 +4000,9 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /administration/authentication/providers/openid:
+  /api/latest/administration/authentication/providers/openid:
     $ref: ./latest/onPremise/Administration/Authentication/OpenIdProvider/OpenIdProvider.yaml
-  /administration/authentication/providers/saml:
+  /api/latest/administration/authentication/providers/saml:
     get:
       tags:
         - Administration
@@ -4518,7 +4037,7 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /administration/authentication/providers/web-sso:
+  /api/latest/administration/authentication/providers/web-sso:
     get:
       tags:
         - Administration
@@ -4553,13 +4072,13 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /administration/tokens:
+  /api/latest/administration/tokens:
     $ref: ./latest/onPremise/Administration/Token/AddTokenAndFindTokens.yaml
-  '/administration/tokens/{token_name}':
+  '/api/latest/administration/tokens/{token_name}':
     $ref: ./latest/onPremise/Administration/Token/GetAndDeleteToken.yaml
-  '/administration/tokens/{token_name}/users/{user_id}':
+  '/api/latest/administration/tokens/{token_name}/users/{user_id}':
     $ref: ./latest/onPremise/Administration/Token/GetAndPartialUpdateAndDeleteTokenByUser.yaml
-  /administration/parameters:
+  /api/latest/administration/parameters:
     post:
       tags:
         - Administration
@@ -4587,51 +4106,38 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /administration/vaults/configurations:
+  /api/latest/administration/vaults/configurations:
     $ref: ./latest/onPremise/Administration/Vault/VaultConfiguration.yaml
-  /configuration/global-macros:
-    summary: 'global macros'
-    description: 'global macros configuration'
+  /api/configuration/commands:
     get:
-      operationId: api_configurationglobal-macros_get_collection
+      operationId: api_configurationcommands_get_collection
       tags:
-        - 'Global Macro'
+        - Command
       responses:
+        '403':
+          description: 'You are not allowed to access commands'
         '200':
-          description: 'GlobalMacro collection'
+          description: 'Command collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                description: 'GlobalMacro.jsonld collection.'
+                description: 'ListCommandResource.jsonld collection.'
                 allOf:
                   - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/GlobalMacro.jsonld' } } } }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/ListCommandResource.jsonld' } } } }
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GlobalMacro'
-        '403':
-          description: Forbidden
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-      summary: 'Retrieves the collection of GlobalMacro resources.'
-      description: 'Retrieves the collection of GlobalMacro resources.'
+                  $ref: '#/components/schemas/ListCommandResource'
+      summary: 'Retrieves the collection of Command resources.'
+      description: 'Retrieves the collection of Command resources.'
       parameters:
         -
-          name: 'name[lk]'
+          name: name
           in: query
-          description: 'Filter by name using "like" operator'
+          description: 'Filter commands by name (partial or exact match)'
           required: false
           deprecated: false
           schema:
@@ -4641,15 +4147,40 @@ paths:
           style: form
           explode: true
         -
-          name: 'name[eq]'
+          name: type
           in: query
-          description: 'Filter by name using "equals" operator'
+          description: 'Filter commands by type. Multiple values can be provided using type[]=Check&type[]=Notification'
           required: false
           deprecated: false
           schema:
             type: array
             items:
               type: string
+              enum:
+                - Check
+                - Notification
+                - Miscellaneous
+                - Discovery
+          style: form
+          explode: true
+        -
+          name: is_activated
+          in: query
+          description: 'Filter commands by activation status'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: is_from_monitoring_connector
+          in: query
+          description: 'Filter commands by whether they are from a monitoring connector'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
           style: form
           explode: true
         -
@@ -4676,29 +4207,27 @@ paths:
             maximum: 30
           style: form
           explode: true
-  /configuration/host_groups:
-    get:
-      operationId: api_configurationhost_groups_get_collection
+    post:
+      operationId: api_configurationcommands_post
       tags:
-        - HostGroup
+        - Command
       responses:
-        '200':
-          description: 'HostGroup collection'
+        '409':
+          description: 'Command resource already exists'
+        '403':
+          description: 'You are not allowed to create commands'
+        '201':
+          description: 'Command resource created'
           content:
             application/ld+json:
               schema:
-                type: object
-                description: 'HostGroup.HostGroupCollectionOutput.jsonld collection.'
-                allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput.jsonld' } } } }
+                $ref: '#/components/schemas/CreateCommandResource.jsonld'
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput'
+                $ref: '#/components/schemas/CreateCommandResource'
+          links: {}
         '400':
-          description: 'Invalid query parameter (itemsPerPage must be a positive integer, name must use the "name[lk]=value" format)'
+          description: 'Invalid input'
           content:
             application/ld+json:
               schema:
@@ -4709,184 +4238,98 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+      summary: 'Creates a Command resource.'
+      description: 'Creates a Command resource.'
+      parameters: []
+      requestBody:
+        description: 'The new Command resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/CreateCommandResource'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommandResource'
+        required: true
+  /api/configuration/commands/_duplicate:
+    post:
+      operationId: api_configurationcommands_duplicate_post
+      tags:
+        - Command
+      responses:
+        '200':
+          description: 'A collection holding the duplication outcome for each requested command'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                properties:
+                  '@context': { type: string }
+                  '@id': { type: string }
+                  '@type': { type: string, example: Collection }
+                  totalItems: { type: integer }
+                  member: { type: array, items: { type: object, properties: { '@id': { type: string }, '@type': { type: string, example: DuplicateCommandResource }, command: { type: string, description: 'IRI of the duplicated command (absent when the duplication failed)' }, status: { type: integer }, message: { type: string } }, required: ['@id', '@type', status, message] } }
+              example:
+                '@context': /centreon/api/latest/contexts/Command
+                '@id': /centreon/api/latest/.well-known/genid/b69ebebaa3bb3de34dd8
+                '@type': Collection
+                totalItems: 2
+                member:
+                  - { '@id': /centreon/api/latest/.well-known/genid/c2afa2366f6f99491863, '@type': DuplicateCommandResource, command: /centreon/api/latest/configuration/commands/98, status: 204, message: 'Command duplicated successfully' }
+                  - { '@id': /centreon/api/latest/.well-known/genid/3fa305a034165257c384, '@type': DuplicateCommandResource, status: 404, message: 'Command with ID 99999 not found' }
+          links: {}
+        '400':
+          description: 'Invalid input — the request body failed validation'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: integer, example: 400 }
+                  message: { type: string, description: 'One line per violation, formatted as "[propertyPath] message"', example: "[ids] IDs array cannot be empty\n" }
+                required:
+                  - code
+                  - message
         '403':
-          description: Forbidden
+          description: 'You are not allowed to duplicate commands'
           content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {  }
-      summary: 'Retrieves the collection of HostGroup resources.'
-      description: 'Retrieves the collection of HostGroup resources.'
-      parameters:
-        -
-          name: 'name[lk]'
-          in: query
-          description: 'Filter by host group name using "like" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: string
-          style: form
-          explode: true
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 1
-            maximum: 30
-          style: form
-          explode: true
-  /configuration/plugins:
-    summary: plugins
-    description: 'plugins configuration'
-    get:
-      operationId: api_configurationplugins_get_collection
-      tags:
-        - Plugins
-      responses:
-        '200':
-          description: 'Plugins collection'
-          content:
-            application/ld+json:
               schema:
                 type: object
-                description: 'Plugins.jsonld collection.'
-                allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Plugins'
-      summary: 'Retrieves the collection of Plugins resources.'
-      description: 'Retrieves the collection of Plugins resources.'
-      parameters:
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
-  /configuration/standard-macros:
-    summary: 'standard macros'
-    description: 'standard macros configuration'
-    get:
-      operationId: api_configurationstandard-macros_get_collection
-      tags:
-        - 'Standard Macro'
-      responses:
-        '200':
-          description: 'StandardMacro collection'
-          content:
-            application/ld+json:
-              schema:
-                type: object
-                description: 'StandardMacro.jsonld collection.'
-                allOf:
-                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
-                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/StandardMacro.jsonld' } } } }
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StandardMacro'
-      summary: 'Retrieves the collection of StandardMacro resources.'
-      description: 'Retrieves the collection of StandardMacro resources.'
-      parameters:
-        -
-          name: 'name[lk]'
-          in: query
-          description: 'Filter by name using "like" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: true
-        -
-          name: 'name[eq]'
-          in: query
-          description: 'Filter by name using "equals" operator'
-          required: false
-          deprecated: false
-          schema:
-            type: array
-            items:
-              type: string
-          style: form
-          explode: true
-        -
-          name: page
-          in: query
-          description: 'The collection page number'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 1
-          style: form
-          explode: true
-        -
-          name: itemsPerPage
-          in: query
-          description: 'The number of items per page'
-          required: false
-          deprecated: false
-          schema:
-            type: integer
-            default: 30
-            minimum: 0
-            maximum: 30
-          style: form
-          explode: true
-  '/configuration/commands/{id}':
-    summary: 'operations on a specific command resource'
-    description: 'operations on a specific command resource'
+                properties:
+                  code: { type: integer, example: 0 }
+                  message: { type: string, example: 'You are not allowed to duplicate commands' }
+                required:
+                  - code
+                  - message
+      summary: 'Duplicate a Command resource'
+      description: 'Duplicate a Command resource'
+      parameters: []
+      requestBody:
+        description: 'The new Command resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/DuplicateCommandResource.DuplicateCommandInput'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateCommandResource.DuplicateCommandInput'
+        required: true
+  '/api/configuration/commands/{id}':
     get:
       operationId: api_configurationcommands_id_get
       tags:
@@ -4960,7 +4403,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-          links: {  }
+          links: {}
         '400':
           description: 'Invalid input'
           content:
@@ -4973,7 +4416,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
         '422':
           description: 'An error occurred'
           content:
@@ -4986,7 +4429,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
+          links: {}
       summary: 'Updates the Command resource.'
       description: 'Updates the Command resource.'
       parameters:
@@ -5007,75 +4450,116 @@ paths:
             schema:
               $ref: '#/components/schemas/Command.jsonMergePatch'
         required: true
-  /configuration/commands/_duplicate:
-    summary: 'duplicate a Command resource'
-    description: 'duplicate a Command resource'
-    post:
-      operationId: api_configurationcommands_duplicate_post
+  /api/configuration/connectors:
+    get:
+      operationId: api_configurationconnectors_get_collection
       tags:
-        - Command
+        - Connector
       responses:
         '200':
-          description: 'A collection holding the duplication outcome for each requested command'
+          description: 'Connector collection'
           content:
             application/ld+json:
               schema:
                 type: object
-                properties:
-                  '@context': { type: string }
-                  '@id': { type: string }
-                  '@type': { type: string, example: Collection }
-                  totalItems: { type: integer }
-                  member: { type: array, items: { type: object, properties: { '@id': { type: string }, '@type': { type: string, example: DuplicateCommandResource }, command: { type: string, description: 'IRI of the duplicated command (absent when the duplication failed)' }, status: { type: integer }, message: { type: string } }, required: ['@id', '@type', status, message] } }
-              example:
-                '@context': /centreon/api/latest/contexts/Command
-                '@id': /centreon/api/latest/.well-known/genid/b69ebebaa3bb3de34dd8
-                '@type': Collection
-                totalItems: 2
-                member:
-                  - { '@id': /centreon/api/latest/.well-known/genid/c2afa2366f6f99491863, '@type': DuplicateCommandResource, command: /centreon/api/latest/configuration/commands/98, status: 204, message: 'Command duplicated successfully' }
-                  - { '@id': /centreon/api/latest/.well-known/genid/3fa305a034165257c384, '@type': DuplicateCommandResource, status: 404, message: 'Command with ID 99999 not found' }
-          links: {  }
-        '400':
-          description: 'Invalid input — the request body failed validation'
-          content:
+                description: 'Connector.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Connector.jsonld' } } } }
             application/json:
               schema:
-                type: object
-                properties:
-                  code: { type: integer, example: 400 }
-                  message: { type: string, description: 'One line per violation, formatted as "[propertyPath] message"', example: "[ids] IDs array cannot be empty\n" }
-                required:
-                  - code
-                  - message
+                type: array
+                items:
+                  $ref: '#/components/schemas/Connector'
         '403':
-          description: 'You are not allowed to duplicate commands'
+          description: Forbidden
           content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
             application/json:
               schema:
-                type: object
-                properties:
-                  code: { type: integer, example: 0 }
-                  message: { type: string, example: 'You are not allowed to duplicate commands' }
-                required:
-                  - code
-                  - message
-      summary: 'Duplicate a Command resource'
-      description: 'Duplicate a Command resource'
-      parameters: []
-      requestBody:
-        description: 'The new Command resource'
-        content:
-          application/ld+json:
-            schema:
-              $ref: '#/components/schemas/DuplicateCommandResource.DuplicateCommandInput'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DuplicateCommandResource.DuplicateCommandInput'
-        required: true
-  '/configuration/connectors/{id}':
-    summary: 'operations on a specific connector resource'
-    description: 'operations on a specific Connector resource'
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of Connector resources.'
+      description: 'Retrieves the collection of Connector resources.'
+      parameters:
+        -
+          name: 'id[lk]'
+          in: query
+          description: 'Filter by id using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        -
+          name: 'id[eq]'
+          in: query
+          description: 'Filter by id using "equals" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: integer
+          style: form
+          explode: true
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: 'name[eq]'
+          in: query
+          description: 'Filter by name using "equals" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  '/api/configuration/connectors/{id}':
     get:
       operationId: api_configurationconnectors_id_get
       tags:
@@ -5102,7 +4586,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
         '404':
           description: 'Not found'
           content:
@@ -5115,7 +4599,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
       summary: 'Retrieves a Connector resource.'
       description: 'Retrieves a Connector resource.'
       parameters:
@@ -5129,9 +4613,92 @@ paths:
             type: string
           style: simple
           explode: false
-  '/configuration/plugins/{plugin_name}':
-    summary: 'operations on a specific plugin resource'
-    description: 'operations on a specific plugin resource'
+  /api/configuration/global-macros:
+    get:
+      operationId: api_configurationglobal-macros_get_collection
+      tags:
+        - 'Global Macro'
+      responses:
+        '200':
+          description: 'GlobalMacro collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'GlobalMacro.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/GlobalMacro.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GlobalMacro'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of GlobalMacro resources.'
+      description: 'Retrieves the collection of GlobalMacro resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: 'name[eq]'
+          in: query
+          description: 'Filter by name using "equals" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  '/api/configuration/plugins/{plugin_name}':
     get:
       operationId: api_configurationplugins_plugin_name_get
       tags:
@@ -5158,7 +4725,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
       summary: 'Retrieves a Plugin resource.'
       description: 'Retrieves a Plugin resource.'
       parameters:
@@ -5172,58 +4739,62 @@ paths:
             type: string
           style: simple
           explode: false
-  '/configuration/agent-configurations/installation-command/{pollerId}':
+  /api/configuration/plugins:
     get:
-      operationId: api_configurationagent-configurationsinstallation-command_pollerId_get
+      operationId: api_configurationplugins_get_collection
       tags:
-        - 'Agent Configuration'
+        - Plugins
       responses:
-        '404':
-          description: 'Poller not found'
-        '403':
-          description: 'You are not allowed to access this resource'
         '200':
-          description: 'InstallationCommandResource resource'
+          description: 'Plugins collection'
           content:
             application/ld+json:
               schema:
-                $ref: '#/components/schemas/InstallationCommandResource.jsonld'
+                type: object
+                description: 'Plugins.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Plugins.jsonld' } } } }
             application/json:
               schema:
-                $ref: '#/components/schemas/InstallationCommandResource'
-      summary: 'Retrieves a InstallationCommandResource resource.'
-      description: 'Retrieves a InstallationCommandResource resource.'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Plugins'
+      summary: 'Retrieves the collection of Plugins resources.'
+      description: 'Retrieves the collection of Plugins resources.'
       parameters:
         -
-          name: pollerId
-          in: path
-          description: 'InstallationCommandResource identifier'
-          required: true
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
           deprecated: false
           schema:
-            type: string
-          style: simple
-          explode: false
-  /configuration/pollers:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  /api/configuration/pollers:
     post:
       operationId: api_configurationpollers_post
       tags:
         - Poller
       responses:
-        '409':
-          description: 'Poller resource already exists'
-        '201':
-          description: 'Poller resource created'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Poller.jsonld'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Poller'
-          links: {  }
         '400':
-          description: 'Invalid input'
+          description: 'Invalid input (e.g. unknown poller token name)'
           content:
             application/ld+json:
               schema:
@@ -5234,7 +4805,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
+        '409':
+          description: 'Poller resource already exists'
+        '503':
+          description: 'Engine secrets are not available'
+        '201':
+          description: 'Poller resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Poller.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poller'
+          links: {}
         '422':
           description: 'An error occurred'
           content:
@@ -5247,7 +4832,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation'
-          links: {  }
+          links: {}
         '403':
           description: Forbidden
           content:
@@ -5260,7 +4845,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
       summary: 'Creates a Poller resource.'
       description: 'Creates a Poller resource.'
       parameters: []
@@ -5306,7 +4891,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: {  }
+          links: {}
       summary: 'Retrieves the collection of Poller resources.'
       description: 'Retrieves the collection of Poller resources.'
       parameters:
@@ -5344,16 +4929,18 @@ paths:
             maximum: 30
           style: form
           explode: true
-  '/configuration/pollers/installation-command/{id}':
+  '/api/configuration/pollers/installation-command/{id}':
     get:
       operationId: api_configurationpollersinstallation-command_id_get
       tags:
         - Poller
       responses:
         '404':
-          description: 'Poller not found'
+          description: 'Poller or poller token not found'
         '403':
           description: 'You are not allowed to access this resource'
+        '503':
+          description: 'Engine secrets are not available'
         '200':
           description: 'InstallationCommandResource resource'
           content:
@@ -5386,6 +4973,319 @@ paths:
             type: integer
           style: simple
           explode: false
+  /api/configuration/services/categories:
+    post:
+      operationId: api_configurationservicescategories_post
+      tags:
+        - 'Service Category'
+      responses:
+        '409':
+          description: 'ServiceCategory resource already exists'
+        '201':
+          description: 'ServiceCategory resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ServiceCategory.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceCategory'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Creates a ServiceCategory resource.'
+      description: 'Creates a ServiceCategory resource.'
+      parameters: []
+      requestBody:
+        description: 'The new ServiceCategory resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/ServiceCategory'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceCategory'
+        required: true
+  /api/configuration/standard-macros:
+    get:
+      operationId: api_configurationstandard-macros_get_collection
+      tags:
+        - 'Standard Macro'
+      responses:
+        '200':
+          description: 'StandardMacro collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'StandardMacro.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/StandardMacro.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardMacro'
+      summary: 'Retrieves the collection of StandardMacro resources.'
+      description: 'Retrieves the collection of StandardMacro resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: 'name[eq]'
+          in: query
+          description: 'Filter by name using "equals" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  /api/platform/updates:
+    post:
+      operationId: api_platformupdates_post
+      tags:
+        - Upgrade
+      responses:
+        '204':
+          description: 'Upgrade resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Upgrade.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Upgrade'
+          links: {}
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation'
+          links: {}
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Creates a Upgrade resource.'
+      description: 'Creates a Upgrade resource.'
+      parameters: []
+      requestBody:
+        description: 'The new Upgrade resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Upgrade'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Upgrade'
+        required: true
+  '/api/configuration/agent-configurations/installation-command/{pollerId}':
+    get:
+      operationId: api_configurationagent-configurationsinstallation-command_pollerId_get
+      tags:
+        - 'Agent Configuration'
+      responses:
+        '404':
+          description: 'Poller not found'
+        '403':
+          description: 'You are not allowed to access this resource'
+        '200':
+          description: 'InstallationCommandResource resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/InstallationCommandResource.jsonld'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationCommandResource'
+      summary: 'Retrieves a InstallationCommandResource resource.'
+      description: 'Retrieves a InstallationCommandResource resource.'
+      parameters:
+        -
+          name: pollerId
+          in: path
+          description: 'InstallationCommandResource identifier'
+          required: true
+          deprecated: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+  /api/configuration/host_groups:
+    get:
+      operationId: api_configurationhost_groups_get_collection
+      tags:
+        - HostGroup
+      responses:
+        '200':
+          description: 'HostGroup collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'HostGroup.HostGroupCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostGroup.HostGroupCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of HostGroup resources.'
+      description: 'Retrieves the collection of HostGroup resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by host group name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -6029,15 +5929,17 @@ components:
               default: true
             attempts:
               description: 'login attempts before blocking'
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               minimum: 1
               maximum: 10
               default: 5
             blocking_duration:
               description: 'blocking duration in seconds before new login attempt'
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               maximum: 604800
               default: 900
             password_expiration:
@@ -6049,23 +5951,23 @@ components:
               properties:
                 expiration_delay:
                   description: 'password expiration delay in seconds'
-                  type: integer
-                  nullable: true
+                  type: [integer, 'null']
                   minimum: 604800
                   maximum: 31557600
                   default: 15552000
                 excluded_users:
                   description: 'list of users without password expiration rule'
                   type: array
-                  items: { type: string, description: 'user login', nullable: false, example: admin, minLength: 1, maxLength: 255 }
+                  items: { type: string, description: 'user login', example: admin, minLength: 1, maxLength: 255 }
             can_reuse_passwords:
               description: 'is allowed or not to reuse a password among 3 last'
               type: boolean
               default: false
             delay_before_new_password:
               description: 'delay in seconds before a new password can be set'
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               minimum: 3600
               maximum: 604800
               default: 3600
@@ -6123,17 +6025,19 @@ components:
           type: boolean
           description: Logout
         logout_from_url:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Indicates the logout URL'
           example: 'https://idp/saml'
-          nullable: true
         auto_import:
           type: boolean
           description: 'Auto import user from external provider'
           example: true
         contact_template:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             id:
               type: integer
@@ -6144,15 +6048,17 @@ components:
               description: 'Contact template name'
               example: Default
         email_bind_attribute:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Email bind attribute'
           example: email
-          nullable: true
         fullname_bind_attribute:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Fullname bind attribute'
           example: name
-          nullable: true
         authentication_conditions:
           type: object
           required:
@@ -6180,7 +6086,6 @@ components:
               type: boolean
             attribute_path:
               type: string
-              nullable: false
               example: info.items.groups
             relations:
               type: array
@@ -6280,18 +6185,21 @@ components:
             description: 'IP address'
             example: 127.0.0.1
         login_header_attribute:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: "Header used to retrieve user's login"
           example: HTTP_AUTH_USER
         pattern_matching_login:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Pattern to search for in the login header attribute name'
           example: '/@.*/'
         pattern_replace_login:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'String that will replace the string defined in the Pattern match login (regex) field'
           example: '/@.*/'
     Comment.Resources:
@@ -6319,14 +6227,16 @@ components:
                 description: 'Resource ID'
                 example: 10
               parent:
-                type: object
-                nullable: true
+                type:
+                  - object
+                  - 'null'
                 properties:
                   id: { type: integer, description: 'Parent resource ID', example: 17 }
               date:
-                type: string
+                type:
+                  - string
+                  - 'null'
                 format: date-time
-                nullable: true
                 description: 'Date of the comment (ISO8601)'
               comment:
                 type: string
@@ -6474,8 +6384,9 @@ components:
           description: 'is active or not (enable/disable)'
           example: true
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'some comment'
     Configuration.Service.Category:
       type: object
@@ -6512,8 +6423,9 @@ components:
           description: 'is active or not (enable/disable)'
           example: true
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'some comment'
     Configuration.Service.Category.Add:
       type: object
@@ -6554,9 +6466,10 @@ components:
           description: 'Define the image ID associated with this severity'
           example: 1
         comment:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Host severity comment'
-          nullable: true
         is_activated:
           type: boolean
           description: 'Indicates whether this host severity is enabled or not'
@@ -6580,9 +6493,10 @@ components:
           description: 'Define the image ID associated with this severity'
           example: 1
         comment:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Host severity comment'
-          nullable: true
         is_activated:
           type: boolean
           description: 'Indicates whether this host severity is enabled or not'
@@ -6611,60 +6525,71 @@ components:
           description: 'Host template alias'
           example: generic-active-host
         snmp_community:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Community of the SNMP agent'
         snmp_version:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           enum:
             - '1'
             - 2c
             - '3'
+            - null
           description: |
             Version of the SNMP agent.
 
             The value can be `1`, `2c` or `3`
           example: 2c
         timezone_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Timezone ID'
           example: 1
-          nullable: true
         severity_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Severity ID'
           example: 1
-          nullable: true
         check_command_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Check command ID'
           example: 1
-          nullable: true
         check_command_args:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Check command arguments'
           example: '!0!OK'
-          nullable: true
         check_timeperiod_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Check command timeperiod ID'
           example: 1
-          nullable: true
         max_check_attempts:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Define the number of times that monitoring engine will retry the host check command if it returns any non-OK state'
         check_interval:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of 'time units' between regularly scheduled checks of the host.
 
             With the default time unit of 60s, this number will mean multiples of 1 minute.
         retry_check_interval:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before scheduling a re-check for this host after a non-UP state was detected.
 
@@ -6712,8 +6637,9 @@ components:
             example: A value equal to 5 corresponding to the selected options DOWN and RECOVERY
           example: 5
         notification_interval:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before re-notifying a contact that this host is still down or unreachable.
 
@@ -6721,10 +6647,11 @@ components:
 
             A value of 0 disables re-notifications of contacts about problems for this host - only one problem notification will be sent out.
         notification_timeperiod_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Notification timeperiod ID'
           example: 1
-          nullable: true
         add_inherited_contact_group:
           type: boolean
           description: |
@@ -6738,22 +6665,25 @@ components:
 
             When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
         first_notification_delay:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before sending out the first problem notification when this host enters a non-UP state.
 
             With the default time unit of 60s, this number will mean multiples of 1 minute.
         recovery_notification_delay:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: |
             Define the number of "time units" to wait before sending out the recovery notification when this host enters an UP state.
 
             With the default time unit of 60s, this number will mean multiples of 1 minute.
         acknowledgement_timeout:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify a duration of acknowledgement for this host.'
         freshness_checked:
           type: integer
@@ -6764,8 +6694,9 @@ components:
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
         freshness_threshold:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify the freshness threshold (in seconds) for this host.'
         flap_detection_enabled:
           type: integer
@@ -6776,12 +6707,14 @@ components:
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
         low_flap_threshold:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify the low state change threshold used in flap detection for this host'
         high_flap_threshold:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Specify the high state change threshold used in flap detection for this host'
         event_handler_enabled:
           type: integer
@@ -6792,43 +6725,51 @@ components:
             * `1` - STATUS_ENABLE
             * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of the Centreon Engine)
         event_handler_command_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Event handler command ID'
           example: 1
-          nullable: true
         event_handler_command_args:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Event handler command arguments'
           example: '!0!OK'
-          nullable: true
         note_url:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Define an optional URL that can be used to provide more information about the host.'
         note:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Define an optional note.'
         action_url:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Define an optional URL that can be used to provide more actions to be performed on the host.'
         icon_id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'Define the image ID that should be associated with this host template'
           example: 1
         icon_alternative:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 200
           description: 'Define an optional string that is used in the alternative description of the icon image'
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Host template comments'
         is_activated:
           type: boolean
@@ -6852,20 +6793,23 @@ components:
           description: 'Service group name'
           example: MySQL-Servers
         alias:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 200
           description: 'Service group alias'
           example: 'All MySQL Servers'
         geo_coords:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 32
           description: 'Geographical coordinates use by Centreon Map module to position element on map'
           example: '48.51,2.20'
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Comments on this service group'
         is_activated:
@@ -6927,8 +6871,9 @@ components:
           maxLength: 255
           description: 'Image path'
         comment:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           maxLength: 65535
           description: 'Image comments'
     User.Filter:
@@ -7154,23 +7099,26 @@ components:
           description: 'Name of the server'
           example: Central
         address:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'IP address of the server'
           example: 127.0.0.1
-          nullable: true
         isRunning:
           type: boolean
           description: 'Indicates if the server is running or not'
           example: true
         lastAlive:
-          type: integer
+          type:
+            - integer
+            - 'null'
           description: 'Timestamp of last time server was alive'
-          nullable: true
         version:
-          type: string
+          type:
+            - string
+            - 'null'
           description: 'Version of the server (centreon-engine)'
           example: 20.10.0
-          nullable: true
     Monitoring.Category:
       type: object
       properties:
@@ -7240,8 +7188,9 @@ components:
           items:
             $ref: '#/components/schemas/Monitoring.Resource.Action'
     Acknowledgement.Host:
-      type: object
-      nullable: true
+      type:
+        - object
+        - 'null'
       properties:
         id:
           type: integer
@@ -7262,9 +7211,10 @@ components:
           description: 'Short description of the acknowledgement'
           example: 'Acknowledged by admin'
         deletion_time:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of the request for cancellation of the acknowledgement (ISO8601)'
         entry_time:
           type: string
@@ -7301,14 +7251,16 @@ components:
              * `3` - UNKNOWN
           example: 1
     Acknowledgement.Service:
-      type: object
-      nullable: true
+      type:
+        - object
+        - 'null'
       allOf:
         -
           $ref: '#/components/schemas/Acknowledgement.Host'
         -
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             service_id:
               type: integer
@@ -7451,9 +7403,10 @@ components:
           format: date-time
           description: 'Scheduled end date of the downtime (ISO8601)'
         deletion_time:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of cancellation of downtime (ISO8601)'
           example: null
         actual_start_time:
@@ -7579,8 +7532,9 @@ components:
                 description: 'Resource ID'
                 example: 10
               parent:
-                type: object
-                nullable: true
+                type:
+                  - object
+                  - 'null'
                 properties:
                   id: { type: integer, description: 'Parent resource ID', example: 17 }
     SubmitResult.Host:
@@ -7601,13 +7555,15 @@ components:
             * `2` - UNREACHABLE
           example: 1
         output:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Output result of the check sent'
           example: 'CRITICAL: Connection lost'
         performance_data:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Performance data result of the check sent'
           example: "'nbproc'=0;;1:1;0;"
     SubmitResult.Service:
@@ -7630,13 +7586,15 @@ components:
             * `3` - UNKNOWN
           example: 2
         output:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Output result of the check sent'
           example: 'CRITICAL: Memory exceeded '
         performance_data:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Performance data result of the check sent'
           example: "'used'=453849088B;;;0;1927262208"
     SubmitResult.Resources:
@@ -7665,8 +7623,9 @@ components:
                 description: 'Resource ID'
                 example: 10
               parent:
-                type: object
-                nullable: true
+                type:
+                  - object
+                  - 'null'
                 properties:
                   id: { type: integer, description: 'Parent resource ID', example: 17 }
               status:
@@ -7684,13 +7643,15 @@ components:
                   * `3` - UNKNOWN
                 example: 2
               output:
-                type: string
-                nullable: true
+                type:
+                  - string
+                  - 'null'
                 description: 'Output result of the check sent'
                 example: 'CRITICAL: Memory exceeded '
               performance_data:
-                type: string
-                nullable: true
+                type:
+                  - string
+                  - 'null'
                 description: 'Performance data result of the check sent'
                 example: "'used'=453849088B;;;0;1927262208"
     Monitoring.Resource.Action:
@@ -7706,8 +7667,9 @@ components:
           description: 'ID of the resource'
           example: 12
         parent:
-          nullable: true
-          type: object
+          type:
+            - object
+            - 'null'
           properties:
             id:
               type: integer
@@ -7740,8 +7702,9 @@ components:
           description: 'ID of the host behind the resource'
           example: 12
         service_id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           format: int32
           description: 'ID of the service behind the resource'
           example: 12
@@ -7750,13 +7713,15 @@ components:
           description: 'Resource name'
           example: Ping
         alias:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Resource alias'
           example: null
         fqdn:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Resource fqdn'
           example: null
         links:
@@ -7766,8 +7731,9 @@ components:
           description: 'Monitoring Server from which is monitored the Resource'
           example: Central
         icon:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             id:
               type: integer
@@ -7783,8 +7749,9 @@ components:
               description: 'Url of the icon'
               example: /media/memory.png
         parent:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             type:
               type: string
@@ -7804,8 +7771,9 @@ components:
               description: 'Parent resource name'
               example: Central
             alias:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Parent resource alias'
               example: Host
             fqdn:
@@ -7827,48 +7795,57 @@ components:
           description: 'Indicates whether resource is acknowledged'
           example: false
         duration:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Duration since last status change'
           example: '2h 3m'
         last_status_change:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of the last status change (ISO8601)'
         last_time_with_no_issue:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'Date of the last status change (ISO8601)'
         tries:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Number of check tries'
           example: '3/3 (H)'
         last_check:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Duration since last check'
           example: '1h 45m'
         information:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Output of the resource'
           example: 'OK - Ping is ok'
         has_active_checks_enabled:
-          type: boolean
-          nullable: true
+          type:
+            - boolean
+            - 'null'
           description: 'Indicates whether active checks are enabled'
           example: true
         has_passive_checks_enabled:
-          type: boolean
-          nullable: true
+          type:
+            - boolean
+            - 'null'
           description: 'Indicates whether passive checks are enabled'
           example: true
         performance_data:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Performance data result of the check sent'
           example: 'rta=0.025ms;200.000;400.000;0; rtmax=0.061ms;;;; rtmin=0.015ms;;;; pl=0%;20;50;0;100 '
         is_notification_enabled:
@@ -7876,8 +7853,9 @@ components:
           description: 'Indicates if notifications are enabled for the resource'
           example: false
         severity:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           properties:
             type:
               type: string
@@ -7917,95 +7895,112 @@ components:
           type: object
           properties:
             configuration:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'configuration uri'
               example: '/centreon/main.php?p=60101&o=c&host_id=11'
             logs:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'logs uri'
               example: '/centreon/main.php?p=20301&h=11'
             reporting:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'reporting uri'
               example: '/centreon/main.php?p=307&host=11'
         endpoints:
           type: object
           properties:
             details:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource details endpoint'
               example: /centreon/api/latest/monitoring/resources/hosts/11
             timeline:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource timeline endpoint'
               example: /centreon/api/latest/monitoring/hosts/11/timeline
             status_graph:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource status graph endpoint'
               example: null
             performance_graph:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'resource performance graph endpoint'
               example: null
             acknowledgement:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'current resource acknowledgement endpoint'
               example: '/centreon/api/latest/monitoring/hosts/11/acknowledgements?limit=1'
             downtime:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'current resource downtimes endpoint'
               example: '/centreon/api/latest/monitoring/hosts/11/downtimes?search=%7B%22%24and%22:%5B%7B%22start_time%22:%7B%22%24lt%22:1599655905%7D,%22end_time%22:%7B%22%24gt%22:1599655905%7D,%220%22:%7B%22%24or%22:%7B%22is_cancelled%22:%7B%22%24neq%22:1%7D,%22deletion_time%22:%7B%22%24gt%22:1599655905%7D%7D%7D%7D%5D%7D'
             notification_policy:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'current resource notification policy endpoint'
               example: /centreon/api/latest/configurations/hosts/11/notification-policy
             check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Endpoint dedicated for checks (forced_check payload entry set to false)'
               example: /centreon/api/latest/monitoring/hosts/17/services/23/check
             forced_check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Endpoint dedicated for checks (forced_check payload entry set to true)'
               example: /centreon/api/latest/monitoring/hosts/17/services/23/check
             metrics:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Endpoint dedicated for service metrics'
               example: /centreon/api/latest/monitoring/hosts/17/services/23/metrics
         externals:
           type: object
           properties:
             action_url:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'URL that can be used to provide more actions to be performed on the resource'
               example: 'http://mediawiki/resource/name'
             notes:
               $ref: '#/components/schemas/Monitoring.Notes'
     Monitoring.Notes:
-      type: object
-      nullable: true
+      type:
+        - object
+        - 'null'
       properties:
         url:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'URL that can be used to provide more information on the resource'
           example: 'http://mediawiki/resource/name'
         label:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Note that can be used to describe the note url'
           example: 'How to turn back on the server'
     Monitoring.ResourceStatus:
@@ -8123,13 +8118,15 @@ components:
                   * `1` - Passive
               example: 0
             last_hard_state:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Date of the last hard state (ISO8601)'
             last_notification:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Date of the last notification (ISO8601)'
             latency:
@@ -8138,8 +8135,9 @@ components:
               description: 'Time difference between scheduled check time and actual check time'
               example: 0.005
             next_check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Scheduled date for the next check (ISO8601)'
             next_host_notification:
@@ -8228,9 +8226,10 @@ components:
               description: 'Indicates whether the host is checked'
               example: true
             execution_time:
-              type: number
+              type:
+                - number
+                - 'null'
               format: float
-              nullable: true
               description: 'Time duration to check the host'
               example: 0.070906
             icon_image:
@@ -8242,39 +8241,46 @@ components:
               description: 'Alternative text of the icon representing the host'
               example: ''
             last_check:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of last check (ISO8601)'
             last_hard_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last hard state change (ISO8601)'
             last_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last state change (soft or hard) (ISO8601)'
             last_time_down:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the host was DOWN (ISO8601)'
             last_time_unreachable:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the host was UNREACHABLE (ISO8601)'
             last_time_up:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the host was UP (ISO8601)'
             last_update:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of last update (ISO8601)'
             max_check_attempts:
               type: integer
@@ -8306,8 +8312,9 @@ components:
               description: 'Is there scheduled downtime for host or not (1 or 0)'
               example: 0
             criticality:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               description: 'Host criticality level (for display purposes)'
               example: 10
     Monitoring.HostWithService:
@@ -8410,14 +8417,16 @@ components:
               description: 'Alternative text of the icon representing the service'
               example: ''
             last_check:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of last check (ISO8601)'
             last_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last state change (ISO8601)'
             max_check_attempts:
               type: integer
@@ -8436,15 +8445,17 @@ components:
                   * `1` - HARD
               example: 1
             criticality:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               description: 'Service criticality level (for display purposes)'
               example: 10
             status:
               $ref: '#/components/schemas/Monitoring.ResourceStatus'
             duration:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Duration since last status change'
               example: '2h 3m'
     Monitoring.ServiceFull:
@@ -8475,8 +8486,9 @@ components:
                   * `1` - Passive
               example: 0
             command_line:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               description: 'Command used for active checks'
               example: '/usr/lib64/nagios/plugins/check_icmp -H 127.0.0.1 -n 5 -w 200,20% -c 400,50%'
             execution_time:
@@ -8497,39 +8509,46 @@ components:
               description: 'Indicates whether the service has been checked'
               example: true
             last_hard_state_change:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last hard state change (ISO8601)'
             last_notification:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last notification (ISO8601)'
             last_time_critical:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was CRITICAL (ISO8601)'
             last_time_ok:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was OK (ISO8601)'
             last_time_unknown:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was UNKNOWN (ISO8601)'
             last_time_warning:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'The last time the service was WARNING (ISO8601)'
             last_update:
-              type: string
+              type:
+                - string
+                - 'null'
               format: date-time
-              nullable: true
               description: 'Date of the last update (ISO8601)'
             latency:
               type: number
@@ -8537,8 +8556,9 @@ components:
               description: 'Time difference between scheduled check time and actual check time'
               example: 0.031
             next_check:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               format: date-time
               description: 'Scheduled date for the next check (ISO8601)'
             performance_data:
@@ -8557,8 +8577,9 @@ components:
               allOf:
                 -
                   $ref: '#/components/schemas/Acknowledgement.Service'
-              type: object
-              nullable: true
+              type:
+                - object
+                - 'null'
             flapping:
               type: boolean
               description: 'Is the host flapping or not'
@@ -8581,9 +8602,10 @@ components:
           description: 'ID of the resource'
           example: 12
         parent_resource_id:
-          type: integer
+          type:
+            - integer
+            - 'null'
           format: int64
-          nullable: true
           description: 'ID of the parent resource (eg: host id)'
           example: 5
     Configuration.Proxy:
@@ -8600,13 +8622,15 @@ components:
           maximum: 65535
           example: 3128
         user:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Login used to connect to proxy'
           example: proxy-user
         password:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: 'Password used to connect to proxy'
           example: proxy-pass
       required:
@@ -8636,26 +8660,30 @@ components:
           format: date-time
           description: 'The date the event happened (ISO8601)'
         start_date:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'The date the event started (ISO8601) (start date of downtime)'
         end_date:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date-time
-          nullable: true
           description: 'The date the event ended (ISO8601) (end date of downtime)'
         content:
           type: string
           description: 'The content of the event'
         contact:
-          type: object
-          nullable: true
+          type:
+            - object
+            - 'null'
           description: 'The contact of the event'
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               description: 'Id of the contact'
             name:
               type: string
@@ -8663,8 +8691,9 @@ components:
         status:
           $ref: '#/components/schemas/Monitoring.ResourceStatus'
         tries:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
           description: 'The count of retry'
     Topology.Register:
       type: object
@@ -8753,23 +8782,27 @@ components:
           type: object
           properties:
             host:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               example: example.proxy.com
               description: 'Host of your proxy'
             port:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
               example: 80
               description: 'Proxy port'
             user:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               example: admin
               description: 'proxy username'
             password:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
               example: centreon
               description: 'proxy password'
     Gorgone.Response:
@@ -8842,12 +8875,14 @@ components:
           type: string
         title:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         instance:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     ConstraintViolation.jsonld-jsonld:
       type: object
       description: 'Unprocessable entity'
@@ -8902,37 +8937,43 @@ components:
           type: string
         title:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         instance:
           readOnly: true
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Error:
       type: object
       description: 'A representation of common errors.'
       properties:
         title:
-          type: string
           readOnly: true
           description: 'A short, human-readable summary of the problem.'
-          nullable: true
+          type:
+            - string
+            - 'null'
         detail:
-          type: string
           readOnly: true
           description: 'A human-readable explanation specific to this occurrence of the problem.'
-          nullable: true
+          type:
+            - string
+            - 'null'
         status:
-          type: number
-          default: 400
-          example:
+          type:
+            - integer
+            - 'null'
+          examples:
             - 404
-          nullable: true
+          default: 400
         instance:
-          type: string
           readOnly: true
           description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-          nullable: true
+          type:
+            - string
+            - 'null'
         type:
           readOnly: true
           description: 'A URI reference that identifies the problem type'
@@ -8947,31 +8988,37 @@ components:
             title:
               readOnly: true
               description: 'A short, human-readable summary of the problem.'
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             detail:
               readOnly: true
               description: 'A human-readable explanation specific to this occurrence of the problem.'
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             status:
-              type: number
-              example: 404
+              type:
+                - integer
+                - 'null'
+              examples:
+                - 404
               default: 400
-              nullable: true
             instance:
               readOnly: true
               description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             type:
               readOnly: true
               description: 'A URI reference that identifies the problem type'
               type: string
             description:
               readOnly: true
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
       description: 'A representation of common errors.'
     GlobalMacroResource:
       type: object
@@ -8979,28 +9026,32 @@ components:
       deprecated: false
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -9021,28 +9072,32 @@ components:
           readOnly: true
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -9061,8 +9116,9 @@ components:
         name:
           maxLength: 255
           description: 'Name of plugin'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: negate
     ListPlugins.jsonld:
       type: object
@@ -9080,8 +9136,9 @@ components:
         name:
           maxLength: 255
           description: 'Name of plugin'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: negate
     ServiceCategory:
       type: object
@@ -9095,8 +9152,9 @@ components:
           maxLength: 255
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         is_activated:
           type: boolean
     ServiceCategory.jsonld:
@@ -9115,8 +9173,9 @@ components:
               maxLength: 255
               type: string
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             is_activated:
               type: boolean
     StandardMacroResource:
@@ -9125,11 +9184,13 @@ components:
       deprecated: false
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     StandardMacroResource.jsonld:
       type: object
       description: ''
@@ -9142,11 +9203,13 @@ components:
           readOnly: true
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Command:
       type: object
       properties:
@@ -9195,10 +9258,11 @@ components:
             id: 1
             name: 'SSH Connector'
         comment:
-          type: string
           description: 'Additional information about the command'
+          type:
+            - string
+            - 'null'
           example: 'This command is used to check the HTTP service'
-          nullable: true
     Command.DuplicateCommandInput:
       type: object
       description: ''
@@ -9274,9 +9338,10 @@ components:
                 name: 'SSH Connector'
             comment:
               description: 'Additional information about the command'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'This command is used to check the HTTP service'
-              nullable: true
     Connector:
       type: object
       properties:
@@ -9291,10 +9356,11 @@ components:
           type: string
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
-          type: string
           description: 'The connector description'
+          type:
+            - string
+            - 'null'
           example: 'Connector using SSH to connect to remote hosts'
-          nullable: true
         is_activated:
           description: 'Indicates whether the connector is activated'
           type: boolean
@@ -9318,9 +9384,10 @@ components:
               example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
             description:
               description: 'The connector description'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'Connector using SSH to connect to remote hosts'
-              nullable: true
             is_activated:
               description: 'Indicates whether the connector is activated'
               type: boolean
@@ -9342,8 +9409,9 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9372,8 +9440,9 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9391,10 +9460,11 @@ components:
           type: string
           example: /usr/lib64/nagios/plugins/negate
         description:
-          type: string
           description: 'description of plugin'
+          type:
+            - string
+            - 'null'
           example: 'This is the help description of the plugin.'
-          nullable: true
     Plugin.jsonld:
       allOf:
         -
@@ -9412,9 +9482,10 @@ components:
               example: /usr/lib64/nagios/plugins/negate
             description:
               description: 'description of plugin'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'This is the help description of the plugin.'
-              nullable: true
     Command.jsonMergePatch:
       type: object
       properties:
@@ -9463,10 +9534,11 @@ components:
             id: 1
             name: 'SSH Connector'
         comment:
-          type: string
           description: 'Additional information about the command'
+          type:
+            - string
+            - 'null'
           example: 'This command is used to check the HTTP service'
-          nullable: true
     ConstraintViolation:
       type: object
       description: 'Unprocessable entity'
@@ -9505,13 +9577,15 @@ components:
           readOnly: true
           type: string
         title:
-          type: string
           readOnly: true
-          nullable: true
+          type:
+            - string
+            - 'null'
         instance:
-          type: string
           readOnly: true
-          nullable: true
+          type:
+            - string
+            - 'null'
     ConstraintViolation.jsonld:
       allOf:
         -
@@ -9546,12 +9620,14 @@ components:
               type: string
             title:
               readOnly: true
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             instance:
               readOnly: true
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
       description: 'Unprocessable entity'
     CreateCommandResource:
       type: object
@@ -9582,15 +9658,17 @@ components:
           description: 'Indicates whether the command can be executed through a shell'
           type: boolean
         connector:
-          type: string
+          type:
+            - string
+            - 'null'
           format: iri-reference
           example: 'https://example.com/'
-          nullable: true
         comment:
-          type: string
           description: 'Additional information about the command'
+          type:
+            - string
+            - 'null'
           example: 'This command is used to check the HTTP service'
-          nullable: true
     CreateCommandResource.jsonld:
       allOf:
         -
@@ -9624,23 +9702,26 @@ components:
               description: 'Indicates whether the command can be executed through a shell'
               type: boolean
             connector:
-              type: string
+              type:
+                - string
+                - 'null'
               format: iri-reference
               example: 'https://example.com/'
-              nullable: true
             comment:
               description: 'Additional information about the command'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'This command is used to check the HTTP service'
-              nullable: true
     DuplicateCommandResource:
       type: object
       properties:
         command:
-          type: string
+          type:
+            - string
+            - 'null'
           format: iri-reference
           example: 'https://example.com/'
-          nullable: true
         status:
           description: 'The status of the duplication operation'
           type: integer
@@ -9666,10 +9747,11 @@ components:
           type: object
           properties:
             command:
-              type: string
+              type:
+                - string
+                - 'null'
               format: iri-reference
               example: 'https://example.com/'
-              nullable: true
             status:
               description: 'The status of the duplication operation'
               type: integer
@@ -9682,29 +9764,33 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type: string
+          type:
+            - string
+            - 'null'
           example: $USER1$
-          nullable: true
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type: string
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
-          nullable: true
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type: string
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
-          nullable: true
         is_password:
           type: boolean
         is_activated:
@@ -9720,29 +9806,33 @@ components:
           type: object
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             name:
               minLength: 1
               maxLength: 255
               pattern: '^(\$.*\$)$'
               description: 'Name of the global macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: $USER1$
-              nullable: true
             expression:
               minLength: 1
               maxLength: 255
               description: 'Expression (value) of the global macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: /usr/lib64/nagios/plugins
-              nullable: true
             comment:
               maxLength: 255
               description: 'Additional information about the macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'This macro is used to define the path of plugins'
-              nullable: true
             is_password:
               type: boolean
             is_activated:
@@ -9766,16 +9856,16 @@ components:
                 '@type':
                   type: string
                 first:
-                  type: string
+                  type: [string, 'null']
                   format: iri-reference
                 last:
-                  type: string
+                  type: [string, 'null']
                   format: iri-reference
                 previous:
-                  type: string
+                  type: [string, 'null']
                   format: iri-reference
                 next:
-                  type: string
+                  type: [string, 'null']
                   format: iri-reference
               example:
                 '@id': string
@@ -9806,7 +9896,7 @@ components:
                 properties:
                   '@type': { type: string }
                   variable: { type: string }
-                  property: { type: string, nullable: true }
+                  property: { type: [string, 'null'] }
                   required: { type: boolean }
     HydraItemBaseSchema:
       type: object
@@ -9958,11 +10048,12 @@ components:
         - name
       properties:
         name:
-          type: string
           maxLength: 255
           description: 'Name of plugin'
+          type:
+            - string
+            - 'null'
           example: negate
-          nullable: true
     Plugins.jsonld:
       allOf:
         -
@@ -9975,9 +10066,10 @@ components:
             name:
               maxLength: 255
               description: 'Name of plugin'
-              type: string
+              type:
+                - string
+                - 'null'
               example: negate
-              nullable: true
     Service.Category:
       type: object
       properties:
@@ -9990,8 +10082,9 @@ components:
           maxLength: 255
           type: string
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         is_activated:
           type: boolean
     Service.Category.jsonld:
@@ -10010,19 +10103,22 @@ components:
               maxLength: 255
               type: string
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             is_activated:
               type: boolean
     Standard.Macro:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Standard.Macro.jsonld:
       allOf:
         -
@@ -10031,38 +10127,44 @@ components:
           type: object
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             name:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
     GlobalMacro:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
+          type:
+            - string
+            - 'null'
           example: $USER1$
-          nullable: true
         expression:
-          type: string
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
+          type:
+            - string
+            - 'null'
           example: /usr/lib64/nagios/plugins
-          nullable: true
         comment:
-          type: string
           maxLength: 255
           description: 'Additional information about the macro'
+          type:
+            - string
+            - 'null'
           example: 'This macro is used to define the path of plugins'
-          nullable: true
         is_password:
           type: boolean
         is_activated:
@@ -10078,29 +10180,33 @@ components:
           type: object
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             name:
               minLength: 1
               maxLength: 255
               pattern: '^(\$.*\$)$'
               description: 'Name of the global macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: $USER1$
-              nullable: true
             expression:
               minLength: 1
               maxLength: 255
               description: 'Expression (value) of the global macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: /usr/lib64/nagios/plugins
-              nullable: true
             comment:
               maxLength: 255
               description: 'Additional information about the macro'
-              type: string
+              type:
+                - string
+                - 'null'
               example: 'This macro is used to define the path of plugins'
-              nullable: true
             is_password:
               type: boolean
             is_activated:
@@ -10125,14 +10231,17 @@ components:
           maxLength: 255
           type: string
         central_address:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         uid:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     Poller-poller.write:
       type: object
       properties:
@@ -10174,23 +10283,28 @@ components:
               maxLength: 255
               type: string
             central_address:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             uid:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
     StandardMacro:
       type: object
       properties:
         id:
-          type: integer
-          nullable: true
+          type:
+            - integer
+            - 'null'
         name:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
     StandardMacro.jsonld:
       allOf:
         -
@@ -10199,11 +10313,13 @@ components:
           type: object
           properties:
             id:
-              type: integer
-              nullable: true
+              type:
+                - integer
+                - 'null'
             name:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
     Upgrade:
       type: object
     Upgrade.jsonld:
@@ -10222,18 +10338,18 @@ components:
         address:
           type: string
         central_address:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
         id:
           type: integer
-          nullable: true
         uid:
           type: string
-          nullable: true
+        gorgone_communication_type:
+          type: string
         installation_command:
           type: string
-          example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
-          nullable: true
+          example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.CreatePollerInput:
       type: object
       properties:
@@ -10249,6 +10365,7 @@ components:
         address:
           minLength: 1
           maxLength: 255
+          pattern: '^(((?!://).)*)$'
           type: string
         poller_token_name:
           minLength: 1
@@ -10257,8 +10374,10 @@ components:
         central_address:
           minLength: 1
           maxLength: 255
+          pattern: '^(((?!://).)*)$'
           type: string
       required:
+        - address
         - poller_token_name
         - central_address
     Poller.InstallationCommandResource:
@@ -10267,7 +10386,7 @@ components:
         installation_command:
           description: 'Poller Installation Command'
           type: string
-          example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+          example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.InstallationCommandResource.jsonld:
       allOf:
         -
@@ -10278,7 +10397,7 @@ components:
             installation_command:
               description: 'Poller Installation Command'
               type: string
-              example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+              example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.jsonld:
       allOf:
         -
@@ -10293,26 +10412,26 @@ components:
             address:
               type: string
             central_address:
-              type: string
-              nullable: true
+              type:
+                - string
+                - 'null'
             id:
               type: integer
-              nullable: true
             uid:
               type: string
-              nullable: true
+            gorgone_communication_type:
+              type: string
             installation_command:
               type: string
-              example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
-              nullable: true
-    Poller.PollerCollectionOutput:
+              example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
+    HostGroup.HostGroupCollectionOutput:
       type: object
       properties:
         id:
           type: integer
         name:
           type: string
-    Poller.PollerCollectionOutput.jsonld:
+    HostGroup.HostGroupCollectionOutput.jsonld:
       allOf:
         -
           $ref: '#/components/schemas/HydraItemBaseSchema'
@@ -10323,14 +10442,14 @@ components:
               type: integer
             name:
               type: string
-    HostGroup.HostGroupCollectionOutput:
+    Poller.PollerCollectionOutput:
       type: object
       properties:
         id:
           type: integer
         name:
           type: string
-    HostGroup.HostGroupCollectionOutput.jsonld:
+    Poller.PollerCollectionOutput.jsonld:
       allOf:
         -
           $ref: '#/components/schemas/HydraItemBaseSchema'
