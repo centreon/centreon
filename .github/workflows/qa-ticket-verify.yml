@@ -70,12 +70,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+          CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-          pr_json=$(gh pr list --repo centreon/centreon --search "$TICKET_KEY in:title,body" --state all \
+          pr_json_raw=$(gh pr list --repo centreon/centreon --search "$TICKET_KEY in:title,body" --state all \
             --json number,url,headRefName,isDraft,updatedAt,state)
+          # Exclude this workflow's own branch: a "Validated against <ticket>" mention in
+          # this tooling's own PR description (like #11570's) matches the same search and,
+          # being the most recently updated, would otherwise win over the ticket's real PR
+          # — happened on 2026-09-09, resolved the wrong PR/branch and tried to pull a
+          # nonexistent image.
+          pr_json=$(echo "$pr_json_raw" | jq --arg branch "$CURRENT_BRANCH" '[.[] | select(.headRefName != $branch)]')
           count=$(echo "$pr_json" | jq 'length')
           if [ "$count" -eq 0 ]; then
-            echo "::error::No PR found referencing $TICKET_KEY (searched title/body for the key)"
+            echo "::error::No PR found referencing $TICKET_KEY (searched title/body for the key, excluding this workflow's own branch $CURRENT_BRANCH)"
             exit 1
           fi
           # Prefer the most recently updated open, non-draft PR; else the most recently updated of any state.
