@@ -330,7 +330,8 @@ Then('the unit of the resources already displayed should be updated', () => {
       blueCssBackground
     ],
     ['50.0%', '8.3%', '16.7%', '33.3%'],
-    ['33.3%', '25.0%', '8.3%', '33.3%']
+    ['33.3%', '25.0%', '8.3%', '33.3%'],
+    ['41.7%']
   );
 });
 
@@ -366,7 +367,8 @@ Then('only the contents of the other widget are displayed', () => {
       blueCssBackground
     ],
     ['50.0%', '16.7%', '16.7%', '33.3%'],
-    ['33.3%', '8.3%', '8.3%', '33.3%']
+    ['33.3%', '8.3%', '8.3%', '33.3%'],
+    ['41.7%']
   );
 });
 
