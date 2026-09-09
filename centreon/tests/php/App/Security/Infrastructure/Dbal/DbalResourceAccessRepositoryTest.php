@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
@@ -51,6 +52,87 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $this->connection->insert('nagios_server', ['id' => 102, 'name' => 'Poller-102', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.102', 'uid' => 200000000000102]);
         $this->connection->insert('hostgroup', ['hg_id' => 201, 'hg_name' => 'HostGroup-201']);
         $this->connection->insert('hostgroup', ['hg_id' => 202, 'hg_name' => 'HostGroup-202']);
+    }
+
+    public function testUserWithNoAclGroupSeesNoHostSeverity(): void
+    {
+        // Legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource is
+        // fully restricted (fails closed), returning an empty Collection rather than the null "see all".
+        $userId = new UserId($this->createContact('user-no-acl-hs'));
+
+        $accessibleSeverities = $this->repository->findAccessibleHostSeverityIds($userId);
+
+        self::assertNotNull($accessibleSeverities);
+        self::assertSame([], $accessibleSeverities->toArray());
+    }
+
+    public function testUserWithAclResourceHavingNoHostSeverityRestrictionReturnsNull(): void
+    {
+        $contactId = $this->createContact('user-unrestricted-hs');
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
+
+        self::assertNull($this->repository->findAccessibleHostSeverityIds(new UserId($contactId)));
+    }
+
+    public function testUserWithAclResourceGrantingOnlyRegularCategoriesSeesNoHostSeverity(): void
+    {
+        // Legacy pivot: hasRestrictedAccessToHostCategories() is true as soon as the ACL carries any
+        // host-category relation (regardless of level), and the level-scoped join then surfaces no
+        // severity for a resource granting only regular (levelless) categories — so the user sees
+        // nothing. The empty Collection (not null) preserves that fail-closed behaviour.
+        $regularCategory = $this->insertHostCategory('HC-regular-only');
+
+        $contactId = $this->createContact('user-regular-only-hs');
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$regularCategory]);
+
+        $accessibleSeverities = $this->repository->findAccessibleHostSeverityIds(new UserId($contactId));
+
+        self::assertNotNull($accessibleSeverities, 'A resource granting only regular categories must not grant access to every severity.');
+        self::assertSame([], $accessibleSeverities->toArray());
+    }
+
+    public function testUserWithAclResourceRestrictedToHostSeveritiesReturnsOnlySeverityIds(): void
+    {
+        $severityA = $this->insertHostSeverity('HS-A');
+        $severityB = $this->insertHostSeverity('HS-B');
+        $this->insertHostSeverity('HS-C'); // not linked to the user
+        // a levelless (regular) category granted through the same resource must be filtered out
+        $regularCategory = $this->insertHostCategory('HC-regular');
+
+        $contactId = $this->createContact('user-restricted-hs');
+        $this->linkContactToHostSeverityAclResource(
+            $contactId,
+            restrictToHostSeverityIds: [$severityA, $severityB, $regularCategory]
+        );
+
+        $accessibleSeverities = $this->repository->findAccessibleHostSeverityIds(new UserId($contactId));
+
+        self::assertNotNull($accessibleSeverities);
+        $accessibleIds = array_map(
+            static fn (HostSeverityId $hostSeverityId): int => $hostSeverityId->value,
+            $accessibleSeverities->toArray()
+        );
+        self::assertEqualsCanonicalizing([$severityA, $severityB], $accessibleIds);
+    }
+
+    public function testUserWithOneRestrictedAndOneUnrelatedResourceStaysRestrictedToTheUnion(): void
+    {
+        // Regression for the mixed-resource over-exposure class of bug (see PR #11523): a second
+        // accessible resource that carries no host-severity relation must NOT widen access to "all".
+        // The accessible set is the union across every resource; unrestricted only when zero anywhere.
+        $severityA = $this->insertHostSeverity('HS-A');
+
+        $contactId = $this->createContact('user-mixed-hs');
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$severityA]);
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
+
+        $accessibleSeverities = $this->repository->findAccessibleHostSeverityIds(new UserId($contactId));
+
+        self::assertNotNull($accessibleSeverities, 'A resource with no host-severity relation must not grant access to every severity.');
+        self::assertEqualsCanonicalizing(
+            [$severityA],
+            array_map(static fn (HostSeverityId $id): int => $id->value, $accessibleSeverities->toArray())
+        );
     }
 
     public function testUserWithNoAclGroupHasAccessToAllPollers(): void
@@ -177,6 +259,23 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         self::assertNull($this->repository->findAccessibleHostGroupIds($userId));
     }
 
+    private function insertHostSeverity(string $name): int
+    {
+        // a host category carrying a level is a host "severity"
+        return $this->insertHostCategory($name, level: 1);
+    }
+
+    private function insertHostCategory(string $name, ?int $level = null): int
+    {
+        $this->connection->insert('hostcategories', [
+            'hc_name' => $name,
+            'hc_activate' => '1',
+            'level' => $level,
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
     private function createContact(string $alias): int
     {
         $this->connection->insert('contact', [
@@ -189,6 +288,45 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         ]);
 
         return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * @param list<int> $restrictToHostSeverityIds hc_ids granted through this resource's relations
+     *                                             (the shared acl_resources_hc_relations table); empty
+     *                                             means the resource carries no host-severity restriction
+     */
+    private function linkContactToHostSeverityAclResource(int $contactId, array $restrictToHostSeverityIds): void
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => 'hs-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_alias' => 'hs-group-' . $contactId . '-' . random_int(1, PHP_INT_MAX),
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_resources', [
+            'acl_res_name' => 'hs-resource-' . $aclGroupId,
+            'acl_res_alias' => 'hs-resource-' . $aclGroupId,
+            'acl_res_activate' => '1',
+        ]);
+        $aclResId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_res_group_relations', [
+            'acl_res_id' => $aclResId,
+            'acl_group_id' => $aclGroupId,
+        ]);
+
+        foreach ($restrictToHostSeverityIds as $hostCategoryId) {
+            $this->connection->insert('acl_resources_hc_relations', [
+                'acl_res_id' => $aclResId,
+                'hc_id' => $hostCategoryId,
+            ]);
+        }
     }
 
     /**
