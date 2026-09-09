@@ -1,0 +1,185 @@
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{$header.Matrix42}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.address.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.address.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.api_path.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.api_path.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.protocol.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.protocol.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.api_token.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.api_token.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.activity_type.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.activity_type.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.timeout.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.timeout.html}
+    </td>
+</tr>
+<tr class="list_lvl_1">
+    <td class="ListColLvl1_name" colspan="2">
+        <h4>{t}Data definition names used to fetch users / services / assets / categories from the Matrix42 API{/t}</h4>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.user_ddname.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.user_ddname.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.service_ddname.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.service_ddname.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.asset_ddname.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.asset_ddname.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.category_ddname.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.category_ddname.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.role_ddname.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.role_ddname.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {$form.match_asset_to_host.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.match_asset_to_host.html}
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.sync_user_to_responsible_user.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.sync_user_to_responsible_user.html}
+    </td>
+</tr>
+<tr class="list_two">
+    <td class="FormRowField">
+        {t}Test authentication{/t}
+    </td>
+    <td class="FormRowValue">
+        <button class="btc bt_action" id="test-matrix42">{t}Test{/t}</button>
+        <span id="test-error" class="error_message" style="display: none; color: red;"></span>
+        <span id="test-ok" class="okay_message" style="display: none; color: green;"></span>
+    </td>
+</tr>
+<tr class="list_one">
+    <td class="FormRowField">
+        {$form.mappingTicketLabel.label}
+    </td>
+    <td class="FormRowValue">
+        {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+    </td>
+</tr>
+
+<script>
+  var webServiceUrl = '{$webServiceUrl}'
+</script>
+{literal}
+<script>
+  jQuery('#test-matrix42').on('click', function (e) {
+    e.preventDefault();
+    jQuery('.error_message, .okay_message').hide();
+
+    let fields = ['address', 'api_path', 'protocol', 'api_token'];
+    let inError = false;
+
+    fields.forEach(function (field) {
+      if (jQuery('input[name="' + field + '"]').val().trim() === '') {
+        jQuery('#test-error').text('A required field is empty.').show();
+        inError = true;
+      }
+    });
+
+    if (inError) {
+      return;
+    }
+
+    jQuery.ajax({
+      url: webServiceUrl + '?object=centreon_openticket&action=testProvider',
+      type: 'POST',
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify({
+        service: 'Matrix42', // must match the provider name used in register.php
+        address: jQuery('input[name="address"]').val(),
+        api_path: jQuery('input[name="api_path"]').val(),
+        protocol: jQuery('input[name="protocol"]').val(),
+        api_token: jQuery('input[name="api_token"]').val(),
+        timeout: jQuery('input[name="timeout"]').val(),
+        peer_verify: jQuery('input[name="peer_verify"]').is(":checked"),
+        ca_cert_path: jQuery('input[name="ca_cert_path"]').val(),
+        proxy_address: jQuery('input[name="proxy_address"]').val(),
+        proxy_port: jQuery('input[name="proxy_port"]').val(),
+        proxy_username: jQuery('input[name="proxy_username"]').val(),
+        proxy_password: jQuery('input[name="proxy_password"]').val()
+      }),
+      success: function () {
+        jQuery('#test-ok').text('Connection is ok').show();
+      },
+      error: function (error) {
+        jQuery('#test-error').text(error.responseJSON ? error.responseJSON : error.responseText).show();
+      }
+    });
+  });
+</script>
+{/literal}
