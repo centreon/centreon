@@ -41,6 +41,7 @@ use App\Security\Domain\AdminResolver;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -52,6 +53,8 @@ use Webmozart\Assert\Assert;
  */
 final readonly class ListHostsProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
+
     /**
      * @param TransformerInterface<HostListView, HostCollectionOutput> $transformer
      */
@@ -87,7 +90,9 @@ final readonly class ListHostsProvider implements ProviderInterface
 
         /** @var array<string, mixed> $filters */
         $filters = $context['filters'] ?? [];
-        $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
+        if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
+            $criteria = $criteria->withName($name);
+        }
 
         if (($templateId = $this->handlePositiveIntFilter($filters['template_id'] ?? null, 'template_id')) !== null) {
             $criteria = $criteria->withTemplateId($templateId);
@@ -163,55 +168,5 @@ final readonly class ListHostsProvider implements ProviderInterface
         }
 
         return $resources;
-    }
-
-    private function handleNameFilter(mixed $nameFilter, HostCriteria $criteria): HostCriteria
-    {
-        if ($nameFilter === null) {
-            return $criteria;
-        }
-
-        // a client sending "?name=foo" instead of "?name[lk]=foo" lands here as a plain string
-        if (! is_array($nameFilter)) {
-            throw new BadRequestHttpException('The "name" filter must use the "name[lk]=value" format.');
-        }
-
-        $likeValue = $nameFilter['lk'] ?? null;
-        if (is_array($likeValue)) {
-            $likeValue = reset($likeValue);
-        }
-
-        if (! is_string($likeValue) || $likeValue === '') {
-            return $criteria;
-        }
-
-        return $criteria->withName($likeValue);
-    }
-
-    private function handlePositiveIntFilter(mixed $value, string $filterName): ?int
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (! is_numeric($value) || (int) $value <= 0) {
-            throw new BadRequestHttpException(sprintf('The "%s" filter must be a positive integer.', $filterName));
-        }
-
-        return (int) $value;
-    }
-
-    private function handleBoolFilter(mixed $value, string $filterName): ?bool
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        $normalized = filter_var($value, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE);
-        if ($normalized === null) {
-            throw new BadRequestHttpException(sprintf('The "%s" filter must be a boolean.', $filterName));
-        }
-
-        return $normalized;
     }
 }
