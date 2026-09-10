@@ -59,6 +59,11 @@ final class FakeResourceAccessRepository implements ResourceAccessRepository
         return null;
     }
 
+    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
+    {
+        return null;
+    }
+
     public function findAccessiblePollerIds(UserId $userId): ?Collection
     {
         return null;
