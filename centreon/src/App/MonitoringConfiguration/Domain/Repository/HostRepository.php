@@ -21,24 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 
-interface AccessGroupRepository
+interface HostRepository
 {
     /**
-     * Whether the user belongs — directly, or through a contact group — to an
-     * active Access Group with this exact name.
+     * @return \IteratorAggregate<int, Host>&\Countable
      */
-    public function userHasGroup(UserId $userId, string $groupName): bool;
-
-    /**
-     * Every active Access Group the user belongs to, directly or through a contact group.
-     *
-     * @return Collection<AccessGroupId>
-     */
-    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+    public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable;
 }

@@ -21,24 +21,33 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace Tests\App\Security\Infrastructure\Double;
 
 use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Shared\Domain\Collection;
 
-interface AccessGroupRepository
+final class FakeAccessGroupRepository implements AccessGroupRepository
 {
-    /**
-     * Whether the user belongs — directly, or through a contact group — to an
-     * active Access Group with this exact name.
-     */
-    public function userHasGroup(UserId $userId, string $groupName): bool;
+    /** @var array<int, list<string>> */
+    public array $groupNamesByUserId = [];
 
-    /**
-     * Every active Access Group the user belongs to, directly or through a contact group.
-     *
-     * @return Collection<AccessGroupId>
-     */
-    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+    /** @var array<int, list<int>> */
+    public array $groupIdsByUserId = [];
+
+    public function userHasGroup(UserId $userId, string $groupName): bool
+    {
+        return in_array($groupName, $this->groupNamesByUserId[$userId->value] ?? [], true);
+    }
+
+    public function findActiveGroupIdsForUser(UserId $userId): Collection
+    {
+        $ids = array_map(
+            static fn (int $id): AccessGroupId => new AccessGroupId($id),
+            $this->groupIdsByUserId[$userId->value] ?? [],
+        );
+
+        return new Collection($ids, AccessGroupId::class);
+    }
 }

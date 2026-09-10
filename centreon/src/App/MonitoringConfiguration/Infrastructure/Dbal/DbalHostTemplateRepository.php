@@ -25,6 +25,8 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostTemplateRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -101,6 +103,30 @@ final readonly class DbalHostTemplateRepository extends DbalRepository implement
             currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
             itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
         );
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostTemplateId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostTemplateName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('host_id', 'host_name')
+            ->from(self::TABLE_NAME)
+            ->where('host_register = ' . $qb->createNamedParameter(self::HOST_TEMPLATE_REGISTER))
+            ->andWhere($qb->expr()->in('host_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{host_id: int|string, host_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['host_id']] = new HostTemplateName($row['host_name']);
+        }
+
+        return new Collection($names, HostTemplateName::class);
     }
 
     private function filterByCriteria(QueryBuilder $qb, HostTemplateCriteria $criteria): void

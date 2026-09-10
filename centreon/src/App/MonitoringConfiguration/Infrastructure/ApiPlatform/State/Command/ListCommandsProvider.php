@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Domain\Security\CommandActionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\ApiPlatform\State\SortAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -46,6 +47,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ListCommandsProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
     use SortAwareProviderTrait;
 
     /**
@@ -102,7 +104,11 @@ final readonly class ListCommandsProvider implements ProviderInterface
         }
 
         $criteria = $this->handleTypeFilter($allowedTypes, $criteria);
-        $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
+        foreach ($this->handleOperatorFilter($filters['name'] ?? null, 'name', CommandCriteria::ALLOWED_OPERATORS) as $operator => $values) {
+            foreach ($values as $value) {
+                $criteria = $criteria->withName($value, $operator);
+            }
+        }
         $criteria = $this->handleIsActivatedFilter($filters['is_activated'] ?? null, $criteria);
         $criteria = $this->handleIsFromMonitoringConnectorFilter($filters['is_from_monitoring_connector'] ?? null, $criteria);
         $criteria = $this->handleSort($filters, $criteria);
@@ -135,31 +141,6 @@ final readonly class ListCommandsProvider implements ProviderInterface
             $commands->getItemsPerPage(),
             $commands->getTotalItems()
         );
-    }
-
-    /**
-     * @param array<string>|null $nameFilter
-     */
-    private function handleNameFilter(?array $nameFilter, CommandCriteria $criteria): CommandCriteria
-    {
-        if ($nameFilter === null) {
-            return $criteria;
-        }
-
-        foreach ($nameFilter as $operator => $names) {
-            if (! in_array($operator, CommandCriteria::ALLOWED_OPERATORS, true)) {
-                continue;
-            }
-            if (is_string($names)) {
-                $names = [$names];
-            }
-
-            foreach ($names as $name) {
-                $criteria = $criteria->withName($name, $operator);
-            }
-        }
-
-        return $criteria;
     }
 
     /**

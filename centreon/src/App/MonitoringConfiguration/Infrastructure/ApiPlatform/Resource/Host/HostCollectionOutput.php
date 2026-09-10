@@ -21,24 +21,28 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 
-use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use ApiPlatform\Metadata\ApiProperty;
 
-interface AccessGroupRepository
+final class HostCollectionOutput
 {
-    /**
-     * Whether the user belongs — directly, or through a contact group — to an
-     * active Access Group with this exact name.
-     */
-    public function userHasGroup(UserId $userId, string $groupName): bool;
+    public HostPollerOutput $poller;
 
-    /**
-     * Every active Access Group the user belongs to, directly or through a contact group.
-     *
-     * @return Collection<AccessGroupId>
-     */
-    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+    /** @var list<HostTemplateOutput> */
+    public array $templates;
+
+    public function __construct(
+        #[ApiProperty(identifier: true)]
+        public int $id,
+
+        public string $name,
+
+        public ?string $alias,
+
+        public string $address,
+
+        public bool $activated,
+    ) {
+    }
 }

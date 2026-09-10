@@ -335,6 +335,29 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $this->createPollers($pollerRows, $globalMacroRows);
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (PollerId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], PollerName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id', 'name')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['id']] = new PollerName($row['name']);
+        }
+
+        return new Collection($names, PollerName::class);
+    }
+
     public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();

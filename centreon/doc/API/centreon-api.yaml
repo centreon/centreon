@@ -60,7 +60,7 @@ tags:
     description: 'Endpoints to manage Gorgone'
   -
     name: Host
-    description: 'Endpoints to manage hosts'
+    description: "Resource 'Host' operations."
   -
     name: 'Host category'
     description: 'Endpoints to manage host categories'
@@ -5360,6 +5360,117 @@ paths:
             maximum: 30
           style: form
           explode: true
+  /api/configuration/hosts:
+    get:
+      operationId: api_configurationhosts_get_collection
+      tags:
+        - Host
+      responses:
+        '200':
+          description: 'Host collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Host.HostCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Host.HostCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Host.HostCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of Host resources.'
+      description: 'Retrieves the collection of Host resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by host name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: template_id
+          in: query
+          description: 'Filter by host template id'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+          style: form
+          explode: true
+        -
+          name: group_id
+          in: query
+          description: 'Filter by host group id'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+          style: form
+          explode: true
+        -
+          name: poller_id
+          in: query
+          description: 'Filter by poller id'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+          style: form
+          explode: true
+        -
+          name: activated
+          in: query
+          description: 'Filter by activation status'
+          required: false
+          deprecated: false
+          schema:
+            type: boolean
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -10552,3 +10663,77 @@ components:
               type: integer
             name:
               type: string
+    Host.HostCollectionOutput:
+      type: object
+      properties:
+        poller:
+          $ref: '#/components/schemas/HostPollerOutput'
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostTemplateOutput'
+        id:
+          type: integer
+        name:
+          type: string
+        alias:
+          type:
+            - string
+            - 'null'
+        address:
+          type: string
+        activated:
+          type: boolean
+    Host.HostCollectionOutput.jsonld:
+      allOf:
+        -
+          $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            poller:
+              $ref: '#/components/schemas/HostPollerOutput.jsonld'
+            templates:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostTemplateOutput.jsonld'
+            id:
+              type: integer
+            name:
+              type: string
+            alias:
+              type:
+                - string
+                - 'null'
+            address:
+              type: string
+            activated:
+              type: boolean
+    HostPollerOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostPollerOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostTemplateOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostTemplateOutput.jsonld:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
