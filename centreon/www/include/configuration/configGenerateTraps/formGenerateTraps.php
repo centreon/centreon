@@ -37,7 +37,9 @@ $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row'    => 'name', 'order'      => ['name'], 'keys'       => ['id'], 'conditions' => ['ns_activate' => 1]]);
 
 // Sort the list of poller server
-$pollersId = isset($_GET['poller']) ? explode(',', $_GET['poller']) : [];
+// A query string can carry any type (e.g. ?poller[]=1) while explode() only
+// accepts a string: discard anything else instead of raising a TypeError.
+$pollersId = is_string($_GET['poller'] ?? null) ? explode(',', $_GET['poller']) : [];
 
 foreach ($tab_nagios_server as $key => $name) {
     if (in_array($key, $pollersId)) {
@@ -74,7 +76,7 @@ $options = [null => null, 'RELOADCENTREONTRAPD' => _('Reload'), 'RESTARTCENTREON
 $form->addElement('select', 'signal', _('Send signal'), $options);
 
 // Set checkbox checked.
-$form->setDefaults(['generate' => '1', 'generate' => '1', 'opt' => '1']);
+$form->setDefaults(['generate' => '1', 'opt' => '1']);
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
