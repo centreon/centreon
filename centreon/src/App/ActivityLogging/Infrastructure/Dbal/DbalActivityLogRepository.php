@@ -46,9 +46,9 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     private const DETAIL_TABLE_NAME = 'log_action_modification';
     private const TARGET_TYPE_VALUE_MAP = [
         // The whole platform stores command changes under the singular
-        // 'command' token (ActionLog::OBJECT_TYPE_COMMAND, the legacy pages,
-        // the CLAPI and the Administration > Logs filter). Writing the plural
-        // 'commands' here made the audited rows unreachable through that filter.
+        // 'command' token (ActionLog::OBJECT_TYPE_COMMAND, the CLAPI and the
+        // Administration > Logs filter). Writing the plural 'commands' here
+        // made the audited rows unreachable through that filter.
         TargetTypeEnum::Command->value => 'command',
         TargetTypeEnum::Poller->value => 'poller',
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',

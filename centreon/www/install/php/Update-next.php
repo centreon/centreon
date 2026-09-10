@@ -249,7 +249,6 @@ try {
     $addCentralAddressColumn();
     $fixGorgoneCommunicationTypeComment();
 
-    // Data realignment for real time database (single idempotent statement)
     $realignCommandActionLogObjectType();
 
     $errorMessage = 'Unable to start the configuration database transaction';
