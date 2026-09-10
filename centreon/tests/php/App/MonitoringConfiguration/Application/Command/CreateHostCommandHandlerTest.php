@@ -26,11 +26,13 @@ namespace Tests\App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommand;
 use App\MonitoringConfiguration\Application\Command\CreateHostCommandHandler;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\EngineInformation;
@@ -249,6 +251,42 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
             hostGroupIds: new Collection([new HostGroupId(5)], HostGroupId::class),
+            creatorId: 1,
+            viewerId: new UserId(7),
+        ));
+    }
+
+    /**
+     * References are authorized before the name is looked up, so a restricted viewer cannot tell
+     * a duplicate name apart from an inaccessible poller — both surface as the same
+     * PollerNotFoundException, never HostAlreadyExistsException, closing an enumeration channel
+     * (a restricted viewer could otherwise learn a name is already taken by some host or template
+     * they can't even see, just by observing whether they get a 409 or a 404).
+     */
+    public function testARestrictedViewerGetsPollerNotFoundNotDuplicateNameForAnInaccessiblePollerWithADuplicateName(): void
+    {
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
+
+        $existingName = new HostName('server-01');
+        $this->hostRepository->add(new Host(
+            id: null,
+            name: $existingName,
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: $poller->id(),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        ));
+
+        $this->expectException(PollerNotFoundException::class);
+
+        ($this->handler)(new CreateHostCommand(
+            name: $existingName,
+            address: new HostAddress('127.0.0.2'),
+            pollerId: $poller->id(),
+            hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
             viewerId: new UserId(7),
         ));

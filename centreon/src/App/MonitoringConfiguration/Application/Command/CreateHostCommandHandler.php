@@ -53,9 +53,10 @@ final readonly class CreateHostCommandHandler
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
-            throw new HostAlreadyExistsException(['name' => $command->name->value]);
-        }
+        // References are authorized before the name is looked up: otherwise a restricted viewer
+        // could tell a duplicate name (409) apart from an inaccessible poller/host-group (404)
+        // for a request they aren't even authorized to make, and enumerate host/template names
+        // that way.
 
         // Throws PollerNotFoundException if it doesn't exist at all.
         $this->pollerRepository->get($command->pollerId);
@@ -71,6 +72,10 @@ final readonly class CreateHostCommandHandler
         }
 
         $this->assertHostGroupsExist($command->hostGroupIds, $command->viewerId);
+
+        if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
+            throw new HostAlreadyExistsException(['name' => $command->name->value]);
+        }
 
         $host = new Host(
             id: null,
