@@ -26,6 +26,8 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
+use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -48,10 +50,12 @@ final readonly class CreateHostInput
 
         #[Assert\NotNull]
         #[Assert\Positive]
+        #[AccessiblePoller]
         public int $pollerId,
 
         #[ApiProperty(description: 'Mandatory when creating a host on a Cloud platform, optional otherwise.')]
         #[Assert\All([new Assert\Positive()])]
+        #[AccessibleHostGroups]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Count(min: 1, minMessage: 'Host groups are mandatory when creating a host on a Cloud platform.'),
         ])]

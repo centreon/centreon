@@ -218,6 +218,11 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
+    /**
+     * The AccessiblePoller constraint on CreateHostInput now catches this before the command
+     * handler ever runs, surfacing it as a 422 field violation rather than the handler's own 404
+     * (still there as the authoritative check, see AccessiblePollerValidator).
+     */
     public function testItRejectsAnUnknownPoller(): void
     {
         $this->login();
@@ -230,9 +235,14 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(422);
     }
 
+    /**
+     * The AccessibleHostGroups constraint on CreateHostInput now catches this before the command
+     * handler ever runs, surfacing it as a 422 field violation rather than the handler's own 404
+     * (still there as the authoritative check, see AccessibleHostGroupsValidator).
+     */
     public function testItRejectsAnUnknownHostGroup(): void
     {
         $this->login();
@@ -247,7 +257,7 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testItRejectsAnEmptyName(): void
@@ -377,6 +387,8 @@ final class CreateHostProcessorTest extends ApiTestCase
      * A restricted (non-admin) creator referencing a poller outside their own ACL scope gets
      * the same not-found error as a truly nonexistent poller — matching CreateHostCommandHandlerTest's
      * unit coverage of the same rule, exercised here through the real ACL tables end to end.
+     * Surfaces as 422 (AccessiblePoller constraint), not 404, since the constraint now catches
+     * this before the command handler runs — see testItRejectsAnUnknownPoller.
      */
     public function testARestrictedCreatorCannotReferenceAnInaccessiblePoller(): void
     {
@@ -397,7 +409,7 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testARestrictedCreatorCannotReferenceAnInaccessibleHostGroup(): void
@@ -422,7 +434,7 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(422);
     }
 
     /**
