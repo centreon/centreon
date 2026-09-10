@@ -65,5 +65,12 @@ interface PollerRepository
      */
     public function get(PollerId $pollerId): Poller;
 
+    /**
+     * Raises `nagios_server.updated` so the poller's configuration is regenerated — anything
+     * that changes what a poller monitors (adding a host, for instance) must call this, or the
+     * monitoring engine keeps running on stale configuration.
+     */
+    public function flagAsChanged(PollerId $pollerId): void;
+
     public function withCmaCertificates(): self;
 }

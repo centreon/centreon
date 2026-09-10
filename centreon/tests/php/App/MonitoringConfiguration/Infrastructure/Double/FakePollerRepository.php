@@ -39,6 +39,9 @@ final class FakePollerRepository implements PollerRepository
     /** @var array<int, Poller> */
     public array $pollers = [];
 
+    /** @var list<int> */
+    public array $flaggedPollerIds = [];
+
     public function add(Poller $poller): void
     {
         do {
@@ -121,6 +124,11 @@ final class FakePollerRepository implements PollerRepository
     public function get(PollerId $pollerId): Poller
     {
         return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
+    }
+
+    public function flagAsChanged(PollerId $pollerId): void
+    {
+        $this->flaggedPollerIds[] = $pollerId->value;
     }
 
     public function withCmaCertificates(): self

@@ -277,6 +277,15 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
     }
 
+    public function testFlagAsChangedSetsTheUpdatedColumn(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChanged(new PollerId(1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
     private function insertPoller(int $id, string $name, bool $isCentral = false): void
     {
         $this->connection->insert('nagios_server', [

@@ -422,6 +422,16 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $poller;
     }
 
+    public function flagAsChanged(PollerId $pollerId): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME)
+            ->set('updated', $qb->createNamedParameter('1'))
+            ->where('id = :poller_id')
+            ->setParameter('poller_id', $pollerId->value)
+            ->executeStatement();
+    }
+
     public function withCmaCertificates(): self
     {
         return new self(

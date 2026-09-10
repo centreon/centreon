@@ -289,6 +289,32 @@ final class CreateHostProcessorTest extends ApiTestCase
     }
 
     /**
+     * End-to-end check that FlagPollerChangedEventHandler actually fires on a real request —
+     * FlagPollerChangedEventHandlerTest already covers its branching in isolation with fakes,
+     * this only proves the wiring (event fired by the handler, listener registered, the real
+     * poller row touched) is genuinely connected.
+     */
+    public function testItFlagsThePollerAsChangedWhenCreatingAHost(): void
+    {
+        $pollerId = $this->insertPoller('Central');
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => $pollerId]);
+        $this->login();
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.14',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+
+        $updatedFlag = $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = ?', [$pollerId]);
+        self::assertSame('1', $updatedFlag);
+    }
+
+    /**
      * A restricted (non-admin) creator referencing a poller outside their own ACL scope gets
      * the same not-found error as a truly nonexistent poller — matching CreateHostCommandHandlerTest's
      * unit coverage of the same rule, exercised here through the real ACL tables end to end.

@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace App\Shared\Domain\Aggregate;
 
 /**
- * Marks an aggregate as subject to Resource Access ACL scoping: creating one must seed
- * `centreon_acl` for the creator and flag the relevant ACL tables so the `centAcl` cron
- * recomputes them, or a non-admin creator would not see their own new resource until the
- * next cron run. Purely a marker — {@see \App\Security\Infrastructure\EventHandler\ReloadAclEventHandler}
- * checks `$event->aggregate instanceof AclScopedInterface` to decide whether to act.
+ * Marks an aggregate whose creation, update, deletion or duplication changes the effective
+ * configuration of a poller: the poller's `nagios_server.updated` flag must be raised, or the
+ * monitoring engine keeps running on stale configuration until something else touches that
+ * poller. Purely a marker — {@see \App\MonitoringConfiguration\Application\EventHandler\FlagPollerChangedEventHandler}
+ * checks `$event->aggregate instanceof PollerScopedInterface` to decide whether to act.
+ *
+ * This PR only wires the AggregateCreated case (Host creation); AggregateUpdated/Deleted/Duplicated
+ * will extend the same handler once those Host use cases exist.
  */
-interface AclScopedInterface
+interface PollerScopedInterface
 {
 }

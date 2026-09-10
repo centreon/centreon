@@ -28,12 +28,13 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 
 /**
  * @extends AggregateRoot<HostId>
  */
-final class Host extends AggregateRoot implements AclScopedInterface
+final class Host extends AggregateRoot implements AclScopedInterface, PollerScopedInterface
 {
     /**
      * @param Collection<HostTemplateId> $templateIds
