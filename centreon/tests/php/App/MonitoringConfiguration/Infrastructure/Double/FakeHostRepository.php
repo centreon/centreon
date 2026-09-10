@@ -49,7 +49,7 @@ final class FakeHostRepository implements HostRepository
         $this->hosts[$id] = $host;
     }
 
-    public function existsByName(HostName $name): bool
+    public function isNameUsedByHostOrTemplate(HostName $name): bool
     {
         foreach ($this->hosts as $host) {
             if ($host->name->value === $name->value) {

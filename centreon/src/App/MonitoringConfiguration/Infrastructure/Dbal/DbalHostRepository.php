@@ -128,7 +128,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
      * legacy has the same gap, this is a pre-existing, accepted race window, not something
      * introduced here. This is the only safeguard against a duplicate name.
      */
-    public function existsByName(HostName $name): bool
+    public function isNameUsedByHostOrTemplate(HostName $name): bool
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('1')

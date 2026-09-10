@@ -53,7 +53,7 @@ final readonly class CreateHostCommandHandler
 
     public function __invoke(CreateHostCommand $command): Host
     {
-        if ($this->repository->existsByName($command->name)) {
+        if ($this->repository->isNameUsedByHostOrTemplate($command->name)) {
             throw new HostAlreadyExistsException(['name' => $command->name->value]);
         }
 

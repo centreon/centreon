@@ -39,7 +39,7 @@ interface HostRepository
      * template, which has no poller relation and therefore cannot be hydrated into a valid
      * `Host` (poller is a required, non-nullable field on the aggregate).
      */
-    public function existsByName(HostName $name): bool;
+    public function isNameUsedByHostOrTemplate(HostName $name): bool;
 
     /**
      * @return \IteratorAggregate<int, Host>&\Countable

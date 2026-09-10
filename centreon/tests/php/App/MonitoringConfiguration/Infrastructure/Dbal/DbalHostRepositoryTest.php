@@ -288,24 +288,24 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame(1, (int) $extendedInfoCount);
     }
 
-    public function testExistsByNameFindsAHostByExactName(): void
+    public function testIsNameUsedByHostOrTemplateFindsAHostByExactName(): void
     {
         $pollerId = $this->createPoller('Central');
         $this->createHost('server-01', $pollerId);
 
-        self::assertTrue($this->repository->existsByName(new HostName('server-01')));
-        self::assertFalse($this->repository->existsByName(new HostName('server-02')));
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('server-01')));
+        self::assertFalse($this->repository->isNameUsedByHostOrTemplate(new HostName('server-02')));
     }
 
     /**
      * Name uniqueness spans hosts AND host templates in legacy — both share the `host` table
      * and the same uniqueness rule, so a host template with this name must also count as a match.
      */
-    public function testExistsByNameFindsAHostTemplateWithTheSameName(): void
+    public function testIsNameUsedByHostOrTemplateFindsAHostTemplateWithTheSameName(): void
     {
         $this->createHostTemplate('shared-name');
 
-        self::assertTrue($this->repository->existsByName(new HostName('shared-name')));
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name')));
     }
 
     private function createPoller(string $name): int

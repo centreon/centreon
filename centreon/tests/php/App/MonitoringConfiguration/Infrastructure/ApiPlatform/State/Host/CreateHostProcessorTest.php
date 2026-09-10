@@ -105,7 +105,7 @@ final class CreateHostProcessorTest extends ApiTestCase
 
         /** @var HostRepository $repository */
         $repository = self::getContainer()->get(HostRepository::class);
-        self::assertTrue($repository->existsByName(new HostName($name)));
+        self::assertTrue($repository->isNameUsedByHostOrTemplate(new HostName($name)));
     }
 
     public function testItNormalizesSpacesInTheName(): void

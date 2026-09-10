@@ -115,7 +115,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
         ));
 
-        self::assertTrue($this->hostRepository->existsByName(new HostName('server-01')));
+        self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
     }
 
     public function testItRejectsADuplicateName(): void
@@ -177,7 +177,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             creatorId: 1,
         ));
 
-        self::assertTrue($this->hostRepository->existsByName(new HostName('server-01')));
+        self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
     }
 
     public function testItDispatchesHostCreated(): void
@@ -210,7 +210,7 @@ final class CreateHostCommandHandlerTest extends KernelTestCase
             viewerId: new UserId(7),
         ));
 
-        self::assertTrue($this->hostRepository->existsByName(new HostName('server-01')));
+        self::assertTrue($this->hostRepository->isNameUsedByHostOrTemplate(new HostName('server-01')));
     }
 
     /**
