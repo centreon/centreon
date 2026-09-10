@@ -3602,6 +3602,10 @@ msgid ""
 "                                 Please check its path or create it"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "Could not load the SNMP trap. Please try again."
+msgstr ""
+
 #: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/www/include/configuration/configGenerate/xml/moveFiles.php
@@ -16965,6 +16969,10 @@ msgstr "Diese IP-Adresse existiert bereits"
 #: centreon/www/include/reporting/dashboard/common-Func.php
 msgid "This Month"
 msgstr "Diesen Monat"
+
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "This SNMP trap no longer exists."
+msgstr ""
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
 #, php-format

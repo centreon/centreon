@@ -3732,6 +3732,10 @@ msgid ""
 "                                 Please check its path or create it"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "Could not load the SNMP trap. Please try again."
+msgstr ""
+
 #: centreon/src/Centreon/Infrastructure/Service/VmwareConfigurationService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
 #: centreon/src/CentreonRemote/Infrastructure/Service/PollerInteractionService.php
@@ -18337,6 +18341,10 @@ msgstr ""
 
 #: centreon/www/include/reporting/dashboard/common-Func.php
 msgid "This Month"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/traps/formTraps.php
+msgid "This SNMP trap no longer exists."
 msgstr ""
 
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostTemplateArgumentException.php
