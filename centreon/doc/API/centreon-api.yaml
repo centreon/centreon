@@ -5578,7 +5578,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          links: []
+          links: {}
       summary: 'Retrieves the collection of HostCategory resources.'
       description: 'Retrieves the collection of HostCategory resources.'
       parameters:
