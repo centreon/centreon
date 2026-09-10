@@ -43,7 +43,6 @@ use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -61,8 +60,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         private Security $security,
         private PollerRepository $pollerRepository,
         private HostGroupRepository $hostGroupRepository,
-        #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
-        private bool $isCloudPlatform = false,
     ) {
     }
 
@@ -70,10 +67,6 @@ final readonly class CreateHostProcessor implements ProcessorInterface
     {
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
-
-        if ($this->isCloudPlatform && $data->hostGroupIds === []) {
-            throw new UnprocessableEntityHttpException('Host groups are mandatory when creating a host on a Cloud platform.');
-        }
 
         $hostGroupIds = new Collection(
             array_map(static fn (int $id): HostGroupId => new HostGroupId($id), $data->hostGroupIds),

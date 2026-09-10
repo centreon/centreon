@@ -26,6 +26,7 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
+use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateHostInput
@@ -48,6 +49,9 @@ final readonly class CreateHostInput
         public int $pollerId,
 
         #[Assert\All([new Assert\Positive()])]
+        #[WhenPlatform(forCloud: true, constraints: [
+            new Assert\Count(min: 1, minMessage: 'Host groups are mandatory when creating a host on a Cloud platform.'),
+        ])]
         public array $hostGroupIds = [],
     ) {
     }

@@ -23,18 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
-use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
-use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\HostResourceTransformer;
-use App\Shared\Application\Command\CommandBus;
-use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
-use Symfony\Bundle\SecurityBundle\Security;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateHostProcessorTest extends ApiTestCase
@@ -376,47 +368,18 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
     }
 
-    public function testItRequiresHostGroupsOnCloudPlatform(): void
-    {
-        $this->login();
-        $pollerId = $this->insertPoller('Central');
-        $this->forceCloudPlatform();
-
-        $this->request('POST', self::BASE_ENDPOINT, [
-            'json' => [
-                'name' => $this->uniqueName('host'),
-                'address' => '10.0.0.11',
-                'poller_id' => $pollerId,
-            ],
-        ]);
-
-        self::assertResponseStatusCodeSame(422);
-    }
-
-    public function testItAllowsCreationOnCloudPlatformWhenHostGroupsAreProvided(): void
-    {
-        $this->login();
-        $pollerId = $this->insertPoller('Central');
-        $groupId = $this->insertHostGroup('Linux servers');
-        $this->forceCloudPlatform();
-
-        $this->request('POST', self::BASE_ENDPOINT, [
-            'json' => [
-                'name' => $this->uniqueName('host'),
-                'address' => '10.0.0.12',
-                'poller_id' => $pollerId,
-                'host_group_ids' => [$groupId],
-            ],
-        ]);
-
-        self::assertResponseStatusCodeSame(201);
-    }
-
+    /**
+     * The Cloud-mandatory-host-groups rule itself lives in the WhenPlatform validation
+     * constraint on CreateHostInput::$hostGroupIds (see Shared\Infrastructure\Validator\Constraints\WhenPlatformTest for the
+     * Cloud/on-premise branch coverage). WhenPlatformValidator is resolved through Symfony's
+     * validator constraint locator, which is compiled once at container build time and cannot be
+     * forced to a different IS_CLOUD_PLATFORM value per test — so this suite only exercises the
+     * on-premise behavior, which matches this test environment's real, unforced default.
+     */
     public function testItAllowsEmptyHostGroupsOnPremise(): void
     {
         $this->login();
         $pollerId = $this->insertPoller('Central');
-        $this->forceOnPremPlatform();
 
         $this->request('POST', self::BASE_ENDPOINT, [
             'json' => [
@@ -612,42 +575,5 @@ final class CreateHostProcessorTest extends ApiTestCase
                 'hg_hg_id' => $hostGroupId,
             ]);
         }
-    }
-
-    /**
-     * `isCloudPlatform` is a constructor argument autowired from the IS_CLOUD_PLATFORM env var
-     * on CreateHostProcessor itself, so the platform is forced by replacing the processor
-     * service with one built with the desired value, reusing its other real dependencies. Must
-     * run before the request is made.
-     */
-    private function forceCloudPlatform(): void
-    {
-        $this->forcePlatform(isCloudPlatform: true);
-    }
-
-    private function forceOnPremPlatform(): void
-    {
-        $this->forcePlatform(isCloudPlatform: false);
-    }
-
-    private function forcePlatform(bool $isCloudPlatform): void
-    {
-        $container = self::getContainer();
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $container->get(CommandBus::class);
-        /** @var TransformerInterface<Host, HostResource> $transformer */
-        $transformer = $container->get(HostResourceTransformer::class);
-        /** @var Security $security */
-        $security = $container->get(Security::class);
-        /** @var PollerRepository $pollerRepository */
-        $pollerRepository = $container->get(PollerRepository::class);
-        /** @var HostGroupRepository $hostGroupRepository */
-        $hostGroupRepository = $container->get(HostGroupRepository::class);
-
-        $container->set(
-            CreateHostProcessor::class,
-            new CreateHostProcessor($commandBus, $transformer, $security, $pollerRepository, $hostGroupRepository, $isCloudPlatform),
-        );
     }
 }
