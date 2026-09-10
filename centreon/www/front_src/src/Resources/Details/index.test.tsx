@@ -3,7 +3,8 @@
 import {
   getSearchQueryParameterValue,
   getUrlQueryParameters,
-  setUrlQueryParameters
+  setUrlQueryParameters,
+  TestQueryProvider
 } from '@centreon/ui';
 import {
   act,
@@ -33,7 +34,6 @@ import useListing from '../Listing/useListing';
 import { ResourceType } from '../models';
 import { cancelTokenRequestParam } from '../testUtils';
 import Context, { ResourceContext } from '../testUtils/Context';
-import useFilter from '../testUtils/useFilter';
 import useLoadDetails from '../testUtils/useLoadDetails';
 import {
   label1Day,
@@ -193,12 +193,21 @@ const retrievedNotificationContacts = {
 };
 
 const retrievedDetails = {
+  acknowledged: false,
   acknowledgement: {
+    author_id: 1,
     author_name: 'Admin',
     comment: 'Acknowledged by Admin',
+    deletion_time: '',
     entry_time: '2020-03-18T18:57:59Z',
-    is_persistent: true,
-    is_sticky: true
+    host_id: resourceHostId,
+    id: 1,
+    is_notify_contacts: false,
+    is_persistent_comment: true,
+    is_sticky: true,
+    poller_id: 1,
+    service_id: resourceServiceId,
+    state: 0
   },
   active_checks: false,
   alias: 'Central-Centreon',
@@ -227,10 +236,9 @@ const retrievedDetails = {
   fqdn: 'central.centreon.com',
   groups,
   id: resourceServiceId,
+  in_downtime: true,
   information:
     'OK - 127.0.0.1 rta 0.100ms lost 0%\n OK - 127.0.0.1 rta 0.99ms lost 0%\n OK - 127.0.0.1 rta 0.98ms lost 0%\n OK - 127.0.0.1 rta 0.97ms lost 0%',
-  is_acknowledged: false,
-  is_in_downtime: true,
   last_check: '2020-05-18T16:00Z',
   last_notification: '2020-07-18T17:30:00Z',
   last_status_change: '2020-04-18T15:00Z',
@@ -547,7 +555,6 @@ let context: ResourceContext;
 const DetailsTest = (): JSX.Element => {
   const listingState = useListing();
   const detailState = useLoadDetails();
-  useFilter();
 
   useDetails();
 
@@ -557,11 +564,13 @@ const DetailsTest = (): JSX.Element => {
   } as ResourceContext;
 
   return (
-    <BrowserRouter>
-      <Context.Provider value={context}>
-        <Details />
-      </Context.Provider>
-    </BrowserRouter>
+    <TestQueryProvider>
+      <BrowserRouter>
+        <Context.Provider value={context}>
+          <Details />
+        </Context.Provider>
+      </BrowserRouter>
+    </TestQueryProvider>
   );
 };
 
@@ -577,9 +586,15 @@ const retrievedUser = {
 };
 const mockRefreshInterval = 60;
 
-const store = createStore();
-store.set(userAtom, retrievedUser);
-store.set(refreshIntervalAtom, mockRefreshInterval);
+let store = createStore();
+
+const resetStore = (): void => {
+  store = createStore();
+  store.set(userAtom, retrievedUser);
+  store.set(refreshIntervalAtom, mockRefreshInterval);
+};
+
+resetStore();
 
 const DetailsWithJotai = (): JSX.Element => (
   <Provider store={store}>
@@ -601,9 +616,14 @@ jest.mock('react-router', () => ({
 Storage.prototype.getItem = mockedLocalStorageGetItem;
 Storage.prototype.setItem = mockedLocalStorageSetItem;
 
-describe.skip(Details, () => {
+describe(Details, () => {
   beforeEach(() => {
     mockDate.set(currentDateIsoString);
+    // DetailsWithJotai's store used to be a single module-level singleton
+    // reused across every render() in this file, so atom state set by one
+    // test (selected tab, expanded rows, filter criteria...) leaked into
+    // the next. Give each test a fresh store instead.
+    resetStore();
   });
 
   afterEach(() => {
@@ -736,7 +756,7 @@ describe.skip(Details, () => {
 
     await waitFor(() =>
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-        retrievedDetails.command_line
+        `sudo -u centreon-engine ${retrievedDetails.command_line}`
       )
     );
   });
