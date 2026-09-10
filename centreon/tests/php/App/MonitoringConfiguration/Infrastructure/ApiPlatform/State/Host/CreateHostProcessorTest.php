@@ -108,6 +108,44 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertTrue($repository->isNameUsedByHostOrTemplate(new HostName($name)));
     }
 
+    /**
+     * A repeated host_group_id is tolerated (matches legacy's array_unique(), see
+     * CreateHostProcessor), not rejected — but must not produce more than one
+     * hostgroup_relation row nor duplicate entries in the response's groups list.
+     */
+    public function testItDeduplicatesRepeatedHostGroupIds(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+        $groupId = $this->insertHostGroup('Linux servers');
+        $name = $this->uniqueName('server');
+
+        $response = $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $name,
+                'address' => '10.0.0.15',
+                'poller_id' => $pollerId,
+                'host_group_ids' => [$groupId, $groupId, $groupId],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(201);
+        self::assertJsonContains([
+            'groups' => [
+                ['id' => $groupId, 'name' => 'Linux servers'],
+            ],
+        ]);
+
+        /** @var int $hostId */
+        $hostId = $response->toArray()['id'];
+        /** @var int|string $relationCount */
+        $relationCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM hostgroup_relation WHERE host_host_id = ? AND hostgroup_hg_id = ?',
+            [$hostId, $groupId],
+        );
+        self::assertSame(1, (int) $relationCount);
+    }
+
     public function testItNormalizesSpacesInTheName(): void
     {
         $this->login();

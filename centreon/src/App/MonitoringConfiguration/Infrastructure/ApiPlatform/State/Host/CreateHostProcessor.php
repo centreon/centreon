@@ -68,8 +68,11 @@ final readonly class CreateHostProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
+        // Deduplicated the same way legacy does (AddHost::linkHostGroups()): a client repeating an
+        // id is tolerated, not rejected, but must not produce one hostgroup_relation row per
+        // repetition.
         $hostGroupIds = new Collection(
-            array_map(static fn (int $id): HostGroupId => new HostGroupId($id), $data->hostGroupIds),
+            array_map(static fn (int $id): HostGroupId => new HostGroupId($id), array_unique($data->hostGroupIds)),
             HostGroupId::class,
         );
 
