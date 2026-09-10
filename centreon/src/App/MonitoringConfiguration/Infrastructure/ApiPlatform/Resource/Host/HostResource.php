@@ -32,7 +32,6 @@ use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
-use App\Shared\Infrastructure\ApiPlatform\InputValidationExceptionToStatus;
 
 #[ApiResource(
     shortName: 'Host',
@@ -41,7 +40,6 @@ use App\Shared\Infrastructure\ApiPlatform\InputValidationExceptionToStatus;
             uriTemplate: '/configuration/hosts',
             processor: CreateHostProcessor::class,
             input: CreateHostInput::class,
-            exceptionToStatus: InputValidationExceptionToStatus::MAP,
             openapi: new Model\Operation(
                 responses: [
                     404 => new Model\Response('Poller or host group not found'),

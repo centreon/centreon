@@ -10935,7 +10935,7 @@ components:
         name:
           minLength: 1
           maxLength: 200
-          pattern: '^(((?!^_Module_).)*)$'
+          pattern: '^(((?!(^_Module(?:_| ))|([~!$%^&*"|''<>?,()=])).)*)$'
           type: string
         address:
           minLength: 1

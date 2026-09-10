@@ -220,6 +220,26 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    /**
+     * Matches legacy's Assertion::unauthorizedCharacters(MonitoringServer::ILLEGAL_CHARACTERS),
+     * called by AddHostValidation::assertIsValidName() before this migration.
+     */
+    public function testItRejectsANameWithAnIllegalCharacter(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => 'host(1)',
+                'address' => '10.0.0.3',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testItRejectsADuplicateName(): void
     {
         $this->login();

@@ -40,7 +40,12 @@ final readonly class CreateHostInput
     public function __construct(
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH)]
-        #[Assert\Regex(pattern: '/^_Module(?:_| )/', match: false, message: 'This value must not start with "_Module_".', normalizer: 'trim')]
+        #[Assert\Regex(
+            pattern: '/(^_Module(?:_| ))|([~!$%^&*"|\'<>?,()=])/',
+            match: false,
+            message: 'This value must not start with "_Module_" and must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
+            normalizer: 'trim',
+        )]
         public string $name,
 
         #[Assert\NotBlank(normalizer: 'trim')]
