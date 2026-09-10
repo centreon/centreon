@@ -55,6 +55,8 @@ final readonly class LegacyConnectionFactory
      */
     public function createRealtimeConnection(): \CentreonDB
     {
+        // CentreonDB builds its DSN from the "configuration" database name slot, so that slot must
+        // carry the real-time database name here for $pearDBO to actually target the storage schema.
         return new \CentreonDB(connectionConfig: new ConnectionConfig(
             host: $this->connectionConfig->getHost(),
             user: $this->connectionConfig->getUser(),
