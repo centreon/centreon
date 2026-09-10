@@ -47,26 +47,67 @@ use App\MonitoringConfiguration\Domain\Event\HostCreated;
 use App\MonitoringConfiguration\Domain\Exception\HostAlreadyExistsException;
 use App\MonitoringConfiguration\Domain\Exception\HostGroupNotFoundException;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\HostRepository;
+use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Security\Domain\Aggregate\UserId;
+use App\Security\Domain\Repository\ResourceAccessRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
-use PHPUnit\Framework\TestCase;
+use App\Shared\Domain\Event\EventBus;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostGroupRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeHostRepository;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakePollerRepository;
 use Tests\App\Security\Infrastructure\Double\FakeResourceAccessRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 
-final class CreateHostCommandHandlerTest extends TestCase
+final class CreateHostCommandHandlerTest extends KernelTestCase
 {
+    private CreateHostCommandHandler $handler;
+
+    private FakeHostRepository $hostRepository;
+
+    private FakePollerRepository $pollerRepository;
+
+    private FakeHostGroupRepository $hostGroupRepository;
+
+    private FakeResourceAccessRepository $resourceAccessRepository;
+
+    private EventBusSpy $eventBus;
+
+    /**
+     * Boots the real container and swaps only the repositories and the event bus for fakes, so
+     * the handler itself is built by Symfony's DI exactly as it is in production — catching a
+     * wiring break (a constructor argument the service config no longer knows how to autowire)
+     * that a hand-instantiated handler would silently miss.
+     */
+    protected function setUp(): void
+    {
+        $container = self::getContainer();
+
+        $this->hostRepository = new FakeHostRepository();
+        $this->pollerRepository = new FakePollerRepository();
+        $this->hostGroupRepository = new FakeHostGroupRepository();
+        $this->resourceAccessRepository = new FakeResourceAccessRepository();
+        $this->eventBus = new EventBusSpy();
+
+        $container->set(HostRepository::class, $this->hostRepository);
+        $container->set(PollerRepository::class, $this->pollerRepository);
+        $container->set(HostGroupRepository::class, $this->hostGroupRepository);
+        $container->set(ResourceAccessRepository::class, $this->resourceAccessRepository);
+        $container->set(EventBus::class, $this->eventBus);
+
+        /** @var CreateHostCommandHandler $handler */
+        $handler = $container->get(CreateHostCommandHandler::class);
+        $this->handler = $handler;
+    }
+
     public function testItCreatesTheHost(): void
     {
-        $hostRepository = new FakeHostRepository();
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $handler = new CreateHostCommandHandler($hostRepository, $pollerRepository, new FakeHostGroupRepository(), new FakeResourceAccessRepository(), new EventBusSpy());
+        $poller = $this->addPoller($this->pollerRepository, 1);
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
@@ -74,15 +115,12 @@ final class CreateHostCommandHandlerTest extends TestCase
             creatorId: 1,
         ));
 
-        self::assertTrue($hostRepository->existsByName(new HostName('server-01')));
+        self::assertTrue($this->hostRepository->existsByName(new HostName('server-01')));
     }
 
     public function testItRejectsADuplicateName(): void
     {
-        $hostRepository = new FakeHostRepository();
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $handler = new CreateHostCommandHandler($hostRepository, $pollerRepository, new FakeHostGroupRepository(), new FakeResourceAccessRepository(), new EventBusSpy());
+        $poller = $this->addPoller($this->pollerRepository, 1);
 
         $command = new CreateHostCommand(
             name: new HostName('server-01'),
@@ -91,20 +129,18 @@ final class CreateHostCommandHandlerTest extends TestCase
             hostGroupIds: new Collection([], HostGroupId::class),
             creatorId: 1,
         );
-        $handler($command);
+        ($this->handler)($command);
 
         $this->expectException(HostAlreadyExistsException::class);
 
-        $handler($command);
+        ($this->handler)($command);
     }
 
     public function testItRejectsAnUnknownPoller(): void
     {
-        $handler = new CreateHostCommandHandler(new FakeHostRepository(), new FakePollerRepository(), new FakeHostGroupRepository(), new FakeResourceAccessRepository(), new EventBusSpy());
-
         $this->expectException(PollerNotFoundException::class);
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: new PollerId(404),
@@ -115,13 +151,11 @@ final class CreateHostCommandHandlerTest extends TestCase
 
     public function testItRejectsAnUnknownHostGroup(): void
     {
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $handler = new CreateHostCommandHandler(new FakeHostRepository(), $pollerRepository, new FakeHostGroupRepository(), new FakeResourceAccessRepository(), new EventBusSpy());
+        $poller = $this->addPoller($this->pollerRepository, 1);
 
         $this->expectException(HostGroupNotFoundException::class);
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
@@ -132,14 +166,10 @@ final class CreateHostCommandHandlerTest extends TestCase
 
     public function testItAcceptsAnExistingHostGroup(): void
     {
-        $hostRepository = new FakeHostRepository();
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $hostGroupRepository = new FakeHostGroupRepository();
-        $hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
-        $handler = new CreateHostCommandHandler($hostRepository, $pollerRepository, $hostGroupRepository, new FakeResourceAccessRepository(), new EventBusSpy());
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
@@ -147,17 +177,14 @@ final class CreateHostCommandHandlerTest extends TestCase
             creatorId: 1,
         ));
 
-        self::assertTrue($hostRepository->existsByName(new HostName('server-01')));
+        self::assertTrue($this->hostRepository->existsByName(new HostName('server-01')));
     }
 
     public function testItDispatchesHostCreated(): void
     {
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $eventBus = new EventBusSpy();
-        $handler = new CreateHostCommandHandler(new FakeHostRepository(), $pollerRepository, new FakeHostGroupRepository(), new FakeResourceAccessRepository(), $eventBus);
+        $poller = $this->addPoller($this->pollerRepository, 1);
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
@@ -165,20 +192,16 @@ final class CreateHostCommandHandlerTest extends TestCase
             creatorId: 1,
         ));
 
-        self::assertTrue($eventBus->shouldHaveDispatched(HostCreated::class));
+        self::assertTrue($this->eventBus->shouldHaveDispatched(HostCreated::class));
     }
 
     public function testARestrictedViewerCanCreateAHostOnAnAccessiblePoller(): void
     {
-        $hostRepository = new FakeHostRepository();
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $resourceAccessRepository = new FakeResourceAccessRepository();
-        $resourceAccessRepository->unrestrictedPollerAccess = true;
+        $poller = $this->addPoller($this->pollerRepository, 1);
         // this specific poller is accessible
-        $handler = new CreateHostCommandHandler($hostRepository, $pollerRepository, new FakeHostGroupRepository(), $resourceAccessRepository, new EventBusSpy());
+        $this->resourceAccessRepository->unrestrictedPollerAccess = true;
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
@@ -187,7 +210,7 @@ final class CreateHostCommandHandlerTest extends TestCase
             viewerId: new UserId(7),
         ));
 
-        self::assertTrue($hostRepository->existsByName(new HostName('server-01')));
+        self::assertTrue($this->hostRepository->existsByName(new HostName('server-01')));
     }
 
     /**
@@ -197,16 +220,12 @@ final class CreateHostCommandHandlerTest extends TestCase
      */
     public function testARestrictedViewerCannotCreateAHostOnAnInaccessiblePoller(): void
     {
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $resourceAccessRepository = new FakeResourceAccessRepository();
-        $resourceAccessRepository->unrestrictedPollerAccess = false;
-
-        $handler = new CreateHostCommandHandler(new FakeHostRepository(), $pollerRepository, new FakeHostGroupRepository(), $resourceAccessRepository, new EventBusSpy());
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->resourceAccessRepository->unrestrictedPollerAccess = false;
 
         $this->expectException(PollerNotFoundException::class);
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
@@ -218,19 +237,14 @@ final class CreateHostCommandHandlerTest extends TestCase
 
     public function testARestrictedViewerCannotReferenceAHostGroupOutsideTheirAccessibleScope(): void
     {
-        $pollerRepository = new FakePollerRepository();
-        $poller = $this->addPoller($pollerRepository, 1);
-        $hostGroupRepository = new FakeHostGroupRepository();
-        $hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
-        $resourceAccessRepository = new FakeResourceAccessRepository();
+        $poller = $this->addPoller($this->pollerRepository, 1);
+        $this->hostGroupRepository->hostGroups[5] = new HostGroup(id: new HostGroupId(5), name: new HostGroupName('Linux servers'));
         // Restricted to a different set of host groups than the one being requested (5).
-        $resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(9)], HostGroupId::class);
-
-        $handler = new CreateHostCommandHandler(new FakeHostRepository(), $pollerRepository, $hostGroupRepository, $resourceAccessRepository, new EventBusSpy());
+        $this->resourceAccessRepository->accessibleHostGroupIds = new Collection([new HostGroupId(9)], HostGroupId::class);
 
         $this->expectException(HostGroupNotFoundException::class);
 
-        $handler(new CreateHostCommand(
+        ($this->handler)(new CreateHostCommand(
             name: new HostName('server-01'),
             address: new HostAddress('127.0.0.1'),
             pollerId: $poller->id(),
