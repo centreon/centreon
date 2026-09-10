@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
-use Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\UpdateRepository;
 use Doctrine\DBAL\Connection;
@@ -70,10 +69,12 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runScript(string $version): void
     {
+        // TODO: temporary bridge — replace with proper ConnectionInterface injection once upgrade scripts are migrated
         // $pearDB and $pearDBO are exposed as local variables to the included update script.
-        // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
-        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
-        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
+        // Core Update-*.php scripts still call legacy CentreonDB/PDO methods (query, prepare, beginTransaction…),
+        // so they need the superset CentreonDB, not the ConnectionInterface-only DbalConnectionAdapter.
+        $pearDB = $this->createLegacyConnection();
+        $pearDBO = $this->createLegacyRealtimeConnection();
 
         $filePath = $this->installDir . '/php/Update-' . $version . '.php';
         if (is_readable($filePath)) {
@@ -92,10 +93,12 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runPostScript(string $version): void
     {
+        // TODO: temporary bridge — replace with proper ConnectionInterface injection once upgrade scripts are migrated
         // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
-        // Scripts expect ConnectionInterface (Adaptation), not raw PDO.
-        $pearDB = DbalConnectionAdapter::createFromDbalConnection($this->configConnection, $this->connectionConfig);
-        $pearDBO = DbalConnectionAdapter::createFromDbalConnection($this->realtimeConnection, $this->connectionConfig);
+        // Core Update-*.post.php scripts still call legacy CentreonDB/PDO methods (query, prepare, beginTransaction…),
+        // so they need the superset CentreonDB, not the ConnectionInterface-only DbalConnectionAdapter.
+        $pearDB = $this->createLegacyConnection();
+        $pearDBO = $this->createLegacyRealtimeConnection();
 
         $filePath = $this->installDir . '/php/Update-' . $version . '.post.php';
         if (is_readable($filePath)) {
@@ -133,6 +136,31 @@ final readonly class DbalUpdateRepository implements UpdateRepository
     public function removeInstallDirectory(): void
     {
         $this->filesystem->remove($this->installDir);
+    }
+
+    /**
+     * Builds a legacy connection to the configuration database exposed to update scripts as $pearDB.
+     */
+    private function createLegacyConnection(): \CentreonDB
+    {
+        return new \CentreonDB(connectionConfig: $this->connectionConfig);
+    }
+
+    /**
+     * Builds a legacy connection to the real-time (storage) database exposed to update scripts as $pearDBO.
+     */
+    private function createLegacyRealtimeConnection(): \CentreonDB
+    {
+        return new \CentreonDB(connectionConfig: new ConnectionConfig(
+            host: $this->connectionConfig->getHost(),
+            user: $this->connectionConfig->getUser(),
+            password: $this->connectionConfig->getPassword(),
+            databaseNameConfiguration: $this->connectionConfig->getDatabaseNameRealTime(),
+            databaseNameRealTime: $this->connectionConfig->getDatabaseNameRealTime(),
+            port: $this->connectionConfig->getPort(),
+            charset: $this->connectionConfig->getCharset(),
+            driver: $this->connectionConfig->getDriver(),
+        ));
     }
 
     private function runSqlFile(Connection $connection, string $filePath): void
