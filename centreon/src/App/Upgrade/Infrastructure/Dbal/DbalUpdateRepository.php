@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\Upgrade\Infrastructure\Dbal;
 
-use Adaptation\Database\Connection\Model\ConnectionConfig;
 use App\Upgrade\Domain\Repository\UpdateRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -40,7 +40,7 @@ final readonly class DbalUpdateRepository implements UpdateRepository
         private Connection $configConnection,
         #[Autowire(service: 'doctrine.dbal.realtime_connection')]
         private Connection $realtimeConnection,
-        private ConnectionConfig $connectionConfig,
+        private LegacyConnectionFactory $legacyConnectionFactory,
         #[Autowire(param: 'upgrade.lib_dir')]
         private string $libDir,
         #[Autowire(param: 'upgrade.install_dir')]
@@ -69,12 +69,10 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runScript(string $version): void
     {
-        // TODO: temporary bridge — replace with proper ConnectionInterface injection once upgrade scripts are migrated
         // $pearDB and $pearDBO are exposed as local variables to the included update script.
-        // Core Update-*.php scripts still call legacy CentreonDB/PDO methods (query, prepare, beginTransaction…),
-        // so they need the superset CentreonDB, not the ConnectionInterface-only DbalConnectionAdapter.
-        $pearDB = $this->createLegacyConnection();
-        $pearDBO = $this->createLegacyRealtimeConnection();
+        // See LegacyConnectionFactory: scripts still call legacy CentreonDB/PDO methods.
+        $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
+        $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
 
         $filePath = $this->installDir . '/php/Update-' . $version . '.php';
         if (is_readable($filePath)) {
@@ -93,12 +91,10 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runPostScript(string $version): void
     {
-        // TODO: temporary bridge — replace with proper ConnectionInterface injection once upgrade scripts are migrated
         // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
-        // Core Update-*.post.php scripts still call legacy CentreonDB/PDO methods (query, prepare, beginTransaction…),
-        // so they need the superset CentreonDB, not the ConnectionInterface-only DbalConnectionAdapter.
-        $pearDB = $this->createLegacyConnection();
-        $pearDBO = $this->createLegacyRealtimeConnection();
+        // See LegacyConnectionFactory: scripts still call legacy CentreonDB/PDO methods.
+        $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
+        $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
 
         $filePath = $this->installDir . '/php/Update-' . $version . '.post.php';
         if (is_readable($filePath)) {
@@ -136,31 +132,6 @@ final readonly class DbalUpdateRepository implements UpdateRepository
     public function removeInstallDirectory(): void
     {
         $this->filesystem->remove($this->installDir);
-    }
-
-    /**
-     * Builds a legacy connection to the configuration database exposed to update scripts as $pearDB.
-     */
-    private function createLegacyConnection(): \CentreonDB
-    {
-        return new \CentreonDB(connectionConfig: $this->connectionConfig);
-    }
-
-    /**
-     * Builds a legacy connection to the real-time (storage) database exposed to update scripts as $pearDBO.
-     */
-    private function createLegacyRealtimeConnection(): \CentreonDB
-    {
-        return new \CentreonDB(connectionConfig: new ConnectionConfig(
-            host: $this->connectionConfig->getHost(),
-            user: $this->connectionConfig->getUser(),
-            password: $this->connectionConfig->getPassword(),
-            databaseNameConfiguration: $this->connectionConfig->getDatabaseNameRealTime(),
-            databaseNameRealTime: $this->connectionConfig->getDatabaseNameRealTime(),
-            port: $this->connectionConfig->getPort(),
-            charset: $this->connectionConfig->getCharset(),
-            driver: $this->connectionConfig->getDriver(),
-        ));
     }
 
     private function runSqlFile(Connection $connection, string $filePath): void
