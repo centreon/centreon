@@ -37,7 +37,7 @@ final readonly class CreateHostInput
     public function __construct(
         #[Assert\NotBlank(normalizer: 'trim')]
         #[Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH)]
-        #[Assert\Regex(pattern: '/^_Module_/', match: false, message: 'This value must not start with "_Module_".')]
+        #[Assert\Regex(pattern: '/^_Module_/', match: false, message: 'This value must not start with "_Module_".', normalizer: 'trim')]
         public string $name,
 
         #[Assert\NotBlank(normalizer: 'trim')]

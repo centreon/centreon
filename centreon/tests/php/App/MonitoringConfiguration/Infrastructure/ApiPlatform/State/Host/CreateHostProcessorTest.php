@@ -141,6 +141,27 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    /**
+     * The reserved-prefix check must apply to the same normalized value HostName ends up
+     * persisting: leading whitespace is trimmed away before the prefix ever gets a chance to
+     * "hide" behind it.
+     */
+    public function testItRejectsAModulePrefixedNameWithLeadingWhitespace(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => '  _Module_Foo',
+                'address' => '10.0.0.3',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testItRejectsADuplicateName(): void
     {
         $this->login();
