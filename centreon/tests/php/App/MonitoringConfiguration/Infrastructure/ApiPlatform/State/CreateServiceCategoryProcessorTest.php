@@ -112,6 +112,30 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         ]);
     }
 
+    /**
+     * /api/latest/configuration/services/categories is a backward-compatible alias for this same
+     * operation (see LegacyApiPrefixAliasLoader) — its clients must keep getting 400 for a
+     * validation error, unlike the bare /api prefix above, which now answers 422.
+     */
+    public function testCannotCreateServiceCategoryWithInvalidValuesOnTheLegacyPrefixReturns400(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/services/categories', [
+            'json' => [
+                'name' => '',
+                'alias' => '',
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(400);
+        self::assertJsonContains([
+            'code' => 400,
+            'message' => "[name] This value is too short. It should have 1 character or more.\n"
+                . "[alias] This value is too short. It should have 1 character or more.\n",
+        ]);
+    }
+
     public function testCannotCreateServiceCategoryWithInvalidValueTypes(): void
     {
         $this->login();
