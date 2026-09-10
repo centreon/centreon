@@ -79,6 +79,18 @@ final class FakePollerRepository implements PollerRepository
         return new Collection([], Poller::class);
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $names = [];
+        foreach ($ids as $id) {
+            if (isset($this->pollers[$id->value])) {
+                $names[$id->value] = $this->pollers[$id->value]->name;
+            }
+        }
+
+        return new Collection($names, PollerName::class);
+    }
+
     /**
      * Note: viewer-based ACL scoping is not modeled here (it has no equivalent data in this fake) —
      * it is exercised by DbalPollerRepositoryTest against real ACL tables instead.

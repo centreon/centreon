@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
+use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -64,5 +66,37 @@ final readonly class DbalAccessGroupRepository implements AccessGroupRepository
             ->setParameter('contactId', $userId->value);
 
         return (bool) $qb->executeQuery()->fetchOne();
+    }
+
+    public function findActiveGroupIdsForUser(UserId $userId): Collection
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('DISTINCT ag.acl_group_id')
+            ->from('acl_groups', 'ag')
+            ->where("ag.acl_group_activate = '1'")
+            ->andWhere(
+                $qb->expr()->or(
+                    'ag.acl_group_id IN (
+                        SELECT acl_group_id
+                        FROM acl_group_contacts_relations
+                        WHERE contact_contact_id = :contactId
+                    )',
+                    'ag.acl_group_id IN (
+                        SELECT agcr.acl_group_id
+                        FROM acl_group_contactgroups_relations agcr
+                        INNER JOIN contactgroup_contact_relation cgcr
+                            ON cgcr.contactgroup_cg_id = agcr.cg_cg_id
+                        WHERE cgcr.contact_contact_id = :contactId
+                    )'
+                )
+            );
+
+        /** @var list<array{acl_group_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return new Collection(
+            array_map(static fn (array $row): AccessGroupId => new AccessGroupId((int) $row['acl_group_id']), $rows),
+            AccessGroupId::class,
+        );
     }
 }

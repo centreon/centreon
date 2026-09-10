@@ -36,6 +36,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\GorgoneConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCommand;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerUid;
@@ -242,6 +243,26 @@ final class DbalPollerRepositoryTest extends KernelTestCase
         self::assertInstanceOf(Paginator::class, $pollers);
         self::assertCount(2, $pollers); // Central (kept: its address matches a remote server) + Poller-A
         self::assertSame(2, $pollers->getTotalItems());
+    }
+
+    public function testFindNamesByIds(): void
+    {
+        $this->insertPoller(2, 'Poller-A');
+        $this->insertPoller(3, 'Poller-B');
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new PollerId(2), new PollerId(999)], PollerId::class)
+        );
+
+        self::assertCount(1, $names);
+        self::assertSame('Poller-A', $names->toArray()[2]->value);
+    }
+
+    public function testFindNamesByIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], PollerId::class));
+
+        self::assertCount(0, $names);
     }
 
     public function testFindAllRestrictsToAccessiblePollersForARestrictedViewer(): void

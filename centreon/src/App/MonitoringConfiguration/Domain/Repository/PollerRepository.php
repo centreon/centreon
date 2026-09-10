@@ -46,6 +46,16 @@ interface PollerRepository
     public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
 
     /**
+     * Every requested id's name, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a poller by id). An id absent from the result no longer exists.
+     *
+     * @param Collection<PollerId> $ids
+     *
+     * @return Collection<PollerName> indexed by poller id
+     */
+    public function findNamesByIds(Collection $ids): Collection;
+
+    /**
      * @return \IteratorAggregate<int, Poller>&\Countable
      */
     public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable;
