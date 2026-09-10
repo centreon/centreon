@@ -19,6 +19,12 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\Enum\LogChannelEnum;
+use Adaptation\Log\Logger;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -43,11 +49,40 @@ $cdata = CentreonData::getInstance();
 $preexecArray = [];
 $mrulesArray = [];
 if (($o == TRAP_MODIFY || $o == TRAP_WATCH) && is_int($trapsId)) {
-    $DBRESULT = $pearDB->query("SELECT * FROM traps WHERE traps_id = '{$trapsId}' LIMIT 1");
-    // Set base value
-    $trap = array_map('myDecodeTrap', $DBRESULT->fetchRow());
+    $trapQuery = <<<'SQL'
+        SELECT * FROM traps WHERE traps_id = :trapsId LIMIT 1
+        SQL;
+
+    try {
+        $row = $pearDB->fetchAssociative(
+            $trapQuery,
+            QueryParameters::create([QueryParameter::int('trapsId', $trapsId)])
+        );
+    } catch (ConnectionException $exception) {
+        Logger::create(LogChannelEnum::WEB)->error(
+            'Error retrieving the SNMP trap',
+            ['trapsId' => $trapsId, 'exception' => $exception]
+        );
+
+        $msg = new CentreonMsg();
+        $msg->error(_('Could not load the SNMP trap. Please try again.'));
+
+        return;
+    }
+
+    // Editing a trap that no longer exists returns no row: surface it instead of
+    // rendering a blank edit form that would report a phantom success on save.
+    if (! is_array($row)) {
+        Logger::create(LogChannelEnum::WEB)->notice('SNMP trap not found', ['trapsId' => $trapsId]);
+
+        $msg = new CentreonMsg();
+        $msg->error(_('This SNMP trap no longer exists.'));
+
+        return;
+    }
+
+    $trap = array_map('myDecodeTrap', $row);
     $trap['severity'] = $trap['severity_id'];
-    $DBRESULT->closeCursor();
 
     $preexecArray = $trapObj->getPreexecFromTrapId($trapsId);
     $mrulesArray = $trapObj->getMatchingRulesFromTrapId($trapsId);
@@ -248,7 +283,7 @@ $form->addElement(
 
 $form->addElement('textarea', 'traps_customcode', _('Custom code'), $attrsTextarea);
 
-$form->addElement('select', 'traps_advanced_treatment_default', _('Advanced matching behavior'), [0 => _('If no match, submit default status'), 1 => _('If no match, disable submit'), 2 => _('If match, disable submit')], ['id' => 'traps_advanced_treatment']);
+$form->addElement('select', 'traps_advanced_treatment_default', _('Advanced matching behavior'), [0 => _('If no match, submit default status'), 1 => _('If no match, disable submit'), 2 => _('If match, disable submit')], ['id' => 'traps_advanced_treatment_default']);
 
 $excecution_type[] = $form->createElement('radio', 'traps_exec_interval_type', null, _('None'), '0');
 $excecution_type[] = $form->createElement('radio', 'traps_exec_interval_type', null, _('By OID'), '1');
