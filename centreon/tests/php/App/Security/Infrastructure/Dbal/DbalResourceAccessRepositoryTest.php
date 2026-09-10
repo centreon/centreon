@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -194,6 +195,65 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $accessiblePollerIds = $this->repository->findAccessiblePollerIds($userId);
         self::assertNotNull($accessiblePollerIds);
         self::assertEquals([101], array_map(static fn (PollerId $id): int => $id->value, iterator_to_array($accessiblePollerIds)));
+    }
+
+    public function testUserWithNoAclGroupSeesNoHostCategory(): void
+    {
+        // Tier 1 fail-closed: a user with no accessible ACL resource is fully restricted, returning
+        // an empty Collection ("sees nothing"), not the null "see all".
+        $userId = new UserId($this->createContact('user-no-acl-hc'));
+
+        $accessibleCategories = $this->repository->findAccessibleHostCategoryIds($userId);
+
+        self::assertNotNull($accessibleCategories);
+        self::assertSame([], $accessibleCategories->toArray());
+    }
+
+    public function testUserWithAclResourceHavingNoHostCategoryRestrictionReturnsNull(): void
+    {
+        $contactId = $this->createContact('user-unrestricted-hc');
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: []);
+
+        self::assertNull($this->repository->findAccessibleHostCategoryIds(new UserId($contactId)));
+    }
+
+    public function testUserWithAclResourceRestrictedToHostCategoriesReturnsOnlyCategoryIds(): void
+    {
+        $categoryA = $this->insertHostCategory('HC-A');
+        $categoryB = $this->insertHostCategory('HC-B');
+        $this->insertHostCategory('HC-C'); // not linked to the user
+        // a severity (levelled category) granted through the same resource must be filtered out
+        $severity = $this->insertHostSeverity('HS-mixed');
+
+        $contactId = $this->createContact('user-restricted-hc');
+        $this->linkContactToHostSeverityAclResource(
+            $contactId,
+            restrictToHostSeverityIds: [$categoryA, $categoryB, $severity]
+        );
+
+        $accessibleCategories = $this->repository->findAccessibleHostCategoryIds(new UserId($contactId));
+
+        self::assertNotNull($accessibleCategories);
+        $accessibleIds = array_map(
+            static fn (HostCategoryId $hostCategoryId): int => $hostCategoryId->value,
+            $accessibleCategories->toArray()
+        );
+        self::assertEqualsCanonicalizing([$categoryA, $categoryB], $accessibleIds);
+    }
+
+    public function testUserGrantedOnlyHostSeveritiesIsRestrictedToNoHostCategory(): void
+    {
+        // the user IS restricted (a host-category ACL relation exists) but it points only at a
+        // severity, so no regular category is accessible: an EMPTY (non-null) collection, not "see all".
+        $severity = $this->insertHostSeverity('HS-only');
+
+        $contactId = $this->createContact('user-severity-only');
+        $this->linkContactToHostSeverityAclResource($contactId, restrictToHostSeverityIds: [$severity]);
+
+        $accessibleCategories = $this->repository->findAccessibleHostCategoryIds(new UserId($contactId));
+
+        self::assertNotNull($accessibleCategories, 'A severity-only grant is a restriction, not "see all".');
+        self::assertSame([], $accessibleCategories->toArray());
     }
 
     public function testUserWithNoAclGroupHasAccessToNoHostGroups(): void
