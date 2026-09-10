@@ -43,6 +43,10 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  *
  * Never distinguishes "poller doesn't exist" from "exists but isn't accessible to this viewer",
  * matching the handler, to avoid leaking existence information to a restricted viewer.
+ *
+ * Always declared after Assert\Positive inside an Assert\Sequentially on the property (see
+ * CreateHostInput): PollerId asserts a strictly positive int and would throw instead of producing
+ * a clean violation, so this validator must never run on a value Positive would have rejected.
  */
 final class AccessiblePollerValidator extends ConstraintValidator
 {
@@ -59,7 +63,6 @@ final class AccessiblePollerValidator extends ConstraintValidator
             throw new UnexpectedTypeException($constraint, AccessiblePoller::class);
         }
 
-        // Type/Positive constraints report the shape issue; nothing to check here without one.
         if (! is_int($value)) {
             return;
         }

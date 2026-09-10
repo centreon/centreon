@@ -54,13 +54,17 @@ final readonly class CreateHostInput
         public string $address,
 
         #[Assert\NotNull]
-        #[Assert\Positive]
-        #[AccessiblePoller]
+        #[Assert\Sequentially([
+            new Assert\Positive(),
+            new AccessiblePoller(),
+        ])]
         public int $pollerId,
 
         #[ApiProperty(description: 'Mandatory when creating a host on a Cloud platform, optional otherwise.')]
-        #[Assert\All([new Assert\Positive()])]
-        #[AccessibleHostGroups]
+        #[Assert\Sequentially([
+            new Assert\All([new Assert\Type('integer'), new Assert\Positive()]),
+            new AccessibleHostGroups(),
+        ])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Count(min: 1, minMessage: 'Host groups are mandatory when creating a host on a Cloud platform.'),
         ])]

@@ -278,6 +278,55 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testItRejectsANonPositivePollerIdWithoutCrashing(): void
+    {
+        $this->login();
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.5',
+                'poller_id' => 0,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsNonIntegerHostGroupIdsWithoutCrashing(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.6',
+                'poller_id' => $pollerId,
+                'host_group_ids' => ['invalid'],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
+    public function testItRejectsNonIntegerHostGroupIdFloatsWithoutCrashing(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => $this->uniqueName('host'),
+                'address' => '10.0.0.7',
+                'poller_id' => $pollerId,
+                'host_group_ids' => [5.9],
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     /**
      * The AccessibleHostGroups constraint on CreateHostInput now catches this before the command
      * handler ever runs, surfacing it as a 422 field violation rather than the handler's own 404

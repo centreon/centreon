@@ -37,6 +37,11 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  * Early, best-effort duplicate of CreateHostCommandHandler's own host-group-scoping check (see
  * AccessiblePollerValidator for why the handler's own check stays authoritative and is not
  * removed).
+ *
+ * Always declared after Assert\All([Type, Positive]) inside an Assert\Sequentially on the
+ * property (see CreateHostInput): HostGroupId asserts a strictly positive int per element and
+ * would throw instead of producing a clean violation, so this validator must never run on an
+ * array containing a value All would have rejected.
  */
 final class AccessibleHostGroupsValidator extends ConstraintValidator
 {
