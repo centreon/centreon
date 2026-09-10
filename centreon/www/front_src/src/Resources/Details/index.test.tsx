@@ -632,7 +632,7 @@ describe(Details, () => {
   });
 
   // To migrate to Cypress
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -698,7 +698,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -952,7 +952,7 @@ describe(Details, () => {
     expect(mockedNavigate).toHaveBeenCalledWith('/reporting');
   });
 
-  // Deferred to MON-XXXXX: the Graph tab no longer writes the selected time
+  // Deferred to MON-209082: the Graph tab no longer writes the selected time
   // period back to the Resources URL query atoms - it now owns its own
   // @centreon/ui TimePeriods state instead. The "graph" tab parameters this
   // test expects to see persisted in the URL are stale. Needs a product
@@ -1174,7 +1174,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -1221,7 +1221,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -1269,7 +1269,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -1327,7 +1327,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -1361,7 +1361,7 @@ describe(Details, () => {
     });
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -1465,7 +1465,7 @@ describe(Details, () => {
     expect(getByText(service.name)).toBeInTheDocument();
   });
 
-  // Deferred to MON-XXXXX: the Graph tab now fetches performance-graph data
+  // Deferred to MON-209082: the Graph tab now fetches performance-graph data
   // through @tanstack/react-query (useFetchQuery -> customFetch) instead of
   // axios, so mockedAxios.get(...) here is never consumed. Needs the mocking
   // strategy migrated to fetch/react-query before re-enabling.
@@ -1611,7 +1611,7 @@ describe(Details, () => {
     expect(queryByText(labelCommand)).toBeInTheDocument();
   });
 
-  // Deferred to MON-XXXXX: same react-query/fetch mocking gap as the rest of
+  // Deferred to MON-209082: same react-query/fetch mocking gap as the rest of
   // the Graph tab, plus the Timeline tab's selected time period is no longer
   // shared with the Graph tab's own @centreon/ui TimePeriods state, so the
   // final assertion here can no longer pass as written.
