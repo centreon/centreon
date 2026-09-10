@@ -69,15 +69,18 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runScript(string $version): void
     {
+        $filePath = $this->installDir . '/php/Update-' . $version . '.php';
+        if (! is_readable($filePath)) {
+            return;
+        }
+
         // $pearDB and $pearDBO are exposed as local variables to the included update script.
         // See LegacyConnectionFactory: scripts still call legacy CentreonDB/PDO methods.
+        // Built only once the script exists: each connection opens a real PDO socket.
         $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
         $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
 
-        $filePath = $this->installDir . '/php/Update-' . $version . '.php';
-        if (is_readable($filePath)) {
-            include_once $filePath;
-        }
+        include_once $filePath;
     }
 
     public function runConfigurationSql(string $version): void
@@ -91,15 +94,18 @@ final readonly class DbalUpdateRepository implements UpdateRepository
 
     public function runPostScript(string $version): void
     {
+        $filePath = $this->installDir . '/php/Update-' . $version . '.post.php';
+        if (! is_readable($filePath)) {
+            return;
+        }
+
         // $pearDB and $pearDBO are exposed as local variables to the included post-update script.
         // See LegacyConnectionFactory: scripts still call legacy CentreonDB/PDO methods.
+        // Built only once the script exists: each connection opens a real PDO socket.
         $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
         $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
 
-        $filePath = $this->installDir . '/php/Update-' . $version . '.post.php';
-        if (is_readable($filePath)) {
-            include_once $filePath;
-        }
+        include_once $filePath;
     }
 
     public function updateVersionInformation(string $version): void
