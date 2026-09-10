@@ -200,6 +200,26 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    /**
+     * A space right after "_Module" also normalizes into the reserved prefix (HostName converts
+     * inner spaces to underscores), so it must be rejected too — not just an underscore.
+     */
+    public function testItRejectsAModulePrefixedNameWithASpaceInsteadOfUnderscore(): void
+    {
+        $this->login();
+        $pollerId = $this->insertPoller('Central');
+
+        $this->request('POST', self::BASE_ENDPOINT, [
+            'json' => [
+                'name' => '_Module Foo',
+                'address' => '10.0.0.3',
+                'poller_id' => $pollerId,
+            ],
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testItRejectsADuplicateName(): void
     {
         $this->login();
