@@ -26,13 +26,32 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\CreateHostInput;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\CreateHostProcessor;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsProvider;
+use App\Shared\Infrastructure\ApiPlatform\InputValidationExceptionToStatus;
 
 #[ApiResource(
     shortName: 'Host',
     operations: [
+        new Post(
+            uriTemplate: '/configuration/hosts',
+            processor: CreateHostProcessor::class,
+            input: CreateHostInput::class,
+            exceptionToStatus: InputValidationExceptionToStatus::MAP,
+            openapi: new Model\Operation(
+                responses: [
+                    404 => new Model\Response('Poller or host group not found'),
+                    409 => new Model\Response('Host resource already exists'),
+                    422 => new Model\Response('Invalid input'),
+                ],
+            ),
+            security: "is_granted('" . HostPermissionEnum::CanReadAndWrite->value . "')",
+            securityMessage: 'You are not allowed to create hosts',
+        ),
         new GetCollection(
             uriTemplate: '/configuration/hosts',
             provider: ListHostsProvider::class,
@@ -85,9 +104,14 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host\ListHostsP
 )]
 final class HostResource
 {
-    /**
-     * @param list<HostTemplateOutput> $templates
-     */
+    public HostPollerOutput $poller;
+
+    /** @var list<HostTemplateOutput> */
+    public array $templates;
+
+    /** @var list<HostGroupOutput> */
+    public array $groups;
+
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]
         public int $id,
@@ -97,10 +121,6 @@ final class HostResource
         public ?string $alias,
 
         public string $address,
-
-        public HostPollerOutput $poller,
-
-        public array $templates,
 
         public bool $activated,
     ) {
