@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Application\EventHandler;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Event\AggregateCreated;
@@ -51,12 +50,6 @@ final readonly class FlagPollerChangedEventHandler
             return;
         }
 
-        // Only Host implements PollerScopedInterface today — extend this match when a second
-        // poller-scoped resource type needs the same bookkeeping (see PollerScopedInterface).
-        if (! $event->aggregate instanceof Host) {
-            throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $event->aggregate::class));
-        }
-
-        $this->pollerRepository->flagAsChanged($event->aggregate->pollerId);
+        $this->pollerRepository->flagAsChanged($event->aggregate);
     }
 }

@@ -30,6 +30,9 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerName;
 use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 
 interface PollerRepository
@@ -66,11 +69,14 @@ interface PollerRepository
     public function get(PollerId $pollerId): Poller;
 
     /**
-     * Raises `nagios_server.updated` so the poller's configuration is regenerated — anything
-     * that changes what a poller monitors (adding a host, for instance) must call this, or the
-     * monitoring engine keeps running on stale configuration.
+     * Raises `nagios_server.updated` on the poller referenced by the given poller-scoped
+     * resource, so its configuration is regenerated — anything that changes what a poller
+     * monitors (adding a host, for instance) must call this, or the monitoring engine keeps
+     * running on stale configuration.
+     *
+     * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
      */
-    public function flagAsChanged(PollerId $pollerId): void;
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void;
 
     public function withCmaCertificates(): self;
 }

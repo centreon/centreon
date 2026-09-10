@@ -32,6 +32,8 @@ use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 
 final class FakePollerRepository implements PollerRepository
@@ -39,8 +41,8 @@ final class FakePollerRepository implements PollerRepository
     /** @var array<int, Poller> */
     public array $pollers = [];
 
-    /** @var list<int> */
-    public array $flaggedPollerIds = [];
+    /** @var list<AggregateRoot<AggregateRootId>&PollerScopedInterface> */
+    public array $flaggedResources = [];
 
     public function add(Poller $poller): void
     {
@@ -126,9 +128,9 @@ final class FakePollerRepository implements PollerRepository
         return $this->pollers[$pollerId->value] ?? throw new PollerNotFoundException(['id' => $pollerId->value]);
     }
 
-    public function flagAsChanged(PollerId $pollerId): void
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
     {
-        $this->flaggedPollerIds[] = $pollerId->value;
+        $this->flaggedResources[] = $resource;
     }
 
     public function withCmaCertificates(): self

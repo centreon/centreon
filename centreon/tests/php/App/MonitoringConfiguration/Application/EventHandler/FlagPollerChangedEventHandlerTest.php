@@ -60,7 +60,7 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
         $host = $this->createHost(pollerId: 5);
         $handler(new HostCreated($host, 1));
 
-        self::assertSame([5], $pollerRepository->flaggedPollerIds);
+        self::assertSame([$host], $pollerRepository->flaggedResources);
     }
 
     public function testItDoesNothingForAnAggregateThatIsNotPollerScoped(): void
@@ -70,7 +70,7 @@ final class FlagPollerChangedEventHandlerTest extends TestCase
 
         $handler(new PollerCreated($this->createPoller(), 1));
 
-        self::assertSame([], $pollerRepository->flaggedPollerIds);
+        self::assertSame([], $pollerRepository->flaggedResources);
     }
 
     private function createHost(int $pollerId): Host
