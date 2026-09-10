@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto;
 
+use ApiPlatform\Metadata\ApiProperty;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
@@ -45,9 +46,11 @@ final readonly class CreateHostInput
         #[ValidHostAddress]
         public string $address,
 
+        #[Assert\NotNull]
         #[Assert\Positive]
         public int $pollerId,
 
+        #[ApiProperty(description: 'Mandatory when creating a host on a Cloud platform, optional otherwise.')]
         #[Assert\All([new Assert\Positive()])]
         #[WhenPlatform(forCloud: true, constraints: [
             new Assert\Count(min: 1, minMessage: 'Host groups are mandatory when creating a host on a Cloud platform.'),

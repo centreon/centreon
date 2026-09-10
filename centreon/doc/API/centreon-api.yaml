@@ -10930,6 +10930,7 @@ components:
       required:
         - name
         - address
+        - poller_id
       properties:
         name:
           minLength: 1
@@ -10945,6 +10946,7 @@ components:
           exclusiveMinimum: 0
           type: integer
         host_group_ids:
+          description: 'Mandatory when creating a host on a Cloud platform, optional otherwise.'
           type: array
           items:
             type: integer
