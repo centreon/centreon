@@ -104,9 +104,9 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
-            'code' => 400,
+            'code' => 422,
             'message' => "[name] This value is too short. It should have 1 character or more.\n"
                 . "[alias] This value is too short. It should have 1 character or more.\n",
         ]);
@@ -124,9 +124,9 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
-            'code' => 400,
+            'code' => 422,
             'message' => "[name] This value should be of type string.\n"
                 . "[alias] This value should be of type string.\n"
                 . "[is_activated] This value should be of type bool.\n",
