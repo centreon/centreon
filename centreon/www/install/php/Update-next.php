@@ -234,7 +234,7 @@ $realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, 
     // The ActivityLogging system used to store command changes under the plural
     // 'commands' token, which the Administration > Logs Type filter (bound on the
     // canonical singular 'command') could never match. Realign the existing rows.
-    $pearDBO->executeStatement(
+    $pearDBO->update(
         <<<'SQL'
             UPDATE `log_action` SET `object_type` = 'command' WHERE `object_type` = 'commands'
             SQL
