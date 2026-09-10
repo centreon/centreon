@@ -23,18 +23,21 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
 /**
  * @extends AggregateRoot<HostId>
  */
-final class Host extends AggregateRoot
+final class Host extends AggregateRoot implements AclScopedInterface
 {
     /**
      * @param Collection<HostTemplateId> $templateIds
+     * @param Collection<HostGroupId> $hostGroupIds
      */
     public function __construct(
         ?HostId $id,
@@ -44,6 +47,7 @@ final class Host extends AggregateRoot
         public readonly bool $activated,
         public readonly PollerId $pollerId,
         public readonly Collection $templateIds,
+        public readonly Collection $hostGroupIds,
     ) {
         parent::__construct($id);
     }

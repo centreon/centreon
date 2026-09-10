@@ -21,24 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\MonitoringConfiguration\Domain\Event;
 
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Event\AggregateCreated;
 
-final readonly class HostName
+final readonly class HostCreated extends AggregateCreated
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 200;
-
-    public string $value;
-
-    public function __construct(string $value)
-    {
-        // The name is used as a plain identifier in the monitoring engine's configuration
-        // (command lines, config file tokens), where a raw space would break parsing — so it
-        // never carries one, wherever the value is built from.
-        $value = str_replace(' ', '_', trim($value));
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        $this->value = $value;
-    }
 }

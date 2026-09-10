@@ -24,10 +24,23 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 
 interface HostRepository
 {
+    public function add(Host $host): void;
+
+    /**
+     * Looked up across hosts AND host templates (both share the same `host` table and the
+     * same name uniqueness constraint in legacy) — never scope this to real hosts only.
+     *
+     * A plain existence check, not `findOneByName(): ?Host`: a matching row can be a host
+     * template, which has no poller relation and therefore cannot be hydrated into a valid
+     * `Host` (poller is a required, non-nullable field on the aggregate).
+     */
+    public function existsByName(HostName $name): bool;
+
     /**
      * @return \IteratorAggregate<int, Host>&\Countable
      */

@@ -21,24 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
+namespace App\Shared\Domain\Aggregate;
 
-use Webmozart\Assert\Assert;
-
-final readonly class HostName
+/**
+ * Marks an aggregate as subject to Resource Access ACL scoping: creating one must seed
+ * `centreon_acl` for the creator and flag the relevant ACL tables so the `centAcl` cron
+ * recomputes them, or a non-admin creator would not see their own new resource until the
+ * next cron run. Purely a marker — {@see \App\Security\Application\EventHandler\ReloadAclEventHandler}
+ * checks `$event->aggregate instanceof AclScopedInterface` to decide whether to act.
+ */
+interface AclScopedInterface
 {
-    public const MIN_LENGTH = 1;
-    public const MAX_LENGTH = 200;
-
-    public string $value;
-
-    public function __construct(string $value)
-    {
-        // The name is used as a plain identifier in the monitoring engine's configuration
-        // (command lines, config file tokens), where a raw space would break parsing — so it
-        // never carries one, wherever the value is built from.
-        $value = str_replace(' ', '_', trim($value));
-        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
-        $this->value = $value;
-    }
 }
