@@ -37,104 +37,67 @@ servers:
         default: '80'
         description: 'Port used by HTTP server'
 tags:
-  -
-    name: Acknowledgement
+  - name: Acknowledgement
     description: 'Endpoints to manage acknowledgements'
-  -
-    name: Administration
+  - name: Administration
     description: 'Endpoints to manage administration tasks'
-  -
-    name: Authentication
+  - name: Authentication
     description: 'Login and logout endpoints to retrieve authentication token'
-  -
-    name: Command
+  - name: Command
     description: "Resource 'Command' operations."
-  -
-    name: 'Contact group'
+  - name: 'Contact group'
     description: 'Endpoints to manage contact groups'
-  -
-    name: Downtime
+  - name: Downtime
     description: 'Endpoints to manage downtimes'
-  -
-    name: Gorgone
+  - name: Gorgone
     description: 'Endpoints to manage Gorgone'
-  -
-    name: Host
+  - name: Host
     description: 'Endpoints to manage hosts'
-  -
-    name: 'Host category'
+  - name: 'Host category'
     description: 'Endpoints to manage host categories'
-  -
-    name: 'Host group'
+  - name: 'Host group'
     description: 'Endpoints to manage host groups'
-  -
-    name: 'Meta service'
+  - name: 'Meta service'
     description: 'Endpoints to manage meta services'
-  -
-    name: 'Host severity'
-  -
-    name: 'Host template'
-  -
-    name: Media
-  -
-    name: 'Monitoring server'
-  -
-    name: Proxy
-  -
-    name: Service
-  -
-    name: 'Service group'
-  -
-    name: 'Service category'
+  - name: 'Host severity'
+  - name: 'Host template'
+  - name: Media
+  - name: 'Monitoring server'
+  - name: Proxy
+  - name: Service
+  - name: 'Service group'
+  - name: 'Service category'
     description: 'Endpoints to manage service categories'
-  -
-    name: Severity
+  - name: Severity
     description: 'Endpoints to manage severities'
-  -
-    name: 'Time period'
+  - name: 'Time period'
     description: 'Endpoints to manage time periods'
-  -
-    name: Topology
+  - name: Topology
     description: 'Endpoints to manage topologies'
-  -
-    name: GlobalMacroResource
-  -
-    name: ListPlugins
-  -
-    name: ServiceCategory
-  -
-    name: StandardMacroResource
-  -
-    name: ConnectorResource
-  -
-    name: Connector
+  - name: GlobalMacroResource
+  - name: ListPlugins
+  - name: ServiceCategory
+  - name: StandardMacroResource
+  - name: ConnectorResource
+  - name: Connector
     description: "Resource 'Connector' operations."
-  -
-    name: Plugin
+  - name: Plugin
     description: "Resource 'Plugin' operations."
-  -
-    name: 'Agent Configuration'
+  - name: 'Agent Configuration'
     description: "Resource 'Agent Configuration' operations."
-  -
-    name: 'Global Macro'
+  - name: 'Global Macro'
     description: "Resource 'Global Macro' operations."
-  -
-    name: Plugins
+  - name: Plugins
     description: "Resource 'Plugins' operations."
-  -
-    name: 'Service Category'
+  - name: 'Service Category'
     description: "Resource 'Service Category' operations."
-  -
-    name: 'Standard Macro'
+  - name: 'Standard Macro'
     description: "Resource 'Standard Macro' operations."
-  -
-    name: Poller
+  - name: Poller
     description: "Resource 'Poller' operations."
-  -
-    name: Upgrade
+  - name: Upgrade
     description: "Resource 'Upgrade' operations."
-  -
-    name: HostGroup
+  - name: HostGroup
     description: "Resource 'HostGroup' operations."
 security:
   -
@@ -247,8 +210,7 @@ paths:
       tags:
         - Authentication
       parameters:
-        -
-          $ref: '#/components/parameters/providerConfigurationName'
+        - $ref: '#/components/parameters/providerConfigurationName'
       summary: 'Authentication to provider'
       requestBody:
         required: true
@@ -381,8 +343,7 @@ paths:
       description: |
         Get a host category configuration
       parameters:
-        -
-          $ref: '#/components/parameters/HostCategoryId'
+        - $ref: '#/components/parameters/HostCategoryId'
       responses:
         '200':
           description: OK
@@ -404,8 +365,7 @@ paths:
       description: |
         Update a host category
       parameters:
-        -
-          $ref: '#/components/parameters/HostCategoryId'
+        - $ref: '#/components/parameters/HostCategoryId'
       requestBody:
         required: true
         content:
@@ -433,8 +393,7 @@ paths:
       description: |
         Delete a host category configuration
       parameters:
-        -
-          $ref: '#/components/parameters/HostCategoryId'
+        - $ref: '#/components/parameters/HostCategoryId'
       responses:
         '204':
           description: OK
@@ -478,14 +437,10 @@ paths:
         * service_group.id
         * service_group.name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -581,8 +536,7 @@ paths:
       description: |
         Delete a host severity configuration
       parameters:
-        -
-          $ref: '#/components/parameters/HostSeverityId'
+        - $ref: '#/components/parameters/HostSeverityId'
       responses:
         '204':
           description: OK
@@ -600,8 +554,7 @@ paths:
       description: |
         Get a host severity configuration
       parameters:
-        -
-          $ref: '#/components/parameters/HostSeverityId'
+        - $ref: '#/components/parameters/HostSeverityId'
       responses:
         '200':
           description: OK
@@ -623,8 +576,7 @@ paths:
       description: |
         Update a host severity
       parameters:
-        -
-          $ref: '#/components/parameters/HostSeverityId'
+        - $ref: '#/components/parameters/HostSeverityId'
       requestBody:
         required: true
         content:
@@ -680,14 +632,10 @@ paths:
         * servicecategory.id
         * servicecategory.name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -750,8 +698,7 @@ paths:
 
         Delete service group.
       parameters:
-        -
-          $ref: '#/components/parameters/ServiceGroupId'
+        - $ref: '#/components/parameters/ServiceGroupId'
       responses:
         '204':
           description: OK
@@ -852,14 +799,10 @@ paths:
           * address
           * is_activate
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -883,8 +826,7 @@ paths:
       description: |
         Generate and move the configuration files of the monitoring server
       parameters:
-        -
-          $ref: '#/components/parameters/MonitoringServerId'
+        - $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '204':
           description: 'Generation OK'
@@ -903,8 +845,7 @@ paths:
       description: |
         Reload the configuration files of the monitoring server
       parameters:
-        -
-          $ref: '#/components/parameters/MonitoringServerId'
+        - $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '204':
           description: 'Reload OK'
@@ -923,8 +864,7 @@ paths:
       description: |
         Generate, move and reload the configuration files of the monitoring server
       parameters:
-        -
-          $ref: '#/components/parameters/MonitoringServerId'
+        - $ref: '#/components/parameters/MonitoringServerId'
       responses:
         '204':
           description: 'Generation and reload OK'
@@ -1004,14 +944,10 @@ paths:
           * name
           * is_activate
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1034,8 +970,7 @@ paths:
       summary: 'Get a meta service'
       description: 'Get a meta service configuration by its id'
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: OK
@@ -1065,16 +1000,11 @@ paths:
           * service_description
           * host_name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: OK
@@ -1097,8 +1027,7 @@ paths:
       summary: 'Get notification policy of a host'
       description: 'Return the notified contacts and contact groups of a host.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: 'Successful request'
@@ -1120,10 +1049,8 @@ paths:
       summary: 'Get notification policy of a service'
       description: 'Return the notified contacts and contact groups of a service.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: 'Successful request'
@@ -1145,8 +1072,7 @@ paths:
       summary: 'Get notification policy of a meta service'
       description: 'Return the notified contacts and contact groups of a meta service.'
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: 'Successful request'
@@ -1175,14 +1101,10 @@ paths:
           * name
           * running
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1394,8 +1316,7 @@ paths:
 
         List user filters saved for a given page.
       parameters:
-        -
-          $ref: '#/components/parameters/FilterPageName'
+        - $ref: '#/components/parameters/FilterPageName'
       responses:
         '200':
           description: OK
@@ -1421,8 +1342,7 @@ paths:
 
         Add user filter for a given page.
       parameters:
-        -
-          $ref: '#/components/parameters/FilterPageName'
+        - $ref: '#/components/parameters/FilterPageName'
       requestBody:
         required: true
         content:
@@ -1463,10 +1383,8 @@ paths:
 
         Get detailed information of a user filter for a given page.
       parameters:
-        -
-          $ref: '#/components/parameters/FilterPageName'
-        -
-          $ref: '#/components/parameters/FilterId'
+        - $ref: '#/components/parameters/FilterPageName'
+        - $ref: '#/components/parameters/FilterId'
       responses:
         '200':
           description: OK
@@ -1489,10 +1407,8 @@ paths:
 
         Update user filter for a given page.
       parameters:
-        -
-          $ref: '#/components/parameters/FilterPageName'
-        -
-          $ref: '#/components/parameters/FilterId'
+        - $ref: '#/components/parameters/FilterPageName'
+        - $ref: '#/components/parameters/FilterId'
       requestBody:
         required: true
         content:
@@ -1521,10 +1437,8 @@ paths:
 
         Patch user filter order for a given page.
       parameters:
-        -
-          $ref: '#/components/parameters/FilterPageName'
-        -
-          $ref: '#/components/parameters/FilterId'
+        - $ref: '#/components/parameters/FilterPageName'
+        - $ref: '#/components/parameters/FilterId'
       requestBody:
         required: true
         content:
@@ -1560,10 +1474,8 @@ paths:
 
         Delete user filter for a given page.
       parameters:
-        -
-          $ref: '#/components/parameters/FilterPageName'
-        -
-          $ref: '#/components/parameters/FilterId'
+        - $ref: '#/components/parameters/FilterPageName'
+        - $ref: '#/components/parameters/FilterId'
       responses:
         '204':
           description: OK
@@ -1619,40 +1531,23 @@ paths:
         * h.fqdn
         * s.description
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/ResourceFilterType'
-        -
-          $ref: '#/components/parameters/ResourceFilterState'
-        -
-          $ref: '#/components/parameters/ResourceFilterStatus'
-        -
-          $ref: '#/components/parameters/ResourceFilterHostgroupName'
-        -
-          $ref: '#/components/parameters/ResourceFilterServicegroupName'
-        -
-          $ref: '#/components/parameters/ResourceFilterServiceCategoryName'
-        -
-          $ref: '#/components/parameters/ResourceFilterHostCategoryName'
-        -
-          $ref: '#/components/parameters/ResourceFilterHostSeverityName'
-        -
-          $ref: '#/components/parameters/ResourceFilterServiceSeverityName'
-        -
-          $ref: '#/components/parameters/ResourceFilterHostSeverityLevel'
-        -
-          $ref: '#/components/parameters/ResourceFilterServiceSeverityLevel'
-        -
-          $ref: '#/components/parameters/ResourceFilterMonitoringServerName'
-        -
-          $ref: '#/components/parameters/ResourceFilterStatusTypes'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/ResourceFilterType'
+        - $ref: '#/components/parameters/ResourceFilterState'
+        - $ref: '#/components/parameters/ResourceFilterStatus'
+        - $ref: '#/components/parameters/ResourceFilterHostgroupName'
+        - $ref: '#/components/parameters/ResourceFilterServicegroupName'
+        - $ref: '#/components/parameters/ResourceFilterServiceCategoryName'
+        - $ref: '#/components/parameters/ResourceFilterHostCategoryName'
+        - $ref: '#/components/parameters/ResourceFilterHostSeverityName'
+        - $ref: '#/components/parameters/ResourceFilterServiceSeverityName'
+        - $ref: '#/components/parameters/ResourceFilterHostSeverityLevel'
+        - $ref: '#/components/parameters/ResourceFilterServiceSeverityLevel'
+        - $ref: '#/components/parameters/ResourceFilterMonitoringServerName'
+        - $ref: '#/components/parameters/ResourceFilterStatusTypes'
       responses:
         '200':
           description: OK
@@ -1679,8 +1574,7 @@ paths:
       summary: 'Get a Host resource type detail'
       description: 'Return the full detail of a resource typed Host.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: 'Successful request'
@@ -1702,10 +1596,8 @@ paths:
       summary: 'Get a Service resource type detail'
       description: 'Return the full detail of a resource typed Service.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: 'Successful request'
@@ -1742,16 +1634,11 @@ paths:
         * host.downtime
         * host.criticality
       parameters:
-        -
-          $ref: '#/components/parameters/ShowService'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/ShowService'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1774,8 +1661,7 @@ paths:
       summary: 'Get a host'
       description: 'Return a single host with full details and some details about its services.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: OK
@@ -1820,14 +1706,10 @@ paths:
         * service.downtime
         * service.criticality
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1865,14 +1747,10 @@ paths:
         * service_category.id
         * service_category.name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1905,16 +1783,11 @@ paths:
         * service.is_acknowledged
         * service.state
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1939,10 +1812,8 @@ paths:
       summary: 'Get a service'
       description: 'Return a single service with full details.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: OK
@@ -1964,10 +1835,8 @@ paths:
       summary: 'Get service groups by host id and service id'
       description: 'Return a list of service groups for host-service pair.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: OK
@@ -2005,16 +1874,11 @@ paths:
         * host_category.id
         * host_category.name
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2044,14 +1908,10 @@ paths:
         * host_group.id
         * host_group.name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2089,18 +1949,12 @@ paths:
         * host_category.id
         * host_category.name
       parameters:
-        -
-          $ref: '#/components/parameters/ShowHost'
-        -
-          $ref: '#/components/parameters/ShowService'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/ShowHost'
+        - $ref: '#/components/parameters/ShowService'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2142,18 +1996,12 @@ paths:
         * host_category.id
         * host_category.name
       parameters:
-        -
-          $ref: '#/components/parameters/ShowService'
-        -
-          $ref: '#/components/parameters/ShowHost'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/ShowService'
+        - $ref: '#/components/parameters/ShowHost'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2181,14 +2029,10 @@ paths:
         * name
         * level
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2216,14 +2060,10 @@ paths:
         * name
         * level
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2264,14 +2104,10 @@ paths:
         * state
         * type
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2322,8 +2158,7 @@ paths:
 
         Returns either a host or service acknowledgement depending on the resource type.
       parameters:
-        -
-          $ref: '#/components/parameters/AcknowledgementId'
+        - $ref: '#/components/parameters/AcknowledgementId'
       responses:
         '200':
           description: OK
@@ -2361,14 +2196,10 @@ paths:
         * state
         * type
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2432,14 +2263,10 @@ paths:
         * state
         * type
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2501,16 +2328,11 @@ paths:
         * state
         * type
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
       responses:
         '200':
           description: OK
@@ -2534,8 +2356,7 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -2560,8 +2381,7 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2597,18 +2417,12 @@ paths:
         * state
         * type
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       responses:
         '200':
           description: OK
@@ -2632,10 +2446,8 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -2660,10 +2472,8 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2700,16 +2510,11 @@ paths:
         * state
         * type
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/MetaId'
       responses:
         '200':
           description: OK
@@ -2734,8 +2539,7 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -2761,8 +2565,7 @@ paths:
 
         **Minimum API version:** 21.10
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2778,14 +2581,10 @@ paths:
         - Downtime
       summary: 'List all downtimes'
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       description: |
         List all downtimes
 
@@ -2832,8 +2631,7 @@ paths:
       summary: 'Display one downtime'
       description: 'Display one downtime.'
       parameters:
-        -
-          $ref: '#/components/parameters/DowntimeId'
+        - $ref: '#/components/parameters/DowntimeId'
       responses:
         '200':
           description: OK
@@ -2853,8 +2651,7 @@ paths:
       summary: 'Cancel a downtime'
       description: 'Cancel a downtime.'
       parameters:
-        -
-          $ref: '#/components/parameters/DowntimeId'
+        - $ref: '#/components/parameters/DowntimeId'
       responses:
         '204':
           description: 'Command Sent'
@@ -2888,14 +2685,10 @@ paths:
         * contact.id
         * contact.name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2958,14 +2751,10 @@ paths:
         * contact.id
         * contact.name
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -3005,18 +2794,12 @@ paths:
         - Downtime
       summary: 'List all downtimes of a host'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ShowService'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ShowService'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       description: |
         List all downtimes of a host.
 
@@ -3053,8 +2836,7 @@ paths:
       summary: 'Add a downtime on a host'
       description: 'Add a downtime on a host.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -3076,18 +2858,12 @@ paths:
         - Downtime
       summary: 'List all downtimes of a service'
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       description: |
         List all downtimes of a service.
 
@@ -3122,10 +2898,8 @@ paths:
       summary: 'Add a downtime on a service'
       description: 'Add a downtime on a service.'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -3148,16 +2922,11 @@ paths:
         - 'Meta service'
       summary: 'List all downtimes of a metaservice'
       parameters:
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/MetaId'
       description: |
         List all downtimes of a metaservice.
 
@@ -3193,8 +2962,7 @@ paths:
       summary: 'Add a downtime on a metaservice'
       description: 'Add a downtime on a metaservice.'
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -3257,8 +3025,7 @@ paths:
       summary: 'Check host'
       description: 'Schedule immediate check on chosen host'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -3283,10 +3050,8 @@ paths:
       summary: 'Check service'
       description: 'Schedule immediate check on chosen service'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -3312,8 +3077,7 @@ paths:
       summary: 'Check metaservice'
       description: 'Schedule immediate check on chosen metaservice'
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -3361,8 +3125,7 @@ paths:
       summary: 'Submit a result to a single host'
       description: 'Submit a result (check status, output and perfdata) to a single host'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/HostId'
       requestBody:
         required: true
         content:
@@ -3389,10 +3152,8 @@ paths:
       summary: 'Submit a result to a single service'
       description: 'Submit a result (check status, output and perfdata) to a single service'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
       requestBody:
         required: true
         content:
@@ -3420,8 +3181,7 @@ paths:
       summary: 'Submit a result to a single metaservice'
       description: 'Submit a result (check status, output and perfdata) to a single metaservice'
       parameters:
-        -
-          $ref: '#/components/parameters/MetaId'
+        - $ref: '#/components/parameters/MetaId'
       requestBody:
         required: true
         content:
@@ -3493,14 +3253,10 @@ paths:
         - Metrics
       summary: 'Get service metrics'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
-        -
-          $ref: '#/components/parameters/MetricStartDate'
-        -
-          $ref: '#/components/parameters/MetricEndDate'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/MetricStartDate'
+        - $ref: '#/components/parameters/MetricEndDate'
       responses:
         '200':
           description: OK
@@ -3524,14 +3280,10 @@ paths:
         - Metrics
       summary: 'Get service status data'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
-        -
-          $ref: '#/components/parameters/MetricStartDate'
-        -
-          $ref: '#/components/parameters/MetricEndDate'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/MetricStartDate'
+        - $ref: '#/components/parameters/MetricEndDate'
       description: 'Get status data from a service between given interval'
       responses:
         '200':
@@ -3557,10 +3309,8 @@ paths:
         - Metrics
       summary: 'Get service performance data'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
         -
           in: query
           name: start
@@ -3602,10 +3352,8 @@ paths:
         - Metrics
       summary: 'Download performance data as csv file'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
         -
           in: query
           name: start_date
@@ -3640,10 +3388,8 @@ paths:
         - Metrics
       summary: 'Get service status data'
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
         -
           in: query
           name: start
@@ -3695,16 +3441,11 @@ paths:
         * content
         * date
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -3735,18 +3476,12 @@ paths:
         * content
         * date
       parameters:
-        -
-          $ref: '#/components/parameters/HostId'
-        -
-          $ref: '#/components/parameters/ServiceId'
-        -
-          $ref: '#/components/parameters/Search'
-        -
-          $ref: '#/components/parameters/Limit'
-        -
-          $ref: '#/components/parameters/Page'
-        -
-          $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/HostId'
+        - $ref: '#/components/parameters/ServiceId'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -3906,8 +3641,7 @@ paths:
       tags:
         - Topology
       parameters:
-        -
-          $ref: '#/components/parameters/PollerId'
+        - $ref: '#/components/parameters/PollerId'
       summary: 'Delete a Platform'
       description: 'Delete a platform from the topology'
       responses:
@@ -3924,10 +3658,8 @@ paths:
       tags:
         - Gorgone
       parameters:
-        -
-          $ref: '#/components/parameters/PollerId'
-        -
-          $ref: '#/components/parameters/GorgoneToken'
+        - $ref: '#/components/parameters/PollerId'
+        - $ref: '#/components/parameters/GorgoneToken'
       summary: 'Gorgone poller responses token'
       responses:
         '200':
@@ -3945,10 +3677,8 @@ paths:
       tags:
         - Gorgone
       parameters:
-        -
-          $ref: '#/components/parameters/PollerId'
-        -
-          $ref: '#/components/parameters/CommandName'
+        - $ref: '#/components/parameters/PollerId'
+        - $ref: '#/components/parameters/CommandName'
       summary: 'Gorgone command on specific poller'
       responses:
         '200':
@@ -6117,8 +5847,7 @@ components:
                   priority: { type: number, description: 'priority of the role', example: 1 }
     ReadAuthenticationSAMLProvider:
       allOf:
-        -
-          $ref: '#/components/schemas/AuthenticationSAMLProvider'
+        - $ref: '#/components/schemas/AuthenticationSAMLProvider'
         -
           properties:
             groups_mapping:
@@ -6135,8 +5864,7 @@ components:
                   items: { type: object, properties: { claim_value: { type: string, description: 'Authorization claim value', example: scope }, access_group: { type: object, description: 'Access group', properties: { id: { type: integer, description: 'Access group ID', example: 1 }, name: { type: string, description: 'Access group name', example: Default } } } } }
     WriteAuthenticationSAMLProvider:
       allOf:
-        -
-          $ref: '#/components/schemas/AuthenticationSAMLProvider'
+        - $ref: '#/components/schemas/AuthenticationSAMLProvider'
         -
           properties:
             groups_mapping:
@@ -6330,8 +6058,7 @@ components:
                 type: object
                 properties:
                   id: { type: integer, description: 'ID of the extra period', example: 1 }
-              -
-                $ref: '#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod'
+              - $ref: '#/components/schemas/Configuration.TimePeriod.ExtraTimePeriod'
     Configuration.TimePeriod.days:
       type: object
       properties:
@@ -6502,8 +6229,7 @@ components:
           description: 'Indicates whether this host severity is enabled or not'
     Configuration.Host.Template:
       allOf:
-        -
-          $ref: '#/components/schemas/Configuration.Host.Template.Add'
+        - $ref: '#/components/schemas/Configuration.Host.Template.Add'
         -
           properties:
             id:
@@ -6776,8 +6502,7 @@ components:
           description: 'Indicates whether the host template is activated or not'
     Configuration.Service.Group:
       allOf:
-        -
-          $ref: '#/components/schemas/Configuration.Service.Group.Add'
+        - $ref: '#/components/schemas/Configuration.Service.Group.Add'
         -
           properties:
             id:
@@ -7255,8 +6980,7 @@ components:
         - object
         - 'null'
       allOf:
-        -
-          $ref: '#/components/schemas/Acknowledgement.Host'
+        - $ref: '#/components/schemas/Acknowledgement.Host'
         -
           type:
             - object
@@ -7269,8 +6993,7 @@ components:
               example: 5
     Acknowledgement.Host.Add:
       allOf:
-        -
-          $ref: '#/components/schemas/Acknowledgement.Service.Add'
+        - $ref: '#/components/schemas/Acknowledgement.Service.Add'
         -
           type: object
           properties:
@@ -7282,10 +7005,8 @@ components:
       type: array
       items:
         allOf:
-          -
-            $ref: '#/components/schemas/Acknowledgement.Host.Add'
-          -
-            $ref: '#/components/schemas/Bulk.Resource.Id'
+          - $ref: '#/components/schemas/Acknowledgement.Host.Add'
+          - $ref: '#/components/schemas/Bulk.Resource.Id'
     Acknowledgement.Service.Add:
       type: object
       properties:
@@ -7309,14 +7030,11 @@ components:
       type: array
       items:
         allOf:
-          -
-            $ref: '#/components/schemas/Acknowledgement.Service.Add'
-          -
-            $ref: '#/components/schemas/Bulk.Resource.Id'
+          - $ref: '#/components/schemas/Acknowledgement.Service.Add'
+          - $ref: '#/components/schemas/Bulk.Resource.Id'
     Downtime.Host.Add:
       allOf:
-        -
-          $ref: '#/components/schemas/Downtime.Service.Add'
+        - $ref: '#/components/schemas/Downtime.Service.Add'
         -
           type: object
           properties:
@@ -7328,10 +7046,8 @@ components:
       type: array
       items:
         allOf:
-          -
-            $ref: '#/components/schemas/Downtime.Host.Add'
-          -
-            $ref: '#/components/schemas/Bulk.Resource.Id'
+          - $ref: '#/components/schemas/Downtime.Host.Add'
+          - $ref: '#/components/schemas/Bulk.Resource.Id'
     Downtime.Service.Add:
       type: object
       properties:
@@ -7359,10 +7075,8 @@ components:
       type: array
       items:
         allOf:
-          -
-            $ref: '#/components/schemas/Downtime.Service.Add'
-          -
-            $ref: '#/components/schemas/Bulk.Resource.Id'
+          - $ref: '#/components/schemas/Downtime.Service.Add'
+          - $ref: '#/components/schemas/Bulk.Resource.Id'
     Downtime.Host:
       type: object
       properties:
@@ -7432,8 +7146,7 @@ components:
           example: true
     Downtime.Service:
       allOf:
-        -
-          $ref: '#/components/schemas/Downtime.Host'
+        - $ref: '#/components/schemas/Downtime.Host'
         -
           type: object
           properties:
@@ -7488,22 +7201,17 @@ components:
       type: array
       items:
         allOf:
-          -
-            $ref: '#/components/schemas/Check.Host'
-          -
-            $ref: '#/components/schemas/Bulk.Resource.Id'
+          - $ref: '#/components/schemas/Check.Host'
+          - $ref: '#/components/schemas/Bulk.Resource.Id'
     Check.Service:
       allOf:
-        -
-          $ref: '#/components/schemas/Check.Host'
+        - $ref: '#/components/schemas/Check.Host'
     Check.Services:
       type: array
       items:
         allOf:
-          -
-            $ref: '#/components/schemas/Check.Service'
-          -
-            $ref: '#/components/schemas/Bulk.Resource.Id'
+          - $ref: '#/components/schemas/Check.Service'
+          - $ref: '#/components/schemas/Bulk.Resource.Id'
     Check.Resources:
       type: object
       properties:
@@ -8053,10 +7761,8 @@ components:
           example: All
         host:
           allOf:
-            -
-              $ref: '#/components/schemas/Monitoring.HostMin'
-            -
-              $ref: '#/components/schemas/Monitoring.HostWithService'
+            - $ref: '#/components/schemas/Monitoring.HostMin'
+            - $ref: '#/components/schemas/Monitoring.HostWithService'
     Monitoring.HostMin:
       type: object
       properties:
@@ -8088,8 +7794,7 @@ components:
           example: 0
     Monitoring.HostFull:
       allOf:
-        -
-          $ref: '#/components/schemas/Monitoring.HostMain'
+        - $ref: '#/components/schemas/Monitoring.HostMain'
         -
           type: object
           properties:
@@ -8196,10 +7901,8 @@ components:
                   allOf: [{ $ref: '#/components/schemas/Acknowledgement.Host' }]
     Monitoring.HostMain:
       allOf:
-        -
-          $ref: '#/components/schemas/Monitoring.HostMin'
-        -
-          $ref: '#/components/schemas/Monitoring.HostWithService'
+        - $ref: '#/components/schemas/Monitoring.HostMin'
+        - $ref: '#/components/schemas/Monitoring.HostWithService'
         -
           type: object
           properties:
@@ -8399,8 +8102,7 @@ components:
           example: 0
     Monitoring.ServiceMain:
       allOf:
-        -
-          $ref: '#/components/schemas/Monitoring.ServiceMin'
+        - $ref: '#/components/schemas/Monitoring.ServiceMin'
         -
           type: object
           properties:
@@ -8460,8 +8162,7 @@ components:
               example: '2h 3m'
     Monitoring.ServiceFull:
       allOf:
-        -
-          $ref: '#/components/schemas/Monitoring.ServiceMain'
+        - $ref: '#/components/schemas/Monitoring.ServiceMain'
         -
           type: object
           properties:
@@ -8575,8 +8276,7 @@ components:
                 $ref: '#/components/schemas/Downtime.Service'
             acknowledgement:
               allOf:
-                -
-                  $ref: '#/components/schemas/Acknowledgement.Service'
+                - $ref: '#/components/schemas/Acknowledgement.Service'
               type:
                 - object
                 - 'null'
@@ -8891,8 +8591,7 @@ components:
         '@context':
           readOnly: true
           oneOf:
-            -
-              type: string
+            - type: string
             -
               type: object
               properties:
@@ -8980,8 +8679,7 @@ components:
           type: string
     Error.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9159,8 +8857,7 @@ components:
           type: boolean
     ServiceCategory.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9287,8 +8984,7 @@ components:
             type: integer
     Command.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9367,8 +9063,7 @@ components:
           example: true
     Connector.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9467,8 +9162,7 @@ components:
           example: 'This is the help description of the plugin.'
     Plugin.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9588,8 +9282,7 @@ components:
             - 'null'
     ConstraintViolation.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9671,8 +9364,7 @@ components:
           example: 'This command is used to check the HTTP service'
     CreateCommandResource.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9741,8 +9433,7 @@ components:
             type: integer
     DuplicateCommandResource.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9800,8 +9491,7 @@ components:
         - expression
     Global.Macro.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9842,8 +9532,7 @@ components:
             - expression
     HydraCollectionBaseSchema:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination'
+        - $ref: '#/components/schemas/HydraCollectionBaseSchemaNoPagination'
         -
           type: object
           properties:
@@ -9903,8 +9592,7 @@ components:
       properties:
         '@context':
           oneOf:
-            -
-              type: string
+            - type: string
             -
               type: object
               properties:
@@ -9937,8 +9625,7 @@ components:
           example: 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "[poller IP/DNS]:[PORT]" -f "[centreon_storage.instances.cma_certificate_sha]" -N "[centreon_storage.cma_certificate_cn]"'
     InstallationCommandResource.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -9996,8 +9683,7 @@ components:
           type: boolean
     ListCommandResource.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10056,8 +9742,7 @@ components:
           example: negate
     Plugins.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           required:
@@ -10089,8 +9774,7 @@ components:
           type: boolean
     Service.Category.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10121,8 +9805,7 @@ components:
             - 'null'
     Standard.Macro.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10174,8 +9857,7 @@ components:
         - expression
     GlobalMacro.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10264,8 +9946,7 @@ components:
           type: string
     Poller.jsonld-poller.read:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10307,8 +9988,7 @@ components:
             - 'null'
     StandardMacro.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10324,10 +10004,8 @@ components:
       type: object
     Upgrade.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
-        -
-          type: object
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        - type: object
     Poller:
       type: object
       properties:
@@ -10389,8 +10067,7 @@ components:
           example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.InstallationCommandResource.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10400,8 +10077,7 @@ components:
               example: 'curl -fsSL <central_url>/poller/install.sh | bash -s -- --poller_token <token_name>:<token_value> --uid <uid> --name <name> --type <vm|docker> --central_url <central_url> --appsecret <app_secret> --salt <salt>'
     Poller.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10433,8 +10109,7 @@ components:
           type: string
     HostGroup.HostGroupCollectionOutput.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
@@ -10451,8 +10126,7 @@ components:
           type: string
     Poller.PollerCollectionOutput.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
