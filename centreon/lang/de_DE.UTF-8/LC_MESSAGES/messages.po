@@ -17000,6 +17000,14 @@ msgstr ""
 msgid "This active checks status (%d) is not allowed"
 msgstr "Der Status dieser aktiven Überprüfung (%d) ist nicht zulässig"
 
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Diese Kontaktgruppe ist nicht verfügbar"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Dieser Kontakt ist nicht verfügbar"
+
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid ""
 "This description is in conflict with another one that is already defined in "
@@ -21444,11 +21452,3 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
-
-#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
-msgid "This contact group is not available"
-msgstr "Diese Kontaktgruppe ist nicht verfügbar"
-
-#: centreon/www/include/configuration/configObject/contact/displayNotification.php
-msgid "This contact is not available"
-msgstr "Dieser Kontakt ist nicht verfügbar"
