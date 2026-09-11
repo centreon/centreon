@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessibleHostGroups;
 use App\MonitoringConfiguration\Infrastructure\Validator\AccessiblePoller;
+use App\MonitoringConfiguration\Infrastructure\Validator\UniqueHostName;
 use App\MonitoringConfiguration\Infrastructure\Validator\ValidHostAddress;
 use App\Shared\Infrastructure\Validator\Constraints\WhenPlatform;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,14 +39,17 @@ final readonly class CreateHostInput
      * @param list<int> $hostGroupIds
      */
     public function __construct(
-        #[Assert\NotBlank(normalizer: 'trim')]
-        #[Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH)]
-        #[Assert\Regex(
-            pattern: '/(^_Module(?:_| ))|([~!$%^&*"|\'<>?,()=])/',
-            match: false,
-            message: 'This value must not start with "_Module_" and must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
-            normalizer: 'trim',
-        )]
+        #[Assert\Sequentially([
+            new Assert\NotBlank(normalizer: 'trim'),
+            new Assert\Length(min: HostName::MIN_LENGTH, max: HostName::MAX_LENGTH),
+            new Assert\Regex(
+                pattern: '/(^_Module(?:_| ))|([~!$%^&*"|\'<>?,()=])/',
+                match: false,
+                message: 'This value must not start with "_Module_" and must not contain any of the following characters: ~ ! $ % ^ & * " | \' < > ? , ( ) =',
+                normalizer: 'trim',
+            ),
+            new UniqueHostName(),
+        ])]
         public string $name,
 
         #[Assert\NotBlank(normalizer: 'trim')]
