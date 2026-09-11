@@ -61,7 +61,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'Host severity');
   }
 );
 
@@ -129,7 +129,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'Host severity');
   }
 );
 
@@ -160,7 +160,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'Host severity');
   }
 );
 
@@ -226,7 +226,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'Host severity');
   }
 );
 
@@ -261,6 +261,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostseverity');
+      .should('contain.text', 'Host severity');
   }
 );

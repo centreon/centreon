@@ -61,7 +61,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostcategories');
+      .should('contain.text', 'Host Categories');
   }
 );
 
@@ -116,7 +116,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostcategories');
+      .should('contain.text', 'Host Categories');
   }
 );
 
@@ -144,7 +144,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostcategories');
+      .should('contain.text', 'Host Categories');
   }
 );
 
@@ -217,7 +217,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostcategories');
+      .should('contain.text', 'Host Categories');
   }
 );
 
@@ -252,6 +252,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'hostcategories');
+      .should('contain.text', 'Host Categories');
   }
 );

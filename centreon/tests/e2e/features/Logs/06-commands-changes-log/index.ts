@@ -88,7 +88,7 @@ Then(
       .find('td')
       .eq(2)
       .invoke('text')
-      .then((text) => expect(text.trim()).to.equal('command'));
+      .then((text) => expect(text.trim()).to.equal('Command'));
   }
 );
 
