@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
@@ -88,6 +89,62 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             'contactId' => $userId->value,
             'pollerId' => $pollerId->value,
         ]);
+    }
+
+    public function findAccessibleHostCategoryIds(UserId $userId): ?Collection
+    {
+        $accessibleAclResQb = $this->getAccessibleAclResourcesQueryBuilder();
+
+        // Tier 1 — legacy `if ($accessGroups === []) return []`: a user with no accessible ACL resource
+        // is fully restricted (fails closed), not unrestricted. Returning an empty Collection keeps the
+        // "sees nothing" contract distinct from the "sees everything" null below.
+        $hasAccessibleResourceQb = $this->connection->createQueryBuilder();
+        $hasAccessibleResourceQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasAccessibleResourceQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return new Collection([], HostCategoryId::class);
+        }
+
+        // Tier 2 — legacy `hasRestrictedAccessToHostCategories() === false`: accessible resources exist
+        // but none carry a host-category ACL relation (of any level), so no category restriction is in
+        // force and the user sees every category.
+        $hasHostCategoryRelationQb = $this->connection->createQueryBuilder();
+        $hasHostCategoryRelationQb
+            ->select('1')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->setParameter('contactId', $userId->value)
+            ->setMaxResults(1);
+
+        if ($this->connection->fetchOne($hasHostCategoryRelationQb->getSQL(), ['contactId' => $userId->value]) === false) {
+            return null;
+        }
+
+        // Tier 3 — legacy `AND hc.hc_id IN (<granted categories>)` on a `hc.level IS NULL` join: the user
+        // is restricted to the regular (levelless) categories their accessible resources grant. A levelless
+        // host category is a regular category; one carrying a level is a host "severity", a distinct
+        // concept. A user granted only severities yields an empty set and therefore sees no category,
+        // matching legacy findAllByAccessGroupIds, which filters level IS NULL over the grant.
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT arhcr.hc_id')
+            ->from('(' . $accessibleAclResQb->getSQL() . ')', 'accessible_res')
+            ->innerJoin('accessible_res', 'acl_resources_hc_relations', 'arhcr', 'arhcr.acl_res_id = accessible_res.acl_res_id')
+            ->innerJoin('arhcr', 'hostcategories', 'hc', 'hc.hc_id = arhcr.hc_id')
+            ->where('hc.level IS NULL')
+            ->setParameter('contactId', $userId->value);
+
+        /** @var list<array{hc_id: numeric-string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($qb->getSQL(), ['contactId' => $userId->value]);
+
+        return new Collection(
+            array_map(static fn (array $row): HostCategoryId => new HostCategoryId((int) $row['hc_id']), $rows),
+            HostCategoryId::class,
+        );
     }
 
     public function findAccessibleHostSeverityIds(UserId $userId): ?Collection

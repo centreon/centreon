@@ -101,6 +101,8 @@ tags:
     description: "Resource 'HostGroup' operations."
   - name: HostTemplate
     description: "Resource 'HostTemplate' operations."
+  - name: HostCategory
+    description: "Resource 'HostCategory' operations."
 security:
   -
     Token: []
@@ -5059,6 +5061,77 @@ paths:
           name: 'name[lk]'
           in: query
           description: 'Filter by host template name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  /api/configuration/host_categories:
+    get:
+      operationId: api_configurationhost_categories_get_collection
+      tags:
+        - HostCategory
+      responses:
+        '200':
+          description: 'HostCategory collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'HostCategory.HostCategoryCollectionOutput.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/HostCategory.HostCategoryCollectionOutput.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostCategory.HostCategoryCollectionOutput'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of HostCategory resources.'
+      description: 'Retrieves the collection of HostCategory resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by host category name using "like" operator'
           required: false
           deprecated: false
           schema:
@@ -10215,6 +10288,23 @@ components:
         name:
           type: string
     HostTemplate.HostTemplateCollectionOutput.jsonld:
+      allOf:
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    HostCategory.HostCategoryCollectionOutput:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    HostCategory.HostCategoryCollectionOutput.jsonld:
       allOf:
         - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
