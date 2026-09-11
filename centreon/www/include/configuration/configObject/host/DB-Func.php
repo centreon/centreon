@@ -3425,7 +3425,7 @@ function validateParentChildAreNotCircular(array $fields): array|true
     if ($common) {
         $hostIds = [];
         foreach ($common as $hostId) {
-            $hostIds[':host' . $hostId] = $hostId;
+            $hostIds[':host' . (int)$hostId] = (int)$hostId;
         }
         $hostIdsAsString = implode(',', array_keys($hostIds));
         $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");
