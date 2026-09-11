@@ -13877,7 +13877,7 @@ msgstr "Resources Access"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Resources Status"
-msgstr "Resources Status"
+msgstr "Resource Status"
 
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Resources access"
@@ -14486,7 +14486,7 @@ msgstr "See more information in the geoview"
 
 #: centreon/www/install/front_translate.php
 msgid "See more on the Resources Status page"
-msgstr "See more on the Resources Status page"
+msgstr "See more on the Resource Status page"
 
 #: centreon/www/install/front_translate.php
 msgid "See more on the {{ page }} page"
@@ -18815,7 +18815,7 @@ msgstr "You are not allowed to access services in the real time context"
 
 #: centreon/src/Centreon/Application/Controller/FilterController.php
 msgid "You are not allowed to access the Resources Status page"
-msgstr "You are not allowed to access the Resources Status page"
+msgstr "You are not allowed to access the Resource Status page"
 
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "You are not allowed to access this contact"
