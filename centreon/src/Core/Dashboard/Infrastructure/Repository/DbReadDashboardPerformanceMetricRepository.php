@@ -382,7 +382,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     {
         $bindValues = [];
         foreach ($serviceCategoryIds as $serviceCategoryId) {
-            $bindValues[':servicecategory_' . $serviceCategoryId] = [$serviceCategoryId => \PDO::PARAM_INT];
+            $bindValues[':servicecategory_' . (int)$serviceCategoryId] = [$serviceCategoryId => \\PDO::PARAM_INT];
         }
         $boundTokens = implode(', ', array_keys($bindValues));
 
