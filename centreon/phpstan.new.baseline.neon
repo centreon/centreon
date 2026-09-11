@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Trait App\\Shared\\Domain\\Repository\\PaginableCriteriaTrait is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: src/App/Shared/Domain/Repository/PaginableCriteriaTrait.php
-
-		-
 			message: '#^Trait App\\Shared\\Domain\\Repository\\SearchableCriteriaTrait is used zero times and is not analysed\.$#'
 			identifier: trait.unused
 			count: 1

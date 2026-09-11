@@ -23,43 +23,16 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Security\Domain\Aggregate\UserId;
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 
-final class PollerCriteria
+final class PollerCriteria implements PaginableCriteria
 {
-    private ?int $page = null;
-
-    private ?int $itemsPerPage = null;
-
-    private ?string $name = null;
+    use PaginableCriteriaTrait;
+    use SingleNameFilterTrait;
+    use ViewerScopedCriteriaTrait;
 
     private bool $excludeUnknownCentral = false;
-
-    private ?UserId $viewerId = null;
-
-    public function withPagination(int $page, int $itemsPerPage): self
-    {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
-        $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
-
-        return $new;
-    }
-
-    public function withName(string $name): self
-    {
-        // notEmpty() relies on empty(), which would wrongly reject a legitimate name of "0"
-        Assert::stringNotEmpty($name);
-
-        $new = clone $this;
-        $new->name = $name;
-
-        return $new;
-    }
 
     public function withExcludeUnknownCentral(bool $exclude): self
     {
@@ -69,39 +42,8 @@ final class PollerCriteria
         return $new;
     }
 
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
-    {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
-
-        return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
     public function excludeUnknownCentral(): bool
     {
         return $this->excludeUnknownCentral;
-    }
-
-    public function getViewerId(): ?UserId
-    {
-        return $this->viewerId;
     }
 }

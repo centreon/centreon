@@ -24,23 +24,16 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use App\Shared\Domain\Repository\SortableCriteria;
 use App\Shared\Domain\Repository\SortableCriteriaTrait;
-use Webmozart\Assert\Assert;
 
-final class CommandCriteria implements SortableCriteria
+final class CommandCriteria implements SortableCriteria, PaginableCriteria
 {
     use SortableCriteriaTrait;
-    public const OPERATOR_EQUAL = 'eq';
-    public const OPERATOR_LIKE = 'lk';
-    public const ALLOWED_OPERATORS = [self::OPERATOR_EQUAL, self::OPERATOR_LIKE];
-
-    private ?int $page = null;
-
-    private ?int $itemsPerPage = null;
-
-    /** @var array<self::OPERATOR_*, list<string>> */
-    private array $names = [];
+    use PaginableCriteriaTrait;
+    use OperatorNameFilterTrait;
 
     /** @var list<CommandTypeEnum> */
     private array $types = [];
@@ -51,36 +44,6 @@ final class CommandCriteria implements SortableCriteria
 
     /** @var list<int> */
     private array $ids = [];
-
-    public function withPagination(int $page, int $itemsPerPage): self
-    {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
-        $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
-
-        return $new;
-    }
-
-    /**
-     * @param self::OPERATOR_* $operator
-     */
-    public function withName(string $name, string $operator): self
-    {
-        Assert::notEmpty($name);
-        Assert::inArray($operator, self::ALLOWED_OPERATORS);
-
-        $names = $this->names[$operator] ?? [];
-        $names[] = $name;
-        $names = array_values(array_unique($names));
-
-        $new = clone $this;
-        $new->names[$operator] = $names;
-
-        return $new;
-    }
 
     public function withType(string $type): self
     {
@@ -100,16 +63,18 @@ final class CommandCriteria implements SortableCriteria
 
     public function withIsActivated(bool $isActivated): self
     {
-        $this->isActivated = $isActivated;
+        $new = clone $this;
+        $new->isActivated = $isActivated;
 
-        return clone $this;
+        return $new;
     }
 
     public function withIsFromMonitoringConnector(bool $isFromMonitoringConnector): self
     {
-        $this->isFromMonitoringConnector = $isFromMonitoringConnector;
+        $new = clone $this;
+        $new->isFromMonitoringConnector = $isFromMonitoringConnector;
 
-        return clone $this;
+        return $new;
     }
 
     public function withId(int $id): self
@@ -121,24 +86,6 @@ final class CommandCriteria implements SortableCriteria
         $new->ids = $ids;
 
         return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
-    }
-
-    /**
-     * @return array<self::OPERATOR_*, list<string>>
-     */
-    public function getNames(): array
-    {
-        return $this->names;
     }
 
     /**

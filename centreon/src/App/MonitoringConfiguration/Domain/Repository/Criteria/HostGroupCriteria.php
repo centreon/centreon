@@ -23,69 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Security\Domain\Aggregate\UserId;
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 
-final class HostGroupCriteria
+final class HostGroupCriteria implements PaginableCriteria
 {
-    private ?int $page = null;
-
-    private ?int $itemsPerPage = null;
-
-    private ?string $name = null;
-
-    private ?UserId $viewerId = null;
-
-    public function withPagination(int $page, int $itemsPerPage): self
-    {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
-        $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
-
-        return $new;
-    }
-
-    public function withName(string $name): self
-    {
-        Assert::stringNotEmpty($name);
-
-        $new = clone $this;
-        $new->name = $name;
-
-        return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
-    {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
-
-        return $new;
-    }
-
-    public function getViewerId(): ?UserId
-    {
-        return $this->viewerId;
-    }
+    use PaginableCriteriaTrait;
+    use SingleNameFilterTrait;
+    use ViewerScopedCriteriaTrait;
 }

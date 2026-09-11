@@ -23,12 +23,30 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Shared\Domain\Repository\PaginableCriteria;
-use App\Shared\Domain\Repository\PaginableCriteriaTrait;
+use App\Security\Domain\Aggregate\UserId;
 
-final class HostTemplateCriteria implements PaginableCriteria
+/**
+ * ACL scoping shared by the listing criteria that restrict results to what a
+ * given viewer is allowed to see (Host, HostCategory, HostGroup, HostTemplate,
+ * Poller).
+ */
+trait ViewerScopedCriteriaTrait
 {
-    use PaginableCriteriaTrait;
-    use SingleNameFilterTrait;
-    use ViewerScopedCriteriaTrait;
+    private ?UserId $viewerId = null;
+
+    /**
+     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
+     */
+    public function withViewerId(?UserId $viewerId): self
+    {
+        $new = clone $this;
+        $new->viewerId = $viewerId;
+
+        return $new;
+    }
+
+    public function getViewerId(): ?UserId
+    {
+        return $this->viewerId;
+    }
 }

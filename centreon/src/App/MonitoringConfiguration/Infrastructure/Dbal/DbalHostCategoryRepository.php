@@ -78,7 +78,8 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
             $this->filterByCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -97,8 +98,8 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
         return new InMemoryPaginator(
             items: $this->createHostCategories($rows),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -166,11 +167,12 @@ final readonly class DbalHostCategoryRepository extends DbalRepository implement
 
     private function paginate(QueryBuilder $qb, HostCategoryCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return;
         }
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 }
