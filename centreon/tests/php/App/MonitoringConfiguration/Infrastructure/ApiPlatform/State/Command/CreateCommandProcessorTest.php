@@ -215,6 +215,18 @@ final class CreateCommandProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
 
         self::assertSame($count + 1, $repository->count());
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $objectType = $connection->fetchOne(
+            'SELECT object_type FROM log_action WHERE object_name = ? ORDER BY action_log_id DESC LIMIT 1',
+            ['CommandNotif']
+        );
+
+        // The command audit entry must use the canonical singular 'command' token,
+        // otherwise the Administration > Logs Type filter (bound on that token)
+        // cannot match it.
+        self::assertSame('command', $objectType);
     }
 
     /**

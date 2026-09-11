@@ -87,7 +87,8 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'commands');
+      .invoke('text')
+      .then((text) => expect(text.trim()).to.equal('command'));
   }
 );
 
