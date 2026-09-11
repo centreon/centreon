@@ -16,20 +16,24 @@ allOf:
           $ref: 'simpleEntity.yaml'
       service_template:
         description: "Service template linked to this service."
-        nullable: true
-        $ref: 'simpleEntity.yaml'
+        anyOf:
+          - $ref: 'simpleEntity.yaml'
+          - type: 'null'
       check_timeperiod:
         description: "Time period of the check command."
-        nullable: true
-        $ref: 'simpleEntity.yaml'
+        anyOf:
+          - $ref: 'simpleEntity.yaml'
+          - type: 'null'
       notification_timeperiod:
         description: "Time period of the notification command."
-        nullable: true
-        $ref: 'simpleEntity.yaml'
+        anyOf:
+          - $ref: 'simpleEntity.yaml'
+          - type: 'null'
       severity:
         description: "Severity linked to this service."
-        nullable: true
-        $ref: 'simpleEntity.yaml'
+        anyOf:
+          - $ref: 'simpleEntity.yaml'
+          - type: 'null'
       categories:
         type: array
         description: "Service categories associated with this service."
@@ -54,14 +58,17 @@ allOf:
               type: string
               example: 'host-name'
       normal_check_interval:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of 'time units' between regularly scheduled checks of the service.
 
           With the default time unit of 60s, this number will mean multiples of 1 minute.
-        nullable: true
       retry_check_interval:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
 
@@ -69,7 +76,6 @@ allOf:
 
           Once the service has been retried max_check_attempts times without a change in its status,
           it will revert to being scheduled at its "normal" check interval rate.
-        nullable: true
       is_activated:
         type: boolean
         description: "Indicates whether the service is activated or not"
