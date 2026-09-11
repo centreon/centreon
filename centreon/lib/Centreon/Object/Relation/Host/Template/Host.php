@@ -139,6 +139,7 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
      * @param mixed $offset
      *
      * @throws Exception
+     * @throws InvalidArgumentException
      * @return array
      */
     public function getMergedParameters(
@@ -154,6 +155,10 @@ class Centreon_Object_Relation_Host_Template_Host extends Centreon_Object_Relati
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
+        if (strtoupper($filterType) !== 'OR' && strtoupper($filterType) !== 'AND') {
+            throw new InvalidArgumentException('Invalid input');
+        }
+        $filterType = strtoupper($filterType);
         $fString = '';
         $sString = '';
         foreach ($firstTableParams as $fparams) {
