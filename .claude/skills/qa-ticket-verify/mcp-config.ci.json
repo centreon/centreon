@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--headless",
+        "--isolated",
+        "--output-dir",
+        "playwright-mcp-output",
+        "--config",
+        ".claude/skills/qa-ticket-verify/playwright.config.ci.json"
+      ]
+    }
+  }
+}
