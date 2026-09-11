@@ -142,6 +142,9 @@ tags:
   -
     name: HostCategory
     description: "Resource 'HostCategory' operations."
+  -
+    name: NotificationContact
+    description: "Resource 'NotificationContact' operations."
 security:
   -
     Token: []
