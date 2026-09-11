@@ -86,7 +86,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $viewerId = (int) $this->connection->lastInsertId();
 
         $memberGroupId = $this->insertContactGroup("member_{$suffix}");
-        $unrelatedGroupId = $this->insertContactGroup("unrelated_{$suffix}");
+        $this->insertContactGroup("unrelated_{$suffix}");
 
         $this->connection->insert('contactgroup_contact_relation', [
             'contactgroup_cg_id' => $memberGroupId,

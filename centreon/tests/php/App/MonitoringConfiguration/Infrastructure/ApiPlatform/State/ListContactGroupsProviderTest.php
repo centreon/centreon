@@ -66,7 +66,7 @@ final class ListContactGroupsProviderTest extends ApiTestCase
 
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => $name]]]);
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => $name]]]);
         self::assertResponseIsSuccessful();
         self::assertJsonContains(['member' => [['name' => $name]]]);
     }
