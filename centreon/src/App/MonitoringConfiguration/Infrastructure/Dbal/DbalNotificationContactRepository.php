@@ -78,7 +78,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         $qb->select('c.contact_id AS id', 'c.contact_name AS name')
             ->from(self::TABLE_NAME, 'c')
             ->andWhere("c.contact_register = '1'")
-            ->orderBy('c.contact_name') // matches legacy CentreonACL::getContactAclConf ordering
+            ->orderBy('c.contact_name') // alphabetical order for a name-based selector
             ->addOrderBy('c.contact_id'); // deterministic pagination if two contacts share a name
 
         if ($accessibleContactIds !== null) {
@@ -117,13 +117,13 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
     }
 
     /**
-     * Mirrors legacy CentreonACL::getContactAclConf() for a non-admin: the union of (a) contacts
-     * directly linked to one of the viewer's Access Groups, and (b) contacts belonging to a
-     * contact group that is itself linked to one of the viewer's Access Groups. Each branch is its
-     * own simple, obviously-correct query, merged here rather than joined into one query with an
-     * OR: a single multi-join query would fan out one row per (direct-link × contact-group-link)
-     * combination for a contact in both, relying on the caller's own DISTINCT/GROUP BY to collapse
-     * it back down instead of being correct on its own.
+     * An Access Group can grant a viewer visibility on a contact in two independent ways: the
+     * contact is listed in the group directly, or the contact belongs to a contact group that is
+     * itself listed in the group. Neither implies the other, so the accessible set is their union.
+     * Each branch is its own simple, obviously-correct query, merged here rather than joined into
+     * one query with an OR: a single multi-join query would fan out one row per (direct-link ×
+     * contact-group-link) combination for a contact matching both, relying on the caller's own
+     * DISTINCT/GROUP BY to collapse it back down instead of being correct on its own.
      *
      * @return list<int>
      */

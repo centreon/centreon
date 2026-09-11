@@ -101,7 +101,7 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
 
         $names = $this->names($this->repository->findAll((new NotificationContactCriteria())->withName("findme-{$this->tag}")));
 
-        self::assertSame([$name], $names, 'The search must also match contact_alias, matching legacy CentreonACL::getContactAclConf.');
+        self::assertSame([$name], $names, 'The search must also match contact_alias: users often know a contact by their alias rather than their full name.');
     }
 
     public function testFindAllPaginatesAndReturnsATotalAcrossAllPages(): void

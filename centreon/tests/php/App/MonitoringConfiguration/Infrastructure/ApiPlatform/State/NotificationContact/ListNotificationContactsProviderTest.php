@@ -119,7 +119,7 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
         self::assertSame(
             [$name],
             array_column((array) $response->toArray()['member'], 'name'),
-            'The search must also match contact_alias, matching legacy CentreonACL::getContactAclConf.'
+            'The search must also match contact_alias: users often know a contact by their alias rather than their full name.'
         );
     }
 
