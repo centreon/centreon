@@ -21,11 +21,22 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
-enum PollerPermissionEnum: string
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Poller\PollerCollectionOutput;
+use App\Shared\Infrastructure\TransformerInterface;
+
+/**
+ * @implements TransformerInterface<Poller, PollerCollectionOutput>
+ */
+final readonly class PollerCollectionOutputTransformer implements TransformerInterface
 {
-    case CanCreateEdit = 'can_create_edit_poller';
-    case CanRead = 'can_read_poller';
-    case CanReadAndWrite = 'can_read_and_write_poller';
+    public function transform(mixed $from): PollerCollectionOutput
+    {
+        return new PollerCollectionOutput(
+            id: $from->id()->value,
+            name: $from->name->value,
+        );
+    }
 }
