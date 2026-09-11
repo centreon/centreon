@@ -77,9 +77,6 @@ final readonly class ListNotificationContactsProvider implements ProviderInterfa
         $filters = $context['filters'] ?? [];
         $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
 
-        // Unrestricted users (super admin, Cloud tenant admin) see every contact, matching legacy
-        // CentreonACL::getContactAclConf's `if ($this->admin)` branch; others are scoped to their
-        // accessible contacts.
         $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
             ? $criteria
             : $criteria->withViewerId($credentialUser->credential->userId);
