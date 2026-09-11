@@ -1,0 +1,71 @@
+{* Requires the "Match asset to host name" option (rule config) and an "Asset" list with the Id
+   "matrix42_asset" (see Matrix42Provider::assignFormatPopupTemplate()). It filters the asset
+   dropdown down to the Matrix42 assets whose name matches one of the host(s) involved in the
+   ticket (selected directly, or through the selected services), pre-selects it when a single
+   match remains, and displays a notice under the list when none match. *}
+{if $match_asset_to_host == 'yes'}
+{literal}
+<script>
+(function () {
+    var noAssetMatchMessage = "{/literal}{t}No Matrix42 asset name matches the selected host(s).{/t}{literal}";
+    var hostNames = [
+{/literal}
+{foreach from=$host_selected item=host}
+        "{$host.name|escape:'javascript'}",
+{/foreach}
+{foreach from=$service_selected item=service}
+        "{$service.host_name|escape:'javascript'}",
+{/foreach}
+{literal}
+    ].filter(function (name, index, arr) {
+        return !!name && arr.indexOf(name) === index;
+    });
+
+    var $select = jQuery('#select_matrix42_asset');
+    if ($select.length === 0 || hostNames.length === 0) {
+        return;
+    }
+
+    var matchingValues = [];
+    $select.find('option').each(function () {
+        var $option = jQuery(this);
+        if ($option.val() === '-1') {
+            // keep the placeholder entry untouched
+            return;
+        }
+
+        var label = $option.text().toLowerCase();
+        var matches = hostNames.some(function (hostName) {
+            return label.indexOf(hostName.toLowerCase()) !== -1;
+        });
+
+        if (matches) {
+            matchingValues.push($option.val());
+        } else {
+            $option.remove();
+        }
+    });
+
+    // clear any message left over from a previous run of this script, then append ours last so it
+    // shows below the select2 widget (inserted as $select's next sibling by group.ihtml) rather than
+    // between the (hidden) native select and it
+    var $container = $select.closest('td');
+    $container.find('.matrix42-asset-no-match-message').remove();
+
+    if (matchingValues.length === 1) {
+        $select.val(matchingValues[0]);
+    } else if (matchingValues.length === 0) {
+        $container.append(
+            jQuery('<div>')
+                .addClass('matrix42-asset-no-match-message')
+                .css({ color: '#cc0000', marginTop: '5px' })
+                .text(noAssetMatchMessage)
+        );
+    }
+
+    // refresh the select2 widget built by group.ihtml so it reflects the options we just changed
+    $select.trigger('change');
+})();
+</script>
+{/literal}
+{/if}
