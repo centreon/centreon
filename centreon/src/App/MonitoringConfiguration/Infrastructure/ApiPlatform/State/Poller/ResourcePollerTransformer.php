@@ -36,11 +36,11 @@ final readonly class ResourcePollerTransformer implements TransformerInterface
     public function transform(mixed $from): PollerResource
     {
         return new PollerResource(
-            id: $from->id()->value,
             name: $from->name->value,
             pollerType: $from->pollerType->value,
             address: $from->address->value,
             centralAddress: $from->centralAddress?->value,
+            id: $from->id()->value,
             uid: (string) $from->uid->value,
             gorgoneCommunicationType: $this->communicationTypeToString($from->gorgoneConfiguration->communicationType),
         );

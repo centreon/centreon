@@ -57,17 +57,46 @@ final class LegacyApiPrefixAliasLoaderTest extends KernelTestCase
     {
         $routes = $this->getRouteCollection();
 
-        // API Platform derives this item operation from PollerResource to build IRIs, it is not
-        // an endpoint the legacy /api/latest prefix ever exposed.
-        $generatedOperation = '_api_/pollers/{id}{._format}_get';
+        // API Platform derives a NotExposed item operation for any resource that exposes no
+        // readable item GET, purely to build IRIs. Such an operation keeps the default
+        // short-name shape (_api_/<name>/{id}{._format}_get) — unlike a resource that pins an
+        // explicit uriTemplate — and the legacy /api/latest prefix never exposed it. Discover
+        // them instead of naming a resource, so the coverage survives any single one pinning
+        // its own uriTemplate later.
+        $generatedOperationNames = [];
+        foreach ($routes as $route) {
+            $operationName = $route->getDefault('_api_operation_name');
+            if (
+                is_string($operationName)
+                && preg_match('#^_api_/[^/]+/\{id\}\{\._format\}_get$#', $operationName) === 1
+                && str_starts_with($route->getPath(), '/api/')
+                && ! str_starts_with($route->getPath(), '/api/latest/')
+            ) {
+                $generatedOperationNames[$operationName] = true;
+            }
+        }
 
-        self::assertNotNull(
-            $this->findRouteByOperationAndPath($routes, $generatedOperation, '/api/pollers/{id}.{_format}'),
-            'The generated item operation is expected under /api, otherwise this test no longer covers anything.',
+        self::assertNotEmpty(
+            $generatedOperationNames,
+            'No API Platform auto-generated item operation found, otherwise this test no longer covers anything.',
         );
-        self::assertNull(
-            $this->findRouteByOperationAndPath($routes, $generatedOperation, '/api/latest/pollers/{id}.{_format}'),
-            'A generated item operation must not be duplicated under /api/latest.',
+
+        $aliasedUnderLegacy = [];
+        foreach ($routes as $route) {
+            $operationName = $route->getDefault('_api_operation_name');
+            if (
+                is_string($operationName)
+                && isset($generatedOperationNames[$operationName])
+                && str_starts_with($route->getPath(), '/api/latest/')
+            ) {
+                $aliasedUnderLegacy[$operationName] = $route->getPath();
+            }
+        }
+
+        self::assertSame(
+            [],
+            $aliasedUnderLegacy,
+            'Auto-generated item operations must not be duplicated under /api/latest.',
         );
     }
 
