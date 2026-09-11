@@ -73,9 +73,11 @@ fetch_index() {
 wait_for_metadata() {
   local deadline=$(( SECONDS + METADATA_TIMEOUT ))
   local resolved previous_resolved=-1 stall_rounds=0
-  until resolve_pending; do
+  # a refusal recorded during a round wins even when that round resolved everything
+  while ! resolve_pending || [[ -n "$INDEX_AUTH_DENIED" ]]; do
     if [[ -n "$INDEX_AUTH_DENIED" ]]; then
       echo "::error::The content app refused the CI identity while reading the published index (${INDEX_AUTH_DENIED}): the CI user lacks the download role on the content guard, not waiting for the metadata"
+      FAILED=1
       break
     fi
     resolved=0
