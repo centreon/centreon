@@ -45,10 +45,32 @@ $err = [
     'vault_error' => '',
 ];
 
+/*
+ * These values are written verbatim into configuration files that are later
+ * executed as code (centreon.conf.php, conf.pm). They can only ever be valid
+ * database identifiers / host names / ports, so we enforce a strict allow-list
+ * here to reject injection payloads (e.g. `${system($_GET[0])}`) at the source,
+ * as a first layer of defense on top of the escaping done in configFileSetup.php.
+ */
+$parameterPatterns = [
+    'db_configuration' => '/^[A-Za-z0-9_.-]+$/',
+    'db_storage' => '/^[A-Za-z0-9_.-]+$/',
+    'db_user' => '/^[A-Za-z0-9_.-]+$/',
+    'address' => '/^[A-Za-z0-9_.:-]*$/',
+    'root_user' => '/^[A-Za-z0-9_.-]*$/',
+    'port' => '/^[0-9]*$/',
+];
+
 $parameters = filter_input_array(INPUT_POST);
 
 foreach ($parameters as $name => $value) {
     if (in_array($name, $requiredParameters) && trim($value) == '') {
+        $err['required'][] = $name;
+    }
+}
+
+foreach ($parameterPatterns as $name => $pattern) {
+    if (isset($parameters[$name]) && ! preg_match($pattern, (string) $parameters[$name])) {
         $err['required'][] = $name;
     }
 }

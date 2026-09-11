@@ -6,10 +6,10 @@ $centreon_config = {
        VarLib => "--CENTREON_VARLIB--",
        CentreonDir => "--CENTREONDIR--",
        CacheDir => "--CENTREON_CACHEDIR--",
-       "centreon_db" => "--CONFDB--",
-       "centstorage_db" => "--STORAGEDB--",
-       "db_host" => "--ADDRESS--:--DBPORT--",
-       "db_user" => "--DBUSER--",
+       "centreon_db" => '--CONFDB--',
+       "centstorage_db" => '--STORAGEDB--',
+       "db_host" => '--ADDRESS--:--DBPORT--',
+       "db_user" => '--DBUSER--',
        "db_passwd" => '--DBPASS--'
 };
 
@@ -20,10 +20,10 @@ $instance_mode = "--INSTANCEMODE--";
 $cmdFile = "--CENTREON_VARLIB--/centcore.cmd";
 
 # Deprecated format of Config file. 
-$mysql_user = "--DBUSER--";
+$mysql_user = '--DBUSER--';
 $mysql_passwd = '--DBPASS--';
-$mysql_host = "--ADDRESS--:--DBPORT--";
-$mysql_database_oreon = "--CONFDB--";
-$mysql_database_ods = "--STORAGEDB--";
+$mysql_host = '--ADDRESS--:--DBPORT--';
+$mysql_database_oreon = '--CONFDB--';
+$mysql_database_ods = '--STORAGEDB--';
 
 1;
