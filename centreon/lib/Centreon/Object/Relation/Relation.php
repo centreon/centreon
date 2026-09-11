@@ -157,6 +157,7 @@ abstract class Centreon_Object_Relation
      * @param array $filters
      * @param string $filterType
      * @throws Exception
+     * @throws InvalidArgumentException
      * @return false|mixed
      */
     public function getMergedParameters(
@@ -172,6 +173,11 @@ abstract class Centreon_Object_Relation
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
+        $filterType = strtoupper($filterType);
+        if ($filterType !== 'OR' && $filterType !== 'AND') {
+            throw new InvalidArgumentException('Invalid input');
+        }
+
         $fString = '';
         $sString = '';
         foreach ($firstTableParams as $fparams) {
