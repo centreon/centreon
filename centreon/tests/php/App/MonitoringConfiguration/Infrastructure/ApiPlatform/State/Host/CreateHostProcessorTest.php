@@ -240,6 +240,11 @@ final class CreateHostProcessorTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    /**
+     * The UniqueHostName constraint on CreateHostInput now catches this before the command
+     * handler ever runs, surfacing it as a 422 field violation rather than the handler's own 409
+     * (still there as the authoritative check, see UniqueHostNameValidator).
+     */
     public function testItRejectsADuplicateName(): void
     {
         $this->login();
@@ -255,7 +260,7 @@ final class CreateHostProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(409);
+        self::assertResponseStatusCodeSame(422);
     }
 
     /**
