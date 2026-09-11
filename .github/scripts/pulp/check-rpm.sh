@@ -118,15 +118,19 @@ resolve_href() {
 # each pending package's published href by sha256
 resolve_pending() {
   local -A primary_cache=()
-  local all_resolved=true i base_path repomd primary_href href cache_file
+  local all_resolved=true i base_path repomd_file primary_href href cache_file
   for i in "${!E_FILENAME[@]}"; do
     [[ "${META_IDX[$i]}" == "true" ]] && continue
     base_path=${E_BASEPATH[$i]}
 
     if [[ -z "${primary_cache[$base_path]+set}" ]]; then
       cache_file=$(mktemp)
-      repomd=$(content_curl -fsSL "$PULP_CONTENT_URL/$base_path/repodata/repomd.xml" 2>/dev/null || true)
-      primary_href=$(printf '%s' "$repomd" | grep -oP '<location href="\K[^"]+primary\.xml[^"]*' | head -1 || true)
+      repomd_file=$(mktemp)
+      primary_href=""
+      if fetch_index "$PULP_CONTENT_URL/$base_path/repodata/repomd.xml" "$repomd_file"; then
+        primary_href=$(grep -oP '<location href="\K[^"]+primary\.xml[^"]*' "$repomd_file" | head -1 || true)
+      fi
+      rm -f "$repomd_file"
       if [[ -n "$primary_href" ]]; then
         content_curl -fsSL "$PULP_CONTENT_URL/$base_path/$primary_href" 2>/dev/null | gunzip -c 2>/dev/null > "$cache_file" || true
       fi
