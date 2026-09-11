@@ -61,31 +61,31 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
     ) {
     }
 
-    public function findAll(?ContactGroupCriteria $criteria = null): \IteratorAggregate&\Countable
+    public function findAll(ContactGroupCriteria $criteria): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cg')
             ->orderBy('cg.cg_id'); // required for deterministic pagination
 
-        if ($criteria instanceof ContactGroupCriteria) {
-            // ACL data-scoping: a non-admin viewer only sees the contact groups reachable through
-            // their access groups or their own membership. An admin passes a null viewerId.
-            if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
-                $accessibleIds = $this->findAccessibleContactGroupIds($viewerId);
-                if ($accessibleIds === []) {
-                    return new Collection([], ContactGroup::class);
-                }
+        // ACL data-scoping: a non-admin viewer only sees the contact groups reachable through
+        // their access groups or their own membership. An admin passes a null viewerId (no scoping).
+        if (($viewerId = $criteria->getViewerId()) instanceof UserId) {
+            $accessibleIds = $this->findAccessibleContactGroupIds($viewerId);
+            if ($accessibleIds === []) {
+                // No accessible contact group: match nothing, but keep the normal (paginator) shape.
+                $qb->andWhere('1 = 0');
+            } else {
                 $qb->andWhere($qb->expr()->in(
                     'cg.cg_id',
                     $qb->createNamedParameter($accessibleIds, ArrayParameterType::INTEGER)
                 ));
             }
-            $this->filterByCriteria($qb, $criteria);
         }
+        $this->filterByCriteria($qb, $criteria);
 
         // if no pagination
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 

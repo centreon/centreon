@@ -80,6 +80,23 @@ final class ListContactGroupsProviderTest extends ApiTestCase
         $this->assertCount(0, (array) $response->toArray()['member']);
     }
 
+    public function testItFiltersByNameWithLikeOperatorMatch(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        /** @var string|false $name */
+        $name = $connection->fetchOne('SELECT cg_name FROM contactgroup LIMIT 1');
+        if ($name === false) {
+            self::markTestSkipped('No contact group in the dataset.');
+        }
+
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $name]]]);
+        self::assertResponseIsSuccessful();
+        self::assertJsonContains(['member' => [['name' => $name]]]);
+    }
+
     public function testItPaginates(): void
     {
         /** @var Connection $connection */

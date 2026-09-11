@@ -75,16 +75,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
     {
         $suffix = bin2hex(random_bytes(6));
 
-        $this->connection->insert('contact', [
-            'contact_name' => "viewer_{$suffix}",
-            'contact_alias' => "viewer_{$suffix}",
-            'contact_admin' => '0',
-            'contact_register' => '1',
-            'contact_activate' => '1',
-            'contact_email' => "viewer_{$suffix}@email.com",
-        ]);
-        $viewerId = (int) $this->connection->lastInsertId();
-
+        $viewerId = $this->insertNonAdminContact("viewer_{$suffix}");
         $memberGroupId = $this->insertContactGroup("member_{$suffix}");
         $this->insertContactGroup("unrelated_{$suffix}");
 
@@ -93,17 +84,87 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
             'contact_contact_id' => $viewerId,
         ]);
 
+        $names = $this->scopedNames($viewerId);
+
+        self::assertContains("member_{$suffix}", $names);
+        self::assertNotContains("unrelated_{$suffix}", $names);
+    }
+
+    public function testFindAllScopedViaAnAccessGroupReturnsOnlyReachableContactGroups(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+
+        $viewerId = $this->insertNonAdminContact("viewer_{$suffix}");
+        $reachableGroupId = $this->insertContactGroup("reachable_{$suffix}");
+        $this->insertContactGroup("unreachable_{$suffix}");
+
+        // The viewer belongs to an active access group that is granted the reachable contact group.
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => "acl_{$suffix}",
+            'acl_group_alias' => "acl_{$suffix}",
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $viewerId,
+        ]);
+        $this->connection->insert('acl_group_contactgroups_relations', [
+            'acl_group_id' => $aclGroupId,
+            'cg_cg_id' => $reachableGroupId,
+        ]);
+
+        $names = $this->scopedNames($viewerId);
+
+        self::assertContains("reachable_{$suffix}", $names);
+        self::assertNotContains("unreachable_{$suffix}", $names);
+    }
+
+    public function testFindAllScopedToAViewerWithoutAnyAccessReturnsNothing(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $viewerId = $this->insertNonAdminContact("viewer_{$suffix}");
+        $this->insertContactGroup("group_{$suffix}");
+
+        // No access group, no membership: the viewer sees nothing — and the paginated call must
+        // still return an (empty) Paginator, not a bare Collection.
+        $criteria = (new ContactGroupCriteria())->withViewerId(new UserId($viewerId));
+
+        self::assertCount(0, iterator_to_array($this->repository->findAll($criteria)));
+
+        $paginated = $this->repository->findAll($criteria->withPagination(1, 10));
+        self::assertInstanceOf(Paginator::class, $paginated);
+        self::assertCount(0, iterator_to_array($paginated));
+        self::assertSame(0, $paginated->getTotalItems());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function scopedNames(int $viewerId): array
+    {
         $result = $this->repository->findAll(
             (new ContactGroupCriteria())->withViewerId(new UserId($viewerId))
         );
 
-        $names = array_map(
+        return array_values(array_map(
             static fn (ContactGroup $contactGroup): string => $contactGroup->name->value,
             iterator_to_array($result)
-        );
+        ));
+    }
 
-        self::assertContains("member_{$suffix}", $names);
-        self::assertNotContains("unrelated_{$suffix}", $names);
+    private function insertNonAdminContact(string $name): int
+    {
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => $name,
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => "{$name}@email.com",
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function countContactGroups(): int

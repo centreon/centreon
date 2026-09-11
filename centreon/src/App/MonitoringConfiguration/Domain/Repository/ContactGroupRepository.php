@@ -31,5 +31,5 @@ interface ContactGroupRepository
     /**
      * @return \IteratorAggregate<int, ContactGroup>&\Countable
      */
-    public function findAll(?ContactGroupCriteria $criteria = null): \IteratorAggregate&\Countable;
+    public function findAll(ContactGroupCriteria $criteria): \IteratorAggregate&\Countable;
 }
