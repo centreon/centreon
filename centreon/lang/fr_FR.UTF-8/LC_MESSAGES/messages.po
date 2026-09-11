@@ -17397,6 +17397,14 @@ msgstr "Cette action est irréversible."
 msgid "This active checks status (%d) is not allowed"
 msgstr "Le statut de contrôles actifs %d n'est pas autorisé"
 
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Ce groupe de contacts n'est pas disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Ce contact n'est pas disponible"
+
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid ""
 "This description is in conflict with another one that is already defined in "
@@ -25471,11 +25479,3 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
-
-#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
-msgid "This contact group is not available"
-msgstr "Ce groupe de contacts n'est pas disponible"
-
-#: centreon/www/include/configuration/configObject/contact/displayNotification.php
-msgid "This contact is not available"
-msgstr "Ce contact n'est pas disponible"

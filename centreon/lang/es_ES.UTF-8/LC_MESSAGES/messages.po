@@ -18675,6 +18675,14 @@ msgstr ""
 msgid "This active checks status (%d) is not allowed"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "Este grupo de contactos no está disponible"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "Este contacto no está disponible"
+
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid ""
 "This description is in conflict with another one that is already defined in "
@@ -25680,11 +25688,3 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
-
-#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
-msgid "This contact group is not available"
-msgstr "Este grupo de contactos no está disponible"
-
-#: centreon/www/include/configuration/configObject/contact/displayNotification.php
-msgid "This contact is not available"
-msgstr "Este contacto no está disponible"
