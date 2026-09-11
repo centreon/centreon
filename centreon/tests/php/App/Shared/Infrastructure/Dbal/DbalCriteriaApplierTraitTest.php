@@ -295,6 +295,23 @@ final class DbalCriteriaApplierTraitTest extends TestCase
         self::assertSame(2, $this->applier->count($queryBuilder, 'COUNT(DISTINCT t.ba_id)'));
     }
 
+    public function testCountMatchingIgnoresGroupBy(): void
+    {
+        // A base query groups rows to collapse a one-to-many join (e.g. to GROUP_CONCAT
+        // the joined relation) — COUNT(DISTINCT t.ba_id) must still report the overall
+        // count, not one row per group, which is what an ungrouped COUNT would do.
+        $this->connection->executeStatement('CREATE TABLE ba_tag (ba_id INTEGER, tag TEXT)');
+        $this->connection->executeStatement(
+            "INSERT INTO ba_tag (ba_id, tag) VALUES (1, 'x'), (1, 'y'), (2, 'x')"
+        );
+
+        $queryBuilder = $this->baseQuery()
+            ->innerJoin('t', 'ba_tag', 'g', 't.ba_id = g.ba_id')
+            ->groupBy('t.ba_id');
+
+        self::assertSame(2, $this->applier->count($queryBuilder, 'COUNT(DISTINCT t.ba_id)'));
+    }
+
     public function testCountMatchingRejectsNonNumericResult(): void
     {
         $this->expectException(\InvalidArgumentException::class);

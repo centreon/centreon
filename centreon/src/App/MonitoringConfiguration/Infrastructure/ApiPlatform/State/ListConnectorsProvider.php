@@ -32,6 +32,7 @@ use App\MonitoringConfiguration\Domain\Repository\ConnectorRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ConnectorCriteria;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
@@ -40,6 +41,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final readonly class ListConnectorsProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
+
     /**
      * @param TransformerInterface<Connector,ConnectorResource> $transformer
      */
@@ -64,9 +67,18 @@ final readonly class ListConnectorsProvider implements ProviderInterface
             );
         }
 
-        /** @var array{filters: array{name?: array<string, string|array<string>>, id?: array<string, int|array<int>>}} $context */
-        $criteria = $this->handleNameFilter($context['filters']['name'] ?? null, $criteria);
-        $criteria = $this->handleIdFilter($context['filters']['id'] ?? null, $criteria);
+        /** @var array<string, mixed> $filters */
+        $filters = $context['filters'] ?? [];
+        foreach ($this->handleOperatorFilter($filters['name'] ?? null, 'name', ConnectorCriteria::ALLOWED_OPERATORS) as $operator => $values) {
+            foreach ($values as $value) {
+                $criteria = $criteria->withName($value, $operator);
+            }
+        }
+        foreach ($this->handleOperatorFilter($filters['id'] ?? null, 'id', ConnectorCriteria::ALLOWED_OPERATORS) as $operator => $values) {
+            foreach ($values as $value) {
+                $criteria = $criteria->withId($this->handlePositiveIntFilter($value, 'id') ?? 0, $operator);
+            }
+        }
 
         $connectors = $this->repository->findAll($criteria);
         $resources = [];
@@ -84,52 +96,5 @@ final readonly class ListConnectorsProvider implements ProviderInterface
             $connectors->getItemsPerPage(),
             $connectors->getTotalItems()
         );
-    }
-
-    /**
-     * @param array<string, string|array<string>>|null $nameFilter
-     */
-    private function handleNameFilter(?array $nameFilter, ConnectorCriteria $criteria): ConnectorCriteria
-    {
-        if ($nameFilter === null) {
-            return $criteria;
-        }
-
-        foreach ($nameFilter as $operator => $names) {
-            if (! in_array($operator, ConnectorCriteria::ALLOWED_OPERATORS, true)) {
-                continue;
-            }
-            if (is_string($names)) {
-                $names = [$names];
-            }
-
-            foreach ($names as $name) {
-                $criteria = $criteria->withName($name, $operator);
-            }
-        }
-
-        return $criteria;
-    }
-
-    /**
-     * @param array<string, int|array<int>>|null $idFilter
-     */
-    private function handleIdFilter(?array $idFilter, ConnectorCriteria $criteria): ConnectorCriteria
-    {
-        if ($idFilter === null) {
-            return $criteria;
-        }
-        foreach ($idFilter as $operator => $ids) {
-            if (! in_array($operator, ConnectorCriteria::ALLOWED_OPERATORS, true)) {
-                continue;
-            }
-            $ids = is_array($ids) ? array_map(fn (int $id): int => $id, $ids) : [(int) $ids];
-
-            foreach ($ids as $id) {
-                $criteria = $criteria->withId($id, $operator);
-            }
-        }
-
-        return $criteria;
     }
 }

@@ -18,20 +18,23 @@ allOf:
         description: "Service template alias."
         example: "generic-service"
       comment:
-        type: string
+        type:
+          - string
+          - 'null'
         description: "Service template comment."
-        nullable: true
       service_template_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Template ID of the service template."
         minimum: 1
-        nullable: true
         example: null
       check_command_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Check command ID."
         minimum: 1
-        nullable: true
         example: null
       check_command_args:
         type: array
@@ -40,24 +43,29 @@ allOf:
           description: "Arguments of the check command."
         example: ["80", "90"]
       check_timeperiod_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Time period ID of the check command."
         minimum: 1
-        nullable: true
         example: null
       max_check_attempts:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
-        nullable: true
       normal_check_interval:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of 'time units' between regularly scheduled checks of the service.
 
           With the default time unit of 60s, this number will mean multiples of 1 minute.
-        nullable: true
       retry_check_interval:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of "time units" to wait before scheduling a re-check for this service after a non-OK state was detected.
 
@@ -65,7 +73,6 @@ allOf:
 
           Once the service has been retried max_check_attempts times without a change in its status,
           it will revert to being scheduled at its "normal" check interval rate.
-        nullable: true
       active_check_enabled:
         type: integer
         description: |
@@ -115,8 +122,9 @@ allOf:
 
           When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
       notification_interval:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of "time units" to wait before re-notifying a contact that this service is still down or unreachable.
 
@@ -124,14 +132,16 @@ allOf:
 
           A value of 0 disables re-notifications of contacts about alerts for this service - only one alert notification will be sent out.
       notification_timeperiod_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Notification timeperiod ID."
         minimum: 1
-        nullable: true
         example: 1
       notification_type:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         description: |
           Define the states of the service for which notifications should be sent out.
 
@@ -150,23 +160,26 @@ allOf:
           example: A value equal to 5 corresponds to the selected options WARNING and CRITICAL
         example: 5
       first_notification_delay:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of "time units" to wait before sending out the first problem notification when this service enters a non-OK state.
 
           With the default time unit of 60s, this number will mean multiples of 1 minute.
       recovery_notification_delay:
-        type: integer
-        nullable: true
+        type:
+          - integer
+          - 'null'
         description: |
           Define the number of "time units" to wait before sending out the recovery notification when this service enters an OK state.
 
           With the default time unit of 60s, this number will mean multiples of 1 minute.
       acknowledgement_timeout:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Specify a duration of acknowledgement for this service template."
-        nullable: true
       freshness_checked:
         type: integer
         description: |
@@ -177,9 +190,10 @@ allOf:
           * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
         example: 2
       freshness_threshold:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Specify the freshness threshold (in seconds) for this service."
-        nullable: true
       flap_detection_enabled:
         type: integer
         description: |
@@ -190,13 +204,15 @@ allOf:
           * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
         example: 2
       low_flap_threshold:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Specify the low state change threshold used in flap detection for this service."
-        nullable: true
       high_flap_threshold:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Specify the high state change threshold used in flap detection for this service."
-        nullable: true
       event_handler_enabled:
         type: integer
         description: |
@@ -207,10 +223,11 @@ allOf:
           * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
         example: 2
       event_handler_command_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Event handler command ID."
         minimum: 1
-        nullable: true
         example: 1
       event_handler_command_args:
         type: array
@@ -219,42 +236,49 @@ allOf:
           description: "Command arguments of the event handler."
         example: [ "80", "90" ]
       graph_template_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "ID of the default graph template that will be used for this service."
         minimum: 1
-        nullable: true
         example: null
       note:
-        type: string
+        type:
+          - string
+          - 'null'
         description: "Define an optional note."
-        nullable: true
         maxLength: 65535
       note_url:
-        type: string
+        type:
+          - string
+          - 'null'
         description: "Define an optional URL that can be used to provide more information about the service."
         maxLength: 65535
-        nullable: true
       action_url:
-        type: string
+        type:
+          - string
+          - 'null'
         description: "Define an optional URL that can be used to specify actions to be performed on the service."
-        nullable: true
         maxLength: 65535
       icon_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Define the image ID that should be associated with this service template."
         minimum: 1
-        nullable: true
         example: null
       icon_alternative:
-        type: string
+        type:
+          - string
+          - 'null'
         description: "Define an optional string that is used as an alternative description for the icon."
-        nullable: true
         maxLength: 200
       severity_id:
-        type: integer
+        type:
+          - integer
+          - 'null'
         description: "Severity ID."
         minimum: 1
-        nullable: true
       host_templates:
         type: array
         description: "IDs of host templates linked to this service template."

@@ -641,6 +641,40 @@ jobs:
         run: composer symfony:check && composer symfony:new:check
         working-directory: centreon
 
+      - name: 🔧 Setup Node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+
+      - name: 🔧 Setup pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v6.0.8
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Redocly CLI
+        run: |
+          pnpm install \
+            --frozen-lockfile \
+            --config.trustPolicy=no-downgrade \
+            --config.minimumReleaseAge=2880 \
+            --config.blockExoticSubdeps=true
+        working-directory: centreon/doc/API
+        shell: bash
+
+      - name: 📖 Check the OpenAPI documentation is up to date
+        # Regenerate the spec from the API Platform resources and fail if the committed file drifted.
+        run: |
+          set -e
+          php bin/console.new app:open-api:merge --override
+          git diff --exit-code doc/API/centreon-api.yaml \
+            || { echo "::error::doc/API/centreon-api.yaml is out of date — run 'bin/console.new app:open-api:merge --override' and commit the result."; exit 1; }
+        working-directory: centreon
+
+      - name: 🔍 Validate the OpenAPI documentation
+        run: pnpm exec redocly lint centreon-api.yaml centreon-cloud-api.yaml
+        working-directory: centreon/doc/API
+
       - name: Get changed PHP files
         id: changed-php
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6

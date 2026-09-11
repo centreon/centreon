@@ -2,6 +2,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { INTERCEPTORS } from 'fixtures/shared/constants/interceptors';
 import { PAGES } from 'fixtures/shared/constants/pages';
 
+const hostNames = ['host2', 'host3', 'host4'];
+
 const checkHostsProperties = (hostName) => {
   cy.getIframeBody().contains(hostName).click();
   cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
@@ -43,27 +45,27 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('several hosts have been created with mandatory properties', () => {
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: 'host2',
-    template: 'generic-host'
-  }).applyPollerConfiguration();
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: 'host3',
-    template: 'generic-host'
-  }).applyPollerConfiguration();
-  cy.addHost({
-    hostGroup: 'Linux-Servers',
-    name: 'host4',
-    template: 'generic-host'
-  }).applyPollerConfiguration();
+  hostNames.forEach((name) => {
+    cy.addHost({
+      hostGroup: 'Linux-Servers',
+      name,
+      template: 'generic-host'
+    }).applyPollerConfiguration();
+  });
 });
 
 When('the user has applied "Mass Change" operation on several hosts', () => {
   cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
-  cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
+  // Tick the fixture rows by name, never the header check-all: that box selects
+  // every row on the page, so the mass change silently rewrote the platform's
+  // own hosts (Centreon-Server included) along with the three under test.
+  hostNames.forEach((name) => {
+    cy.getIframeBody()
+      .contains('tr', name)
+      .find('div.md-checkbox.md-checkbox-inline')
+      .click();
+  });
   cy.getIframeBody().find('select[name="o1"]').select('Mass Change');
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('span[id="select2-host_location-container"]').click();
@@ -82,9 +84,11 @@ When('the user has applied "Mass Change" operation on several hosts', () => {
 });
 
 Then('all the selected hosts are updated with the same values', () => {
+  // Wait on the next host's listing link rather than a hard-coded host_id:
+  // the ids depend on what the dataset already holds.
   checkHostsProperties('host2');
-  cy.waitForElementInIframe('#main-content', 'a[href*="host_id=16"]');
+  cy.waitForElementInIframe('#main-content', 'a:contains("host3")');
   checkHostsProperties('host3');
-  cy.waitForElementInIframe('#main-content', 'a[href*="host_id=17"]');
+  cy.waitForElementInIframe('#main-content', 'a:contains("host4")');
   checkHostsProperties('host4');
 });

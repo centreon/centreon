@@ -12,8 +12,9 @@ properties:
     type: string
     description: "Command line to be executed by the poller"
   description:
-    type: string
-    nullable: true
+    type:
+      - string
+      - 'null'
     description: "A short description of the connector"
     example: "some description"
   is_activated:

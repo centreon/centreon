@@ -1,37 +1,18 @@
 import {
+  platformFeaturesAtom,
   platformVersionsAtom,
   ThemeMode,
   userAtom
 } from '@centreon/ui-context';
 
 import { renderHook } from '@testing-library/react';
+import i18next from 'i18next';
 import { createStore, Provider, useAtomValue } from 'jotai';
+import { initReactI18next } from 'react-i18next';
 
 import { PlatformVersions } from '../api/models';
 import About from './About';
-import { contributors } from './Sections/Contibutors';
-import { developers } from './Sections/Developers';
-import { projectLeaders } from './Sections/ProjectLeaders';
-import {
-  labelCentreonsGithub,
-  labelCentreonWebsite,
-  labelCommunity
-} from './translatedLabels';
-
-const externalLinks = [
-  {
-    label: labelCentreonWebsite,
-    url: 'https://www.centreon.com'
-  },
-  {
-    label: labelCommunity,
-    url: 'https://thewatch.centreon.com/'
-  },
-  {
-    label: labelCentreonsGithub,
-    url: 'https://github.com/centreon/centreon/graphs/contributors'
-  }
-];
+import { projectLeaders } from './Sections/Credits';
 
 const platformVersion: PlatformVersions = {
   modules: {},
@@ -44,15 +25,27 @@ const platformVersion: PlatformVersions = {
   widgets: {}
 };
 
-const store = createStore();
+const buildStore = (isCloudPlatform: boolean) => {
+  const store = createStore();
 
-store.set(platformVersionsAtom, platformVersion);
+  store.set(platformVersionsAtom, platformVersion);
+  store.set(platformFeaturesAtom, {
+    featureFlags: {},
+    isCloudPlatform
+  });
 
-const mountComponent = (): void => {
+  return store;
+};
+
+const mountComponent = ({
+  isCloudPlatform = false
+}: {
+  isCloudPlatform?: boolean;
+} = {}): void => {
   cy.viewport('ipad-mini', 'portrait');
   cy.mount({
     Component: (
-      <Provider store={store}>
+      <Provider store={buildStore(isCloudPlatform)}>
         <About />
       </Provider>
     )
@@ -61,29 +54,52 @@ const mountComponent = (): void => {
 
 describe('About page', () => {
   beforeEach(() => {
+    // Trans needs an i18next instance to resolve the tags embedded in the
+    // labels. Without resources the keys are returned as-is, in English.
+    i18next.use(initReactI18next).init({
+      lng: 'en',
+      resources: {}
+    });
+
     cy.clock(new Date(2021, 1, 1).getTime());
+    cy.document().then((doc) => doc.documentElement.classList.remove('dark'));
   });
 
   it('displays the about page', () => {
     mountComponent();
-    cy.findByAltText('Centreon Logo').should('be.visible');
 
-    projectLeaders.forEach((project) => {
-      cy.findByText(project).should('be.visible');
-    });
-    developers.forEach((developer) => {
-      cy.findByText(developer).should('be.visible');
-    });
-    contributors.forEach((contributor) => {
-      cy.findByText(contributor).should('be.visible');
-    });
+    cy.contains('23.04.0').should('be.visible');
+    cy.contains('Open source edition').should('be.visible');
+    cy.findByLabelText('Star centreon/centreon on GitHub').should(
+      'have.attr',
+      'href',
+      'https://github.com/centreon/centreon'
+    );
 
-    externalLinks.forEach(({ label, url }) => {
-      cy.findByLabelText(label).should('have.attr', 'href', url);
-      cy.findByLabelText(label).should('have.attr', 'target', '_blank');
+    projectLeaders.forEach((leader) => {
+      cy.contains(leader).should('be.visible');
     });
 
-    cy.contains('Copyright © 2005 - 2021').should('be.visible');
+    cy.contains('Report a vulnerability')
+      .should('have.attr', 'href')
+      .and('include', 'security/policy');
+
+    cy.contains('Browse the docs').should('be.visible');
+    cy.contains('Join The Watch').should('be.visible');
+    cy.contains('Open the repository').should('be.visible');
+    cy.contains('Compare Edition licenses').should('be.visible');
+    cy.contains('Start free trial').should('be.visible');
+
+    cy.contains('Copyright © 2005 - 2021 Centreon').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('hides the open source edition tag and the editions upsell for Cloud platforms', () => {
+    mountComponent({ isCloudPlatform: true });
+
+    cy.contains('Open source edition').should('not.exist');
+    cy.contains('Start free trial').should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -92,13 +108,20 @@ describe('About page', () => {
     const userData = renderHook(() => useAtomValue(userAtom));
     userData.result.current.themeMode = ThemeMode.dark;
 
+    // The application mirrors the theme mode onto the root element so that the
+    // Tailwind `dark` variant applies. See Main/useUser.ts.
+    cy.document().then((doc) => doc.documentElement.classList.add('dark'));
+
     mountComponent();
 
-    contributors.forEach((contributor) => {
-      cy.findByText(contributor).should('be.visible');
-    });
+    cy.contains('23.04.0').should('be.visible');
+    cy.contains('Copyright © 2005 - 2021 Centreon').should('exist');
 
-    cy.contains('Copyright © 2005 - 2021').should('exist');
+    cy.contains('Project & contributors').should(
+      'have.css',
+      'color',
+      'rgb(255, 255, 255)'
+    );
 
     cy.makeSnapshot();
   });
