@@ -30,7 +30,7 @@ use Tests\App\Shared\ApiTestCase;
 
 final class ListConnectorsProviderTest extends ApiTestCase
 {
-    private const BASE_ENDPOINT = '/api/latest/configuration/connectors';
+    private const BASE_ENDPOINT = '/api/configuration/connectors';
 
     public function testItFindAllConnectorsWithoutParameter(): void
     {
