@@ -20241,3 +20241,11 @@ msgid ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
 msgstr ""
 "[%s] The value \"%s\" was expected to be a valid ip address or domain name"
+
+#: centreon/www/include/configuration/configObject/contactgroup/displayNotification.php
+msgid "This contact group is not available"
+msgstr "This contact group is not available"
+
+#: centreon/www/include/configuration/configObject/contact/displayNotification.php
+msgid "This contact is not available"
+msgstr "This contact is not available"

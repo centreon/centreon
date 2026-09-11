@@ -140,18 +140,26 @@ Then('this user can log in to Centreon Web', () => {
 });
 
 Given('the ldap user has rights to access the contacts listing page', () => {
-  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
-  cy.wait('@getTimeZone');
-  // Click on the 'All' access group
-  cy.getIframeBody().contains('a', 'ALL').click();
-  // Wait for the 'Group Name' to be visible in the DOM
-  cy.waitForElementInIframe('#main-content', 'input[name="acl_group_name"]');
-  // Select the ldap user from the Linked Contacts list
-  cy.getIframeBody().find('select#cg_contacts-f').select(ldapLogin);
-  // Add the selected ldap user
-  cy.getIframeBody().find('input[name="add"]').eq(0).click();
-  // Click on the first 'Save' button
-  cy.getIframeBody().find('input[name="submitC"]').eq(0).click();
+  // Link the contact to the access group through CLAPI rather than the ACL
+  // form. That form offers only the contacts *not yet linked* to the group, and
+  // the groups listing in front of it pages, so driving it depends on platform
+  // state: an imported user already carrying the group, or an "ALL" row pushed
+  // off the first page, makes the click find nothing. ADDCONTACT is idempotent,
+  // so this holds either way.
+  //
+  // Cypress test isolation clears localStorage before every scenario, so the
+  // token minted once in before() (startContainers ends on setUserTokenApiV1)
+  // is gone here; the background then signs the admin back in through the UI
+  // only, which never sets it. Mint it again, otherwise the CLAPI call goes out
+  // unauthenticated and answers 403.
+  cy.setUserTokenApiV1();
+  cy.executeActionViaClapi({
+    bodyContent: {
+      action: 'ADDCONTACT',
+      object: 'ACLGROUP',
+      values: `ALL;${ldapLogin}`
+    }
+  });
   cy.exportConfig();
   // Go to the default page
   cy.visit('/');
