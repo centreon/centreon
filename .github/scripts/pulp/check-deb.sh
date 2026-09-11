@@ -104,7 +104,7 @@ for i in "${!E_FILENAME[@]}"; do META_IDX[$i]=false; done
 resolve_pending() {
   local -A pkg_cache=()    # key: base_path|suite|arch -> Packages index file
   local -A arches_cache=() # key: base_path|suite -> space separated arches
-  local all_resolved=true i base_path suite arch search_arches sk ck a filename cache_file
+  local all_resolved=true i base_path suite arch search_arches sk ck a filename cache_file release_file
   for i in "${!E_FILENAME[@]}"; do
     [[ "${META_IDX[$i]}" == "true" ]] && continue
     base_path=${E_BASEPATH[$i]}; suite=${E_SUITE[$i]}; arch=${E_ARCH[$i]}
@@ -115,8 +115,10 @@ resolve_pending() {
     if [[ "$arch" == "all" ]]; then
       sk="$base_path|$suite"
       if [[ -z "${arches_cache[$sk]+set}" ]]; then
-        arches_cache[$sk]=$(content_curl -fsSL "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" 2>/dev/null \
-          | awk -F': ' '/^Architectures:/ { print $2; exit }')
+        release_file=$(mktemp)
+        fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/Release" "$release_file" || true
+        arches_cache[$sk]=$(awk -F': ' '/^Architectures:/ { print $2; exit }' "$release_file")
+        rm -f "$release_file"
       fi
       search_arches="${arches_cache[$sk]:-amd64 arm64 all}"
     fi
@@ -126,7 +128,7 @@ resolve_pending() {
       ck="$base_path|$suite|$a"
       if [[ -z "${pkg_cache[$ck]+set}" ]]; then
         cache_file=$(mktemp)
-        content_curl -fsSL "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$a/Packages" 2>/dev/null > "$cache_file" || true
+        fetch_index "$PULP_CONTENT_URL/$base_path/dists/$suite/main/binary-$a/Packages" "$cache_file" || true
         pkg_cache[$ck]=$cache_file
       fi
       filename=$(resolve_filename "${pkg_cache[$ck]}" "${E_SHA256[$i]}")

@@ -19,6 +19,9 @@ switch_pulp_domain "$PULP_DOMAIN" || exit 1
 # content-app cache TTL (600s), the window must survive that worst case
 METADATA_TIMEOUT="${METADATA_TIMEOUT:-900}"
 METADATA_INTERVAL="${METADATA_INTERVAL:-15}"
+# set by fetch_index on a 401/403: the content guard refused the CI identity,
+# a permanent failure wait_for_metadata reports at once instead of polling
+INDEX_AUTH_DENIED=""
 
 # accumulated per-package result rows and the aggregate failure flag
 ROWS=()
@@ -45,10 +48,24 @@ load_expected() {
   echo "[INFO] ${COUNT} expected ${package_type} package(s) to verify"
 }
 
+# fetch_index <url> <outfile> — read a published index (repomd.xml, Release,
+# Packages) through the content app into <outfile>; non-zero when unreadable.
+# A 401/403 is kept in INDEX_AUTH_DENIED: waiting never fixes an authorization refusal.
+fetch_index() {
+  local url=$1 outfile=$2 code
+  code=$(content_curl -sSL -o "$outfile" -w '%{http_code}' "$url" 2>/dev/null) || code=000
+  case "$code" in
+    200) return 0 ;;
+    401|403) INDEX_AUTH_DENIED="HTTP $code on $url" ;;
+  esac
+  : > "$outfile"
+  return 1
+}
+
 # wait_for_metadata — repeatedly call the sourcing script's resolve_pending (one
 # resolution round over the still-unresolved packages, returning 0 once none
-# remain) until everything resolves, METADATA_TIMEOUT is reached, or the
-# resolution stalls. The retry window only covers publication propagation: once
+# remain) until everything resolves, METADATA_TIMEOUT is reached, the
+# resolution stalls, or the content app refuses the CI identity (fetch_index). The retry window only covers publication propagation: once
 # a round reads the published metadata and resolves nothing new while some
 # packages already resolved, the remaining ones are not in the publication at
 # all (e.g. evicted by the retention policy) and no amount of waiting will
@@ -57,6 +74,10 @@ wait_for_metadata() {
   local deadline=$(( SECONDS + METADATA_TIMEOUT ))
   local resolved previous_resolved=-1 stall_rounds=0
   until resolve_pending; do
+    if [[ -n "$INDEX_AUTH_DENIED" ]]; then
+      echo "::error::The content app refused the CI identity while reading the published index (${INDEX_AUTH_DENIED}): the CI user lacks the download role on the content guard, not waiting for the metadata"
+      break
+    fi
     resolved=0
     for i in "${!E_FILENAME[@]}"; do
       [[ "${META_IDX[$i]}" == "true" ]] && resolved=$((resolved + 1))
