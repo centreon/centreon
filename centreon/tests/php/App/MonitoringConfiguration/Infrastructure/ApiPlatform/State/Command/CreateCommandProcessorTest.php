@@ -122,6 +122,36 @@ final class CreateCommandProcessorTest extends ApiTestCase
             ],
         ]);
 
+        self::assertResponseStatusCodeSame(422);
+        self::assertJsonContains([
+            'code' => 422,
+            'message' => "[name] This value is too short. It should have 1 character or more.\n",
+        ]);
+    }
+
+    /**
+     * /api/latest/configuration/commands is a backward-compatible alias for this same operation
+     * (see LegacyApiPrefixAliasLoader) — its clients must keep getting 400 for a validation
+     * error, unlike the bare /api prefix above, which now answers 422.
+     */
+    public function testCannotCreateCommandWithInvalidValuesOnTheLegacyPrefixReturns400(): void
+    {
+        $this->login();
+
+        $this->request('POST', '/api/latest/configuration/commands', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'name' => '',
+                'type' => 'Notification',
+                'command_line' => 'toto $ARG1$ $ARG2$ $_HOSTMAC1$ $_SERVICEMAC2$',
+                'is_shell_enabled' => true,
+                'connector' => '/api/configuration/connectors/1',
+                'comment' => 'coucou',
+            ],
+        ]);
+
         self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
             'code' => 400,
@@ -144,9 +174,9 @@ final class CreateCommandProcessorTest extends ApiTestCase
             ],
         ]);
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(422);
         self::assertJsonContains([
-            'code' => 400,
+            'code' => 422,
             'message' => "[name] This value should be of type string.\n",
         ]);
     }

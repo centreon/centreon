@@ -23,11 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTransformer;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -241,6 +248,64 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->createHost('unrestricted-host', $pollerId);
 
         self::assertCount(1, iterator_to_array($this->repository->findAll()));
+    }
+
+    public function testAddPersistsTheHostAndItsRelations(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $groupId = $this->createHostGroup('Linux servers');
+
+        $host = new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: new HostAlias('srv01'),
+            address: new HostAddress('10.0.0.1'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([new HostGroupId($groupId)], HostGroupId::class),
+        );
+
+        $this->repository->add($host);
+
+        self::assertGreaterThan(0, $host->id()->value);
+
+        $hosts = iterator_to_array($this->repository->findAll());
+        self::assertCount(1, $hosts);
+        $persisted = array_values($hosts)[0];
+        self::assertSame('server-01', $persisted->name->value);
+        self::assertSame('srv01', $persisted->alias?->value);
+        self::assertSame('10.0.0.1', $persisted->address->value);
+        self::assertSame($pollerId, $persisted->pollerId->value);
+        self::assertSame([$groupId], array_map(static fn (HostGroupId $id): int => $id->value, $persisted->hostGroupIds->toArray()));
+
+        // Every host gets a companion row here, even with no optional field set.
+        /** @var int|string $extendedInfoCount */
+        $extendedInfoCount = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM extended_host_information WHERE host_host_id = ?',
+            [$host->id()->value],
+        );
+        self::assertSame(1, (int) $extendedInfoCount);
+    }
+
+    public function testIsNameUsedByHostOrTemplateFindsAHostByExactName(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->createHost('server-01', $pollerId);
+
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('server-01')));
+        self::assertFalse($this->repository->isNameUsedByHostOrTemplate(new HostName('server-02')));
+    }
+
+    /**
+     * Name uniqueness spans hosts AND host templates in legacy — both share the `host` table
+     * and the same uniqueness rule, so a host template with this name must also count as a match.
+     */
+    public function testIsNameUsedByHostOrTemplateFindsAHostTemplateWithTheSameName(): void
+    {
+        $this->createHostTemplate('shared-name');
+
+        self::assertTrue($this->repository->isNameUsedByHostOrTemplate(new HostName('shared-name')));
     }
 
     private function createPoller(string $name): int
