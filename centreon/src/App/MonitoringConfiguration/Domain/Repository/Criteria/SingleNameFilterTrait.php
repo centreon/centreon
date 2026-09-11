@@ -23,12 +23,30 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Shared\Domain\Repository\PaginableCriteria;
-use App\Shared\Domain\Repository\PaginableCriteriaTrait;
+use Webmozart\Assert\Assert;
 
-final class HostTemplateCriteria implements PaginableCriteria
+/**
+ * Single-value name filtering shared by the listing criteria that filter on one
+ * exact name (Host, HostCategory, HostGroup, HostTemplate, Poller).
+ */
+trait SingleNameFilterTrait
 {
-    use PaginableCriteriaTrait;
-    use SingleNameFilterTrait;
-    use ViewerScopedCriteriaTrait;
+    private ?string $name = null;
+
+    public function withName(string $name): self
+    {
+        // stringNotEmpty() rejects only "", unlike notEmpty()/empty() which would
+        // wrongly reject a legitimate name of "0".
+        Assert::stringNotEmpty($name);
+
+        $new = clone $this;
+        $new->name = $name;
+
+        return $new;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
 }

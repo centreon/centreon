@@ -116,8 +116,9 @@ final class FakePollerRepository implements PollerRepository
             $pollers = array_values(array_filter($pollers, static fn (Poller $poller): bool => ! $poller->isCentral));
         }
 
-        if ($criteria instanceof PollerCriteria && $criteria->getPage() !== null && $criteria->getItemsPerPage() !== null) {
-            $pollers = array_slice($pollers, ($criteria->getPage() - 1) * $criteria->getItemsPerPage(), $criteria->getItemsPerPage());
+        $pagination = $criteria instanceof PollerCriteria ? $criteria->getPagination() : null;
+        if ($pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            $pollers = array_slice($pollers, $pagination->getOffset(), $pagination->itemsPerPage);
         }
 
         return new Collection($pollers, Poller::class);
