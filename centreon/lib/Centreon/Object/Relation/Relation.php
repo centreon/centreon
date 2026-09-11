@@ -172,6 +172,9 @@ abstract class Centreon_Object_Relation
         if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $filterType)) {
+            throw new Exception('Invalid input');
+        }
         $fString = '';
         $sString = '';
         foreach ($firstTableParams as $fparams) {
