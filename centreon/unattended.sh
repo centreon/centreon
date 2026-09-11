@@ -869,10 +869,12 @@ function set_required_prerequisite() {
 			else
 				echo "deb https://packages.centreon.com/$apt_standard_repo/ $(lsb_release -sc)-$_repo main" | tee /etc/apt/sources.list.d/centreon-$_repo.list
 			fi
-
-			SIMPLEREPO=$(echo $_repo | cut -d '-' -f2)
-			echo "deb $ARCH https://packages.centreon.com/$repo_prefix-plugins-$SIMPLEREPO/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-$SIMPLEREPO.list
 		done
+		# Plugins stay on 'stable' whatever stability was requested for the Centreon
+		# packages: the 'testing' and 'unstable' plugins repos do not carry every dependency
+		# (e.g. libcrypt-openssl-aes-perl), which breaks the install. Mirrors the el behaviour.
+		rm -f /etc/apt/sources.list.d/centreon-plugins-testing.list /etc/apt/sources.list.d/centreon-plugins-unstable.list
+		echo "deb $ARCH https://packages.centreon.com/$repo_prefix-plugins-stable/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/centreon-plugins-stable.list
 		# Import the Centreon APT signing key (pipefail so a failed download/dearmor is caught, not hidden).
 		log "INFO" "Importing the Centreon APT signing key"
 		if ! ( set -o pipefail; wget -O- https://apt-key.centreon.com | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null ); then
@@ -1356,6 +1358,14 @@ function install_centreon_repo() {
 	if ! $PKG_MGR config-manager --add-repo $RELEASE_REPO_FILE; then
 		error_and_exit "Could not install Centreon repository"
 	fi
+
+	# Plugins stay on 'stable' whatever stability was requested for the Centreon
+	# packages: the 'testing' and 'unstable' plugins repos do not carry every dependency, which
+	# breaks the install. The shipped .repo file already does this; enforce it against local edits.
+	$PKG_MGR config-manager --set-disabled "centreon-plugins-*" ||
+		log "WARN" "Could not disable the non-stable Centreon plugins repositories (best-effort)"
+	$PKG_MGR config-manager --set-enabled "centreon-plugins-*-stable*" ||
+		log "WARN" "Could not enable the stable Centreon plugins repositories (best-effort)"
 }
 #========= end of function install_centreon_repo()
 
