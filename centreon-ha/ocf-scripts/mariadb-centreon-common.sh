@@ -237,8 +237,23 @@ mysql_common_start()
 {
     local mysql_extra_params="$1"
     local pid
+    local service_name
 
-    systemctl start mariadb
+    # Auto-detect the systemd service name.
+    # This duplicates logic from mysql-functions.sh because this OCF script
+    # runs under Pacemaker with #!/bin/sh and must remain self-contained.
+    for service_name in mariadb mysql; do
+        if systemctl list-unit-files "$service_name.service" 2>/dev/null | grep -q "$service_name.service"; then
+            break
+        fi
+        service_name=""
+    done
+    if [ -z "$service_name" ]; then
+        ocf_exit_reason "Cannot find MariaDB/MySQL systemd service"
+        return $OCF_ERR_INSTALLED
+    fi
+
+    systemctl start "$service_name"
     pid=$(cat $OCF_RESKEY_pid)
 
     # Spin waiting for the server to come up.

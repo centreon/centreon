@@ -9,6 +9,7 @@
 #
 ###################################################
 
+source /usr/share/centreon-ha/lib/mysql-functions.sh
 source /etc/centreon-ha/mysql-resources.sh
 
 OPT_TOTAL=1
@@ -50,10 +51,22 @@ MYSQL_CNF="/etc/my.cnf.d/server.cnf"
 READONLY_CHECK=1
 
 ###
-# Check MySQL launch
+# Get DB parameters
 ###
-process=$(ps -o args --no-headers -C mysqld)
-started=1
+sql_fetch_db_binary
+sql_fetch_systemd_service
+sql_fetch_db_config
+
+if [ -z "$SQL_DB_BINARY" ] ; then
+    echo "ERROR: Cannot find MariaDB/MySQL binary." >&2
+    exit 1
+fi
+
+if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
+    echo "ERROR: Cannot find MariaDB/MySQL systemd service." >&2
+    exit 1
+fi
+
 logbin_activated=1
 
 #####
@@ -93,10 +106,16 @@ get_current_logbin_file() {
 		mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
 	fi
 
-	if [ -z "$DBROOTPASSWORD" ] ; then
-		file=$(mysql -B -u "$DBROOTUSER" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+	if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+		_show_status="SHOW MASTER STATUS"
 	else
-		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+		_show_status="SHOW BINARY LOG STATUS"
+	fi
+
+	if [ -z "$DBROOTPASSWORD" ] ; then
+		file=$(mysql -B -u "$DBROOTUSER" -e "$_show_status\G" 2>&1 | grep 'File:' | awk '{ print $2 }')
+	else
+		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_show_status\G" 2>&1 | grep 'File:' | awk '{ print $2 }')
 	fi
 	if [ "$?" -ne "0" ] ; then
 		output_log "ERROR: connection MySQL to get index file." 1
@@ -120,53 +139,22 @@ output_log() {
 }
 
 ###
-# Find datadir AND logbin 
+# Find datadir AND logbin
 ###
-if [ -n "$process" ] ; then
-	datadir=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--datadir")) { print $i } } }' | awk -F\= '{ print $2 }')
-	etc_file=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--defaults-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-	logbin=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $1 }')
-	logbin_path=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $2 }')
-	pidname=$(echo "$process" | awk '{ for (i = 1; i < NF; i++) { if (match($i, "--pid-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-    if [ -n "$etc_file" ] ; then
-		MYSQL_CNF="$etc_file"
-	fi
-fi
+datadir="$SQL_CONF_DATADIR"
 
-if [ -z "$datadir" ] ; then
-	datadir=$(cat "$MYSQL_CNF" | grep -E '^datadir' | awk -F\= '{ print $2 }')
-fi
 if [ -z "$datadir" ] ; then
 	output_log "ERROR: Can't find MySQL datadir." 1
 	exit 1
 fi
-### Avoid datadir is a symlink (get the absolute path)
-datadir=$(cd "$datadir"; pwd -P)
 
-if [ -z "$pidname" ] ; then
-	pidname=$(cat "$MYSQL_CNF" | grep -E '^pid-file' | awk -F\= '{ print $2 }')
-fi
-if [ -z "$pidname" ] ; then
-	pidname=$(hostname | cut -d '.' -f 1)
-else
-	pidname=$(basename "$pidname" | cut -d '.' -f 1)
-fi
-
-if [ -z "$logbin" ] ; then
-	logbin=$(cat "$MYSQL_CNF" | grep -E '^log-bin' | awk -F\= '{ print $1 }')
-	logbin_path=$(cat "$MYSQL_CNF" | grep -E '^log-bin' | awk -F\= '{ print $2 }')
-fi
-if [ -z "$logbin" ] ; then
+if [ -z "$SQL_CONF_LOG_BIN_ARG" ] ; then
 	output_log "'log-bin' option not found. Can't do an incremental backup."
 	logbin_activated=0
 	OPT_INCR=0
 else
-	if [ -n "$logbin_path" ] ; then
-		logbin_files=$(basename "$logbin_path")
-		logbin_loc=$(dirname "$logbin_path")
-	else
-		logbin_files="$pidname-bin"
-	fi
+	logbin_files=$(basename "$SQL_CONF_LOG_BIN")
+	logbin_loc=$(dirname "$SQL_CONF_LOG_BIN")
 	if [ -z "$logbin_loc" ] || [ "$logbin_loc" = "." ] ; then
 		logbin_loc="$datadir"
 	fi
@@ -347,9 +335,9 @@ if [ "$PACEMAKER_ON" = "1" ] ; then
 	pcs resource unmanage "$PACEMAKER_RSC_MYSQL"
 fi
 i=0
-output_log "Stopping mysqld:" 0 1
-mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown 
-while ps -o args --no-headers -C mysqld >/dev/null; do
+output_log "Stopping $SQL_DB_BINARY:" 0 1
+mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD"  shutdown
+while ps -o args --no-headers -C "$SQL_DB_BINARY" >/dev/null; do
 	if [ "$i" -gt "$STOP_TIMEOUT" ] ; then
 		output_log ""
 		output_log "ERROR: Can't stop MySQL Server" 1
@@ -372,8 +360,8 @@ lvcreate -l $free_pe -s -n dbbackup $lv_name
 ###
 # Start server
 ###
-output_log "Start mysqld:"
-systemctl start mariadb
+output_log "Start $SQL_DB_BINARY:"
+systemctl start "$SQL_SYSTEMD_SERVICE"
 
 set_readonly
 
