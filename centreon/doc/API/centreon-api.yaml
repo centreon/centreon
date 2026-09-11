@@ -99,8 +99,7 @@ tags:
     description: "Resource 'Upgrade' operations."
   - name: HostGroup
     description: "Resource 'HostGroup' operations."
-  -
-    name: HostTemplate
+  - name: HostTemplate
     description: "Resource 'HostTemplate' operations."
 security:
   -
@@ -10217,8 +10216,7 @@ components:
           type: string
     HostTemplate.HostTemplateCollectionOutput.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
