@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\Security\Domain\Aggregate\AccessGroupId;
@@ -49,6 +51,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *   is_activated: string,
  *   poller_id: int,
  *   template_ids: string|null,
+ *   group_ids: string|null,
  * }
  */
 final readonly class DbalHostRepository extends DbalRepository implements HostRepository
@@ -70,6 +73,72 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
     ) {
     }
 
+    public function add(Host $host): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->insert(self::TABLE_NAME)
+            ->values([
+                'host_name' => ':name',
+                'host_address' => ':address',
+                'host_alias' => ':alias',
+                'host_activate' => ':is_activated',
+                'host_register' => "'1'",
+            ])
+            ->setParameter('name', $host->name->value)
+            ->setParameter('address', $host->address->value)
+            ->setParameter('alias', $host->alias?->value)
+            ->setParameter('is_activated', $host->activated ? '1' : '0')
+            ->executeStatement();
+
+        $hostId = (int) $this->connection->lastInsertId();
+        if ($hostId === 0) {
+            throw new \RuntimeException(sprintf('Unable to retrieve last insert ID for "%s".', self::TABLE_NAME));
+        }
+
+        $this->setId($host, new HostId($hostId));
+
+        // Every host row has a companion row here, even an entirely empty one: legacy always
+        // inserts it (DbWriteHostRepository::addExtendedInformations()), and other parts of the
+        // application already assume it exists.
+        $this->connection->createQueryBuilder()
+            ->insert('extended_host_information')
+            ->values(['host_host_id' => ':hostId'])
+            ->setParameter('hostId', $hostId)
+            ->executeStatement();
+
+        $this->connection->createQueryBuilder()
+            ->insert('ns_host_relation')
+            ->values(['host_host_id' => ':hostId', 'nagios_server_id' => ':pollerId'])
+            ->setParameter('hostId', $hostId)
+            ->setParameter('pollerId', $host->pollerId->value)
+            ->executeStatement();
+
+        foreach ($host->hostGroupIds as $hostGroupId) {
+            $this->connection->createQueryBuilder()
+                ->insert('hostgroup_relation')
+                ->values(['hostgroup_hg_id' => ':groupId', 'host_host_id' => ':hostId'])
+                ->setParameter('groupId', $hostGroupId->value)
+                ->setParameter('hostId', $hostId)
+                ->executeStatement();
+        }
+    }
+
+    /**
+     * No unique index backs `host_name` at the DB level (verified against the live schema) —
+     * legacy has the same gap, this is a pre-existing, accepted race window, not something
+     * introduced here. This is the only safeguard against a duplicate name.
+     */
+    public function isNameUsedByHostOrTemplate(HostName $name): bool
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('1')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->eq('host_name', $qb->createNamedParameter($name->value)))
+            ->setMaxResults(1);
+
+        return (bool) $qb->executeQuery()->fetchOne();
+    }
+
     public function findAll(?HostCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $accessibleHostIds = null;
@@ -86,6 +155,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->leftJoin('h', 'ns_host_relation', 'nsr', 'nsr.host_host_id = h.host_id')
             ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
             ->leftJoin('h', 'host_template_relation', 'htpl', 'htpl.host_host_id = h.host_id')
+            ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
             ->andWhere("h.host_register = '1'")
             ->groupBy('h.host_id', 'nsr.nagios_server_id')
             ->orderBy('h.host_id'); // required for deterministic pagination
@@ -139,6 +209,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             "{$alias}.host_activate AS is_activated",
             'nsr.nagios_server_id AS poller_id',
             'GROUP_CONCAT(DISTINCT htpl.host_tpl_id) AS template_ids',
+            'GROUP_CONCAT(DISTINCT hgr.hostgroup_hg_id) AS group_ids',
         ];
     }
 

@@ -23,12 +23,17 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -39,7 +44,35 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
+        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
+        private Connection $realTimeConnection,
     ) {
+    }
+
+    /**
+     * @param AggregateRoot<AggregateRootId>&AclScopedInterface $resource
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void
+    {
+        // Only Host implements AclScopedInterface today — extend this match when a second
+        // ACL-scoped resource type needs the same bookkeeping (see AclScopedInterface).
+        if (! $resource instanceof Host) {
+            throw new \LogicException(sprintf('No ACL grant mapping for aggregate %s.', $resource::class));
+        }
+
+        $hostId = $resource->id()->value;
+        foreach ($accessGroupIds as $accessGroupId) {
+            $this->realTimeConnection->executeStatement(
+                'INSERT INTO centreon_acl (group_id, host_id, service_id) VALUES (:groupId, :hostId, NULL)',
+                ['groupId' => $accessGroupId->value, 'hostId' => $hostId],
+            );
+        }
+    }
+
+    public function flagAllResourcesAsChanged(): void
+    {
+        $this->connection->executeStatement('UPDATE acl_resources SET changed = 1');
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool

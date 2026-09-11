@@ -50,12 +50,15 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
         // The repository has no ApiPlatform consumer yet (that lands with the Provider), so the
         // container would prune it; construct it directly from the always-public DBAL connection.
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
-            new DbalResourceAccessRepository($this->connection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host templates

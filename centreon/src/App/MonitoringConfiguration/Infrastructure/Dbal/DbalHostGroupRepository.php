@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupName;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Domain\Repository\HostGroupRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -58,6 +60,29 @@ final readonly class DbalHostGroupRepository extends DbalRepository implements H
         private TransformerInterface $transformer,
         private ResourceAccessRepository $resourceAccessRepository,
     ) {
+    }
+
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (HostGroupId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], HostGroupName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('hg_id', 'hg_name')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('hg_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{hg_id: int|string, hg_name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['hg_id']] = new HostGroupName($row['hg_name']);
+        }
+
+        return new Collection($names, HostGroupName::class);
     }
 
     public function findAll(?HostGroupCriteria $criteria = null): \IteratorAggregate&\Countable

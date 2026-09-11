@@ -27,12 +27,35 @@ use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Aggregate\AclScopedInterface;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 use App\Shared\Domain\Collection;
 
 interface ResourceAccessRepository
 {
     public function hasAccessToAllPollers(UserId $userId): bool;
+
+    /**
+     * Seeds the `centreon_acl` real-time cache directly for the given Access Groups, so a
+     * non-admin creator immediately sees their own newly created resource instead of waiting
+     * for the `centAcl` cron to recompute it. Never call this for an admin creator — admins
+     * bypass ACL scoping entirely in the read path and need no such row.
+     *
+     * @param AggregateRoot<AggregateRootId>&AclScopedInterface $resource
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function grantResourceAccess(AggregateRoot&AclScopedInterface $resource, Collection $accessGroupIds): void;
+
+    /**
+     * Flags every Access Group's resource scoping as changed, so the `centAcl` cron fully
+     * recomputes `centreon_acl` for all of them on its next run. Used when the creator is an
+     * admin: the new resource may now be visible via any group's resource-scoping rule, not
+     * just the creator's own.
+     */
+    public function flagAllResourcesAsChanged(): void;
 
     public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 

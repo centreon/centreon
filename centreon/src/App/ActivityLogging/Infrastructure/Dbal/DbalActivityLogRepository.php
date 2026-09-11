@@ -46,6 +46,7 @@ final readonly class DbalActivityLogRepository extends DbalRepository implements
     private const DETAIL_TABLE_NAME = 'log_action_modification';
     private const TARGET_TYPE_VALUE_MAP = [
         TargetTypeEnum::Command->value => 'commands',
+        TargetTypeEnum::Host->value => 'host',
         TargetTypeEnum::Poller->value => 'poller',
         TargetTypeEnum::ServiceCategory->value => 'servicecategories',
     ];
