@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup;
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ListContactGroupsProvider;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\ListContactGroupsProvider;
 
 #[ApiResource(
     shortName: 'ContactGroup',

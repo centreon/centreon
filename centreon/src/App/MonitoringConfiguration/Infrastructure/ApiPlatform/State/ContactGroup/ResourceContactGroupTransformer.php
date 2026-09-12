@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroupResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\Shared\Infrastructure\TransformerInterface;
 
 /**

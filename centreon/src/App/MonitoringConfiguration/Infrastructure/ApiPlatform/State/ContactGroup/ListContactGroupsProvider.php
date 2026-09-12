@@ -21,17 +21,18 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\Pagination;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
+use App\MonitoringConfiguration\Application\Query\ListContactGroupsQuery;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
-use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroupResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use App\Security\Infrastructure\Security\CredentialUser;
+use App\Shared\Application\Query\QueryBus;
 use App\Shared\Domain\Repository\Paginator;
 use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -52,7 +53,7 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
     public function __construct(
         #[Autowire(service: ResourceContactGroupTransformer::class)]
         private TransformerInterface $transformer,
-        private ContactGroupRepository $repository,
+        private QueryBus $queryBus,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -96,7 +97,9 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
             ? $criteria
             : $criteria->withViewerId($credentialUser->credential->userId);
 
-        $contactGroups = $this->repository->findAll($criteria);
+        $contactGroups = $this->queryBus->ask(new ListContactGroupsQuery($criteria));
+        Assert::isInstanceOf($contactGroups, \IteratorAggregate::class);
+        /** @var \IteratorAggregate<int, ContactGroup>&\Countable $contactGroups */
         $resources = [];
         foreach ($contactGroups as $contactGroup) {
             $resources[] = $this->transformer->transform($contactGroup);

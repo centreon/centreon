@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroupResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup\ContactGroupResource;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
