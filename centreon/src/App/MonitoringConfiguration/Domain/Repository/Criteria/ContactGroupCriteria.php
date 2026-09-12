@@ -39,7 +39,7 @@ final class ContactGroupCriteria
     /** @var array<self::OPERATOR_*, list<string>> */
     private array $names = [];
 
-    /** @var array<self::OPERATOR_*, list<int>> */
+    /** @var array<self::OPERATOR_EQUAL, list<int>> */
     private array $ids = [];
 
     private ?UserId $viewerId = null;
@@ -75,12 +75,12 @@ final class ContactGroupCriteria
     }
 
     /**
-     * @param self::OPERATOR_* $operator
+     * @param self::OPERATOR_EQUAL $operator ids only support equality, not "like"
      */
     public function withId(int $id, string $operator): self
     {
         Assert::positiveInteger($id);
-        Assert::inArray($operator, self::ALLOWED_OPERATORS);
+        Assert::same($operator, self::OPERATOR_EQUAL);
 
         $ids = $this->ids[$operator] ?? [];
         $ids[] = $id;
@@ -122,7 +122,7 @@ final class ContactGroupCriteria
     }
 
     /**
-     * @return array<self::OPERATOR_*, list<int>>
+     * @return array<self::OPERATOR_EQUAL, list<int>>
      */
     public function getIds(): array
     {

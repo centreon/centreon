@@ -46,6 +46,18 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
+
+        // Wrap each test in a transaction so the fixtures it inserts never leak into the dataset.
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->connection->isTransactionActive()) {
+            $this->connection->rollBack();
+        }
+
+        parent::tearDown();
     }
 
     public function testFindAllForAnAdminReturnsEveryContactGroup(): void
@@ -120,6 +132,62 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertNotContains("unreachable_{$suffix}", $names);
     }
 
+    public function testFindAllFiltersByNameUsingEquals(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $this->insertContactGroup("exact_{$suffix}");
+        $this->insertContactGroup("other_{$suffix}");
+
+        $names = $this->names($this->repository->findAll(
+            (new ContactGroupCriteria())->withName("exact_{$suffix}", ContactGroupCriteria::OPERATOR_EQUAL)
+        ));
+
+        self::assertSame(["exact_{$suffix}"], $names);
+    }
+
+    public function testFindAllFiltersByNameUsingLike(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $this->insertContactGroup("needle_{$suffix}");
+        $this->insertContactGroup("haystack_{$suffix}");
+
+        $names = $this->names($this->repository->findAll(
+            (new ContactGroupCriteria())->withName("needle_{$suffix}", ContactGroupCriteria::OPERATOR_LIKE)
+        ));
+
+        self::assertContains("needle_{$suffix}", $names);
+        self::assertNotContains("haystack_{$suffix}", $names);
+    }
+
+    public function testFindAllFiltersById(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $wantedId = $this->insertContactGroup("wanted_{$suffix}");
+        $this->insertContactGroup("skipped_{$suffix}");
+
+        $names = $this->names($this->repository->findAll(
+            (new ContactGroupCriteria())->withId($wantedId, ContactGroupCriteria::OPERATOR_EQUAL)
+        ));
+
+        self::assertSame(["wanted_{$suffix}"], $names);
+    }
+
+    public function testFindAllScopedIgnoresNonRegisteredContactMembership(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $viewerId = $this->insertNonAdminContact("viewer_{$suffix}");
+        $groupId = $this->insertContactGroup("group_{$suffix}");
+
+        // A membership held through a non-registered contact must not grant visibility.
+        $this->connection->update('contact', ['contact_register' => '0'], ['contact_id' => $viewerId]);
+        $this->connection->insert('contactgroup_contact_relation', [
+            'contactgroup_cg_id' => $groupId,
+            'contact_contact_id' => $viewerId,
+        ]);
+
+        self::assertNotContains("group_{$suffix}", $this->scopedNames($viewerId));
+    }
+
     public function testFindAllScopedToAViewerWithoutAnyAccessReturnsNothing(): void
     {
         $suffix = bin2hex(random_bytes(6));
@@ -143,10 +211,18 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
      */
     private function scopedNames(int $viewerId): array
     {
-        $result = $this->repository->findAll(
+        return $this->names($this->repository->findAll(
             (new ContactGroupCriteria())->withViewerId(new UserId($viewerId))
-        );
+        ));
+    }
 
+    /**
+     * @param \IteratorAggregate<int, ContactGroup>&\Countable $result
+     *
+     * @return list<string>
+     */
+    private function names(iterable $result): array
+    {
         return array_values(array_map(
             static fn (ContactGroup $contactGroup): string => $contactGroup->name->value,
             iterator_to_array($result)

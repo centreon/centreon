@@ -124,7 +124,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         ];
     }
 
-    public function filterByCriteria(QueryBuilder $qb, ContactGroupCriteria $criteria): void
+    private function filterByCriteria(QueryBuilder $qb, ContactGroupCriteria $criteria): void
     {
         if ($nameCriteria = $criteria->getNames()) {
             foreach ($nameCriteria as $operator => $names) {
@@ -145,19 +145,9 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 ));
             }
         }
+        // The id filter only supports equality: a "like" on a numeric id would match unrelated ids.
         if ($idCriteria = $criteria->getIds()) {
-            foreach ($idCriteria as $operator => $ids) {
-                if ($operator === ContactGroupCriteria::OPERATOR_LIKE) {
-                    $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (int $id): string => $qb->expr()->like(
-                            'cg.cg_id',
-                            $qb->createNamedParameter('%' . $id . '%')
-                        ),
-                        $ids
-                    )));
-
-                    continue;
-                }
+            foreach ($idCriteria as $ids) {
                 $qb->andWhere($qb->expr()->in(
                     'cg.cg_id',
                     $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
