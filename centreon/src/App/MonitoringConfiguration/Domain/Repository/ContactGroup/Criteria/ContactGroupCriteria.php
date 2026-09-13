@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
+namespace App\MonitoringConfiguration\Domain\Repository\ContactGroup\Criteria;
 
 use App\Security\Domain\Aggregate\UserId;
 use Webmozart\Assert\Assert;

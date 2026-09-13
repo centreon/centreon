@@ -21,11 +21,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal\ContactGroup;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
-use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroup\ContactGroupRepository;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroup\Criteria\ContactGroupCriteria;
 use App\Security\Domain\Aggregate\UserId;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;

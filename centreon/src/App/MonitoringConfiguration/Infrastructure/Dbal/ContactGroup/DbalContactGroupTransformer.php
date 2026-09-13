@@ -21,25 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Query;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal\ContactGroup;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
-use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
-use App\Shared\Application\Query\AsQueryHandler;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
+use App\Shared\Infrastructure\TransformerInterface;
 
-#[AsQueryHandler]
-final readonly class ListContactGroupsQueryHandler
+/**
+ * @phpstan-import-type RowTypeAlias from DbalContactGroupRepository
+ *
+ * @implements TransformerInterface<RowTypeAlias, ContactGroup>
+ */
+final readonly class DbalContactGroupTransformer implements TransformerInterface
 {
-    public function __construct(
-        private ContactGroupRepository $repository,
-    ) {
-    }
-
-    /**
-     * @return \IteratorAggregate<int, ContactGroup>&\Countable
-     */
-    public function __invoke(ListContactGroupsQuery $query): \IteratorAggregate&\Countable
+    public function transform(mixed $from): ContactGroup
     {
-        return $this->repository->findAll($query->criteria);
+        return new ContactGroup(
+            id: new ContactGroupId($from['cg_id']),
+            name: new ContactGroupName($from['cg_name']),
+        );
     }
 }

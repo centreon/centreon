@@ -27,7 +27,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\OpenApi\Model;
-use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ContactGroup\ContactGroupPermissionEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\ListContactGroupsProvider;
 
 #[ApiResource(

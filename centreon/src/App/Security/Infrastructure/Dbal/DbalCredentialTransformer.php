@@ -26,7 +26,7 @@ namespace App\Security\Infrastructure\Dbal;
 use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
-use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ContactGroup\ContactGroupPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;

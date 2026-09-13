@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Query;
+namespace App\MonitoringConfiguration\Application\Query\ContactGroup;
 
-use App\MonitoringConfiguration\Domain\Repository\Criteria\ContactGroupCriteria;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroup\Criteria\ContactGroupCriteria;
 
 final readonly class ListContactGroupsQuery
 {
