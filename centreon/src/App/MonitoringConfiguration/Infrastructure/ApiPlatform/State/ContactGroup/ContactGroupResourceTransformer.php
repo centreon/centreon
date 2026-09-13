@@ -30,7 +30,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 /**
  * @implements TransformerInterface<ContactGroup, ContactGroupResource>
  */
-final readonly class ResourceContactGroupTransformer implements TransformerInterface
+final readonly class ContactGroupResourceTransformer implements TransformerInterface
 {
     public function transform(mixed $from): ContactGroupResource
     {

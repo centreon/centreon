@@ -30,6 +30,7 @@ use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Shared\Domain\Collection;
+use App\Shared\Infrastructure\Dbal\DbalCriteriaApplierTrait;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -37,7 +38,6 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-type RowTypeAlias = array{
@@ -47,6 +47,7 @@ use Webmozart\Assert\Assert;
  */
 final readonly class DbalContactGroupRepository extends DbalRepository implements ContactGroupRepository
 {
+    use DbalCriteriaApplierTrait;
     public const TABLE_NAME = 'contactgroup';
 
     /**
@@ -55,7 +56,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
-        #[Autowire(service: DbalContactGroupTransformer::class)]
+        #[Autowire(service: ContactGroupTransformer::class)]
         private TransformerInterface $transformer,
         private AccessGroupRepository $accessGroupRepository,
     ) {
@@ -97,7 +98,9 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
 
         $this->paginate($qb, $criteria);
 
-        $count = $this->countOnQueryBuilder($qb); // must be done before fetching all rows
+        // total across all pages: countMatching clones $qb and strips its sort/pagination,
+        // so it is unaffected by the pagination applied above.
+        $count = $this->countMatching($qb, 'COUNT(DISTINCT cg.cg_id)');
 
         /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
@@ -213,21 +216,5 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
 
         $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
             ->setMaxResults($criteria->getItemsPerPage());
-    }
-
-    private function countOnQueryBuilder(QueryBuilder $qb): int
-    {
-        $qb = clone $qb; // avoid modifying the initial query builder
-
-        $count = $qb
-            ->select('COUNT(DISTINCT cg.cg_id)')
-            ->setFirstResult(0) // reset any pagination
-            ->setMaxResults(null)
-            ->executeQuery()
-            ->fetchOne();
-
-        Assert::integer($count);
-
-        return $count;
     }
 }

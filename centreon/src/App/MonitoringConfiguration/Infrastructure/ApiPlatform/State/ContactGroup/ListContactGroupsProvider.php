@@ -51,7 +51,7 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
      * @param TransformerInterface<ContactGroup, ContactGroupResource> $transformer
      */
     public function __construct(
-        #[Autowire(service: ResourceContactGroupTransformer::class)]
+        #[Autowire(service: ContactGroupResourceTransformer::class)]
         private TransformerInterface $transformer,
         private QueryBus $queryBus,
         private Pagination $pagination,

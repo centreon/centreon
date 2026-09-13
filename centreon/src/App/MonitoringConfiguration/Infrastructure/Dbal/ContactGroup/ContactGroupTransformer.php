@@ -33,7 +33,7 @@ use App\Shared\Infrastructure\TransformerInterface;
  *
  * @implements TransformerInterface<RowTypeAlias, ContactGroup>
  */
-final readonly class DbalContactGroupTransformer implements TransformerInterface
+final readonly class ContactGroupTransformer implements TransformerInterface
 {
     public function transform(mixed $from): ContactGroup
     {
