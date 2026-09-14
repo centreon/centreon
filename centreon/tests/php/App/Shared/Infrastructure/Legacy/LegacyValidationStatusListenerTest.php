@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Tests\App\Shared\Infrastructure\Legacy\Double\FakeHttpKernel;
@@ -42,13 +43,50 @@ final class LegacyValidationStatusListenerTest extends TestCase
             '/api/latest/configuration/pollers',
         );
 
-        (new LegacyValidationStatusListener())($event);
+        (new LegacyValidationStatusListener(new CamelCaseToSnakeCaseNameConverter()))($event);
 
         $response = $event->getResponse();
         self::assertNotNull($response);
         self::assertSame(400, $response->getStatusCode());
         self::assertSame(
             ['code' => 400, 'message' => "[name] This value should not be blank.\n"],
+            json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR),
+        );
+    }
+
+    public function testItRendersPropertyPathsInSnakeCaseOnTheLegacyPrefix(): void
+    {
+        // The bare /api path runs violations through ApiPlatform's normalizer, which
+        // applies the camel_case_to_snake_case name converter. This listener builds the
+        // /api/latest payload by hand, so it must apply the same converter — otherwise the
+        // raw camelCase PHP property path leaks into the error body (MON regression: a
+        // multi-word field such as `downtimeInheritanceMode` must read
+        // `downtime_inheritance_mode`).
+        $exception = new ValidationException(new ConstraintViolationList([
+            new ConstraintViolation(
+                message: 'The value you selected is not a valid choice.',
+                messageTemplate: null,
+                parameters: [],
+                root: null,
+                propertyPath: 'businessActivities[0].downtimeInheritanceMode',
+                invalidValue: 5,
+            ),
+        ]));
+        $event = $this->createExceptionEvent(
+            $exception,
+            '/api/latest/configuration/business-activities/1/tree',
+        );
+
+        (new LegacyValidationStatusListener(new CamelCaseToSnakeCaseNameConverter()))($event);
+
+        $response = $event->getResponse();
+        self::assertNotNull($response);
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(
+            [
+                'code' => 400,
+                'message' => "[business_activities[0].downtime_inheritance_mode] The value you selected is not a valid choice.\n",
+            ],
             json_decode((string) $response->getContent(), true, 512, JSON_THROW_ON_ERROR),
         );
     }
@@ -60,7 +98,7 @@ final class LegacyValidationStatusListenerTest extends TestCase
             '/api/configuration/pollers',
         );
 
-        (new LegacyValidationStatusListener())($event);
+        (new LegacyValidationStatusListener(new CamelCaseToSnakeCaseNameConverter()))($event);
 
         self::assertNull($event->getResponse());
     }
@@ -72,7 +110,7 @@ final class LegacyValidationStatusListenerTest extends TestCase
             '/api/latest/configuration/pollers',
         );
 
-        (new LegacyValidationStatusListener())($event);
+        (new LegacyValidationStatusListener(new CamelCaseToSnakeCaseNameConverter()))($event);
 
         self::assertNull($event->getResponse());
     }

@@ -28,6 +28,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 /**
  * /api/latest is a backward-compatible alias for already-migrated ApiPlatform operations
@@ -41,10 +42,20 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
  * LegacyValidationExceptionNormalizer (which still handles the bare /api, 422 case) — going
  * through ApiPlatform's own error pipeline for this one case would mean giving a distinct
  * exception class its own ErrorResource metadata just to be recognized by it.
+ *
+ * Because it builds the payload by hand, it must reproduce what that pipeline does to the
+ * property path: run it through the same name converter ApiPlatform is configured with
+ * (see config.new/packages/api_platform.yaml) so field names stay snake_case
+ * (e.g. `downtime_inheritance_mode`) instead of leaking the raw camelCase PHP property name.
  */
 #[AsEventListener]
 final class LegacyValidationStatusListener
 {
+    public function __construct(
+        private readonly NameConverterInterface $nameConverter,
+    ) {
+    }
+
     public function __invoke(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
@@ -58,7 +69,13 @@ final class LegacyValidationStatusListener
 
         $messages = [];
         foreach ($exception->getConstraintViolationList() as $violation) {
-            $messages[] = sprintf('[%s] %s', $violation->getPropertyPath(), $violation->getMessage());
+            $root = $violation->getRoot();
+            $propertyPath = $this->nameConverter->normalize(
+                $violation->getPropertyPath(),
+                \is_object($root) ? $root::class : null,
+                'json',
+            );
+            $messages[] = sprintf('[%s] %s', $propertyPath, $violation->getMessage());
         }
 
         $event->setResponse(new JsonResponse([
