@@ -56,7 +56,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
 
@@ -132,7 +132,7 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
 
@@ -191,6 +191,6 @@ Then(
       .find('tr.list_one')
       .find('td')
       .eq(2)
-      .should('contain.text', 'timeperiod');
+      .should('contain.text', 'Time period');
   }
 );
