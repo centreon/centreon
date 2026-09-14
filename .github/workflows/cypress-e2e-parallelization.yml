@@ -342,6 +342,20 @@ jobs:
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
+      # The cucumber preprocessor always writes report.json, so every feature would
+      # upload the same file name and they would overwrite each other once merged.
+      - name: Rename the cucumber report with the feature name
+        if: ${{ ! cancelled() }}
+        env:
+          MODULE_NAME: ${{ inputs.module_name }}
+          FEATURE_NAME_WITH_DASH: ${{ steps.feature-path.outputs.feature_name_with_dash }}
+        run: |
+          cucumberLogs="$MODULE_NAME/tests/e2e/results/cucumber-logs"
+          if [ -f "$cucumberLogs/report.json" ]; then
+            mv "$cucumberLogs/report.json" "$cucumberLogs/$FEATURE_NAME_WITH_DASH-report.json"
+          fi
+        shell: bash
+
       - name: Upload xray reports
         if: ${{ ! cancelled() }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -372,7 +386,8 @@ jobs:
       type_test_execution: e2e
       result_format: cucumber
       enrich_tests: true
-      artifact_pattern: "${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports*"
+      # The trailing dash keeps the regrouped artifact of a previous attempt out of the import.
+      artifact_pattern: "${{ inputs.name }}-${{ inputs.os }}-${{ needs.cypress-e2e-test-list.outputs.db_id }}-xray-reports-*"
     secrets:
       XRAY_CLIENT_ID: ${{ secrets.xray_client_id }}
       XRAY_CLIENT_SECRET: ${{ secrets.xray_client_secret }}
