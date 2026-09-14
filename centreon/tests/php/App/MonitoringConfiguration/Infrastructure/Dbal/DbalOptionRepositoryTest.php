@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Option\Option;
+
 use App\MonitoringConfiguration\Domain\Aggregate\Option\OptionName;
 use App\MonitoringConfiguration\Domain\Exception\OptionDoesNotExistException;
 use App\MonitoringConfiguration\Domain\Repository\OptionRepository;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalOptionRepositoryTest extends KernelTestCase
 {
     private OptionRepository $repository;

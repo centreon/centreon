@@ -23,8 +23,11 @@ declare(strict_types=1);
 
 namespace Tests\App\Shared\Infrastructure\Legacy;
 
+use PHPUnit\Framework\Attributes\Group;
+
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class BareApiAuthenticationFallbackIntegrationTest extends ApiTestCase
 {
     private const ADMIN_PASSWORD = 'Centreon!2021';

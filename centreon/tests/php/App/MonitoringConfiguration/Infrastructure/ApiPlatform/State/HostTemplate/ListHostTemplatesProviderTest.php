@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostTemplate;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostTemplate\HostTemplateResource;
+
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
+#[Group('integration')]
 final class ListHostTemplatesProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/host_templates';

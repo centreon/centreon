@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
@@ -33,8 +34,10 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\CommandCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalCommandRepository;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalCommandRepositoryTest extends KernelTestCase
 {
     private DbalCommandRepository $repository;

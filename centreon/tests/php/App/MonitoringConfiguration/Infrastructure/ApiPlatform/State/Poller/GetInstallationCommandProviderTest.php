@@ -24,8 +24,11 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Poller;
 
 use Doctrine\DBAL\Connection;
+
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/pollers/installation-command';

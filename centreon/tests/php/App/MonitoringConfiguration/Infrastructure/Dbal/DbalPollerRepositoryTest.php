@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroComment;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpression;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
@@ -54,8 +55,10 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalPollerRepositoryTest extends KernelTestCase
 {
     private Connection $connection;

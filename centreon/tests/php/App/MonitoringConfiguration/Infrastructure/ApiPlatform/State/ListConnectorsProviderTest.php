@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ConnectorResource;
+
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class ListConnectorsProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/connectors';
@@ -147,7 +150,7 @@ final class ListConnectorsProviderTest extends ApiTestCase
         $this->assertEquals(2, $response->toArray()['totalItems']);
     }
 
-    #[\PHPUnit\Framework\Attributes\Group('wip')]
+    #[Group('wip')]
     public function testItShouldIgnoreUnknownOperator(): void
     {
         $this->login();

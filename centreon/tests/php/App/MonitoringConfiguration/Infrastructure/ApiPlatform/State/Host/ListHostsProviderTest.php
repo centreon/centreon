@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
+
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Repository\AccessGroupRepository;
 use App\Security\Domain\Repository\CredentialRepository;
@@ -31,12 +32,14 @@ use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
 use App\Security\Infrastructure\Dbal\DbalCredentialTransformer;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
 /**
  * @phpstan-import-type RowTypeAlias from DbalCredentialRepository
  */
+#[Group('integration')]
 final class ListHostsProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/hosts';

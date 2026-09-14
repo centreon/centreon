@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\ActivityLogging\Infrastructure\Doctrine;
 
 use App\ActivityLogging\Domain\Aggregate\ActionEnum;
+
 use App\ActivityLogging\Domain\Aggregate\ActivityLog;
 use App\ActivityLogging\Domain\Aggregate\ActivityLogId;
 use App\ActivityLogging\Domain\Aggregate\Actor;
@@ -34,8 +35,10 @@ use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Infrastructure\Dbal\DbalActivityLogRepository;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalActivityLogRepositoryTest extends KernelTestCase
 {
     private DbalActivityLogRepository $repository;
