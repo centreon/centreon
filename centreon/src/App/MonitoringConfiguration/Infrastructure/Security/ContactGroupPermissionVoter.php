@@ -21,9 +21,9 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Security\ContactGroup;
+namespace App\MonitoringConfiguration\Infrastructure\Security;
 
-use App\MonitoringConfiguration\Domain\Security\ContactGroup\ContactGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
 use App\Security\Domain\Aggregate\Permission;
 use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;

@@ -21,10 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Security\ContactGroup;
+namespace Tests\App\MonitoringConfiguration\Infrastructure\Security;
 
-use App\MonitoringConfiguration\Domain\Security\ContactGroup\ContactGroupPermissionEnum;
-use App\MonitoringConfiguration\Infrastructure\Security\ContactGroup\ContactGroupPermissionVoter;
+use App\MonitoringConfiguration\Domain\Security\ContactGroupPermissionEnum;
+use App\MonitoringConfiguration\Infrastructure\Security\ContactGroupPermissionVoter;
 use App\Security\Domain\Aggregate\Credential;
 use App\Security\Domain\Aggregate\CredentialIdentifier;
 use App\Security\Domain\Aggregate\Permission;

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Security\ContactGroup;
+namespace App\MonitoringConfiguration\Domain\Security;
 
 enum ContactGroupPermissionEnum: string
 {

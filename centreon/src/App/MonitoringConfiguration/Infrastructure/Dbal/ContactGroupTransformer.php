@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Dbal\ContactGroup;
+namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
 use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;

@@ -21,14 +21,25 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Application\Query\ContactGroup;
+namespace App\MonitoringConfiguration\Application\Query;
 
-use App\MonitoringConfiguration\Domain\Repository\ContactGroup\Criteria\ContactGroupCriteria;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Repository\ContactGroupRepository;
+use App\Shared\Application\Query\AsQueryHandler;
 
-final readonly class ListContactGroupsQuery
+#[AsQueryHandler]
+final readonly class ListContactGroupsQueryHandler
 {
     public function __construct(
-        public ContactGroupCriteria $criteria,
+        private ContactGroupRepository $repository,
     ) {
+    }
+
+    /**
+     * @return \IteratorAggregate<int, ContactGroup>&\Countable
+     */
+    public function __invoke(ListContactGroupsQuery $query): \IteratorAggregate&\Countable
+    {
+        return $this->repository->findAll($query->criteria);
     }
 }
