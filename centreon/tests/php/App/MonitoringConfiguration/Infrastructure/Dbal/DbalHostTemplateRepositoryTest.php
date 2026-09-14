@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplate;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostTemplateCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostTemplateRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostTemplateTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -48,12 +50,15 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
         // The repository has no ApiPlatform consumer yet (that lands with the Provider), so the
         // container would prune it; construct it directly from the always-public DBAL connection.
         $this->repository = new DbalHostTemplateRepository(
             $this->connection,
             new HostTemplateTransformer(),
-            new DbalResourceAccessRepository($this->connection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
         );
 
         // unique per test run so assertions are isolated from any pre-seeded host templates
@@ -99,6 +104,38 @@ final class DbalHostTemplateRepositoryTest extends KernelTestCase
         self::assertSame(3, $result->getTotalItems());
         // rows are ordered by host_id (insertion order A, B, C), so page 2 is the second row
         self::assertSame(["pg-{$this->tag}-B"], $this->names($result));
+    }
+
+    public function testFindNamesByIds(): void
+    {
+        $templateName = "tpl-{$this->tag}";
+        $templateId = $this->insertHostTemplate($templateName);
+
+        $names = $this->repository->findNamesByIds(
+            new Collection([new HostTemplateId($templateId), new HostTemplateId($templateId + 999)], HostTemplateId::class)
+        );
+
+        self::assertCount(1, $names);
+        self::assertSame($templateName, $names->toArray()[$templateId]->value);
+    }
+
+    public function testFindNamesByIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], HostTemplateId::class));
+
+        self::assertCount(0, $names);
+    }
+
+    public function testFindNamesByIdsExcludesRegularHosts(): void
+    {
+        // host_template_relation.host_tpl_id carries no host_register-based constraint, so
+        // nothing at the schema level stops a regular host id from ending up there; this
+        // asserts findNamesByIds() itself never resolves one as a template name regardless.
+        $regularHostId = $this->insertRegularHost("host-{$this->tag}");
+
+        $names = $this->repository->findNamesByIds(new Collection([new HostTemplateId($regularHostId)], HostTemplateId::class));
+
+        self::assertCount(0, $names);
     }
 
     public function testFindAllRestrictsToAccessibleSeveritiesForARestrictedViewer(): void

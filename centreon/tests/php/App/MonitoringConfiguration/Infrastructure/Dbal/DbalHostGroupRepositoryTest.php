@@ -24,11 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostGroupCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostGroupTransformer;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -45,14 +47,45 @@ final class DbalHostGroupRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+
         // Constructed directly rather than fetched from the container: it keeps the ACL
         // fixtures this test builds isolated from whatever topology/ACL state other
         // integration tests may leave around the same connection.
         $this->repository = new DbalHostGroupRepository(
             $this->connection,
             new DbalHostGroupTransformer(),
-            new DbalResourceAccessRepository($this->connection),
+            new DbalResourceAccessRepository($this->connection, $realTimeConnection),
         );
+    }
+
+    public function testFindNamesByIdsReturnsNamesIndexedById(): void
+    {
+        $this->insertHostGroup(301, 'HostGroup-A');
+        $this->insertHostGroup(302, 'HostGroup-B');
+
+        $names = $this->repository->findNamesByIds(new Collection([new HostGroupId(301), new HostGroupId(302)], HostGroupId::class));
+
+        self::assertSame('HostGroup-A', $names->toArray()[301]->value);
+        self::assertSame('HostGroup-B', $names->toArray()[302]->value);
+    }
+
+    public function testFindNamesByIdsOmitsUnknownIds(): void
+    {
+        $this->insertHostGroup(301, 'HostGroup-A');
+
+        $names = $this->repository->findNamesByIds(new Collection([new HostGroupId(301), new HostGroupId(404)], HostGroupId::class));
+
+        self::assertCount(1, $names);
+        self::assertArrayNotHasKey(404, $names->toArray());
+    }
+
+    public function testFindNamesByIdsReturnsAnEmptyCollectionForNoIds(): void
+    {
+        $names = $this->repository->findNamesByIds(new Collection([], HostGroupId::class));
+
+        self::assertCount(0, $names);
     }
 
     public function testFindAllReturnsAllHostGroups(): void

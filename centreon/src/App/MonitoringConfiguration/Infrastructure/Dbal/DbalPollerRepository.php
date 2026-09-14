@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
@@ -37,6 +38,9 @@ use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\GorgoneCommunicationTypeMapping;
 use App\Security\Domain\Repository\ResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
+use App\Shared\Domain\Aggregate\PollerScopedInterface;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
@@ -335,6 +339,29 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $this->createPollers($pollerRows, $globalMacroRows);
     }
 
+    public function findNamesByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (PollerId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], PollerName::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('id', 'name')
+            ->from(self::TABLE_NAME)
+            ->where($qb->expr()->in('id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['id']] = new PollerName($row['name']);
+        }
+
+        return new Collection($names, PollerName::class);
+    }
+
     public function findAll(?PollerCriteria $criteria = null): \IteratorAggregate&\Countable
     {
         $qb = $this->connection->createQueryBuilder();
@@ -397,6 +424,25 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         }
 
         return $poller;
+    }
+
+    /**
+     * @param AggregateRoot<AggregateRootId>&PollerScopedInterface $resource
+     */
+    public function flagAsChanged(AggregateRoot&PollerScopedInterface $resource): void
+    {
+        // Only Host implements PollerScopedInterface today — extend this match when a second
+        // poller-scoped resource type needs the same bookkeeping (see PollerScopedInterface).
+        if (! $resource instanceof Host) {
+            throw new \LogicException(sprintf('No poller mapping for aggregate %s.', $resource::class));
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->update(self::TABLE_NAME)
+            ->set('updated', $qb->createNamedParameter('1'))
+            ->where('id = :poller_id')
+            ->setParameter('poller_id', $resource->pollerId->value)
+            ->executeStatement();
     }
 
     public function withCmaCertificates(): self

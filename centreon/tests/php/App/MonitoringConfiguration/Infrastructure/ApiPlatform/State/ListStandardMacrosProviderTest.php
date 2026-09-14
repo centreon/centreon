@@ -150,4 +150,12 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         $this->assertCount(2, (array) $response->toArray()['member']);
     }
+
+    public function testItRejectsAScalarNameFilter(): void
+    {
+        $this->login();
+
+        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => '$HOSTNAME$']]);
+        self::assertResponseStatusCodeSame(400);
+    }
 }

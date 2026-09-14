@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Repository;
 
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Collection;
 
 interface AccessGroupRepository
 {
@@ -32,4 +34,19 @@ interface AccessGroupRepository
      * active Access Group with this exact name.
      */
     public function userHasGroup(UserId $userId, string $groupName): bool;
+
+    /**
+     * Every active Access Group the user belongs to, directly or through a contact group.
+     *
+     * @return Collection<AccessGroupId>
+     */
+    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+
+    /**
+     * Flags the given Access Groups as changed, so the `centAcl` cron recomputes their
+     * resource scoping (including `centreon_acl`) on its next run.
+     *
+     * @param Collection<AccessGroupId> $accessGroupIds
+     */
+    public function flagGroupsAsChanged(Collection $accessGroupIds): void;
 }
