@@ -213,6 +213,7 @@ class Matrix42Provider extends AbstractProvider
 
         // when enabled, the asset list of the ticket popup is filtered using the host name
         $this->default_data['match_asset_to_host'] = 'no';
+        $this->default_data['strict_asset_name_match'] = 'no';
 
         // when enabled, the match_user_by_email.ihtml templates also apply
         // the user they matched to the "Responsible user" list, in addition to the "User" list
@@ -430,6 +431,10 @@ class Matrix42Provider extends AbstractProvider
             . '<input type="checkbox" id="match_asset_to_host" name="match_asset_to_host" value="yes" '
             . ($this->getFormValue('match_asset_to_host') === 'yes' ? 'checked' : '')
             . '/><label class="empty-label" for="match_asset_to_host"></label></div>';
+        $strict_asset_name_match_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="strict_asset_name_match" name="strict_asset_name_match" value="yes" '
+            . ($this->getFormValue('strict_asset_name_match') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="strict_asset_name_match"></label></div>';
 
         $sync_user_to_responsible_user_html = '<div class="md-checkbox md-checkbox-inline">'
             . '<input type="checkbox" id="sync_user_to_responsible_user" name="sync_user_to_responsible_user" '
@@ -470,6 +475,10 @@ class Matrix42Provider extends AbstractProvider
             'match_asset_to_host' => [
                 'label' => _('Match asset to host name'),
                 'html' => $match_asset_to_host_html,
+            ],
+            'strict_asset_name_match' => [
+                'label' => _('Enable strict match for host name'),
+                'html' => $strict_asset_name_match_html,
             ],
             'sync_user_to_responsible_user' => [
                 'label' => _('Set responsible user to the matched user'),
@@ -528,6 +537,10 @@ class Matrix42Provider extends AbstractProvider
             isset($this->submitted_config['match_asset_to_host'])
             && $this->submitted_config['match_asset_to_host'] == 'yes'
         ) ? $this->submitted_config['match_asset_to_host'] : '';
+        $this->save_config['simple']['strict_asset_name_match'] = (
+            isset($this->submitted_config['strict_asset_name_match'])
+            && $this->submitted_config['strict_asset_name_match'] == 'yes'
+        ) ? $this->submitted_config['strict_asset_name_match'] : '';
         $this->save_config['simple']['sync_user_to_responsible_user'] = (
             isset($this->submitted_config['sync_user_to_responsible_user'])
             && $this->submitted_config['sync_user_to_responsible_user'] == 'yes'
@@ -566,6 +579,7 @@ class Matrix42Provider extends AbstractProvider
     {
         $groups = parent::assignFormatPopupTemplate($tpl, $args);
         $tpl->assign('match_asset_to_host', $this->getFormValue('match_asset_to_host'));
+        $tpl->assign('strict_asset_name_match', $this->getFormValue('strict_asset_name_match'));
         $tpl->assign('sync_user_to_responsible_user', $this->getFormValue('sync_user_to_responsible_user'));
 
         return $groups;

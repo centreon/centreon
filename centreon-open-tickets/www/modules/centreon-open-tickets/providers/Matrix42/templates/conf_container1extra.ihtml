@@ -105,6 +105,14 @@
     </td>
 </tr>
 <tr class="list_one">
+    <td class="formRowField">
+        {$form.strict_asset_name_match.label}
+    </td>
+    <td class="FormRowValue">
+        {$form.strict_asset_name_match.html}
+    </td>
+</tr>
+<tr class="list_two">
     <td class="FormRowField">
         {$form.sync_user_to_responsible_user.label}
     </td>
@@ -112,7 +120,7 @@
         {$form.sync_user_to_responsible_user.html}
     </td>
 </tr>
-<tr class="list_two">
+<tr class="list_one">
     <td class="FormRowField">
         {t}Test authentication{/t}
     </td>
@@ -122,7 +130,7 @@
         <span id="test-ok" class="okay_message" style="display: none; color: green;"></span>
     </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
     <td class="FormRowField">
         {$form.mappingTicketLabel.label}
     </td>

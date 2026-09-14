@@ -7,7 +7,15 @@
 {literal}
 <script>
 (function () {
+    {/literal}
+    {if $strict_asset_name_match == 'yes'}
+        var strictMode = true;
+    {else}
+        var strictMode = false;
+    {/if}
+    {literal}
     var noAssetMatchMessage = "{/literal}{t}No Matrix42 asset name matches the selected host(s).{/t}{literal}";
+    var multipleMatchMessage = "{/literal}{t}Matrix42 asset name matches the selected host(s).{/t}{literal}";
     var hostNames = [
 {/literal}
 {foreach from=$host_selected item=host}
@@ -27,20 +35,29 @@
     }
 
     var matchingValues = [];
+    var $firstOption;
     $select.find('option').each(function () {
         var $option = jQuery(this);
         if ($option.val() === '-1') {
+            $firstOption = $option
             // keep the placeholder entry untouched
             return;
         }
 
         var label = $option.text().toLowerCase();
-        var matches = hostNames.some(function (hostName) {
-            return label.indexOf(hostName.toLowerCase()) !== -1;
-        });
+        if (strictMode) {
+            var matches = hostNames.some(function (hostname) {
+                return new RegExp(`^${$option.text()}$`, "i").exec(hostname)
+            })
+        } else {
+            var matches = hostNames.some(function (hostName) {
+                return label.indexOf(hostName.toLowerCase()) !== -1;
+            });
+        }
 
         if (matches) {
             matchingValues.push($option.val());
+            $option.insertAfter($firstOption)
         }
     });
 
@@ -48,17 +65,25 @@
     // shows below the select2 widget (inserted as $select's next sibling by group.ihtml) rather than
     // between the (hidden) native select and it
     var $container = $select.closest('td');
-    $container.find('.matrix42-asset-no-match-message').remove();
+    $container.find('.matrix42-asset-match-message').remove();
 
     if (matchingValues.length === 1) {
         $select.val(matchingValues[0]);
     } else if (matchingValues.length === 0) {
         $container.append(
             jQuery('<div>')
-                .addClass('matrix42-asset-no-match-message')
+                .addClass('matrix42-asset-match-message')
                 .css({ color: '#cc0000', marginTop: '5px' })
                 .text(noAssetMatchMessage)
         );
+    } else if (matchingValues.length > 1) {
+        $select.val(matchingValues[0]);
+        $container.append(
+            jQuery('<div>')
+                .addClass('matrix42-asset-match-message')
+                .css({ color: 'rgb(253, 155, 39)', marginTop: '5px' })
+                .html(`<strong>${matchingValues.length}</strong> ${multipleMatchMessage}`)
+        )
     }
 
     // refresh the select2 widget built by group.ihtml so it reflects the options we just changed
