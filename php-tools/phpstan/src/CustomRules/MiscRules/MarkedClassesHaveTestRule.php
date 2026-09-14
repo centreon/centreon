@@ -40,14 +40,14 @@ final readonly class MarkedClassesHaveTestRule implements Rule
      * @param list<class-string> $attributes marks a class eligible when it carries one of these attributes
      * @param list<class-string> $classes marks a class eligible when it is (a subclass/implementation of) one of these
      * @param list<string> $suffixes marks a class eligible when its short name ends with one of these — for
-     *                                families with no shared attribute or base (e.g. `Criteria`)
+     *                               families with no shared attribute or base (e.g. `Criteria`)
      * @param list<string> $namespaceSegments marks a class eligible when its fully-qualified name contains one of
-     *                                         these substrings — for families identified only by their location
-     *                                         (e.g. `\Domain\Aggregate\` for aggregate roots and value objects, which
-     *                                         share no attribute, base or suffix)
+     *                                        these substrings — for families identified only by their location
+     *                                        (e.g. `\Domain\Aggregate\` for aggregate roots and value objects, which
+     *                                        share no attribute, base or suffix)
      * @param list<string> $excludeSuffixes exempts a class whose short name ends with one of these, even when another
-     *                                       matcher made it eligible — e.g. a trivial `<Agg>Id` (bare `AggregateRootId`
-     *                                       subclass with no own invariant) under `\Domain\Aggregate\`
+     *                                      matcher made it eligible — e.g. a trivial `<Agg>Id` (bare `AggregateRootId`
+     *                                      subclass with no own invariant) under `\Domain\Aggregate\`
      */
     public function __construct(
         private ReflectionProvider $reflectionProvider,
