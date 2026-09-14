@@ -532,13 +532,7 @@ const mockedParametersDataTimeLineDownload = {
     {
       field: 'type',
       values: {
-        $in: [
-          'event',
-          'notification',
-          'comment',
-          'acknowledgement',
-          'downtime'
-        ]
+        $in: ['event', 'notification', 'comment', 'acknowledgement', 'downtime']
       }
     },
     {
@@ -1527,7 +1521,9 @@ describe(Details, () => {
     await waitFor(() => {
       expect(
         store.get(getCriteriaValueDerivedAtom)(CriteriaNames.serviceGroups)
-      ).toEqual([{ formattedName: 'Linux-servers', id: 0, name: 'Linux-servers' }]);
+      ).toEqual([
+        { formattedName: 'Linux-servers', id: 0, name: 'Linux-servers' }
+      ]);
     });
   });
 
