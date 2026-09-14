@@ -40,6 +40,19 @@ final class ContactGroupNameTest extends TestCase
         self::assertSame($name, (new ContactGroupName($name))->value);
     }
 
+    public function testAcceptsAZeroName(): void
+    {
+        // "0" is a legitimate name: the guard must be stringNotEmpty, not notEmpty (which uses empty()).
+        self::assertSame('0', (new ContactGroupName('0'))->value);
+    }
+
+    public function testRejectsAnEmptyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new ContactGroupName('');
+    }
+
     public function testRejectsANameOverTheMaxLength(): void
     {
         $this->expectException(\InvalidArgumentException::class);

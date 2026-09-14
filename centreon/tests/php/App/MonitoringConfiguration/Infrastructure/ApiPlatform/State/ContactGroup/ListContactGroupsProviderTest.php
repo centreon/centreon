@@ -27,10 +27,31 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ContactGroup
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
+use Webmozart\Assert\Assert;
 
 final class ListContactGroupsProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/contact_groups';
+
+    // topology pages whose hierarchy builds ROLE_CONFIGURATION_USERS_CONTACT_GROUPS_R
+    // (Configuration > Users > Contact Groups), bridged to ContactGroupPermissionEnum::CanRead
+    // via DbalCredentialTransformer::LEGACY_PERMISSION_MAP.
+    private const CONTACT_GROUP_READ_TOPOLOGY_PAGES = [6, 603, 60302];
+
+    private Connection $connection;
+
+    private string $tag;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $this->connection = $connection;
+
+        $this->tag = bin2hex(random_bytes(6));
+    }
 
     public function testItListsContactGroupsForAnAdmin(): void
     {
@@ -146,5 +167,112 @@ final class ListContactGroupsProviderTest extends ApiTestCase
 
         $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => ['eq' => '0']]]);
         self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testItScopesRowsForANonAdminWithPermission(): void
+    {
+        // The security-critical wire: a non-admin *with* the read permission must be ACL-scoped by
+        // the provider (withViewerId). A regression dropping that scoping would leak every group.
+        $username = "viewer_{$this->tag}";
+        $contactId = $this->createNonAdminContact($username);
+        $aclGroupId = $this->grantContactGroupReadTopologyRole($contactId);
+
+        $reachableId = $this->insertContactGroup("reachable_{$this->tag}");
+        $this->insertContactGroup("unreachable_{$this->tag}");
+        $this->restrictAclGroupToContactGroups($aclGroupId, [$reachableId]);
+
+        $this->login($username);
+
+        $response = $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+
+        $names = array_column((array) $response->toArray()['member'], 'name');
+        self::assertContains("reachable_{$this->tag}", $names);
+        self::assertNotContains("unreachable_{$this->tag}", $names);
+    }
+
+    private function createNonAdminContact(string $alias): int
+    {
+        $this->createApiUser($this->connection, $alias, admin: false);
+
+        $contactId = $this->connection->fetchOne(
+            'SELECT contact_id FROM contact WHERE contact_alias = :alias',
+            ['alias' => $alias]
+        );
+        Assert::scalar($contactId);
+
+        return (int) $contactId;
+    }
+
+    private function insertContactGroup(string $name): int
+    {
+        $this->connection->insert('contactgroup', [
+            'cg_name' => $name,
+            'cg_alias' => $name,
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    /**
+     * Grant the Contact Groups read topology role to a non-admin, and return the acl group id
+     * (reused for the row-level scoping below).
+     */
+    private function grantContactGroupReadTopologyRole(int $contactId): int
+    {
+        $this->connection->insert('acl_groups', [
+            'acl_group_name' => "topology-group-{$this->tag}",
+            'acl_group_alias' => "topology-group-{$this->tag}",
+            'acl_group_activate' => '1',
+        ]);
+        $aclGroupId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_contacts_relations', [
+            'acl_group_id' => $aclGroupId,
+            'contact_contact_id' => $contactId,
+        ]);
+
+        $this->connection->insert('acl_topology', [
+            'acl_topo_name' => "topology-rule-{$this->tag}",
+            'acl_topo_alias' => "topology-rule-{$this->tag}",
+            'acl_topo_activate' => '1',
+        ]);
+        $aclTopoId = (int) $this->connection->lastInsertId();
+
+        $this->connection->insert('acl_group_topology_relations', [
+            'acl_group_id' => $aclGroupId,
+            'acl_topology_id' => $aclTopoId,
+        ]);
+
+        foreach (self::CONTACT_GROUP_READ_TOPOLOGY_PAGES as $topologyPage) {
+            $topologyId = $this->connection->fetchOne(
+                'SELECT topology_id FROM topology WHERE topology_page = :page',
+                ['page' => $topologyPage]
+            );
+            Assert::scalar($topologyId, "topology_page {$topologyPage} not found in fixtures");
+
+            $this->connection->insert('acl_topology_relations', [
+                'topology_topology_id' => (int) $topologyId,
+                'acl_topo_id' => $aclTopoId,
+                'access_right' => 2, // read-only
+            ]);
+        }
+
+        return $aclGroupId;
+    }
+
+    /**
+     * @param list<int> $contactGroupIds
+     */
+    private function restrictAclGroupToContactGroups(int $aclGroupId, array $contactGroupIds): void
+    {
+        foreach ($contactGroupIds as $contactGroupId) {
+            $this->connection->insert('acl_group_contactgroups_relations', [
+                'acl_group_id' => $aclGroupId,
+                'cg_cg_id' => $contactGroupId,
+            ]);
+        }
     }
 }

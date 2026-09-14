@@ -148,7 +148,6 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 ));
             }
         }
-        // Ids are matched by equality only (a "like" on a numeric id is meaningless).
         if ($ids = $criteria->getIds()) {
             $qb->andWhere($qb->expr()->in(
                 'cg.cg_id',

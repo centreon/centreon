@@ -27,9 +27,13 @@ use Webmozart\Assert\Assert;
 
 final readonly class ContactGroupName
 {
+    private const MAX_LENGTH = 255;
+
     public function __construct(
         public string $value,
     ) {
-        Assert::maxLength($value, 255);
+        // stringNotEmpty (not notEmpty) so a legitimate name of "0" is not wrongly rejected.
+        Assert::stringNotEmpty($value);
+        Assert::maxLength($value, self::MAX_LENGTH);
     }
 }

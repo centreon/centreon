@@ -77,7 +77,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\Li
         ),
     ],
 )]
-final class ContactGroupResource
+final readonly class ContactGroupResource
 {
     public function __construct(
         #[ApiProperty(identifier: true, writable: false)]

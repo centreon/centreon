@@ -39,7 +39,7 @@ final class ContactGroupCriteria
     /** @var array<self::OPERATOR_*, list<string>> */
     private array $names = [];
 
-    /** @var list<int> ids are only ever matched by equality */
+    /** @var list<int> */
     private array $ids = [];
 
     private ?UserId $viewerId = null;
