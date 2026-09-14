@@ -21,24 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Security;
 
-use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
-
-interface AccessGroupRepository
+enum HostPermissionEnum: string
 {
-    /**
-     * Whether the user belongs — directly, or through a contact group — to an
-     * active Access Group with this exact name.
-     */
-    public function userHasGroup(UserId $userId, string $groupName): bool;
-
-    /**
-     * Every active Access Group the user belongs to, directly or through a contact group.
-     *
-     * @return Collection<AccessGroupId>
-     */
-    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+    case CanRead = 'can_read_host';
+    case CanReadAndWrite = 'can_read_and_write_host';
 }

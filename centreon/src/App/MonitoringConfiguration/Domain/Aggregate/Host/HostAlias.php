@@ -21,24 +21,21 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
-use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\UserId;
-use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
-interface AccessGroupRepository
+final readonly class HostAlias
 {
-    /**
-     * Whether the user belongs — directly, or through a contact group — to an
-     * active Access Group with this exact name.
-     */
-    public function userHasGroup(UserId $userId, string $groupName): bool;
+    public const MIN_LENGTH = 1;
+    public const MAX_LENGTH = 200;
 
-    /**
-     * Every active Access Group the user belongs to, directly or through a contact group.
-     *
-     * @return Collection<AccessGroupId>
-     */
-    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+    public string $value;
+
+    public function __construct(string $value)
+    {
+        $value = trim($value);
+        Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
+        $this->value = $value;
+    }
 }

@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostCategoryPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostGroupPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\HostPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\HostTemplatePermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\PollerPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
@@ -60,6 +61,8 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_POLLERS_POLLERS_RW' => PollerPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_R' => HostGroupPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_RW' => HostGroupPermissionEnum::CanReadAndWrite->value,
+        'ROLE_CONFIGURATION_HOSTS_HOSTS_R' => HostPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_HOSTS_HOSTS_RW' => HostPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_HOSTS_TEMPLATES_R' => HostTemplatePermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_HOSTS_TEMPLATES_RW' => HostTemplatePermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_HOSTS_CATEGORIES_R' => HostCategoryPermissionEnum::CanRead->value,

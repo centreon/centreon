@@ -21,24 +21,30 @@
 
 declare(strict_types=1);
 
-namespace App\Security\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Host;
 
-use App\Security\Domain\Aggregate\AccessGroupId;
-use App\Security\Domain\Aggregate\UserId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 
-interface AccessGroupRepository
+/**
+ * @extends AggregateRoot<HostId>
+ */
+final class Host extends AggregateRoot
 {
     /**
-     * Whether the user belongs — directly, or through a contact group — to an
-     * active Access Group with this exact name.
+     * @param Collection<HostTemplateId> $templateIds
      */
-    public function userHasGroup(UserId $userId, string $groupName): bool;
-
-    /**
-     * Every active Access Group the user belongs to, directly or through a contact group.
-     *
-     * @return Collection<AccessGroupId>
-     */
-    public function findActiveGroupIdsForUser(UserId $userId): Collection;
+    public function __construct(
+        ?HostId $id,
+        public readonly HostName $name,
+        public readonly ?HostAlias $alias,
+        public readonly HostAddress $address,
+        public readonly bool $activated,
+        public readonly PollerId $pollerId,
+        public readonly Collection $templateIds,
+    ) {
+        parent::__construct($id);
+    }
 }
