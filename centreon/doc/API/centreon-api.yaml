@@ -10621,8 +10621,7 @@ components:
             type: integer
     Host.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
