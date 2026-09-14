@@ -78,6 +78,10 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         $qb->select('c.contact_id AS id', 'c.contact_name AS name')
             ->from(self::TABLE_NAME, 'c')
             ->andWhere("c.contact_register = '1'")
+            // contact_name is nullable/emptyable in DB (varchar(200) DEFAULT NULL) while
+            // NotificationContactName requires a non-empty value: excluding such rows here keeps
+            // the read projection honest instead of letting the VO invariant turn into a 500.
+            ->andWhere("c.contact_name IS NOT NULL AND c.contact_name != ''")
             ->orderBy('c.contact_name') // alphabetical order for a name-based selector
             ->addOrderBy('c.contact_id'); // deterministic pagination if two contacts share a name
 

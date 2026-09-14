@@ -70,6 +70,20 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         self::assertContains($name, $names);
     }
 
+    public function testFindAllExcludesContactsWithANullOrEmptyName(): void
+    {
+        // contact_name is nullable/emptyable in DB even though NotificationContactName requires a
+        // non-empty value: such rows must be filtered out, not crash the transformer with a 500.
+        $this->insertContactWithRawName(null);
+        $this->insertContactWithRawName('');
+        $keptName = "kept-{$this->tag}";
+        $this->insertContact($keptName);
+
+        $names = $this->names($this->repository->findAll());
+
+        self::assertContains($keptName, $names);
+    }
+
     public function testFindAllExcludesUnregisteredContacts(): void
     {
         $registeredName = "registered-{$this->tag}";
@@ -236,6 +250,20 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
             'contact_register' => $registered ? '1' : '0',
             'contact_activate' => '1',
             'contact_email' => $name . '@email.com',
+        ]);
+
+        return (int) $this->connection->lastInsertId();
+    }
+
+    private function insertContactWithRawName(?string $name): int
+    {
+        $this->connection->insert('contact', [
+            'contact_name' => $name,
+            'contact_alias' => "alias-{$this->tag}-" . Uuid::v4()->toRfc4122(),
+            'contact_admin' => '0',
+            'contact_register' => '1',
+            'contact_activate' => '1',
+            'contact_email' => Uuid::v4()->toRfc4122() . '@email.com',
         ]);
 
         return (int) $this->connection->lastInsertId();
