@@ -69,6 +69,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_HOSTS_CATEGORIES_R' => HostCategoryPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_HOSTS_CATEGORIES_RW' => HostCategoryPermissionEnum::CanReadAndWrite->value,
         'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_R' => NotificationContactPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_USERS_CONTACTS__USERS_RW' => NotificationContactPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**

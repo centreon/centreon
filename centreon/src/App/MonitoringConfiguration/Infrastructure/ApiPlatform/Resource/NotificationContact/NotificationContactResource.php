@@ -47,7 +47,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\NotificationCon
                     ),
                 ],
             ),
-            security: 'is_granted("' . NotificationContactPermissionEnum::CanRead->value . '")',
+            security: '
+                is_granted("' . NotificationContactPermissionEnum::CanRead->value . '") or
+                is_granted("' . NotificationContactPermissionEnum::CanReadAndWrite->value . '")',
             securityMessage: 'You are not allowed to list contacts',
         ),
     ],

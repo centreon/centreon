@@ -70,7 +70,7 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         if (($viewerId = $criteria?->getViewerId()) instanceof UserId) {
             $accessibleContactIds = $this->findAccessibleContactIds($viewerId);
             if ($accessibleContactIds === []) {
-                return new Collection([], NotificationContact::class);
+                return $this->emptyResult($criteria);
             }
         }
 
@@ -113,6 +113,26 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
             totalItems: $count,
             currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
             itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+        );
+    }
+
+    /**
+     * A restricted viewer with no accessible contact short-circuits before any query runs. When
+     * pagination was requested, the response must still carry the pagination envelope (page, page
+     * size, totalItems: 0) instead of degrading to a bare array — the client can't otherwise tell
+     * "zero matches" from "pagination metadata omitted".
+     */
+    private function emptyResult(?NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
+    {
+        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+            return new Collection([], NotificationContact::class);
+        }
+
+        return new InMemoryPaginator(
+            items: new Collection([], NotificationContact::class),
+            totalItems: 0,
+            currentPage: $criteria->getPage(),
+            itemsPerPage: $criteria->getItemsPerPage(),
         );
     }
 

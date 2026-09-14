@@ -26,4 +26,5 @@ namespace App\MonitoringConfiguration\Domain\Security;
 enum NotificationContactPermissionEnum: string
 {
     case CanRead = 'can_read_notification_contact';
+    case CanReadAndWrite = 'can_read_and_write_notification_contact';
 }

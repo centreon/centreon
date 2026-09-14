@@ -69,6 +69,19 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testItAllowsAUserGrantedReadWriteOnTheLegacyTopology(): void
+    {
+        $username = bin2hex(random_bytes(8));
+        $contactId = $this->createNonAdminContact($username);
+        // access_right 1 = read-write: legacy grants ROLE_..._RW, not ROLE_..._R
+        $this->grantNotificationContactReadTopologyRole($contactId, accessRight: 1);
+
+        $this->login($username);
+
+        $this->request('GET', self::BASE_ENDPOINT);
+        self::assertResponseIsSuccessful();
+    }
+
     public function testItListsContactsAsAdminWithOnlyIdAndName(): void
     {
         $this->insertContact("contact-A-{$this->tag}");
@@ -257,7 +270,7 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
         return (int) $contactId;
     }
 
-    private function grantNotificationContactReadTopologyRole(int $contactId): void
+    private function grantNotificationContactReadTopologyRole(int $contactId, int $accessRight = 2): void
     {
         $this->connection->insert('acl_groups', [
             'acl_group_name' => "topology-group-{$this->tag}",
@@ -294,7 +307,7 @@ final class ListNotificationContactsProviderTest extends ApiTestCase
             $this->connection->insert('acl_topology_relations', [
                 'topology_topology_id' => (int) $topologyId,
                 'acl_topo_id' => $aclTopoId,
-                'access_right' => 2, // read-only
+                'access_right' => $accessRight, // 2 = read-only, 1 = read-write
             ]);
         }
     }

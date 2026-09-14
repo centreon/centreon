@@ -174,6 +174,27 @@ final class DbalNotificationContactRepositoryTest extends KernelTestCase
         self::assertSame([], $names, 'A viewer with no active Access Group is restricted and sees no contact.');
     }
 
+    public function testFindAllReturnsAnEmptyPaginatorForARestrictedViewerWithNoAccessGroup(): void
+    {
+        $this->insertContact("anycontact-{$this->tag}");
+
+        $viewerId = $this->createViewer();
+
+        $result = $this->repository->findAll(
+            (new NotificationContactCriteria())->withViewerId(new UserId($viewerId))->withPagination(1, 10)
+        );
+
+        self::assertInstanceOf(
+            Paginator::class,
+            $result,
+            'Pagination metadata (totalItems, page, page size) must survive an empty ACL result, not degrade to a bare array.'
+        );
+        self::assertSame(0, $result->getTotalItems());
+        self::assertSame(1, $result->getCurrentPage());
+        self::assertSame(10, $result->getItemsPerPage());
+        self::assertSame([], $this->names($result));
+    }
+
     public function testFindAllReturnsAContactOnceWhenItMatchesBothAclBranches(): void
     {
         $name = "bothbranches-{$this->tag}";
