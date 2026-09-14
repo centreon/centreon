@@ -33,6 +33,7 @@ use App\MonitoringConfiguration\Domain\Repository\NotificationContactRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\NotificationContact\NotificationContactResource;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Repository\Paginator;
+use App\Shared\Infrastructure\ApiPlatform\State\FilterAwareProviderTrait;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -44,6 +45,8 @@ use Webmozart\Assert\Assert;
  */
 final readonly class ListNotificationContactsProvider implements ProviderInterface
 {
+    use FilterAwareProviderTrait;
+
     /**
      * @param TransformerInterface<NotificationContact, NotificationContactResource> $transformer
      */
@@ -75,7 +78,9 @@ final readonly class ListNotificationContactsProvider implements ProviderInterfa
 
         /** @var array{name?: mixed} $filters */
         $filters = $context['filters'] ?? [];
-        $criteria = $this->handleNameFilter($filters['name'] ?? null, $criteria);
+        if (($name = $this->handleLikeFilter($filters['name'] ?? null, 'name')) !== null) {
+            $criteria = $criteria->withName($name);
+        }
 
         $criteria = $credentialUser->credential->hasUnrestrictedResourceAccess()
             ? $criteria
@@ -97,28 +102,5 @@ final readonly class ListNotificationContactsProvider implements ProviderInterfa
             $contacts->getItemsPerPage(),
             $contacts->getTotalItems()
         );
-    }
-
-    private function handleNameFilter(mixed $nameFilter, NotificationContactCriteria $criteria): NotificationContactCriteria
-    {
-        if ($nameFilter === null) {
-            return $criteria;
-        }
-
-        // a client sending "?name=foo" instead of "?name[lk]=foo" lands here as a plain string
-        if (! is_array($nameFilter)) {
-            throw new BadRequestHttpException('The "name" filter must use the "name[lk]=value" format.');
-        }
-
-        $likeValue = $nameFilter['lk'] ?? null;
-        if (is_array($likeValue)) {
-            $likeValue = reset($likeValue);
-        }
-
-        if (! is_string($likeValue) || $likeValue === '') {
-            return $criteria;
-        }
-
-        return $criteria->withName($likeValue);
     }
 }
