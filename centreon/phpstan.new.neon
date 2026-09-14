@@ -51,9 +51,16 @@ services:
           classes:
               - ApiPlatform\State\ProcessorInterface
               - App\Shared\Infrastructure\Dbal\DbalRepository
-              - App\Shared\Infrastructure\TransformerInterface
-          suffixes:
-              - Criteria
+          # The Domain must be unit-tested: aggregate roots and their value objects (identified
+          # by living under Domain/Aggregate or Domain/ValueObject, with no shared attribute/base).
+          # A trivial <Agg>Id (bare AggregateRootId subclass) is exempted by suffix.
+          # Criteria and transformers are intentionally NOT required here — they may be covered by
+          # the repository/provider integration test instead (team decision, meeting CR).
+          namespaceSegments:
+              - \Domain\Aggregate\
+              - \Domain\ValueObject\
+          excludeSuffixes:
+              - Id
       tags: [phpstan.rules.rule]
 
     - class: Tools\PhpStan\CustomRules\ArchitectureRules\MarkedClassesAreOnlyInvokableRule

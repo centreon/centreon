@@ -1,226 +1,466 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/CommandCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/ActivityLogging/Domain/Aggregate/ActivityLogTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/CommandCriteria.php
+			path: src/App/ActivityLogging/Domain/Aggregate/ActivityLog.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/ConnectorCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/ActivityLogging/Domain/Aggregate/ActorTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/ConnectorCriteria.php
+			path: src/App/ActivityLogging/Domain/Aggregate/Actor.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/GlobalMacroCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/ActivityLogging/Domain/Aggregate/TargetTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/GlobalMacroCriteria.php
+			path: src/App/ActivityLogging/Domain/Aggregate/Target.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCategoryCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/ActivityLogging/Domain/Aggregate/TargetNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCategoryCriteria.php
+			path: src/App/ActivityLogging/Domain/Aggregate/TargetName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/AgentConfigurationTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCriteria.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/AgentConfiguration.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostGroupCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/AgentConfigurationNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostGroupCriteria.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/AgentConfigurationName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostTemplateCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/CmaConfigurationParametersTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostTemplateCriteria.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/CmaConfigurationParameters.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/PollerCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/InstallationCommandTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/PollerCriteria.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/InstallationCommand.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/StandardMacroCriteriaTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/TelegrafConfigurationParametersTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/StandardMacroCriteria.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/AgentConfiguration/TelegrafConfigurationParameters.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceCommandTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerConfigFileNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceCommandTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerConfigFileName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceListCommandTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerConfigKeyTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceListCommandTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerConfigKey.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostCollectionOutputTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerConfigNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostCollectionOutputTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerConfigName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostResourceTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerLogTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostResourceTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/BrokerConfiguration/BrokerLog.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostCategory/HostCategoryCollectionTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Command/CommandTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostCategory/HostCategoryCollectionTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Command/Command.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostGroup/HostGroupCollectionOutputTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Command/CommandCommentTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostGroup/HostGroupCollectionOutputTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Command/CommandComment.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostTemplate/HostTemplateCollectionOutputTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Command/CommandNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostTemplate/HostTemplateCollectionOutputTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Command/CommandName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/PollerCollectionOutputTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/PollerCollectionOutputTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Connector/Connector.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/ResourcePollerTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorCommandLineTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/ResourcePollerTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorCommandLine.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceConnectorTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorDescriptionTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceConnectorTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorDescription.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceGlobalMacroTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceGlobalMacroTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Connector/ConnectorName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceListPluginTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/BrokerOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceListPluginTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/BrokerOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourcePluginTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/CheckExecutionOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourcePluginTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/CheckExecutionOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceServiceCategoryTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/EngineConfigurationTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceServiceCategoryTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/EngineConfiguration.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceStandardMacroTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/EngineLoggerConfigurationTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceStandardMacroTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/EngineLoggerConfiguration.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalAgentConfigurationTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/FreshnessAndFlapOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalAgentConfigurationTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/FreshnessAndFlapOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalCommandTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/LoggingOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalCommandTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/LoggingOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalConnectorTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/MiscOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalConnectorTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/MiscOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalGlobalMacroTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/RetentionOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalGlobalMacroTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/RetentionOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostGroupTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/SchedulingOptionsTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostGroupTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/EngineConfiguration/SchedulingOptions.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacro.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalOptionTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroCommentTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalOptionTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroComment.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalPlatformMetadataTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroExpressionTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalPlatformMetadataTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroExpression.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalServiceCategoryTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalServiceCategoryTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/GlobalMacro/GlobalMacroName.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalStandardMacroTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Host/HostTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalStandardMacroTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Host/Host.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/HostCategoryTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/HostCategory/HostCategoryTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/HostCategoryTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/HostCategory/HostCategory.php
 
 		-
-			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/HostTemplateTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/HostCategory/HostCategoryNameTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/HostTemplateTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/HostCategory/HostCategoryName.php
 
 		-
-			message: '#^The test class tests/php/App/Security/Infrastructure/Dbal/DbalOpenIdConfigurationTransformerTest\.php is missing$#'
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/HostGroup/HostGroupTest\.php is missing$#'
 			identifier: test.class
 			count: 1
-			path: src/App/Security/Infrastructure/Dbal/DbalOpenIdConfigurationTransformer.php
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/HostGroup/HostGroup.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/HostTemplate/HostTemplateTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/HostTemplate/HostTemplate.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/HostTemplate/HostTemplateNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/HostTemplate/HostTemplateName.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Option/OptionTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Option/Option.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Option/OptionNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Option/OptionName.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Option/OptionValueTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Option/OptionValue.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/PlatformMetadata/PlatformMetadataTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/PlatformMetadata/PlatformMetadata.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/PlatformMetadata/PlatformMetadataNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/PlatformMetadata/PlatformMetadataName.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/PlatformMetadata/PlatformMetadataValueTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/PlatformMetadata/PlatformMetadataValue.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Plugin/Plugin.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginCommandLineTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginCommandLine.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginDescriptionTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginDescription.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Plugin/PluginName.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/BrokerInformationTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/BrokerInformation.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/CMACertificateCNTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/CMACertificateCN.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/CMACertificateSHATest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/CMACertificateSHA.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/ConnectorConfigurationTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/ConnectorConfiguration.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/EngineInformationTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/EngineInformation.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/GorgoneConfigurationTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/GorgoneConfiguration.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/Poller.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerAddressTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerAddress.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerCMACertificatesTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerCMACertificates.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerCommandTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerCommand.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerName.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerRemoteAttachmentTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerRemoteAttachment.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerUidTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/PollerUid.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/Poller/TrapConfigurationTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/Poller/TrapConfiguration.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/ServiceCategory/ServiceCategoryTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/ServiceCategory/ServiceCategory.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/ServiceCategory/ServiceCategoryNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/ServiceCategory/ServiceCategoryName.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/StandardMacro/StandardMacroTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/StandardMacro/StandardMacro.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Aggregate/StandardMacro/StandardMacroNameTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Aggregate/StandardMacro/StandardMacroName.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/CredentialIdentifierTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/CredentialIdentifier.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/PermissionTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Permission.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/Provider/OpenId/AbsoluteUrlTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Provider/OpenId/AbsoluteUrl.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/Provider/OpenId/ClientSecretTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Provider/OpenId/ClientSecret.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/Provider/OpenId/ConnectionScopeTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Provider/OpenId/ConnectionScope.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/Provider/OpenId/LoginClaimTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Provider/OpenId/LoginClaim.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/Provider/OpenId/OpenIdConfigurationTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Provider/OpenId/OpenIdConfiguration.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/Provider/OpenId/UrlTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Provider/OpenId/Url.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/RoleTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Role.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Domain/Aggregate/TokenTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Domain/Aggregate/Token.php
 
 		-
 			message: '#^Trait App\\Shared\\Domain\\Repository\\PaginableCriteriaTrait is used zero times and is not analysed\.$#'
