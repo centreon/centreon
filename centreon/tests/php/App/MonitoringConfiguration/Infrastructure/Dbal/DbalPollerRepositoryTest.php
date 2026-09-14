@@ -28,6 +28,12 @@ use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroComment;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroExpression;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroId;
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\BrokerInformation;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\ConnectorConfiguration;
@@ -44,6 +50,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Poller\TrapConfiguration;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\PollerCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
@@ -275,6 +282,35 @@ final class DbalPollerRepositoryTest extends KernelTestCase
 
         self::assertCount(1, $pollers);
         self::assertSame('Poller-A', iterator_to_array($pollers)[0]->name->value);
+    }
+
+    public function testFlagAsChangedSetsTheUpdatedColumn(): void
+    {
+        $this->connection->update('nagios_server', ['updated' => '0'], ['id' => 1]);
+
+        $this->repository->flagAsChanged($this->buildHost(pollerId: 1));
+
+        self::assertSame('1', $this->connection->fetchOne('SELECT updated FROM nagios_server WHERE id = :id', ['id' => 1]));
+    }
+
+    private function buildHost(int $pollerId): Host
+    {
+        $host = new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId($pollerId),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($host, new HostId(1));
+
+        return $host;
     }
 
     private function insertPoller(int $id, string $name, bool $isCentral = false): void

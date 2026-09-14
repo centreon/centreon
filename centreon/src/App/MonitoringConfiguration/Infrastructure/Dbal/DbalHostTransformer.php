@@ -28,6 +28,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAlias;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Collection;
@@ -49,6 +50,13 @@ final readonly class DbalHostTransformer implements TransformerInterface
             }
         }
 
+        $groupIds = [];
+        if ($from['group_ids'] !== null && $from['group_ids'] !== '') {
+            foreach (explode(',', $from['group_ids']) as $groupId) {
+                $groupIds[] = new HostGroupId((int) $groupId);
+            }
+        }
+
         $alias = $from['alias'] !== null ? trim($from['alias']) : '';
 
         return new Host(
@@ -59,6 +67,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
             activated: $from['is_activated'] === '1',
             pollerId: new PollerId((int) $from['poller_id']),
             templateIds: new Collection($templateIds, HostTemplateId::class),
+            hostGroupIds: new Collection($groupIds, HostGroupId::class),
         );
     }
 }

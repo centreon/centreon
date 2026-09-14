@@ -23,18 +23,28 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Aggregate\Host\Host;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostAddress;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
+use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategoryId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostSeverity\HostSeverityId;
+use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\Security\Domain\Aggregate\AccessGroupId;
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
+use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class DbalResourceAccessRepositoryTest extends KernelTestCase
 {
     private Connection $connection;
+
+    private Connection $realTimeConnection;
 
     // Constructed directly rather than fetched from the container: it keeps the ACL fixtures
     // this test builds (acl_groups / acl_resources / relations) fully isolated from whatever
@@ -47,12 +57,52 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $connection = self::getContainer()->get('doctrine.dbal.default_connection');
         $this->connection = $connection;
 
-        $this->repository = new DbalResourceAccessRepository($this->connection);
+        /** @var Connection $realTimeConnection */
+        $realTimeConnection = self::getContainer()->get('doctrine.dbal.realtime_connection');
+        $this->realTimeConnection = $realTimeConnection;
+
+        $this->repository = new DbalResourceAccessRepository($this->connection, $realTimeConnection);
 
         $this->connection->insert('nagios_server', ['id' => 101, 'name' => 'Poller-101', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.101', 'uid' => 200000000000101]);
         $this->connection->insert('nagios_server', ['id' => 102, 'name' => 'Poller-102', 'localhost' => '0', 'ns_activate' => '1', 'ns_ip_address' => '10.0.0.102', 'uid' => 200000000000102]);
         $this->connection->insert('hostgroup', ['hg_id' => 201, 'hg_name' => 'HostGroup-201']);
         $this->connection->insert('hostgroup', ['hg_id' => 202, 'hg_name' => 'HostGroup-202']);
+    }
+
+    public function testGrantResourceAccessSeedsCentreonAclForEachGivenGroup(): void
+    {
+        $host = $this->buildHost(9001);
+
+        $this->repository->grantResourceAccess($host, new Collection([new AccessGroupId(10), new AccessGroupId(20)], AccessGroupId::class));
+
+        /** @var list<array{group_id: int|string, host_id: int|string, service_id: int|string|null}> $rows */
+        $rows = $this->realTimeConnection->fetchAllAssociative(
+            'SELECT group_id, host_id, service_id FROM centreon_acl WHERE host_id = ? ORDER BY group_id',
+            [9001],
+        );
+
+        self::assertCount(2, $rows);
+        self::assertSame(10, (int) $rows[0]['group_id']);
+        self::assertNull($rows[0]['service_id']);
+        self::assertSame(20, (int) $rows[1]['group_id']);
+    }
+
+    public function testFlagAllResourcesAsChangedFlagsEveryAclResource(): void
+    {
+        $this->connection->insert('acl_resources', ['acl_res_name' => 'r1', 'acl_res_alias' => 'r1', 'acl_res_activate' => '1', 'changed' => '0']);
+        $firstId = (int) $this->connection->lastInsertId();
+        $this->connection->insert('acl_resources', ['acl_res_name' => 'r2', 'acl_res_alias' => 'r2', 'acl_res_activate' => '1', 'changed' => '0']);
+        $secondId = (int) $this->connection->lastInsertId();
+
+        $this->repository->flagAllResourcesAsChanged();
+
+        /** @var int|string $firstChanged */
+        $firstChanged = $this->connection->fetchOne('SELECT changed FROM acl_resources WHERE acl_res_id = ?', [$firstId]);
+        /** @var int|string $secondChanged */
+        $secondChanged = $this->connection->fetchOne('SELECT changed FROM acl_resources WHERE acl_res_id = ?', [$secondId]);
+
+        self::assertSame(1, (int) $firstChanged);
+        self::assertSame(1, (int) $secondChanged);
     }
 
     public function testUserWithNoAclGroupSeesNoHostSeverity(): void
@@ -317,6 +367,26 @@ final class DbalResourceAccessRepositoryTest extends KernelTestCase
         $userId = new UserId($contactId);
 
         self::assertNull($this->repository->findAccessibleHostGroupIds($userId));
+    }
+
+    private function buildHost(int $id): Host
+    {
+        $host = new Host(
+            id: null,
+            name: new HostName('server-01'),
+            alias: null,
+            address: new HostAddress('127.0.0.1'),
+            activated: true,
+            pollerId: new PollerId(1),
+            templateIds: new Collection([], HostTemplateId::class),
+            hostGroupIds: new Collection([], HostGroupId::class),
+        );
+
+        $reflection = new \ReflectionProperty(AggregateRoot::class, 'id');
+        $reflection->setAccessible(true);
+        $reflection->setValue($host, new HostId($id));
+
+        return $host;
     }
 
     private function insertHostSeverity(string $name): int
