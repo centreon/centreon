@@ -37,13 +37,16 @@ use PHPStan\Rules\RuleErrorBuilder;
 final readonly class MarkedClassesHaveTestRule implements Rule
 {
     /**
-     * @param list<class-string> $attributes
-     * @param list<class-string> $classes
+     * @param list<class-string> $attributes marks a class eligible when it carries one of these attributes
+     * @param list<class-string> $classes marks a class eligible when it is (a subclass/implementation of) one of these
+     * @param list<string> $suffixes marks a class eligible when its short name ends with one of these — for
+     *                                families with no shared attribute or base (e.g. `Criteria`)
      */
     public function __construct(
         private ReflectionProvider $reflectionProvider,
         private array $attributes = [],
         private array $classes = [],
+        private array $suffixes = [],
     ) {
     }
 
@@ -101,6 +104,12 @@ final readonly class MarkedClassesHaveTestRule implements Rule
 
         foreach ($this->classes as $class) {
             if (! $reflection->isAbstract() && ($reflection->getName() === $class || $reflection->isSubclassOfClass($this->reflectionProvider->getClass($class)))) {
+                return true;
+            }
+        }
+
+        foreach ($this->suffixes as $suffix) {
+            if (! $reflection->isAbstract() && str_ends_with($reflection->getName(), $suffix)) {
                 return true;
             }
         }

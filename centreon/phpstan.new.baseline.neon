@@ -1,6 +1,228 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/CommandCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/CommandCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/ConnectorCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/ConnectorCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/GlobalMacroCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/GlobalMacroCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCategoryCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCategoryCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostGroupCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostGroupCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/HostTemplateCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/HostTemplateCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/PollerCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/PollerCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Domain/Repository/Criteria/StandardMacroCriteriaTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Domain/Repository/Criteria/StandardMacroCriteria.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceCommandTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceCommandTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceListCommandTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Command/ResourceListCommandTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostCollectionOutputTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostCollectionOutputTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostResourceTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Host/HostResourceTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostCategory/HostCategoryCollectionTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostCategory/HostCategoryCollectionTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostGroup/HostGroupCollectionOutputTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostGroup/HostGroupCollectionOutputTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostTemplate/HostTemplateCollectionOutputTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/HostTemplate/HostTemplateCollectionOutputTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/PollerCollectionOutputTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/PollerCollectionOutputTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/ResourcePollerTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/Poller/ResourcePollerTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceConnectorTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceConnectorTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceGlobalMacroTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceGlobalMacroTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceListPluginTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceListPluginTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourcePluginTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourcePluginTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceServiceCategoryTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceServiceCategoryTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceStandardMacroTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/State/ResourceStandardMacroTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalAgentConfigurationTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalAgentConfigurationTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalCommandTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalCommandTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalConnectorTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalConnectorTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalGlobalMacroTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalGlobalMacroTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostGroupTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostGroupTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalHostTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalOptionTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalOptionTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalPlatformMetadataTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalPlatformMetadataTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalServiceCategoryTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalServiceCategoryTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/DbalStandardMacroTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/DbalStandardMacroTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/HostCategoryTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/HostCategoryTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/MonitoringConfiguration/Infrastructure/Dbal/HostTemplateTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/MonitoringConfiguration/Infrastructure/Dbal/HostTemplateTransformer.php
+
+		-
+			message: '#^The test class tests/php/App/Security/Infrastructure/Dbal/DbalOpenIdConfigurationTransformerTest\.php is missing$#'
+			identifier: test.class
+			count: 1
+			path: src/App/Security/Infrastructure/Dbal/DbalOpenIdConfigurationTransformer.php
+
+		-
 			message: '#^Trait App\\Shared\\Domain\\Repository\\PaginableCriteriaTrait is used zero times and is not analysed\.$#'
 			identifier: trait.unused
 			count: 1
