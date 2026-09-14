@@ -83,7 +83,9 @@ chmod($centreonConfFile, 0640);
 $centreonConfPmFile = $centreonEtcPath . '/conf.pm';
 $contents = file_get_contents('../../var/configFilePmTemplate');
 $contents = str_replace(array_keys($macroReplacements), array_values($macroReplacements), $contents);
+$oldMask = umask(0137);
 file_put_contents($centreonConfPmFile, $contents);
+umask($oldMask);
 
 /**
  * Database configuration file
