@@ -1,0 +1,223 @@
+name: qa-ticket-verify
+
+# Drives the qa-ticket-verify skill headlessly: reads a Jira ticket, finds its PR, spins up
+# that PR's build in Docker, exercises it with Playwright, posts a report as a Jira comment.
+# Never transitions the ticket itself.
+#
+# Secrets: CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`, personal for now — migrate to
+# a service seat before team-wide rollout). JIRA_BASE_URL / XRAY_JIRA_USER_EMAIL /
+# XRAY_JIRA_TOKEN are reused from the existing Xray reporting workflows.
+
+on:
+  workflow_dispatch:
+    inputs:
+      jira_key:
+        description: "Jira ticket key to verify (e.g. MON-207985)"
+        required: true
+        type: string
+        default: "MON-207985"
+  push:
+    branches:
+      - qa-ticket-verify-skill
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
+  cancel-in-progress: false
+
+jobs:
+  qa-verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Login to Docker registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+
+      - name: Install ffmpeg for Playwright video recording
+        run: npx -y playwright install ffmpeg
+
+      - name: Find linked PR
+        id: find_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+          CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          pr_json_raw=$(gh pr list --repo centreon/centreon --search "$TICKET_KEY in:title,body" --state all \
+            --json number,url,headRefName,isDraft,updatedAt,state)
+          # Exclude this workflow's own branch — its PR description mentions ticket keys
+          # too and, being frequently updated, can outrank the ticket's real PR.
+          pr_json=$(echo "$pr_json_raw" | jq --arg branch "$CURRENT_BRANCH" '[.[] | select(.headRefName != $branch)]')
+          count=$(echo "$pr_json" | jq 'length')
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No PR found referencing $TICKET_KEY (searched title/body for the key, excluding this workflow's own branch $CURRENT_BRANCH)"
+            exit 1
+          fi
+          open_pr=$(echo "$pr_json" | jq '[.[] | select(.state == "OPEN" and (.isDraft | not))] | sort_by(.updatedAt) | last')
+          if [ "$open_pr" = "null" ]; then
+            selected=$(echo "$pr_json" | jq 'sort_by(.updatedAt) | last')
+          else
+            selected="$open_pr"
+          fi
+          number=$(echo "$selected" | jq -r '.number')
+          head_ref=$(echo "$selected" | jq -r '.headRefName')
+          url=$(echo "$selected" | jq -r '.url')
+          if [ "$count" -gt 1 ]; then
+            echo "::warning::$count PRs matched $TICKET_KEY, picked #$number ($url) — see the final report for the full list"
+          fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$head_ref" >> "$GITHUB_OUTPUT"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Found PR #$number ($url) on branch $head_ref for $TICKET_KEY"
+
+      - name: Resolve image tag and start local environment
+        id: start_env
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ steps.find_pr.outputs.head_ref }}
+          PR_NUMBER: ${{ steps.find_pr.outputs.number }}
+        run: |
+          # Don't hardcode the OS variant — read what this PR's own CI actually built.
+          os_variant=$(gh pr checks "$PR_NUMBER" --repo centreon/centreon --json name --jq '.[].name' \
+            | grep -oP 'alma\d+' | sort | uniq -c | sort -rn | head -1 | grep -oP 'alma\d+' || true)
+          if [ -z "$os_variant" ]; then
+            echo "::warning::Could not detect the OS variant from PR #$PR_NUMBER's checks, defaulting to alma9"
+            os_variant="alma9"
+          fi
+          image="docker.centreon.com/centreon/centreon-web-slim-${os_variant}:${HEAD_REF}"
+          echo "web_image=$image" >> "$GITHUB_OUTPUT"
+          echo "Resolved image: $image"
+
+          attempts=0
+          max_attempts=5
+          until WEB_IMAGE="$image" docker compose -f .github/docker/docker-compose.yml up -d --wait; do
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge "$max_attempts" ]; then
+              echo "::error::$image never became healthy after $max_attempts attempts"
+              docker compose -f .github/docker/docker-compose.yml logs web --tail 100 || true
+              exit 1
+            fi
+            echo "Not ready yet (attempt $attempts/$max_attempts, the PR's image may still be building) — waiting 60s"
+            docker compose -f .github/docker/docker-compose.yml down -v || true
+            sleep 60
+          done
+          curl -sf http://localhost:4000/centreon/login > /dev/null \
+            && echo "Centreon is reachable at http://localhost:4000/centreon"
+
+          # The healthchecks above don't prove the app can run a DB-backed query end to
+          # end. --skip-ssl matches the server's MARIADB_EXTRA_FLAGS in docker-compose.yml.
+          if ! db_version=$(docker compose -f .github/docker/docker-compose.yml exec -T db \
+            mariadb -uroot -pcentreon --skip-ssl -N -e "SELECT VERSION();"); then
+            echo "::error::Database container is up but did not answer a real SQL query"
+            docker compose -f .github/docker/docker-compose.yml logs db --tail 100 || true
+            exit 1
+          fi
+          echo "Database is answering queries (MariaDB $db_version)"
+
+          app_version=$(curl -sf http://localhost:4000/centreon/api/latest/platform/versions | jq -r '.web // empty')
+          if [ -z "$app_version" ]; then
+            echo "::error::Web app responded but the DB-backed /platform/versions endpoint returned no version — DB wiring may be broken"
+            exit 1
+          fi
+          echo "App confirms DB connectivity (web version $app_version)"
+
+      - name: Run QA verification
+        id: qa
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+          PR_NUMBER: ${{ steps.find_pr.outputs.number }}
+          PR_URL: ${{ steps.find_pr.outputs.url }}
+          TRIGGERED_BY: ${{ github.actor }}
+        run: |
+          set -o pipefail  # otherwise `| tee` makes this step "succeed" even when claude fails
+          claude -p "Use the qa-ticket-verify skill (see .claude/skills/qa-ticket-verify/SKILL.md) \
+            to verify Jira ticket $TICKET_KEY. You are running in CI: no human is present and no \
+            mcp__claude_ai_Atlassian__* tools are available — follow every 'CI:' branch in that \
+            skill's instructions exactly, especially for Jira access (curl with \$JIRA_EMAIL / \
+            \$JIRA_API_TOKEN, never mcp__claude_ai_Atlassian__*) and the final report step (post it \
+            as a Jira comment yourself via curl, then stop — do not wait for further input). \
+            The linked PR (#$PR_NUMBER, $PR_URL) was already found and the local environment is \
+            already up and reachable at http://localhost:4000/centreon — skip skill step 2's PR \
+            search and step 6's docker startup, go straight to fetching the PR's body/diff with \
+            'gh pr view $PR_NUMBER' / 'gh pr diff $PR_NUMBER' and continue from step 3. Do not \
+            run 'docker compose down' yourself, the workflow tears the environment down after. \
+            This run was triggered by GitHub user $TRIGGERED_BY." \
+            --mcp-config .claude/skills/qa-ticket-verify/mcp-config.ci.json \
+            --strict-mcp-config \
+            --allowedTools "Bash,Read,Edit,Write,Grep,Glob,mcp__playwright__browser_navigate,mcp__playwright__browser_snapshot,mcp__playwright__browser_click,mcp__playwright__browser_type,mcp__playwright__browser_wait_for,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_evaluate,mcp__playwright__browser_select_option,mcp__playwright__browser_press_key,mcp__playwright__browser_find,mcp__playwright__browser_close" \
+            --permission-mode bypassPermissions \
+            --max-budget-usd 3 \
+            --verbose \
+            --output-format stream-json \
+            | tee claude-output.jsonl \
+            | jq -R --unbuffered '
+                try (fromjson) catch empty
+                | if .type == "system" and .subtype == "init" then
+                    "STEP: session started (model=" + (.model // "?") + ")"
+                  elif .type == "assistant" then
+                    (.message.content // [])[] |
+                    if .type == "tool_use" then
+                      "STEP: -> " + .name + " " + ((.input // {}) | tostring | .[0:150])
+                    elif .type == "text" and ((.text // "") | length) > 0 then
+                      "STEP: " + ((.text // "") | .[0:300] | gsub("\n"; " "))
+                    else empty end
+                  elif .type == "result" then
+                    "STEP: === finished (" + (.subtype // "?") + ") ==="
+                  else empty end
+              ' \
+            | tee claude-progress.log
+
+      - name: Post failure notice to Jira if the run errored before reporting
+        if: failure()
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.XRAY_JIRA_TOKEN }}
+          TICKET_KEY: ${{ inputs.jira_key || 'MON-207985' }}
+        run: |
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          curl -su "$JIRA_EMAIL:$JIRA_API_TOKEN" -X POST -H "Content-Type: application/json" \
+            "$JIRA_BASE_URL/rest/api/3/issue/$TICKET_KEY/comment" \
+            --data "$(jq -n --arg text "qa-ticket-verify failed before producing a report. Logs: $run_url" \
+              '{body:{type:"doc",version:1,content:[{type:"paragraph",content:[{type:"text",text:$text}]}]}}')"
+        continue-on-error: true # never let a notification failure mask the real job failure
+
+      - name: Tear down environment
+        if: always()
+        run: docker compose -f .github/docker/docker-compose.yml down -v || true
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: qa-ticket-verify-${{ inputs.jira_key || 'MON-207985' }}
+          path: |
+            claude-output.jsonl
+            claude-progress.log
+            .claude/skills/qa-ticket-verify/runs/*.feature
+            .claude/skills/qa-ticket-verify/selectors.json
+            playwright-mcp-output/**
+          retention-days: 14
+          if-no-files-found: warn
