@@ -21,19 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal\ContactGroup;
+namespace Tests\App\MonitoringConfiguration\Domain\Aggregate\ContactGroup;
 
-use App\MonitoringConfiguration\Infrastructure\Dbal\ContactGroup\ContactGroupTransformer;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroup;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupId;
+use App\MonitoringConfiguration\Domain\Aggregate\ContactGroup\ContactGroupName;
 use PHPUnit\Framework\TestCase;
 
-final class ContactGroupTransformerTest extends TestCase
+final class ContactGroupTest extends TestCase
 {
-    public function testTransformMapsARowToTheAggregate(): void
+    public function testExposesItsIdentityAndName(): void
     {
-        $contactGroup = (new ContactGroupTransformer())->transform([
-            'cg_id' => 42,
-            'cg_name' => 'Supervisors',
-        ]);
+        $contactGroup = new ContactGroup(new ContactGroupId(42), new ContactGroupName('Supervisors'));
 
         self::assertSame(42, $contactGroup->id()->value);
         self::assertSame('Supervisors', $contactGroup->name->value);
