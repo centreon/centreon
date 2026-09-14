@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ use Centreon\Domain\Log\LoggerTrait;
 class Matrix42Provider extends AbstractProvider
 {
     use LoggerTrait;
-
     public const ARG_SUBJECT = 1;
     public const ARG_DESCRIPTION = 2;
     public const ARG_PRIORITY = 3;
@@ -36,7 +35,6 @@ class Matrix42Provider extends AbstractProvider
     public const ARG_ASSET = 9;
     public const ARG_CATEGORY = 10;
     public const ARG_RESPONSIBLE_ROLE = 11;
-
     public const MATRIX42_USER_TYPE = 20;
     public const MATRIX42_SERVICE_TYPE = 21;
     public const MATRIX42_ASSET_TYPE = 22;
@@ -166,6 +164,34 @@ class Matrix42Provider extends AbstractProvider
         }
 
         return true;
+    }
+
+    /*
+     * check if the close option is enabled, if so, try to close every selected ticket
+     *
+     * @param {array} $tickets
+     *
+     * @return void
+     */
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $ticketId => $v) {
+                try {
+                    $this->closeTicketMatrix42($ticketId);
+                    $tickets[$ticketId]['status'] = 2;
+                } catch (Exception $e) {
+                    if ($this->doCloseTicketContinueOnError()) {
+                        $tickets[$ticketId]['status'] = 2;
+                    } else {
+                        $tickets[$ticketId]['status'] = -1;
+                        $tickets[$ticketId]['msg_error'] = $e->getMessage();
+                    }
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
     }
 
     // Set default values for our rule form options
@@ -790,34 +816,6 @@ class Matrix42Provider extends AbstractProvider
         }
 
         return $ticketId;
-    }
-
-    /*
-     * check if the close option is enabled, if so, try to close every selected ticket
-     *
-     * @param {array} $tickets
-     *
-     * @return void
-     */
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $ticketId => $v) {
-                try {
-                    $this->closeTicketMatrix42($ticketId);
-                    $tickets[$ticketId]['status'] = 2;
-                } catch (Exception $e) {
-                    if ($this->doCloseTicketContinueOnError()) {
-                        $tickets[$ticketId]['status'] = 2;
-                    } else {
-                        $tickets[$ticketId]['status'] = -1;
-                        $tickets[$ticketId]['msg_error'] = $e->getMessage();
-                    }
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
     }
 
     /*
