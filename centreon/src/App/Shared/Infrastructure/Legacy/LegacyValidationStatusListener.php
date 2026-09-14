@@ -49,10 +49,10 @@ use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
  * (e.g. `downtime_inheritance_mode`) instead of leaking the raw camelCase PHP property name.
  */
 #[AsEventListener]
-final class LegacyValidationStatusListener
+final readonly class LegacyValidationStatusListener
 {
     public function __construct(
-        private readonly NameConverterInterface $nameConverter,
+        private NameConverterInterface $nameConverter,
     ) {
     }
 
