@@ -43,6 +43,8 @@
             matchingValues.push($option.val());
         } else {
             $option.remove();
+        if (matches) {
+            matchingValues.push($option.val());
         }
     });
 
