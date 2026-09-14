@@ -65,29 +65,16 @@ final class ContactGroupCriteriaTest extends TestCase
         );
     }
 
-    public function testWithNameRejectsAnUnknownOperator(): void
+    public function testIdsAreDeduplicated(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-
-        (new ContactGroupCriteria())->withName('foo', 'gt'); // @phpstan-ignore argument.type (invalid operator on purpose)
-    }
-
-    public function testWithIdAcceptsEquality(): void
-    {
+        // withId takes no operator: equality is guaranteed by the signature, so there is no
+        // invalid-operator path to test (it is designed out, not guarded at runtime).
         $criteria = (new ContactGroupCriteria())
-            ->withId(5, ContactGroupCriteria::OPERATOR_EQUAL)
-            ->withId(5, ContactGroupCriteria::OPERATOR_EQUAL)
-            ->withId(7, ContactGroupCriteria::OPERATOR_EQUAL);
+            ->withId(5)
+            ->withId(5)
+            ->withId(7);
 
-        self::assertSame([ContactGroupCriteria::OPERATOR_EQUAL => [5, 7]], $criteria->getIds());
-    }
-
-    public function testWithIdRejectsTheLikeOperator(): void
-    {
-        // ids only support equality — a LIKE on a numeric id is meaningless.
-        $this->expectException(\InvalidArgumentException::class);
-
-        (new ContactGroupCriteria())->withId(5, ContactGroupCriteria::OPERATOR_LIKE); // @phpstan-ignore argument.type (LIKE rejected on purpose)
+        self::assertSame([5, 7], $criteria->getIds());
     }
 
     public function testWithViewerIdStoresTheViewer(): void

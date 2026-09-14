@@ -39,7 +39,7 @@ final class ContactGroupCriteria
     /** @var array<self::OPERATOR_*, list<string>> */
     private array $names = [];
 
-    /** @var array<self::OPERATOR_EQUAL, list<int>> */
+    /** @var list<int> ids are only ever matched by equality */
     private array $ids = [];
 
     private ?UserId $viewerId = null;
@@ -75,19 +75,18 @@ final class ContactGroupCriteria
     }
 
     /**
-     * @param self::OPERATOR_EQUAL $operator ids only support equality, not "like"
+     * Ids are matched by equality only (a "like" on a numeric id is meaningless), so this
+     * takes no operator — equality is guaranteed by the signature, not by a runtime guard.
      */
-    public function withId(int $id, string $operator): self
+    public function withId(int $id): self
     {
         Assert::positiveInteger($id);
-        Assert::same($operator, self::OPERATOR_EQUAL);
 
-        $ids = $this->ids[$operator] ?? [];
+        $ids = $this->ids;
         $ids[] = $id;
-        $ids = array_values(array_unique($ids));
 
         $new = clone $this;
-        $new->ids[$operator] = $ids;
+        $new->ids = array_values(array_unique($ids));
 
         return $new;
     }
@@ -122,7 +121,7 @@ final class ContactGroupCriteria
     }
 
     /**
-     * @return array<self::OPERATOR_EQUAL, list<int>>
+     * @return list<int>
      */
     public function getIds(): array
     {

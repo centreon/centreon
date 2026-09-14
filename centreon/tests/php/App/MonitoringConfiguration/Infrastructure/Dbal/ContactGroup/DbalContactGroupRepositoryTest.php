@@ -166,7 +166,7 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("skipped_{$suffix}");
 
         $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withId($wantedId, ContactGroupCriteria::OPERATOR_EQUAL)
+            (new ContactGroupCriteria())->withId($wantedId)
         ));
 
         self::assertSame(["wanted_{$suffix}"], $names);

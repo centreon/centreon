@@ -148,14 +148,12 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 ));
             }
         }
-        // The id filter only supports equality: a "like" on a numeric id would match unrelated ids.
-        if ($idCriteria = $criteria->getIds()) {
-            foreach ($idCriteria as $ids) {
-                $qb->andWhere($qb->expr()->in(
-                    'cg.cg_id',
-                    $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
-                ));
-            }
+        // Ids are matched by equality only (a "like" on a numeric id is meaningless).
+        if ($ids = $criteria->getIds()) {
+            $qb->andWhere($qb->expr()->in(
+                'cg.cg_id',
+                $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
+            ));
         }
     }
 
