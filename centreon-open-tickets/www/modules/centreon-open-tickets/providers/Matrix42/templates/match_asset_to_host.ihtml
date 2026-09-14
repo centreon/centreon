@@ -15,7 +15,7 @@
     {/if}
     {literal}
     var noAssetMatchMessage = "{/literal}{t}No Matrix42 asset name matches the selected host(s).{/t}{literal}";
-    var multipleMatchMessage = "{/literal}{t}Matrix42 asset name matches the selected host(s).{/t}{literal}";
+    var multipleMatchMessage = "{/literal}{t}Matrix42 asset names match the selected host(s).{/t}{literal}";
     var hostNames = [
 {/literal}
 {foreach from=$host_selected item=host}
