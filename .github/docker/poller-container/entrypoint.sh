@@ -8,14 +8,23 @@
 #      container on the shared `centreon-poller-test` network
 #   4. run the generated command with --no-start, attach the resulting
 #      poller docker-compose.yaml to that shared network, then start it
-#   5. wait for the poller's gorgone to complete its first successful ping to
-#      central, then trigger a generate-and-reload so the poller actually
-#      gets its monitoring configuration and centengine restarts
+#   5. wait for the poller's first successful ping, checked from the CENTRAL
+#      side via Gorgone's own local API (not by grepping the poller's logs),
+#      then trigger a generate-and-reload so the poller actually gets its
+#      monitoring configuration, and restart centengine
 set -u
 
 apk add --no-cache curl jq bash >/dev/null
 
 CENTRAL_BASE="http://web/centreon/api/latest"
+# Gorgone's core httpserver module (enabled by default, unrelated to the
+# proxy module's httpserver on port 8087) exposes node connection status —
+# more reliable than checking the poller's own logs or its TCP socket state,
+# and it's central-side so it also covers what the poller stack's own
+# generated Docker healthcheck (a raw /proc/net/tcp grep) cannot: the
+# poller's Gorgone only loads the `engine`+`pullwss` modules, not `proxy`,
+# so it can't report its own connection status — only the central can.
+GORGONE_API_BASE="http://web:8085/api/internal"
 POLLER_TOKEN_NAME="poller-container-token"
 
 echo "== Logging in to ${CENTRAL_BASE} =="
@@ -75,22 +84,30 @@ printf '\nnetworks:\n  default:\n    name: centreon-poller-test\n    external: t
 echo "== Starting the poller stack =="
 docker compose up -d
 
-echo "== Waiting for the poller's gorgone to complete its first successful ping to central =="
+echo "== Waiting for the poller's first successful ping (via Gorgone's constatus API on central) =="
 PING_TIMEOUT=180
 PING_INTERVAL=5
 i=0
-until docker compose logs gorgone 2>/dev/null | grep -q '"message":"ping ok"'; do
+while true; do
+  PING_OK=$(curl -s "${GORGONE_API_BASE}/constatus" 2>/dev/null | jq -r --arg id "${POLLER_ID}" '.data[$id].ping_ok // 0' 2>/dev/null)
+  case "${PING_OK}" in
+    ''|*[!0-9]*) PING_OK=0 ;;
+  esac
+  if [ "${PING_OK}" -gt 0 ]; then
+    echo "First ping received (ping_ok=${PING_OK} for node id ${POLLER_ID})."
+    break
+  fi
   i=$((i + 1))
   if [ "${i}" -ge "${PING_TIMEOUT}" ]; then
-    echo "Timed out after $((PING_TIMEOUT * PING_INTERVAL / 60)) minutes waiting for a first ping from the poller." >&2
-    echo "The poller stack is still up in ${WORKDIR} — check 'docker compose logs gorgone' there, then re-run manually once it connects:" >&2
+    echo "Timed out after $((PING_TIMEOUT * PING_INTERVAL / 60)) minutes waiting for a first ping from the poller (node id ${POLLER_ID})." >&2
+    echo "Check node status manually: curl ${GORGONE_API_BASE}/constatus" >&2
+    echo "The poller stack is still up in ${WORKDIR} — once it connects, re-run manually:" >&2
     echo "  curl -X GET -H \"X-AUTH-TOKEN: <token>\" ${CENTRAL_BASE}/configuration/monitoring-servers/${POLLER_ID}/generate-and-reload" >&2
     echo "  docker compose --project-directory ${WORKDIR} exec gorgone sudo systemctl restart centengine" >&2
     exit 1
   fi
   sleep "${PING_INTERVAL}"
 done
-echo "First ping received."
 
 echo "== Generating and reloading the monitoring configuration for poller '${POLLER_NAME}' (ID: ${POLLER_ID}) =="
 GEN_HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 120 \
