@@ -132,19 +132,6 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         self::assertNotContains("unreachable_{$suffix}", $names);
     }
 
-    public function testFindAllFiltersByNameUsingEquals(): void
-    {
-        $suffix = bin2hex(random_bytes(6));
-        $this->insertContactGroup("exact_{$suffix}");
-        $this->insertContactGroup("other_{$suffix}");
-
-        $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withName("exact_{$suffix}", ContactGroupCriteria::OPERATOR_EQUAL)
-        ));
-
-        self::assertSame(["exact_{$suffix}"], $names);
-    }
-
     public function testFindAllFiltersByNameUsingLike(): void
     {
         $suffix = bin2hex(random_bytes(6));
@@ -152,24 +139,53 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
         $this->insertContactGroup("haystack_{$suffix}");
 
         $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withName("needle_{$suffix}", ContactGroupCriteria::OPERATOR_LIKE)
+            (new ContactGroupCriteria())->withName("needle_{$suffix}")
         ));
 
         self::assertContains("needle_{$suffix}", $names);
         self::assertNotContains("haystack_{$suffix}", $names);
     }
 
-    public function testFindAllFiltersById(): void
+    public function testFindAllFiltersByMultipleNamesUsingLike(): void
     {
         $suffix = bin2hex(random_bytes(6));
-        $wantedId = $this->insertContactGroup("wanted_{$suffix}");
-        $this->insertContactGroup("skipped_{$suffix}");
+        $this->insertContactGroup("alpha_{$suffix}");
+        $this->insertContactGroup("beta_{$suffix}");
+        $this->insertContactGroup("gamma_{$suffix}");
 
         $names = $this->names($this->repository->findAll(
-            (new ContactGroupCriteria())->withId($wantedId)
+            (new ContactGroupCriteria())->withName("alpha_{$suffix}")->withName("beta_{$suffix}")
         ));
 
-        self::assertSame(["wanted_{$suffix}"], $names);
+        self::assertContains("alpha_{$suffix}", $names);
+        self::assertContains("beta_{$suffix}", $names);
+        self::assertNotContains("gamma_{$suffix}", $names);
+    }
+
+    public function testFindAllExcludesContactGroupsWithoutAName(): void
+    {
+        $suffix = bin2hex(random_bytes(6));
+        $this->insertContactGroup("named_{$suffix}");
+
+        // cg_name is nullable/emptyable in DB; a NULL or empty name must be skipped rather than
+        // reaching ContactGroupName (which would throw and 500 the whole listing).
+        $this->connection->insert('contactgroup', [
+            'cg_name' => null,
+            'cg_alias' => "null_{$suffix}",
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+        $this->connection->insert('contactgroup', [
+            'cg_name' => '',
+            'cg_alias' => "empty_{$suffix}",
+            'cg_type' => 'local',
+            'cg_activate' => '1',
+        ]);
+
+        $names = $this->names($this->repository->findAll(new ContactGroupCriteria()));
+
+        self::assertContains("named_{$suffix}", $names);
+        self::assertNotContains('', $names);
     }
 
     public function testFindAllScopedIgnoresNonRegisteredContactMembership(): void
@@ -245,7 +261,9 @@ final class DbalContactGroupRepositoryTest extends KernelTestCase
 
     private function countContactGroups(): int
     {
-        $count = $this->connection->fetchOne('SELECT COUNT(*) FROM contactgroup');
+        $count = $this->connection->fetchOne(
+            "SELECT COUNT(*) FROM contactgroup WHERE cg_name IS NOT NULL AND cg_name != ''"
+        );
 
         return is_numeric($count) ? (int) $count : 0;
     }

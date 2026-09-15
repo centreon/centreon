@@ -75,23 +75,6 @@ final class ListContactGroupsProviderTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
-    public function testItFiltersByNameWithEqualOperator(): void
-    {
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
-        /** @var string|false $name */
-        $name = $connection->fetchOne('SELECT cg_name FROM contactgroup LIMIT 1');
-        if ($name === false) {
-            self::markTestSkipped('No contact group in the dataset.');
-        }
-
-        $this->login();
-
-        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['eq' => $name]]]);
-        self::assertResponseIsSuccessful();
-        self::assertJsonContains(['member' => [['name' => $name]]]);
-    }
-
     public function testItFiltersByNameWithLikeOperatorNoMatch(): void
     {
         $this->login();
@@ -145,30 +128,6 @@ final class ListContactGroupsProviderTest extends ApiTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
-    public function testItRejectsAScalarIdFilter(): void
-    {
-        $this->login();
-
-        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => '1']]);
-        self::assertResponseStatusCodeSame(400);
-    }
-
-    public function testItRejectsANonNumericIdFilter(): void
-    {
-        $this->login();
-
-        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => ['eq' => 'not-a-number']]]);
-        self::assertResponseStatusCodeSame(400);
-    }
-
-    public function testItRejectsAZeroIdFilter(): void
-    {
-        $this->login();
-
-        $this->request('GET', self::BASE_ENDPOINT, ['query' => ['id' => ['eq' => '0']]]);
-        self::assertResponseStatusCodeSame(400);
-    }
-
     public function testItScopesRowsForANonAdminWithPermission(): void
     {
         // The security-critical wire: a non-admin *with* the read permission must be ACL-scoped by
@@ -189,6 +148,22 @@ final class ListContactGroupsProviderTest extends ApiTestCase
         $names = array_column((array) $response->toArray()['member'], 'name');
         self::assertContains("reachable_{$this->tag}", $names);
         self::assertNotContains("unreachable_{$this->tag}", $names);
+    }
+
+    public function testItSilentlyIgnoresUnsupportedNameEqAndIdFilters(): void
+    {
+        // Only name[lk] is a supported filter: API Platform silently ignores name[eq] and id
+        // rather than 400ing, so a value matching nothing still returns the full list. Seed a
+        // group so the list is non-empty even on an otherwise empty dataset.
+        $this->insertContactGroup("seed_{$this->tag}");
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => [
+            'name' => ['eq' => 'zz_no_such_contact_group_zz'],
+            'id' => ['eq' => '999999999'],
+        ]]);
+        self::assertResponseIsSuccessful();
+        self::assertGreaterThan(0, count((array) $response->toArray()['member']));
     }
 
     private function createNonAdminContact(string $alias): int

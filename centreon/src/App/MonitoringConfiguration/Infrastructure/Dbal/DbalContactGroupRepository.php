@@ -67,6 +67,10 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         $qb = $this->connection->createQueryBuilder();
         $qb->select(...self::getSelectColumns())
             ->from(self::TABLE_NAME, 'cg')
+            // cg_name is nullable/emptyable in DB (varchar(200) DEFAULT NULL) while
+            // ContactGroupName requires a non-empty value: excluding such rows here keeps the
+            // read projection honest instead of letting one malformed row 500 the whole listing.
+            ->andWhere("cg.cg_name IS NOT NULL AND cg.cg_name != ''")
             ->orderBy('cg.cg_id'); // required for deterministic pagination
 
         // ACL data-scoping: a non-admin viewer only sees the contact groups reachable through
@@ -85,8 +89,9 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         }
         $this->filterByCriteria($qb, $criteria);
 
-        // if no pagination
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $page = $criteria->getPage();
+        $itemsPerPage = $criteria->getItemsPerPage();
+        if ($page === null || $itemsPerPage === null) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -96,7 +101,7 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
             );
         }
 
-        $this->paginate($qb, $criteria);
+        $this->paginate($qb, $page, $itemsPerPage);
 
         // total across all pages: countMatching clones $qb and strips its sort/pagination,
         // so it is unaffected by the pagination applied above.
@@ -111,8 +116,8 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
                 ContactGroup::class
             ),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $page,
+            itemsPerPage: $itemsPerPage,
         );
     }
 
@@ -129,30 +134,14 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
 
     private function filterByCriteria(QueryBuilder $qb, ContactGroupCriteria $criteria): void
     {
-        if ($nameCriteria = $criteria->getNames()) {
-            foreach ($nameCriteria as $operator => $names) {
-                if ($operator === ContactGroupCriteria::OPERATOR_LIKE) {
-                    $qb->andWhere($qb->expr()->or(...array_map(
-                        static fn (string $name): string => $qb->expr()->like(
-                            'cg.cg_name',
-                            $qb->createNamedParameter('%' . $name . '%')
-                        ),
-                        $names
-                    )));
-
-                    continue;
-                }
-                $qb->andWhere($qb->expr()->in(
+        if ($names = $criteria->getNames()) {
+            $qb->andWhere($qb->expr()->or(...array_map(
+                static fn (string $name): string => $qb->expr()->like(
                     'cg.cg_name',
-                    $qb->createNamedParameter($names, ArrayParameterType::STRING)
-                ));
-            }
-        }
-        if ($ids = $criteria->getIds()) {
-            $qb->andWhere($qb->expr()->in(
-                'cg.cg_id',
-                $qb->createNamedParameter($ids, ArrayParameterType::INTEGER)
-            ));
+                    $qb->createNamedParameter('%' . $name . '%')
+                ),
+                $names
+            )));
         }
     }
 
@@ -205,13 +194,9 @@ final readonly class DbalContactGroupRepository extends DbalRepository implement
         return array_values(array_unique($ids));
     }
 
-    private function paginate(QueryBuilder $qb, ContactGroupCriteria $criteria): void
+    private function paginate(QueryBuilder $qb, int $page, int $itemsPerPage): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
-            return;
-        }
-
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult(($page - 1) * $itemsPerPage)
+            ->setMaxResults($itemsPerPage);
     }
 }

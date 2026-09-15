@@ -77,17 +77,9 @@ final readonly class ListContactGroupsProvider implements ProviderInterface
 
         /** @var array<string, mixed> $filters */
         $filters = $context['filters'] ?? [];
-        foreach ($this->handleOperatorFilter($filters['name'] ?? null, 'name', ContactGroupCriteria::ALLOWED_OPERATORS) as $operator => $values) {
+        foreach ($this->handleOperatorFilter($filters['name'] ?? null, 'name', ContactGroupCriteria::ALLOWED_OPERATORS) as $values) {
             foreach ($values as $value) {
-                $criteria = $criteria->withName($value, $operator);
-            }
-        }
-        foreach ($this->handleOperatorFilter($filters['id'] ?? null, 'id', [ContactGroupCriteria::OPERATOR_EQUAL]) as $values) {
-            foreach ($values as $value) {
-                $id = $this->handlePositiveIntFilter($value, 'id');
-                if ($id !== null) {
-                    $criteria = $criteria->withId($id);
-                }
+                $criteria = $criteria->withName($value);
             }
         }
 

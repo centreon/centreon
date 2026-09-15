@@ -39,29 +39,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\ContactGroup\Li
             openapi: new Model\Operation(
                 parameters: [
                     new Model\Parameter(
-                        name: 'id[eq]',
-                        in: 'query',
-                        description: 'Filter by id using "equals" operator',
-                        required: false,
-                        schema: [
-                            'type' => 'array',
-                            'items' => ['type' => 'integer'],
-                        ],
-                    ),
-                    new Model\Parameter(
                         name: 'name[lk]',
                         in: 'query',
                         description: 'Filter by name using "like" operator',
-                        required: false,
-                        schema: [
-                            'type' => 'array',
-                            'items' => ['type' => 'string'],
-                        ],
-                    ),
-                    new Model\Parameter(
-                        name: 'name[eq]',
-                        in: 'query',
-                        description: 'Filter by name using "equals" operator',
                         required: false,
                         schema: [
                             'type' => 'array',

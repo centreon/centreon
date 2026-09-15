@@ -28,19 +28,15 @@ use Webmozart\Assert\Assert;
 
 final class ContactGroupCriteria
 {
-    public const OPERATOR_EQUAL = 'eq';
     public const OPERATOR_LIKE = 'lk';
-    public const ALLOWED_OPERATORS = [self::OPERATOR_EQUAL, self::OPERATOR_LIKE];
+    public const ALLOWED_OPERATORS = [self::OPERATOR_LIKE];
 
     private ?int $page = null;
 
     private ?int $itemsPerPage = null;
 
-    /** @var array<self::OPERATOR_*, list<string>> */
+    /** @var list<string> */
     private array $names = [];
-
-    /** @var list<int> */
-    private array $ids = [];
 
     private ?UserId $viewerId = null;
 
@@ -56,45 +52,24 @@ final class ContactGroupCriteria
         return $new;
     }
 
-    /**
-     * @param self::OPERATOR_* $operator
-     */
-    public function withName(string $name, string $operator): self
+    public function withName(string $name): self
     {
-        Assert::notEmpty($name);
-        Assert::inArray($operator, self::ALLOWED_OPERATORS);
+        // stringNotEmpty (not notEmpty) so a legitimate name of "0" is not wrongly rejected.
+        Assert::stringNotEmpty($name);
 
-        $names = $this->names[$operator] ?? [];
+        $names = $this->names;
         $names[] = $name;
-        $names = array_values(array_unique($names));
 
         $new = clone $this;
-        $new->names[$operator] = $names;
+        $new->names = array_values(array_unique($names));
 
         return $new;
     }
 
     /**
-     * Ids are matched by equality only (a "like" on a numeric id is meaningless), so this
-     * takes no operator — equality is guaranteed by the signature, not by a runtime guard.
+     * @param UserId $viewerId the user to scope results for; omitting the call means no ACL restriction (e.g. an admin)
      */
-    public function withId(int $id): self
-    {
-        Assert::positiveInteger($id);
-
-        $ids = $this->ids;
-        $ids[] = $id;
-
-        $new = clone $this;
-        $new->ids = array_values(array_unique($ids));
-
-        return $new;
-    }
-
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
+    public function withViewerId(UserId $viewerId): self
     {
         $new = clone $this;
         $new->viewerId = $viewerId;
@@ -113,19 +88,11 @@ final class ContactGroupCriteria
     }
 
     /**
-     * @return array<self::OPERATOR_*, list<string>>
+     * @return list<string>
      */
     public function getNames(): array
     {
         return $this->names;
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getIds(): array
-    {
-        return $this->ids;
     }
 
     public function getViewerId(): ?UserId
