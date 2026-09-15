@@ -58,6 +58,7 @@ Docker compose has a useful feature which is called `profile`.
 It allows to run additional services (containers) by specifying profiles which are declared in `docker-compose.yml`.
 Currently, the following profiles are available:
 * `poller`: register automatically a poller to centreon web image (:danger: EXPERIMENTAL)
+* `poller-container`: create a poller via the API and install it with the real `centreon/install-poller` Docker flow, fully automated (see [Poller container setup](#electric_plug-poller-container-setup))
 * `remote-server`: run a Remote Server alongside the Central, each with its own database — registers automatically (see [Remote Server setup](#satellite-remote-server-setup))
 * `glpi`: must be used with `centreon-open-tickets` image to link glpi automatically in open-tickets providers
 * `vault`: run a hashicorp vault (dev mode) and migrate credentials automatically (see [Vault setup](#lock-vault-setup))
@@ -150,6 +151,43 @@ The following environment variables are available to customize the setup:
 * `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
 * `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)
 
+## :electric_plug: Poller container setup
+
+Use the `poller-container` profile to test a Docker poller installed via `centreon/install-poller`'s real `--type docker` flow, without any manual UI click-through or config editing.
+
+Run the following command from the **repository root directory**:
+
+```bash
+docker compose --profile poller-container -f .github/docker/docker-compose.yml up -d --wait
+```
+
+This runs a one-shot orchestrator container that:
+1. Logs in to the Central API and creates a poller-type API token
+2. Creates the poller via `POST /configuration/pollers` with `central_address: web`, so the generated install command already targets the `web` service by name — no `host.docker.internal`/`localhost` juggling needed
+3. Runs the real `install.sh --type docker` with `--no-start`, attaches the generated poller stack to a shared `centreon-poller-test` Docker network, then starts it
+
+Follow the sequence and grab the generated install command from the logs:
+
+```bash
+docker compose -f .github/docker/docker-compose.yml logs poller-container
+```
+
+The poller should appear as **running** in `Configuration > Pollers` on the Central within 1-2 minutes (Gorgone auto-restarts in the background as soon as it detects the new poller — no manual `gorgoned` restart needed).
+
+The following environment variables are available to customize the setup:
+
+* `POLLER_NAME`: name of the created poller (default: `poller-container`) — use a different value to create several pollers side by side, or after a previous one was torn down
+* `CENTRAL_API_USERNAME` / `CENTRAL_API_PASSWORD`: API account used for registration (default: `admin` / `Centreon!2021`)
+
+To tear down (also removes the poller's generated stack and workdir volume):
+
+```bash
+docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
+```
+
+> [!NOTE]
+> This profile mounts the host's Docker socket (`/var/run/docker.sock`) into the orchestrator container so it can start the poller's own `centengine`/`gorgone` containers as siblings — local dev/test only, never enabled by default or in CI.
+
 ## :lock: Vault setup
 
 The `vault` profile runs a HashiCorp Vault (dev mode) and migrates Centreon credentials into it automatically. All the `VAULT_*` values referenced below are test credentials already set in the committed `.env`, so there is nothing to fill in.
@@ -180,4 +218,5 @@ Do not forget to specify profiles if you used them. Otherwise, additional servic
 ```bash
 docker compose --profile poller --profile vault -f .github/docker/docker-compose.yml down
 docker compose --profile remote-server -f .github/docker/docker-compose.yml down
+docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
 ```
