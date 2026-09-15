@@ -1,7 +1,7 @@
 ## :memo: Prerequisites
 
 * docker
-* docker compose >= 2
+* docker compose >= 2.20 (HTTPS mode uses the `!override` YAML tag and `service_completed_successfully`)
 
 ## :rocket: Quick start
 
@@ -12,6 +12,98 @@ docker compose -f .github/docker/docker-compose.yml up -d --wait
 ```
 
 Centreon web should be accessible at `http://localhost:4000/centreon`
+
+## :lock: HTTP / HTTPS mode
+
+The stack runs in **HTTP** mode by default. HTTPS mode is opt-in via the `docker-compose.tls.yml` overlay — production-faithful, using the official Centreon HTTPS Apache vhost ([`packaging/src/centreon-apache-https.conf`](../../packaging/src/centreon-apache-https.conf)) that customer deployments run.
+
+```bash
+# HTTP (default)
+docker compose -f .github/docker/docker-compose.yml up -d --wait
+# → http://localhost:4000/centreon
+
+# HTTPS
+docker compose \
+  -f .github/docker/docker-compose.yml \
+  -f .github/docker/docker-compose.tls.yml \
+  up -d --wait
+# → https://localhost:4443/centreon (cert is self-signed)
+```
+
+### Ports
+
+In HTTPS mode, **both** `:80` and `:443` are mapped. `:80` runs the production `:80 → :443` redirect block; `:443` serves the API/UI. This mirrors the production deployment shape where a user typing `http://centreon.example.com/` is redirected to `https://`.
+
+| Service         | HTTP mode  | HTTPS mode             |
+|-----------------|------------|------------------------|
+| `web`           | `4000:80`  | `4000:80` + `4443:443` |
+| `remote-server` | `4001:80`  | `4001:80` + `4444:443` |
+
+Following the redirect from the host fails because the production template's redirect target preserves the request port (`%{HTTP_HOST}` → `localhost:4000`, which is HTTP-only on the host side) — this is the upstream template's behavior. To validate:
+
+* **Redirect emission**: `curl -I http://localhost:4000/centreon/` returns `302 Found` with the expected `Location: https://localhost:4000/centreon/`.
+* **Full chain at production-default ports** (inside the container): `docker compose exec -T web curl -kL http://localhost/centreon/api/latest/platform/versions` follows `:80 → :443 → 200`.
+
+### What HTTPS mode layers on top
+
+The overlay adds:
+
+* **`certgen`** one-shot — issues a Root CA + multi-SAN leaf cert into the `certs` named volume on first `up` (covering `web`, `remote-server`, `db`, `db-remote`, `localhost`, `127.0.0.1`). CA persists across `up` cycles; `docker compose down -v` wipes it.
+* **`web` / `remote-server`** — install the CA into the OS trust store, drop the official Apache HTTPS vhost (same cipher list, HSTS, `X-Frame-Options`, cookie hardening, FCGI to `php-fpm:9042`, `:80 → :443` redirect as production — only cert paths differ), write `/usr/share/centreon/.env` with `DATABASE_SSL_*` keys for the PHP-side [`DatabaseTLSResolver`](../../src/App/Shared/Infrastructure/Database/DatabaseTLSResolver.php), and patch the gorgone DB DSN with `mysql_ssl=1;mysql_ssl_ca=…`.
+* **`db` / `db-remote`** — *offer* TLS via `--ssl-cert` / `--ssl-key` but **do not** enforce it (no `--require-secure-transport=ON`). Clients that opt in (PHP via `DatabaseTLSResolver`, the `mysql` CLI via the `[client]` drop-in) negotiate TLS; the install wizard's legacy plaintext path keeps working. See [Known limitations](#known-limitations) for the rationale and how the smoke workflow guards against silent regression to all-plaintext.
+* **Centreon Broker** — the install-time `db_ssl_*` JSON keys (existing Centreon support) are emitted automatically when `DATABASE_SSL_ENABLED=1` is in `.env`.
+
+### Trusting the dev CA
+
+```bash
+# Copy the CA out of the running stack
+docker compose -f .github/docker/docker-compose.yml -f .github/docker/docker-compose.tls.yml \
+  cp web:/etc/pki/centreon-tls/rootCA.pem /tmp/centreon-dev-ca.pem
+
+# Verified curl (no -k)
+curl --cacert /tmp/centreon-dev-ca.pem https://localhost:4443/centreon/api/latest/platform/versions
+
+# OS trust store (Linux example)
+sudo cp /tmp/centreon-dev-ca.pem /usr/local/share/ca-certificates/centreon-dev-ca.crt
+sudo update-ca-certificates
+```
+
+### Requirements
+
+> [!NOTE]
+> HTTPS mode needs `DatabaseTLSResolver` in the `WEB_IMAGE`. This class is part of `centreon-web` since the 26.07 develop/unstable line (added by [#9237](https://github.com/centreon/centreon/pull/9237)). If you point `WEB_IMAGE` at an older build, the `04-tls.sh` entrypoint hook fails fast with a copy-pasteable error so the misconfig is loud rather than silent.
+
+### Known limitations
+
+> [!NOTE]
+> **DB TLS is offered, not enforced (no `--require-secure-transport=ON`).** The Centreon install wizard (legacy PHP path) connects to the DB before Symfony Dotenv has populated `$_ENV`, so `DatabaseTLSResolver` reads no `DATABASE_SSL_*` keys and PDO falls back to plaintext. Enforcing secure transport server-side rejects those wizard connections with a misleading "Access denied (using password: YES)" on MariaDB 10.x and the install fails before creating the schema. The pattern mirrors [centreon/centreon#10620](https://github.com/centreon/centreon/pull/10620)'s `configure_db_tls()` in `unattended.sh`. To prove TLS is still being used in practice, the smoke workflow asserts that the DB's `Ssl_accepts` global status counter is `> 0` after install — a silent regression to all-plaintext fails the smoke. Upstream follow-up: have `DatabaseTLSResolver` fall back to `getenv()` (or set `variables_order = "EGPCS"` in php-cli.ini) so the install wizard's CLI bootstrap reaches the resolver.
+
+> [!NOTE]
+> **Side-by-side HTTP + HTTPS stacks from the same checkout** is a planned future feature. Today, two `up` invocations from the same directory collide on container/volume names regardless of port mapping. Pick one mode per checkout. (Port `4443` was chosen with the future side-by-side mode in mind.)
+
+> [!NOTE]
+> **Gorgone DB-TLS on Debian images (`centreon-web-trixie`)** is currently impacted by a DBD::mysql 4.053 + libmariadb 3.x API mismatch — the old `MYSQL_OPT_SSL_ENFORCE` option was removed without a DBD::mysql-compatible replacement. Web (PHP via PR #9237), Broker, and DB-side TLS are unaffected on this image; only the gorgone Perl→DB path is impacted. Workaround in discussion with the gorgone team (DBD::MariaDB has been validated as a working alternative).
+
+> [!NOTE]
+> **DB image compatibility** — HTTPS mode has been validated against the following combinations, all passing end-to-end (web container `(healthy)`, API returns 200, all hardening headers present):
+>
+> | `WEB_IMAGE` (OS variant) | `MYSQL_IMAGE`                    | Status |
+> |---|---|---|
+> | `centreon-web-alma9`     | `bitnamilegacy/mariadb:10.11`   | ✅ |
+> | `centreon-web-alma9`     | `bitnamilegacy/mysql:8.0`       | ✅ |
+> | `centreon-web-alma10`    | `bitnamilegacy/mariadb:11.8`    | ✅ |
+> | `centreon-web-alma10`    | `bitnamilegacy/mysql:8.4`       | ✅ |
+> | `centreon-web-trixie`    | `bitnamilegacy/mariadb:11.8`    | ✅ web/broker — gorgone limitation per previous note |
+> | `centreon-web-trixie`    | `bitnamilegacy/mysql:8.4`       | ✅ web/broker — gorgone limitation per previous note |
+>
+> Two operational notes that matter for the MySQL family in particular:
+>
+> 1. **`ulimits: nofile: 32000`** is set on the `db` service in the base compose. Without it, Centreon's install on bitnami MySQL images runs out of file descriptors mid-install (the PHP install scripts + dump loading open many concurrent connections + tables) and leaves the install half-complete with `Unknown database 'centreon'` errors. MariaDB images don't hit this limit.
+> 2. **MySQL 8.4 servers log a `[Warning] [MY-015011] Failed to validate certificate`** at startup because the docker-compose stack does not pass `--ssl-ca` to mysqld (deliberately omitted — it was previously included but caused MySQL to embed the Root CA in its presented chain, which strict OpenSSL clients on alma9 rejected with `self-signed certificate in certificate chain`). The warning is informational; TLS continues to work normally.
+
+### Cert generation image
+
+The certgen image is built locally from [`.github/docker/certgen/`](certgen/Dockerfile) (alpine + openssl, same shape as [`centreon-images/.../gen_cert.sh`](https://github.com/centreon/centreon-images/blob/main/aws/centreon-ova-builder/ova_files/centreon-central/gen_cert.sh) minus the Apache / platform concerns). Override with `CERTGEN_IMAGE=…` to pin a published image.
 
 ## :toolbox: Custom database image
 
@@ -145,7 +237,7 @@ docker logs $(docker ps -qf "name=remote-server") 2>&1 | grep -i "step\|register
 The following environment variables are available to customize the setup:
 
 * `WEB_IMAGE`: centreon-web image to use for both Central and Remote Server (default: `docker.centreon.com/centreon/centreon-web-alma9:develop`)
-* `CENTREON_WEB_OS`: OS variant used to resolve the registration script path (`alma9`, `bookworm`, `jammy` — default: `alma9`)
+* `CENTREON_WEB_OS`: OS variant used to resolve entrypoint-script bind-mount paths; must match `WEB_IMAGE`'s OS (`alma9`, `alma10`, `trixie` — default: `alma9`)
 * `REMOTE_SERVER_NAME`: name displayed for the Remote Server in the Central UI (default: `remote-server`)
 * `CENTRAL_API_USERNAME`: API account used for registration (default: `admin`)
 * `CENTRAL_API_PASSWORD`: password for the API account (default: `Centreon!2021`)

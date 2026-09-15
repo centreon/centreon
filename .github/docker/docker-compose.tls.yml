@@ -1,0 +1,111 @@
+# HTTPS-mode overlay. Load alongside docker-compose.yml via -f flags or by
+# setting COMPOSE_FILE. See README.md "HTTP / HTTPS mode".
+#
+# Adds: certgen one-shot, the `certs` named volume, TLS for web/db/remote-server/db-remote.
+# Replaces (not merges): web.ports, remote-server.ports, web/remote-server healthcheck targets,
+# db/db-remote MARIADB_EXTRA_FLAGS + MYSQL_EXTRA_FLAGS.
+#
+# Requires: docker compose >= 2.20 (for `!override` and `service_completed_successfully`),
+#           a centreon-web 26.07+ image (ships DatabaseTLSResolver). 04-tls.sh fails fast
+#           with a copy-pasteable error if the resolver class is missing from the image.
+
+services:
+  certgen:
+    build: ./certgen
+    image: "${CERTGEN_IMAGE:-centreon-certgen:local}"
+    command:
+      - web
+      - remote-server
+      - db
+      - db-remote
+      - localhost
+      - "127.0.0.1"
+    volumes:
+      - certs:/out
+
+  web:
+    ports: !override
+      # :80 stays mapped in HTTPS mode so the :80→:443 redirect emitted by the
+      # official template can be exercised externally (e.g. `curl -I :4000` shows
+      # the 301 Location header). Note: the redirect target uses %{HTTP_HOST}
+      # which includes the request port, so curl -L from the host won't follow
+      # successfully — use `docker compose exec web curl -kL http://localhost/...`
+      # to test the full chain at production-default ports.
+      - "4000:80"
+      - "4443:443"
+    volumes:
+      # Bind-mount the TLS hooks the same way 81-register_remote_server runs on remote-server:
+      # pre-built WEB_IMAGEs don't yet contain them, so without this the hooks never run.
+      # - 04-tls.sh: certs install, Apache TLS vhost, mysql client cfg, .env keys (runs BEFORE install)
+      # - 16-tls-gorgone.sh: patch gorgone DSN with mysql_ssl=1 (runs AFTER install)
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/16-tls-gorgone.sh:/usr/share/centreon/container.d/16-tls-gorgone.sh:ro
+      - certs:/etc/pki/centreon-tls:ro
+    # Only declare what the overlay adds; `db` inherits from the base file (compose
+    # merges depends_on maps by key, and same-key overlay values would clobber the
+    # base's stricter `service_healthy` wait condition).
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail https://localhost/centreon/api/latest/platform/versions || exit 1
+
+  db:
+    volumes:
+      - certs:/certs:ro
+    environment:
+      # bitnamilegacy/mariadb reads MARIADB_*, bitnamilegacy/mysql reads MYSQL_*.
+      # Set both so HTTPS mode applies the same TLS flags regardless of which
+      # MYSQL_IMAGE the user selects (matters for mysql 8.0 / 8.4 too).
+      #
+      # ${…:-} interpolates the perf-tuning string from .env and appends TLS
+      # flags. Without it, the inline value overrides env_file: and the perf
+      # flags are silently dropped.
+      #
+      # NOTE: --require-secure-transport=ON is deliberately NOT passed. The
+      # Centreon install wizard (legacy PHP path) connects via PDO before
+      # Symfony's Dotenv has populated $_ENV, so DatabaseTLSResolver reads no
+      # DATABASE_SSL_* keys and the connection falls back to plaintext.
+      # Enforcing secure transport server-side rejects those wizard
+      # connections with a misleading "Access denied (using password: YES)"
+      # on MariaDB 10.x, and the install fails before the schema is created.
+      # Mirrors centreon/centreon PR #10620's configure_db_tls() trade-off in
+      # unattended.sh. The smoke workflow asserts Ssl_accepts > 0 so a silent
+      # regression to all-plaintext still fails the smoke.
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+
+  remote-server:
+    ports: !override
+      - "4001:80"
+      - "4444:443"
+    volumes:
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/81-register_remote_server_background.sh:/usr/share/centreon/container.d/81-register_remote_server_background.sh:ro
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/04-tls.sh:/usr/share/centreon/container.d/04-tls.sh:ro
+      - ./centreon-web/${CENTREON_WEB_OS:-alma9}/entrypoint/container.d/16-tls-gorgone.sh:/usr/share/centreon/container.d/16-tls-gorgone.sh:ro
+      - certs:/etc/pki/centreon-tls:ro
+    # Only declare what the overlay adds; `db-remote` and `web` inherit from the
+    # base file.
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /tmp/docker.ready ] && [ -f /tmp/remote-server.registered ]" && curl --fail https://localhost/centreon/api/latest/platform/versions || exit 1
+
+  db-remote:
+    volumes:
+      - certs:/certs:ro
+    environment:
+      # See db service: same ${…:-} interpolation, same deliberate omission of
+      # --require-secure-transport=ON (install wizard plaintext path).
+      MARIADB_EXTRA_FLAGS: "${MARIADB_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
+      MYSQL_EXTRA_FLAGS: "${MYSQL_EXTRA_FLAGS:-} --ssl-cert=/certs/db/server.pem --ssl-key=/certs/db/server-key.pem"
+    depends_on:
+      certgen:
+        condition: service_completed_successfully
+
+volumes:
+  certs:
