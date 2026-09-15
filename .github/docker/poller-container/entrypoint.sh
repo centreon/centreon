@@ -83,8 +83,9 @@ until docker compose logs gorgone 2>/dev/null | grep -q '"message":"ping ok"'; d
   i=$((i + 1))
   if [ "${i}" -ge "${PING_TIMEOUT}" ]; then
     echo "Timed out after $((PING_TIMEOUT * PING_INTERVAL / 60)) minutes waiting for a first ping from the poller." >&2
-    echo "The poller stack is still up in ${WORKDIR} — check 'docker compose logs gorgone' there, then re-run generate-and-reload manually:" >&2
+    echo "The poller stack is still up in ${WORKDIR} — check 'docker compose logs gorgone' there, then re-run manually once it connects:" >&2
     echo "  curl -X GET -H \"X-AUTH-TOKEN: <token>\" ${CENTRAL_BASE}/configuration/monitoring-servers/${POLLER_ID}/generate-and-reload" >&2
+    echo "  docker compose --project-directory ${WORKDIR} exec gorgone systemctl restart centengine" >&2
     exit 1
   fi
   sleep "${PING_INTERVAL}"
@@ -96,9 +97,19 @@ GEN_HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 120 \
   -H "X-AUTH-TOKEN: ${TOKEN}" \
   "${CENTRAL_BASE}/configuration/monitoring-servers/${POLLER_ID}/generate-and-reload")
 if [ "${GEN_HTTP_CODE}" = "204" ]; then
-  echo "Configuration generated and reloaded successfully (centengine restarted on the poller)."
+  echo "Configuration generated and exported."
 else
   echo "Warning: generate-and-reload returned HTTP ${GEN_HTTP_CODE} (the API token may have expired during the wait — re-run it manually with a fresh token if needed)." >&2
+fi
+
+# generate-and-reload only exports the configuration; it does not restart
+# centengine. On this split-container poller, centengine and gorgone are two
+# separate containers, so the restart has to go through gorgone's own
+# systemctl shim, which relays it to the centengine container over gRPC.
+echo "== Restarting centengine on the poller (via gorgone) =="
+if ! docker compose exec -T gorgone systemctl restart centengine; then
+  echo "Warning: failed to restart centengine via gorgone — restart it manually:" >&2
+  echo "  docker compose --project-directory ${WORKDIR} exec gorgone systemctl restart centengine" >&2
 fi
 
 echo "Done. Poller '${POLLER_NAME}' should appear as running in Configuration > Pollers."

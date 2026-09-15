@@ -165,7 +165,8 @@ This runs a one-shot orchestrator container that:
 1. Logs in to the Central API and creates a poller-type API token
 2. Creates the poller via `POST /configuration/pollers` with `central_address: web`, so the generated install command already targets the `web` service by name — no `host.docker.internal`/`localhost` juggling needed
 3. Runs the real `install.sh --type docker` with `--no-start`, attaches the generated poller stack to a shared `centreon-poller-test` Docker network, then starts it
-4. Waits (up to 15 minutes) for the poller's Gorgone to complete its first successful ping to the Central, then calls `configuration/monitoring-servers/{id}/generate-and-reload` so the poller gets its monitoring configuration and `centengine` restarts — no manual "Export configuration" click needed
+4. Waits (up to 15 minutes) for the poller's Gorgone to complete its first successful ping to the Central, then calls `configuration/monitoring-servers/{id}/generate-and-reload` to export the poller's monitoring configuration
+5. Restarts `centengine` on the poller with `docker compose exec gorgone systemctl restart centengine` — `generate-and-reload` only exports the configuration, it does not restart the engine; on this split-container poller, centengine and gorgone are separate containers, so the restart goes through gorgone's systemctl shim, which relays it to the centengine container over gRPC
 
 Follow the sequence and grab the generated install command from the logs:
 
@@ -173,7 +174,7 @@ Follow the sequence and grab the generated install command from the logs:
 docker compose -f .github/docker/docker-compose.yml logs poller-container
 ```
 
-The poller should appear as **running** in `Configuration > Pollers` on the Central once the orchestrator logs "Configuration generated and reloaded successfully" (Gorgone also auto-restarts in the background as soon as it detects the new poller — no manual `gorgoned` restart needed).
+The poller should appear as **running** in `Configuration > Pollers` on the Central once the orchestrator logs "Done" (Gorgone also auto-restarts in the background as soon as it detects the new poller — no manual `gorgoned` restart needed).
 
 The following environment variables are available to customize the setup:
 
