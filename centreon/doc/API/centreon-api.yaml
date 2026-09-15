@@ -5640,19 +5640,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Timezone'
-        '401':
-          description: Unauthorized
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          links: {}
         '403':
           description: Forbidden
           content:
@@ -5699,7 +5686,7 @@ paths:
           schema:
             type: integer
             default: 30
-            minimum: 1
+            minimum: 0
             maximum: 30
           style: form
           explode: true
