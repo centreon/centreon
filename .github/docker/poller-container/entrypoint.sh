@@ -85,7 +85,7 @@ until docker compose logs gorgone 2>/dev/null | grep -q '"message":"ping ok"'; d
     echo "Timed out after $((PING_TIMEOUT * PING_INTERVAL / 60)) minutes waiting for a first ping from the poller." >&2
     echo "The poller stack is still up in ${WORKDIR} — check 'docker compose logs gorgone' there, then re-run manually once it connects:" >&2
     echo "  curl -X GET -H \"X-AUTH-TOKEN: <token>\" ${CENTRAL_BASE}/configuration/monitoring-servers/${POLLER_ID}/generate-and-reload" >&2
-    echo "  docker compose --project-directory ${WORKDIR} exec gorgone systemctl restart centengine" >&2
+    echo "  docker compose --project-directory ${WORKDIR} exec gorgone sudo systemctl restart centengine" >&2
     exit 1
   fi
   sleep "${PING_INTERVAL}"
@@ -106,10 +106,11 @@ fi
 # centengine. On this split-container poller, centengine and gorgone are two
 # separate containers, so the restart has to go through gorgone's own
 # systemctl shim, which relays it to the centengine container over gRPC.
+# Gorgone doesn't run as root, hence the sudo.
 echo "== Restarting centengine on the poller (via gorgone) =="
-if ! docker compose exec -T gorgone systemctl restart centengine; then
+if ! docker compose exec -T gorgone sudo systemctl restart centengine; then
   echo "Warning: failed to restart centengine via gorgone — restart it manually:" >&2
-  echo "  docker compose --project-directory ${WORKDIR} exec gorgone systemctl restart centengine" >&2
+  echo "  docker compose --project-directory ${WORKDIR} exec gorgone sudo systemctl restart centengine" >&2
 fi
 
 echo "Done. Poller '${POLLER_NAME}' should appear as running in Configuration > Pollers."

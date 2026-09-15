@@ -166,7 +166,7 @@ This runs a one-shot orchestrator container that:
 2. Creates the poller via `POST /configuration/pollers` with `central_address: web`, so the generated install command already targets the `web` service by name — no `host.docker.internal`/`localhost` juggling needed
 3. Runs the real `install.sh --type docker` with `--no-start`, attaches the generated poller stack to a shared `centreon-poller-test` Docker network, then starts it
 4. Waits (up to 15 minutes) for the poller's Gorgone to complete its first successful ping to the Central, then calls `configuration/monitoring-servers/{id}/generate-and-reload` to export the poller's monitoring configuration
-5. Restarts `centengine` on the poller with `docker compose exec gorgone systemctl restart centengine` — `generate-and-reload` only exports the configuration, it does not restart the engine; on this split-container poller, centengine and gorgone are separate containers, so the restart goes through gorgone's systemctl shim, which relays it to the centengine container over gRPC
+5. Restarts `centengine` on the poller with `docker compose exec gorgone sudo systemctl restart centengine` — `generate-and-reload` only exports the configuration, it does not restart the engine; on this split-container poller, centengine and gorgone are separate containers, so the restart goes through gorgone's systemctl shim, which relays it to the centengine container over gRPC (Gorgone doesn't run as root, hence `sudo`)
 
 Follow the sequence and grab the generated install command from the logs:
 
