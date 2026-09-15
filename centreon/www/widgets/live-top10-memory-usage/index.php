@@ -178,7 +178,7 @@ try {
                     s.state,
                     m.current_value,
                     m.max
-                ORDER BY ratio DESC
+                ORDER BY m.current_value / m.max DESC
                 LIMIT :numberOfLines;
             SQL;
 
