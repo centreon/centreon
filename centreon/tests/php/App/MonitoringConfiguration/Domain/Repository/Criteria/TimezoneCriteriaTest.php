@@ -28,18 +28,8 @@ use PHPUnit\Framework\TestCase;
 
 final class TimezoneCriteriaTest extends TestCase
 {
-    public function testWithPaginationReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
-    {
-        $criteria = new TimezoneCriteria();
-
-        $withPagination = $criteria->withPagination(2, 20);
-
-        self::assertNotSame($criteria, $withPagination);
-        self::assertNull($criteria->getPage());
-        self::assertNull($criteria->getItemsPerPage());
-        self::assertSame(2, $withPagination->getPage());
-        self::assertSame(20, $withPagination->getItemsPerPage());
-    }
+    // Pagination immutability is already covered generically by PaginableCriteriaTest, since
+    // TimezoneCriteria only wires in PaginableCriteriaTrait without overriding its behavior.
 
     public function testWithNameReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
     {

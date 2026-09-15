@@ -70,7 +70,8 @@ final readonly class DbalTimezoneRepository extends DbalRepository implements Ti
             $this->filterByCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -89,8 +90,8 @@ final readonly class DbalTimezoneRepository extends DbalRepository implements Ti
         return new InMemoryPaginator(
             items: $this->createTimezones($rows),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -117,16 +118,14 @@ final readonly class DbalTimezoneRepository extends DbalRepository implements Ti
         );
     }
 
-    /**
-     * Only called once findAll() has already established that both page and items-per-page are
-     * set (it returns early otherwise), so re-checking for null here would be dead code.
-     */
     private function paginate(QueryBuilder $qb, TimezoneCriteria $criteria): void
     {
-        $page = $criteria->getPage() ?? throw new \LogicException('Unexpected null page');
-        $itemsPerPage = $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page');
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            return;
+        }
 
-        $qb->setFirstResult(($page - 1) * $itemsPerPage)
-            ->setMaxResults($itemsPerPage);
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 }

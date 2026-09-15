@@ -23,27 +23,15 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class TimezoneCriteria
+final class TimezoneCriteria implements PaginableCriteria
 {
-    private ?int $page = null;
-
-    private ?int $itemsPerPage = null;
+    use PaginableCriteriaTrait;
 
     private ?string $name = null;
-
-    public function withPagination(int $page, int $itemsPerPage): self
-    {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
-        $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
-
-        return $new;
-    }
 
     public function withName(string $name): self
     {
@@ -54,16 +42,6 @@ final class TimezoneCriteria
         $new->name = $name;
 
         return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
     }
 
     public function getName(): ?string
