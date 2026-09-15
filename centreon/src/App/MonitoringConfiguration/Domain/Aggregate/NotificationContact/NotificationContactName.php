@@ -33,6 +33,7 @@ final readonly class NotificationContactName
     public function __construct(
         public string $value,
     ) {
+        $value = trim($value);
         Assert::lengthBetween($value, self::MIN_LENGTH, self::MAX_LENGTH);
     }
 }
