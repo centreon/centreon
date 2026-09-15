@@ -23,35 +23,22 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class ConnectorCriteria
+final class ConnectorCriteria implements PaginableCriteria
 {
+    use PaginableCriteriaTrait;
     public const OPERATOR_EQUAL = 'eq';
     public const OPERATOR_LIKE = 'lk';
     public const ALLOWED_OPERATORS = [self::OPERATOR_EQUAL, self::OPERATOR_LIKE];
-
-    private ?int $page = null;
-
-    private ?int $itemsPerPage = null;
 
     /** @var array<self::OPERATOR_*, list<string>> */
     private array $names = [];
 
     /** @var array<self::OPERATOR_*, list<int>> */
     private array $ids = [];
-
-    public function withPagination(int $page, int $itemsPerPage): self
-    {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
-        $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
-
-        return $new;
-    }
 
     /**
      * @param self::OPERATOR_* $operator
@@ -71,6 +58,14 @@ final class ConnectorCriteria
         return $new;
     }
 
+    /**
+     * @return array<self::OPERATOR_*, list<string>>
+     */
+    public function getNames(): array
+    {
+        return $this->names;
+    }
+
     public function withId(int $id, string $operator): self
     {
         Assert::positiveInteger($id);
@@ -84,24 +79,6 @@ final class ConnectorCriteria
         $new->ids[$operator] = $ids;
 
         return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
-    }
-
-    /**
-     * @return array<self::OPERATOR_*, list<string>>
-     */
-    public function getNames(): array
-    {
-        return $this->names;
     }
 
     /**
