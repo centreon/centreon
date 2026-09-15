@@ -75,9 +75,28 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
         $this->insertTimePeriod("match-{$this->tag}");
         $this->insertTimePeriod("other-{$this->tag}");
 
-        $names = $this->names($this->repository->findAll((new TimePeriodCriteria())->withName("match-{$this->tag}")));
+        $names = $this->names($this->repository->findAll(
+            (new TimePeriodCriteria())->withName("match-{$this->tag}", TimePeriodCriteria::OPERATOR_LIKE)
+        ));
 
         self::assertSame(["match-{$this->tag}"], $names);
+    }
+
+    public function testFindAllCombinesSeveralLikeNamesWithOr(): void
+    {
+        $this->insertTimePeriod("first-{$this->tag}");
+        $this->insertTimePeriod("second-{$this->tag}");
+        $this->insertTimePeriod("third-{$this->tag}");
+
+        // "name[lk][]=a&name[lk][]=b" stacks two values under the same operator: they must widen
+        // the result set (OR), not narrow it to nothing (AND).
+        $names = $this->names($this->repository->findAll(
+            (new TimePeriodCriteria())
+                ->withName("first-{$this->tag}", TimePeriodCriteria::OPERATOR_LIKE)
+                ->withName("second-{$this->tag}", TimePeriodCriteria::OPERATOR_LIKE)
+        ));
+
+        self::assertSame(["first-{$this->tag}", "second-{$this->tag}"], $names);
     }
 
     public function testFindAllPaginatesAndReturnsATotalAcrossAllPages(): void
@@ -89,7 +108,9 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
         // scope to our own rows via the name filter so pre-seeded time periods cannot skew the
         // total. page 2 @ 1 item/page proves the OFFSET arithmetic (a page-1 request cannot).
         $result = $this->repository->findAll(
-            (new TimePeriodCriteria())->withName("pg-{$this->tag}-")->withPagination(2, 1)
+            (new TimePeriodCriteria())
+                ->withName("pg-{$this->tag}-", TimePeriodCriteria::OPERATOR_LIKE)
+                ->withPagination(2, 1)
         );
 
         self::assertInstanceOf(Paginator::class, $result);
@@ -103,7 +124,9 @@ final class DbalTimePeriodRepositoryTest extends KernelTestCase
         $name = "pad-{$this->tag}";
         $this->insertTimePeriod("  {$name}  ");
 
-        $names = $this->names($this->repository->findAll((new TimePeriodCriteria())->withName($name)));
+        $names = $this->names($this->repository->findAll(
+            (new TimePeriodCriteria())->withName($name, TimePeriodCriteria::OPERATOR_LIKE)
+        ));
 
         // legacy TimePeriod::setName() trims, so the padded row must surface trimmed
         self::assertSame([$name], $names);
