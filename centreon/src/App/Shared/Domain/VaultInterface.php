@@ -29,8 +29,6 @@ interface VaultInterface
      * Prefix identifying a value that is a vault reference rather than a plaintext secret.
      */
     public const VAULT_PATH_PREFIX = 'secret::';
-    public const OPENID_CLIENT_ID_KEY = '_OPENID_CLIENT_ID';
-    public const OPENID_CLIENT_SECRET_KEY = '_OPENID_CLIENT_SECRET';
 
     /**
      * Whether the vault is enabled and configured for the given feature flag
