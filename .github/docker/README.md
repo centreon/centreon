@@ -168,11 +168,14 @@ This runs a one-shot orchestrator container that:
 4. Waits (up to 15 minutes) for the poller's first successful ping, checked via Gorgone's own local API on the Central (`http://web:8085/api/internal/constatus`, already enabled by default — polling `.data["<poller id>"].ping_ok`) rather than the poller's logs or raw TCP state: the poller's own Gorgone only loads the `engine`+`pullwss` modules (not `proxy`), so it cannot report its own connection status — only the Central can. Then calls `configuration/monitoring-servers/{id}/generate-and-reload` to export the poller's monitoring configuration
 5. Restarts `centengine` on the poller with `docker compose exec gorgone sudo systemctl restart centengine` — `generate-and-reload` only exports the configuration, it does not restart the engine; on this split-container poller, centengine and gorgone are separate containers, so the restart goes through gorgone's systemctl shim, which relays it to the centengine container over gRPC (Gorgone doesn't run as root, hence `sudo`)
 
-Follow the sequence and grab the generated install command from the logs:
+Follow the sequence in the logs:
 
 ```bash
 docker compose -f .github/docker/docker-compose.yml logs poller-container
 ```
+
+> [!NOTE]
+> The generated install command is never logged — it embeds `--poller_token`, `--appsecret` and `--salt`, so printing it would leak those secrets into Docker logs.
 
 The poller should appear as **running** in `Configuration > Pollers` on the Central once the orchestrator logs "Done" (Gorgone also auto-restarts in the background as soon as it detects the new poller — no manual `gorgoned` restart needed).
 

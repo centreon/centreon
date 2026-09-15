@@ -61,9 +61,9 @@ if [ -z "${INSTALL_CMD}" ] || [ -z "${POLLER_ID}" ]; then
   exit 1
 fi
 
-echo "== Generated install command =="
-echo "${INSTALL_CMD}"
-echo "==============================="
+echo "== Poller created (ID: ${POLLER_ID}) — install command generated =="
+# The install command embeds --poller_token/--appsecret/--salt: never echo it,
+# that would leak those secrets into Docker logs (CodeRabbit finding, CWE-532).
 
 WORKDIR="/workdir/${POLLER_NAME}"
 mkdir -p "${WORKDIR}"
@@ -82,14 +82,17 @@ echo "== Attaching the generated stack to the shared centreon-poller-test networ
 printf '\nnetworks:\n  default:\n    name: centreon-poller-test\n    external: true\n' >> docker-compose.yaml
 
 echo "== Starting the poller stack =="
-docker compose up -d
+if ! docker compose up -d; then
+  echo "Failed to start the poller stack." >&2
+  exit 1
+fi
 
 echo "== Waiting for the poller's first successful ping (via Gorgone's constatus API on central) =="
 PING_TIMEOUT=180
 PING_INTERVAL=5
 i=0
 while true; do
-  PING_OK=$(curl -s "${GORGONE_API_BASE}/constatus" 2>/dev/null | jq -r --arg id "${POLLER_ID}" '.data[$id].ping_ok // 0' 2>/dev/null)
+  PING_OK=$(curl -sS --connect-timeout 5 --max-time 10 "${GORGONE_API_BASE}/constatus" 2>/dev/null | jq -r --arg id "${POLLER_ID}" '.data[$id].ping_ok // 0' 2>/dev/null)
   case "${PING_OK}" in
     ''|*[!0-9]*) PING_OK=0 ;;
   esac
@@ -116,7 +119,9 @@ GEN_HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 120 \
 if [ "${GEN_HTTP_CODE}" = "204" ]; then
   echo "Configuration generated and exported."
 else
-  echo "Warning: generate-and-reload returned HTTP ${GEN_HTTP_CODE} (the API token may have expired during the wait — re-run it manually with a fresh token if needed)." >&2
+  echo "generate-and-reload returned HTTP ${GEN_HTTP_CODE} (the API token may have expired during the wait — re-run it manually with a fresh token if needed)." >&2
+  echo "The poller stack is still up in ${WORKDIR} for diagnosis." >&2
+  exit 1
 fi
 
 # generate-and-reload only exports the configuration; it does not restart
@@ -126,8 +131,10 @@ fi
 # Gorgone doesn't run as root, hence the sudo.
 echo "== Restarting centengine on the poller (via gorgone) =="
 if ! docker compose exec -T gorgone sudo systemctl restart centengine; then
-  echo "Warning: failed to restart centengine via gorgone — restart it manually:" >&2
+  echo "Failed to restart centengine via gorgone:" >&2
   echo "  docker compose --project-directory ${WORKDIR} exec gorgone sudo systemctl restart centengine" >&2
+  echo "The poller stack is still up in ${WORKDIR} for diagnosis." >&2
+  exit 1
 fi
 
 echo "Done. Poller '${POLLER_NAME}' should appear as running in Configuration > Pollers."
