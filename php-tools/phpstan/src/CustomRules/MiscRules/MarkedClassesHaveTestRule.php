@@ -37,13 +37,25 @@ use PHPStan\Rules\RuleErrorBuilder;
 final readonly class MarkedClassesHaveTestRule implements Rule
 {
     /**
-     * @param list<class-string> $attributes
-     * @param list<class-string> $classes
+     * @param list<class-string> $attributes marks a class eligible when it carries one of these attributes
+     * @param list<class-string> $classes marks a class eligible when it is (a subclass/implementation of) one of these
+     * @param list<string> $suffixes marks a class eligible when its short name ends with one of these — for
+     *                               families with no shared attribute or base (e.g. `Criteria`)
+     * @param list<string> $namespaceSegments marks a class eligible when its fully-qualified name contains one of
+     *                                        these substrings — for families identified only by their location
+     *                                        (e.g. `\Domain\Aggregate\` for aggregate roots and value objects, which
+     *                                        share no attribute, base or suffix)
+     * @param list<string> $excludeSuffixes exempts a class whose short name ends with one of these, even when another
+     *                                      matcher made it eligible — e.g. a trivial `<Agg>Id` (bare `AggregateRootId`
+     *                                      subclass with no own invariant) under `\Domain\Aggregate\`
      */
     public function __construct(
         private ReflectionProvider $reflectionProvider,
         private array $attributes = [],
         private array $classes = [],
+        private array $suffixes = [],
+        private array $namespaceSegments = [],
+        private array $excludeSuffixes = [],
     ) {
     }
 
@@ -93,6 +105,17 @@ final readonly class MarkedClassesHaveTestRule implements Rule
 
     private function isEligible(ClassReflection $reflection): bool
     {
+        if ($reflection->isAbstract()) {
+            return false;
+        }
+
+        $shortName = $reflection->getNativeReflection()->getShortName();
+        foreach ($this->excludeSuffixes as $suffix) {
+            if (str_ends_with($shortName, $suffix)) {
+                return false;
+            }
+        }
+
         foreach ($this->attributes as $attribute) {
             if ($reflection->getNativeReflection()->getAttributes($attribute)) {
                 return true;
@@ -100,7 +123,19 @@ final readonly class MarkedClassesHaveTestRule implements Rule
         }
 
         foreach ($this->classes as $class) {
-            if (! $reflection->isAbstract() && ($reflection->getName() === $class || $reflection->isSubclassOfClass($this->reflectionProvider->getClass($class)))) {
+            if ($reflection->getName() === $class || $reflection->isSubclassOfClass($this->reflectionProvider->getClass($class))) {
+                return true;
+            }
+        }
+
+        foreach ($this->suffixes as $suffix) {
+            if (str_ends_with($reflection->getName(), $suffix)) {
+                return true;
+            }
+        }
+
+        foreach ($this->namespaceSegments as $segment) {
+            if (str_contains($reflection->getName(), $segment)) {
                 return true;
             }
         }
