@@ -24,13 +24,16 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+
 use App\MonitoringConfiguration\Domain\Repository\Criteria\GlobalMacroCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalGlobalMacroRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\InMemory\InMemoryPaginator;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalGlobalMacroRepositoryTest extends KernelTestCase
 {
     private DbalGlobalMacroRepository $repository;

@@ -24,9 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConfiguration;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\AgentConfiguration\InstallationCommandResource;
+
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class GetInstallationCommandProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/agent-configurations/installation-command';

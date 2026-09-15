@@ -24,9 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Exception\TokenNotFoundException;
+
 use App\Security\Infrastructure\Dbal\DbalTokenRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 class DbalTokenRepositoryTest extends ApiTestCase
 {
     private DbalTokenRepository $repository;

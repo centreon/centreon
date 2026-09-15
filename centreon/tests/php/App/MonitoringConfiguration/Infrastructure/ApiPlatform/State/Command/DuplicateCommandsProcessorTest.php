@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
+
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
@@ -32,9 +33,11 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class DuplicateCommandsProcessorTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/commands/_duplicate';

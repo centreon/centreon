@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Aggregate\AccessGroupId;
+
 use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalAccessGroupRepository;
 use App\Shared\Domain\Collection;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalAccessGroupRepositoryTest extends KernelTestCase
 {
     private Connection $connection;

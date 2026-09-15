@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
+
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class ListGlobalMacrosProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/global-macros';

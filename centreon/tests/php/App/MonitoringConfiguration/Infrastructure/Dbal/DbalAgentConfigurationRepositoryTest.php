@@ -24,10 +24,13 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+
 use App\MonitoringConfiguration\Domain\Exception\AgentConfigurationNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\AgentConfigurationRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalAgentConfigurationRepositoryTest extends KernelTestCase
 {
     private AgentConfigurationRepository $repository;

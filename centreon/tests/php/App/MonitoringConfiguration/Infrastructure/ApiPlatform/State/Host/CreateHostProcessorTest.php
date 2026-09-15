@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Host;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
+
 use App\MonitoringConfiguration\Domain\Repository\HostRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostResource;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class CreateHostProcessorTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/hosts';

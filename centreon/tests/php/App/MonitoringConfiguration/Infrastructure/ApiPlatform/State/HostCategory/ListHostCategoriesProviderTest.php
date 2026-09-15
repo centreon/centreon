@@ -24,11 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\HostCategory;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\HostCategory\HostCategoryResource;
+
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Uid\Uuid;
 use Tests\App\Shared\ApiTestCase;
 use Webmozart\Assert\Assert;
 
+#[Group('integration')]
 final class ListHostCategoriesProviderTest extends ApiTestCase
 {
     private const BASE_ENDPOINT = '/api/configuration/host_categories';

@@ -24,14 +24,17 @@ declare(strict_types=1);
 namespace Tests\App\Shared\Infrastructure\ApiPlatform\Routing;
 
 use App\Shared\Infrastructure\ApiPlatform\Routing\CoreLegacyApiAliasOperations;
+
 use App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiAliasOperationProviderInterface;
 use App\Shared\Infrastructure\ApiPlatform\Routing\LegacyApiPrefixAliasLoader;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 
+#[Group('integration')]
 final class LegacyApiPrefixAliasLoaderTest extends KernelTestCase
 {
     public function testAllowlistedOperationKeepsItsLegacyAlias(): void

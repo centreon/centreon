@@ -24,12 +24,15 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\CentralAddress;
+
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Factory\BrokerConfigurationFactory;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalBrokerConfigurationRepository;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalBrokerConfigurationRepositoryTest extends KernelTestCase
 {
     private const POLLER_ID = 2;

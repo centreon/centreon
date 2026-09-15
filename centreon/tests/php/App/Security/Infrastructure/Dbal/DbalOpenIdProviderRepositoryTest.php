@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\Security\Infrastructure\Dbal;
 
 use App\Security\Domain\Aggregate\Provider\OpenId\AbsoluteUrl;
+
 use App\Security\Domain\Aggregate\Provider\OpenId\AuthenticationTypeEnum;
 use App\Security\Domain\Aggregate\Provider\OpenId\ClientId;
 use App\Security\Domain\Aggregate\Provider\OpenId\ClientSecret;
@@ -32,8 +33,10 @@ use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 use App\Security\Domain\Aggregate\Provider\OpenId\Url;
 use App\Security\Domain\Aggregate\TokenIdpEnum;
 use App\Security\Infrastructure\Dbal\DbalOpenIdProviderRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('integration')]
 final class DbalOpenIdProviderRepositoryTest extends KernelTestCase
 {
     private DbalOpenIdProviderRepository $repository;

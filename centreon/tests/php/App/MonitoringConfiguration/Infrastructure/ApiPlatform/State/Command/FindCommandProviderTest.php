@@ -24,9 +24,12 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\App\Shared\ApiTestCase;
 
+#[Group('integration')]
 final class FindCommandProviderTest extends ApiTestCase
 {
     protected function setUp(): void

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\HostCategory\HostCategory;
+
 use App\MonitoringConfiguration\Domain\Repository\Criteria\HostCategoryCriteria;
 use App\MonitoringConfiguration\Infrastructure\Dbal\DbalHostCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\Dbal\HostCategoryTransformer;
@@ -31,9 +32,11 @@ use App\Security\Domain\Aggregate\UserId;
 use App\Security\Infrastructure\Dbal\DbalResourceAccessRepository;
 use App\Shared\Domain\Repository\Paginator;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
 
+#[Group('integration')]
 final class DbalHostCategoryRepositoryTest extends KernelTestCase
 {
     private Connection $connection;
