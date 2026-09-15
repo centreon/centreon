@@ -181,11 +181,19 @@ The following environment variables are available to customize the setup:
 * `POLLER_NAME`: name of the created poller (default: `poller-container`) — use a different value to create several pollers side by side, or after a previous one was torn down
 * `CENTRAL_API_USERNAME` / `CENTRAL_API_PASSWORD`: API account used for registration (default: `admin` / `Centreon!2021`)
 
-To tear down (also removes the poller's generated stack and workdir volume):
+To tear down, **two separate Compose projects** are involved and must both be torn down:
 
-```bash
-docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
-```
+1. The poller stack itself (`centengine`/`gorgone`), generated and started by the orchestrator via the mounted Docker socket — this is its own Compose project, named after `POLLER_NAME` (`poller-container` by default), entirely separate from this repo's `docker-compose.yml`. Tear it down by project name (works even without the generated file on hand, purely from the containers'/volumes' Compose labels):
+   ```bash
+   docker compose -p poller-container down -v
+   ```
+   (replace `poller-container` with whatever `POLLER_NAME` you used)
+2. Then the orchestrator's own project:
+   ```bash
+   docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
+   ```
+
+Doing only step 2 leaves the poller's `centengine`/`gorgone` containers running and still attached to `centreon-poller-test`, which then fails to be removed with a `Resource is still in use` warning — always run step 1 first (or anytime after) to fully clean up.
 
 > [!NOTE]
 > This profile mounts the host's Docker socket (`/var/run/docker.sock`) into the orchestrator container so it can start the poller's own `centengine`/`gorgone` containers as siblings — local dev/test only, never enabled by default or in CI.
@@ -220,5 +228,6 @@ Do not forget to specify profiles if you used them. Otherwise, additional servic
 ```bash
 docker compose --profile poller --profile vault -f .github/docker/docker-compose.yml down
 docker compose --profile remote-server -f .github/docker/docker-compose.yml down
+docker compose -p poller-container down -v   # tear down the poller stack first — see "Poller container setup"
 docker compose --profile poller-container -f .github/docker/docker-compose.yml down -v
 ```
