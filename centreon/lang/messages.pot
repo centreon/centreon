@@ -497,6 +497,10 @@ msgstr ""
 msgid "Action URL"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Action access"
+msgstr ""
+
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 msgid "Action access list link"
 msgstr ""
@@ -2104,6 +2108,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Breadcrumb copied"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Broker"
 msgstr ""
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
@@ -6347,6 +6355,10 @@ msgstr ""
 msgid "Ends at"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Engine"
+msgstr ""
+
 #: centreon/www/include/Administration/parameters/engine/form.php
 msgid "Engine Directories"
 msgstr ""
@@ -9088,6 +9100,10 @@ msgstr ""
 #: centreon/src/Centreon/Domain/HostConfiguration/Exception/HostGroupException.php
 #, php-format
 msgid "Host group (%s) not found"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Host group dependency"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -15186,6 +15202,10 @@ msgstr ""
 msgid "Resource Type"
 msgstr ""
 
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Resource access"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Resource access rule name"
 msgstr ""
@@ -16478,6 +16498,10 @@ msgstr ""
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "Service group"
+msgstr ""
+
+#: centreon/www/include/Administration/configChangelog/viewLogs.php
+msgid "Service group dependency"
 msgstr ""
 
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
