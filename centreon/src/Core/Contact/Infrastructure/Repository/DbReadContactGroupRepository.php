@@ -518,7 +518,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
     public function exist(array $contactGroupIds): array
     {
         $bind = [];
-        foreach ($contactGroupIds as $key => $contactGroupId) {
+        foreach (array_values($contactGroupIds) as $key => $contactGroupId) {
             $bind[":cg_{$key}"] = $contactGroupId;
         }
         if ($bind === []) {

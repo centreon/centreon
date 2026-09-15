@@ -526,7 +526,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     public function findContactsWithAccessRightByContactIds(array $contactIds): array
     {
         $bind = [];
-        foreach ($contactIds as $key => $contactId) {
+        foreach (array_values($contactIds) as $key => $contactId) {
             $bind[':contact_id' . $key] = $contactId;
         }
         if ($bind === []) {
@@ -708,7 +708,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     public function findContactGroupsWithAccessRightByContactGroupIds(array $contactGroupIds): array
     {
         $bind = [];
-        foreach ($contactGroupIds as $key => $contactGroupId) {
+        foreach (array_values($contactGroupIds) as $key => $contactGroupId) {
             $bind[':contact_group' . $key] = $contactGroupId;
         }
 

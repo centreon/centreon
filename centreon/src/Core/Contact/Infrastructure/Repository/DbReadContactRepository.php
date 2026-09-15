@@ -190,7 +190,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function exist(array $userIds): array
     {
         $bind = [];
-        foreach ($userIds as $key => $userId) {
+        foreach (array_values($userIds) as $key => $userId) {
             $bind[":user_{$key}"] = $userId;
         }
         if ($bind === []) {
@@ -455,7 +455,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findAdminsByIds(array $contactIds): array
     {
         $bind = [];
-        foreach ($contactIds as $key => $contactId) {
+        foreach (array_values($contactIds) as $key => $contactId) {
             $bind[':contact' . $key] = $contactId;
         }
         if ($bind === []) {

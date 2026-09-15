@@ -68,7 +68,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         }
 
         $bindValues = [];
-        foreach ($serviceCategoryIds as $key => $serviceCategoryId) {
+        foreach (array_values($serviceCategoryIds) as $key => $serviceCategoryId) {
             $bindValues[":service_category_{$key}"] = $serviceCategoryId;
         }
 
