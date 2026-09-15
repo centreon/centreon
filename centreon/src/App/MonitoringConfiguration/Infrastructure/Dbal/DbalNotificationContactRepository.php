@@ -96,7 +96,8 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
             $this->filterByCriteria($qb, $criteria);
         }
 
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             /** @var array<RowTypeAlias> $rows */
             $rows = $qb->executeQuery()->fetchAllAssociative();
 
@@ -115,8 +116,8 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         return new InMemoryPaginator(
             items: $this->createNotificationContacts($rows),
             totalItems: $count,
-            currentPage: $criteria->getPage() ?? throw new \LogicException('Unexpected null page'),
-            itemsPerPage: $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page'),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -128,15 +129,16 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
      */
     private function emptyResult(?NotificationContactCriteria $criteria): \IteratorAggregate&\Countable
     {
-        if ($criteria?->getPage() === null || $criteria->getItemsPerPage() === null) {
+        $pagination = $criteria?->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
             return new Collection([], NotificationContact::class);
         }
 
         return new InMemoryPaginator(
             items: new Collection([], NotificationContact::class),
             totalItems: 0,
-            currentPage: $criteria->getPage(),
-            itemsPerPage: $criteria->getItemsPerPage(),
+            currentPage: $pagination->page,
+            itemsPerPage: $pagination->itemsPerPage,
         );
     }
 
@@ -236,16 +238,14 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         );
     }
 
-    /**
-     * Only called once findAll() has already established that both page and items-per-page are
-     * set (it returns early otherwise), so re-checking for null here would be dead code.
-     */
     private function paginate(QueryBuilder $qb, NotificationContactCriteria $criteria): void
     {
-        $page = $criteria->getPage() ?? throw new \LogicException('Unexpected null page');
-        $itemsPerPage = $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page');
+        $pagination = $criteria->getPagination();
+        if (! $pagination instanceof \App\Shared\Domain\Repository\Pagination) {
+            return;
+        }
 
-        $qb->setFirstResult(($page - 1) * $itemsPerPage)
-            ->setMaxResults($itemsPerPage);
+        $qb->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->itemsPerPage);
     }
 }

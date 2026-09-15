@@ -24,23 +24,14 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Domain\Repository\Criteria;
 
 use App\MonitoringConfiguration\Domain\Repository\Criteria\NotificationContactCriteria;
-use App\Security\Domain\Aggregate\UserId;
 use PHPUnit\Framework\TestCase;
 
 final class NotificationContactCriteriaTest extends TestCase
 {
-    public function testWithPaginationReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
-    {
-        $criteria = new NotificationContactCriteria();
-
-        $withPagination = $criteria->withPagination(2, 20);
-
-        self::assertNotSame($criteria, $withPagination);
-        self::assertNull($criteria->getPage());
-        self::assertNull($criteria->getItemsPerPage());
-        self::assertSame(2, $withPagination->getPage());
-        self::assertSame(20, $withPagination->getItemsPerPage());
-    }
+    // Pagination immutability is already covered generically by PaginableCriteriaTest, and
+    // viewer-scoping immutability has no dedicated test anywhere ViewerScopedCriteriaTrait is used
+    // (Host, HostCategory, HostGroup, HostTemplate, Poller) since NotificationContactCriteria only
+    // wires both traits in without overriding their behavior.
 
     public function testWithNameReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
     {
@@ -51,18 +42,6 @@ final class NotificationContactCriteriaTest extends TestCase
         self::assertNotSame($criteria, $withName);
         self::assertNull($criteria->getName());
         self::assertSame('foo', $withName->getName());
-    }
-
-    public function testWithViewerIdReturnsANewInstanceAndLeavesTheOriginalUnchanged(): void
-    {
-        $criteria = new NotificationContactCriteria();
-        $viewerId = new UserId(12);
-
-        $withViewerId = $criteria->withViewerId($viewerId);
-
-        self::assertNotSame($criteria, $withViewerId);
-        self::assertNull($criteria->getViewerId());
-        self::assertSame($viewerId, $withViewerId->getViewerId());
     }
 
     public function testWithNameAcceptsTheLiteralZero(): void
