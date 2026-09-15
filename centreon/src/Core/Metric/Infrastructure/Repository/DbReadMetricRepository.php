@@ -537,7 +537,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function buildSubRequestForServiceFilter(array $serviceNames): array
     {
-        foreach ($serviceNames as $key => $serviceName) {
+        foreach (array_values($serviceNames) as $key => $serviceName) {
             $bindServiceNames[':service_name' . $key] = [$serviceName => \PDO::PARAM_STR];
         }
 
@@ -563,7 +563,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
-        foreach ($metaserviceIds as $key => $metaserviceId) {
+        foreach (array_values($metaserviceIds) as $key => $metaserviceId) {
             $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_' . $metaserviceId => \PDO::PARAM_STR];
         }
 

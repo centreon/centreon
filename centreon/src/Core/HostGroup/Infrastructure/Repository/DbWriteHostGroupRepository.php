@@ -129,7 +129,7 @@ class DbWriteHostGroupRepository extends AbstractRepositoryDRB implements WriteH
 
         $bindValues = [];
         $subQuery = [];
-        foreach ($groupIds as $key => $groupId) {
+        foreach (array_values($groupIds) as $key => $groupId) {
             $bindValues[":group_id_{$key}"] = $groupId;
             $subQuery[] = "(:group_id_{$key}, :host_id)";
         }

@@ -280,7 +280,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
 
         $subQuery = [];
         $bindElem = [];
-        foreach ($resource->getResources() as $key => $resourceElem) {
+        foreach (array_values($resource->getResources()) as $key => $resourceElem) {
             $subQuery[] = "(:notificationId, :resource_{$key})";
             $bindElem[":resource_{$key}"] = $resourceElem->getId();
         }

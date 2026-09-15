@@ -1043,7 +1043,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             ]);
 
             $bind = [];
-            foreach ($aclGroupIds as $key => $aclGroupId) {
+            foreach (array_values($aclGroupIds) as $key => $aclGroupId) {
                 $bind[':acl_group_' . $key] = $aclGroupId;
             }
 
