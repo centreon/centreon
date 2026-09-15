@@ -8,6 +8,9 @@
 #      container on the shared `centreon-poller-test` network
 #   4. run the generated command with --no-start, attach the resulting
 #      poller docker-compose.yaml to that shared network, then start it
+#   5. wait for the poller's gorgone to complete its first successful ping to
+#      central, then trigger a generate-and-reload so the poller actually
+#      gets its monitoring configuration and centengine restarts
 set -u
 
 apk add --no-cache curl jq bash >/dev/null
@@ -42,7 +45,8 @@ CREATE_RESPONSE=$(curl -s -X POST "${CENTRAL_BASE}/configuration/pollers" \
   -d "{\"name\":\"${POLLER_NAME}\",\"poller_type\":\"docker\",\"address\":\"${POLLER_NAME}-gorgone\",\"poller_token_name\":\"${POLLER_TOKEN_NAME}\",\"central_address\":\"web\"}")
 
 INSTALL_CMD=$(echo "${CREATE_RESPONSE}" | jq -r '.installation_command // empty')
-if [ -z "${INSTALL_CMD}" ]; then
+POLLER_ID=$(echo "${CREATE_RESPONSE}" | jq -r '.id // empty')
+if [ -z "${INSTALL_CMD}" ] || [ -z "${POLLER_ID}" ]; then
   echo "Poller creation failed: ${CREATE_RESPONSE}" >&2
   echo "(a 409 usually means POLLER_NAME='${POLLER_NAME}' already exists — pick another POLLER_NAME or delete the existing poller first)" >&2
   exit 1
@@ -71,4 +75,30 @@ printf '\nnetworks:\n  default:\n    name: centreon-poller-test\n    external: t
 echo "== Starting the poller stack =="
 docker compose up -d
 
-echo "Done. Poller '${POLLER_NAME}' should appear as running in Configuration > Pollers within ~1-2 minutes."
+echo "== Waiting for the poller's gorgone to complete its first successful ping to central =="
+PING_TIMEOUT=180
+PING_INTERVAL=5
+i=0
+until docker compose logs gorgone 2>/dev/null | grep -q '"message":"ping ok"'; do
+  i=$((i + 1))
+  if [ "${i}" -ge "${PING_TIMEOUT}" ]; then
+    echo "Timed out after $((PING_TIMEOUT * PING_INTERVAL / 60)) minutes waiting for a first ping from the poller." >&2
+    echo "The poller stack is still up in ${WORKDIR} — check 'docker compose logs gorgone' there, then re-run generate-and-reload manually:" >&2
+    echo "  curl -X GET -H \"X-AUTH-TOKEN: <token>\" ${CENTRAL_BASE}/configuration/monitoring-servers/${POLLER_ID}/generate-and-reload" >&2
+    exit 1
+  fi
+  sleep "${PING_INTERVAL}"
+done
+echo "First ping received."
+
+echo "== Generating and reloading the monitoring configuration for poller '${POLLER_NAME}' (ID: ${POLLER_ID}) =="
+GEN_HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 120 \
+  -H "X-AUTH-TOKEN: ${TOKEN}" \
+  "${CENTRAL_BASE}/configuration/monitoring-servers/${POLLER_ID}/generate-and-reload")
+if [ "${GEN_HTTP_CODE}" = "204" ]; then
+  echo "Configuration generated and reloaded successfully (centengine restarted on the poller)."
+else
+  echo "Warning: generate-and-reload returned HTTP ${GEN_HTTP_CODE} (the API token may have expired during the wait — re-run it manually with a fresh token if needed)." >&2
+fi
+
+echo "Done. Poller '${POLLER_NAME}' should appear as running in Configuration > Pollers."
