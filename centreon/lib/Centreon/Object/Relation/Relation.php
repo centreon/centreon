@@ -28,6 +28,9 @@ use Pimple\Container;
  */
 abstract class Centreon_Object_Relation
 {
+    /** @var string a column name, optionally qualified by a table name */
+    private const COLUMN_IDENTIFIER_PATTERN = '/^[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?$/';
+
     /** @var string */
     public $firstObject;
 
@@ -196,7 +199,7 @@ abstract class Centreon_Object_Relation
         $filterIndex = 0;
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                $key = $this->sanitizeIdentifier($key);
+                $key = $this->sanitizeColumnIdentifier($key);
                 if (is_array($rawvalue)) {
                     $inPlaceholders = [];
                     foreach ($rawvalue as $inValue) {
@@ -217,7 +220,7 @@ abstract class Centreon_Object_Relation
             }
         }
         if (isset($order, $sort) && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
-            $order = $this->sanitizeIdentifier($order);
+            $order = $this->sanitizeOrderByColumns($order);
             $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
@@ -243,8 +246,8 @@ abstract class Centreon_Object_Relation
      */
     public function getTargetIdFromSourceId($targetKey, $sourceKey, $sourceId)
     {
-        $targetKey = $this->sanitizeIdentifier($targetKey);
-        $sourceKey = $this->sanitizeIdentifier($sourceKey);
+        $targetKey = $this->sanitizeColumnIdentifier($targetKey);
+        $sourceKey = $this->sanitizeColumnIdentifier($sourceKey);
         if (! is_array($sourceId)) {
             $sourceId = [$sourceId];
         }
@@ -292,6 +295,57 @@ abstract class Centreon_Object_Relation
         }
 
         return $name;
+    }
+
+    /**
+     * Validate a value used as a single column reference in a generated statement.
+     *
+     * sanitizeIdentifier() only rejects a set of characters, which still leaves
+     * room for anything else the SQL parser accepts. This accepts nothing but a
+     * column name, optionally qualified by a table name. Use it wherever the
+     * value is known to designate exactly one column: filter keys, relation keys
+     * and the column of getIdByParameter(). Select lists and ORDER BY lists take
+     * other shapes and have their own validation.
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    protected function sanitizeColumnIdentifier(string $name): string
+    {
+        $name = $this->sanitizeIdentifier($name);
+        if (preg_match(self::COLUMN_IDENTIFIER_PATTERN, $name) !== 1) {
+            throw new InvalidArgumentException("Invalid column identifier: {$name}");
+        }
+
+        return $name;
+    }
+
+    /**
+     * Validate an ORDER BY column list and return it ready for interpolation.
+     *
+     * The list is validated column by column: sanitizeIdentifier() strips the
+     * backticks of the whole string, so applying it to a comma-separated list
+     * would unbalance the quoting of the individual columns. Backtick quoting is
+     * preserved per column, which callers rely on for reserved words such as
+     * `order`.
+     *
+     * @throws InvalidArgumentException
+     * @return string
+     */
+    protected function sanitizeOrderByColumns(string $order): string
+    {
+        $orderColumns = [];
+        foreach (explode(',', $order) as $orderColumn) {
+            $orderColumn = trim($orderColumn);
+            $isQuoted = str_starts_with($orderColumn, '`') && str_ends_with($orderColumn, '`');
+            $orderColumn = $this->sanitizeIdentifier($orderColumn);
+            if (preg_match(self::COLUMN_IDENTIFIER_PATTERN, $orderColumn) !== 1) {
+                throw new InvalidArgumentException("Invalid order column: {$orderColumn}");
+            }
+            $orderColumns[] = $isQuoted ? "`{$orderColumn}`" : $orderColumn;
+        }
+
+        return implode(',', $orderColumns);
     }
 
     /**
