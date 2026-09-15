@@ -88,13 +88,20 @@ final readonly class LegacyVaultWrapper implements VaultInterface
 
     public function write(string $customPath, string $key, string $value, ?string $uuid = null): string
     {
-        $this->writeRepository->setCustomPath($customPath);
-        $paths = $this->writeRepository->upsert($uuid, [$key => $value], []);
+        return $this->writeMany($customPath, [$key => $value], $uuid)[$key];
+    }
 
-        if (! isset($paths[$key])) {
-            throw new \RuntimeException(sprintf('Unable to write vault credential "%s"', $key));
+    public function writeMany(string $customPath, array $secrets, ?string $uuid = null): array
+    {
+        $this->writeRepository->setCustomPath($customPath);
+        $paths = $this->writeRepository->upsert($uuid, $secrets, []);
+
+        foreach (array_keys($secrets) as $key) {
+            if (! isset($paths[$key])) {
+                throw new \RuntimeException(sprintf('Unable to write vault credential "%s"', $key));
+            }
         }
 
-        return $paths[$key];
+        return $paths;
     }
 }
