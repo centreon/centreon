@@ -46,9 +46,9 @@
 
         var label = $option.text().toLowerCase();
         if (strictMode) {
-            var matches = hostNames.some(function (hostname) {
-                return new RegExp(`^${$option.text()}$`, "i").exec(hostname)
-            })
+            var matches = hostNames.some(function (hostName) {
+                return label === hostName.toLowerCase();
+            });
         } else {
             var matches = hostNames.some(function (hostName) {
                 return label.indexOf(hostName.toLowerCase()) !== -1;
