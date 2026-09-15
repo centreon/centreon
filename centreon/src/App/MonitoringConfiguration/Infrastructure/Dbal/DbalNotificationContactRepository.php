@@ -236,13 +236,16 @@ final readonly class DbalNotificationContactRepository extends DbalRepository im
         );
     }
 
+    /**
+     * Only called once findAll() has already established that both page and items-per-page are
+     * set (it returns early otherwise), so re-checking for null here would be dead code.
+     */
     private function paginate(QueryBuilder $qb, NotificationContactCriteria $criteria): void
     {
-        if ($criteria->getPage() === null || $criteria->getItemsPerPage() === null) {
-            return;
-        }
+        $page = $criteria->getPage() ?? throw new \LogicException('Unexpected null page');
+        $itemsPerPage = $criteria->getItemsPerPage() ?? throw new \LogicException('Unexpected null items per page');
 
-        $qb->setFirstResult(($criteria->getPage() - 1) * $criteria->getItemsPerPage())
-            ->setMaxResults($criteria->getItemsPerPage());
+        $qb->setFirstResult(($page - 1) * $itemsPerPage)
+            ->setMaxResults($itemsPerPage);
     }
 }
