@@ -93,6 +93,10 @@ function _installParseArguments() {
     --with-vmware)
       WITH_VMWARE=1
       ;;
+    --vmware-path)
+      shift
+      VMWARE_PATH=$1
+      ;;
     --with-snmptrap)
       WITH_SNMPTRAP=1
       ;;

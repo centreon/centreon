@@ -30,6 +30,38 @@ function _checkDockerPrerequisites() {
   return ${ret}
 }
 
+# centreon-vmware's Dockerfile lives in centreon-plugins (a different repo),
+# and its image is never published (licensed Broadcom VMware Perl SDK), so it
+# must be built locally. Validate the checkout + SDK archives are in place
+# before we ever reference them as a compose build context, and fail with the
+# exact command needed to fix it instead of letting `docker compose up` fail
+# deep inside the build.
+function _checkVmwarePrerequisites() {
+  local plugins_path="${VMWARE_PATH:-./centreon-plugins}"
+  local ret=0
+
+  if [ ! -d "${plugins_path}" ] || [ ! -f "${plugins_path}/.github/docker/connector/Dockerfile.connector-vmware" ]; then
+    consoleError "centreon-plugins checkout not found at '${plugins_path}'."
+    consoleError "Clone it with: git clone https://github.com/centreon/centreon-plugins.git ${plugins_path}"
+    consoleError "Or point to an existing checkout with --vmware-path <path>."
+    logError "centreon-plugins checkout not found at '${plugins_path}'."
+    ret=1
+  else
+    local missing_sdk=""
+    [ -f "${plugins_path}/sdks-vmware/VMware-vSphere-Perl-SDK-7.0.0-17698549.x86_64.tar.gz" ] || missing_sdk="${missing_sdk}VMware-vSphere-Perl-SDK-7.0.0-17698549.x86_64.tar.gz "
+    [ -f "${plugins_path}/sdks-vmware/vsan-sdk-perl.zip" ] || missing_sdk="${missing_sdk}vsan-sdk-perl.zip "
+
+    if [ -n "${missing_sdk}" ]; then
+      consoleError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      consoleError "Download them from the Broadcom Developer Portal and place them there — see ${plugins_path}/sdks-vmware/README.md."
+      logError "Missing VMware SDK file(s) in '${plugins_path}/sdks-vmware/': ${missing_sdk% }"
+      ret=1
+    fi
+  fi
+
+  return ${ret}
+}
+
 function runDockerInstall() {
   echo ""
   consoleMainTitle "Generating Docker Compose files for Centreon poller"
@@ -37,6 +69,10 @@ function runDockerInstall() {
   consoleTitle "Checking prerequisites:"
   _checkDockerPrerequisites || exit 1
   consoleInfo "docker and docker compose are available"
+  if [ "${WITH_VMWARE}" = "1" ]; then
+    _checkVmwarePrerequisites || exit 1
+    consoleInfo "centreon-plugins checkout and VMware SDK found"
+  fi
   echo ""
 
   _generateDotEnv "."
@@ -144,6 +180,9 @@ GORGONE_TAG=
 SNMPTRAPD_TAG=
 CENTREONTRAPD_TAG=
 VMWARE_TAG=
+
+# Build context for centreon-vmware (see --vmware-path)
+CENTREON_PLUGINS_PATH=${VMWARE_PATH:-./centreon-plugins}
 
 TZ=${TZ:-UTC}
 DEBUG=${DEBUG:-false}
@@ -323,6 +362,9 @@ EOF
     cat >> "${out}" <<'EOF'
   centreon-vmware:
     image: "connector-vmware:${VMWARE_TAG:-local}"
+    build:
+      context: "${CENTREON_PLUGINS_PATH}"
+      dockerfile: .github/docker/connector/Dockerfile.connector-vmware
     container_name: "${NAME}-vmware"
     hostname: centreon-vmware
     restart: unless-stopped
