@@ -23,30 +23,30 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Shared\Domain\Repository\PaginableCriteria;
-use App\Shared\Domain\Repository\PaginableCriteriaTrait;
-use Webmozart\Assert\Assert;
+use App\Security\Domain\Aggregate\UserId;
 
-final class HostCategoryCriteria implements PaginableCriteria
+/**
+ * ACL scoping shared by the listing criteria that restrict results to what a
+ * given viewer is allowed to see (Host, HostCategory, HostGroup, HostTemplate,
+ * Poller).
+ */
+trait ViewerScopedCriteriaTrait
 {
-    use PaginableCriteriaTrait;
-    use ViewerScopedCriteriaTrait;
+    private ?UserId $viewerId = null;
 
-    private ?string $name = null;
-
-    public function withName(string $name): self
+    /**
+     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
+     */
+    public function withViewerId(?UserId $viewerId): self
     {
-        // notEmpty() relies on empty(), which would wrongly reject a legitimate name of "0"
-        Assert::stringNotEmpty($name);
-
         $new = clone $this;
-        $new->name = $name;
+        $new->viewerId = $viewerId;
 
         return $new;
     }
 
-    public function getName(): ?string
+    public function getViewerId(): ?UserId
     {
-        return $this->name;
+        return $this->viewerId;
     }
 }
