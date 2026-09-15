@@ -58,8 +58,8 @@ function aff_header($str, $str2, $nb)
     <tr height="83" style=" background-image: url('../img/bg_banner.gif');">
         <th width="400" height="83"><?php echo $nb . '. ' . $str2; ?></th>
         <th width="200" height="83" style="text-align: right; padding: 0px;">
-            <a href="http://www.centreon.com" target="_blank"><img src="../img/centreon.png" alt="Oreon" border="0"
-                                                                   style="padding-top:10px;padding-right:10px;"></a>
+            <a href="http://www.centreon.com" target="_blank"><img src="../img/logo-centreon-colors.svg" alt="Centreon" border="0"
+                                                                   style="padding-top:10px;padding-right:10px;width:160px;height:40px;object-fit:contain;"></a>
         </th>
     </tr>
     <tr>
