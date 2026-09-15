@@ -29,6 +29,9 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  */
 class CentreonCommand
 {
+    /** @var string letters, digits, hyphen and underscore — the column names getParameters() accepts */
+    private const COLUMN_NAME_PATTERN = '/^[a-zA-Z0-9_-]+\z/';
+
     /** @var string[] */
     public $aTypeMacro = ['1' => 'HOST', '2' => 'SERVICE'];
 
@@ -326,8 +329,9 @@ class CentreonCommand
 
     /**
      * @param $id
-     * @param array $parameters
+     * @param array $parameters column names to select
      * @throws Exception
+     * @throws InvalidArgumentException when a column name is not a plain identifier
      * @return array|mixed
      */
     public function getParameters($id, $parameters = [])
@@ -339,7 +343,13 @@ class CentreonCommand
             return [];
         }
         if (count($parameters) > 0) {
-            foreach ($parameters as $k => $v) {
+            foreach ($parameters as $v) {
+                // A column name cannot be bound as a query parameter, so it is
+                // interpolated and must be restricted to an allowlist. Backticks are
+                // excluded, so the quoting below cannot be broken out of.
+                if (preg_match(self::COLUMN_NAME_PATTERN, (string) $v) !== 1) {
+                    throw new InvalidArgumentException("Invalid column name: {$v}");
+                }
                 $explodedValues .= "`{$v}`,";
             }
             $explodedValues = rtrim($explodedValues, ',');
