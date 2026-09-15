@@ -46,10 +46,6 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Timezone\ListTi
                     ),
                 ],
             ),
-            // No dedicated ACL in legacy (any logged-in user can list timezones): only the
-            // baseline authentication already enforced by the /api firewall is required here,
-            // deliberately, rather than a PermissionEnum bridged from a legacy role that does not
-            // exist for this reference data.
             security: "is_granted('IS_AUTHENTICATED_FULLY')",
             securityMessage: 'You must be authenticated to list timezones',
         ),
