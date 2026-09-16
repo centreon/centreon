@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace App\Upgrade\Infrastructure\Dbal;
 
 use App\Upgrade\Domain\Repository\ModuleRepository;
+use App\Upgrade\Infrastructure\Legacy\LegacyConnectionFactory;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -43,10 +44,9 @@ final class DbalModuleRepository implements ModuleRepository
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private readonly Connection $configConnection,
-        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
-        private readonly Connection $realtimeConnection,
         #[Autowire(param: 'upgrade.modules_dir')]
         private readonly string $modulesDir,
+        private readonly LegacyConnectionFactory $legacyConnectionFactory,
         #[Autowire(param: 'upgrade.centreon_path')]
         private readonly string $centreonPath,
         private readonly LoggerInterface $logger,
@@ -292,9 +292,9 @@ final class DbalModuleRepository implements ModuleRepository
             return;
         }
 
-        // Variables expected by legacy module upgrade scripts.
-        $pearDB = $this->configConnection->getNativeConnection();
-        $pearDBStorage = $this->realtimeConnection->getNativeConnection();
+        // See LegacyConnectionFactory: module upgrade scripts still call legacy CentreonDB/PDO methods.
+        $pearDB = $this->legacyConnectionFactory->createConfigurationConnection();
+        $pearDBO = $this->legacyConnectionFactory->createRealtimeConnection();
         $centreon_path = $this->centreonPath;
 
         require_once $filePath;
