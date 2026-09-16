@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
+use App\Shared\Domain\Collection;
 
 interface MediaRepository
 {
@@ -32,4 +34,14 @@ interface MediaRepository
      * @return \IteratorAggregate<int, Media>&\Countable
      */
     public function findAll(?MediaCriteria $criteria = null): \IteratorAggregate&\Countable;
+
+    /**
+     * Every requested id's media, for bulk display purposes (e.g. a sibling aggregate that only
+     * references a media by id, such as a host's icon). An id absent from the result no longer exists.
+     *
+     * @param Collection<MediaId> $ids
+     *
+     * @return Collection<Media> indexed by media id
+     */
+    public function findByIds(Collection $ids): Collection;
 }
