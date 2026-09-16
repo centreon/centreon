@@ -52,6 +52,22 @@ $fixGorgoneCommunicationTypeComment = function () use ($pearDB, &$errorMessage, 
     LoggerUpgrade::create()->info($version, 'Successfully fixed the gorgone_communication_type column comment');
 };
 
+$realignCommandActionLogObjectType = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = "Unable to realign command audit logs to the 'command' object type";
+    LoggerUpgrade::create()->info($version, "Realigning command audit logs from 'commands' to 'command'");
+
+    // The ActivityLogging system used to store command changes under the plural
+    // 'commands' token, which the Administration > Logs Type filter (bound on the
+    // canonical singular 'command') could never match. Realign the existing rows.
+    $pearDBO->update(
+        <<<'SQL'
+            UPDATE `log_action` SET `object_type` = 'command' WHERE `object_type` = 'commands'
+            SQL
+    );
+
+    LoggerUpgrade::create()->info($version, "Successfully realigned command audit logs to 'command'");
+};
+
 try {
     LoggerUpgrade::create()->info($version, "Starting upgrade script for version {$version}");
 
@@ -60,6 +76,8 @@ try {
 
     // DDL statements for configuration database
     $fixGorgoneCommunicationTypeComment();
+
+    $realignCommandActionLogObjectType();
 
     // Transactional queries for configuration database
     $errorMessage = 'Unable to start the configuration database transaction';
