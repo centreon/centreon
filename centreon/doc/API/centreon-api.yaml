@@ -103,6 +103,10 @@ tags:
     description: "Resource 'HostTemplate' operations."
   - name: HostCategory
     description: "Resource 'HostCategory' operations."
+  - name: Timezone
+    description: "Resource 'Timezone' operations."
+  - name: NotificationContact
+    description: "Resource 'NotificationContact' operations."
 security:
   -
     Token: []
@@ -5344,6 +5348,148 @@ paths:
             schema:
               $ref: '#/components/schemas/Host.CreateHostInput'
         required: true
+  /api/configuration/timezones:
+    get:
+      operationId: api_configurationtimezones_get_collection
+      tags:
+        - Timezone
+      responses:
+        '200':
+          description: 'Timezone collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'Timezone.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/Timezone.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Timezone'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of Timezone resources.'
+      description: 'Retrieves the collection of Timezone resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by timezone name using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
+  /api/configuration/contacts:
+    get:
+      operationId: api_configurationcontacts_get_collection
+      tags:
+        - NotificationContact
+      responses:
+        '200':
+          description: 'NotificationContact collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                description: 'NotificationContact.jsonld collection.'
+                allOf:
+                  - { $ref: '#/components/schemas/HydraCollectionBaseSchema' }
+                  - { type: object, required: [member], properties: { member: { type: array, items: { $ref: '#/components/schemas/NotificationContact.jsonld' } } } }
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationContact'
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          links: {}
+      summary: 'Retrieves the collection of NotificationContact resources.'
+      description: 'Retrieves the collection of NotificationContact resources.'
+      parameters:
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by contact name or alias using "like" operator'
+          required: false
+          deprecated: false
+          schema:
+            type: string
+          style: form
+          explode: true
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: true
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+            maximum: 30
+          style: form
+          explode: true
 components:
   securitySchemes:
     Token:
@@ -10661,3 +10807,37 @@ components:
           type: integer
         name:
           type: string
+    Timezone:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Timezone.jsonld:
+      allOf:
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+    NotificationContact:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    NotificationContact.jsonld:
+      allOf:
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
+        -
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
