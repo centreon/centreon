@@ -72,7 +72,6 @@ switch ($o) {
             purgeCSRFToken();
             if (! in_array(false, $selectIds)) {
                 deleteMultImg($selectIds);
-                deleteMultDirectory($selectIds);
             }
         } else {
             unvalidFormMessage();

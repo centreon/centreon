@@ -337,55 +337,6 @@ function insertDirectory($dir_alias, $dir_comment = '')
     return '';
 }
 
-function deleteMultDirectory($dirs = [])
-{
-    foreach (array_keys($dirs) as $selector) {
-        $id = explode('-', $selector);
-        if (count($id) != 1) {
-            continue;
-        }
-        deleteDirectory($id[0]);
-    }
-}
-
-function deleteDirectory($directoryId)
-{
-    global $pearDB;
-    $mediadir = './img/media/';
-    $directoryId = (int) $directoryId;
-
-    // Purge images of the directory
-    $statement1 = $pearDB->prepare('SELECT img_img_id FROM view_img_dir_relation WHERE dir_dir_parent_id = :directoryId');
-    $statement1->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
-    $statement1->execute();
-    while ($img = $statement1->fetch()) {
-        deleteImg($img['img_img_id']);
-    }
-    $statement1->closeCursor();
-
-    // Delete directory
-    $statement2 = $pearDB->prepare('SELECT dir_alias FROM view_img_dir WHERE dir_id = :directoryId');
-    $statement2->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
-    $statement2->execute();
-    $dirAlias = $statement2->fetch();
-    $statement2->closeCursor();
-
-    $safeDirAlias = basename($dirAlias['dir_alias']);
-    $filenames = scandir($mediadir . $safeDirAlias);
-    foreach ($filenames as $fileName) {
-        if (is_file($mediadir . $safeDirAlias . '/' . $fileName)) {
-            unlink($mediadir . $safeDirAlias . '/' . $fileName);
-        }
-    }
-    rmdir($mediadir . $safeDirAlias);
-
-    if (! is_dir($mediadir . $safeDirAlias)) {
-        $statement3 = $pearDB->prepare('DELETE FROM view_img_dir WHERE dir_id = :directoryId');
-        $statement3->bindValue(':directoryId', $directoryId, PDO::PARAM_INT);
-        $statement3->execute();
-    }
-}
-
 function updateDirectory($dir_id, $dir_alias, $dir_comment = '')
 {
     if (! $dir_id) {
@@ -506,7 +457,8 @@ function isCorrectMIMEType(array $file): bool
         'zip' => 'application/zip',
         'gzip' => 'application/x-gzip',
     ];
-    $fileExtension = end(explode('.', $file['name']));
+    $explodedFilename = explode('.', $file['name']);
+    $fileExtension = end($explodedFilename);
     if (! array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
         return false;
     }
@@ -699,7 +651,8 @@ function isValidMIMETypeFromArchive(
     ];
 
     foreach ($files as $file) {
-        $fileExtension = end(explode('.', $file));
+        $explodedFilename = explode('.', $file);
+        $fileExtension = end($explodedFilename);
         if (! array_key_exists($fileExtension, $mimeTypeFileExtensionConcordance)) {
             return false;
         }
