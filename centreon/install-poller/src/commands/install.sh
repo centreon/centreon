@@ -93,6 +93,14 @@ function _installParseArguments() {
     --with-vmware)
       WITH_VMWARE=1
       ;;
+    --vmware-path)
+      shift
+      if [ $# -eq 0 ] || [ "${1#--}" != "$1" ]; then
+        consoleError "--vmware-path requires a path."
+        exit 1
+      fi
+      VMWARE_PATH=$1
+      ;;
     --with-snmptrap)
       WITH_SNMPTRAP=1
       ;;
