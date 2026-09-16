@@ -25,6 +25,7 @@ namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Media\ImageFolderId;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Repository\Criteria\MediaCriteria;
 use App\MonitoringConfiguration\Domain\Repository\MediaRepository;
 use App\Security\Domain\Aggregate\UserId;
@@ -122,6 +123,31 @@ final readonly class DbalMediaRepository extends DbalRepository implements Media
             currentPage: $pagination->page,
             itemsPerPage: $pagination->itemsPerPage,
         );
+    }
+
+    public function findByIds(Collection $ids): Collection
+    {
+        $idValues = array_map(static fn (MediaId $id): int => $id->value, $ids->toArray());
+        if ($idValues === []) {
+            return new Collection([], Media::class);
+        }
+
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select('img.img_id AS id', 'img.img_path AS name', 'dir.dir_name AS directory')
+            ->from(self::TABLE_NAME, 'img')
+            ->innerJoin('img', self::DIR_RELATION_TABLE_NAME, 'rel', 'rel.img_img_id = img.img_id')
+            ->innerJoin('rel', self::DIR_TABLE_NAME, 'dir', 'dir.dir_id = rel.dir_dir_parent_id')
+            ->where($qb->expr()->in('img.img_id', $qb->createNamedParameter($idValues, ArrayParameterType::INTEGER)));
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        $medias = [];
+        foreach ($rows as $row) {
+            $medias[(int) $row['id']] = $this->transformer->transform($row);
+        }
+
+        return new Collection($medias, Media::class);
     }
 
     /**

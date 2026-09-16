@@ -30,6 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Host\HostId;
 use App\MonitoringConfiguration\Domain\Aggregate\Host\HostName;
 use App\MonitoringConfiguration\Domain\Aggregate\HostGroup\HostGroupId;
 use App\MonitoringConfiguration\Domain\Aggregate\HostTemplate\HostTemplateId;
+use App\MonitoringConfiguration\Domain\Aggregate\Media\MediaId;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\TransformerInterface;
@@ -68,6 +69,7 @@ final readonly class DbalHostTransformer implements TransformerInterface
             pollerId: new PollerId((int) $from['poller_id']),
             templateIds: new Collection($templateIds, HostTemplateId::class),
             hostGroupIds: new Collection($groupIds, HostGroupId::class),
+            iconId: $from['icon_id'] !== null ? new MediaId((int) $from['icon_id']) : null,
         );
     }
 }

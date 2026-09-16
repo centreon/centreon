@@ -288,6 +288,28 @@ final class DbalHostRepositoryTest extends KernelTestCase
         self::assertSame(1, (int) $extendedInfoCount);
     }
 
+    public function testItMapsAHostWithoutAnIconToANullIconId(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $this->createHost('no-icon-host', $pollerId);
+
+        $host = iterator_to_array($this->repository->findAll())[0];
+
+        self::assertNull($host->iconId);
+    }
+
+    public function testItMapsAHostIconIdFromExtendedHostInformation(): void
+    {
+        $pollerId = $this->createPoller('Central');
+        $imgId = $this->createImage('server.png');
+        $this->createHost('iconed-host', $pollerId, iconId: $imgId);
+
+        $host = iterator_to_array($this->repository->findAll())[0];
+
+        self::assertNotNull($host->iconId);
+        self::assertSame($imgId, $host->iconId->value);
+    }
+
     public function testIsNameUsedByHostOrTemplateFindsAHostByExactName(): void
     {
         $pollerId = $this->createPoller('Central');
@@ -334,6 +356,7 @@ final class DbalHostRepositoryTest extends KernelTestCase
         ?string $alias = null,
         string $address = '127.0.0.1',
         bool $activated = true,
+        ?int $iconId = null,
     ): int {
         $this->connection->insert('host', [
             'host_name' => $name,
@@ -347,6 +370,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
         $this->connection->insert('ns_host_relation', [
             'host_host_id' => $hostId,
             'nagios_server_id' => $pollerId,
+        ]);
+
+        // Every registered host always has a companion row here, even an empty one (see
+        // DbalHostRepository::add()'s own comment) — findAll() relies on it existing.
+        $this->connection->insert('extended_host_information', [
+            'host_host_id' => $hostId,
+            'ehi_icon_image' => $iconId,
         ]);
 
         return $hostId;
@@ -373,6 +403,13 @@ final class DbalHostRepositoryTest extends KernelTestCase
             'host_host_id' => $hostId,
             'hostgroup_hg_id' => $groupId,
         ]);
+    }
+
+    private function createImage(string $name): int
+    {
+        $this->connection->insert('view_img', ['img_name' => $name, 'img_path' => $name]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function linkHostToAcl(int $hostId, int $groupId): void
