@@ -19,10 +19,6 @@
  *
  */
 
-// Regenerate routes. Should be present in the
-// upgrade scripts of all versions.
-require __DIR__ . '/../../../php/generate_routes.php';
-
 // error specific content
 $errorMessage = '';
 $versionOfTheUpgrade = 'UPGRADE - 24.10.3: ';
