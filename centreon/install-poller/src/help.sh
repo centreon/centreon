@@ -41,6 +41,7 @@ function help() {
   echo -e "  --debug bool\t\t\tEnable debug logging (default: false)"
   echo -e "  --gorgone-ssl bool\t\tEnable SSL for Gorgone (overrides the http(s):// scheme in --central_url; default depends on --cloud)"
   echo -e "  --with-vmware\t\t\tInclude centreon-vmware service"
+  echo -e "  --vmware-path string\t\tPath to a centreon-plugins checkout, used to build centreon-vmware (default: ./centreon-plugins)"
   echo -e "  --with-snmptrap\t\tInclude snmptrapd and centreontrapd services"
   echo -e "  --with-cma\t\t\tEnable Centreon Monitoring Agent support (TLS certs mounts + port 4317)"
   echo ""
