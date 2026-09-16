@@ -26,18 +26,14 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media;
 use App\MonitoringConfiguration\Domain\Aggregate\Media\Media;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Media\MediaResource;
 use App\Shared\Infrastructure\TransformerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @implements TransformerInterface<Media, MediaResource>
  */
 final readonly class MediaResourceTransformer implements TransformerInterface
 {
-    private const IMG_FOLDER_PATH = '/img/media/';
-
     public function __construct(
-        private RequestStack $requestStack,
+        private MediaUrlBuilder $urlBuilder,
     ) {
     }
 
@@ -46,25 +42,7 @@ final readonly class MediaResourceTransformer implements TransformerInterface
         return new MediaResource(
             id: $from->id()->value,
             name: $from->name->value,
-            url: $this->basePath() . self::IMG_FOLDER_PATH . $from->directory->value . '/' . $from->name->value,
+            url: $this->urlBuilder->build($from),
         );
-    }
-
-    /**
-     * Root-relative on purpose (no scheme/host): the caller renders this straight into an
-     * `<img src>` in the same app, so a relative URL resolves identically while staying agnostic
-     * of scheme and host (reverse proxies, http/https). `api/index.php` fakes SCRIPT_NAME/PHP_SELF
-     * to the platform's mount path before booting the kernel, so getBasePath() already resolves it
-     * correctly here — unlike {@see \App\MonitoringConfiguration\Infrastructure\CentralUrlFactory},
-     * which additionally has to support a legacy entry point that boots no kernel at all.
-     */
-    private function basePath(): string
-    {
-        $request = $this->requestStack->getCurrentRequest();
-        if (! $request instanceof Request) {
-            throw new \RuntimeException('Unable to build a media URL: no current request available.');
-        }
-
-        return $request->getBasePath();
     }
 }
