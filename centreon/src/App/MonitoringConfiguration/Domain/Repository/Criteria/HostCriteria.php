@@ -23,14 +23,14 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 
-use App\Security\Domain\Aggregate\UserId;
+use App\Shared\Domain\Repository\PaginableCriteria;
+use App\Shared\Domain\Repository\PaginableCriteriaTrait;
 use Webmozart\Assert\Assert;
 
-final class HostCriteria
+final class HostCriteria implements PaginableCriteria
 {
-    private ?int $page = null;
-
-    private ?int $itemsPerPage = null;
+    use PaginableCriteriaTrait;
+    use ViewerScopedCriteriaTrait;
 
     private ?string $name = null;
 
@@ -41,20 +41,6 @@ final class HostCriteria
     private ?int $pollerId = null;
 
     private ?bool $activated = null;
-
-    private ?UserId $viewerId = null;
-
-    public function withPagination(int $page, int $itemsPerPage): self
-    {
-        Assert::positiveInteger($page);
-        Assert::positiveInteger($itemsPerPage);
-
-        $new = clone $this;
-        $new->page = $page;
-        $new->itemsPerPage = $itemsPerPage;
-
-        return $new;
-    }
 
     public function withName(string $name): self
     {
@@ -104,27 +90,6 @@ final class HostCriteria
         return $new;
     }
 
-    /**
-     * @param UserId|null $viewerId the user to scope results for, or null when no ACL restriction applies (e.g. an admin)
-     */
-    public function withViewerId(?UserId $viewerId): self
-    {
-        $new = clone $this;
-        $new->viewerId = $viewerId;
-
-        return $new;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getItemsPerPage(): ?int
-    {
-        return $this->itemsPerPage;
-    }
-
     public function getName(): ?string
     {
         return $this->name;
@@ -148,10 +113,5 @@ final class HostCriteria
     public function getActivated(): ?bool
     {
         return $this->activated;
-    }
-
-    public function getViewerId(): ?UserId
-    {
-        return $this->viewerId;
     }
 }
