@@ -3,7 +3,7 @@
 import { DashboardLayout } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, lte } from 'ramda';
+import { equals, isEmpty, isNil } from 'ramda';
 import { ReactElement } from 'react';
 import type { Layout } from 'react-grid-layout';
 
@@ -11,8 +11,11 @@ import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/ato
 import { AddWidgetPanel } from '../AddEditWidget';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 import type { Panel } from '../models';
+import ExpandableButton from './Panel/ExpandableButton';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
+import PanelLastRefresh from './Panel/PanelLastRefresh';
+import PanelMoreActionsButton from './Panel/PanelMoreActionsButton';
 
 interface Props {
   canEdit?: boolean;
@@ -53,73 +56,98 @@ const PanelsLayout = ({
       layout={panels}
     >
       {panels.map(
-        ({ i, panelConfiguration, refreshCount, data, name, options, w }) => (
-          <DashboardLayout.Item
-            additionalMemoProps={[dashboardId, panelConfiguration?.path]}
-            canMove={
-              canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
-            }
-            disablePadding={panelConfiguration?.isAddWidgetPanel}
-            header={(headerData) => {
-              const enableExpand = Boolean(
-                federatedWidgetsProperties.find(({ moduleName }) =>
-                  equals(moduleName, name)
-                )?.canExpand
-              );
-              const expandableData = !enableExpand ? undefined : headerData;
+        ({ i, panelConfiguration, refreshCount, data, name, options }) => {
+          const isAddWidgetPanel = panelConfiguration?.isAddWidgetPanel;
+          const hasTitle = !isNil(options?.name) && !isEmpty(options?.name);
 
-              return (
-                <>
-                  {!panelConfiguration?.isAddWidgetPanel && (
-                    <PanelHeader
-                      changeViewMode={() =>
-                        changeViewMode(options?.displayType)
-                      }
-                      displayMoreActions={displayMoreActions}
-                      displayShrinkRefresh={
-                        lte(w, 6) &&
-                        !isNil(options?.name) &&
-                        !isEmpty(options?.name)
-                      }
-                      expandableData={expandableData}
-                      forceDisplayShrinkRefresh={
-                        lte(w, 4) &&
-                        !isNil(options?.name) &&
-                        !isEmpty(options?.name)
-                      }
-                      id={i}
-                      linkToResourceStatus={
-                        data?.resources
-                          ? getLinkToResourceStatusPage(data, name, options)
-                          : undefined
-                      }
-                      name={name}
-                      pageType={getPageType(data)}
-                      setRefreshCount={setRefreshCount}
-                    />
-                  )}
-                </>
-              );
-            }}
-            id={i}
-            key={i}
-          >
-            {({ isInViewport }) =>
-              panelConfiguration?.isAddWidgetPanel ? (
-                <AddWidgetPanel />
-              ) : (
-                <DashboardPanel
-                  dashboardId={dashboardId}
-                  id={i}
-                  isInViewport={isInViewport}
-                  name={name}
-                  playlistHash={playlistHash}
-                  refreshCount={refreshCount}
-                />
-              )
-            }
-          </DashboardLayout.Item>
-        )
+          const getExpandableData = (headerData) => {
+            const enableExpand = Boolean(
+              federatedWidgetsProperties.find(({ moduleName }) =>
+                equals(moduleName, name)
+              )?.canExpand
+            );
+
+            return !enableExpand ? undefined : headerData;
+          };
+
+          return (
+            <DashboardLayout.Item
+              additionalMemoProps={[dashboardId, panelConfiguration?.path]}
+              canMove={canEdit && isEditing && !isAddWidgetPanel}
+              disablePadding={isAddWidgetPanel}
+              hasVisibleHeader={isAddWidgetPanel || hasTitle}
+              header={
+                isAddWidgetPanel || hasTitle
+                  ? () => (
+                      <>
+                        {!isAddWidgetPanel && (
+                          <PanelHeader
+                            displayMoreActions={displayMoreActions}
+                            id={i}
+                            name={name}
+                          />
+                        )}
+                      </>
+                    )
+                  : undefined
+              }
+              id={i}
+              key={i}
+              overlayActions={
+                isAddWidgetPanel
+                  ? undefined
+                  : (headerData) => {
+                      const expandableData = getExpandableData(headerData);
+
+                      return !displayMoreActions ||
+                        expandableData?.isExpanded ? (
+                        <ExpandableButton expandableData={expandableData} />
+                      ) : (
+                        <PanelMoreActionsButton
+                          changeViewMode={() =>
+                            changeViewMode(options?.displayType)
+                          }
+                          expandableData={expandableData}
+                          id={i}
+                          linkToResourceStatus={
+                            data?.resources
+                              ? getLinkToResourceStatusPage(data, name, options)
+                              : undefined
+                          }
+                          pageType={getPageType(data)}
+                          setRefreshCount={setRefreshCount}
+                        />
+                      );
+                    }
+              }
+              overlayInfo={
+                isAddWidgetPanel
+                  ? undefined
+                  : () => (
+                      <PanelLastRefresh
+                        id={i}
+                        setRefreshCount={setRefreshCount}
+                      />
+                    )
+              }
+            >
+              {({ isInViewport }) =>
+                isAddWidgetPanel ? (
+                  <AddWidgetPanel />
+                ) : (
+                  <DashboardPanel
+                    dashboardId={dashboardId}
+                    id={i}
+                    isInViewport={isInViewport}
+                    name={name}
+                    playlistHash={playlistHash}
+                    refreshCount={refreshCount}
+                  />
+                )
+              }
+            </DashboardLayout.Item>
+          );
+        }
       )}
     </DashboardLayout.Layout>
   );

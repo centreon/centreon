@@ -2,6 +2,10 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
+    '&::backdrop': {
+      backgroundColor: theme.palette.background.paper
+    },
+    backgroundColor: theme.palette.background.paper,
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
     height: '100%',
