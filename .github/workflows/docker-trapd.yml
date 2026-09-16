@@ -429,7 +429,7 @@ jobs:
         continue-on-error: true
         id: promote-pulp
         env:
-          PULP_URL: https://pulp-api.apps.centreon.com
+          PULP_URL: https://pulp-api.int.centreon.com
           PULP_OIDC_AUDIENCE: https://pulp.dev.centreon.io
           BASE_PATH: centreon/${{ matrix.component }}-${{ matrix.operating_system }}
           HARBOR_IMAGE: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.component }}-${{ matrix.operating_system }}

@@ -98,14 +98,4 @@ runs:
         SRC_SIZE=$(stat -c '%s' "$SRC_FILE")
 
         aws s3 cp --acl public-read "$SRC_FILE" "s3://centreon-download/public/$BUCKET_DIRECTORY/$SRC_FILE"
-        curl --fail --get "https://download.centreon.com/api/" \
-          --data-urlencode "token=$TOKEN_DOWNLOAD_CENTREON_COM" \
-          --data-urlencode "product=$MODULE_NAME" \
-          --data-urlencode "release=$MAJOR_VERSION" \
-          --data-urlencode "version=$VERSION" \
-          --data-urlencode "extension=tar.gz" \
-          --data-urlencode "md5=$SRC_HASH" \
-          --data-urlencode "size=$SRC_SIZE" \
-          --data-urlencode "ddos=0" \
-          --data-urlencode "dryrun=0"
       shell: bash
