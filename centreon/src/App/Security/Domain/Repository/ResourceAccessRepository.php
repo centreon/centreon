@@ -100,18 +100,9 @@ interface ResourceAccessRepository
     public function findAccessibleHostGroupIds(UserId $userId): ?Collection;
 
     /**
-     * Returns the image folders (legacy `view_img_dir`) the user is restricted to when
-     * listing media.
-     *
-     * Three states, mirroring the legacy media ACL (DbReadImageFolderRepository::
-     * hasAccessToAllImageFolders guarding DbReadMediaRepository::
-     * findByRequestParametersAndAccessGroups):
-     *  - null                   → no restriction applies: the user is an admin, or one of their
-     *                             Access Groups has an ACL resource with `all_image_folders = 1`
-     *  - an empty Collection    → the user has no Access Group at all: sees no media
-     *  - a non-empty Collection → the user is restricted to media in exactly these folders
-     *
-     * @return Collection<ImageFolderId>|null
+     * @return Collection<ImageFolderId>|null null means no restriction applies (the user can
+     *                                        access all image folders); an empty Collection means
+     *                                        the user can access none
      */
     public function findAccessibleImageFolderIds(UserId $userId): ?Collection;
 }
