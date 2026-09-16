@@ -40,7 +40,6 @@ declare(strict_types=1);
  *
  */
 
-require __DIR__ . '/../../../php/generate_routes.php';
 require_once __DIR__ . '/../../../../../class/centreonLog.class.php';
 
 $centreonLog = new CentreonLog();
