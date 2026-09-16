@@ -103,8 +103,7 @@ tags:
     description: "Resource 'HostTemplate' operations."
   - name: HostCategory
     description: "Resource 'HostCategory' operations."
-  -
-    name: Timezone
+  - name: Timezone
     description: "Resource 'Timezone' operations."
 security:
   -
@@ -10744,8 +10743,7 @@ components:
           type: string
     Timezone.jsonld:
       allOf:
-        -
-          $ref: '#/components/schemas/HydraItemBaseSchema'
+        - $ref: '#/components/schemas/HydraItemBaseSchema'
         -
           type: object
           properties:
