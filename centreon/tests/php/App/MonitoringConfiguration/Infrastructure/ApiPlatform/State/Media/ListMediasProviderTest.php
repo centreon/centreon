@@ -88,6 +88,26 @@ final class ListMediasProviderTest extends ApiTestCase
         self::assertEqualsCanonicalizing(['@id', '@type', 'id', 'name', 'url'], array_keys($member[0]));
     }
 
+    public function testItUrlEncodesAMediaNameContainingSpecialCharacters(): void
+    {
+        // A `#` or `?` in a stored filename must not be interpreted as a URL fragment/query
+        // delimiter once concatenated into `url` — it has to be percent-encoded.
+        $dirId = $this->insertFolder("dir-{$this->tag}");
+        $this->insertMedia("weird #1?{$this->tag}.png", $dirId);
+
+        $this->login();
+
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['name' => ['lk' => $this->tag]]]);
+        self::assertResponseIsSuccessful();
+
+        /** @var list<array<string, mixed>> $member */
+        $member = $response->toArray()['member'];
+        self::assertSame(
+            '/img/media/' . rawurlencode("dir-{$this->tag}") . '/' . rawurlencode("weird #1?{$this->tag}.png"),
+            $member[0]['url'],
+        );
+    }
+
     public function testItFiltersMediaByNameUsingLikeOperator(): void
     {
         $dirId = $this->insertFolder("dir-{$this->tag}");

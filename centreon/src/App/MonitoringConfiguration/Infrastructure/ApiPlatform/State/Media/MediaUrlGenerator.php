@@ -42,7 +42,8 @@ final readonly class MediaUrlGenerator
 
     public function generate(Media $media): string
     {
-        return $this->basePath() . self::IMG_FOLDER_PATH . $media->directory->value . '/' . $media->name->value;
+        return $this->basePath() . self::IMG_FOLDER_PATH
+            . rawurlencode($media->directory->value) . '/' . rawurlencode($media->name->value);
     }
 
     /**

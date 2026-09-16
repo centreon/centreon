@@ -157,7 +157,7 @@ final readonly class DbalHostRepository extends DbalRepository implements HostRe
             ->innerJoin('nsr', 'nagios_server', 'ns', 'ns.id = nsr.nagios_server_id')
             ->leftJoin('h', 'host_template_relation', 'htpl', 'htpl.host_host_id = h.host_id')
             ->leftJoin('h', 'hostgroup_relation', 'hgr', 'hgr.host_host_id = h.host_id')
-            ->innerJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
+            ->leftJoin('h', 'extended_host_information', 'ehi', 'ehi.host_host_id = h.host_id')
             ->andWhere("h.host_register = '1'")
             ->groupBy('h.host_id', 'nsr.nagios_server_id', 'ehi.ehi_icon_image')
             ->orderBy('h.host_id'); // required for deterministic pagination
