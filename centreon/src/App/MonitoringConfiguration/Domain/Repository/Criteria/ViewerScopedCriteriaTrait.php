@@ -26,8 +26,9 @@ namespace App\MonitoringConfiguration\Domain\Repository\Criteria;
 use App\Security\Domain\Aggregate\UserId;
 
 /**
- * ACL scoping for listing criteria that restrict results to what a given
- * viewer is allowed to see.
+ * ACL scoping shared by the listing criteria that restrict results to what a
+ * given viewer is allowed to see (Host, HostCategory, HostGroup, HostTemplate,
+ * Poller).
  */
 trait ViewerScopedCriteriaTrait
 {
