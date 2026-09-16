@@ -1254,7 +1254,7 @@ class CentreonGraph
             ];
 
             $process = proc_open(
-                $gmt_export . $this->generalOpt['rrdtool_path_bin'] . ' - ',
+                $gmt_export . escapeshellarg($this->generalOpt['rrdtool_path_bin']) . ' - ',
                 $descriptorspec,
                 $pipes,
                 null,
