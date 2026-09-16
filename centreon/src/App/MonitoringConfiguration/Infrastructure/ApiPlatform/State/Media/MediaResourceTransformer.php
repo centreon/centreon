@@ -33,7 +33,7 @@ use App\Shared\Infrastructure\TransformerInterface;
 final readonly class MediaResourceTransformer implements TransformerInterface
 {
     public function __construct(
-        private MediaUrlBuilder $urlBuilder,
+        private MediaUrlGenerator $urlGenerator,
     ) {
     }
 
@@ -42,7 +42,7 @@ final readonly class MediaResourceTransformer implements TransformerInterface
         return new MediaResource(
             id: $from->id()->value,
             name: $from->name->value,
-            url: $this->urlBuilder->build($from),
+            url: $this->urlGenerator->generate($from),
         );
     }
 }

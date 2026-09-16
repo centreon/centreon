@@ -24,11 +24,10 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Domain\Aggregate\Media;
 
 /**
- * Identity of the legacy image folder (`view_img_dir`) a Media belongs to, used
- * only for ACL scoping ({@see \App\Security\Domain\Repository\ResourceAccessRepository
- * ::findAccessibleImageFolderIds()}). Not an {@see \App\Shared\Domain\Aggregate\AggregateRootId}:
- * no full ImageFolder aggregate is modeled here — folder management (create/rename/
- * delete) is out of scope and, if migrated later, would introduce that aggregate then.
+ * Identity of the image folder a Media belongs to, used only for ACL scoping
+ * ({@see \App\Security\Domain\Repository\ResourceAccessRepository::findAccessibleImageFolderIds()}).
+ * Not an {@see \App\Shared\Domain\Aggregate\AggregateRootId}: no full ImageFolder aggregate is
+ * modeled here, folder management (create/rename/delete) is out of scope.
  */
 final readonly class ImageFolderId
 {

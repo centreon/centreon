@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Shared with any other resource that exposes a media by reference (e.g. a host's icon), so the
  * URL-building rule lives in exactly one place.
  */
-final readonly class MediaUrlBuilder
+final readonly class MediaUrlGenerator
 {
     private const IMG_FOLDER_PATH = '/img/media/';
 
@@ -40,7 +40,7 @@ final readonly class MediaUrlBuilder
     ) {
     }
 
-    public function build(Media $media): string
+    public function generate(Media $media): string
     {
         return $this->basePath() . self::IMG_FOLDER_PATH . $media->directory->value . '/' . $media->name->value;
     }

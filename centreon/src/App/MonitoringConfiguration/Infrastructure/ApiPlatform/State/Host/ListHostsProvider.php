@@ -43,7 +43,7 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostCol
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostIconOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostPollerOutput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Host\HostTemplateOutput;
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlBuilder;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Media\MediaUrlGenerator;
 use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Domain\Collection;
 use App\Shared\Domain\Repository\Paginator;
@@ -71,7 +71,7 @@ final readonly class ListHostsProvider implements ProviderInterface
         private PollerRepository $pollerRepository,
         private HostTemplateRepository $hostTemplateRepository,
         private MediaRepository $mediaRepository,
-        private MediaUrlBuilder $mediaUrlBuilder,
+        private MediaUrlGenerator $mediaUrlGenerator,
         private Pagination $pagination,
         private Security $security,
     ) {
@@ -181,7 +181,7 @@ final readonly class ListHostsProvider implements ProviderInterface
 
             $icon = $host->iconId !== null ? $icons[$host->iconId->value] ?? null : null;
             $resource->icon = $icon instanceof Media
-                ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlBuilder->build($icon))
+                ? new HostIconOutput($icon->id()->value, $icon->name->value, $this->mediaUrlGenerator->generate($icon))
                 : null;
 
             $resources[] = $resource;
