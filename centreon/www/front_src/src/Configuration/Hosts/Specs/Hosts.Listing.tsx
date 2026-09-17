@@ -25,12 +25,13 @@ export default () => {
       cy.makeSnapshot();
     });
 
-    it('decodes a host with a null alias and no icon key', () => {
+    it('decodes a host with a null alias and no icon', () => {
       initialize({});
 
       cy.waitForRequest('@getAllHosts');
 
-      // Host 1 carries a null alias and no icon key at all. Both must decode.
+      // Host 1 carries a null alias, and no item carries an icon. Both must
+      // decode, since API Platform omits null values entirely.
       cy.contains('host 1').should('be.visible');
       cy.contains('10.0.0.1').should('be.visible');
 

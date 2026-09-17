@@ -102,6 +102,15 @@ export interface Endpoints {
 
 export interface APIType {
   endpoints: Endpoints | null;
+  /**
+   * Overrides the default `./api/latest` prefix of `customFetch`.
+   *
+   * Legacy routes are mounted under `/api/{version}` and API Platform under a
+   * bare `/api`; an allowlist re-exposes some API Platform operations under
+   * `/api/latest`. A resource that is not on that allowlist — and whose legacy
+   * route still exists — is only reachable at `./api`.
+   */
+  baseEndpoint?: string;
   decoders?: {
     getOne?: JsonDecoder.Decoder<unknown>;
     getAll?: JsonDecoder.Decoder<unknown>;

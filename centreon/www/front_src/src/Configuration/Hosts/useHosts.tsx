@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type APIType, FieldType, type FilterConfiguration } from '../models';
-import { hostsListDecoder, hostsListEndpoint } from './api';
+import { hostsBaseEndpoint, hostsListDecoder, hostsListEndpoint } from './api';
 import { labelName } from './translatedLabels';
 
 interface UseHostsState {
@@ -18,12 +18,15 @@ const useHosts = (): UseHostsState => {
    * _disable) do not exist for hosts yet, so no action endpoints are declared
    * and no actions are enabled on the page.
    *
-   * No `apiFormat`: the endpoint currently served at /api/latest is the legacy
-   * one, which uses the Standard `{ result, meta }` envelope and `limit`/`page`
-   * query parameters. See the decoder for the switch to API Platform.
+   * `baseEndpoint` targets API Platform rather than the legacy route still
+   * answering at `./api/latest` — see api/endpoints.ts. `JSON-LD` goes with it:
+   * it selects the Hydra envelope in the decoder and the `page`/`itemsPerPage`
+   * and `name[lk]` query parameters that `HostResource` declares.
    */
   const api: APIType = useMemo(
     () => ({
+      apiFormat: 'JSON-LD',
+      baseEndpoint: hostsBaseEndpoint,
       decoders: { getAll: hostsListDecoder },
       endpoints: {
         getAll: hostsListEndpoint

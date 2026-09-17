@@ -15,20 +15,16 @@ const iconDecoder = {
 };
 
 /**
- * Decoded against the CURRENT listing endpoint.
+ * Decoded against the API Platform resource at `./api/configuration/hosts`
+ * (`HostResource`, `GetCollection` → `HostCollectionOutput`): a Hydra envelope
+ * whose items expose `activated`, `poller` and `templates`.
  *
- * `/api/latest/configuration/hosts` is still served by the legacy
- * `FindHostsController` (`FindHosts/FindHostsRoute.yaml`, condition
- * `version >= 23.10`), which shadows the API Platform resource. It returns the
- * `{ result, meta }` envelope, `monitoring_server` and `is_activated`.
+ * `icon` is declared optional because `HostCollectionOutput` does not carry it
+ * yet — it arrives with MON-208571. Decoding stays valid either way, so the
+ * column can be added without touching this file.
  *
- * The API Platform resource at `/api/configuration/hosts` returns a Hydra
- * envelope with `poller`, `activated` and — once MON-208571 lands — `icon`.
- * When the legacy route is retired, switch `apiFormat` to 'JSON-LD' and rename
- * those two fields; everything else is already aligned.
- *
- * `optional` + `nullable` on alias and icon covers both: legacy nulls today,
- * omitted keys (skip_null_values) after the switch.
+ * `optional` + `nullable` on `alias` covers both an explicit null and an
+ * omitted key, since API Platform skips null values.
  */
 const hostsDecoder = JsonDecoder.object<HostListItem>(
   {
@@ -39,7 +35,7 @@ const hostsDecoder = JsonDecoder.object<HostListItem>(
       JsonDecoder.nullable(JsonDecoder.object(iconDecoder, 'Icon'))
     ),
     isActivated: JsonDecoder.boolean,
-    poller: JsonDecoder.object(namedEntityDecoder, 'Monitoring server'),
+    poller: JsonDecoder.object(namedEntityDecoder, 'Poller'),
     templates: JsonDecoder.array(
       JsonDecoder.object(namedEntityDecoder, 'Template'),
       'Templates'
@@ -47,12 +43,12 @@ const hostsDecoder = JsonDecoder.object<HostListItem>(
   },
   'Host',
   {
-    isActivated: 'is_activated',
-    poller: 'monitoring_server'
+    isActivated: 'activated'
   }
 );
 
 export const hostsListDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
   entityDecoder: hostsDecoder,
   entityDecoderName: 'Host',
   listingDecoderName: 'Hosts List'

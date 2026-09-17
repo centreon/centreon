@@ -1,49 +1,43 @@
 /**
- * Shaped like the endpoint currently served at /api/latest/configuration/hosts:
- * the legacy `{ result, meta }` envelope with `monitoring_server` and
- * `is_activated`. See api/decoders.ts for the switch to API Platform.
+ * Shaped like the API Platform collection at ./api/configuration/hosts: a Hydra
+ * envelope whose items come from `HostCollectionOutput` (`activated`, `poller`,
+ * `templates`).
  *
- * Host 1 carries a null alias and no icon key, so the decoder is exercised
- * against both an explicit null and an omitted field.
+ * Host 1 carries a null alias, host 0 an explicit one, and neither carries an
+ * icon — `HostCollectionOutput` does not expose it yet (MON-208571). The
+ * decoder must accept all three cases.
  */
 export const getListingResponse = () => ({
-  meta: {
-    limit: 10,
-    page: 1,
-    total: 2
-  },
-  result: [
+  '@context': '/centreon/api/contexts/Host',
+  '@id': '/centreon/api/configuration/hosts',
+  '@type': 'Collection',
+  member: [
     {
+      activated: true,
       address: '10.0.0.0',
       alias: 'alias for host 0',
-      icon: {
-        id: 1,
-        name: 'server.png',
-        url: '/img/media/icons/server.png'
-      },
       id: 0,
-      is_activated: true,
-      monitoring_server: { id: 1, name: 'Central' },
       name: 'host 0',
+      poller: { id: 1, name: 'Central' },
       templates: [{ id: 5, name: 'generic-active-host' }]
     },
     {
+      activated: false,
       address: '10.0.0.1',
       alias: null,
       id: 1,
-      is_activated: false,
-      monitoring_server: { id: 1, name: 'Central' },
       name: 'host 1',
+      poller: { id: 1, name: 'Central' },
       templates: []
     }
-  ]
+  ],
+  totalItems: 2
 });
 
 export const emptyListingResponse = {
-  meta: {
-    limit: 10,
-    page: 1,
-    total: 0
-  },
-  result: []
+  '@context': '/centreon/api/contexts/Host',
+  '@id': '/centreon/api/configuration/hosts',
+  '@type': 'Collection',
+  member: [],
+  totalItems: 0
 };
