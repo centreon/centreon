@@ -1,0 +1,262 @@
+<tr class="list_lvl_1">
+  <td class="ListColLvl1_name" colspan="2">
+    <h4>{$header.isilog}</h4>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.address.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.address.html}
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.username.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.username.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.password.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.password.html}
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.database.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.database.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.protocol.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.protocol.html}
+  </td>
+</tr>
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.check_certificate.label}
+  </td>
+  <td class="FormRowValue">
+    <div class="md-checkbox md-checkbox-inline">
+      {$form.check_certificate.html}
+    </div>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$form.timeout.label}
+  </td>
+  <td class="FormRowValue">
+    {$form.timeout.html}
+  </td>
+</tr>
+<tr class="list_lvl_1">
+  <td class="ListColLvl1_name" colspan="2">
+    <h4>Isilog webservices configuration</h4>
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreoncat.label}
+  </td>
+  <td class="FormRowValue catHTML">
+    {$arrayWebservices.centreoncat.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonservice.label}
+  </td>
+  <td class="FormRowValue serviceHTML">
+    {$arrayWebservices.centreonservice.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonteam.label}
+  </td>
+  <td class="FormRowValue teamHTML">
+    {$arrayWebservices.centreonteam.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonsite.label}
+  </td>
+  <td class="FormRowValue siteHTML">
+    {$arrayWebservices.centreonsite.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonou.label}
+  </td>
+  <td class="FormRowValue ouHTML">
+    {$arrayWebservices.centreonou.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonuser.label}
+  </td>
+  <td class="FormRowValue userHTML">
+    {$arrayWebservices.centreonuser.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonimpact.label}
+  </td>
+  <td class="FormRowValue impactHTML">
+    {$arrayWebservices.centreonimpact.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonurgency.label}
+  </td>
+  <td class="FormRowValue urgencyHTML">
+    {$arrayWebservices.centreonurgency.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="FormRowField">
+    {$arrayWebservices.centreonothers.label}
+  </td>
+  <td class="FormRowValue othersHTML">
+    {$arrayWebservices.centreonothers.html}
+  </td>
+</tr>
+<tr class="list_one">
+  <td class="ListColLeft">
+    {t}Test webservice{/t}
+  </td>
+  <td class="ListColLeft">
+  <select class="select_isilog_webservice">
+  </select>
+  <button class="btc bt_action" id="test-isilog">{t}Test{/t}</button>
+  <span id="test-error" class="error_message" style="display: none; color: red;"></span>
+  <span id="test-ok" class="okay_message" style="display: none; color:green;"></span>
+</tr>
+
+<tr class="list_two">
+  <td class="FormRowField">
+    {$form.mappingTicketLabel.label}
+  </td>
+  <td class="FormRowValue">
+    {include file="file:$centreon_open_tickets_path/providers/Abstract/templates/clone.ihtml" cloneId="mappingTicket" cloneSet=$form.mappingTicket}
+  </td>
+</tr>
+
+<script>
+  var webServiceUrl = '{$webServiceUrl}';
+</script>
+{literal}
+<script>
+
+  // initiate the list of webservices
+  let webServiceNames = {
+    centreoncat: jQuery('.centreoncat').val(),
+    centreonservice: jQuery('.centreonservice').val(),
+    centreonteam: jQuery('.centreonteam').val(),
+    centreonsite: jQuery('.centreonsite').val(),
+    centreonou: jQuery('.centreonou').val(),
+    centreonuser: jQuery('.centreonuser').val(),
+    centreonimpact: jQuery('.centreonimpact').val(),
+    centreonurgency: jQuery('.centreonurgency').val(),
+    centreonothers: jQuery('.centreonothers').val()
+  }
+
+  for (let key in webServiceNames) {
+      // create webservices select list
+      jQuery('.select_isilog_webservice').append(new Option(webServiceNames[key], webServiceNames[key]));
+
+      // update select list when webservice name is changed
+      jQuery('.' + key).change(function() {
+        jQuery('.select_isilog_webservice option:contains("' + webServiceNames[key] + '")')
+          .text(jQuery('.' + key).val());
+      });
+  }
+
+  // start the button on click event
+  jQuery('#test-isilog').on('click', function (e) {
+    e.preventDefault();
+    jQuery('.error_message').hide();
+    jQuery('.okay_message').hide();
+
+    let fields = [
+      'address',
+      'username',
+      'protocol',
+      'password',
+      'database'
+    ];
+
+    let i;
+    let inError = false;
+    let field;
+    // check if each field is filled ...
+    for (i = 0; i < fields.length; i++) {
+      field = 'input[name="' + fields[i] + '"]';
+      if (jQuery(field).val().trim() === '') {
+        jQuery('#test-error').text('A required field is empty.');
+        jQuery('#test-error').show();
+        jQuery('#err-' + fields[i]).text('This field is required.').show();
+        inError = true;
+      }
+    }
+
+    // ... if not, end script execution
+    if (inError) {
+      return;
+    }
+
+    jQuery.ajax({
+      // call open ticket api with every needed parameter
+      url: webServiceUrl + '?object=centreon_openticket&action=testProvider',
+      type: 'POST',
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify({
+        service: 'Isilog', // this is the name of our provider
+        address: jQuery('input[name="address"]').val(),
+        username: jQuery('input[name="username"]').val(),
+        protocol: jQuery('input[name="protocol"]').val(),
+        password: jQuery('input[name="password"]').val(),
+        database: jQuery('input[name="database"]').val(),
+        timeout: jQuery('input[name="timeout"]').val(),
+        check_certificate: jQuery('#check_certificate').is(":checked"),
+        webservice: jQuery('.select_isilog_webservice').find(':selected').text(),
+        proxy_address: jQuery('input[name="proxy_address"]').val(),
+        proxy_port: jQuery('input[name="proxy_port"]').val(),
+        proxy_username: jQuery('input[name="proxy_username"]').val(),
+        proxy_password: jQuery('input[name="proxy_password"]').val()
+      }),
+      success: function (data) {
+        if (data) {
+          jQuery('#test-ok').text('Connection is ok');
+          jQuery('#test-ok').show();
+        } else {
+          jQuery('#test-error').text('unknown issue');
+          jQuery('#test-error').show();
+        }
+      },
+      error: function (error) {
+        jQuery('#test-error').text(error.responseText);
+        jQuery('#test-error').show();
+      }
+    });
+  })
+</script>
+{/literal}
